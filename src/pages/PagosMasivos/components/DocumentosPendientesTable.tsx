@@ -96,7 +96,7 @@ export const DocumentosPendientesTable: React.FC = () => {
 
   if (loadingPendientes) {
     return (
-      <div className="flex items-center justify-center py-12 text-gray-500">
+      <div className="flex items-center justify-center py-12 text-slate-500">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3" />
         Cargando documentos pendientes...
       </div>
@@ -108,7 +108,7 @@ export const DocumentosPendientesTable: React.FC = () => {
       {/* Filtros */}
       <div className="flex flex-wrap gap-2 items-center">
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Buscar por documento o contraparte..."
@@ -145,26 +145,26 @@ export const DocumentosPendientesTable: React.FC = () => {
       {/* Tabla */}
       <div className="border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-slate-50 border-b">
             <tr>
               <th className="px-3 py-2 w-10">
                 <input
                   type="checkbox"
                   checked={todosSeleccionados}
                   onChange={handleToggleAll}
-                  className="rounded border-gray-300"
+                  className="rounded border-slate-300"
                 />
               </th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Documento</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer select-none" onClick={() => handleSort('nombre')}>
+              <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Documento</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer select-none" onClick={() => handleSort('nombre')}>
                 <span className="flex items-center gap-1">Contraparte <ArrowUpDown size={12} /></span>
               </th>
-              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase cursor-pointer select-none" onClick={() => handleSort('monto')}>
+              <th className="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase cursor-pointer select-none" onClick={() => handleSort('monto')}>
                 <span className="flex items-center justify-end gap-1">Pendiente <ArrowUpDown size={12} /></span>
               </th>
-              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">A pagar</th>
-              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase cursor-pointer select-none" onClick={() => handleSort('dias')}>
+              <th className="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">A pagar</th>
+              <th className="px-3 py-2 text-center text-xs font-medium text-slate-500 uppercase cursor-pointer select-none" onClick={() => handleSort('dias')}>
                 <span className="flex items-center justify-center gap-1">Dias <ArrowUpDown size={12} /></span>
               </th>
             </tr>
@@ -172,7 +172,7 @@ export const DocumentosPendientesTable: React.FC = () => {
           <tbody className="divide-y">
             {pendientesFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                   No hay documentos pendientes
                 </td>
               </tr>
@@ -185,14 +185,14 @@ export const DocumentosPendientesTable: React.FC = () => {
                 return (
                   <tr
                     key={p.documentoId}
-                    className={`hover:bg-gray-50 ${isSelected ? 'bg-indigo-50/50' : ''}`}
+                    className={`hover:bg-slate-50 ${isSelected ? 'bg-indigo-50/50' : ''}`}
                   >
                     <td className="px-3 py-2">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSeleccion(p)}
-                        className="rounded border-gray-300"
+                        className="rounded border-slate-300"
                       />
                     </td>
                     <td className="px-3 py-2">
@@ -224,13 +224,13 @@ export const DocumentosPendientesTable: React.FC = () => {
                           max={p.montoPendiente}
                         />
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-slate-400">—</span>
                       )}
                     </td>
                     <td className="px-3 py-2 text-center">
                       <span className={`text-xs font-medium ${
                         p.diasPendiente > 30 ? 'text-red-600' :
-                        p.diasPendiente > 15 ? 'text-amber-600' : 'text-gray-600'
+                        p.diasPendiente > 15 ? 'text-amber-600' : 'text-slate-600'
                       }`}>
                         {p.diasPendiente}d
                       </span>

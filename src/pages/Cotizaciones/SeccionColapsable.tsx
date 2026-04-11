@@ -43,10 +43,10 @@ export const SeccionColapsable: React.FC<SeccionColapsableProps> = ({
       >
         <div className="flex items-center gap-2">
           <span className={iconStyles[variant]}>{icono}</span>
-          <span className="font-medium text-gray-800">{titulo}</span>
+          <span className="font-medium text-slate-800">{titulo}</span>
           <Badge variant={variant} size="sm">{cantidad}</Badge>
         </div>
-        {isOpen ? <ChevronUp className="h-4 w-4 text-gray-500" /> : <ChevronDown className="h-4 w-4 text-gray-500" />}
+        {isOpen ? <ChevronUp className="h-4 w-4 text-slate-500" /> : <ChevronDown className="h-4 w-4 text-slate-500" />}
       </button>
       {isOpen && (
         <div className="px-4 pb-4 bg-white border-t">

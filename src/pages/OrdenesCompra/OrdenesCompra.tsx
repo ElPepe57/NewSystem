@@ -667,8 +667,8 @@ export const OrdenesCompra: React.FC = () => {
             <div className="flex items-center">
               <AlertCircle className="h-5 w-5 text-warning-600 mr-3" />
               <div>
-                <p className="text-sm font-medium text-gray-900">No hay proveedores registrados</p>
-                <p className="text-sm text-gray-600">Crea proveedores desde el Gestor de Maestros antes de hacer órdenes de compra.</p>
+                <p className="text-sm font-medium text-slate-900">No hay proveedores registrados</p>
+                <p className="text-sm text-slate-600">Crea proveedores desde el Gestor de Maestros antes de hacer órdenes de compra.</p>
               </div>
             </div>
             <Button
@@ -736,8 +736,8 @@ export const OrdenesCompra: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header con X para cerrar */}
-              <div className="flex-shrink-0 bg-white z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 rounded-t-lg">
-                <h3 className="text-xl font-semibold text-gray-900">
+              <div className="flex-shrink-0 bg-white z-10 flex items-center justify-between px-6 py-4 border-b border-slate-200 rounded-t-lg">
+                <h3 className="text-xl font-semibold text-slate-900">
                   {isEditMode && ordenEditando
                     ? `Editar Orden ${ordenEditando.numeroOrden}`
                     : creandoMultiOC && multiViajeroData
@@ -750,7 +750,7 @@ export const OrdenesCompra: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleCloseOrdenModal}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-100 rounded-full"
                 >
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -84,7 +84,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
     <div className="space-y-6">
       {/* KPIs Globales del Negocio */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-indigo-600" />
           Metricas Globales del Negocio
         </h3>
@@ -177,14 +177,14 @@ export const TabResumen: React.FC<TabResumenProps> = ({
           title="Canales de Venta"
           data={[
             { label: 'Activos', value: canales.filter((c: any) => c.estado === 'activo').length, color: 'bg-green-500' },
-            { label: 'Inactivos', value: canales.filter((c: any) => c.estado === 'inactivo').length, color: 'bg-gray-400' }
+            { label: 'Inactivos', value: canales.filter((c: any) => c.estado === 'inactivo').length, color: 'bg-slate-400' }
           ]}
         />
       </div>
 
       {/* Alertas Criticas Consolidadas */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-amber-600" />
           Alertas y Puntos de Atencion
         </h3>
@@ -236,7 +236,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
 
       {/* Top Performers */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
           <Crown className="h-5 w-5 text-yellow-600" />
           Top Performers
         </h3>
@@ -288,7 +288,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
 
       {/* Acciones Rapidas */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
           <Zap className="h-5 w-5 text-purple-600" />
           Acciones Rapidas
         </h3>
@@ -354,7 +354,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
             onClick={onLoadAllData}
             disabled={isRefreshing}
           >
-            <RefreshCw className={`h-6 w-6 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-6 w-6 text-slate-600 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span className="text-xs">Actualizar Todo</span>
           </Button>
           <Button
@@ -372,36 +372,36 @@ export const TabResumen: React.FC<TabResumenProps> = ({
       {/* Resumen de Inventario por Almacen */}
       {almacenStats?.inventarioPorAlmacen && almacenStats.inventarioPorAlmacen.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
             <Warehouse className="h-5 w-5 text-amber-600" />
             Estado de Inventario por Almacen
           </h3>
           <Card padding="md">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Almacen</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Unidades</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Valor USD</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Capacidad</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Almacen</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Unidades</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Valor USD</th>
+                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Capacidad</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-slate-200">
                   {almacenStats.inventarioPorAlmacen.slice(0, 8).map((a: any) => (
-                    <tr key={a.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 text-sm font-medium text-gray-900">{a.nombre}</td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
+                    <tr key={a.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-2 text-sm font-medium text-slate-900">{a.nombre}</td>
+                      <td className="px-4 py-2 text-sm text-slate-500">
                         <Badge variant={a.esViajero ? 'info' : 'default'} size="sm">
                           {a.esViajero ? 'Viajero' : 'Fijo'}
                         </Badge>
                       </td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right">{a.unidadesActuales.toLocaleString()}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900 text-right">${a.valorInventarioUSD.toLocaleString()}</td>
+                      <td className="px-4 py-2 text-sm text-slate-900 text-right">{a.unidadesActuales.toLocaleString()}</td>
+                      <td className="px-4 py-2 text-sm text-slate-900 text-right">${a.valorInventarioUSD.toLocaleString()}</td>
                       <td className="px-4 py-2 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full ${
                                 a.capacidadUsada >= 90 ? 'bg-red-500' :

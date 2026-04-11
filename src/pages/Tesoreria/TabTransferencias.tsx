@@ -106,10 +106,10 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
   return (
     <>
       <Card padding="none">
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Transferencias entre Cuentas</h3>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1 hidden sm:block">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">Transferencias entre Cuentas</h3>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 hidden sm:block">
               Mueve fondos entre tus propias cuentas sin afectar el patrimonio
             </p>
           </div>
@@ -121,10 +121,10 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
         </div>
 
         {/* Mobile card layout */}
-        <div className="md:hidden divide-y divide-gray-200">
+        <div className="md:hidden divide-y divide-slate-200">
           {transferencias.length === 0 ? (
-            <div className="px-4 py-8 text-center text-gray-500">
-              <ArrowLeftRight className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+            <div className="px-4 py-8 text-center text-slate-500">
+              <ArrowLeftRight className="h-10 w-10 mx-auto mb-3 text-slate-300" />
               <p className="font-medium text-sm">No hay transferencias registradas</p>
               <p className="text-xs mt-1">Las transferencias entre cuentas se mostraran aqui</p>
             </div>
@@ -132,24 +132,24 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
             transferencias.map((transf) => (
               <div key={transf.id} className="px-4 py-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">{formatDate(transf.fecha)}</span>
-                  <span className="text-sm font-bold text-gray-900">
+                  <span className="text-xs text-slate-500">{formatDate(transf.fecha)}</span>
+                  <span className="text-sm font-bold text-slate-900">
                     {transf.moneda === 'PEN' ? 'S/ ' : '$ '}{transf.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 text-xs">
-                    <div className="text-[10px] text-gray-400 uppercase">Origen</div>
-                    <div className="font-medium text-gray-900 truncate">{transf.cuentaOrigenNombre}</div>
+                    <div className="text-[10px] text-slate-400 uppercase">Origen</div>
+                    <div className="font-medium text-slate-900 truncate">{transf.cuentaOrigenNombre}</div>
                   </div>
-                  <ArrowLeftRight className="h-3.5 w-3.5 text-gray-300 flex-shrink-0" />
+                  <ArrowLeftRight className="h-3.5 w-3.5 text-slate-300 flex-shrink-0" />
                   <div className="flex-1 text-xs text-right">
-                    <div className="text-[10px] text-gray-400 uppercase">Destino</div>
-                    <div className="font-medium text-gray-900 truncate">{transf.cuentaDestinoNombre}</div>
+                    <div className="text-[10px] text-slate-400 uppercase">Destino</div>
+                    <div className="font-medium text-slate-900 truncate">{transf.cuentaDestinoNombre}</div>
                   </div>
                 </div>
                 {transf.concepto && (
-                  <p className="text-xs text-gray-500 truncate">{transf.concepto}</p>
+                  <p className="text-xs text-slate-500 truncate">{transf.concepto}</p>
                 )}
               </div>
             ))
@@ -158,44 +158,44 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
 
         {/* Desktop table */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cuenta Origen</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">→</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cuenta Destino</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cuenta Origen</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">→</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cuenta Destino</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Monto</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Concepto</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-200">
               {transferencias.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                    <ArrowLeftRight className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                    <ArrowLeftRight className="h-12 w-12 mx-auto mb-3 text-slate-300" />
                     <p className="font-medium">No hay transferencias registradas</p>
                     <p className="text-sm mt-1">Las transferencias entre cuentas se mostraran aqui</p>
                   </td>
                 </tr>
               ) : (
                 transferencias.map((transf) => (
-                  <tr key={transf.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(transf.fecha)}</td>
+                  <tr key={transf.id} className="hover:bg-slate-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{formatDate(transf.fecha)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-gray-900">{transf.cuentaOrigenNombre}</div>
+                      <div className="font-medium text-slate-900">{transf.cuentaOrigenNombre}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <ArrowLeftRight className="h-4 w-4 text-gray-400 inline" />
+                      <ArrowLeftRight className="h-4 w-4 text-slate-400 inline" />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-gray-900">{transf.cuentaDestinoNombre}</div>
+                      <div className="font-medium text-slate-900">{transf.cuentaDestinoNombre}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
                       {transf.moneda === 'PEN' ? 'S/ ' : '$ '}
                       {transf.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                       {transf.concepto || '-'}
                     </td>
                   </tr>
@@ -218,9 +218,9 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
       >
         <div className="space-y-4">
           {/* Saldos de cuentas - resumen rapido */}
-          <div className="bg-gray-50 rounded-xl p-3">
+          <div className="bg-slate-50 rounded-xl p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] uppercase tracking-wide font-medium text-gray-400">
+              <span className="text-[11px] uppercase tracking-wide font-medium text-slate-400">
                 Saldos en {moneda}
               </span>
               <div className="flex gap-1">
@@ -234,7 +234,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                       cuentaDestinoId: undefined
                     })}
                     className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-                      moneda === m ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                      moneda === m ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
                     }`}
                   >
                     {m}
@@ -253,18 +253,18 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                     className={`rounded-lg p-2 text-xs transition-all ${
                       isOrigen ? 'bg-red-50 border border-red-200 ring-1 ring-red-200' :
                       isDestino ? 'bg-green-50 border border-green-200 ring-1 ring-green-200' :
-                      'bg-white border border-gray-100'
+                      'bg-white border border-slate-100'
                     }`}
                   >
-                    <div className="flex items-center gap-1 text-gray-400 mb-0.5">
+                    <div className="flex items-center gap-1 text-slate-400 mb-0.5">
                       {getTipoIcon(c.tipo, c.productoFinanciero)}
-                      <span className="truncate font-medium text-gray-600">
+                      <span className="truncate font-medium text-slate-600">
                         {c.banco ? `${c.banco} · ` : ''}{c.nombre}
                       </span>
                     </div>
-                    {c.titular && <div className="text-[9px] text-gray-400 truncate -mt-0.5">{c.titular}</div>}
+                    {c.titular && <div className="text-[9px] text-slate-400 truncate -mt-0.5">{c.titular}</div>}
                     <div className={`text-sm font-bold ${
-                      saldo < 0 ? 'text-red-600' : isOrigen ? 'text-red-700' : isDestino ? 'text-green-700' : 'text-gray-900'
+                      saldo < 0 ? 'text-red-600' : isOrigen ? 'text-red-700' : isDestino ? 'text-green-700' : 'text-slate-900'
                     }`}>
                       {simbolo} {saldo.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
@@ -278,15 +278,15 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
 
           {/* Monto */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Monto a Transferir</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Monto a Transferir</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">{simbolo}</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">{simbolo}</span>
               <input
                 type="number"
                 step="0.01"
                 value={transferenciaForm.monto || ''}
                 onChange={(e) => setTransferenciaForm({ ...transferenciaForm, monto: parseFloat(e.target.value) })}
-                className="w-full pl-10 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-lg font-semibold"
+                className="w-full pl-10 rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-lg font-semibold"
                 placeholder="0.00"
               />
             </div>
@@ -295,14 +295,14 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
           {/* Cuenta Origen y Destino */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
                 Cuenta Origen (Sale)
               </label>
               <select
                 value={transferenciaForm.cuentaOrigenId || ''}
                 onChange={(e) => setTransferenciaForm({ ...transferenciaForm, cuentaOrigenId: e.target.value || undefined })}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               >
                 <option value="">Seleccionar cuenta...</option>
                 {cuentasCompatibles
@@ -314,15 +314,15 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                   ))}
               </select>
               {cuentaOrigen && (
-                <div className={`mt-1.5 rounded-lg p-2 text-xs ${fondosInsuficientes ? 'bg-red-50 border border-red-200' : 'bg-gray-50'}`}>
+                <div className={`mt-1.5 rounded-lg p-2 text-xs ${fondosInsuficientes ? 'bg-red-50 border border-red-200' : 'bg-slate-50'}`}>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Saldo actual</span>
-                    <span className="font-semibold text-gray-700">{simbolo} {saldoOrigen.toFixed(2)}</span>
+                    <span className="text-slate-500">Saldo actual</span>
+                    <span className="font-semibold text-slate-700">{simbolo} {saldoOrigen.toFixed(2)}</span>
                   </div>
                   {monto > 0 && (
                     <div className="flex justify-between mt-0.5">
-                      <span className="text-gray-500">Saldo despues</span>
-                      <span className={`font-bold ${saldoOrigenPost < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                      <span className="text-slate-500">Saldo despues</span>
+                      <span className={`font-bold ${saldoOrigenPost < 0 ? 'text-red-600' : 'text-slate-900'}`}>
                         {simbolo} {saldoOrigenPost.toFixed(2)}
                       </span>
                     </div>
@@ -332,14 +332,14 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 <ArrowDownCircle className="inline h-4 w-4 mr-1 text-green-500" />
                 Cuenta Destino (Entra)
               </label>
               <select
                 value={transferenciaForm.cuentaDestinoId || ''}
                 onChange={(e) => setTransferenciaForm({ ...transferenciaForm, cuentaDestinoId: e.target.value || undefined })}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               >
                 <option value="">Seleccionar cuenta...</option>
                 {cuentasCompatibles
@@ -351,14 +351,14 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                   ))}
               </select>
               {cuentaDestino && (
-                <div className="mt-1.5 rounded-lg p-2 text-xs bg-gray-50">
+                <div className="mt-1.5 rounded-lg p-2 text-xs bg-slate-50">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Saldo actual</span>
-                    <span className="font-semibold text-gray-700">{simbolo} {saldoDestino.toFixed(2)}</span>
+                    <span className="text-slate-500">Saldo actual</span>
+                    <span className="font-semibold text-slate-700">{simbolo} {saldoDestino.toFixed(2)}</span>
                   </div>
                   {monto > 0 && (
                     <div className="flex justify-between mt-0.5">
-                      <span className="text-gray-500">Saldo despues</span>
+                      <span className="text-slate-500">Saldo despues</span>
                       <span className="font-bold text-green-600">{simbolo} {saldoDestinoPost.toFixed(2)}</span>
                     </div>
                   )}
@@ -387,12 +387,12 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
 
           {/* Concepto */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Concepto / Motivo (Opcional)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Concepto / Motivo (Opcional)</label>
             <input
               type="text"
               value={transferenciaForm.concepto || ''}
               onChange={(e) => setTransferenciaForm({ ...transferenciaForm, concepto: e.target.value })}
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               placeholder="Ej: Reposicion de caja chica, fondeo de cuenta..."
             />
           </div>
@@ -402,9 +402,9 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl border border-purple-100">
               <div className="flex items-center justify-center gap-3 sm:gap-6">
                 <div className="text-center flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-0.5">Sale de</p>
-                  <p className="text-xs font-semibold text-gray-900 truncate">{cuentaOrigen.nombre}</p>
-                  <p className="text-sm text-gray-400 line-through">{simbolo} {saldoOrigen.toFixed(2)}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">Sale de</p>
+                  <p className="text-xs font-semibold text-slate-900 truncate">{cuentaOrigen.nombre}</p>
+                  <p className="text-sm text-slate-400 line-through">{simbolo} {saldoOrigen.toFixed(2)}</p>
                   <p className="text-base font-bold text-red-600">{simbolo} {saldoOrigenPost.toFixed(2)}</p>
                 </div>
                 <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
@@ -414,9 +414,9 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                   <span className="text-xs font-bold text-purple-600">{simbolo} {monto.toFixed(2)}</span>
                 </div>
                 <div className="text-center flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-gray-400 mb-0.5">Entra a</p>
-                  <p className="text-xs font-semibold text-gray-900 truncate">{cuentaDestino.nombre}</p>
-                  <p className="text-sm text-gray-400 line-through">{simbolo} {saldoDestino.toFixed(2)}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">Entra a</p>
+                  <p className="text-xs font-semibold text-slate-900 truncate">{cuentaDestino.nombre}</p>
+                  <p className="text-sm text-slate-400 line-through">{simbolo} {saldoDestino.toFixed(2)}</p>
                   <p className="text-base font-bold text-green-600">{simbolo} {saldoDestinoPost.toFixed(2)}</p>
                 </div>
               </div>

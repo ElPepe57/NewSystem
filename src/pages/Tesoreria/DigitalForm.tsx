@@ -62,13 +62,13 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
     <Modal isOpen={isOpen} onClose={() => { reset(); onClose(); }} title="Nueva Billetera Digital" size="sm">
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Plataforma</label>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Plataforma</label>
           <div className="grid grid-cols-3 gap-2">
             {PLATAFORMAS.map(p => (
               <button key={p.id} type="button"
                 onClick={() => handlePlataformaChange(p.id)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  plataforma === p.id ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-700'
+                  plataforma === p.id ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
                 }`}>
                 {p.label}
               </button>
@@ -78,19 +78,19 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
 
         {plataforma === 'otro' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de la plataforma *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de la plataforma *</label>
             <input type="text" value={nombreCustom}
               onChange={e => setNombreCustom(e.target.value)}
-              className="w-full rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
               placeholder="Ej: Izipay, Tunki" />
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre descriptivo *</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Nombre descriptivo *</label>
           <input type="text" value={plataforma === 'otro' ? nombreCustom : nombre}
             onChange={e => plataforma === 'otro' ? setNombreCustom(e.target.value) : setNombre(e.target.value)}
-            className="w-full rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+            className="w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
             placeholder="Ej: Yape Jose" />
         </div>
 
@@ -109,20 +109,20 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
             <select value={moneda} onChange={e => setMoneda(e.target.value as MonedaTesoreria)}
-              className="w-full rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500">
+              className="w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500">
               <option value="PEN">PEN</option>
               <option value="USD">USD</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Saldo inicial</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Saldo inicial</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
               <input type="number" step="0.01" value={saldoInicial || ''}
                 onChange={e => setSaldoInicial(parseFloat(e.target.value) || 0)}
-                className="w-full pl-8 rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full pl-8 rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
                 placeholder="0.00" />
             </div>
           </div>

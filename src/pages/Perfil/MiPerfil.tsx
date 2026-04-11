@@ -186,7 +186,7 @@ export const MiPerfil: React.FC = () => {
     almacenero: 'bg-gradient-to-r from-green-500 to-emerald-500 text-white',
     finanzas: 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white',
     supervisor: 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white',
-    invitado: 'bg-gray-500 text-white',
+    invitado: 'bg-slate-500 text-white',
   };
 
   if (!profile) {
@@ -224,7 +224,7 @@ export const MiPerfil: React.FC = () => {
       )}
 
       {/* Header con perfil */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         {/* Banner */}
         <div className="h-24 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700" />
 
@@ -241,8 +241,8 @@ export const MiPerfil: React.FC = () => {
                     className="w-full h-full rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-gray-600">
+                  <div className="w-full h-full rounded-lg bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-slate-600">
                       {displayName?.charAt(0).toUpperCase() || 'U'}
                     </span>
                   </div>
@@ -278,7 +278,7 @@ export const MiPerfil: React.FC = () => {
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-lg font-bold"
+                      className="px-3 py-1 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-lg font-bold"
                       autoFocus
                     />
                     <button
@@ -290,17 +290,17 @@ export const MiPerfil: React.FC = () => {
                     </button>
                     <button
                       onClick={() => setEditingName(false)}
-                      className="p-1.5 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300"
+                      className="p-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300"
                     >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
                   <>
-                    <h1 className="text-xl font-bold text-gray-900">{displayName}</h1>
+                    <h1 className="text-xl font-bold text-slate-900">{displayName}</h1>
                     <button
                       onClick={handleStartEditName}
-                      className="p-1 text-gray-400 hover:text-primary-600 rounded"
+                      className="p-1 text-slate-400 hover:text-primary-600 rounded"
                       title="Editar nombre"
                     >
                       <Edit2 className="h-4 w-4" />
@@ -308,7 +308,7 @@ export const MiPerfil: React.FC = () => {
                   </>
                 )}
               </div>
-              <p className="text-sm text-gray-500">{profile.email}</p>
+              <p className="text-sm text-slate-500">{profile.email}</p>
               <div className="flex items-center gap-2 mt-1.5">
                 <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-lg ${roleBadgeColor[role || 'invitado']}`}>
                   {ROLE_LABELS[role as keyof typeof ROLE_LABELS] || 'Sin Rol'}
@@ -322,9 +322,9 @@ export const MiPerfil: React.FC = () => {
 
           {/* Descripción del rol */}
           {role && ROLE_DESCRIPTIONS[role as keyof typeof ROLE_DESCRIPTIONS] && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-              <p className="text-sm text-gray-600">
-                <Shield className="h-4 w-4 inline mr-1.5 text-gray-400" />
+            <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <p className="text-sm text-slate-600">
+                <Shield className="h-4 w-4 inline mr-1.5 text-slate-400" />
                 {ROLE_DESCRIPTIONS[role as keyof typeof ROLE_DESCRIPTIONS]}
               </p>
             </div>
@@ -333,16 +333,16 @@ export const MiPerfil: React.FC = () => {
       </div>
 
       {/* Cambiar contraseña */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Seguridad</h2>
+            <Lock className="h-5 w-5 text-slate-600" />
+            <h2 className="text-lg font-semibold text-slate-900">Seguridad</h2>
           </div>
           {!showPasswordSection && (
             <button
               onClick={() => setShowPasswordSection(true)}
-              className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
             >
               Cambiar contraseña
             </button>
@@ -352,19 +352,19 @@ export const MiPerfil: React.FC = () => {
         {showPasswordSection && (
           <div className="space-y-4 max-w-md">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nueva contraseña</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 pr-10"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 pr-10"
                   placeholder="Mínimo 6 caracteres"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -373,12 +373,12 @@ export const MiPerfil: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Confirmar contraseña</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Repite la contraseña"
               />
             </div>
@@ -402,7 +402,7 @@ export const MiPerfil: React.FC = () => {
                   setNewPassword('');
                   setConfirmPassword('');
                 }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+                className="px-4 py-2 text-slate-600 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
               >
                 Cancelar
               </button>
@@ -411,18 +411,18 @@ export const MiPerfil: React.FC = () => {
         )}
 
         {!showPasswordSection && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             Puedes cambiar tu contraseña en cualquier momento para mantener tu cuenta segura.
           </p>
         )}
       </div>
 
       {/* Mis Permisos */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-5 w-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-900">Mis Permisos</h2>
-          <span className="text-sm text-gray-400">({misPermisos.length} permisos)</span>
+          <Shield className="h-5 w-5 text-slate-600" />
+          <h2 className="text-lg font-semibold text-slate-900">Mis Permisos</h2>
+          <span className="text-sm text-slate-400">({misPermisos.length} permisos)</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -431,10 +431,10 @@ export const MiPerfil: React.FC = () => {
             const totalGrupo = permisos.length;
 
             return (
-              <div key={grupo} className="border border-gray-100 rounded-lg p-4">
+              <div key={grupo} className="border border-slate-100 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-800 text-sm">{grupo}</h4>
-                  <span className="text-xs text-gray-400">
+                  <h4 className="font-medium text-slate-800 text-sm">{grupo}</h4>
+                  <span className="text-xs text-slate-400">
                     {permisosDelGrupo.length}/{totalGrupo}
                   </span>
                 </div>
@@ -444,12 +444,12 @@ export const MiPerfil: React.FC = () => {
                     return (
                       <div
                         key={permiso}
-                        className={`flex items-center gap-2 text-sm ${tiene ? 'text-gray-700' : 'text-gray-300'}`}
+                        className={`flex items-center gap-2 text-sm ${tiene ? 'text-slate-700' : 'text-slate-300'}`}
                       >
                         {tiene ? (
                           <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
                         ) : (
-                          <XCircle className="h-4 w-4 text-gray-300 flex-shrink-0" />
+                          <XCircle className="h-4 w-4 text-slate-300 flex-shrink-0" />
                         )}
                         <span>{info.label}</span>
                       </div>
@@ -463,39 +463,39 @@ export const MiPerfil: React.FC = () => {
       </div>
 
       {/* Mi Actividad Reciente */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Activity className="h-5 w-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-900">Mi Actividad Reciente</h2>
+          <Activity className="h-5 w-5 text-slate-600" />
+          <h2 className="text-lg font-semibold text-slate-900">Mi Actividad Reciente</h2>
         </div>
 
         {loadingActividades ? (
           <div className="flex items-center justify-center py-8">
-            <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
+            <RefreshCw className="h-6 w-6 animate-spin text-slate-400" />
           </div>
         ) : actividades.length === 0 ? (
           <div className="text-center py-8">
-            <Activity className="h-10 w-10 mx-auto mb-2 text-gray-300" />
-            <p className="text-gray-500 text-sm">No hay actividad registrada aún</p>
+            <Activity className="h-10 w-10 mx-auto mb-2 text-slate-300" />
+            <p className="text-slate-500 text-sm">No hay actividad registrada aún</p>
           </div>
         ) : (
           <div className="space-y-3">
             {actividades.map((act) => (
-              <div key={act.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="p-1.5 bg-gray-100 rounded-lg mt-0.5">
-                  <Clock className="h-4 w-4 text-gray-500" />
+              <div key={act.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                <div className="p-1.5 bg-slate-100 rounded-lg mt-0.5">
+                  <Clock className="h-4 w-4 text-slate-500" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-gray-900 capitalize">{act.tipo}</p>
+                    <p className="text-sm font-medium text-slate-900 capitalize">{act.tipo}</p>
                     {act.modulo && (
-                      <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded font-medium">
+                      <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded font-medium">
                         {act.modulo}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 truncate">{act.descripcion}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-sm text-slate-600 truncate">{act.descripcion}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
                     {act.fecha.toLocaleDateString('es-PE', {
                       day: '2-digit',
                       month: 'short',

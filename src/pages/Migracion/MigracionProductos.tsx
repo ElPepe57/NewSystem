@@ -103,7 +103,7 @@ export const MigracionProductos: React.FC = () => {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <Link to="/productos" className="inline-flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+        <Link to="/productos" className="inline-flex items-center text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a Productos
         </Link>
@@ -115,10 +115,10 @@ export const MigracionProductos: React.FC = () => {
             <Upload className="h-6 w-6 text-primary-600 dark:text-primary-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
               Migrar Productos del Sistema Antiguo
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-slate-600 dark:text-slate-400">
               Importar 132 productos desde el CSV del sistema anterior
             </p>
           </div>
@@ -141,11 +141,11 @@ export const MigracionProductos: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-              <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-3">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+              <h4 className="font-medium text-slate-800 dark:text-slate-200 mb-3">
                 Datos que se importarán:
               </h4>
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="grid grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-400">
                 <div>
                   <ul className="space-y-1">
                     <li>• Marca y nombre comercial</li>
@@ -213,14 +213,14 @@ export const MigracionProductos: React.FC = () => {
         {estado === 'running' && (
           <div className="text-center py-12">
             <Loader2 className="h-16 w-16 text-primary-500 animate-spin mx-auto mb-6" />
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">{mensaje}</p>
-            <div className="w-full max-w-md mx-auto bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-4">
+            <p className="text-lg text-slate-600 dark:text-slate-400 mb-2">{mensaje}</p>
+            <div className="w-full max-w-md mx-auto bg-slate-200 dark:bg-slate-700 rounded-full h-3 mt-4">
               <div
                 className="bg-primary-500 h-3 rounded-full transition-all duration-300"
                 style={{ width: `${progreso}%` }}
               />
             </div>
-            <p className="text-sm text-gray-500 mt-2">{progreso}% completado</p>
+            <p className="text-sm text-slate-500 mt-2">{progreso}% completado</p>
           </div>
         )}
 
@@ -229,7 +229,7 @@ export const MigracionProductos: React.FC = () => {
           <div className="space-y-6">
             <div className="text-center py-6">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
                 Actualización Completada
               </h3>
             </div>
@@ -337,7 +337,7 @@ export const MigracionProductos: React.FC = () => {
           <div className="space-y-6">
             <div className="text-center py-6">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
                 Corrección Completada
               </h3>
             </div>
@@ -347,9 +347,9 @@ export const MigracionProductos: React.FC = () => {
                 <div className="text-3xl font-bold text-green-600">{resultadoCorreccion.actualizados}</div>
                 <div className="text-sm text-green-700 dark:text-green-300 mt-1">Actualizados</div>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center">
-                <div className="text-3xl font-bold text-gray-600">{resultadoCorreccion.sinCambios}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Sin Cambios</div>
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-6 text-center">
+                <div className="text-3xl font-bold text-slate-600">{resultadoCorreccion.sinCambios}</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Sin Cambios</div>
               </div>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6 text-center">
                 <div className="text-3xl font-bold text-yellow-600">{resultadoCorreccion.noEncontrados}</div>
@@ -391,7 +391,7 @@ export const MigracionProductos: React.FC = () => {
           <div className="space-y-6">
             <div className="text-center py-6">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
                 Migración Completada
               </h3>
             </div>
@@ -477,7 +477,7 @@ export const MigracionProductos: React.FC = () => {
           <div className="space-y-6">
             <div className="text-center py-12">
               <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
                 Error en la Migración
               </h3>
               <p className="text-red-600 dark:text-red-400 mt-2">{mensaje}</p>

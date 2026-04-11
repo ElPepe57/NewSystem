@@ -113,12 +113,12 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
         </div>
 
         {/* Ruta */}
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-slate-50 p-4 rounded-lg">
           <div className="flex items-center space-x-4">
             <div className="flex-1">
-              <div className="text-xs text-gray-500 uppercase mb-1">Origen</div>
-              <div className="font-semibold text-gray-900">{transferencia.almacenOrigenNombre}</div>
-              <div className="text-sm text-gray-500">{transferencia.almacenOrigenCodigo}</div>
+              <div className="text-xs text-slate-500 uppercase mb-1">Origen</div>
+              <div className="font-semibold text-slate-900">{transferencia.almacenOrigenNombre}</div>
+              <div className="text-sm text-slate-500">{transferencia.almacenOrigenCodigo}</div>
             </div>
             <div className="flex-shrink-0">
               <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
@@ -126,16 +126,16 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
               </div>
             </div>
             <div className="flex-1 text-right">
-              <div className="text-xs text-gray-500 uppercase mb-1">Destino</div>
-              <div className="font-semibold text-gray-900">{transferencia.almacenDestinoNombre}</div>
-              <div className="text-sm text-gray-500">{transferencia.almacenDestinoCodigo}</div>
+              <div className="text-xs text-slate-500 uppercase mb-1">Destino</div>
+              <div className="font-semibold text-slate-900">{transferencia.almacenDestinoNombre}</div>
+              <div className="text-sm text-slate-500">{transferencia.almacenDestinoCodigo}</div>
             </div>
           </div>
         </div>
 
         {/* Resumen de productos */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">
+          <h4 className="text-sm font-medium text-slate-700 mb-3">
             Productos ({transferencia.productosSummary.length}) · {transferencia.totalUnidades} unidades
           </h4>
           <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -155,19 +155,19 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
 
               const pFull = productosMap.get(producto.productoId);
               return (
-                <div key={producto.productoId} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div key={producto.productoId} className="p-3 bg-slate-50 rounded-lg border border-slate-100">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</div>
+                      <div className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || producto.nombre}</div>
                       <div className="flex flex-wrap items-center gap-1 mt-0.5">
                         {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                        {pFull && getDescripcionProducto(pFull) && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
+                        {pFull && getDescripcionProducto(pFull) && <span className="text-[10px] text-slate-600 bg-slate-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
                       </div>
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-gray-500">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-xs text-slate-500">
                         <span>{producto.sku}</span>
                         {lotes.length > 0 && (
                           <>
-                            <span className="text-gray-300">·</span>
+                            <span className="text-slate-300">·</span>
                             <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.join(', ')}</span>
                           </>
                         )}
@@ -175,7 +175,7 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
                           const dias = Math.ceil((proximoVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
                           return (
                             <>
-                              <span className="text-gray-300">·</span>
+                              <span className="text-slate-300">·</span>
                               <span className={dias < 90 ? 'text-red-600 font-medium' : dias < 180 ? 'text-amber-600' : ''}>
                                 Vence: {proximoVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
                                 {dias < 180 && ` (${dias}d)`}
@@ -210,8 +210,8 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
                       )}
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="text-lg font-bold text-gray-900">{producto.cantidad}</div>
-                      <div className="text-xs text-gray-500">unid.</div>
+                      <div className="text-lg font-bold text-slate-900">{producto.cantidad}</div>
+                      <div className="text-xs text-slate-500">unid.</div>
                     </div>
                   </div>
                 </div>
@@ -223,8 +223,8 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
         {/* Fechas */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-xs text-gray-500 uppercase mb-1">Fecha Creacion</div>
-            <div className="text-gray-900">
+            <div className="text-xs text-slate-500 uppercase mb-1">Fecha Creacion</div>
+            <div className="text-slate-900">
               {transferencia.fechaCreacion.toDate().toLocaleDateString('es-PE', {
                 day: '2-digit', month: 'long', year: 'numeric'
               })}
@@ -232,8 +232,8 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
           </div>
           {transferencia.fechaSalida && (
             <div>
-              <div className="text-xs text-gray-500 uppercase mb-1">Fecha Salida</div>
-              <div className="text-gray-900">
+              <div className="text-xs text-slate-500 uppercase mb-1">Fecha Salida</div>
+              <div className="text-slate-900">
                 {transferencia.fechaSalida.toDate().toLocaleDateString('es-PE', {
                   day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                 })}
@@ -242,8 +242,8 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
           )}
           {transferencia.fechaLlegadaReal && (
             <div>
-              <div className="text-xs text-gray-500 uppercase mb-1">Fecha Llegada</div>
-              <div className="text-gray-900">
+              <div className="text-xs text-slate-500 uppercase mb-1">Fecha Llegada</div>
+              <div className="text-slate-900">
                 {transferencia.fechaLlegadaReal.toDate().toLocaleDateString('es-PE', {
                   day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                 })}
@@ -255,8 +255,8 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
         {/* Tracking */}
         {transferencia.numeroTracking && (
           <div>
-            <div className="text-xs text-gray-500 uppercase mb-1">Numero de Tracking</div>
-            <div className="font-medium text-gray-900">{transferencia.numeroTracking}</div>
+            <div className="text-xs text-slate-500 uppercase mb-1">Numero de Tracking</div>
+            <div className="font-medium text-slate-900">{transferencia.numeroTracking}</div>
           </div>
         )}
 
@@ -265,7 +265,7 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-gray-500 uppercase mb-1">Costo de Flete</div>
+                <div className="text-xs text-slate-500 uppercase mb-1">Costo de Flete</div>
                 {transferencia.costoFleteTotal && transferencia.costoFleteTotal > 0 ? (
                   <div className="font-semibold text-blue-700">${transferencia.costoFleteTotal.toFixed(2)} USD</div>
                 ) : (
@@ -287,20 +287,20 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
 
         {/* Métricas de Peso (solo si tiene pesoTotalLibras) */}
         {esTipoTransferenciaInternacional(transferencia.tipo) && transferencia.pesoTotalLibras && transferencia.pesoTotalLibras > 0 && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <div className="text-xs text-gray-500 uppercase mb-2 font-semibold">Analisis por Peso</div>
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+            <div className="text-xs text-slate-500 uppercase mb-2 font-semibold">Analisis por Peso</div>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <div className="text-xs text-gray-500">Peso total</div>
-                <div className="font-semibold text-gray-900">{transferencia.pesoTotalLibras.toFixed(2)} lb</div>
+                <div className="text-xs text-slate-500">Peso total</div>
+                <div className="font-semibold text-slate-900">{transferencia.pesoTotalLibras.toFixed(2)} lb</div>
               </div>
               <div>
-                <div className="text-xs text-gray-500">Unidades</div>
-                <div className="font-semibold text-gray-900">{transferencia.totalUnidades}</div>
+                <div className="text-xs text-slate-500">Unidades</div>
+                <div className="font-semibold text-slate-900">{transferencia.totalUnidades}</div>
               </div>
               {transferencia.costoFletePorLibra && transferencia.costoFletePorLibra > 0 && (
                 <div>
-                  <div className="text-xs text-gray-500">Costo/lb</div>
+                  <div className="text-xs text-slate-500">Costo/lb</div>
                   <div className="font-semibold text-blue-700">${transferencia.costoFletePorLibra.toFixed(2)} USD/lb</div>
                 </div>
               )}
@@ -324,11 +324,11 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
               {pagos.map((pago, idx) => (
                 <div key={pago.id} className="flex justify-between items-center text-sm py-1.5 border-b border-green-100 last:border-0">
                   <div>
-                    <span className="font-medium text-gray-900">Pago {idx + 1}</span>
-                    <span className="text-gray-500 ml-2">
+                    <span className="font-medium text-slate-900">Pago {idx + 1}</span>
+                    <span className="text-slate-500 ml-2">
                       {pago.fecha?.toDate?.() ? pago.fecha.toDate().toLocaleDateString('es-PE') : ''}
                     </span>
-                    <span className="text-gray-400 ml-2 text-xs capitalize">
+                    <span className="text-slate-400 ml-2 text-xs capitalize">
                       {pago.metodoPago?.replace(/_/g, ' ')}
                     </span>
                   </div>
@@ -342,11 +342,11 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
               ))}
               {fleteTotal > 0 && (
                 <div className="mt-2">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <div className="flex justify-between text-xs text-slate-500 mb-1">
                     <span>Pagado: ${totalPagadoUSD.toFixed(2)}</span>
                     <span>Total: ${fleteTotal.toFixed(2)}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
                       className="bg-green-500 h-2 rounded-full transition-all"
                       style={{ width: `${Math.min(100, (totalPagadoUSD / fleteTotal) * 100)}%` }}
@@ -376,14 +376,14 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
                 <div key={rec.id || idx} className="text-sm py-2 border-b border-purple-100 last:border-0">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1 flex-wrap">
-                      <span className="font-medium text-gray-900">Recepcion #{rec.numero || idx + 1}</span>
-                      <span className="text-gray-500 text-xs">
+                      <span className="font-medium text-slate-900">Recepcion #{rec.numero || idx + 1}</span>
+                      <span className="text-slate-500 text-xs">
                         {rec.fechaRecepcion?.toDate?.() ? rec.fechaRecepcion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}
                       </span>
                     </div>
                   </div>
                   {rec.recibidoPor && (
-                    <p className="text-[10px] text-gray-400 mt-0.5 truncate" title={rec.recibidoPor}>
+                    <p className="text-[10px] text-slate-400 mt-0.5 truncate" title={rec.recibidoPor}>
                       Por: <UserName userId={rec.recibidoPor} />
                     </p>
                   )}
@@ -405,16 +405,16 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
                     )}
                   </div>
                   {rec.observaciones && (
-                    <div className="text-xs text-gray-500 mt-0.5 italic">"{rec.observaciones}"</div>
+                    <div className="text-xs text-slate-500 mt-0.5 italic">"{rec.observaciones}"</div>
                   )}
                 </div>
               ))}
               <div className="mt-2">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                <div className="flex justify-between text-xs text-slate-500 mb-1">
                   <span>Recibidas: {totalRecibidas}{totalDanadas > 0 ? ` (${totalDanadas} danadas)` : ''}</span>
                   <span>Total: {totalUnidades}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-slate-200 rounded-full h-2">
                   <div
                     className="bg-purple-500 h-2 rounded-full transition-all"
                     style={{ width: `${Math.min(100, ((totalRecibidas + totalDanadas) / totalUnidades) * 100)}%` }}
@@ -428,8 +428,8 @@ export const TransferenciaDetailModal: React.FC<TransferenciaDetailModalProps> =
         {/* Notas */}
         {transferencia.notas && (
           <div>
-            <div className="text-xs text-gray-500 uppercase mb-1">Notas</div>
-            <div className="text-gray-900">{transferencia.notas}</div>
+            <div className="text-xs text-slate-500 uppercase mb-1">Notas</div>
+            <div className="text-slate-900">{transferencia.notas}</div>
           </div>
         )}
 

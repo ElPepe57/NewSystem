@@ -135,7 +135,7 @@ export const TabBoletas: React.FC = () => {
             {generando ? 'Generando...' : 'Generar boletas del mes'}
           </Button>
         ) : (
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-slate-500">
             {boletas.length} boleta{boletas.length !== 1 ? 's' : ''}
             {' — '}
             Bruto: {formatCurrency(totalBruto, 'PEN')}
@@ -147,13 +147,13 @@ export const TabBoletas: React.FC = () => {
 
       {/* Loading */}
       {loadingBoletas ? (
-        <div className="flex items-center justify-center py-12 text-gray-500">
+        <div className="flex items-center justify-center py-12 text-slate-500">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3" />
           Cargando boletas...
         </div>
       ) : boletas.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <FileText size={40} className="mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-12 text-slate-500">
+          <FileText size={40} className="mx-auto mb-3 text-slate-300" />
           <p className="font-medium">No hay boletas para {MESES[mesActivo - 1]} {anioActivo}</p>
           <p className="text-sm">Haz clic en "Generar boletas del mes" para calcular.</p>
         </div>
@@ -161,25 +161,25 @@ export const TabBoletas: React.FC = () => {
         /* Tabla de boletas */
         <div className="border rounded-lg overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-slate-50 border-b">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Boleta</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empleado</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Sueldo</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Comisiones</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Descuentos</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Neto</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Boleta</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Empleado</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Sueldo</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Comisiones</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Descuentos</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Neto</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Estado</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {boletas.map(b => (
-                <tr key={b.id} className="hover:bg-gray-50">
+                <tr key={b.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-mono text-xs">{b.id}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium">{b.empleadoNombre}</div>
-                    {b.empleadoCargo && <div className="text-xs text-gray-500">{b.empleadoCargo}</div>}
+                    {b.empleadoCargo && <div className="text-xs text-slate-500">{b.empleadoCargo}</div>}
                   </td>
                   <td className="px-4 py-3 text-right font-mono">{formatCurrency(b.salarioBase, 'PEN')}</td>
                   <td className="px-4 py-3 text-right font-mono">

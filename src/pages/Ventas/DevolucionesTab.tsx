@@ -45,7 +45,7 @@ const BADGE_ESTADO: Record<EstadoDevolucion, string> = {
   ejecutada: 'bg-purple-100 text-purple-800',
   completada: 'bg-green-100 text-green-800',
   rechazada: 'bg-red-100 text-red-800',
-  cancelada: 'bg-gray-100 text-gray-600',
+  cancelada: 'bg-slate-100 text-slate-600',
 };
 
 const LABEL_ESTADO: Record<EstadoDevolucion, string> = {
@@ -166,10 +166,10 @@ export const DevolucionesTab: React.FC = () => {
         <Card padding="md">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+              <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
                 Devoluciones del mes
               </p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{kpis.totalMes}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{kpis.totalMes}</p>
             </div>
             <div className="p-2 bg-yellow-100 rounded-lg">
               <RotateCcw className="h-5 w-5 text-yellow-600" />
@@ -180,10 +180,10 @@ export const DevolucionesTab: React.FC = () => {
         <Card padding="md">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+              <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
                 Monto devuelto
               </p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+              <p className="text-2xl font-bold text-slate-900 mt-1">
                 {formatCurrencyPEN(kpis.montoDevuelto)}
               </p>
             </div>
@@ -196,10 +196,10 @@ export const DevolucionesTab: React.FC = () => {
         <Card padding="md">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+              <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
                 Tasa devolución
               </p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+              <p className="text-2xl font-bold text-slate-900 mt-1">
                 {kpis.tasaDevolucion.toFixed(1)}%
               </p>
             </div>
@@ -212,13 +212,13 @@ export const DevolucionesTab: React.FC = () => {
         <Card padding="md">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+              <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
                 Pendientes aprobación
               </p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{kpis.pendientes}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{kpis.pendientes}</p>
             </div>
-            <div className={`p-2 rounded-lg ${kpis.pendientes > 0 ? 'bg-amber-100' : 'bg-gray-100'}`}>
-              <Clock className={`h-5 w-5 ${kpis.pendientes > 0 ? 'text-amber-600' : 'text-gray-400'}`} />
+            <div className={`p-2 rounded-lg ${kpis.pendientes > 0 ? 'bg-amber-100' : 'bg-slate-100'}`}>
+              <Clock className={`h-5 w-5 ${kpis.pendientes > 0 ? 'text-amber-600' : 'text-slate-400'}`} />
             </div>
           </div>
         </Card>
@@ -229,13 +229,13 @@ export const DevolucionesTab: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Búsqueda */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={busqueda}
               onChange={e => setBusqueda(e.target.value)}
               placeholder="Buscar por # devolución, # venta o cliente..."
-              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
@@ -243,7 +243,7 @@ export const DevolucionesTab: React.FC = () => {
           <select
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value as EstadoDevolucion | '')}
-            className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 min-w-[180px]"
+            className="text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 min-w-[180px]"
           >
             {ESTADOS_OPCIONES.map(op => (
               <option key={op.value} value={op.value}>
@@ -265,8 +265,8 @@ export const DevolucionesTab: React.FC = () => {
 
       {/* Tabla */}
       <Card padding="none">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-900">
+        <div className="px-6 py-4 border-b border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-900">
             {filtroEstado
               ? `${LABEL_ESTADO[filtroEstado as EstadoDevolucion]} (${devolucionesFiltradas.length})`
               : `Todas las devoluciones (${devolucionesFiltradas.length})`}
@@ -284,7 +284,7 @@ export const DevolucionesTab: React.FC = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
           </div>
         ) : devolucionesFiltradas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
             <Package className="h-12 w-12 mb-3 opacity-30" />
             <p className="text-sm font-medium">No hay devoluciones</p>
             <p className="text-xs mt-1">
@@ -296,66 +296,66 @@ export const DevolucionesTab: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     # Devolución
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     # Venta
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     Cliente
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     Motivo
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     Monto
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     Estado
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     Fecha
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {devolucionesFiltradas.map(dev => (
-                  <tr key={dev.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={dev.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3">
-                      <span className="font-mono text-xs font-semibold text-gray-700">
+                      <span className="font-mono text-xs font-semibold text-slate-700">
                         {dev.numeroDevolucion}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="font-mono text-xs text-gray-600">
+                      <span className="font-mono text-xs text-slate-600">
                         {dev.ventaNumero}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-800">
+                    <td className="px-4 py-3 text-slate-800">
                       {dev.clienteNombre}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-slate-600">
                       {LABEL_MOTIVO[dev.motivo] ?? dev.motivo}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-gray-900">
+                    <td className="px-4 py-3 text-right font-medium text-slate-900">
                       {formatCurrencyPEN(dev.montoDevolucion)}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          BADGE_ESTADO[dev.estado] ?? 'bg-gray-100 text-gray-600'
+                          BADGE_ESTADO[dev.estado] ?? 'bg-slate-100 text-slate-600'
                         }`}
                       >
                         {LABEL_ESTADO[dev.estado] ?? dev.estado}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">
+                    <td className="px-4 py-3 text-slate-500 text-xs">
                       {formatFecha(dev.fechaCreacion)}
                     </td>
                     <td className="px-4 py-3 text-center">

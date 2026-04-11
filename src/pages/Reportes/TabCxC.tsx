@@ -53,7 +53,7 @@ export const TabCxC: React.FC = () => {
     return buckets;
   }, [ventasPendientes]);
 
-  if (loading) return <div className="text-center py-8 text-gray-500">Cargando CxC...</div>;
+  if (loading) return <div className="text-center py-8 text-slate-500">Cargando CxC...</div>;
 
   const fmt = (n: number) => `S/${n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
@@ -62,23 +62,23 @@ export const TabCxC: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-3 text-center">
-          <div className="text-xs text-gray-500">Total pendiente</div>
+          <div className="text-xs text-slate-500">Total pendiente</div>
           <div className="text-2xl font-bold text-red-600">{fmt(saldoPendiente)}</div>
-          <div className="text-xs text-gray-400">{ventasPendientes.length} ventas</div>
+          <div className="text-xs text-slate-400">{ventasPendientes.length} ventas</div>
         </Card>
         <Card className="p-3 text-center">
-          <div className="text-xs text-gray-500">Facturado</div>
-          <div className="text-2xl font-bold text-gray-900">{fmt(totalPendiente)}</div>
+          <div className="text-xs text-slate-500">Facturado</div>
+          <div className="text-2xl font-bold text-slate-900">{fmt(totalPendiente)}</div>
         </Card>
         <Card className="p-3 text-center">
-          <div className="text-xs text-gray-500">Cobrado</div>
+          <div className="text-xs text-slate-500">Cobrado</div>
           <div className="text-2xl font-bold text-green-600">{fmt(totalPagado)}</div>
         </Card>
       </div>
 
       {/* Aging */}
       <Card className="p-4">
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Antig\u00fcedad de Cartera</h4>
+        <h4 className="text-sm font-semibold text-slate-700 mb-3">Antig\u00fcedad de Cartera</h4>
         <div className="grid grid-cols-4 gap-2">
           <AgingBucket label="Corriente" monto={aging.corriente} color="green" />
           <AgingBucket label="31-60 d\u00edas" monto={aging.dias30} color="amber" />
@@ -89,14 +89,14 @@ export const TabCxC: React.FC = () => {
 
       {/* Lista de ventas pendientes */}
       {ventasPendientes.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-slate-500">
           <CheckCircle className="h-10 w-10 mx-auto mb-2 text-green-300" />
           <p>Sin cuentas por cobrar pendientes</p>
         </div>
       ) : (
         <Card className="p-0 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+            <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
               <tr>
                 <th className="px-3 py-2 text-left">Venta</th>
                 <th className="px-3 py-2 text-left">Cliente</th>
@@ -105,15 +105,15 @@ export const TabCxC: React.FC = () => {
                 <th className="px-3 py-2 text-center">D\u00edas</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {ventasPendientes.slice(0, 20).map(v => {
                 const fecha = v.fechaVenta?.toDate?.() || v.fechaCreacion?.toDate?.();
                 const dias = fecha ? Math.floor((hoy.getTime() - fecha.getTime()) / (1000 * 60 * 60 * 24)) : 0;
                 const pendiente = (v.totalPEN || 0) - ((v as any).montoPagado || 0);
                 return (
-                  <tr key={v.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 font-medium text-gray-900">{v.numeroVenta}</td>
-                    <td className="px-3 py-2 text-gray-600">{v.nombreCliente}</td>
+                  <tr key={v.id} className="hover:bg-slate-50">
+                    <td className="px-3 py-2 font-medium text-slate-900">{v.numeroVenta}</td>
+                    <td className="px-3 py-2 text-slate-600">{v.nombreCliente}</td>
                     <td className="px-3 py-2 text-right">{fmt(v.totalPEN)}</td>
                     <td className="px-3 py-2 text-right font-medium text-red-600">{fmt(pendiente)}</td>
                     <td className="px-3 py-2 text-center">
@@ -141,7 +141,7 @@ const AgingBucket: React.FC<{ label: string; monto: number; color: string }> = (
     red: 'text-red-700 bg-red-50',
   };
   return (
-    <div className={`rounded-lg p-2 text-center ${colorMap[color] || 'bg-gray-50'}`}>
+    <div className={`rounded-lg p-2 text-center ${colorMap[color] || 'bg-slate-50'}`}>
       <div className="text-xs font-medium">{label}</div>
       <div className="text-sm font-bold mt-1">{fmt(monto)}</div>
     </div>

@@ -30,20 +30,20 @@ export const LoteDetalleModal: React.FC = () => {
       <div className="space-y-4">
         {/* Info general */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="text-xs text-gray-500 flex items-center gap-1"><Calendar size={12} /> Fecha</div>
+          <div className="bg-slate-50 rounded-lg p-3">
+            <div className="text-xs text-slate-500 flex items-center gap-1"><Calendar size={12} /> Fecha</div>
             <div className="font-medium text-sm mt-1">{fecha}</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="text-xs text-gray-500 flex items-center gap-1"><Wallet size={12} /> Cuenta</div>
+          <div className="bg-slate-50 rounded-lg p-3">
+            <div className="text-xs text-slate-500 flex items-center gap-1"><Wallet size={12} /> Cuenta</div>
             <div className="font-medium text-sm mt-1">{lote.cuentaNombre}</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="text-xs text-gray-500">Metodo</div>
+          <div className="bg-slate-50 rounded-lg p-3">
+            <div className="text-xs text-slate-500">Metodo</div>
             <div className="font-medium text-sm mt-1">{METODOS_PAGO_INFO[lote.metodoPago]?.label || lote.metodoPago}</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="text-xs text-gray-500 flex items-center gap-1"><Clock size={12} /> Duracion</div>
+          <div className="bg-slate-50 rounded-lg p-3">
+            <div className="text-xs text-slate-500 flex items-center gap-1"><Clock size={12} /> Duracion</div>
             <div className="font-medium text-sm mt-1">{(lote.duracionMs / 1000).toFixed(1)}s</div>
           </div>
         </div>
@@ -69,12 +69,12 @@ export const LoteDetalleModal: React.FC = () => {
         </div>
 
         {lote.referencia && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-slate-600">
             <span className="font-medium">Referencia:</span> {lote.referencia}
           </div>
         )}
         {lote.notas && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-slate-600">
             <span className="font-medium">Notas:</span> {lote.notas}
           </div>
         )}
@@ -82,13 +82,13 @@ export const LoteDetalleModal: React.FC = () => {
         {/* Items */}
         <div className="border rounded-lg overflow-hidden max-h-[350px] overflow-y-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b sticky top-0">
+            <thead className="bg-slate-50 border-b sticky top-0">
               <tr>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 w-8"></th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Documento</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Contraparte</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">Monto</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Resultado</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 w-8"></th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Documento</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Contraparte</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">Monto</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Resultado</th>
               </tr>
             </thead>
             <tbody className="divide-y">

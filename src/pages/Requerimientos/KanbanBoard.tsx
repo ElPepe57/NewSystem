@@ -30,14 +30,14 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {KANBAN_COLUMN_DEFS.map(column => (
-        <div key={column.id} className="bg-gray-50 rounded-lg p-4">
+        <div key={column.id} className="bg-slate-50 rounded-lg p-4">
           {/* Header de columna */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
               <div className={`w-3 h-3 rounded-full ${column.color} mr-2`} />
-              <span className="font-semibold text-gray-900">{column.label}</span>
+              <span className="font-semibold text-slate-900">{column.label}</span>
             </div>
-            <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
+            <span className="bg-slate-200 text-slate-700 text-xs px-2 py-1 rounded-full">
               {requerimientosPorEstado[column.id]?.length || 0}
             </span>
           </div>
@@ -49,7 +49,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
               </div>
             ) : requerimientosPorEstado[column.id]?.length === 0 ? (
-              <div className="text-center text-gray-400 text-sm py-8">
+              <div className="text-center text-slate-400 text-sm py-8">
                 Sin requerimientos
               </div>
             ) : (

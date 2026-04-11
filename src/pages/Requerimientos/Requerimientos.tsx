@@ -598,11 +598,11 @@ export const Requerimientos: React.FC = () => {
         actions={
           <>
             {/* Toggle de vista */}
-            <div className="bg-gray-100 rounded-lg p-1 flex">
+            <div className="bg-slate-100 rounded-lg p-1 flex">
               <button
                 onClick={() => setViewMode('kanban')}
                 className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                  viewMode === 'kanban' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
+                  viewMode === 'kanban' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Kanban
@@ -610,7 +610,7 @@ export const Requerimientos: React.FC = () => {
               <button
                 onClick={() => setViewMode('list')}
                 className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                  viewMode === 'list' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
+                  viewMode === 'list' ? 'bg-white shadow text-slate-900' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Lista
@@ -622,7 +622,7 @@ export const Requerimientos: React.FC = () => {
               onClick={() => setShowIntelligencePanel(!showIntelligencePanel)}
               className="hidden sm:flex"
             >
-              <Zap className={`h-5 w-5 ${showIntelligencePanel ? 'text-yellow-500' : 'text-gray-400'}`} />
+              <Zap className={`h-5 w-5 ${showIntelligencePanel ? 'text-yellow-500' : 'text-slate-400'}`} />
             </Button>
 
             {cotizacionesConfirmadas.length > 0 && (

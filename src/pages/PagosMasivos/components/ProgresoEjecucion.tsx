@@ -11,7 +11,7 @@ import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
 import type { EstadoItemLote } from '../../../types/pagoMasivo.types';
 
 const ESTADO_ICONO: Record<EstadoItemLote, React.ReactNode> = {
-  pendiente:   <Clock size={14} className="text-gray-400" />,
+  pendiente:   <Clock size={14} className="text-slate-400" />,
   procesando:  <Loader2 size={14} className="text-indigo-600 animate-spin" />,
   exitoso:     <CheckCircle size={14} className="text-green-600" />,
   error:       <XCircle size={14} className="text-red-600" />,
@@ -44,14 +44,14 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
         {/* Barra de progreso */}
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-600">
+            <span className="text-slate-600">
               {ejecutando
                 ? `Procesando ${progreso.procesados + 1} de ${progreso.total}...`
                 : `${progreso.procesados} de ${progreso.total} procesados`}
             </span>
             <span className="font-medium">{porcentaje}%</span>
           </div>
-          <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{
@@ -73,9 +73,9 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
               <div className="text-2xl font-bold text-red-700">{progreso.errores}</div>
               <div className="text-xs text-red-600">Con error</div>
             </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold text-gray-700">{progreso.total}</div>
-              <div className="text-xs text-gray-600">Total</div>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-slate-700">{progreso.total}</div>
+              <div className="text-xs text-slate-600">Total</div>
             </div>
           </div>
         )}
@@ -105,13 +105,13 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
         {/* Detalle por item */}
         <div className="border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b sticky top-0">
+            <thead className="bg-slate-50 border-b sticky top-0">
               <tr>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 w-8"></th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Documento</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Contraparte</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">Monto</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Estado</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 w-8"></th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Documento</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Contraparte</th>
+                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">Monto</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Estado</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -129,7 +129,7 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
                     ) : (
                       <span className={`text-xs capitalize ${
                         item.estado === 'exitoso' ? 'text-green-600' :
-                        item.estado === 'procesando' ? 'text-indigo-600' : 'text-gray-500'
+                        item.estado === 'procesando' ? 'text-indigo-600' : 'text-slate-500'
                       }`}>
                         {item.estado}
                       </span>

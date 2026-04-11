@@ -28,7 +28,7 @@ export function MapaCalorFiltros() {
 
       <div className="flex flex-wrap items-center gap-3">
         {/* Periodo */}
-        <div className="flex items-center gap-1 bg-white rounded-lg border border-gray-200 p-1">
+        <div className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1">
           {PERIODOS.map(p => (
             <button
               key={p.id}
@@ -36,8 +36,8 @@ export function MapaCalorFiltros() {
               onClick={() => setPeriodo(p.id)}
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                 filtros.periodoPreset === p.id
-                  ? 'bg-gray-800 text-white'
-                  : 'text-gray-500 hover:bg-gray-100'
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
               {p.label}
@@ -46,7 +46,7 @@ export function MapaCalorFiltros() {
         </div>
 
         {/* Capa del mapa */}
-        <div className="flex items-center gap-1 bg-white rounded-lg border border-gray-200 p-1">
+        <div className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1">
           {CAPAS.map(c => (
             <button
               key={c.id}
@@ -55,7 +55,7 @@ export function MapaCalorFiltros() {
               className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                 capaActiva === c.id
                   ? 'bg-primary-600 text-white'
-                  : 'text-gray-500 hover:bg-gray-100'
+                  : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
               {c.icon}

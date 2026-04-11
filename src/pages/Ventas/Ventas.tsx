@@ -729,14 +729,14 @@ export const Ventas: React.FC = () => {
       />
 
       {/* Tabs: Ventas | Devoluciones */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-slate-200">
         <nav className="-mb-px flex gap-6">
           <button
             onClick={() => setTabActiva('ventas')}
             className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
               tabActiva === 'ventas'
                 ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             Ventas
@@ -746,7 +746,7 @@ export const Ventas: React.FC = () => {
             className={`pb-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
               tabActiva === 'devoluciones'
                 ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             <RotateCcw className="h-4 w-4" />
@@ -772,8 +772,8 @@ export const Ventas: React.FC = () => {
           <div className="flex items-center">
             <Package className="h-5 w-5 text-warning-600 mr-3" />
             <div>
-              <p className="text-sm font-medium text-gray-900">No hay stock disponible en Perú</p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm font-medium text-slate-900">No hay stock disponible en Perú</p>
+              <p className="text-sm text-slate-600">
                 Puedes crear cotizaciones que generarán requerimientos de compra automáticamente.
               </p>
             </div>
@@ -864,7 +864,7 @@ export const Ventas: React.FC = () => {
                     ? 'bg-red-50'
                     : 'bg-purple-50'
                 }`}>
-                  <p className="text-xs text-gray-500 mb-1">Total cobrado</p>
+                  <p className="text-xs text-slate-500 mb-1">Total cobrado</p>
                   <p className={`text-lg font-bold ${
                     resumenSocios.totalCobradoPEN > ventaSociosService.UMBRAL_MONTO_MENSUAL_PEN
                       ? 'text-red-600'
@@ -872,7 +872,7 @@ export const Ventas: React.FC = () => {
                   }`}>
                     {formatCurrencyPEN(resumenSocios.totalCobradoPEN)}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     umbral: {formatCurrencyPEN(ventaSociosService.UMBRAL_MONTO_MENSUAL_PEN)}
                   </p>
                 </div>
@@ -881,35 +881,35 @@ export const Ventas: React.FC = () => {
                 <div className={`rounded-lg p-3 text-center ${
                   resumenSocios.subsidioDirectoPEN > 0 ? 'bg-red-50' : 'bg-green-50'
                 }`}>
-                  <p className="text-xs text-gray-500 mb-1">Subsidio directo</p>
+                  <p className="text-xs text-slate-500 mb-1">Subsidio directo</p>
                   <p className={`text-lg font-bold ${
                     resumenSocios.subsidioDirectoPEN > 0 ? 'text-red-600' : 'text-green-600'
                   }`}>
                     {formatCurrencyPEN(resumenSocios.subsidioDirectoPEN)}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">CTRU - cobrado</p>
+                  <p className="text-xs text-slate-400 mt-0.5">CTRU - cobrado</p>
                 </div>
 
                 {/* Card 4: costo de oportunidad */}
                 <div className="bg-amber-50 rounded-lg p-3 text-center">
-                  <p className="text-xs text-gray-500 mb-1">Costo oportunidad</p>
+                  <p className="text-xs text-slate-500 mb-1">Costo oportunidad</p>
                   <p className="text-lg font-bold text-amber-600">
                     {formatCurrencyPEN(resumenSocios.costoOportunidadPEN)}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">precio reg. - precio socio</p>
+                  <p className="text-xs text-slate-400 mt-0.5">precio reg. - precio socio</p>
                 </div>
 
                 {/* Card 5: % inventario */}
                 <div className={`rounded-lg p-3 text-center ${
-                  resumenSocios.porcentajeInventarioUnidades > 15 ? 'bg-red-50' : 'bg-gray-50'
+                  resumenSocios.porcentajeInventarioUnidades > 15 ? 'bg-red-50' : 'bg-slate-50'
                 }`}>
-                  <p className="text-xs text-gray-500 mb-1">% Inventario</p>
+                  <p className="text-xs text-slate-500 mb-1">% Inventario</p>
                   <p className={`text-lg font-bold ${
-                    resumenSocios.porcentajeInventarioUnidades > 15 ? 'text-red-600' : 'text-gray-700'
+                    resumenSocios.porcentajeInventarioUnidades > 15 ? 'text-red-600' : 'text-slate-700'
                   }`}>
                     {(resumenSocios.porcentajeInventarioUnidades || 0).toFixed(1)}%
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     {resumenSocios.unidadesConsumidas} uds. a socios
                   </p>
                 </div>
@@ -959,11 +959,11 @@ export const Ventas: React.FC = () => {
                         {resumenSocios.porSocio.map(s => (
                           <tr key={s.uid || s.nombre} className="border-b border-purple-50 hover:bg-purple-50/40 transition-colors">
                             <td className="py-2 pr-3">
-                              <span className="font-medium text-gray-900">{s.nombre}</span>
+                              <span className="font-medium text-slate-900">{s.nombre}</span>
                               {s.cargo && <span className="block text-xs text-purple-500">{s.cargo}</span>}
                             </td>
-                            <td className="py-2 px-3 text-center text-gray-600">{s.ventas}</td>
-                            <td className="py-2 px-3 text-right text-gray-700">{formatCurrencyPEN(s.cobradoPEN)}</td>
+                            <td className="py-2 px-3 text-center text-slate-600">{s.ventas}</td>
+                            <td className="py-2 px-3 text-right text-slate-700">{formatCurrencyPEN(s.cobradoPEN)}</td>
                             <td className={`py-2 px-3 text-right font-medium ${
                               s.subsidioPEN > 0 ? 'text-red-600' : 'text-green-600'
                             }`}>
@@ -983,7 +983,7 @@ export const Ventas: React.FC = () => {
                                         {MOTIVOS_VENTA_SOCIO[m] || m}
                                       </span>
                                     ))
-                                  : <span className="text-xs text-gray-400">—</span>
+                                  : <span className="text-xs text-slate-400">—</span>
                                 }
                               </div>
                             </td>
@@ -1010,7 +1010,7 @@ export const Ventas: React.FC = () => {
                         <span className="font-mono text-xs text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
                           {v.numeroVenta}
                         </span>
-                        <span className="text-gray-700">{v.socioNombre || v.nombreCliente}</span>
+                        <span className="text-slate-700">{v.socioNombre || v.nombreCliente}</span>
                         {v.motivoVentaSocio && (
                           <span className="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded">
                             {MOTIVOS_VENTA_SOCIO[v.motivoVentaSocio] || v.motivoVentaSocio}
@@ -1041,9 +1041,9 @@ export const Ventas: React.FC = () => {
 
       {/* Tabla de Ventas */}
       <Card padding="none">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-slate-200">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-slate-900">
               {filtroEstado
                 ? `${pipelineStages.find(s => s.id === filtroEstado)?.label || 'Ventas'} (${ventasFiltradas.length})`
                 : `Ventas (${ventasLineaFiltradas.length})`
@@ -1052,13 +1052,13 @@ export const Ventas: React.FC = () => {
             {/* Indicadores de rentabilidad con distribución proporcional */}
             <div className="flex items-center gap-2 flex-wrap">
               {rentabilidad && rentabilidad.totalGastosGAGO > 0 && (
-                <div className="flex items-center text-sm text-gray-600 bg-orange-50 px-2 py-1 rounded-lg" title="Gastos Administrativos/Operativos distribuidos proporcionalmente">
+                <div className="flex items-center text-sm text-slate-600 bg-orange-50 px-2 py-1 rounded-lg" title="Gastos Administrativos/Operativos distribuidos proporcionalmente">
                   <PieChart className="h-4 w-4 text-orange-500 mr-1" />
                   <span className="text-xs">Gastos Fijos:</span>
                   <span className="font-semibold text-orange-600 ml-1">
                     S/ {(rentabilidad.totalGastosGAGO || 0).toFixed(0)}
                   </span>
-                  <span className="text-xs text-gray-500 ml-1">
+                  <span className="text-xs text-slate-500 ml-1">
                     ({(rentabilidad.totalCostoBase || 0) > 0
                       ? (((rentabilidad.totalCostoGAGO || 0) / (rentabilidad.totalCostoBase || 1)) * 100).toFixed(1)
                       : 0}%)
@@ -1066,7 +1066,7 @@ export const Ventas: React.FC = () => {
                 </div>
               )}
               {rentabilidad && rentabilidad.totalGastosGVGD > 0 && (
-                <div className="flex items-center text-sm text-gray-600 bg-blue-50 px-2 py-1 rounded-lg" title="Gastos de Venta/Distribución directos">
+                <div className="flex items-center text-sm text-slate-600 bg-blue-50 px-2 py-1 rounded-lg" title="Gastos de Venta/Distribución directos">
                   <Calculator className="h-4 w-4 text-blue-500 mr-1" />
                   <span className="text-xs">GV/GD:</span>
                   <span className="font-semibold text-blue-600 ml-1">

@@ -608,7 +608,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         {/* ========== CLIENTE INTELIGENTE (CRM) ========== */}
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <h3 className="text-sm font-medium text-slate-700 flex items-center gap-2">
               <User className="h-4 w-4" />
               Cliente
             </h3>
@@ -618,7 +618,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                   <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
                     historialCliente.clasificacionABC === 'A' ? 'bg-green-100 text-green-700' :
                     historialCliente.clasificacionABC === 'B' ? 'bg-blue-100 text-blue-700' :
-                    historialCliente.clasificacionABC === 'C' ? 'bg-gray-100 text-gray-700' :
+                    historialCliente.clasificacionABC === 'C' ? 'bg-slate-100 text-slate-700' :
                     'bg-yellow-100 text-yellow-700'
                   }`}>
                     {historialCliente.clasificacionABC === 'A' && <Star className="h-3 w-3 inline mr-1" />}
@@ -636,7 +636,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
           {/* Autocomplete de Cliente del CRM */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Buscar o crear cliente
             </label>
             <ClienteAutocomplete
@@ -667,23 +667,23 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                     <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
                     {historialCliente.totalCompras}
                   </div>
-                  <p className="text-xs text-gray-600">Compras</p>
+                  <p className="text-xs text-slate-600">Compras</p>
                 </div>
                 <div>
                   <div className="text-base sm:text-lg font-bold text-green-600">
                     S/{historialCliente.montoTotal.toFixed(0)}
                   </div>
-                  <p className="text-xs text-gray-600">Total</p>
+                  <p className="text-xs text-slate-600">Total</p>
                 </div>
                 <div>
                   <div className="text-base sm:text-lg font-bold text-purple-600">
                     S/{(historialCliente.montoTotal / historialCliente.totalCompras).toFixed(0)}
                   </div>
-                  <p className="text-xs text-gray-600">Promedio</p>
+                  <p className="text-xs text-slate-600">Promedio</p>
                 </div>
               </div>
               {historialCliente.ultimaCompra && (
-                <p className="mt-2 text-xs text-gray-500 text-center">
+                <p className="mt-2 text-xs text-slate-500 text-center">
                   Última compra: {historialCliente.ultimaCompra.toLocaleDateString('es-PE')}
                 </p>
               )}
@@ -691,7 +691,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
           )}
 
           {loadingHistorial && (
-            <div className="p-2 bg-gray-50 rounded-lg text-center text-sm text-gray-500">
+            <div className="p-2 bg-slate-50 rounded-lg text-center text-sm text-slate-500">
               Cargando historial...
             </div>
           )}
@@ -739,11 +739,11 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
           {/* Dirección de Entrega con Google Maps */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               <MapPin className="inline h-4 w-4 mr-1" />
               Dirección de Entrega
             </label>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="bg-white border border-slate-200 rounded-lg p-4">
               <GoogleMapsAddressInput
                 value={addressData}
                 onChange={setAddressData}
@@ -756,7 +756,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         {/* Productos */}
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="text-sm font-medium text-gray-700">Productos</h3>
+            <h3 className="text-sm font-medium text-slate-700">Productos</h3>
             <Button
               type="button"
               variant="ghost"
@@ -780,28 +780,28 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
           {/* Lista de productos agregados */}
           {lineas.length > 0 ? (
             <div className="border rounded-lg overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-slate-500">
                       Producto
                     </th>
-                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 w-44">
+                    <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 w-44">
                       Disponibilidad
                     </th>
-                    <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 w-24">
+                    <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 w-24">
                       Cant.
                     </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 w-32">
+                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 w-32">
                       Precio
                     </th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 w-32">
+                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 w-32">
                       Subtotal
                     </th>
                     <th className="px-4 py-2 w-12"></th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-slate-200">
                   {lineas.map((linea, index) => {
                     const sinStock = linea.stockDisponible < linea.cantidad;
                     const inv = linea.investigacion;
@@ -809,10 +809,10 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                       <React.Fragment key={linea.productoId}>
                         <tr className={sinStock ? 'bg-warning-50' : ''}>
                           <td className="px-4 py-2">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-slate-900">
                               {linea.sku}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-slate-500">
                               {linea.marca} - {linea.nombre}
                             </div>
                           </td>
@@ -823,13 +823,13 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                 <div className="flex items-center gap-2 text-xs">
                                   <div className="flex items-center gap-1" title="Stock en Perú (inmediato)">
                                     <MapPin className="h-3 w-3 text-green-600" />
-                                    <span className={linea.disponibilidadMultiAlmacen.stockPeru > 0 ? 'text-green-700 font-medium' : 'text-gray-400'}>
+                                    <span className={linea.disponibilidadMultiAlmacen.stockPeru > 0 ? 'text-green-700 font-medium' : 'text-slate-400'}>
                                       PE: {linea.disponibilidadMultiAlmacen.stockPeru}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-1" title="Stock en USA (requiere importación)">
                                     <Truck className="h-3 w-3 text-blue-600" />
-                                    <span className={linea.disponibilidadMultiAlmacen.stockUSA > 0 ? 'text-blue-700 font-medium' : 'text-gray-400'}>
+                                    <span className={linea.disponibilidadMultiAlmacen.stockUSA > 0 ? 'text-blue-700 font-medium' : 'text-slate-400'}>
                                       US: {linea.disponibilidadMultiAlmacen.stockUSA}
                                     </span>
                                   </div>
@@ -848,7 +848,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                         <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                                         {Math.min(linea.cantidad - linea.disponibilidadMultiAlmacen.stockPeru, linea.disponibilidadMultiAlmacen.stockUSA)} de USA
                                         {linea.disponibilidadMultiAlmacen.tiempoEstimadoDias > 0 && (
-                                          <span className="text-gray-400 ml-1">
+                                          <span className="text-slate-400 ml-1">
                                             (~{linea.disponibilidadMultiAlmacen.tiempoEstimadoDias}d)
                                           </span>
                                         )}
@@ -878,7 +878,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                               value={linea.cantidad}
                               onChange={(e) => handleUpdateLinea(index, 'cantidad', parseInt(e.target.value) || 1)}
                               className={`w-full px-2 py-1 text-center border rounded ${
-                                sinStock ? 'border-warning-400 bg-warning-50' : 'border-gray-300'
+                                sinStock ? 'border-warning-400 bg-warning-50' : 'border-slate-300'
                               }`}
                             />
                           </td>
@@ -889,7 +889,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                               step="0.01"
                               value={linea.precioUnitario}
                               onChange={(e) => handleUpdateLinea(index, 'precioUnitario', parseFloat(e.target.value) || 0)}
-                              className="w-full px-2 py-1 text-right border border-gray-300 rounded"
+                              className="w-full px-2 py-1 text-right border border-slate-300 rounded"
                             />
                             {/* Botones rápidos de precio */}
                             {inv && inv.precioPERUMin > 0 && (
@@ -934,7 +934,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                             )}
                           </td>
                           <td className="px-4 py-2 text-right">
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-medium text-slate-900">
                               {formatCurrency(linea.subtotal)}
                             </span>
                             {/* Margen — usa CTRU real del producto (preferido) o ctruEstimado de investigación (fallback) */}
@@ -955,7 +955,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                             <button
                               type="button"
                               onClick={() => handleRemoveLinea(index)}
-                              className="p-1 text-gray-400 hover:text-danger-600"
+                              className="p-1 text-slate-400 hover:text-danger-600"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -983,8 +983,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               </table>
             </div>
           ) : (
-            <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              <p className="text-sm text-gray-500">
+            <div className="text-center py-6 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
+              <p className="text-sm text-slate-500">
                 Busca y agrega productos a la cotización
               </p>
             </div>
@@ -994,7 +994,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         {/* Totales y Ajustes */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-700 border-b pb-2">
+            <h3 className="text-sm font-medium text-slate-700 border-b pb-2">
               Ajustes
             </h3>
 
@@ -1013,9 +1013,9 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                 id="incluyeEnvio"
                 checked={formData.incluyeEnvio}
                 onChange={(e) => setFormData({ ...formData, incluyeEnvio: e.target.checked })}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-slate-300 rounded"
               />
-              <label htmlFor="incluyeEnvio" className="text-sm text-gray-700">
+              <label htmlFor="incluyeEnvio" className="text-sm text-slate-700">
                 Envío incluido (gratis)
               </label>
             </div>
@@ -1032,21 +1032,21 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1">
                 Observaciones
               </label>
               <textarea
                 value={formData.observaciones}
                 onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 placeholder="Notas adicionales..."
               />
             </div>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-700 border-b pb-2">
+            <h3 className="text-sm font-medium text-slate-700 border-b pb-2">
               Resumen
             </h3>
 
@@ -1126,14 +1126,14 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               </div>
             )}
 
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div className="bg-slate-50 rounded-lg p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Subtotal:</span>
+                <span className="text-slate-600">Subtotal:</span>
                 <span className="font-medium">{formatCurrency(totales.subtotal)}</span>
               </div>
               {totales.descuento > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Descuento:</span>
+                  <span className="text-slate-600">Descuento:</span>
                   <span className="font-medium text-danger-600">
                     -{formatCurrency(totales.descuento)}
                   </span>
@@ -1141,13 +1141,13 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               )}
               {totales.envio > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Envío:</span>
+                  <span className="text-slate-600">Envío:</span>
                   <span className="font-medium">{formatCurrency(totales.envio)}</span>
                 </div>
               )}
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between">
-                  <span className="font-semibold text-gray-900">Total:</span>
+                  <span className="font-semibold text-slate-900">Total:</span>
                   <span className="text-xl font-bold text-primary-600">
                     {formatCurrency(totales.total)}
                   </span>
@@ -1159,7 +1159,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
         {/* Botones */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t">
-          <div className="text-sm text-gray-500 text-center sm:text-left">
+          <div className="text-sm text-slate-500 text-center sm:text-left">
             {clienteSeleccionado && historialCliente?.clasificacionABC === 'A' && (
               <span className="inline-flex items-center gap-1 text-green-600">
                 <Star className="h-3 w-3" />
@@ -1216,10 +1216,10 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                 <FileText className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-slate-900 mb-2">
                 {cotizacionCreada.numeroCotizacion}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-slate-600">
                 Cotización creada exitosamente para <strong>{cotizacionCreada.nombreCliente}</strong>
               </p>
               <p className="text-2xl font-bold text-primary-600 mt-3">
@@ -1237,7 +1237,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
             {/* Botones de PDF */}
             <div className="space-y-3">
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-slate-600 text-center">
                 Descarga o visualiza el PDF de la cotización para enviar a tu cliente:
               </p>
 

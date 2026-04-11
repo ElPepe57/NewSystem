@@ -279,7 +279,7 @@ export const RendimientoCambiario: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-slate-200">
         <nav className="flex space-x-4">
           {tabs.map(tab => (
             <button
@@ -288,7 +288,7 @@ export const RendimientoCambiario: React.FC = () => {
               className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 tabActiva === tab.id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -328,7 +328,7 @@ export const RendimientoCambiario: React.FC = () => {
         >
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
               <select
                 value={formTipo}
                 onChange={e => setFormTipo(e.target.value as TipoMovimientoPool)}
@@ -338,13 +338,13 @@ export const RendimientoCambiario: React.FC = () => {
                   <option key={key} value={key}>{label}</option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 {esEntrada(formTipo) ? '↑ Entrada — Recalcula TCPA' : '↓ Salida — No cambia TCPA'}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Monto USD</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Monto USD</label>
                 <input
                   type="number"
                   step="0.01"
@@ -355,7 +355,7 @@ export const RendimientoCambiario: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">TC Operación</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">TC Operación</label>
                 <input
                   type="number"
                   step="0.0001"
@@ -367,7 +367,7 @@ export const RendimientoCambiario: React.FC = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
               <input
                 type="date"
                 value={formFecha}
@@ -376,7 +376,7 @@ export const RendimientoCambiario: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notas (opcional)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Notas (opcional)</label>
               <textarea
                 value={formNotas}
                 onChange={e => setFormNotas(e.target.value)}
@@ -420,7 +420,7 @@ export const RendimientoCambiario: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Saldo USD</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Saldo USD</label>
                 <input
                   type="number"
                   step="0.01"
@@ -431,7 +431,7 @@ export const RendimientoCambiario: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">TCPA Estimado</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">TCPA Estimado</label>
                 <input
                   type="number"
                   step="0.0001"
@@ -443,7 +443,7 @@ export const RendimientoCambiario: React.FC = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha efectiva</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Fecha efectiva</label>
               <input
                 type="date"
                 value={siFecha}
@@ -492,13 +492,13 @@ export const RendimientoCambiario: React.FC = () => {
 
             {retroLoading && (
               <div className="space-y-2">
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="w-full bg-slate-200 rounded-full h-2.5">
                   <div
                     className="bg-blue-600 h-2.5 rounded-full transition-all"
                     style={{ width: `${retroPct}%` }}
                   />
                 </div>
-                <p className="text-sm text-gray-600">{retroProgress}</p>
+                <p className="text-sm text-slate-600">{retroProgress}</p>
               </div>
             )}
 
@@ -567,7 +567,7 @@ const TabResumen: React.FC<{
   const [metaInput, setMetaInput] = useState('');
   if (!resumen) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-slate-500">
         <DollarSign className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p>No hay movimientos en el pool</p>
         <p className="text-sm">Registre un saldo inicial o una conversión cambiaria para comenzar</p>
@@ -583,34 +583,34 @@ const TabResumen: React.FC<{
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Saldo Pool USD</span>
+            <span className="text-sm text-slate-500">Saldo Pool USD</span>
             <DollarSign className="w-5 h-5 text-green-500" />
           </div>
           <p className="text-2xl font-bold mt-1">$ {formatMonto(resumen.saldoUSD)}</p>
-          <p className="text-xs text-gray-500 mt-1">TCPA: {formatTC(resumen.tcpa)}</p>
+          <p className="text-xs text-slate-500 mt-1">TCPA: {formatTC(resumen.tcpa)}</p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Valor según TCPA</span>
+            <span className="text-sm text-slate-500">Valor según TCPA</span>
             <Calculator className="w-5 h-5 text-blue-500" />
           </div>
           <p className="text-2xl font-bold mt-1">S/ {formatMonto(resumen.valorPEN_tcpa)}</p>
-          <p className="text-xs text-gray-500 mt-1">$ {formatMonto(resumen.saldoUSD)} × {formatTC(resumen.tcpa)}</p>
+          <p className="text-xs text-slate-500 mt-1">$ {formatMonto(resumen.saldoUSD)} × {formatTC(resumen.tcpa)}</p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Valor de Mercado</span>
+            <span className="text-sm text-slate-500">Valor de Mercado</span>
             <TrendingUp className="w-5 h-5 text-purple-500" />
           </div>
           <p className="text-2xl font-bold mt-1">S/ {formatMonto(resumen.valorPEN_mercado)}</p>
-          <p className="text-xs text-gray-500 mt-1">TC actual: {tcMercado ? formatTC(tcMercado) : '-'}</p>
+          <p className="text-xs text-slate-500 mt-1">TC actual: {tcMercado ? formatTC(tcMercado) : '-'}</p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Ganancia No Realizada</span>
+            <span className="text-sm text-slate-500">Ganancia No Realizada</span>
             {resumen.diferenciaNoRealizada >= 0
               ? <TrendingUp className="w-5 h-5 text-green-500" />
               : <TrendingDown className="w-5 h-5 text-red-500" />
@@ -619,47 +619,47 @@ const TabResumen: React.FC<{
           <p className={`text-2xl font-bold mt-1 ${resumen.diferenciaNoRealizada >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             S/ {resumen.diferenciaNoRealizada >= 0 ? '+' : ''}{formatMonto(resumen.diferenciaNoRealizada)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Diferencia mercado vs pool</p>
+          <p className="text-xs text-slate-500 mt-1">Diferencia mercado vs pool</p>
         </Card>
       </div>
 
       {/* Resumen del período */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Movimiento del Mes</h3>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Movimiento del Mes</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <ArrowUpCircle className="w-4 h-4 text-green-500" />
-                <span className="text-sm text-gray-600">Entradas USD</span>
+                <span className="text-sm text-slate-600">Entradas USD</span>
               </div>
               <span className="font-medium text-green-600">$ {formatMonto(resumen.entradasUSD)}</span>
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <ArrowDownCircle className="w-4 h-4 text-red-500" />
-                <span className="text-sm text-gray-600">Salidas USD</span>
+                <span className="text-sm text-slate-600">Salidas USD</span>
               </div>
               <span className="font-medium text-red-600">$ {formatMonto(resumen.salidasUSD)}</span>
             </div>
             <div className="border-t pt-2 flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Operaciones</span>
+              <span className="text-sm font-medium text-slate-700">Operaciones</span>
               <span className="font-medium">{resumen.cantidadMovimientos}</span>
             </div>
           </div>
         </Card>
 
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Rendimiento Cambiario (Mes)</h3>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Rendimiento Cambiario (Mes)</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Ganancia Realizada (vs SUNAT)</span>
+              <span className="text-sm text-slate-600">Ganancia Realizada (vs SUNAT)</span>
               <span className={`font-medium ${resumen.gananciaRealizadaPEN >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 S/ {resumen.gananciaRealizadaPEN >= 0 ? '+' : ''}{formatMonto(resumen.gananciaRealizadaPEN)}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Impacto Operativo (real)</span>
+              <span className="text-sm text-slate-600">Impacto Operativo (real)</span>
               <span className={`font-medium ${resumen.gananciaOperativaPEN >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 S/ {resumen.gananciaOperativaPEN >= 0 ? '+' : ''}{formatMonto(resumen.gananciaOperativaPEN)}
               </span>
@@ -681,7 +681,7 @@ const TabResumen: React.FC<{
       {/* Meta PEN mensual */}
       <Card className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-700">Meta Mensual de Ventas PEN</h3>
+          <h3 className="text-sm font-semibold text-slate-700">Meta Mensual de Ventas PEN</h3>
           {!editingMeta ? (
             <button
               className="text-xs text-blue-600 hover:underline"
@@ -708,7 +708,7 @@ const TabResumen: React.FC<{
               >
                 Guardar
               </button>
-              <button className="text-xs text-gray-500 hover:underline" onClick={() => setEditingMeta(false)}>
+              <button className="text-xs text-slate-500 hover:underline" onClick={() => setEditingMeta(false)}>
                 Cancelar
               </button>
             </div>
@@ -723,18 +723,18 @@ const TabResumen: React.FC<{
             return (
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">Valor Pool PEN vs Meta</span>
+                  <span className="text-slate-600">Valor Pool PEN vs Meta</span>
                   <span className="font-medium">S/ {formatMonto(ventasPEN)} / S/ {formatMonto(meta)}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-slate-200 rounded-full h-3">
                   <div className={`${color} h-3 rounded-full transition-all`} style={{ width: `${pct}%` }} />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{pct.toFixed(1)}% de la meta mensual</p>
+                <p className="text-xs text-slate-500 mt-1">{pct.toFixed(1)}% de la meta mensual</p>
               </div>
             );
           })()
         ) : (
-          <p className="text-sm text-gray-400">Sin meta configurada. Configure una meta para ver el progreso.</p>
+          <p className="text-sm text-slate-400">Sin meta configurada. Configure una meta para ver el progreso.</p>
         )}
       </Card>
     </div>
@@ -751,7 +751,7 @@ const TabOperaciones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movimi
 
   if (sorted.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-slate-500">
         <ArrowLeftRight className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p>No hay operaciones registradas</p>
       </div>
@@ -761,21 +761,21 @@ const TabOperaciones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movimi
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm">
-        <thead className="bg-gray-50">
+        <thead className="bg-slate-50">
           <tr>
-            <th className="px-3 py-2 text-left font-medium text-gray-500">Fecha</th>
-            <th className="px-3 py-2 text-left font-medium text-gray-500">Tipo</th>
-            <th className="px-3 py-2 text-right font-medium text-gray-500">Monto USD</th>
-            <th className="px-3 py-2 text-right font-medium text-gray-500">TC Op.</th>
-            <th className="px-3 py-2 text-right font-medium text-gray-500">TCPA</th>
-            <th className="px-3 py-2 text-right font-medium text-gray-500">Pool USD</th>
-            <th className="px-3 py-2 text-right font-medium text-gray-500">Impacto</th>
-            <th className="px-3 py-2 text-left font-medium text-gray-500">Ref.</th>
+            <th className="px-3 py-2 text-left font-medium text-slate-500">Fecha</th>
+            <th className="px-3 py-2 text-left font-medium text-slate-500">Tipo</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">Monto USD</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">TC Op.</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">TCPA</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">Pool USD</th>
+            <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto</th>
+            <th className="px-3 py-2 text-left font-medium text-slate-500">Ref.</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-slate-100">
           {sorted.map(mov => (
-            <tr key={mov.id} className="hover:bg-gray-50">
+            <tr key={mov.id} className="hover:bg-slate-50">
               <td className="px-3 py-2 whitespace-nowrap">{formatFecha(mov.fecha)}</td>
               <td className="px-3 py-2">
                 <div className="flex items-center gap-1.5">
@@ -798,10 +798,10 @@ const TabOperaciones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movimi
                     S/ {mov.impactoCambiario >= 0 ? '+' : ''}{formatMonto(mov.impactoCambiario)}
                   </span>
                 ) : (
-                  <span className="text-gray-300">-</span>
+                  <span className="text-slate-300">-</span>
                 )}
               </td>
-              <td className="px-3 py-2 text-xs text-gray-500 max-w-[150px] truncate">
+              <td className="px-3 py-2 text-xs text-slate-500 max-w-[150px] truncate">
                 {mov.documentoOrigenNumero || mov.notas || '-'}
               </td>
             </tr>
@@ -821,7 +821,7 @@ const TabConversiones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movim
 
   if (sorted.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-slate-500">
         <DollarSign className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p>No hay conversiones vinculadas al pool</p>
         <p className="text-sm">Las conversiones cambiarias registradas en Tesorería aparecerán aquí automáticamente</p>
@@ -839,15 +839,15 @@ const TabConversiones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movim
       {/* KPI mini */}
       <div className="grid grid-cols-3 gap-3">
         <Card className="p-3 text-center">
-          <p className="text-xs text-gray-500">Compras USD (via conversión)</p>
+          <p className="text-xs text-slate-500">Compras USD (via conversión)</p>
           <p className="text-lg font-bold text-green-600">$ {formatMonto(totalComprasUSD)}</p>
         </Card>
         <Card className="p-3 text-center">
-          <p className="text-xs text-gray-500">Ventas USD (via conversión)</p>
+          <p className="text-xs text-slate-500">Ventas USD (via conversión)</p>
           <p className="text-lg font-bold text-red-600">$ {formatMonto(totalVentasUSD)}</p>
         </Card>
         <Card className="p-3 text-center">
-          <p className="text-xs text-gray-500">Impacto Cambiario Total</p>
+          <p className="text-xs text-slate-500">Impacto Cambiario Total</p>
           <p className={`text-lg font-bold ${totalImpacto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             S/ {totalImpacto >= 0 ? '+' : ''}{formatMonto(totalImpacto)}
           </p>
@@ -857,20 +857,20 @@ const TabConversiones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movim
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Fecha</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Conversión</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500">Dirección</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">Monto USD</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">TC Real</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">TCPA</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500">Impacto</th>
+              <th className="px-3 py-2 text-left font-medium text-slate-500">Fecha</th>
+              <th className="px-3 py-2 text-left font-medium text-slate-500">Conversión</th>
+              <th className="px-3 py-2 text-left font-medium text-slate-500">Dirección</th>
+              <th className="px-3 py-2 text-right font-medium text-slate-500">Monto USD</th>
+              <th className="px-3 py-2 text-right font-medium text-slate-500">TC Real</th>
+              <th className="px-3 py-2 text-right font-medium text-slate-500">TCPA</th>
+              <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100">
             {sorted.map(mov => (
-              <tr key={mov.id} className="hover:bg-gray-50">
+              <tr key={mov.id} className="hover:bg-slate-50">
                 <td className="px-3 py-2">{formatFecha(mov.fecha)}</td>
                 <td className="px-3 py-2 font-mono text-xs">{mov.documentoOrigenNumero || '-'}</td>
                 <td className="px-3 py-2">
@@ -934,7 +934,7 @@ const TabTendencias: React.FC<{
 
   if (movimientos.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-slate-500">
         <Activity className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p>No hay datos suficientes para mostrar tendencias</p>
       </div>
@@ -945,7 +945,7 @@ const TabTendencias: React.FC<{
     <div className="space-y-6">
       {/* Evolución del TCPA */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Evolución del TCPA</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Evolución del TCPA</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={tcpaData}>
@@ -962,7 +962,7 @@ const TabTendencias: React.FC<{
 
       {/* Evolución del Pool */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Evolución del Pool USD</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Evolución del Pool USD</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={tcpaData}>
@@ -979,7 +979,7 @@ const TabTendencias: React.FC<{
       {/* Snapshots mensuales */}
       {snapshotData.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Rendimiento Mensual</h3>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Rendimiento Mensual</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={snapshotData}>
@@ -1163,7 +1163,7 @@ const TabCicloPENUSD: React.FC<{
 
   if (!resumen || resumen.saldoUSD === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-slate-500">
         <TrendingUp className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p>No hay datos en el pool para analizar el ciclo PEN↔USD</p>
         <p className="text-sm mt-1">Registre movimientos en el pool para activar este análisis</p>
@@ -1177,7 +1177,7 @@ const TabCicloPENUSD: React.FC<{
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Ratio Cobertura</span>
+            <span className="text-sm text-slate-500">Ratio Cobertura</span>
             {(ratioCobertura ?? 0) >= 1
               ? <CheckCircle className="w-5 h-5 text-green-500" />
               : <AlertTriangle className="w-5 h-5 text-amber-500" />
@@ -1186,34 +1186,34 @@ const TabCicloPENUSD: React.FC<{
           <p className={`text-2xl font-bold mt-1 ${(ratioCobertura ?? 0) >= 1 ? 'text-green-600' : 'text-amber-600'}`}>
             {(ratioCobertura ?? 0).toFixed(2)}x
           </p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Ventas PEN / Costos USD×TCPA
           </p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Ventas PEN (30d)</span>
+            <span className="text-sm text-slate-500">Ventas PEN (30d)</span>
             <DollarSign className="w-5 h-5 text-blue-500" />
           </div>
           <p className="text-2xl font-bold mt-1">S/ {formatMonto(ventasData?.totalVentasPEN ?? 0)}</p>
-          <p className="text-xs text-gray-500 mt-1">Pipeline: S/ {formatMonto(ventasData?.pipelinePEN ?? 0)}</p>
+          <p className="text-xs text-slate-500 mt-1">Pipeline: S/ {formatMonto(ventasData?.pipelinePEN ?? 0)}</p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Necesidad USD</span>
+            <span className="text-sm text-slate-500">Necesidad USD</span>
             <ArrowDownCircle className="w-5 h-5 text-red-500" />
           </div>
           <p className="text-2xl font-bold mt-1">$ {formatMonto(ventasData?.necesidadUSD ?? 0)}</p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             = S/ {formatMonto((ventasData?.necesidadUSD ?? 0) * (tcMercado || tcpa))} al TC mercado
           </p>
         </Card>
 
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Cobertura Pipeline</span>
+            <span className="text-sm text-slate-500">Cobertura Pipeline</span>
             {cobertura && cobertura.coberturaPipeline >= 1
               ? <CheckCircle className="w-5 h-5 text-green-500" />
               : <AlertTriangle className="w-5 h-5 text-red-500" />
@@ -1233,29 +1233,29 @@ const TabCicloPENUSD: React.FC<{
       {/* Margen Real vs Nominal */}
       {topGap.length > 0 && (
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">
             Gap Cambiario por Producto — Margen Real vs Nominal
           </h3>
-          <p className="text-xs text-gray-500 mb-3">
+          <p className="text-xs text-slate-500 mb-3">
             Diferencia entre el margen usando TC histórico (nominal) vs TCPA del pool (real).
             Un gap negativo indica que el margen real es menor al que aparenta.
           </p>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">Producto</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Precio</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">CTRU Nominal</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">CTRU Real</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Margen Nom.</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Margen Real</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Gap</th>
+                  <th className="px-3 py-2 text-left font-medium text-slate-500">Producto</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Precio</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">CTRU Nominal</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">CTRU Real</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Margen Nom.</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Margen Real</th>
+                  <th className="px-3 py-2 text-right font-medium text-slate-500">Gap</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {topGap.map(m => (
-                  <tr key={m.productoId} className="hover:bg-gray-50">
+                  <tr key={m.productoId} className="hover:bg-slate-50">
                     <td className="px-3 py-2 max-w-[200px] truncate">{m.nombreProducto}</td>
                     <td className="px-3 py-2 text-right font-mono">S/ {formatMonto(m.precioVenta)}</td>
                     <td className="px-3 py-2 text-right font-mono">S/ {formatMonto(m.ctruNominal)}</td>
@@ -1290,7 +1290,7 @@ const TabCicloPENUSD: React.FC<{
           <div className="space-y-2">
             {alertasReposicion.map(p => (
               <div key={p.productoId} className="flex items-center justify-between bg-white rounded-lg p-2 border border-amber-200">
-                <span className="text-sm font-medium text-gray-800 truncate max-w-[200px]">{p.nombreProducto}</span>
+                <span className="text-sm font-medium text-slate-800 truncate max-w-[200px]">{p.nombreProducto}</span>
                 <div className="flex items-center gap-4 text-sm">
                   <span className="text-red-600">
                     Venta: S/ {formatMonto(p.precioVentaActual ?? 0)}
@@ -1311,9 +1311,9 @@ const TabCicloPENUSD: React.FC<{
       {/* Info si no hay datos */}
       {!ventasData?.productos.length && (
         <Card className="p-6 text-center">
-          <Info className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No hay ventas recientes para analizar el ciclo PEN↔USD</p>
-          <p className="text-xs text-gray-400 mt-1">Los datos se cargan de las ventas de los últimos 30 días</p>
+          <Info className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+          <p className="text-slate-500">No hay ventas recientes para analizar el ciclo PEN↔USD</p>
+          <p className="text-xs text-slate-400 mt-1">Los datos se cargan de las ventas de los últimos 30 días</p>
         </Card>
       )}
     </div>
@@ -1366,7 +1366,7 @@ const TabSimuladorTC: React.FC<{
 
   if (!resumen || resumen.saldoUSD === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-slate-500">
         <Calculator className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p>No hay datos en el pool para simular escenarios</p>
       </div>
@@ -1391,10 +1391,10 @@ const TabSimuladorTC: React.FC<{
 
       {/* Custom TC input */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Simular TC Específico</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Simular TC Específico</h3>
         <div className="flex items-end gap-3">
           <div className="flex-1 max-w-xs">
-            <label className="block text-xs text-gray-500 mb-1">Tipo de Cambio</label>
+            <label className="block text-xs text-slate-500 mb-1">Tipo de Cambio</label>
             <input
               type="number"
               step="0.01"
@@ -1407,19 +1407,19 @@ const TabSimuladorTC: React.FC<{
           {escenarioCustom && (
             <div className="flex gap-4 text-sm pb-2">
               <div className="text-center">
-                <p className="text-xs text-gray-500">Variación</p>
+                <p className="text-xs text-slate-500">Variación</p>
                 <p className={`font-bold ${escenarioCustom.variacionPct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
                   {escenarioCustom.variacionPct >= 0 ? '+' : ''}{escenarioCustom.variacionPct.toFixed(1)}%
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-gray-500">Pool PEN</p>
+                <p className="text-xs text-slate-500">Pool PEN</p>
                 <p className={`font-bold ${escenarioCustom.impactoPoolPEN >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {escenarioCustom.impactoPoolPEN >= 0 ? '+' : ''}S/ {formatMonto(escenarioCustom.impactoPoolPEN)}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-gray-500">Margen</p>
+                <p className="text-xs text-slate-500">Margen</p>
                 <p className={`font-bold ${escenarioCustom.impactoMargenPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {escenarioCustom.impactoMargenPct >= 0 ? '+' : ''}{escenarioCustom.impactoMargenPct.toFixed(1)}%
                 </p>
@@ -1431,25 +1431,25 @@ const TabSimuladorTC: React.FC<{
 
       {/* Tabla de escenarios predefinidos */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Escenarios Predefinidos</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Escenarios Predefinidos</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-500">Escenario</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-500">TC</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-500">Variación</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-500">Impacto Pool</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-500">Impacto CTRU</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-500">Impacto Margen</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-500">Nec. Ventas PEN</th>
+                <th className="px-3 py-2 text-left font-medium text-slate-500">Escenario</th>
+                <th className="px-3 py-2 text-right font-medium text-slate-500">TC</th>
+                <th className="px-3 py-2 text-right font-medium text-slate-500">Variación</th>
+                <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto Pool</th>
+                <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto CTRU</th>
+                <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto Margen</th>
+                <th className="px-3 py-2 text-right font-medium text-slate-500">Nec. Ventas PEN</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {escenarios.map((esc, i) => {
                 const isBase = esc.variacionPct === 0;
                 return (
-                  <tr key={i} className={isBase ? 'bg-blue-50' : 'hover:bg-gray-50'}>
+                  <tr key={i} className={isBase ? 'bg-blue-50' : 'hover:bg-slate-50'}>
                     <td className={`px-3 py-2 font-medium ${isBase ? 'text-blue-700' : ''}`}>
                       {esc.nombre}
                     </td>
@@ -1479,7 +1479,7 @@ const TabSimuladorTC: React.FC<{
 
       {/* Gráfico visual de impacto */}
       <Card className="p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Impacto Visual por Escenario</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Impacto Visual por Escenario</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={escenarios}>

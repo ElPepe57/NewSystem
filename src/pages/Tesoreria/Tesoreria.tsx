@@ -789,7 +789,7 @@ export const Tesoreria: React.FC = () => {
       )}
 
       {/* Tabs Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-slate-200">
         <nav className="-mb-px flex sm:space-x-8">
           {([
             { key: 'movimientos', icon: Wallet, label: 'Movimientos', labelSm: 'Mov.' },
@@ -805,7 +805,7 @@ export const Tesoreria: React.FC = () => {
               className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
                 tabActiva === key
                   ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
               <Icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />

@@ -121,7 +121,7 @@ export const ProductosIntel: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <PageHeader
         title="Inteligencia de Productos"
@@ -133,11 +133,11 @@ export const ProductosIntel: React.FC = () => {
       <LineaFilterInline />
 
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             {/* Tabs */}
-            <div className="flex justify-between bg-gray-100 rounded-lg p-1 gap-1 w-full sm:w-auto">
+            <div className="flex justify-between bg-slate-100 rounded-lg p-1 gap-1 w-full sm:w-auto">
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 const isActive = tabActiva === tab.key;
@@ -149,7 +149,7 @@ export const ProductosIntel: React.FC = () => {
                       flex-1 sm:flex-initial relative flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-1.5 rounded-md font-medium transition-colors
                       ${isActive
                         ? 'bg-white text-blue-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'}
+                        : 'text-slate-600 hover:text-slate-900'}
                     `}
                   >
                     <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-blue-600' : ''}`} />
@@ -160,14 +160,14 @@ export const ProductosIntel: React.FC = () => {
                         {/* Mobile: badge superpuesto */}
                         <span className={`
                           sm:hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-bold
-                          ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-400 text-white'}
+                          ${isActive ? 'bg-blue-600 text-white' : 'bg-slate-400 text-white'}
                         `}>
                           {tab.count}
                         </span>
                         {/* Desktop: badge inline */}
                         <span className={`
                           hidden sm:inline px-1.5 py-0.5 rounded text-xs
-                          ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'}
+                          ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'}
                         `}>
                           {tab.count}
                         </span>
@@ -196,7 +196,7 @@ export const ProductosIntel: React.FC = () => {
 
               {/* Ultima actualizacion */}
               {ultimaActualizacion && (
-                <span className="text-xs text-gray-500 hidden sm:inline">
+                <span className="text-xs text-slate-500 hidden sm:inline">
                   Actualizado: {ultimaActualizacion.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
                 </span>
               )}
@@ -231,7 +231,7 @@ export const ProductosIntel: React.FC = () => {
             {/* KPIs principales */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
               {[
-                { label: 'Productos Activos', value: productosIntel.length, color: 'blue', icon: Package, valueColor: 'text-gray-900' },
+                { label: 'Productos Activos', value: productosIntel.length, color: 'blue', icon: Package, valueColor: 'text-slate-900' },
                 { label: 'Alta Liquidez', value: productosIntel.filter(p => p.liquidez.clasificacion === 'alta').length, color: 'green', icon: TrendingUp, valueColor: 'text-green-600' },
                 { label: 'Caja Congelada', value: productosIntel.filter(p => p.liquidez.clasificacion === 'critica' || p.liquidez.clasificacion === 'baja').length, color: 'red', icon: AlertTriangle, valueColor: 'text-red-600' },
                 { label: 'Repos. Urgente', value: sugerenciasReposicion.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length, color: 'purple', icon: Wallet, valueColor: 'text-purple-600' },
@@ -243,7 +243,7 @@ export const ProductosIntel: React.FC = () => {
                   <Card key={kpi.label} className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-1">
                       <div>
-                        <p className="text-[11px] sm:text-sm text-gray-500 leading-tight">{kpi.label}</p>
+                        <p className="text-[11px] sm:text-sm text-slate-500 leading-tight">{kpi.label}</p>
                         <p className={`text-2xl sm:text-2xl font-bold ${kpi.valueColor} mt-1`}>{kpi.value}</p>
                       </div>
                       <div className={`p-1.5 sm:p-2.5 ${bgMap[kpi.color]} rounded-lg flex-shrink-0`}>
@@ -287,7 +287,7 @@ export const ProductosIntel: React.FC = () => {
             {/* Top productos liquidez */}
             <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Top Productos por Liquidez</h3>
+                <h3 className="font-semibold text-slate-900">Top Productos por Liquidez</h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -320,13 +320,13 @@ export const ProductosIntel: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               {/* Busqueda */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Buscar producto..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -334,7 +334,7 @@ export const ProductosIntel: React.FC = () => {
               <select
                 value={filtroLiquidez}
                 onChange={(e) => setFiltroLiquidez(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="todos">Todas las categorías</option>
                 <optgroup label="Por Tipo de Caja">
@@ -355,7 +355,7 @@ export const ProductosIntel: React.FC = () => {
               <select
                 value={filtroRotacion}
                 onChange={(e) => setFiltroRotacion(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="todos">Todas las rotaciones</option>
                 <option value="muy_alta">Muy alta (&lt;7d)</option>
@@ -370,7 +370,7 @@ export const ProductosIntel: React.FC = () => {
               <select
                 value={ordenarPor}
                 onChange={(e) => setOrdenarPor(e.target.value as any)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               >
                 <option value="score">Ordenar por Score</option>
                 <option value="rotacion">Ordenar por Rotacion</option>
@@ -380,7 +380,7 @@ export const ProductosIntel: React.FC = () => {
               </select>
 
               {/* Vista */}
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center bg-slate-100 rounded-lg p-1">
                 <button
                   onClick={() => setVistaProductos('tabla')}
                   className={`p-2 rounded ${vistaProductos === 'tabla' ? 'bg-white shadow-sm' : ''}`}
@@ -397,14 +397,14 @@ export const ProductosIntel: React.FC = () => {
             </div>
 
             {/* Contador */}
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500">
               Mostrando {productosFiltrados.length} de {productosIntel.length} productos
             </p>
 
             {/* Lista de productos */}
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <RefreshCw className="h-8 w-8 text-gray-400 animate-spin" />
+                <RefreshCw className="h-8 w-8 text-slate-400 animate-spin" />
               </div>
             ) : vistaProductos === 'tabla' ? (
               <ProductoIntelTable
@@ -470,7 +470,7 @@ export const ProductosIntel: React.FC = () => {
             {/* Alertas */}
             {productoSeleccionado.alertas.length > 0 && (
               <div className="space-y-2">
-                <h4 className="font-medium text-gray-700">Alertas</h4>
+                <h4 className="font-medium text-slate-700">Alertas</h4>
                 {productoSeleccionado.alertas.map((alerta, idx) => (
                   <div
                     key={idx}

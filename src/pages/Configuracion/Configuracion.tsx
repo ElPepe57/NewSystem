@@ -162,7 +162,7 @@ export const Configuracion: React.FC = () => {
       <Toolbar />
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-slate-200">
         <nav className="flex overflow-x-auto scrollbar-hide gap-4 sm:gap-8 -mb-px">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -176,7 +176,7 @@ export const Configuracion: React.FC = () => {
                   flex items-center py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap
                   ${isActive
                     ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                   }
                 `}
               >
@@ -194,8 +194,8 @@ export const Configuracion: React.FC = () => {
         {activeTab === 'empresa' && (
           <Card padding="lg">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Información de la Empresa</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-xl font-semibold text-slate-900">Información de la Empresa</h2>
+              <p className="text-sm text-slate-600 mt-1">
                 Datos generales de tu empresa
               </p>
             </div>
@@ -211,8 +211,8 @@ export const Configuracion: React.FC = () => {
         {activeTab === 'general' && (
           <Card padding="lg">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Configuración General</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-xl font-semibold text-slate-900">Configuración General</h2>
+              <p className="text-sm text-slate-600 mt-1">
                 Parámetros de operación del sistema
               </p>
             </div>
@@ -230,8 +230,8 @@ export const Configuracion: React.FC = () => {
         {activeTab === 'perfil' && user && (
           <Card padding="lg">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Mi Perfil</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h2 className="text-xl font-semibold text-slate-900">Mi Perfil</h2>
+              <p className="text-sm text-slate-600 mt-1">
                 Información de tu cuenta
               </p>
             </div>
@@ -242,31 +242,31 @@ export const Configuracion: React.FC = () => {
                   <User className="h-10 w-10 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{user.displayName || 'Usuario'}</h3>
-                  <p className="text-sm text-gray-600">{user.email}</p>
+                  <h3 className="text-lg font-semibold text-slate-900">{user.displayName || 'Usuario'}</h3>
+                  <p className="text-sm text-slate-600">{user.email}</p>
                 </div>
               </div>
 
               <div className="border-t pt-4 space-y-3">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-700">UID</label>
-                    <p className="text-sm text-gray-900 font-mono">{user.uid}</p>
+                    <label className="text-sm font-medium text-slate-700">UID</label>
+                    <p className="text-sm text-slate-900 font-mono">{user.uid}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Rol</label>
-                    <p className="text-sm text-gray-900">Administrador</p>
+                    <label className="text-sm font-medium text-slate-700">Rol</label>
+                    <p className="text-sm text-slate-900">Administrador</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Email</label>
-                  <p className="text-sm text-gray-900">{user.email}</p>
+                  <label className="text-sm font-medium text-slate-700">Email</label>
+                  <p className="text-sm text-slate-900">{user.email}</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Estado de verificación</label>
-                  <p className="text-sm text-gray-900">
+                  <label className="text-sm font-medium text-slate-700">Estado de verificación</label>
+                  <p className="text-sm text-slate-900">
                     {user.emailVerified ? (
                       <span className="text-success-600">✓ Email verificado</span>
                     ) : (
@@ -277,7 +277,7 @@ export const Configuracion: React.FC = () => {
               </div>
 
               <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-slate-600">
                   Para cambiar tu contraseña o actualizar información de la cuenta,
                   contacta al administrador del sistema.
                 </p>
@@ -292,11 +292,11 @@ export const Configuracion: React.FC = () => {
             {/* Sincronización */}
             <Card padding="lg">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
                   <RefreshCw className="h-6 w-6" />
                   Sincronización de Datos
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-slate-600 mt-1">
                   Sincroniza todos los módulos con Firebase para limpiar referencias huérfanas
                   y actualizar contadores cuando se han eliminado datos directamente desde la consola.
                 </p>
@@ -325,13 +325,13 @@ export const Configuracion: React.FC = () => {
                   </Button>
 
                   {syncMessage && (
-                    <span className="text-sm text-gray-600">{syncMessage}</span>
+                    <span className="text-sm text-slate-600">{syncMessage}</span>
                   )}
                 </div>
 
                 {/* Barra de progreso */}
                 {isSyncing && (
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
                       className="bg-primary-600 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${syncProgress}%` }}
@@ -356,19 +356,19 @@ export const Configuracion: React.FC = () => {
                       </div>
                       <div className="mt-2 grid grid-cols-4 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">Actualizados:</span>
+                          <span className="text-slate-600">Actualizados:</span>
                           <span className="ml-2 font-medium text-blue-600">{syncResult.resumen.totalActualizados}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Eliminados:</span>
+                          <span className="text-slate-600">Eliminados:</span>
                           <span className="ml-2 font-medium text-red-600">{syncResult.resumen.totalEliminados}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Refs. limpiadas:</span>
+                          <span className="text-slate-600">Refs. limpiadas:</span>
                           <span className="ml-2 font-medium text-purple-600">{syncResult.resumen.totalReferenciasLimpiadas}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Errores:</span>
+                          <span className="text-slate-600">Errores:</span>
                           <span className="ml-2 font-medium text-amber-600">{syncResult.resumen.totalErrores}</span>
                         </div>
                       </div>
@@ -377,16 +377,16 @@ export const Configuracion: React.FC = () => {
                     {/* Detalle por módulo */}
                     <div className="divide-y">
                       {syncResult.resultados.map((resultado, idx) => (
-                        <div key={idx} className="px-4 py-3 flex items-center justify-between hover:bg-gray-50">
+                        <div key={idx} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50">
                           <div className="flex items-center gap-2">
                             {resultado.errores.length === 0 ? (
                               <CheckCircle className="h-4 w-4 text-green-500" />
                             ) : (
                               <AlertCircle className="h-4 w-4 text-amber-500" />
                             )}
-                            <span className="font-medium text-gray-900">{resultado.modulo}</span>
+                            <span className="font-medium text-slate-900">{resultado.modulo}</span>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-4 text-sm text-slate-600">
                             {resultado.registrosActualizados > 0 && (
                               <span className="text-blue-600">{resultado.registrosActualizados} act.</span>
                             )}
@@ -403,7 +403,7 @@ export const Configuracion: React.FC = () => {
                              resultado.registrosEliminados === 0 &&
                              resultado.referenciasLimpiadas === 0 &&
                              resultado.errores.length === 0 && (
-                              <span className="text-gray-400">Sin cambios</span>
+                              <span className="text-slate-400">Sin cambios</span>
                             )}
                           </div>
                         </div>
@@ -428,15 +428,15 @@ export const Configuracion: React.FC = () => {
             {/* Información del sistema */}
             <Card padding="lg">
               <div className="mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Información del Sistema</h2>
+                <h2 className="text-xl font-semibold text-slate-900">Información del Sistema</h2>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600">Versión:</span>
+                  <span className="text-slate-600">Versión:</span>
                   <span className="ml-2 font-mono">2.0.0</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Entorno:</span>
+                  <span className="text-slate-600">Entorno:</span>
                   <span className="ml-2 font-mono">{import.meta.env.MODE}</span>
                 </div>
               </div>

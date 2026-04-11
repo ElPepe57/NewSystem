@@ -72,7 +72,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
       <div className="space-y-4">
         {/* Empleado */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Empleado</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Empleado</label>
           <select
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
@@ -87,7 +87,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
 
         {/* Tipo */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value as TipoAdelanto)}
@@ -101,7 +101,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
 
         {/* Descripcion */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Descripcion</label>
           <input
             type="text"
             value={descripcion}
@@ -114,7 +114,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
         {/* Monto + Moneda */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Monto</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Monto</label>
             <input
               type="number"
               value={monto}
@@ -125,7 +125,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
             <select
               value={moneda}
               onChange={(e) => setMoneda(e.target.value as 'PEN' | 'USD')}
@@ -139,7 +139,7 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
 
         {moneda === 'USD' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de cambio</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de cambio</label>
             <input
               type="number"
               value={tipoCambio}

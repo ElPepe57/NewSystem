@@ -80,7 +80,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
     <Modal isOpen={open} onClose={onClose} title={`Perfil Laboral — ${empleado.displayName}`} size="lg">
       <div className="space-y-4">
         {/* Info del usuario */}
-        <div className="bg-gray-50 rounded-lg p-3 text-sm">
+        <div className="bg-slate-50 rounded-lg p-3 text-sm">
           <div><span className="font-medium">Email:</span> {empleado.email}</div>
           <div><span className="font-medium">Cargo:</span> {empleado.cargo || '—'}</div>
           <div><span className="font-medium">Rol:</span> {empleado.role}</div>
@@ -88,7 +88,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
 
         {/* Tipo */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de perfil</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de perfil</label>
           <div className="flex gap-2">
             {(Object.entries(TIPO_EMPLEADO_LABELS) as [TipoEmpleado, string][]).map(([key, label]) => (
               <button
@@ -98,7 +98,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                 className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
                   tipo === key
                     ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 {label}
@@ -111,7 +111,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
         {tipo !== 'comisionista' && (
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Salario base mensual</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Salario base mensual</label>
               <input
                 type="number"
                 value={salarioBase}
@@ -122,7 +122,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
               <select
                 value={monedaSalario}
                 onChange={(e) => setMonedaSalario(e.target.value as 'PEN' | 'USD')}
@@ -137,12 +137,12 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
 
         {/* Comisiones */}
         <div className="border rounded-lg p-3 space-y-3">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
             <input
               type="checkbox"
               checked={tieneComision}
               onChange={(e) => setTieneComision(e.target.checked)}
-              className="rounded border-gray-300"
+              className="rounded border-slate-300"
             />
             Esquema de comisiones por ventas
           </label>
@@ -156,7 +156,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                   className={`px-3 py-1.5 text-sm rounded-lg border ${
                     tipoComision === 'porcentaje_venta'
                       ? 'bg-indigo-100 border-indigo-300 text-indigo-700'
-                      : 'bg-white border-gray-300'
+                      : 'bg-white border-slate-300'
                   }`}
                 >
                   % de la venta
@@ -167,7 +167,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                   className={`px-3 py-1.5 text-sm rounded-lg border ${
                     tipoComision === 'monto_fijo'
                       ? 'bg-indigo-100 border-indigo-300 text-indigo-700'
-                      : 'bg-white border-gray-300'
+                      : 'bg-white border-slate-300'
                   }`}
                 >
                   Monto fijo por venta
@@ -176,7 +176,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
 
               {tipoComision === 'porcentaje_venta' ? (
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Porcentaje sobre totalPEN</label>
+                  <label className="block text-xs text-slate-600 mb-1">Porcentaje sobre totalPEN</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
@@ -187,12 +187,12 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
                       min="0"
                       max="100"
                     />
-                    <span className="text-sm text-gray-500">%</span>
+                    <span className="text-sm text-slate-500">%</span>
                   </div>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Monto fijo por venta (PEN)</label>
+                  <label className="block text-xs text-slate-600 mb-1">Monto fijo por venta (PEN)</label>
                   <input
                     type="number"
                     value={montoFijo}
@@ -209,10 +209,10 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
 
         {/* Datos bancarios */}
         <div className="border-t pt-3">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Datos bancarios (opcional)</h4>
+          <h4 className="text-sm font-medium text-slate-700 mb-2">Datos bancarios (opcional)</h4>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Banco</label>
+              <label className="block text-xs text-slate-600 mb-1">Banco</label>
               <input
                 type="text"
                 value={banco}
@@ -222,7 +222,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Nro. cuenta</label>
+              <label className="block text-xs text-slate-600 mb-1">Nro. cuenta</label>
               <input
                 type="text"
                 value={numeroCuenta}
@@ -231,7 +231,7 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">CCI</label>
+              <label className="block text-xs text-slate-600 mb-1">CCI</label>
               <input
                 type="text"
                 value={cci}

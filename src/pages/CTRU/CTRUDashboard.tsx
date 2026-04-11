@@ -56,7 +56,7 @@ export const CTRUDashboard: React.FC = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Cargando datos de CTRU...</p>
+          <p className="mt-4 text-slate-600">Cargando datos de CTRU...</p>
         </div>
       </div>
     );
@@ -92,7 +92,7 @@ export const CTRUDashboard: React.FC = () => {
                 className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                   tabActiva === tab.id
                     ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
                 <span className="hidden sm:inline">{tab.icon}</span>
@@ -100,7 +100,7 @@ export const CTRUDashboard: React.FC = () => {
                 <span className="hidden sm:inline">{tab.label}</span>
                 {tab.badge !== undefined && tab.badge > 0 && (
                   <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    tabActiva === tab.id ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-600'
+                    tabActiva === tab.id ? 'bg-blue-200 text-blue-800' : 'bg-slate-200 text-slate-600'
                   }`}>
                     {tab.badge}
                   </span>
@@ -111,13 +111,13 @@ export const CTRUDashboard: React.FC = () => {
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Toggle Contable/Gerencial — solo visible en tab Catálogo */}
             {tabActiva === 'catalogo' && (
-              <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+              <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
                 <button
                   onClick={() => setVistaCosto('contable')}
                   className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-md transition-colors ${
                     vistaCosto === 'contable'
                       ? 'bg-white text-blue-700 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                   title="CTRU Contable: Precio + Costos Landed. Para P&L y estados financieros."
                 >
@@ -129,7 +129,7 @@ export const CTRUDashboard: React.FC = () => {
                   className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-md transition-colors ${
                     vistaCosto === 'gerencial'
                       ? 'bg-white text-emerald-700 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                   title="CTRU Gerencial: Precio + Costos Landed (todas las unidades). Para cotizar y fijar precios."
                 >
@@ -139,7 +139,7 @@ export const CTRUDashboard: React.FC = () => {
               </div>
             )}
             {resumen && (
-              <div className="text-xs text-gray-500 hidden sm:block">
+              <div className="text-xs text-slate-500 hidden sm:block">
                 {productosFiltrados.length} productos · {productosFiltrados.filter(p => p.unidadesActivas > 0).length} en inventario · {productosFiltrados.reduce((s, p) => s + p.unidadesActivas + p.unidadesVendidas, 0)} unidades
               </div>
             )}
@@ -163,9 +163,9 @@ export const CTRUDashboard: React.FC = () => {
         {resumen && resumen.totalProductos === 0 && tabActiva === 'resumen' && (
           <Card>
             <div className="text-center py-12">
-              <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900">Sin datos de productos</h3>
-              <p className="text-gray-500 mt-2">
+              <Package className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-900">Sin datos de productos</h3>
+              <p className="text-slate-500 mt-2">
                 No hay unidades registradas para calcular CTRU.
                 <br />
                 Registra recepciones de ordenes de compra para ver los costos aqui.

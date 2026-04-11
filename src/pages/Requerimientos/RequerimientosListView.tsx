@@ -30,7 +30,7 @@ interface RequerimientosListViewProps {
 
 const getEstadoBadge = (estado: EstadoRequerimiento) => {
   const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
-    borrador: { color: 'bg-gray-100 text-gray-800', icon: <Clock className="h-3 w-3" /> },
+    borrador: { color: 'bg-slate-100 text-slate-800', icon: <Clock className="h-3 w-3" /> },
     pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
     pendiente_aprobacion: { color: 'bg-amber-100 text-amber-800 border border-amber-300', icon: <ShieldAlert className="h-3 w-3" /> },
     aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
@@ -59,7 +59,7 @@ const getPrioridadBadge = (prioridad: string) => {
     alta: 'bg-red-100 text-red-800 border-red-200',
     media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    baja: 'bg-gray-100 text-gray-800 border-gray-200'
+    baja: 'bg-slate-100 text-slate-800 border-slate-200'
   };
 
   return (
@@ -73,7 +73,7 @@ const getPrioridadBadge = (prioridad: string) => {
 const getSolicitanteIcon = (tipo: TipoSolicitante) => {
   switch (tipo) {
     case 'cliente': return <Users className="h-4 w-4 text-blue-500" />;
-    case 'administracion': return <Building2 className="h-4 w-4 text-gray-500" />;
+    case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
     case 'ventas': return <Target className="h-4 w-4 text-green-500" />;
     case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
     default: return null;
@@ -101,8 +101,8 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
 }) => {
   return (
     <Card padding="none">
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">
+      <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-slate-900">
           Requerimientos ({requerimientos.length})
         </h3>
         <Button variant="ghost" size="sm" onClick={onRefresh}>
@@ -110,37 +110,37 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
         </Button>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N Req</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Solicitante</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Productos</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Costo Est. USD</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Prioridad</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">N Req</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Solicitante</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Productos</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Costo Est. USD</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Prioridad</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Estado</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-8 text-center text-slate-500">
                   <Loader2 className="h-6 w-6 animate-spin text-primary-600 mx-auto" />
                 </td>
               </tr>
             ) : requerimientos.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-8 text-center text-gray-500">No hay requerimientos registrados</td>
+                <td colSpan={8} className="px-6 py-8 text-center text-slate-500">No hay requerimientos registrados</td>
               </tr>
             ) : (
               requerimientos.map((req) => (
-                <tr key={req.id} className="hover:bg-gray-50">
+                <tr key={req.id} className="hover:bg-slate-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="font-medium text-primary-600">{req.numeroRequerimiento}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                     {formatDate(req.fechaCreacion)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -149,9 +149,9 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
                       <span className="ml-2">{getSolicitanteLabel(req)}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-slate-900">
                     <div className="flex items-center">
-                      <Package className="h-4 w-4 text-gray-400 mr-2" />
+                      <Package className="h-4 w-4 text-slate-400 mr-2" />
                       {req.productos.length} producto(s)
                     </div>
                   </td>

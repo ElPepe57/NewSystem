@@ -71,8 +71,8 @@ export const BoletaDetalle: React.FC<BoletaDetalleProps> = ({ boleta, open, onCl
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-lg font-semibold">{boleta.empleadoNombre}</h3>
-            <p className="text-sm text-gray-500">{boleta.empleadoCargo || '—'}</p>
-            <p className="text-sm text-gray-500">Periodo: {MESES[boleta.mes - 1]} {boleta.anio}</p>
+            <p className="text-sm text-slate-500">{boleta.empleadoCargo || '—'}</p>
+            <p className="text-sm text-slate-500">Periodo: {MESES[boleta.mes - 1]} {boleta.anio}</p>
           </div>
           <Badge variant={boleta.estado === 'pagada' ? 'success' : boleta.estado === 'aprobada' ? 'warning' : 'default'}>
             {ESTADO_BOLETA_LABELS[boleta.estado]}
@@ -146,12 +146,12 @@ export const BoletaDetalle: React.FC<BoletaDetalleProps> = ({ boleta, open, onCl
         {/* Detalle comisiones */}
         {boleta.detalleComisiones.length > 0 && (
           <details className="border rounded-lg">
-            <summary className="px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50">
+            <summary className="px-4 py-2 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
               Detalle de comisiones ({boleta.detalleComisiones.length} ventas)
             </summary>
             <div className="border-t max-h-[200px] overflow-y-auto">
               <table className="w-full text-xs">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
                     <th className="px-3 py-1.5 text-left">Venta</th>
                     <th className="px-3 py-1.5 text-right">Monto</th>

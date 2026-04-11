@@ -197,11 +197,11 @@ export const DevolucionFormModal: React.FC<Props> = ({
       ) : venta ? (
         <div className="space-y-6">
           {/* Información de la venta */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-600">
+          <div className="bg-slate-50 rounded-lg p-4">
+            <p className="text-sm text-slate-600">
               <span className="font-medium">Cliente:</span> {venta.nombreCliente}
             </p>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               <span className="font-medium">Total de la venta:</span>{' '}
               {formatCurrencyPEN(venta.totalPEN)}
             </p>
@@ -209,8 +209,8 @@ export const DevolucionFormModal: React.FC<Props> = ({
 
           {/* Selección de productos */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <Package className="h-4 w-4 text-gray-500" />
+            <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <Package className="h-4 w-4 text-slate-500" />
               Productos a devolver
             </h3>
             <div className="space-y-2">
@@ -220,7 +220,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
                   className={`rounded-lg border p-3 transition-colors ${
                     prod.seleccionado
                       ? 'border-primary-300 bg-primary-50'
-                      : 'border-gray-200 bg-white'
+                      : 'border-slate-200 bg-white'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -229,30 +229,30 @@ export const DevolucionFormModal: React.FC<Props> = ({
                       id={`prod-${prod.productoId}`}
                       checked={prod.seleccionado}
                       onChange={() => toggleProducto(index)}
-                      className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                     />
                     <label
                       htmlFor={`prod-${prod.productoId}`}
                       className="flex-1 cursor-pointer"
                     >
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-slate-900">
                         {prod.nombreProducto}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-slate-500 mt-0.5">
                         SKU: {prod.sku} &middot; Vendido: {prod.cantidadVendida} ud. &middot;{' '}
                         {formatCurrencyPEN(prod.precioUnitarioOriginal)} / ud.
                       </p>
                     </label>
                     {prod.seleccionado && (
                       <div className="flex items-center gap-2">
-                        <label className="text-xs text-gray-600">Cant.:</label>
+                        <label className="text-xs text-slate-600">Cant.:</label>
                         <input
                           type="number"
                           min={1}
                           max={prod.cantidadVendida}
                           value={prod.cantidadDevolver}
                           onChange={e => setCantidad(index, parseInt(e.target.value, 10) || 1)}
-                          className="w-16 text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          className="w-16 text-sm border border-slate-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
                         />
                       </div>
                     )}
@@ -266,7 +266,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
           <div>
             <label
               htmlFor="motivo-devolucion"
-              className="block text-sm font-semibold text-gray-700 mb-1"
+              className="block text-sm font-semibold text-slate-700 mb-1"
             >
               Motivo de devolución <span className="text-red-500">*</span>
             </label>
@@ -274,7 +274,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
               id="motivo-devolucion"
               value={motivo}
               onChange={e => setMotivo(e.target.value as MotivoDevolucion)}
-              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               {MOTIVOS_DEVOLUCION.map(m => (
                 <option key={m.value} value={m.value}>
@@ -289,7 +289,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
             <div>
               <label
                 htmlFor="detalle-motivo"
-                className="block text-sm font-semibold text-gray-700 mb-1"
+                className="block text-sm font-semibold text-slate-700 mb-1"
               >
                 Detalle del motivo <span className="text-red-500">*</span>
               </label>
@@ -299,7 +299,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
                 onChange={e => setDetalleMotivo(e.target.value)}
                 rows={3}
                 placeholder="Describe el motivo de la devolución..."
-                className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
               />
             </div>
           )}
@@ -308,10 +308,10 @@ export const DevolucionFormModal: React.FC<Props> = ({
           <div>
             <label
               htmlFor="observaciones-devolucion"
-              className="block text-sm font-semibold text-gray-700 mb-1"
+              className="block text-sm font-semibold text-slate-700 mb-1"
             >
               Observaciones{' '}
-              <span className="text-gray-400 font-normal">(opcional)</span>
+              <span className="text-slate-400 font-normal">(opcional)</span>
             </label>
             <textarea
               id="observaciones-devolucion"
@@ -319,7 +319,7 @@ export const DevolucionFormModal: React.FC<Props> = ({
               onChange={e => setObservaciones(e.target.value)}
               rows={2}
               placeholder="Información adicional para el equipo de almacén..."
-              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+              className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
             />
           </div>
 
@@ -342,14 +342,14 @@ export const DevolucionFormModal: React.FC<Props> = ({
 
           {/* Advertencia si no hay productos seleccionados */}
           {productosSeleccionados.length === 0 && (
-            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
-              <AlertTriangle className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 rounded-lg p-3">
+              <AlertTriangle className="h-4 w-4 text-slate-400 flex-shrink-0" />
               <span>Selecciona al menos un producto para continuar.</span>
             </div>
           )}
 
           {/* Botones */}
-          <div className="flex justify-end gap-3 pt-2 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-2 border-t border-slate-200">
             <Button variant="secondary" onClick={handleClose} disabled={submitting}>
               Cancelar
             </Button>

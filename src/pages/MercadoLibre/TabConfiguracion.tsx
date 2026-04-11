@@ -105,8 +105,8 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
   return (
     <div className="space-y-6 max-w-2xl">
       {/* Estado de conexión */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Conexión</h3>
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <h3 className="font-semibold text-slate-900 mb-4">Conexión</h3>
         {config?.connected ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -115,29 +115,29 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
               <div>
-                <span className="text-gray-500">Usuario:</span>
+                <span className="text-slate-500">Usuario:</span>
                 <span className="ml-2 font-medium">{config.nickname}</span>
               </div>
               <div>
-                <span className="text-gray-500">ID:</span>
+                <span className="text-slate-500">ID:</span>
                 <span className="ml-2 font-mono text-xs">{config.userId}</span>
               </div>
               {config.email && (
                 <div className="break-all">
-                  <span className="text-gray-500">Email:</span>
+                  <span className="text-slate-500">Email:</span>
                   <span className="ml-2">{config.email}</span>
                 </div>
               )}
               {config.lastSync && (
                 <div>
-                  <span className="text-gray-500">Última sync:</span>
+                  <span className="text-slate-500">Última sync:</span>
                   <span className="ml-2">{config.lastSync.toDate?.().toLocaleString('es-PE')}</span>
                 </div>
               )}
             </div>
 
             {/* Botón desconectar */}
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="mt-4 pt-4 border-t border-slate-100">
               {!showDisconnectConfirm ? (
                 <button
                   type="button"
@@ -157,7 +157,7 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
                     type="button"
                     onClick={() => setShowDisconnectConfirm(false)}
                     disabled={disconnecting}
-                    className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 border border-gray-300 rounded-lg transition-colors flex-shrink-0"
+                    className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-800 hover:bg-slate-100 border border-slate-300 rounded-lg transition-colors flex-shrink-0"
                   >
                     Cancelar
                   </button>
@@ -193,8 +193,8 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
           </div>
         ) : (
           <div className="text-center py-4">
-            <WifiOff className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-500 text-sm mb-3">No conectado</p>
+            <WifiOff className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-slate-500 text-sm mb-3">No conectado</p>
             <button
               onClick={onConnect}
               className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm font-medium"
@@ -207,9 +207,9 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
 
       {/* Webhook / Notificaciones */}
       {config?.connected && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Notificaciones (Webhook)</h3>
-          <p className="text-xs text-gray-400 mb-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <h3 className="font-semibold text-slate-900 mb-4">Notificaciones (Webhook)</h3>
+          <p className="text-xs text-slate-400 mb-4">
             ML necesita saber a dónde enviar las notificaciones de órdenes, envíos, etc.
           </p>
           {webhookStatus.registered || config?.webhookRegistered ? (
@@ -218,7 +218,7 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
                 <CheckCircle2 className="w-4 h-4 text-green-500" />
                 <span className="text-sm text-green-700 font-medium">Webhook registrado</span>
               </div>
-              <p className="text-xs text-gray-400 font-mono break-all">
+              <p className="text-xs text-slate-400 font-mono break-all">
                 {webhookStatus.url || config?.webhookUrl}
               </p>
               <button
@@ -262,9 +262,9 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
 
       {/* Reconciliación de Stock Pendiente ML */}
       {config?.connected && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Stock Efectivo ML</h3>
-          <p className="text-xs text-gray-400 mb-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <h3 className="font-semibold text-slate-900 mb-4">Stock Efectivo ML</h3>
+          <p className="text-xs text-slate-400 mb-4">
             Recalcula stockPendienteML desde cero contando órdenes pendientes. Úsalo si notas discrepancias entre stock ERP y ML.
           </p>
           <ReconcileStockButton />
@@ -273,13 +273,13 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
 
       {/* Opciones de automatización */}
       {config?.connected && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Automatización</h3>
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <h3 className="font-semibold text-slate-900 mb-4">Automatización</h3>
           <div className="space-y-4">
             <label className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Auto-crear ventas</p>
-                <p className="text-xs text-gray-400">Crear ventas automáticamente cuando llega una orden pagada de ML</p>
+                <p className="text-sm font-medium text-slate-700">Auto-crear ventas</p>
+                <p className="text-xs text-slate-400">Crear ventas automáticamente cuando llega una orden pagada de ML</p>
               </div>
               <input
                 type="checkbox"
@@ -290,8 +290,8 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
             </label>
             <label className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Auto-crear clientes</p>
-                <p className="text-xs text-gray-400">Crear cliente nuevo si el comprador de ML no existe en tu ERP</p>
+                <p className="text-sm font-medium text-slate-700">Auto-crear clientes</p>
+                <p className="text-xs text-slate-400">Crear cliente nuevo si el comprador de ML no existe en tu ERP</p>
               </div>
               <input
                 type="checkbox"
@@ -301,12 +301,12 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
               />
             </label>
             <div>
-              <label className="text-sm font-medium text-gray-700">Comisión ML por defecto (%)</label>
+              <label className="text-sm font-medium text-slate-700">Comisión ML por defecto (%)</label>
               <input
                 type="number"
                 value={config.defaultComisionPorcentaje || 13}
                 onChange={(e) => updateConfig({ defaultComisionPorcentaje: parseFloat(e.target.value) || 13 })}
-                className="mt-1 w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="mt-1 w-24 px-3 py-2 border border-slate-300 rounded-lg text-sm"
                 min={0}
                 max={100}
                 step={0.5}

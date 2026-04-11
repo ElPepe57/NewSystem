@@ -80,7 +80,7 @@ function BadgeEstado({ estado }: { estado: string }) {
     ejecutada: 'bg-purple-100 text-purple-800 border border-purple-200',
     completada: 'bg-green-100 text-green-800 border border-green-200',
     rechazada: 'bg-red-100 text-red-800 border border-red-200',
-    cancelada: 'bg-gray-100 text-gray-600 border border-gray-200',
+    cancelada: 'bg-slate-100 text-slate-600 border border-slate-200',
   };
   const etiquetas: Record<string, string> = {
     solicitada: 'Solicitada',
@@ -91,7 +91,7 @@ function BadgeEstado({ estado }: { estado: string }) {
     cancelada: 'Cancelada',
   };
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${clases[estado] ?? 'bg-gray-100 text-gray-600'}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${clases[estado] ?? 'bg-slate-100 text-slate-600'}`}>
       {etiquetas[estado] ?? estado}
     </span>
   );
@@ -332,19 +332,19 @@ export const DevolucionDetailModal: React.FC<Props> = ({
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-3">
-                <RotateCcw className="h-5 w-5 text-gray-500" />
-                <h2 className="text-xl font-bold text-gray-900">
+                <RotateCcw className="h-5 w-5 text-slate-500" />
+                <h2 className="text-xl font-bold text-slate-900">
                   {devolucion.numeroDevolucion}
                 </h2>
                 <BadgeEstado estado={devolucion.estado} />
               </div>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 Creada el {formatFecha(devolucion.fechaCreacion)}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500">Monto a devolver</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-xs text-slate-500">Monto a devolver</p>
+              <p className="text-2xl font-bold text-slate-900">
                 {formatCurrencyPEN(devolucion.montoDevolucion)}
               </p>
               {devolucion.montoDevuelto > 0 && (
@@ -356,26 +356,26 @@ export const DevolucionDetailModal: React.FC<Props> = ({
           </div>
 
           {/* ---- VENTA ORIGEN ---- */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Venta Origen</h3>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">Venta Origen</h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <span className="text-gray-500">Numero:</span>{' '}
+                <span className="text-slate-500">Numero:</span>{' '}
                 <span className="font-medium">{devolucion.ventaNumero}</span>
               </div>
               <div>
-                <span className="text-gray-500">Cliente:</span>{' '}
+                <span className="text-slate-500">Cliente:</span>{' '}
                 <span className="font-medium">{devolucion.clienteNombre}</span>
               </div>
               <div>
-                <span className="text-gray-500">Motivo:</span>{' '}
+                <span className="text-slate-500">Motivo:</span>{' '}
                 <span className="font-medium">
                   {LABEL_MOTIVO[devolucion.motivo] ?? devolucion.motivo}
                 </span>
               </div>
               {devolucion.detalleMotivo && (
                 <div className="col-span-2">
-                  <span className="text-gray-500">Detalle:</span>{' '}
+                  <span className="text-slate-500">Detalle:</span>{' '}
                   <span className="font-medium">{devolucion.detalleMotivo}</span>
                 </div>
               )}
@@ -384,33 +384,33 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* ---- PRODUCTOS DEVUELTOS ---- */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <Package className="h-4 w-4 text-gray-500" />
+            <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <Package className="h-4 w-4 text-slate-500" />
               Productos devueltos
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200 text-left">
-                    <th className="pb-2 text-gray-500 font-medium">Producto</th>
-                    <th className="pb-2 text-gray-500 font-medium text-center">Cant.</th>
-                    <th className="pb-2 text-gray-500 font-medium text-right">P. Unit.</th>
-                    <th className="pb-2 text-gray-500 font-medium text-right">Subtotal</th>
-                    <th className="pb-2 text-gray-500 font-medium text-center">Condición</th>
+                  <tr className="border-b border-slate-200 text-left">
+                    <th className="pb-2 text-slate-500 font-medium">Producto</th>
+                    <th className="pb-2 text-slate-500 font-medium text-center">Cant.</th>
+                    <th className="pb-2 text-slate-500 font-medium text-right">P. Unit.</th>
+                    <th className="pb-2 text-slate-500 font-medium text-right">Subtotal</th>
+                    <th className="pb-2 text-slate-500 font-medium text-center">Condición</th>
                   </tr>
                 </thead>
                 <tbody>
                   {devolucion.productos.map(prod => (
-                    <tr key={prod.productoId} className="border-b border-gray-100">
+                    <tr key={prod.productoId} className="border-b border-slate-100">
                       <td className="py-2">
-                        <p className="font-medium text-gray-900">{prod.nombreProducto}</p>
-                        <p className="text-xs text-gray-400">{prod.sku}</p>
+                        <p className="font-medium text-slate-900">{prod.nombreProducto}</p>
+                        <p className="text-xs text-slate-400">{prod.sku}</p>
                       </td>
-                      <td className="py-2 text-center text-gray-700">{prod.cantidad}</td>
-                      <td className="py-2 text-right text-gray-700">
+                      <td className="py-2 text-center text-slate-700">{prod.cantidad}</td>
+                      <td className="py-2 text-right text-slate-700">
                         {formatCurrencyPEN(prod.precioUnitarioOriginal)}
                       </td>
-                      <td className="py-2 text-right font-medium text-gray-900">
+                      <td className="py-2 text-right font-medium text-slate-900">
                         {formatCurrencyPEN(prod.subtotalDevolucion)}
                       </td>
                       <td className="py-2 text-center">
@@ -425,7 +425,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                             {prod.condicion === 'vendible' ? 'Vendible' : 'Danado'}
                           </span>
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-slate-400">—</span>
                         )}
                       </td>
                     </tr>
@@ -437,19 +437,19 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* ---- HISTORIAL DEL FLUJO ---- */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-gray-500" />
+            <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <Clock className="h-4 w-4 text-slate-500" />
               Historial del flujo
             </h3>
-            <ol className="relative border-l border-gray-200 space-y-4 ml-3">
+            <ol className="relative border-l border-slate-200 space-y-4 ml-3">
               {/* Creación */}
               <li className="pl-6">
                 <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-100 ring-2 ring-white">
                   <span className="h-2 w-2 rounded-full bg-yellow-400" />
                 </span>
-                <p className="text-sm font-medium text-gray-800">Solicitud creada</p>
-                <p className="text-xs text-gray-500">{formatFecha(devolucion.fechaCreacion)}</p>
-                <p className="text-xs text-gray-500">Por: {devolucion.creadoPor}</p>
+                <p className="text-sm font-medium text-slate-800">Solicitud creada</p>
+                <p className="text-xs text-slate-500">{formatFecha(devolucion.fechaCreacion)}</p>
+                <p className="text-xs text-slate-500">Por: {devolucion.creadoPor}</p>
               </li>
 
               {/* Aprobación */}
@@ -458,10 +458,10 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                   <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-blue-100 ring-2 ring-white">
                     <span className="h-2 w-2 rounded-full bg-blue-400" />
                   </span>
-                  <p className="text-sm font-medium text-gray-800">Aprobada</p>
-                  <p className="text-xs text-gray-500">{formatFecha(devolucion.fechaAprobacion)}</p>
+                  <p className="text-sm font-medium text-slate-800">Aprobada</p>
+                  <p className="text-xs text-slate-500">{formatFecha(devolucion.fechaAprobacion)}</p>
                   {devolucion.aprobadoPor && (
-                    <p className="text-xs text-gray-500">Por: {devolucion.aprobadoPor}</p>
+                    <p className="text-xs text-slate-500">Por: {devolucion.aprobadoPor}</p>
                   )}
                 </li>
               )}
@@ -472,8 +472,8 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                   <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-100 ring-2 ring-white">
                     <span className="h-2 w-2 rounded-full bg-red-400" />
                   </span>
-                  <p className="text-sm font-medium text-gray-800">Rechazada</p>
-                  <p className="text-xs text-gray-500">{formatFecha(devolucion.fechaRechazo)}</p>
+                  <p className="text-sm font-medium text-slate-800">Rechazada</p>
+                  <p className="text-xs text-slate-500">{formatFecha(devolucion.fechaRechazo)}</p>
                   {devolucion.motivoRechazo && (
                     <p className="text-xs text-red-600">Motivo: {devolucion.motivoRechazo}</p>
                   )}
@@ -486,8 +486,8 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                   <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-purple-100 ring-2 ring-white">
                     <span className="h-2 w-2 rounded-full bg-purple-400" />
                   </span>
-                  <p className="text-sm font-medium text-gray-800">Producto recibido</p>
-                  <p className="text-xs text-gray-500">{formatFecha(devolucion.fechaEjecucion)}</p>
+                  <p className="text-sm font-medium text-slate-800">Producto recibido</p>
+                  <p className="text-xs text-slate-500">{formatFecha(devolucion.fechaEjecucion)}</p>
                 </li>
               )}
 
@@ -497,10 +497,10 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                   <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-green-100 ring-2 ring-white">
                     <span className="h-2 w-2 rounded-full bg-green-500" />
                   </span>
-                  <p className="text-sm font-medium text-gray-800">Dinero devuelto</p>
-                  <p className="text-xs text-gray-500">{formatFecha(devolucion.fechaCompletado)}</p>
+                  <p className="text-sm font-medium text-slate-800">Dinero devuelto</p>
+                  <p className="text-xs text-slate-500">{formatFecha(devolucion.fechaCompletado)}</p>
                   {devolucion.metodoPago && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-500">
                       Via: {LABEL_METODO_PAGO[devolucion.metodoPago] ?? devolucion.metodoPago}
                       {devolucion.referenciaPago && ` — Ref: ${devolucion.referenciaPago}`}
                     </p>
@@ -516,7 +516,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* SOLICITADA → Aprobar / Rechazar / Cancelar */}
           {devolucion.estado === 'solicitada' && (
-            <div className="border-t border-gray-200 pt-4 space-y-4">
+            <div className="border-t border-slate-200 pt-4 space-y-4">
               {/* Formulario de rechazo */}
               {mostrarFormRechazo ? (
                 <div className="bg-red-50 rounded-lg p-4 space-y-3">
@@ -547,14 +547,14 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                   </div>
                 </div>
               ) : mostrarFormCancelacion ? (
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <p className="text-sm font-semibold text-gray-700">Motivo de cancelación</p>
+                <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+                  <p className="text-sm font-semibold text-slate-700">Motivo de cancelación</p>
                   <textarea
                     value={motivoCancelacion}
                     onChange={e => setMotivoCancelacion(e.target.value)}
                     rows={2}
                     placeholder="Explica por qué se cancela esta solicitud..."
-                    className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
+                    className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-500 resize-none"
                   />
                   <div className="flex gap-2 justify-end">
                     <Button
@@ -612,7 +612,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* APROBADA → Ejecutar recepción */}
           {devolucion.estado === 'aprobada' && (
-            <div className="border-t border-gray-200 pt-4 space-y-4">
+            <div className="border-t border-slate-200 pt-4 space-y-4">
               {mostrarFormRecepcion ? (
                 <div className="bg-purple-50 rounded-lg p-4 space-y-4">
                   <p className="text-sm font-semibold text-purple-700">
@@ -624,12 +624,12 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                   </p>
                   {devolucion.productos.map(prod => (
                     <div key={prod.productoId} className="bg-white rounded-lg p-3 space-y-2 border border-purple-200">
-                      <p className="text-sm font-medium text-gray-800">{prod.nombreProducto}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-medium text-slate-800">{prod.nombreProducto}</p>
+                      <p className="text-xs text-slate-500">
                         Cantidad a recibir: {prod.cantidad}
                       </p>
                       <div>
-                        <label className="block text-xs text-gray-600 mb-1">
+                        <label className="block text-xs text-slate-600 mb-1">
                           IDs de unidades (separados por coma)
                         </label>
                         <input
@@ -642,11 +642,11 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                             }))
                           }
                           placeholder="ej: unit001, unit002"
-                          className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-600 mb-1">
+                        <label className="block text-xs text-slate-600 mb-1">
                           Condición del producto
                         </label>
                         <div className="flex gap-4">
@@ -713,7 +713,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* EJECUTADA → Devolver dinero */}
           {devolucion.estado === 'ejecutada' && (
-            <div className="border-t border-gray-200 pt-4 space-y-4">
+            <div className="border-t border-slate-200 pt-4 space-y-4">
               {mostrarFormPago ? (
                 <div className="bg-green-50 rounded-lg p-4 space-y-4">
                   <p className="text-sm font-semibold text-green-700">
@@ -723,7 +723,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                   <div className="grid grid-cols-2 gap-4">
                     {/* Monto */}
                     <div>
-                      <label className="block text-xs text-gray-600 mb-1">
+                      <label className="block text-xs text-slate-600 mb-1">
                         Monto a devolver (S/)
                       </label>
                       <input
@@ -732,19 +732,19 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                         step={0.01}
                         value={montoPago}
                         onChange={e => setMontoPago(parseFloat(e.target.value) || 0)}
-                        className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
                     {/* Método de pago */}
                     <div>
-                      <label className="block text-xs text-gray-600 mb-1">
+                      <label className="block text-xs text-slate-600 mb-1">
                         Método de pago
                       </label>
                       <select
                         value={metodoPago}
                         onChange={e => setMetodoPago(e.target.value as MetodoPago)}
-                        className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         {METODOS_PAGO.map(m => (
                           <option key={m.value} value={m.value}>
@@ -757,30 +757,30 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
                   {/* Referencia */}
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">
+                    <label className="block text-xs text-slate-600 mb-1">
                       Referencia / número de operación{' '}
-                      <span className="text-gray-400">(opcional)</span>
+                      <span className="text-slate-400">(opcional)</span>
                     </label>
                     <input
                       type="text"
                       value={referenciaPago}
                       onChange={e => setReferenciaPago(e.target.value)}
                       placeholder="Ej: OP-123456"
-                      className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
 
                   {/* Notas */}
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">
+                    <label className="block text-xs text-slate-600 mb-1">
                       Notas{' '}
-                      <span className="text-gray-400">(opcional)</span>
+                      <span className="text-slate-400">(opcional)</span>
                     </label>
                     <textarea
                       value={notasPago}
                       onChange={e => setNotasPago(e.target.value)}
                       rows={2}
-                      className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                      className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
                     />
                   </div>
 
@@ -826,7 +826,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* COMPLETADA */}
           {devolucion.estado === 'completada' && (
-            <div className="border-t border-gray-200 pt-4">
+            <div className="border-t border-slate-200 pt-4">
               <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-lg px-4 py-3">
                 <CheckCircle className="h-5 w-5 flex-shrink-0" />
                 <span className="font-medium">
@@ -841,7 +841,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* RECHAZADA */}
           {devolucion.estado === 'rechazada' && devolucion.motivoRechazo && (
-            <div className="border-t border-gray-200 pt-4">
+            <div className="border-t border-slate-200 pt-4">
               <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 rounded-lg px-4 py-3">
                 <XCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <div>
@@ -854,8 +854,8 @@ export const DevolucionDetailModal: React.FC<Props> = ({
 
           {/* CANCELADA */}
           {devolucion.estado === 'cancelada' && devolucion.motivoCancelacion && (
-            <div className="border-t border-gray-200 pt-4">
-              <div className="flex items-start gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg px-4 py-3">
+            <div className="border-t border-slate-200 pt-4">
+              <div className="flex items-start gap-2 text-sm text-slate-600 bg-slate-50 rounded-lg px-4 py-3">
                 <XCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium">Devolución cancelada</p>

@@ -57,7 +57,7 @@ export const Proyeccion: React.FC = () => {
         <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="w-8 h-8 text-primary-500 animate-spin" />
-          <span className="ml-3 text-gray-500">Cargando datos del sistema...</span>
+          <span className="ml-3 text-slate-500">Cargando datos del sistema...</span>
         </div>
       </PageShell>
     );
@@ -69,7 +69,7 @@ export const Proyeccion: React.FC = () => {
         <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp} />
         <Toolbar />
         <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
-        <Card className="p-8 text-center text-gray-500">
+        <Card className="p-8 text-center text-slate-500">
           No hay datos suficientes. Necesitas al menos 1 producto con historial.
         </Card>
       </PageShell>
@@ -119,7 +119,7 @@ export const Proyeccion: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-lg whitespace-nowrap transition-colors ${
               tabActiva === t.id
                 ? 'bg-white text-primary-700 border border-b-white -mb-px'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
             }`}>
             {t.icon} {t.label}
           </button>
@@ -137,10 +137,10 @@ export const Proyeccion: React.FC = () => {
       </div>
 
       {/* CONFIANZA */}
-      <div className="text-center text-xs text-gray-400 pb-2">
+      <div className="text-center text-xs text-slate-400 pb-2">
         Basado en {proy.mesesHistorial} meses de historial |
         Confianza: <span className={`font-medium ${
-          proy.confianza === 'alta' ? 'text-green-600' : proy.confianza === 'media' ? 'text-amber-600' : 'text-gray-500'
+          proy.confianza === 'alta' ? 'text-green-600' : proy.confianza === 'media' ? 'text-amber-600' : 'text-slate-500'
         }`}>{proy.confianza}</span> |
         Horizonte: {proy.horizonte} días |
         {proy.fechaGeneracion.toLocaleTimeString('es-PE')}
@@ -157,7 +157,7 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
   <div className="space-y-4">
     {/* TIMELINE: Ingresos vs Costos vs Utilidad */}
     <Card className="p-4">
-      <h3 className="font-semibold text-sm text-gray-900 mb-3 flex items-center gap-2">
+      <h3 className="font-semibold text-sm text-slate-900 mb-3 flex items-center gap-2">
         <Layers className="w-4 h-4 text-primary-600" /> Evolución y Proyección del Negocio
       </h3>
       <div className="h-72">
@@ -186,14 +186,14 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
 
     {/* P&L SIMPLIFICADO */}
     <Card className="p-4">
-      <h3 className="font-semibold text-sm text-gray-900 mb-3">P&L Proyectado ({proy.horizonte} días)</h3>
+      <h3 className="font-semibold text-sm text-slate-900 mb-3">P&L Proyectado ({proy.horizonte} días)</h3>
       <div className="space-y-1">
         <PYLRow label="Ingresos por ventas" valor={proy.margen.ingresosBrutos} bold />
         <PYLRow label="(-) Costo de ventas (CTRU)" valor={-proy.margen.costoVentas} negative />
         <PYLRow label="= Utilidad bruta" valor={proy.margen.utilidadBruta} bold
           pct={proy.margen.margenBruto} color={proy.margen.margenBruto >= 30 ? 'green' : 'amber'} />
         <PYLRow label="(-) Gastos operativos (GA/GO/GV/GD)" valor={-proy.margen.gastosOperativos} negative />
-        <div className="border-t-2 border-gray-300 pt-1 mt-1">
+        <div className="border-t-2 border-slate-300 pt-1 mt-1">
           <PYLRow label="= Utilidad neta" valor={proy.margen.utilidadNeta} bold
             pct={proy.margen.margenNeto}
             color={proy.margen.margenNeto >= 20 ? 'green' : proy.margen.margenNeto >= 10 ? 'amber' : 'red'} />
@@ -204,7 +204,7 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
     {/* ALERTAS */}
     {proy.alertas.length > 0 && (
       <Card className="p-4">
-        <h3 className="font-semibold text-sm text-gray-900 mb-3 flex items-center gap-2">
+        <h3 className="font-semibold text-sm text-slate-900 mb-3 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-red-500" /> Alertas ({proy.alertas.length})
         </h3>
         <div className="space-y-2">
@@ -219,7 +219,7 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
               }`} />
               <div>
                 <div className="font-medium">{a.mensaje}</div>
-                {a.accion && <div className="text-xs text-gray-500 mt-0.5">{a.accion}</div>}
+                {a.accion && <div className="text-xs text-slate-500 mt-0.5">{a.accion}</div>}
               </div>
             </div>
           ))}
@@ -235,15 +235,15 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
         }`}>
           <div className="flex items-center justify-between mb-2">
             <span className="font-bold text-sm capitalize">{e.nombre}</span>
-            <span className="text-xs text-gray-400">{(e.probabilidad * 100).toFixed(0)}%</span>
+            <span className="text-xs text-slate-400">{(e.probabilidad * 100).toFixed(0)}%</span>
           </div>
           <div className="text-lg font-bold mb-1">{fc(e.utilidad)}</div>
-          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden mb-2">
+          <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-2">
             <div className={`h-full rounded-full ${
               e.margen >= 20 ? 'bg-green-500' : e.margen >= 10 ? 'bg-amber-400' : 'bg-red-500'
             }`} style={{ width: `${Math.max(0, Math.min(e.margen * 2.5, 100))}%` }} />
           </div>
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-slate-500">
             <span>Margen: {e.margen.toFixed(1)}%</span>
             <span>Ingresos: {fc(e.ingresos)}</span>
           </div>
@@ -273,7 +273,7 @@ const TabVentas: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-xs text-gray-500">
+            <tr className="border-b text-xs text-slate-500">
               <th className="text-left py-2 px-2">Producto</th>
               <th className="text-right py-2 px-2">Vel. venta/mes</th>
               <th className="text-right py-2 px-2">Stock</th>
@@ -285,7 +285,7 @@ const TabVentas: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
           </thead>
           <tbody>
             {proy.ventas.productos.sort((a, b) => b.ingresosProyectados - a.ingresosProyectados).map(p => (
-              <tr key={p.productoId} className="border-b border-gray-50 hover:bg-gray-50">
+              <tr key={p.productoId} className="border-b border-slate-50 hover:bg-slate-50">
                 <td className="py-2 px-2 font-medium">{p.nombre}</td>
                 <td className="py-2 px-2 text-right">{p.ventasMensuales.toFixed(1)}</td>
                 <td className="py-2 px-2 text-right">{Math.round(p.unidadesProyectadas + (p.limitadoPorStock ? 0 : 0))}</td>
@@ -333,19 +333,19 @@ const TabInventario: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
             <div className="flex items-center justify-between text-sm mb-1">
               <span className="font-medium">{p.nombre}</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">{p.disponibles} uds</span>
+                <span className="text-xs text-slate-500">{p.disponibles} uds</span>
                 <span className={`text-xs font-bold ${
                   p.estado === 'critico' ? 'text-red-600' : p.estado === 'atencion' ? 'text-amber-600' : 'text-green-600'
                 }`}>{p.diasStock === Infinity ? '∞' : `${p.diasStock}d`}</span>
               </div>
             </div>
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
               <div className={`h-full rounded-full transition-all ${
                 p.estado === 'critico' ? 'bg-red-500' : p.estado === 'atencion' ? 'bg-amber-400' : 'bg-green-500'
               }`} style={{ width: `${Math.min((p.diasStock / 90) * 100, 100)}%` }} />
             </div>
             {p.necesitaRecompra && (
-              <div className="text-[10px] text-gray-400 mt-0.5">
+              <div className="text-[10px] text-slate-400 mt-0.5">
                 Comprar {p.cantidadSugerida} uds antes del {p.fechaLimiteCompra.toLocaleDateString('es-PE')} — {fc(p.costoRecompraPEN)}
               </div>
             )}
@@ -408,7 +408,7 @@ const TabCostos: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => {
                 </div>
                 <div className="text-right">
                   <span className="font-mono font-medium text-sm">{fc(d.valor)}</span>
-                  <span className="text-xs text-gray-400 ml-2">
+                  <span className="text-xs text-slate-400 ml-2">
                     {proy.costos.costoTotal > 0 ? `${((d.valor / proy.costos.costoTotal) * 100).toFixed(0)}%` : ''}
                   </span>
                 </div>
@@ -519,7 +519,7 @@ const TabFlujoCaja: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-xs text-gray-500">
+            <tr className="border-b text-xs text-slate-500">
               <th className="text-left py-2 px-2">Semana</th>
               <th className="text-right py-2 px-2">Cobros</th>
               <th className="text-right py-2 px-2">Gastos</th>
@@ -530,7 +530,7 @@ const TabFlujoCaja: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
           </thead>
           <tbody>
             {proy.flujoCaja.semanas.map(s => (
-              <tr key={s.semana} className={`border-b border-gray-50 ${s.critico ? 'bg-red-50' : ''}`}>
+              <tr key={s.semana} className={`border-b border-slate-50 ${s.critico ? 'bg-red-50' : ''}`}>
                 <td className="py-2 px-2 font-medium">{s.label}</td>
                 <td className="py-2 px-2 text-right text-green-600">{fc(s.totalCobros)}</td>
                 <td className="py-2 px-2 text-right text-red-600">{fc(s.egresosGastos)}</td>
@@ -582,16 +582,16 @@ const KPI: React.FC<{
 }> = ({ icon, label, valor, sub, trend, color }) => (
   <Card className="p-3">
     <div className="flex items-center gap-1.5 mb-1">
-      <span className="text-gray-400">{icon}</span>
-      <span className="text-[11px] text-gray-500">{label}</span>
+      <span className="text-slate-400">{icon}</span>
+      <span className="text-[11px] text-slate-500">{label}</span>
     </div>
     <div className={`text-lg font-bold ${
       color === 'green' ? 'text-green-600' : color === 'red' ? 'text-red-600' :
-      color === 'amber' ? 'text-amber-600' : 'text-gray-900'
+      color === 'amber' ? 'text-amber-600' : 'text-slate-900'
     }`}>{valor}</div>
     {(sub || trend !== undefined) && (
       <div className="flex items-center gap-2 mt-0.5">
-        {sub && <span className="text-[10px] text-gray-400">{sub}</span>}
+        {sub && <span className="text-[10px] text-slate-400">{sub}</span>}
         {trend !== undefined && (
           <span className={`text-[10px] font-bold ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
             {trend > 0 ? '+' : ''}{trend.toFixed(1)}%
@@ -603,11 +603,11 @@ const KPI: React.FC<{
 );
 
 const MiniKPI: React.FC<{ label: string; valor: string; color?: 'green' | 'red' | 'amber' }> = ({ label, valor, color }) => (
-  <div className="bg-gray-50 rounded-lg p-3">
-    <div className="text-[10px] text-gray-400 mb-0.5">{label}</div>
+  <div className="bg-slate-50 rounded-lg p-3">
+    <div className="text-[10px] text-slate-400 mb-0.5">{label}</div>
     <div className={`text-sm font-bold ${
       color === 'green' ? 'text-green-600' : color === 'red' ? 'text-red-600' :
-      color === 'amber' ? 'text-amber-600' : 'text-gray-900'
+      color === 'amber' ? 'text-amber-600' : 'text-slate-900'
     }`}>{valor}</div>
   </div>
 );
@@ -617,7 +617,7 @@ const PYLRow: React.FC<{
   pct?: number; color?: 'green' | 'amber' | 'red';
 }> = ({ label, valor, bold, negative, pct, color }) => (
   <div className={`flex items-center justify-between py-1 ${bold ? 'font-semibold' : ''}`}>
-    <span className={`text-sm ${negative ? 'text-gray-500' : ''}`}>{label}</span>
+    <span className={`text-sm ${negative ? 'text-slate-500' : ''}`}>{label}</span>
     <div className="flex items-center gap-2">
       <span className={`text-sm font-mono ${negative ? 'text-red-500' : ''}`}>
         {fc(Math.abs(valor))}

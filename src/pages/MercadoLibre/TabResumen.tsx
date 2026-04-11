@@ -23,21 +23,21 @@ const KPICard: React.FC<{
     green: 'bg-green-50 text-green-600',
     amber: 'bg-amber-50 text-amber-600',
     red: 'bg-red-50 text-red-600',
-    gray: 'bg-gray-50 text-gray-600',
+    gray: 'bg-slate-50 text-slate-600',
   };
 
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl border border-gray-200 p-4 ${onClick ? 'cursor-pointer hover:border-amber-300 hover:shadow-sm transition-all' : ''}`}
+      className={`bg-white rounded-xl border border-slate-200 p-4 ${onClick ? 'cursor-pointer hover:border-amber-300 hover:shadow-sm transition-all' : ''}`}
     >
       <div className="flex items-center justify-between mb-2">
         <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorMap[color] || colorMap.gray}`}>
           <Icon className="w-4 h-4" />
         </span>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 mt-1">{label}</p>
+      <p className="text-2xl font-bold text-slate-900">{value}</p>
+      <p className="text-xs text-slate-500 mt-1">{label}</p>
     </div>
   );
 };
@@ -102,10 +102,10 @@ export const TabResumen: React.FC<TabResumenProps> = ({
       </div>
 
       {/* Actividad reciente */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Órdenes Recientes</h3>
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <h3 className="font-semibold text-slate-900 mb-4">Órdenes Recientes</h3>
         {orderSyncs.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center py-8">No hay órdenes sincronizadas aún</p>
+          <p className="text-slate-400 text-sm text-center py-8">No hay órdenes sincronizadas aún</p>
         ) : (
           <div className="space-y-2">
             {orderSyncs.slice(0, 5).map((order) => (

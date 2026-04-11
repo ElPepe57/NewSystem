@@ -363,8 +363,8 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
           {showRecepcionScanner && (
             <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-gray-700">Escanear producto</span>
-                <button type="button" onClick={() => setShowRecepcionScanner(false)} className="text-gray-400 hover:text-gray-600">
+                <span className="text-xs font-medium text-slate-700">Escanear producto</span>
+                <button type="button" onClick={() => setShowRecepcionScanner(false)} className="text-slate-400 hover:text-slate-600">
                   <XIcon className="h-4 w-4" />
                 </button>
               </div>
@@ -386,7 +386,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
 
             return (
               <div key={prod.productoId} className="border rounded-lg overflow-hidden bg-white">
-                <div className="p-3 bg-gray-50">
+                <div className="p-3 bg-slate-50">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center flex-1">
                       <input
@@ -396,16 +396,16 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                         className="h-4 w-4 text-primary-600 rounded mr-3 flex-shrink-0"
                       />
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
+                        <h4 className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
                           {pFull?.marca && (
                             <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
                           )}
                           {pFull && getDescripcionProducto(pFull) && (
-                            <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(pFull)}</span>
+                            <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(pFull)}</span>
                           )}
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">{prod.sku}</div>
+                        <div className="text-xs text-slate-500 mt-1">{prod.sku}</div>
                         {prod.costoFleteUnit > 0 && (
                           <div className="text-xs text-green-600 font-medium mt-0.5">
                             Flete: ${prod.costoFleteUnit.toFixed(2)}/u
@@ -428,7 +428,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                             e.stopPropagation();
                             handleCantidadChange(prod.productoId, Math.max(0, cant - 1));
                           }}
-                          className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-r"
+                          className="px-2 py-1 text-slate-500 hover:bg-slate-100 border-r"
                         >
                           <Minus className="h-3 w-3" />
                         </button>
@@ -450,7 +450,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                             e.stopPropagation();
                             handleCantidadChange(prod.productoId, Math.min(prod.pendiente, cant + 1));
                           }}
-                          className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-l"
+                          className="px-2 py-1 text-slate-500 hover:bg-slate-100 border-l"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
@@ -463,7 +463,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                       <button
                         type="button"
                         onClick={() => toggleExpandirProductoRecepcion(prod.productoId)}
-                        className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                        className="p-1 text-slate-400 hover:text-slate-600 rounded"
                       >
                         {estaExpandido ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
                       </button>
@@ -522,14 +522,14 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                                   min="0"
                                   placeholder="0"
                                 />
-                                <span className="text-xs text-gray-400">uds</span>
+                                <span className="text-xs text-slate-400">uds</span>
                               </div>
                               {/* Eliminar lote (solo si hay más de 1) */}
                               {lotes.length > 1 && (
                                 <button
                                   type="button"
                                   onClick={() => handleEliminarLote(prod.productoId, idx)}
-                                  className="p-1 text-gray-400 hover:text-red-500"
+                                  className="p-1 text-slate-400 hover:text-red-500"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
@@ -566,19 +566,19 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                       <div
                         key={unidad.unidadId}
                         className={`flex items-center justify-between p-3 ${
-                          idx < cant ? 'bg-primary-50' : 'hover:bg-gray-50'
+                          idx < cant ? 'bg-primary-50' : 'hover:bg-slate-50'
                         }`}
                       >
                         <div className="flex items-center">
-                          <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-green-500' : 'bg-gray-300'}`} />
+                          <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-green-500' : 'bg-slate-300'}`} />
                           <div>
                             <div className="flex items-center space-x-2">
-                              <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">
+                              <span className="text-xs bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">
                                 #{idx + 1}
                               </span>
-                              {unidad.lote && <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>}
+                              {unidad.lote && <span className="text-sm text-slate-900">Lote: {unidad.lote}</span>}
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                            <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
                               {unidad.estadoTransferencia === 'faltante' && (
                                 <span className="text-amber-600 font-medium">Prev. faltante</span>
                               )}
@@ -587,7 +587,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                           </div>
                         </div>
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          idx < cant ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                          idx < cant ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
                         }`}>
                           {idx < cant ? 'Se recibira' : 'Pendiente'}
                         </span>
@@ -631,14 +631,14 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
 
         {/* Observaciones */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Observaciones (opcional)
           </label>
           <textarea
             value={observaciones}
             onChange={(e) => setObservaciones(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
           />
         </div>

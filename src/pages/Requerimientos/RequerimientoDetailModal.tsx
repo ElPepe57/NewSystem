@@ -35,7 +35,7 @@ interface RequerimientoDetailModalProps {
 
 const getEstadoBadge = (estado: EstadoRequerimiento) => {
   const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
-    borrador: { color: 'bg-gray-100 text-gray-800', icon: <Clock className="h-3 w-3" /> },
+    borrador: { color: 'bg-slate-100 text-slate-800', icon: <Clock className="h-3 w-3" /> },
     pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
     aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
     parcial: { color: 'bg-indigo-100 text-indigo-800', icon: <Link2 className="h-3 w-3" /> },
@@ -59,7 +59,7 @@ const getPrioridadBadge = (prioridad: string) => {
     alta: 'bg-red-100 text-red-800 border-red-200',
     media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    baja: 'bg-gray-100 text-gray-800 border-gray-200'
+    baja: 'bg-slate-100 text-slate-800 border-slate-200'
   };
 
   return (
@@ -72,7 +72,7 @@ const getPrioridadBadge = (prioridad: string) => {
 const getSolicitanteIcon = (tipo: TipoSolicitante) => {
   switch (tipo) {
     case 'cliente': return <Users className="h-4 w-4 text-blue-500" />;
-    case 'administracion': return <Building2 className="h-4 w-4 text-gray-500" />;
+    case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
     case 'ventas': return <Target className="h-4 w-4 text-green-500" />;
     case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
     default: return null;
@@ -119,27 +119,27 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
         {/* Info general */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-gray-500">Estado</label>
+            <label className="text-sm text-slate-500">Estado</label>
             <div className="mt-1">{getEstadoBadge(req.estado)}</div>
           </div>
           <div>
-            <label className="text-sm text-gray-500">Prioridad</label>
+            <label className="text-sm text-slate-500">Prioridad</label>
             <div className="mt-1">{getPrioridadBadge(req.prioridad)}</div>
           </div>
           <div>
-            <label className="text-sm text-gray-500">Origen</label>
+            <label className="text-sm text-slate-500">Origen</label>
             <div className="mt-1 font-medium">{req.origen.replace('_', ' ')}</div>
           </div>
           <div>
-            <label className="text-sm text-gray-500">Fecha</label>
+            <label className="text-sm text-slate-500">Fecha</label>
             <div className="mt-1 font-medium">{formatDate(req.fechaCreacion)}</div>
           </div>
         </div>
 
         {/* Solicitante */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <label className="text-sm text-gray-500">Solicitado por</label>
-          <div className="mt-1 font-medium text-gray-900 flex items-center">
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <label className="text-sm text-slate-500">Solicitado por</label>
+          <div className="mt-1 font-medium text-slate-900 flex items-center">
             {getSolicitanteIcon(req.tipoSolicitante)}
             <span className="ml-2">
               {req.tipoSolicitante === 'cliente' && req.nombreClienteSolicitante
@@ -196,7 +196,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
 
         {/* Productos */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-2">Productos ({req.productos.length})</h4>
+          <h4 className="font-medium text-slate-900 mb-2">Productos ({req.productos.length})</h4>
           <div className="border rounded-lg divide-y">
             {req.productos.map((prod, index) => {
               const detailStr = getDescripcionProducto(prod);
@@ -204,25 +204,25 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                 <div key={index} className="p-3">
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1 mr-3">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-slate-900">
                         {prod.sku} - {prod.marca} {prod.nombreComercial}
                       </div>
                       {detailStr && (
-                        <div className="text-xs text-gray-400 mt-0.5">{detailStr}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">{detailStr}</div>
                       )}
-                      <div className="text-sm text-gray-500 mt-0.5">Cantidad: {prod.cantidadSolicitada}</div>
+                      <div className="text-sm text-slate-500 mt-0.5">Cantidad: {prod.cantidadSolicitada}</div>
                     </div>
                     {prod.precioEstimadoUSD && (
                       <div className="text-right flex-shrink-0">
-                        <div className="font-medium text-gray-900">{formatCurrency(prod.precioEstimadoUSD)}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="font-medium text-slate-900">{formatCurrency(prod.precioEstimadoUSD)}</div>
+                        <div className="text-xs text-slate-500">
                           Total: {formatCurrency(prod.precioEstimadoUSD * prod.cantidadSolicitada)}
                         </div>
                       </div>
                     )}
                   </div>
                   {(prod.proveedorSugerido || prod.urlReferencia) && (
-                    <div className="mt-2 text-sm text-gray-500">
+                    <div className="mt-2 text-sm text-slate-500">
                       {prod.proveedorSugerido && <span className="mr-4">Proveedor: {prod.proveedorSugerido}</span>}
                       {prod.urlReferencia && (
                         <a
@@ -257,19 +257,19 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                     <div>
                       <div className="flex items-center gap-2">
                         <UserCheck className="h-4 w-4 text-green-600" />
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-slate-900">
                           {asig.responsableNombre}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-slate-500">
                           ({asig.responsableCodigo})
                         </span>
                       </div>
-                      <div className="mt-1 text-sm text-gray-600">
+                      <div className="mt-1 text-sm text-slate-600">
                         {asig.productos?.length || 0} producto(s) •
                         {asig.productos?.reduce((sum, p) => sum + p.cantidadAsignada, 0) || 0} unidades
                       </div>
                       {asig.fechaEstimadaLlegada && (
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-slate-500 mt-1">
                           Llegada estimada: {formatDate(asig.fechaEstimadaLlegada)}
                         </div>
                       )}
@@ -277,7 +277,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                     <div className="text-right">
                       {getAsignacionEstadoBadge(asig.estado)}
                       {asig.costoEstimadoUSD && (
-                        <div className="text-sm font-medium text-gray-700 mt-1">
+                        <div className="text-sm font-medium text-slate-700 mt-1">
                           {formatCurrency(asig.costoEstimadoUSD)}
                         </div>
                       )}
@@ -286,7 +286,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                   {/* Detalle de productos asignados */}
                   {asig.productos && asig.productos.length > 0 && (
                     <div className="mt-2 pt-2 border-t border-green-100">
-                      <div className="text-xs text-gray-500 mb-1">Productos asignados:</div>
+                      <div className="text-xs text-slate-500 mb-1">Productos asignados:</div>
                       <div className="flex flex-wrap gap-2">
                         {asig.productos.map((prod, pIdx) => (
                           <span
@@ -391,8 +391,8 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
         {/* Justificacion */}
         {req.justificacion && (
           <div>
-            <label className="text-sm text-gray-500">Justificacion</label>
-            <div className="mt-1 text-gray-900">{req.justificacion}</div>
+            <label className="text-sm text-slate-500">Justificacion</label>
+            <div className="mt-1 text-slate-900">{req.justificacion}</div>
           </div>
         )}
 

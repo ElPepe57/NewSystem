@@ -86,7 +86,7 @@ export const TabAuditorias: React.FC = () => {
           </div>
           <div className={`rounded-xl p-4 ${kpis.precision >= 95 ? 'bg-green-50' : kpis.precision >= 80 ? 'bg-amber-50' : 'bg-red-50'}`}>
             <p className="text-xs font-medium" style={{ color: kpis.precision >= 95 ? '#166534' : kpis.precision >= 80 ? '#92400E' : '#991B1B' }}>Precision inventario</p>
-            <p className="text-2xl font-bold text-gray-900">{kpis.precision.toFixed(1)}%</p>
+            <p className="text-2xl font-bold text-slate-900">{kpis.precision.toFixed(1)}%</p>
           </div>
           <div className="bg-red-50 rounded-xl p-4">
             <p className="text-xs text-red-600 font-medium">Faltantes acum.</p>
@@ -102,14 +102,14 @@ export const TabAuditorias: React.FC = () => {
       {/* Productos con discrepancias frecuentes */}
       {kpis && kpis.topDiscrepancias.length > 0 && (
         <div className="bg-white rounded-xl border p-4">
-          <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-3">
+          <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3">
             <TrendingUp className="h-4 w-4 text-red-500" />
             Productos con discrepancias frecuentes
           </h4>
           <div className="space-y-2">
             {kpis.topDiscrepancias.map((p, i) => (
               <div key={i} className="flex items-center justify-between text-sm">
-                <span className="text-gray-700 truncate flex-1">{p.nombre}</span>
+                <span className="text-slate-700 truncate flex-1">{p.nombre}</span>
                 <span className="text-red-600 font-medium shrink-0 ml-2">{p.veces} auditorias con diferencia</span>
               </div>
             ))}
@@ -119,8 +119,8 @@ export const TabAuditorias: React.FC = () => {
 
       {/* Filtro + Historial */}
       <div className="bg-white rounded-xl border overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b flex items-center justify-between gap-3">
-          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+        <div className="px-4 py-3 bg-slate-50 border-b flex items-center justify-between gap-3">
+          <h3 className="font-semibold text-slate-900 flex items-center gap-2">
             <ClipboardCheck className="h-4 w-4 text-primary-600" />
             Historial de Auditorias ({sesionesFiltradas.length})
           </h3>
@@ -135,7 +135,7 @@ export const TabAuditorias: React.FC = () => {
         </div>
 
         {sesionesFiltradas.length === 0 ? (
-          <p className="text-center text-gray-400 py-10">No hay auditorias registradas</p>
+          <p className="text-center text-slate-400 py-10">No hay auditorias registradas</p>
         ) : (
           <div className="divide-y">
             {sesionesFiltradas.map(session => {
@@ -151,7 +151,7 @@ export const TabAuditorias: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setExpandedId(isExpanded ? null : session.id!)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50"
                   >
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
                       todoOK ? 'bg-green-100' : r.faltantes > 0 ? 'bg-red-100' : 'bg-amber-100'
@@ -162,15 +162,15 @@ export const TabAuditorias: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-gray-900">{session.almacenNombre}</span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-sm font-medium text-slate-900">{session.almacenNombre}</span>
+                        <span className="text-xs text-slate-400">
                           {fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
                           {' '}
                           {fecha.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 mt-0.5 text-xs">
-                        <span className="text-gray-500">{r.totalProductos} prod.</span>
+                        <span className="text-slate-500">{r.totalProductos} prod.</span>
                         {r.coincidencias > 0 && <span className="text-green-600">{r.coincidencias} OK</span>}
                         {r.sobrantes > 0 && <span className="text-amber-600">+{r.sobrantes}</span>}
                         {r.faltantes > 0 && <span className="text-red-600">{r.faltantes} falt.</span>}
@@ -179,9 +179,9 @@ export const TabAuditorias: React.FC = () => {
                   </button>
 
                   {isExpanded && (
-                    <div className="px-4 pb-4 bg-gray-50/50 space-y-3">
+                    <div className="px-4 pb-4 bg-slate-50/50 space-y-3">
                       <div className="grid grid-cols-4 gap-1.5">
-                        <div className="bg-white rounded p-2 text-center border"><p className="text-sm font-bold">{r.totalProductos}</p><p className="text-[9px] text-gray-500">Total</p></div>
+                        <div className="bg-white rounded p-2 text-center border"><p className="text-sm font-bold">{r.totalProductos}</p><p className="text-[9px] text-slate-500">Total</p></div>
                         <div className="bg-green-50 rounded p-2 text-center border border-green-100"><p className="text-sm font-bold text-green-700">{r.coincidencias}</p><p className="text-[9px] text-green-600">OK</p></div>
                         <div className="bg-amber-50 rounded p-2 text-center border border-amber-100"><p className="text-sm font-bold text-amber-700">{r.sobrantes}</p><p className="text-[9px] text-amber-600">Sobr.</p></div>
                         <div className="bg-red-50 rounded p-2 text-center border border-red-100"><p className="text-sm font-bold text-red-700">{r.faltantes}</p><p className="text-[9px] text-red-600">Falt.</p></div>
@@ -192,14 +192,14 @@ export const TabAuditorias: React.FC = () => {
                           const disc = item.discrepancia;
                           return (
                             <div key={`${item.productoId}-${idx}`} className={`flex items-center gap-2 px-2.5 py-1.5 rounded text-xs ${
-                              disc === 0 ? 'bg-white border border-gray-100' : disc > 0 ? 'bg-amber-50 border border-amber-100' : 'bg-red-50 border border-red-100'
+                              disc === 0 ? 'bg-white border border-slate-100' : disc > 0 ? 'bg-amber-50 border border-amber-100' : 'bg-red-50 border border-red-100'
                             }`}>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-800 truncate">{item.nombre}</p>
-                                <p className="text-gray-400">{item.sku}</p>
+                                <p className="font-medium text-slate-800 truncate">{item.nombre}</p>
+                                <p className="text-slate-400">{item.sku}</p>
                               </div>
                               <div className="text-right shrink-0">
-                                <p className="text-gray-600"><span className="font-medium">{item.cantidadFisica}</span><span className="text-gray-400"> / {item.stockSistema}</span></p>
+                                <p className="text-slate-600"><span className="font-medium">{item.cantidadFisica}</span><span className="text-slate-400"> / {item.stockSistema}</span></p>
                                 {disc === 0 ? <span className="text-green-600">OK</span> : <span className={disc > 0 ? 'text-amber-600 font-medium' : 'text-red-600 font-medium'}>{disc > 0 ? '+' : ''}{disc}</span>}
                               </div>
                             </div>
@@ -207,7 +207,7 @@ export const TabAuditorias: React.FC = () => {
                         })}
                       </div>
 
-                      <button type="button" onClick={() => handleExportCSV(session)} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 bg-white border rounded-lg hover:bg-gray-50">
+                      <button type="button" onClick={() => handleExportCSV(session)} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border rounded-lg hover:bg-slate-50">
                         <Download className="h-3.5 w-3.5" /> Exportar CSV
                       </button>
                     </div>

@@ -807,11 +807,11 @@ export const Inventario: React.FC = () => {
                 <div className="col-span-full">
                   <Card padding="lg">
                     <div className="text-center py-8">
-                      <Package className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">
+                      <Package className="mx-auto h-12 w-12 text-slate-400" />
+                      <h3 className="mt-2 text-sm font-medium text-slate-900">
                         No hay productos en inventario
                       </h3>
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-1 text-sm text-slate-500">
                         Las unidades se crean automáticamente al recibir órdenes de compra
                       </p>
                     </div>
@@ -911,13 +911,13 @@ export const Inventario: React.FC = () => {
             <>
               {/* Sección: Unidades */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Estados de Unidades</h4>
+                <h4 className="font-medium text-slate-900 mb-2">Estados de Unidades</h4>
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-gray-900">
+                  <div className="bg-slate-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-slate-900">
                       {resultadoSync.estadosUnidades?.unidadesRevisadas || 0}
                     </div>
-                    <div className="text-xs text-gray-500">Revisadas</div>
+                    <div className="text-xs text-slate-500">Revisadas</div>
                   </div>
                   <div className="bg-primary-50 rounded-lg p-3 text-center">
                     <div className="text-xl font-bold text-primary-600">
@@ -936,13 +936,13 @@ export const Inventario: React.FC = () => {
 
               {/* Sección: Productos */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Stock de Productos</h4>
+                <h4 className="font-medium text-slate-900 mb-2">Stock de Productos</h4>
                 <div className="grid grid-cols-4 gap-3">
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-gray-900">
+                  <div className="bg-slate-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-slate-900">
                       {resultadoSync.stockProductos?.productosRevisados || 0}
                     </div>
-                    <div className="text-xs text-gray-500">Revisados</div>
+                    <div className="text-xs text-slate-500">Revisados</div>
                   </div>
                   <div className="bg-primary-50 rounded-lg p-3 text-center">
                     <div className="text-xl font-bold text-primary-600">

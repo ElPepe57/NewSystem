@@ -140,14 +140,14 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           <div className="text-sm font-bold text-amber-700">
             Disp: {cuenta.moneda === 'USD' ? '$' : 'S/'} {(cuenta.lineaCredito.disponible || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[10px] text-gray-400">
+          <div className="text-[10px] text-slate-400">
             Línea: {cuenta.moneda === 'USD' ? '$' : 'S/'} {(cuenta.lineaCredito.limiteTotal || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
           </div>
         </div>
       );
     }
     return (
-      <div className="text-lg font-bold text-gray-900">
+      <div className="text-lg font-bold text-slate-900">
         {cuenta.moneda === 'PEN' ? 'S/' : '$'} {cuenta.saldoActual.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
       </div>
     );
@@ -169,9 +169,9 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         }`} />
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-medium text-gray-900 truncate">{cuenta.nombre}</span>
+            <span className="font-medium text-slate-900 truncate">{cuenta.nombre}</span>
             {cuenta.productoFinanciero && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 flex-shrink-0">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 flex-shrink-0">
                 {cuenta.productoFinanciero === 'cuenta_ahorros' ? 'Ahorros' :
                  cuenta.productoFinanciero === 'cuenta_corriente' ? 'Corriente' :
                  cuenta.productoFinanciero === 'tarjeta_credito' ? 'TC' :
@@ -183,16 +183,16 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 flex-shrink-0">Personal</span>
             )}
             {cuenta.esBiMoneda && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gradient-to-r from-green-100 to-blue-100 text-gray-600 flex-shrink-0">Bi-Moneda</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gradient-to-r from-green-100 to-blue-100 text-slate-600 flex-shrink-0">Bi-Moneda</span>
             )}
             {cuenta.moneda === 'USD' && !cuenta.esBiMoneda && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 flex-shrink-0">USD</span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+          <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
             {getNumeroPrincipal(cuenta) && <span>#{getNumeroPrincipal(cuenta)}</span>}
             {(cuenta.numerosCuenta?.length || 0) > 1 && (
-              <span className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">+{(cuenta.numerosCuenta!.length - 1)} más</span>
+              <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 text-slate-500">+{(cuenta.numerosCuenta!.length - 1)} más</span>
             )}
             {cuenta.titular && <span>· {cuenta.titular}</span>}
             {/* Canales vinculados (Yape/Plin) */}
@@ -212,14 +212,14 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
           <button
             onClick={(e) => { e.stopPropagation(); (() => { setCuentaEditando(cuenta); setBancoParaCuenta(cuenta.banco || ''); setShowCuentaBanco(true); })(); }}
-            className="p-1.5 text-gray-300 hover:text-primary-600 hover:bg-primary-50 rounded-full"
+            className="p-1.5 text-slate-300 hover:text-primary-600 hover:bg-primary-50 rounded-full"
             title="Editar cuenta"
           >
             <Edit2 className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); handleEliminarCuenta(cuenta); }}
-            className="p-1.5 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-full"
+            className="p-1.5 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-full"
             title="Eliminar cuenta"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -233,29 +233,29 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   const renderCuentaCard = (cuenta: CuentaCaja) => (
     <div key={cuenta.id}
       className={`relative rounded-xl border bg-white p-4 group cursor-pointer hover:shadow-sm transition-all ${
-        cuentaDetalle?.id === cuenta.id ? 'ring-1 ring-primary-200 border-primary-200' : 'border-gray-200'
+        cuentaDetalle?.id === cuenta.id ? 'ring-1 ring-primary-200 border-primary-200' : 'border-slate-200'
       }`}
       onClick={() => { setCuentaDetalle(cuentaDetalle?.id === cuenta.id ? null : cuenta); setMovsLimit(50); }}
     >
       <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
         <button
           onClick={(e) => { e.stopPropagation(); (() => { setCuentaEditando(cuenta); setBancoParaCuenta(cuenta.banco || ''); setShowCuentaBanco(true); })(); }}
-          className="p-1.5 text-gray-300 hover:text-primary-600 hover:bg-primary-50 rounded-full"
+          className="p-1.5 text-slate-300 hover:text-primary-600 hover:bg-primary-50 rounded-full"
         >
           <Edit2 className="h-3.5 w-3.5" />
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); handleEliminarCuenta(cuenta); }}
-          className="p-1.5 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-full"
+          className="p-1.5 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-full"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
-      <h4 className="font-medium text-gray-900 pr-16">{cuenta.nombre}</h4>
-      <div className="text-xs text-gray-400 mt-0.5">
+      <h4 className="font-medium text-slate-900 pr-16">{cuenta.nombre}</h4>
+      <div className="text-xs text-slate-400 mt-0.5">
         {cuenta.moneda}{cuenta.titularidad ? ` · ${cuenta.titularidad === 'empresa' ? 'Empresa' : 'Personal'}` : ''}
       </div>
-      {cuenta.titular && <div className="text-xs text-gray-400">{cuenta.titular}</div>}
+      {cuenta.titular && <div className="text-xs text-slate-400">{cuenta.titular}</div>}
       <div className="mt-3">
         {renderSaldo(cuenta)}
       </div>
@@ -266,8 +266,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
     <>
       <Card padding="none">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900">
             Cuentas de Caja ({cuentas.length})
           </h3>
           <Button variant="outline" onClick={handleReconciliarPagos}
@@ -290,7 +290,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             defaultOpen
             badge={
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-gray-400">{bancos.size} banco{bancos.size !== 1 ? 's' : ''} · {totalBancoCuentas} cuenta{totalBancoCuentas !== 1 ? 's' : ''}</span>
+                <span className="text-[10px] text-slate-400">{bancos.size} banco{bancos.size !== 1 ? 's' : ''} · {totalBancoCuentas} cuenta{totalBancoCuentas !== 1 ? 's' : ''}</span>
                 <button onClick={(e) => { e.stopPropagation(); setShowBancoNuevo(true); }}
                   className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Banco
@@ -300,8 +300,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           >
             {bancos.size === 0 ? (
               <div className="text-center py-6">
-                <Building2 className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">No hay bancos registrados</p>
+                <Building2 className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">No hay bancos registrados</p>
                 <button onClick={() => setShowBancoNuevo(true)}
                   className="mt-2 text-sm text-primary-600 hover:underline">+ Agregar primer banco</button>
               </div>
@@ -313,11 +313,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                     <div className="px-4 py-3 bg-blue-50 flex items-center justify-between border-b border-blue-100">
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-blue-600" />
-                        <h4 className="font-semibold text-gray-900">{banco}</h4>
+                        <h4 className="font-semibold text-slate-900">{banco}</h4>
                         {cuentasBanco[0]?.bancoNombreCompleto && (
-                          <span className="text-xs text-gray-500 hidden sm:inline">({cuentasBanco[0].bancoNombreCompleto})</span>
+                          <span className="text-xs text-slate-500 hidden sm:inline">({cuentasBanco[0].bancoNombreCompleto})</span>
                         )}
-                        <span className="text-xs text-gray-400">{cuentasBanco.length} cuenta{cuentasBanco.length > 1 ? 's' : ''}</span>
+                        <span className="text-xs text-slate-400">{cuentasBanco.length} cuenta{cuentasBanco.length > 1 ? 's' : ''}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {cuentasBanco[0]?.metodosDisponibles?.length ? (
@@ -336,7 +336,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                           </div>
                         ) : null}
                         <button onClick={() => abrirMetodos(banco, cuentasBanco)}
-                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
                           title="Editar métodos de pago">
                           <Settings2 className="h-3.5 w-3.5" />
                         </button>
@@ -368,7 +368,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             defaultOpen
             badge={
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-gray-400">{digitales.length} billetera{digitales.length !== 1 ? 's' : ''}</span>
+                <span className="text-[10px] text-slate-400">{digitales.length} billetera{digitales.length !== 1 ? 's' : ''}</span>
                 <button onClick={(e) => { e.stopPropagation(); setShowDigital(true); }}
                   className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Digital
@@ -378,8 +378,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           >
             {digitales.length === 0 ? (
               <div className="text-center py-6">
-                <Smartphone className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">No hay billeteras digitales</p>
+                <Smartphone className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">No hay billeteras digitales</p>
                 <button onClick={() => setShowDigital(true)}
                   className="mt-2 text-sm text-primary-600 hover:underline">+ Agregar billetera</button>
               </div>
@@ -397,7 +397,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             defaultOpen
             badge={
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-gray-400">{efectivo.length} caja{efectivo.length !== 1 ? 's' : ''}</span>
+                <span className="text-[10px] text-slate-400">{efectivo.length} caja{efectivo.length !== 1 ? 's' : ''}</span>
                 <button onClick={(e) => { e.stopPropagation(); setShowEfectivo(true); }}
                   className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Caja
@@ -407,8 +407,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           >
             {efectivo.length === 0 ? (
               <div className="text-center py-6">
-                <Banknote className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">No hay cajas de efectivo</p>
+                <Banknote className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">No hay cajas de efectivo</p>
                 <button onClick={() => setShowEfectivo(true)}
                   className="mt-2 text-sm text-primary-600 hover:underline">+ Agregar caja</button>
               </div>
@@ -459,11 +459,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 <div className="px-4 py-3 border-b border-primary-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-primary-500" />
-                    <h4 className="text-sm font-semibold text-gray-900">Movimientos de {cuentaDetalle.nombre}</h4>
-                    <span className="text-xs text-gray-400">({movsCuenta.length})</span>
+                    <h4 className="text-sm font-semibold text-slate-900">Movimientos de {cuentaDetalle.nombre}</h4>
+                    <span className="text-xs text-slate-400">({movsCuenta.length})</span>
                   </div>
                   <button onClick={() => setCuentaDetalle(null)}
-                    className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
+                    className="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100">
                     <XCircle className="h-4 w-4" />
                   </button>
                 </div>
@@ -472,12 +472,12 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                   <div className="px-4 py-2.5 bg-white/60 border-b border-primary-100">
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <span className="text-gray-500">Entradas:</span>
+                        <span className="text-slate-500">Entradas:</span>
                         {entPEN > 0 && <span className="ml-1 font-semibold text-green-600">+S/ {entPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>}
                         {entUSD > 0 && <span className="ml-1 font-semibold text-green-600">+$ {entUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>}
                       </div>
                       <div className="text-right">
-                        <span className="text-gray-500">Salidas:</span>
+                        <span className="text-slate-500">Salidas:</span>
                         {salPEN > 0 && <span className="ml-1 font-semibold text-red-600">-S/ {salPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>}
                         {salUSD > 0 && <span className="ml-1 font-semibold text-red-600">-$ {salUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>}
                       </div>
@@ -486,11 +486,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 )}
 
                 {movsCuenta.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-gray-400 text-sm">No hay movimientos para esta cuenta</div>
+                  <div className="px-4 py-8 text-center text-slate-400 text-sm">No hay movimientos para esta cuenta</div>
                 ) : (
                   <>
                     {/* Mobile */}
-                    <div className="md:hidden divide-y divide-gray-100">
+                    <div className="md:hidden divide-y divide-slate-100">
                       {movsDisplay.slice(0, movsLimit).map((mov) => {
                         const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
                         const saldos = saldosPorMov.get(mov.id);
@@ -498,7 +498,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                           <div key={mov.id} className={`px-4 py-2.5 ${mov.estado === 'anulado' ? 'opacity-40' : ''}`}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <span className="text-[10px] text-gray-400 flex-shrink-0">{formatDate(mov.fecha)}</span>
+                                <span className="text-[10px] text-slate-400 flex-shrink-0">{formatDate(mov.fecha)}</span>
                                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${esIngreso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                   {esIngreso ? 'Entrada' : 'Salida'}
                                 </span>
@@ -507,9 +507,9 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                                 {esIngreso ? '+' : '-'}{mov.moneda === 'USD' ? '$' : 'S/'} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-600 truncate mt-0.5">{mov.concepto}</p>
+                            <p className="text-xs text-slate-600 truncate mt-0.5">{mov.concepto}</p>
                             {saldos && (
-                              <div className="text-[10px] text-gray-400 mt-0.5">
+                              <div className="text-[10px] text-slate-400 mt-0.5">
                                 Saldo: {cuentaDetalle.esBiMoneda
                                   ? `S/${saldos.pen.toFixed(2)} | $${saldos.usd.toFixed(2)}`
                                   : `${cuentaDetalle.moneda === 'PEN' ? 'S/' : '$'}${(cuentaDetalle.moneda === 'PEN' ? saldos.pen : saldos.usd).toFixed(2)}`}
@@ -522,26 +522,26 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
 
                     {/* Desktop */}
                     <div className="hidden md:block overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-100 text-sm">
-                        <thead className="bg-gray-50/50">
+                      <table className="min-w-full divide-y divide-slate-100 text-sm">
+                        <thead className="bg-slate-50/50">
                           <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Doc.</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Doc.</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Concepto</th>
                             <th className="px-3 py-2 text-right text-xs font-medium text-green-700 uppercase">Entrada</th>
                             <th className="px-3 py-2 text-right text-xs font-medium text-red-700 uppercase">Salida</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Saldo</th>
+                            <th className="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">Saldo</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-slate-50">
                           {movsDisplay.slice(0, movsLimit).map((mov) => {
                             const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
                             const saldos = saldosPorMov.get(mov.id);
                             const simbolo = mov.moneda === 'USD' ? '$' : 'S/';
                             return (
-                              <tr key={mov.id} className={`hover:bg-gray-50 ${mov.estado === 'anulado' ? 'opacity-40' : ''}`}>
-                                <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{formatDate(mov.fecha)}</td>
+                              <tr key={mov.id} className={`hover:bg-slate-50 ${mov.estado === 'anulado' ? 'opacity-40' : ''}`}>
+                                <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{formatDate(mov.fecha)}</td>
                                 <td className="px-3 py-2 whitespace-nowrap">
                                   <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${esIngreso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     {esIngreso ? <TrendingUp className="h-2.5 w-2.5 mr-0.5" /> : <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
@@ -552,16 +552,16 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                                   {mov.ordenCompraNumero && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-medium">{mov.ordenCompraNumero}</span>}
                                   {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
                                   {mov.gastoNumero && <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-medium">{mov.gastoNumero}</span>}
-                                  {!mov.ordenCompraNumero && !mov.ventaNumero && !mov.gastoNumero && <span className="text-gray-300">-</span>}
+                                  {!mov.ordenCompraNumero && !mov.ventaNumero && !mov.gastoNumero && <span className="text-slate-300">-</span>}
                                 </td>
-                                <td className="px-3 py-2 text-gray-700 max-w-[240px] truncate" title={mov.concepto}>{mov.concepto}</td>
+                                <td className="px-3 py-2 text-slate-700 max-w-[240px] truncate" title={mov.concepto}>{mov.concepto}</td>
                                 <td className="px-3 py-2 text-right font-medium text-green-600 whitespace-nowrap">
                                   {esIngreso ? `${simbolo} ${mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}` : ''}
                                 </td>
                                 <td className="px-3 py-2 text-right font-medium text-red-600 whitespace-nowrap">
                                   {!esIngreso ? `${simbolo} ${mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}` : ''}
                                 </td>
-                                <td className="px-3 py-2 text-right text-gray-500 whitespace-nowrap">
+                                <td className="px-3 py-2 text-right text-slate-500 whitespace-nowrap">
                                   {saldos && (
                                     <span>{simbolo} {(cuentaDetalle.esBiMoneda
                                       ? (mov.moneda === 'PEN' ? saldos.pen : saldos.usd)
@@ -577,8 +577,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                     </div>
 
                     {movsDisplay.length > movsLimit && (
-                      <div className="px-4 py-3 text-center border-t border-gray-100">
-                        <p className="text-xs text-gray-400">Mostrando {movsLimit} de {movsDisplay.length}</p>
+                      <div className="px-4 py-3 text-center border-t border-slate-100">
+                        <p className="text-xs text-slate-400">Mostrando {movsLimit} de {movsDisplay.length}</p>
                         <button onClick={() => setMovsLimit(prev => prev + 50)}
                           className="text-sm text-primary-600 hover:text-primary-700 font-medium hover:underline">
                           Ver más movimientos

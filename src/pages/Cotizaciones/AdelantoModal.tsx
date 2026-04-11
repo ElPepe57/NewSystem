@@ -89,13 +89,13 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
         <div className={`rounded-lg p-4 ${tipoModal === 'comprometer' ? 'bg-gradient-to-r from-purple-50 to-indigo-50' : 'bg-gradient-to-r from-green-50 to-emerald-50'}`}>
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-sm text-gray-600">Cotización</p>
+              <p className="text-sm text-slate-600">Cotización</p>
               <p className="font-bold text-primary-600">{cotizacion.numeroCotizacion}</p>
-              <p className="text-sm text-gray-700 mt-1">{cotizacion.nombreCliente}</p>
+              <p className="text-sm text-slate-700 mt-1">{cotizacion.nombreCliente}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">Total</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(cotizacion.totalPEN)}</p>
+              <p className="text-sm text-slate-600">Total</p>
+              <p className="text-2xl font-bold text-slate-900">{formatCurrency(cotizacion.totalPEN)}</p>
             </div>
           </div>
         </div>
@@ -118,12 +118,12 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
         )}
 
         {/* Productos resumidos */}
-        <div className="bg-gray-50 rounded-lg p-3">
-          <p className="text-xs text-gray-500 uppercase mb-2">Productos ({cotizacion.productos.length})</p>
+        <div className="bg-slate-50 rounded-lg p-3">
+          <p className="text-xs text-slate-500 uppercase mb-2">Productos ({cotizacion.productos.length})</p>
           <div className="space-y-1 max-h-24 overflow-y-auto">
             {cotizacion.productos.map((p, idx) => (
               <div key={idx} className="flex justify-between text-sm">
-                <span className="text-gray-700">{p.cantidad}x {p.marca} {p.nombreComercial}</span>
+                <span className="text-slate-700">{p.cantidad}x {p.marca} {p.nombreComercial}</span>
                 <span className="font-medium">{formatCurrency(p.subtotal)}</span>
               </div>
             ))}
@@ -134,7 +134,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
         <div className="space-y-4">
           {/* Monto */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Monto del Adelanto (S/)
             </label>
             <Input
@@ -171,7 +171,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
             <>
               {/* Selector de moneda */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Moneda del Pago
                 </label>
                 <div className="flex gap-2">
@@ -181,7 +181,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                     className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
                       moneda === 'PEN'
                         ? 'bg-green-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
                     Soles (PEN)
@@ -192,7 +192,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                     className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
                       moneda === 'USD'
                         ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
                     Dólares (USD)
@@ -202,7 +202,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
 
               {/* Método de pago */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Método de Pago
                 </label>
                 <Select
@@ -224,7 +224,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
 
               {/* Cuenta destino */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Cuenta Destino {moneda === 'USD' && '(USD)'}
                 </label>
                 {cuentasDisponibles.length > 0 ? (
@@ -247,7 +247,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
               {moneda === 'USD' && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Tipo de Cambio (PEN / USD)
                     </label>
                     <Input
@@ -257,17 +257,17 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                       value={tipoCambio}
                       onChange={(e) => onTipoCambio(parseFloat(e.target.value) || 0)}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       TC del día cargado automáticamente. Puedes ajustarlo si es necesario.
                     </p>
                   </div>
                   <div className="bg-white rounded p-2 border border-blue-100">
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Adelanto comprometido:</span>
+                      <span className="text-slate-600">Adelanto comprometido:</span>
                       <span className="font-medium">{formatCurrency(monto)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-gray-600">Equivalente a pagar en USD:</span>
+                      <span className="text-slate-600">Equivalente a pagar en USD:</span>
                       <span className="font-bold text-blue-700">
                         {formatCurrencyBimoneda(
                           Math.round((monto / tipoCambio) * 100) / 100,
@@ -281,7 +281,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
 
               {/* Referencia */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Referencia / N° Operación (opcional)
                 </label>
                 <Input
@@ -300,30 +300,30 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
           {tipoModal === 'comprometer' ? (
             <>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">Adelanto:</span>
+                <span className="text-sm text-slate-600">Adelanto:</span>
                 <span className="font-bold text-purple-700">{formatCurrency(monto)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Saldo pendiente:</span>
-                <span className="font-bold text-gray-900">{formatCurrency(cotizacion.totalPEN - monto)}</span>
+                <span className="text-sm text-slate-600">Saldo pendiente:</span>
+                <span className="font-bold text-slate-900">{formatCurrency(cotizacion.totalPEN - monto)}</span>
               </div>
             </>
           ) : (
             <>
               {moneda === 'PEN' && (
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-600">Adelanto a pagar:</span>
+                  <span className="text-sm text-slate-600">Adelanto a pagar:</span>
                   <span className="font-bold text-green-700">{formatCurrency(monto)}</span>
                 </div>
               )}
               {moneda === 'USD' && (
                 <>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-gray-600">Adelanto comprometido:</span>
-                    <span className="font-medium text-gray-700">{formatCurrency(monto)}</span>
+                    <span className="text-sm text-slate-600">Adelanto comprometido:</span>
+                    <span className="font-medium text-slate-700">{formatCurrency(monto)}</span>
                   </div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-gray-600">A pagar en USD:</span>
+                    <span className="text-sm text-slate-600">A pagar en USD:</span>
                     <span className="font-bold text-blue-700">
                       {formatCurrencyBimoneda(
                         Math.round((monto / tipoCambio) * 100) / 100,
@@ -331,7 +331,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                       )}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center mb-2 text-xs text-gray-500">
+                  <div className="flex justify-between items-center mb-2 text-xs text-slate-500">
                     <span>TC aplicado:</span>
                     <span>{tipoCambio.toFixed(3)}</span>
                   </div>

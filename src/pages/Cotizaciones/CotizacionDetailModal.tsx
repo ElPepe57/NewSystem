@@ -106,33 +106,33 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
                cotizacion.estado === 'rechazada' ? 'Rechazada' :
                cotizacion.estado === 'vencida' ? 'Vencida' : cotizacion.estado}
             </Badge>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-slate-600">
               Canal: <span className="font-medium">{resolverNombreCanal(cotizacion.canal)}</span>
             </span>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-500">Total</p>
+            <p className="text-sm text-slate-500">Total</p>
             <p className="text-2xl font-bold text-primary-600">{formatCurrency(cotizacion.totalPEN)}</p>
           </div>
         </div>
 
         {/* Información del Cliente */}
         <div className="border rounded-lg overflow-hidden">
-          <div className="bg-gray-50 px-4 py-2 border-b">
-            <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+          <div className="bg-slate-50 px-4 py-2 border-b">
+            <h4 className="font-semibold text-slate-700 flex items-center gap-2">
               <User className="h-4 w-4" />
               Información del Cliente
             </h4>
           </div>
           <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <p className="text-xs text-gray-500 uppercase">Nombre</p>
-              <p className="font-medium text-gray-900">{cotizacion.nombreCliente}</p>
+              <p className="text-xs text-slate-500 uppercase">Nombre</p>
+              <p className="font-medium text-slate-900">{cotizacion.nombreCliente}</p>
             </div>
             {cotizacion.telefonoCliente && (
               <div>
-                <p className="text-xs text-gray-500 uppercase">Teléfono</p>
-                <p className="font-medium text-gray-900 flex items-center gap-1">
+                <p className="text-xs text-slate-500 uppercase">Teléfono</p>
+                <p className="font-medium text-slate-900 flex items-center gap-1">
                   <Phone className="h-3 w-3" />
                   {cotizacion.telefonoCliente}
                 </p>
@@ -140,20 +140,20 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
             )}
             {cotizacion.emailCliente && (
               <div>
-                <p className="text-xs text-gray-500 uppercase">Email</p>
-                <p className="font-medium text-gray-900">{cotizacion.emailCliente}</p>
+                <p className="text-xs text-slate-500 uppercase">Email</p>
+                <p className="font-medium text-slate-900">{cotizacion.emailCliente}</p>
               </div>
             )}
             {cotizacion.dniRuc && (
               <div>
-                <p className="text-xs text-gray-500 uppercase">DNI/RUC</p>
-                <p className="font-medium text-gray-900">{cotizacion.dniRuc}</p>
+                <p className="text-xs text-slate-500 uppercase">DNI/RUC</p>
+                <p className="font-medium text-slate-900">{cotizacion.dniRuc}</p>
               </div>
             )}
             {cotizacion.direccionEntrega && (
               <div className="col-span-2">
-                <p className="text-xs text-gray-500 uppercase">Dirección de Entrega</p>
-                <p className="font-medium text-gray-900">{cotizacion.direccionEntrega}</p>
+                <p className="text-xs text-slate-500 uppercase">Dirección de Entrega</p>
+                <p className="font-medium text-slate-900">{cotizacion.direccionEntrega}</p>
               </div>
             )}
           </div>
@@ -161,33 +161,33 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
 
         {/* Tabla de Productos */}
         <div className="border rounded-lg overflow-hidden">
-          <div className="bg-gray-50 px-4 py-2 border-b">
-            <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+          <div className="bg-slate-50 px-4 py-2 border-b">
+            <h4 className="font-semibold text-slate-700 flex items-center gap-2">
               <Package className="h-4 w-4" />
               Productos ({cotizacion.productos.length})
             </h4>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-                  <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Stock</th>
-                  <th className="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Cant.</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">P. Unit.</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Subtotal</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
+                  <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase">Stock</th>
+                  <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase">Cant.</th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">P. Unit.</th>
+                  <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Subtotal</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-slate-200">
                 {cotizacion.productos.map((producto, idx) => {
                   const sinStock = producto.requiereStock || (producto.stockDisponible !== undefined && producto.stockDisponible < producto.cantidad);
                   return (
                     <tr key={idx} className={sinStock ? 'bg-amber-50' : ''}>
                       <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-gray-900">{producto.sku}</div>
-                        <div className="text-xs text-gray-500">{producto.marca} - {producto.nombreComercial}</div>
+                        <div className="text-sm font-medium text-slate-900">{producto.sku}</div>
+                        <div className="text-xs text-slate-500">{producto.marca} - {producto.nombreComercial}</div>
                         {producto.presentacion && (
-                          <div className="text-xs text-gray-400">{producto.presentacion}</div>
+                          <div className="text-xs text-slate-400">{producto.presentacion}</div>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -196,7 +196,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
                             {Math.max(0, producto.stockDisponible)}
                           </Badge>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center font-medium">{producto.cantidad}</td>
@@ -209,27 +209,27 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
             </table>
           </div>
           {/* Totales */}
-          <div className="bg-gray-50 px-4 py-3 border-t">
+          <div className="bg-slate-50 px-4 py-3 border-t">
             <div className="flex flex-col items-end gap-1">
               <div className="flex justify-between w-48">
-                <span className="text-sm text-gray-600">Subtotal:</span>
+                <span className="text-sm text-slate-600">Subtotal:</span>
                 <span className="font-medium">{formatCurrency(cotizacion.subtotalPEN)}</span>
               </div>
               {cotizacion.descuento && cotizacion.descuento > 0 && (
                 <div className="flex justify-between w-48">
-                  <span className="text-sm text-gray-600">Descuento:</span>
+                  <span className="text-sm text-slate-600">Descuento:</span>
                   <span className="font-medium text-red-600">-{formatCurrency(cotizacion.descuento)}</span>
                 </div>
               )}
               {cotizacion.costoEnvio && cotizacion.costoEnvio > 0 && (
                 <div className="flex justify-between w-48">
-                  <span className="text-sm text-gray-600">Envío:</span>
+                  <span className="text-sm text-slate-600">Envío:</span>
                   <span className="font-medium">{formatCurrency(cotizacion.costoEnvio)}</span>
                 </div>
               )}
               {cotizacion.incluyeEnvio && (
                 <div className="flex justify-between w-48">
-                  <span className="text-sm text-gray-600">Envío:</span>
+                  <span className="text-sm text-slate-600">Envío:</span>
                   <span className="font-medium text-green-600">GRATIS</span>
                 </div>
               )}
@@ -243,21 +243,21 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
 
         {/* Historial del Flujo */}
         <div className="border rounded-lg overflow-hidden">
-          <div className="bg-gray-50 px-4 py-2 border-b">
-            <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+          <div className="bg-slate-50 px-4 py-2 border-b">
+            <h4 className="font-semibold text-slate-700 flex items-center gap-2">
               <Clock className="h-4 w-4" />
               Historial del Flujo
             </h4>
           </div>
           <div className="p-4">
             <div className="relative">
-              <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-gray-200"></div>
+              <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-slate-200"></div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3 relative">
-                  <div className="w-4 h-4 rounded-full bg-gray-400 border-2 border-white z-10"></div>
+                  <div className="w-4 h-4 rounded-full bg-slate-400 border-2 border-white z-10"></div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Cotización creada</p>
-                    <p className="text-xs text-gray-500">{formatFecha(cotizacion.fechaCreacion)}</p>
+                    <p className="text-sm font-medium text-slate-900">Cotización creada</p>
+                    <p className="text-xs text-slate-500">{formatFecha(cotizacion.fechaCreacion)}</p>
                   </div>
                 </div>
 
@@ -265,8 +265,8 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
                   <div className="flex items-start gap-3 relative">
                     <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white z-10"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Cliente validó interés</p>
-                      <p className="text-xs text-gray-500">{formatFecha(cotizacion.fechaValidacion)}</p>
+                      <p className="text-sm font-medium text-slate-900">Cliente validó interés</p>
+                      <p className="text-xs text-slate-500">{formatFecha(cotizacion.fechaValidacion)}</p>
                     </div>
                   </div>
                 )}
@@ -275,14 +275,14 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
                   <div className="flex items-start gap-3 relative">
                     <div className="w-4 h-4 rounded-full bg-purple-500 border-2 border-white z-10"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-slate-900">
                         Adelanto registrado: {
                           cotizacion.adelanto.moneda === 'USD'
                             ? `${formatCurrency(cotizacion.adelanto.montoEquivalentePEN || 0)} (${formatCurrencyBimoneda(cotizacion.adelanto.monto, 'USD')})`
                             : formatCurrency(cotizacion.adelanto.monto)
                         }
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         {formatFecha(cotizacion.fechaAdelanto)} - {cotizacion.adelanto.metodoPago}
                         {cotizacion.adelanto.moneda === 'USD' && cotizacion.adelanto.tipoCambio && (
                           <span className="ml-1">(TC: {cotizacion.adelanto.tipoCambio.toFixed(3)})</span>
@@ -296,8 +296,8 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
                   <div className="flex items-start gap-3 relative">
                     <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-white z-10"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Confirmada como venta</p>
-                      <p className="text-xs text-gray-500">{formatFecha(cotizacion.fechaConfirmacion)}</p>
+                      <p className="text-sm font-medium text-slate-900">Confirmada como venta</p>
+                      <p className="text-xs text-slate-500">{formatFecha(cotizacion.fechaConfirmacion)}</p>
                       {cotizacion.numeroVenta && (
                         <p className="text-xs font-medium text-green-600">{cotizacion.numeroVenta}</p>
                       )}
@@ -309,8 +309,8 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
                   <div className="flex items-start gap-3 relative">
                     <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white z-10"></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Rechazada</p>
-                      <p className="text-xs text-gray-500">{formatFecha(cotizacion.fechaRechazo)}</p>
+                      <p className="text-sm font-medium text-slate-900">Rechazada</p>
+                      <p className="text-xs text-slate-500">{formatFecha(cotizacion.fechaRechazo)}</p>
                     </div>
                   </div>
                 )}
@@ -318,13 +318,13 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
                 {cotizacion.fechaVencimiento && (
                   <div className="flex items-start gap-3 relative">
                     <div className={`w-4 h-4 rounded-full border-2 border-white z-10 ${
-                      cotizacion.estado === 'vencida' ? 'bg-amber-500' : 'bg-gray-300'
+                      cotizacion.estado === 'vencida' ? 'bg-amber-500' : 'bg-slate-300'
                     }`}></div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-slate-900">
                         {cotizacion.estado === 'vencida' ? 'Venció' : 'Vence'}
                       </p>
-                      <p className="text-xs text-gray-500">{formatFecha(cotizacion.fechaVencimiento)}</p>
+                      <p className="text-xs text-slate-500">{formatFecha(cotizacion.fechaVencimiento)}</p>
                     </div>
                   </div>
                 )}
@@ -341,7 +341,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
             <div className={`px-4 py-2 border-b ${
               cotizacion.reservaStock.tipoReserva === 'fisica' ? 'bg-green-50' : 'bg-purple-50'
             }`}>
-              <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+              <h4 className="font-semibold text-slate-700 flex items-center gap-2">
                 <Lock className="h-4 w-4" />
                 Reserva de Stock
                 <Badge variant={cotizacion.reservaStock.tipoReserva === 'fisica' ? 'success' : 'warning'}>
@@ -352,25 +352,25 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
             <div className="p-4 space-y-3">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500 uppercase">Fecha Reserva</p>
+                  <p className="text-xs text-slate-500 uppercase">Fecha Reserva</p>
                   <p className="font-medium">{formatFecha(cotizacion.reservaStock.fechaReserva)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase">Vigencia Hasta</p>
+                  <p className="text-xs text-slate-500 uppercase">Vigencia Hasta</p>
                   <p className="font-medium">{formatFecha(cotizacion.reservaStock.vigenciaHasta)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase">Duración</p>
+                  <p className="text-xs text-slate-500 uppercase">Duración</p>
                   <p className="font-medium">{cotizacion.reservaStock.horasVigencia}h</p>
                 </div>
               </div>
 
               {cotizacion.reservaStock.productosReservados.length > 0 && (
                 <div>
-                  <p className="text-xs text-gray-500 uppercase mb-2">Productos Reservados</p>
+                  <p className="text-xs text-slate-500 uppercase mb-2">Productos Reservados</p>
                   <div className="space-y-1">
                     {cotizacion.reservaStock.productosReservados.map((pr, idx) => (
-                      <div key={idx} className="flex justify-between text-sm bg-gray-50 px-2 py-1 rounded">
+                      <div key={idx} className="flex justify-between text-sm bg-slate-50 px-2 py-1 rounded">
                         <span>{pr.sku || `Producto ${idx + 1}`}</span>
                         <span className="font-medium">{pr.cantidad} uds</span>
                       </div>
@@ -449,8 +449,8 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
         {/* Observaciones */}
         {cotizacion.observaciones && (
           <div className="border rounded-lg p-4">
-            <h4 className="font-semibold text-gray-700 mb-2">Observaciones</h4>
-            <p className="text-sm text-gray-600">{cotizacion.observaciones}</p>
+            <h4 className="font-semibold text-slate-700 mb-2">Observaciones</h4>
+            <p className="text-sm text-slate-600">{cotizacion.observaciones}</p>
           </div>
         )}
       </div>

@@ -39,7 +39,7 @@ export const TabCxP: React.FC = () => {
   }, 0);
   const saldoPendiente = totalDeuda - totalPagado;
 
-  if (loading) return <div className="text-center py-8 text-gray-500">Cargando CxP...</div>;
+  if (loading) return <div className="text-center py-8 text-slate-500">Cargando CxP...</div>;
 
   const fmtUSD = (n: number) => `$${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -48,30 +48,30 @@ export const TabCxP: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-3 text-center">
-          <div className="text-xs text-gray-500">Pendiente de pago</div>
+          <div className="text-xs text-slate-500">Pendiente de pago</div>
           <div className="text-2xl font-bold text-red-600">{fmtUSD(saldoPendiente)}</div>
-          <div className="text-xs text-gray-400">{ocPendientes.length} OCs</div>
+          <div className="text-xs text-slate-400">{ocPendientes.length} OCs</div>
         </Card>
         <Card className="p-3 text-center">
-          <div className="text-xs text-gray-500">Total comprometido</div>
-          <div className="text-2xl font-bold text-gray-900">{fmtUSD(totalDeuda)}</div>
+          <div className="text-xs text-slate-500">Total comprometido</div>
+          <div className="text-2xl font-bold text-slate-900">{fmtUSD(totalDeuda)}</div>
         </Card>
         <Card className="p-3 text-center">
-          <div className="text-xs text-gray-500">Ya pagado</div>
+          <div className="text-xs text-slate-500">Ya pagado</div>
           <div className="text-2xl font-bold text-green-600">{fmtUSD(totalPagado)}</div>
         </Card>
       </div>
 
       {/* Lista de OCs pendientes */}
       {ocPendientes.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-slate-500">
           <CheckCircle className="h-10 w-10 mx-auto mb-2 text-green-300" />
           <p>Sin cuentas por pagar pendientes</p>
         </div>
       ) : (
         <Card className="p-0 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+            <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
               <tr>
                 <th className="px-3 py-2 text-left">OC</th>
                 <th className="px-3 py-2 text-left">Proveedor</th>
@@ -80,14 +80,14 @@ export const TabCxP: React.FC = () => {
                 <th className="px-3 py-2 text-center">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {ocPendientes.map(oc => {
                 const pagado = (oc.historialPagos || []).reduce((s, p) => s + (p.montoUSD || 0), 0);
                 const pendiente = (oc.totalUSD || 0) - pagado;
                 return (
-                  <tr key={oc.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 font-medium text-gray-900">{oc.numeroOrden}</td>
-                    <td className="px-3 py-2 text-gray-600">{oc.nombreProveedor}</td>
+                  <tr key={oc.id} className="hover:bg-slate-50">
+                    <td className="px-3 py-2 font-medium text-slate-900">{oc.numeroOrden}</td>
+                    <td className="px-3 py-2 text-slate-600">{oc.nombreProveedor}</td>
                     <td className="px-3 py-2 text-right">{fmtUSD(oc.totalUSD)}</td>
                     <td className="px-3 py-2 text-right font-medium text-red-600">{fmtUSD(pendiente)}</td>
                     <td className="px-3 py-2 text-center">

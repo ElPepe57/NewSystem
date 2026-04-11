@@ -77,7 +77,7 @@ export const Escaner: React.FC = () => {
   }, [activeMode]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <PageHeader
         title="Escaner de Productos"
         subtitle={MODE_SUBTITLES[activeMode]}
@@ -117,14 +117,14 @@ export const Escaner: React.FC = () => {
         {/* Scanner section - always visible */}
         <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2">
               <ScanLine className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
               Escanear
             </h2>
             {/* Toggle modo continuo eliminado — era UI sin efecto funcional */}
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
             <BarcodeScanner
               onScan={handleGlobalScan}
               mode="both"

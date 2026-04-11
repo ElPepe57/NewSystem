@@ -345,7 +345,7 @@ export const Unidades: React.FC = () => {
     if (dias < 0) return 'text-danger-600';
     if (dias <= 30) return 'text-warning-600';
     if (dias <= 90) return 'text-yellow-600';
-    return 'text-gray-600';
+    return 'text-slate-600';
   };
 
 
@@ -454,7 +454,7 @@ export const Unidades: React.FC = () => {
           data={[
             { label: 'Disponibles', value: unidadesStats.enOrigen + unidadesStats.disponiblePeru, color: 'bg-green-500' },
             { label: 'En Movimiento', value: unidadesStats.enTransitoOrigen + unidadesStats.enTransitoPeru, color: 'bg-blue-500' },
-            { label: 'Vendidas', value: unidadesStats.vendida, color: 'bg-gray-400' },
+            { label: 'Vendidas', value: unidadesStats.vendida, color: 'bg-slate-400' },
             { label: 'Problemas', value: unidadesStats.problemas, color: 'bg-red-500' }
           ]}
         />
@@ -502,7 +502,7 @@ export const Unidades: React.FC = () => {
 
           {/* Contador de resultados */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-slate-600">
               Mostrando <span className="font-medium">{unidadesPaginadas.length}</span> de{' '}
               <span className="font-medium">{unidadesFiltradas.length}</span> unidades
               {unidadesFiltradas.length !== unidadesPorLinea.length && ` (${unidadesPorLinea.length} total)`}
@@ -532,9 +532,9 @@ export const Unidades: React.FC = () => {
               <div className="col-span-full">
                 <Card padding="lg">
                   <div className="text-center py-8">
-                    <Package className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No hay unidades</h3>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <Package className="mx-auto h-12 w-12 text-slate-400" />
+                    <h3 className="mt-2 text-sm font-medium text-slate-900">No hay unidades</h3>
+                    <p className="mt-1 text-sm text-slate-500">
                       Las unidades se crean automáticamente al recibir órdenes de compra
                     </p>
                   </div>
@@ -580,41 +580,41 @@ export const Unidades: React.FC = () => {
             </div>
           ) : unidadesFiltradas.length === 0 ? (
             <div className="text-center py-12">
-              <Package className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No hay unidades</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <Package className="mx-auto h-12 w-12 text-slate-400" />
+              <h3 className="mt-2 text-sm font-medium text-slate-900">No hay unidades</h3>
+              <p className="mt-1 text-sm text-slate-500">
                 Las unidades se crean automáticamente al recibir órdenes de compra
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
                       Producto
                     </th>
-                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
                       Lote
                     </th>
-                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
                       Vencimiento
                     </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
                       Almacén
                     </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
                       Estado
                     </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-slate-500 uppercase">
                       Costo USD
                     </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-slate-500 uppercase">
                       Acciones
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-slate-200">
                   {unidadesPaginadas.map((unidad) => {
                     if (!unidad || !unidad.estado) return null;
 
@@ -622,17 +622,17 @@ export const Unidades: React.FC = () => {
                     const estadoBadge = getEstadoBadge(unidad.estado, unidad.paisOrigen || unidad.pais);
 
                     return (
-                      <tr key={unidad.id} className="hover:bg-gray-50">
+                      <tr key={unidad.id} className="hover:bg-slate-50">
                         <td className="px-3 sm:px-6 py-3 sm:py-4">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-slate-900">
                               {unidad.productoSKU || '-'}
                             </div>
-                            <div className="text-sm text-gray-500">{unidad.productoNombre || '-'}</div>
+                            <div className="text-sm text-slate-500">{unidad.productoNombre || '-'}</div>
                             {(() => {
                               const pInfo = productosMap.get(unidad.productoId);
                               const desc = pInfo ? getDescripcionProducto(pInfo) : '';
-                              return desc ? <div className="text-[10px] text-gray-400">{desc}</div> : null;
+                              return desc ? <div className="text-[10px] text-slate-400">{desc}</div> : null;
                             })()}
                             <div className="flex items-center gap-1 mt-0.5">
                               <LineaNegocioBadge lineaNegocioId={unidad.lineaNegocioId} />
@@ -641,10 +641,10 @@ export const Unidades: React.FC = () => {
                           </div>
                         </td>
                         <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{unidad.lote || '-'}</div>
+                          <div className="text-sm text-slate-900">{unidad.lote || '-'}</div>
                         </td>
                         <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
+                          <div className="text-sm text-slate-900">
                             {formatFecha(unidad.fechaVencimiento)}
                           </div>
                           <div className={`text-xs font-medium ${getColorVencimiento(diasVencer)}`}>
@@ -654,14 +654,14 @@ export const Unidades: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
+                          <div className="text-sm text-slate-900">
                             {getPaisEmoji(unidad.pais)} {unidad.almacenNombre || '-'}
                           </div>
                         </td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm text-slate-900">
                           {formatCurrency(unidad.costoUnitarioUSD || 0)}
                         </td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
@@ -681,7 +681,7 @@ export const Unidades: React.FC = () => {
             </div>
           )}
           {!loading && unidadesFiltradas.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-200 space-y-4">
+            <div className="px-4 py-3 border-t border-slate-200 space-y-4">
               <ListSummary
                 filteredCount={unidadesFiltradas.length}
                 totalCount={unidadesPorLinea.length}

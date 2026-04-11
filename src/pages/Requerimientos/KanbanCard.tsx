@@ -34,7 +34,7 @@ const getPrioridadBadge = (prioridad: string) => {
     alta: 'bg-red-100 text-red-800 border-red-200',
     media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    baja: 'bg-gray-100 text-gray-800 border-gray-200'
+    baja: 'bg-slate-100 text-slate-800 border-slate-200'
   };
 
   return (
@@ -48,7 +48,7 @@ const getPrioridadBadge = (prioridad: string) => {
 const getSolicitanteIcon = (tipo: TipoSolicitante) => {
   switch (tipo) {
     case 'cliente': return <Users className="h-4 w-4 text-blue-500" />;
-    case 'administracion': return <Building2 className="h-4 w-4 text-gray-500" />;
+    case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
     case 'ventas': return <Target className="h-4 w-4 text-green-500" />;
     case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
     default: return null;
@@ -81,7 +81,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
     <div
       key={req.id}
       className={`bg-white rounded-lg shadow-sm border p-4 mb-3 hover:shadow-md transition-shadow cursor-pointer ${
-        isSelected ? 'border-primary-500 ring-2 ring-primary-200 bg-primary-50' : 'border-gray-200'
+        isSelected ? 'border-primary-500 ring-2 ring-primary-200 bg-primary-50' : 'border-slate-200'
       }`}
       onClick={() => {
         if (isSelectable) {
@@ -99,7 +99,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
               {isSelected ? (
                 <CheckSquare className="h-4 w-4 text-primary-600" />
               ) : (
-                <Square className="h-4 w-4 text-gray-400" />
+                <Square className="h-4 w-4 text-slate-400" />
               )}
             </span>
           )}
@@ -109,13 +109,13 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       </div>
 
       {/* Solicitante */}
-      <div className="flex items-center text-sm text-gray-600 mb-2">
+      <div className="flex items-center text-sm text-slate-600 mb-2">
         {getSolicitanteIcon(req.tipoSolicitante)}
         <span className="ml-1.5 truncate">{getSolicitanteLabel(req)}</span>
       </div>
 
       {/* Productos + Linea */}
-      <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+      <div className="flex items-center justify-between text-sm text-slate-500 mb-3">
         <div className="flex items-center">
           <Package className="h-4 w-4 mr-1.5" />
           {req.productos.length} producto(s)
@@ -124,16 +124,16 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       </div>
 
       {/* Costo estimado */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-        <span className="text-xs text-gray-500">Costo Est.</span>
-        <span className="font-semibold text-gray-900">
+      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+        <span className="text-xs text-slate-500">Costo Est.</span>
+        <span className="font-semibold text-slate-900">
           {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}
         </span>
       </div>
 
       {/* Acciones rapidas — pendiente */}
       {req.estado === 'pendiente' && (
-        <div className="mt-3 pt-2 border-t border-gray-100 flex gap-2">
+        <div className="mt-3 pt-2 border-t border-slate-100 flex gap-2">
           <Button
             variant="primary"
             size="sm"
@@ -162,7 +162,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 
       {/* OC Actions — aprobado */}
       {req.estado === 'aprobado' && (
-        <div className="mt-3 pt-2 border-t border-gray-100 flex gap-2">
+        <div className="mt-3 pt-2 border-t border-slate-100 flex gap-2">
           <Button
             variant="primary"
             size="sm"
@@ -191,9 +191,9 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 
       {/* parcial */}
       {req.estado === 'parcial' && req.ocCoverage && (
-        <div className="mt-3 pt-2 border-t border-gray-100 space-y-2">
+        <div className="mt-3 pt-2 border-t border-slate-100 space-y-2">
           <div className="flex items-center gap-2 text-xs text-indigo-600">
-            <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+            <div className="flex-1 bg-slate-200 rounded-full h-1.5">
               <div
                 className="bg-indigo-500 rounded-full h-1.5 transition-all"
                 style={{ width: `${req.ocCoverage.porcentaje}%` }}
@@ -201,7 +201,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
             </div>
             <span className="font-medium">{req.ocCoverage.porcentaje}%</span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500">
+          <div className="flex items-center gap-1 text-xs text-slate-500">
             <span>{req.ocCoverage.productosPendientes} pendiente(s)</span>
             {req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
               <span className="ml-auto text-indigo-600 font-medium">
@@ -226,7 +226,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
 
       {/* en_proceso */}
       {req.estado === 'en_proceso' && req.ordenCompraNumeros && req.ordenCompraNumeros.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-gray-100">
+        <div className="mt-3 pt-2 border-t border-slate-100">
           <div className="flex items-center gap-1.5 text-xs text-purple-600">
             <ShoppingCart className="h-3.5 w-3.5" />
             <span className="font-medium">{req.ordenCompraNumeros.join(', ')}</span>

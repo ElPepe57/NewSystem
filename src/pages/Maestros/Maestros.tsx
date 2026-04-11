@@ -656,35 +656,35 @@ export const Maestros: React.FC = () => {
         );
       case 'clientes':
         return (
-          <Button variant="primary" onClick={() => handleOpenClienteModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+          <Button variant="primary" onClick={() => handleOpenClienteModal()} className="bg-white text-slate-800 hover:bg-slate-100">
             <Plus className="h-5 w-5 mr-2" />
             Nuevo Cliente
           </Button>
         );
       case 'marcas':
         return (
-          <Button variant="primary" onClick={() => handleOpenMarcaModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+          <Button variant="primary" onClick={() => handleOpenMarcaModal()} className="bg-white text-slate-800 hover:bg-slate-100">
             <Plus className="h-5 w-5 mr-2" />
             Nueva Marca
           </Button>
         );
       case 'proveedores':
         return (
-          <Button variant="primary" onClick={() => handleOpenProveedorModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+          <Button variant="primary" onClick={() => handleOpenProveedorModal()} className="bg-white text-slate-800 hover:bg-slate-100">
             <Plus className="h-5 w-5 mr-2" />
             Nuevo Proveedor
           </Button>
         );
       case 'almacenes':
         return (
-          <Button variant="primary" onClick={() => handleOpenAlmacenModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+          <Button variant="primary" onClick={() => handleOpenAlmacenModal()} className="bg-white text-slate-800 hover:bg-slate-100">
             <Plus className="h-5 w-5 mr-2" />
             Nuevo Almacen
           </Button>
         );
       case 'competidores':
         return (
-          <Button variant="primary" onClick={() => handleOpenCompetidorModal()} className="bg-white text-slate-800 hover:bg-gray-100">
+          <Button variant="primary" onClick={() => handleOpenCompetidorModal()} className="bg-white text-slate-800 hover:bg-slate-100">
             <Plus className="h-5 w-5 mr-2" />
             Nuevo Competidor
           </Button>

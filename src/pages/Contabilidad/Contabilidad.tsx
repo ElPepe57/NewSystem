@@ -71,7 +71,7 @@ const getEstadoColor = (estado: AnalisisFinanciero['estado']) => {
     case 'regular': return 'bg-amber-100 text-amber-800 border-amber-300';
     case 'malo': return 'bg-orange-100 text-orange-800 border-orange-300';
     case 'critico': return 'bg-red-100 text-red-800 border-red-300';
-    default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    default: return 'bg-slate-100 text-slate-800 border-slate-300';
   }
 };
 
@@ -86,7 +86,7 @@ const getEstadoIcon = (estado: AnalisisFinanciero['estado']) => {
     case 'critico':
       return <XCircle className="w-5 h-5 text-red-600" />;
     default:
-      return <Info className="w-5 h-5 text-gray-600" />;
+      return <Info className="w-5 h-5 text-slate-600" />;
   }
 };
 
@@ -216,7 +216,7 @@ export function Contabilidad() {
                 className="border-none bg-transparent text-white focus:ring-0 text-xs sm:text-sm"
               >
                 {MESES.map((m, i) => (
-                  <option key={i} value={i + 1} className="text-gray-900">
+                  <option key={i} value={i + 1} className="text-slate-900">
                     {m}
                   </option>
                 ))}
@@ -227,7 +227,7 @@ export function Contabilidad() {
                 className="border-none bg-transparent text-white focus:ring-0 text-xs sm:text-sm"
               >
                 {aniosDisponibles.map((a) => (
-                  <option key={a} value={a} className="text-gray-900">
+                  <option key={a} value={a} className="text-slate-900">
                     {a}
                   </option>
                 ))}
@@ -349,38 +349,38 @@ export function Contabilidad() {
             {/* Indicadores clave */}
             {indicadores && (
               <div className="bg-white rounded-lg border p-6">
-                <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                <h4 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
                   <Activity className="w-5 h-5 text-purple-600" />
                   Indicadores Clave
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-sm text-gray-500">Razón Corriente</div>
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-sm text-slate-500">Razón Corriente</div>
                     <div className="text-2xl font-bold text-blue-600">
                       {indicadores.liquidez.razonCorriente.toFixed(2)}
                     </div>
-                    <div className="text-xs text-gray-400">Act. Corr. / Pas. Corr.</div>
+                    <div className="text-xs text-slate-400">Act. Corr. / Pas. Corr.</div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-sm text-gray-500">ROE</div>
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-sm text-slate-500">ROE</div>
                     <div className={`text-2xl font-bold ${indicadores.rentabilidad.roe >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatPercent(indicadores.rentabilidad.roe)}
                     </div>
-                    <div className="text-xs text-gray-400">Util. Neta / Patrimonio</div>
+                    <div className="text-xs text-slate-400">Util. Neta / Patrimonio</div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-sm text-gray-500">Endeudamiento</div>
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-sm text-slate-500">Endeudamiento</div>
                     <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoTotal <= 50 ? 'text-green-600' : 'text-amber-600'}`}>
                       {formatPercent(indicadores.solvencia.endeudamientoTotal)}
                     </div>
-                    <div className="text-xs text-gray-400">Pasivos / Activos</div>
+                    <div className="text-xs text-slate-400">Pasivos / Activos</div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-sm text-gray-500">Ciclo de Efectivo</div>
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-sm text-slate-500">Ciclo de Efectivo</div>
                     <div className="text-2xl font-bold text-purple-600">
                       {indicadores.actividad.cicloConversionEfectivo.toFixed(0)} días
                     </div>
-                    <div className="text-xs text-gray-400">Inv + Cobro - Pago</div>
+                    <div className="text-xs text-slate-400">Inv + Cobro - Pago</div>
                   </div>
                 </div>
               </div>
@@ -388,7 +388,7 @@ export function Contabilidad() {
 
             {/* Análisis con semáforo */}
             <div className="bg-white rounded-lg border p-6">
-              <h4 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <h4 className="font-semibold text-slate-700 mb-4 flex items-center gap-2">
                 <Target className="w-5 h-5 text-amber-600" />
                 Diagnóstico Financiero
               </h4>
@@ -470,12 +470,12 @@ export function Contabilidad() {
                 <Wallet className="w-5 h-5" />
                 Ratios de Liquidez
               </h3>
-              <p className="text-sm text-gray-500 mb-4">Miden la capacidad de pago a corto plazo</p>
+              <p className="text-sm text-slate-500 mb-4">Miden la capacidad de pago a corto plazo</p>
               <div className="space-y-4">
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Razón Corriente</div>
-                    <div className="text-xs text-gray-500">Activo Corriente / Pasivo Corriente</div>
+                    <div className="text-xs text-slate-500">Activo Corriente / Pasivo Corriente</div>
                   </div>
                   <div className={`text-xl sm:text-2xl font-bold ${indicadores.liquidez.razonCorriente >= 1.5 ? 'text-green-600' : 'text-amber-600'}`}>
                     {indicadores.liquidez.razonCorriente.toFixed(2)}
@@ -484,7 +484,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Prueba Ácida</div>
-                    <div className="text-xs text-gray-500">(Act. Corr. - Inventarios) / Pas. Corr.</div>
+                    <div className="text-xs text-slate-500">(Act. Corr. - Inventarios) / Pas. Corr.</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.liquidez.pruebaAcida >= 1 ? 'text-green-600' : 'text-amber-600'}`}>
                     {indicadores.liquidez.pruebaAcida.toFixed(2)}
@@ -493,7 +493,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Capital de Trabajo</div>
-                    <div className="text-xs text-gray-500">Activo Corriente - Pasivo Corriente</div>
+                    <div className="text-xs text-slate-500">Activo Corriente - Pasivo Corriente</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.liquidez.capitalTrabajo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {formatCurrency(indicadores.liquidez.capitalTrabajo)}
@@ -502,7 +502,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-medium">Razón de Efectivo</div>
-                    <div className="text-xs text-gray-500">Efectivo / Pasivo Corriente</div>
+                    <div className="text-xs text-slate-500">Efectivo / Pasivo Corriente</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.liquidez.razonEfectivo >= 0.3 ? 'text-green-600' : 'text-amber-600'}`}>
                     {indicadores.liquidez.razonEfectivo.toFixed(2)}
@@ -517,12 +517,12 @@ export function Contabilidad() {
                 <Scale className="w-5 h-5" />
                 Ratios de Solvencia
               </h3>
-              <p className="text-sm text-gray-500 mb-4">Miden la estructura de financiamiento</p>
+              <p className="text-sm text-slate-500 mb-4">Miden la estructura de financiamiento</p>
               <div className="space-y-4">
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Endeudamiento Total</div>
-                    <div className="text-xs text-gray-500">Pasivos / Activos</div>
+                    <div className="text-xs text-slate-500">Pasivos / Activos</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoTotal <= 50 ? 'text-green-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.solvencia.endeudamientoTotal)}
@@ -531,7 +531,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Endeudamiento Patrimonio</div>
-                    <div className="text-xs text-gray-500">Pasivos / Patrimonio</div>
+                    <div className="text-xs text-slate-500">Pasivos / Patrimonio</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoPatrimonio <= 100 ? 'text-green-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.solvencia.endeudamientoPatrimonio)}
@@ -540,7 +540,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Autonomía</div>
-                    <div className="text-xs text-gray-500">Patrimonio / Activos</div>
+                    <div className="text-xs text-slate-500">Patrimonio / Activos</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.solvencia.autonomia >= 50 ? 'text-green-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.solvencia.autonomia)}
@@ -549,7 +549,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-medium">Apalancamiento</div>
-                    <div className="text-xs text-gray-500">Activos / Patrimonio</div>
+                    <div className="text-xs text-slate-500">Activos / Patrimonio</div>
                   </div>
                   <div className="text-2xl font-bold text-purple-600">
                     {indicadores.solvencia.apalancamiento.toFixed(2)}x
@@ -564,12 +564,12 @@ export function Contabilidad() {
                 <TrendingUp className="w-5 h-5" />
                 Ratios de Rentabilidad
               </h3>
-              <p className="text-sm text-gray-500 mb-4">Miden la capacidad de generar utilidades</p>
+              <p className="text-sm text-slate-500 mb-4">Miden la capacidad de generar utilidades</p>
               <div className="space-y-4">
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">ROA (Return on Assets)</div>
-                    <div className="text-xs text-gray-500">Utilidad Neta / Activos</div>
+                    <div className="text-xs text-slate-500">Utilidad Neta / Activos</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.rentabilidad.roa >= 5 ? 'text-green-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.roa)}
@@ -578,7 +578,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">ROE (Return on Equity)</div>
-                    <div className="text-xs text-gray-500">Utilidad Neta / Patrimonio</div>
+                    <div className="text-xs text-slate-500">Utilidad Neta / Patrimonio</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.rentabilidad.roe >= 10 ? 'text-green-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.roe)}
@@ -587,7 +587,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Margen Bruto</div>
-                    <div className="text-xs text-gray-500">Utilidad Bruta / Ventas</div>
+                    <div className="text-xs text-slate-500">Utilidad Bruta / Ventas</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenBruto >= 30 ? 'text-green-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.margenBruto)}
@@ -596,7 +596,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-medium">Margen Neto</div>
-                    <div className="text-xs text-gray-500">Utilidad Neta / Ventas</div>
+                    <div className="text-xs text-slate-500">Utilidad Neta / Ventas</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenNeto >= 10 ? 'text-green-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.margenNeto)}
@@ -611,12 +611,12 @@ export function Contabilidad() {
                 <Activity className="w-5 h-5" />
                 Ratios de Actividad
               </h3>
-              <p className="text-sm text-gray-500 mb-4">Miden la eficiencia operativa</p>
+              <p className="text-sm text-slate-500 mb-4">Miden la eficiencia operativa</p>
               <div className="space-y-4">
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Rotación de Inventarios</div>
-                    <div className="text-xs text-gray-500">Compras / Inventario</div>
+                    <div className="text-xs text-slate-500">Compras / Inventario</div>
                   </div>
                   <div className="text-2xl font-bold text-amber-600">
                     {indicadores.actividad.rotacionInventarios.toFixed(1)}x
@@ -625,7 +625,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Días de Inventario</div>
-                    <div className="text-xs text-gray-500">365 / Rotación</div>
+                    <div className="text-xs text-slate-500">365 / Rotación</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.actividad.diasInventario <= 60 ? 'text-green-600' : 'text-amber-600'}`}>
                     {indicadores.actividad.diasInventario.toFixed(0)} días
@@ -634,7 +634,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Días de Cobro</div>
-                    <div className="text-xs text-gray-500">CxC / (Ventas/365)</div>
+                    <div className="text-xs text-slate-500">CxC / (Ventas/365)</div>
                   </div>
                   <div className={`text-2xl font-bold ${indicadores.actividad.diasCobro <= 30 ? 'text-green-600' : 'text-amber-600'}`}>
                     {indicadores.actividad.diasCobro.toFixed(0)} días
@@ -643,7 +643,7 @@ export function Contabilidad() {
                 <div className="flex justify-between items-center border-b pb-2">
                   <div>
                     <div className="font-medium">Días de Pago</div>
-                    <div className="text-xs text-gray-500">CxP / (Compras/365)</div>
+                    <div className="text-xs text-slate-500">CxP / (Compras/365)</div>
                   </div>
                   <div className="text-2xl font-bold text-blue-600">
                     {indicadores.actividad.diasPago.toFixed(0)} días
@@ -664,7 +664,7 @@ export function Contabilidad() {
 
           {/* Análisis completo con semáforo */}
           <div className="bg-white rounded-lg border p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
               <Target className="w-5 h-5 text-amber-600" />
               Diagnóstico Financiero Completo
             </h3>
@@ -702,9 +702,9 @@ export function Contabilidad() {
                 <div className="p-2 bg-green-100 rounded-lg">
                   <TrendingUp className="w-5 h-5 text-green-600" />
                 </div>
-                <div className="text-sm text-gray-500">Mejor Mes</div>
+                <div className="text-sm text-slate-500">Mejor Mes</div>
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-900">{mejorMes?.nombreMes || '-'}</div>
+              <div className="text-xl sm:text-2xl font-bold text-slate-900">{mejorMes?.nombreMes || '-'}</div>
               <div className="text-green-600 font-medium text-sm sm:text-base">
                 {mejorMes ? formatCurrency(mejorMes.utilidadNeta) : '-'}
               </div>
@@ -715,9 +715,9 @@ export function Contabilidad() {
                 <div className="p-2 bg-red-100 rounded-lg">
                   <TrendingDown className="w-5 h-5 text-red-600" />
                 </div>
-                <div className="text-sm text-gray-500">Peor Mes</div>
+                <div className="text-sm text-slate-500">Peor Mes</div>
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-900">{peorMes?.nombreMes || '-'}</div>
+              <div className="text-xl sm:text-2xl font-bold text-slate-900">{peorMes?.nombreMes || '-'}</div>
               <div className={`font-medium text-sm sm:text-base ${(peorMes?.utilidadNeta || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {peorMes ? formatCurrency(peorMes.utilidadNeta) : '-'}
               </div>
@@ -728,9 +728,9 @@ export function Contabilidad() {
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <BarChart3 className="w-5 h-5 text-blue-600" />
                 </div>
-                <div className="text-sm text-gray-500">Promedio Mensual</div>
+                <div className="text-sm text-slate-500">Promedio Mensual</div>
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl font-bold text-slate-900">
                 {formatCurrency(promedioMensual)}
               </div>
               <div className="text-blue-600 font-medium text-sm sm:text-base">
@@ -741,12 +741,12 @@ export function Contabilidad() {
 
           {/* Evolución Mensual — Cards en mobile, tabla en desktop */}
           <div className="bg-white rounded-lg border overflow-hidden">
-            <div className="px-4 sm:px-6 py-4 border-b bg-gray-50">
-              <h3 className="font-semibold text-gray-800">Evolución Mensual {anio}</h3>
+            <div className="px-4 sm:px-6 py-4 border-b bg-slate-50">
+              <h3 className="font-semibold text-slate-800">Evolución Mensual {anio}</h3>
             </div>
 
             {/* Mobile: Cards */}
-            <div className="md:hidden divide-y divide-gray-100">
+            <div className="md:hidden divide-y divide-slate-100">
               {tendencia.map((m, idx) => {
                 const margenBruto = m.ventasNetas > 0 ? (m.utilidadBruta / m.ventasNetas) * 100 : 0;
                 const margenNeto = m.ventasNetas > 0 ? (m.utilidadNeta / m.ventasNetas) * 100 : 0;
@@ -756,7 +756,7 @@ export function Contabilidad() {
                 return (
                   <div key={idx} className="px-4 py-4">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="font-semibold text-gray-900">{m.nombreMes}</span>
+                      <span className="font-semibold text-slate-900">{m.nombreMes}</span>
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                         m.utilidadNeta >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
                       }`}>
@@ -765,35 +765,35 @@ export function Contabilidad() {
                     </div>
 
                     {/* Barra de ventas */}
-                    <div className="h-2 bg-gray-100 rounded-full mb-3 overflow-hidden">
+                    <div className="h-2 bg-slate-100 rounded-full mb-3 overflow-hidden">
                       <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${barWidth}%` }} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Ventas</span>
-                        <span className="font-medium text-gray-900">{formatCurrency(m.ventasNetas)}</span>
+                        <span className="text-slate-500">Ventas</span>
+                        <span className="font-medium text-slate-900">{formatCurrency(m.ventasNetas)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Compras</span>
+                        <span className="text-slate-500">Compras</span>
                         <span className="font-medium text-orange-600">{formatCurrency(m.compras)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">U. Bruta</span>
+                        <span className="text-slate-500">U. Bruta</span>
                         <span className={`font-medium ${m.utilidadBruta >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                           {formatCurrency(m.utilidadBruta)}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Gastos Op.</span>
-                        <span className="font-medium text-gray-600">{formatCurrency(m.gastosOperativos)}</span>
+                        <span className="text-slate-500">Gastos Op.</span>
+                        <span className="font-medium text-slate-600">{formatCurrency(m.gastosOperativos)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">EBIT</span>
+                        <span className="text-slate-500">EBIT</span>
                         <span className="font-medium text-purple-600">{formatCurrency(m.utilidadOperativa)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">U. Neta</span>
+                        <span className="text-slate-500">U. Neta</span>
                         <span className={`font-bold ${m.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {formatCurrency(m.utilidadNeta)}
                         </span>
@@ -804,9 +804,9 @@ export function Contabilidad() {
               })}
 
               {/* Totales mobile */}
-              <div className="px-4 py-4 bg-gray-50">
+              <div className="px-4 py-4 bg-slate-50">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-bold text-gray-900">ACUMULADO {anio}</span>
+                  <span className="font-bold text-slate-900">ACUMULADO {anio}</span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                     acumuladoUtilidadNeta >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
                   }`}>
@@ -815,19 +815,19 @@ export function Contabilidad() {
                 </div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Ventas</span>
-                    <span className="font-bold text-gray-900">{formatCurrency(acumuladoVentas)}</span>
+                    <span className="text-slate-500">Ventas</span>
+                    <span className="font-bold text-slate-900">{formatCurrency(acumuladoVentas)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Compras</span>
+                    <span className="text-slate-500">Compras</span>
                     <span className="font-bold text-orange-700">{formatCurrency(acumuladoCompras)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">U. Bruta</span>
+                    <span className="text-slate-500">U. Bruta</span>
                     <span className="font-bold text-blue-700">{formatCurrency(tendencia.reduce((s, m) => s + m.utilidadBruta, 0))}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">U. Neta</span>
+                    <span className="text-slate-500">U. Neta</span>
                     <span className={`font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                       {formatCurrency(acumuladoUtilidadNeta)}
                     </span>
@@ -839,39 +839,39 @@ export function Contabilidad() {
             {/* Desktop: Tabla */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mes</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ventas</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Compras</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">U. Bruta</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Gastos Op.</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">EBIT</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">U. Neta</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Mes</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ventas</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Compras</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">U. Bruta</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Gastos Op.</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">EBIT</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">U. Neta</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {tendencia.map((m, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">{m.nombreMes}</td>
-                      <td className="px-4 py-3 text-right text-gray-700">{formatCurrency(m.ventasNetas)}</td>
+                    <tr key={idx} className="hover:bg-slate-50">
+                      <td className="px-4 py-3 font-medium text-slate-900">{m.nombreMes}</td>
+                      <td className="px-4 py-3 text-right text-slate-700">{formatCurrency(m.ventasNetas)}</td>
                       <td className="px-4 py-3 text-right text-orange-600">{formatCurrency(m.compras)}</td>
                       <td className="px-4 py-3 text-right text-blue-600">{formatCurrency(m.utilidadBruta)}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(m.gastosOperativos)}</td>
+                      <td className="px-4 py-3 text-right text-slate-600">{formatCurrency(m.gastosOperativos)}</td>
                       <td className="px-4 py-3 text-right text-purple-600">{formatCurrency(m.utilidadOperativa)}</td>
                       <td className={`px-4 py-3 text-right font-semibold ${m.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {formatCurrency(m.utilidadNeta)}
                       </td>
                     </tr>
                   ))}
-                  <tr className="bg-gray-100 font-semibold">
-                    <td className="px-4 py-3 text-gray-900">TOTAL</td>
-                    <td className="px-4 py-3 text-right text-gray-900">{formatCurrency(acumuladoVentas)}</td>
+                  <tr className="bg-slate-100 font-semibold">
+                    <td className="px-4 py-3 text-slate-900">TOTAL</td>
+                    <td className="px-4 py-3 text-right text-slate-900">{formatCurrency(acumuladoVentas)}</td>
                     <td className="px-4 py-3 text-right text-orange-700">{formatCurrency(acumuladoCompras)}</td>
                     <td className="px-4 py-3 text-right text-blue-700">
                       {formatCurrency(tendencia.reduce((s, m) => s + m.utilidadBruta, 0))}
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-700">
+                    <td className="px-4 py-3 text-right text-slate-700">
                       {formatCurrency(tendencia.reduce((s, m) => s + m.gastosOperativos, 0))}
                     </td>
                     <td className="px-4 py-3 text-right text-purple-700">
@@ -888,7 +888,7 @@ export function Contabilidad() {
 
           {/* Gráfico visual — Utilidad Neta por Mes */}
           <div className="bg-white rounded-lg border p-4 sm:p-6">
-            <h3 className="font-semibold text-gray-800 mb-4">Utilidad Neta por Mes</h3>
+            <h3 className="font-semibold text-slate-800 mb-4">Utilidad Neta por Mes</h3>
             <div className="space-y-3">
               {tendencia.map((m, idx) => {
                 const maxVal = Math.max(...tendencia.map(t => Math.abs(t.utilidadNeta)), 1);
@@ -897,8 +897,8 @@ export function Contabilidad() {
 
                 return (
                   <div key={idx} className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-12 sm:w-20 text-xs sm:text-sm text-gray-600 shrink-0">{m.nombreMes.slice(0, 3)}</div>
-                    <div className="flex-1 h-5 sm:h-6 bg-gray-100 rounded-full overflow-hidden relative">
+                    <div className="w-12 sm:w-20 text-xs sm:text-sm text-slate-600 shrink-0">{m.nombreMes.slice(0, 3)}</div>
+                    <div className="flex-1 h-5 sm:h-6 bg-slate-100 rounded-full overflow-hidden relative">
                       <div
                         className={`h-full rounded-full transition-all ${isPositive ? 'bg-green-500' : 'bg-red-500'}`}
                         style={{ width: `${width}%` }}

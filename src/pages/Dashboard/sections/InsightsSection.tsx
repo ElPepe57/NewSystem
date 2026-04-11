@@ -25,10 +25,10 @@ export const InsightsSection: React.FC<InsightsSectionProps> = ({ insights }) =>
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
           Insights y Alertas
         </h3>
-        <span className="text-xs text-gray-400">{insights.length} activo{insights.length !== 1 ? 's' : ''}</span>
+        <span className="text-xs text-slate-400">{insights.length} activo{insights.length !== 1 ? 's' : ''}</span>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {insights.map(insight => (

@@ -135,19 +135,19 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
   return (
     <>
       <Card padding="none">
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">
               Movimientos ({movsRender.length})
             </h3>
             {/* Filtro por titular */}
             {titulares.length > 0 && (
               <div className="flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5 text-gray-400" />
+                <User className="h-3.5 w-3.5 text-slate-400" />
                 <select
                   value={filtroTitular}
                   onChange={e => setFiltroTitular(e.target.value)}
-                  className={`rounded-md border-gray-300 text-xs py-1 pl-2 pr-6 focus:border-primary-500 focus:ring-primary-500 ${
+                  className={`rounded-md border-slate-300 text-xs py-1 pl-2 pr-6 focus:border-primary-500 focus:ring-primary-500 ${
                     filtroTitular ? 'bg-primary-50 border-primary-300 text-primary-700 font-medium' : ''
                   }`}
                 >
@@ -158,7 +158,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 </select>
                 {filtroTitular && (
                   <button onClick={() => setFiltroTitular('')}
-                    className="p-0.5 text-gray-400 hover:text-gray-600 rounded-full">
+                    className="p-0.5 text-slate-400 hover:text-slate-600 rounded-full">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 )}
@@ -195,11 +195,11 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   <div key={c.id} className="text-xs px-3 py-2 rounded-lg bg-white border border-primary-200 space-y-0.5">
                     <div className="flex items-center gap-1.5">
                       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.moneda === 'USD' ? 'bg-blue-400' : 'bg-green-400'}`} />
-                      <span className="font-medium text-gray-800">{c.nombre}</span>
-                      {prodLabel && <span className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">{prodLabel}</span>}
-                      <span className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">{c.moneda}</span>
+                      <span className="font-medium text-slate-800">{c.nombre}</span>
+                      {prodLabel && <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 text-slate-500">{prodLabel}</span>}
+                      <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 text-slate-500">{c.moneda}</span>
                     </div>
-                    <div className="flex items-center justify-between text-gray-500">
+                    <div className="flex items-center justify-between text-slate-500">
                       <span>
                         {(() => {
                           const esCaja = c.productoFinanciero === 'caja' || c.tipo === 'efectivo';
@@ -211,7 +211,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                         {c.banco && <span>{c.banco}</span>}
                         {c.numeroCuenta && <span> · #{c.numeroCuenta}</span>}
                       </span>
-                      <span className="font-semibold text-gray-800">{saldo}</span>
+                      <span className="font-semibold text-slate-800">{saldo}</span>
                     </div>
                   </div>
                 );
@@ -225,7 +225,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
           <div className="px-4 sm:px-6 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             {chartEvolucionSaldo.length > 1 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-600 mb-2 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
                   Evolución de Saldo (PEN)
                 </h4>
@@ -251,7 +251,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
             )}
             {chartEvolucionSaldoUSD.length > 1 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-600 mb-2 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-blue-500" />
                   Evolución de Saldo (USD)
                 </h4>
@@ -280,10 +280,10 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
         {/* Totales de movimientos */}
         {movsRender.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+          <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
             <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
               <div>
-                <span className="text-gray-500">Entradas:</span>
+                <span className="text-slate-500">Entradas:</span>
                 {totalesRender.entradasPEN > 0 && (
                   <span className="ml-2 font-semibold text-green-600">+S/ {totalesRender.entradasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
                 )}
@@ -292,7 +292,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 )}
               </div>
               <div className="text-right">
-                <span className="text-gray-500">Salidas:</span>
+                <span className="text-slate-500">Salidas:</span>
                 {totalesRender.salidasPEN > 0 && (
                   <span className="ml-2 font-semibold text-red-600">-S/ {totalesRender.salidasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
                 )}
@@ -301,8 +301,8 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 )}
               </div>
             </div>
-            <div className="mt-1 pt-1 border-t border-gray-200 flex justify-between text-xs sm:text-sm">
-              <span className="text-gray-500">Balance neto:</span>
+            <div className="mt-1 pt-1 border-t border-slate-200 flex justify-between text-xs sm:text-sm">
+              <span className="text-slate-500">Balance neto:</span>
               <div className="flex gap-3">
                 {(totalesRender.entradasPEN > 0 || totalesMovimientos.salidasPEN > 0) && (
                   <span className={`font-bold ${(totalesRender.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -320,9 +320,9 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
         )}
 
         {/* Mobile card layout */}
-        <div className="md:hidden divide-y divide-gray-200">
+        <div className="md:hidden divide-y divide-slate-200">
           {movsRender.length === 0 ? (
-            <div className="px-4 py-8 text-center text-gray-500">
+            <div className="px-4 py-8 text-center text-slate-500">
               {filtroTitular ? `No hay movimientos para ${filtroTitular}` : 'No hay movimientos registrados'}
             </div>
           ) : (
@@ -331,11 +331,11 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               return (
                 <div
                   key={mov.id}
-                  className={`px-4 py-3 space-y-2 ${mov.estado === 'anulado' ? 'opacity-50 bg-gray-100' : ''}`}
+                  className={`px-4 py-3 space-y-2 ${mov.estado === 'anulado' ? 'opacity-50 bg-slate-100' : ''}`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs text-gray-500">{formatDate(mov.fecha)}</span>
+                      <span className="text-xs text-slate-500">{formatDate(mov.fecha)}</span>
                       <span
                         className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
                           mov.tipo === 'ingreso_anticipo'
@@ -349,7 +349,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                         {getTipoLabel(mov.tipo)}
                       </span>
                       {mov.estado === 'anulado' && (
-                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-200 text-gray-600">
+                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 text-slate-600">
                           ANULADO
                         </span>
                       )}
@@ -358,7 +358,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                       <div className={`text-sm font-bold ${esIng ? 'text-green-600' : 'text-red-600'}`}>
                         {esIng ? '+' : '-'} {mov.moneda === 'USD' ? '$' : 'S/'} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
-                      <div className="text-[10px] text-gray-400">TC: {mov.tipoCambio.toFixed(3)}</div>
+                      <div className="text-[10px] text-slate-400">TC: {mov.tipoCambio.toFixed(3)}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap text-xs">
@@ -371,16 +371,16 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                     {(() => {
                       const cuentaId = esIng ? mov.cuentaDestino : mov.cuentaOrigen;
                       const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
-                      return cuenta ? <span className="text-gray-500 truncate max-w-[120px]">{cuenta.nombre}</span> : null;
+                      return cuenta ? <span className="text-slate-500 truncate max-w-[120px]">{cuenta.nombre}</span> : null;
                     })()}
                   </div>
                   {mov.concepto && (
-                    <p className="text-xs text-gray-600 truncate">{mov.concepto}</p>
+                    <p className="text-xs text-slate-600 truncate">{mov.concepto}</p>
                   )}
                   {mov.estado !== 'anulado' && isAdmin && (
                     <div className="flex gap-1 pt-1">
-                      <button onClick={() => handleEditarMovimiento(mov)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full"><Edit2 className="h-3.5 w-3.5" /></button>
-                      <button onClick={() => handleAnularMovimiento(mov)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => handleEditarMovimiento(mov)} className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full"><Edit2 className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => handleAnularMovimiento(mov)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full"><Trash2 className="h-3.5 w-3.5" /></button>
                     </div>
                   )}
                 </div>
@@ -391,24 +391,24 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
         {/* Desktop table */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Doc.</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Cuenta</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Concepto</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Doc.</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Cuenta</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Concepto</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-green-700 uppercase bg-green-50">Soles (S/)</th>
                 <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-blue-700 uppercase bg-blue-50">Dolares ($)</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">TC</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-slate-500 uppercase">TC</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-200">
               {movsRender.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={9} className="px-6 py-8 text-center text-slate-500">
                     {filtroTitular ? `No hay movimientos para ${filtroTitular}` : 'No hay movimientos registrados'}
                   </td>
                 </tr>
@@ -420,9 +420,9 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   return (
                     <tr
                       key={mov.id}
-                      className={`hover:bg-gray-50 ${mov.estado === 'anulado' ? 'opacity-50 bg-gray-100' : ''}`}
+                      className={`hover:bg-slate-50 ${mov.estado === 'anulado' ? 'opacity-50 bg-slate-100' : ''}`}
                     >
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-slate-500">
                         {formatDate(mov.fecha)}
                       </td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">
@@ -441,7 +441,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                             {getTipoLabel(mov.tipo)}
                           </span>
                           {mov.estado === 'anulado' && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-600">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-600">
                               ANULADO
                             </span>
                           )}
@@ -461,7 +461,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                         ) : mov.conversionId ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-medium">Conversion</span>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm">
@@ -472,31 +472,31 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                             const saldos = saldosCorridos.get(mov.id);
                             return (
                               <div className="flex flex-col">
-                                <span className="font-medium text-gray-900 truncate max-w-[120px]" title={cuenta.nombre}>
+                                <span className="font-medium text-slate-900 truncate max-w-[120px]" title={cuenta.nombre}>
                                   {cuenta.nombre}
                                 </span>
                                 {saldos && saldos.pen !== 0 && saldos.usd !== 0 ? (
-                                  <div className="flex gap-2 text-xs text-gray-500">
-                                    <span className={mov.moneda === 'PEN' ? 'font-semibold text-gray-700' : ''}>
+                                  <div className="flex gap-2 text-xs text-slate-500">
+                                    <span className={mov.moneda === 'PEN' ? 'font-semibold text-slate-700' : ''}>
                                       S/{saldos.pen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                                     </span>
-                                    <span className="text-gray-300">|</span>
-                                    <span className={mov.moneda === 'USD' ? 'font-semibold text-gray-700' : ''}>
+                                    <span className="text-slate-300">|</span>
+                                    <span className={mov.moneda === 'USD' ? 'font-semibold text-slate-700' : ''}>
                                       ${saldos.usd.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                                     </span>
                                   </div>
                                 ) : (
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-slate-500">
                                     Saldo: {mov.moneda === 'USD' ? '$' : 'S/'}{(saldos ? (mov.moneda === 'USD' ? saldos.usd : saldos.pen) : 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                                   </span>
                                 )}
                               </div>
                             );
                           }
-                          return <span className="text-gray-400">-</span>;
+                          return <span className="text-slate-400">-</span>;
                         })()}
                       </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-gray-900 max-w-xs truncate" title={mov.concepto}>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-slate-900 max-w-xs truncate" title={mov.concepto}>
                         {mov.concepto || '-'}
                       </td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right font-medium bg-green-50/30">
@@ -505,7 +505,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                             {esIngresoPEN ? '+' : '-'} S/ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                           </span>
                         ) : (
-                          <span className="text-gray-300">-</span>
+                          <span className="text-slate-300">-</span>
                         )}
                       </td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right font-medium bg-blue-50/30">
@@ -514,10 +514,10 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                             {esIngresoUSD ? '+' : '-'} $ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                           </span>
                         ) : (
-                          <span className="text-gray-300">-</span>
+                          <span className="text-slate-300">-</span>
                         )}
                       </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right text-gray-500">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right text-slate-500">
                         {mov.tipoCambio.toFixed(3)}
                       </td>
                       <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-center">
@@ -525,14 +525,14 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                           <div className="flex justify-center gap-1">
                             <button
                               onClick={() => handleEditarMovimiento(mov)}
-                              className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-full transition-colors"
                               title="Editar movimiento"
                             >
                               <Edit2 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleAnularMovimiento(mov)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                               title="Anular movimiento"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -570,11 +570,11 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de movimiento</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Tipo de movimiento</label>
                 <select
                   value={movimientoForm.tipo}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, tipo: e.target.value as TipoMovimientoTesoreria })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                 >
                   <optgroup label="Ingresos">
                     <option value="ingreso_venta">Ingreso por Venta</option>
@@ -594,7 +594,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Fecha</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Fecha</label>
                 <input
                   type="date"
                   value={(() => {
@@ -612,34 +612,34 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                       setMovimientoForm({ ...movimientoForm, fecha: nuevaFecha });
                     }
                   }}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Seccion 2: Monto y Moneda */}
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
             <div className="flex items-center gap-2 mb-3">
-              <DollarSign className="h-4 w-4 text-gray-600" />
-              <h4 className="text-sm font-semibold text-gray-700">Monto</h4>
+              <DollarSign className="h-4 w-4 text-slate-600" />
+              <h4 className="text-sm font-semibold text-slate-700">Monto</h4>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Moneda</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Moneda</label>
                 <select
                   value={movimientoForm.moneda}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, moneda: e.target.value as MonedaTesoreria })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                 >
                   <option value="PEN">PEN (Soles)</option>
                   <option value="USD">USD (Dolares)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Monto</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Monto</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
                     {movimientoForm.moneda === 'USD' ? '$' : 'S/'}
                   </span>
                   <input
@@ -647,27 +647,27 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                     step="0.01"
                     value={movimientoForm.monto || ''}
                     onChange={(e) => setMovimientoForm({ ...movimientoForm, monto: parseFloat(e.target.value) })}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm pl-8"
+                    className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm pl-8"
                     placeholder="0.00"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de Cambio</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Tipo de Cambio</label>
                 <input
                   type="number"
                   step="0.001"
                   value={movimientoForm.tipoCambio || ''}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, tipoCambio: parseFloat(e.target.value) })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                   placeholder="3.700"
                 />
               </div>
             </div>
             {movimientoForm.monto && movimientoForm.tipoCambio ? (
-              <div className="mt-2 text-xs text-gray-500 text-right">
+              <div className="mt-2 text-xs text-slate-500 text-right">
                 Equivale a{' '}
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-slate-700">
                   {movimientoForm.moneda === 'USD'
                     ? `S/ ${(movimientoForm.monto * movimientoForm.tipoCambio).toFixed(2)}`
                     : `$ ${(movimientoForm.monto / movimientoForm.tipoCambio).toFixed(2)}`
@@ -685,7 +685,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
                   {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Cuenta destino (donde entra el dinero)' : 'Cuenta origen (de donde sale el dinero)'}
                 </label>
                 <select
@@ -698,7 +698,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                       setMovimientoForm({ ...movimientoForm, cuentaOrigen: value });
                     }
                   }}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                 >
                   <option value="">Seleccionar cuenta...</option>
                   {cuentas
@@ -716,11 +716,11 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Metodo de pago</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Metodo de pago</label>
                 <select
                   value={movimientoForm.metodo || 'efectivo'}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, metodo: e.target.value as any })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                 >
                   <option value="efectivo">Efectivo</option>
                   <option value="transferencia_bancaria">Transferencia Bancaria</option>
@@ -745,37 +745,37 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
           {/* Seccion 4: Detalle */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-gray-500" />
-              <h4 className="text-sm font-semibold text-gray-700">Detalle</h4>
+              <FileText className="h-4 w-4 text-slate-500" />
+              <h4 className="text-sm font-semibold text-slate-700">Detalle</h4>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Concepto</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">Concepto</label>
               <input
                 type="text"
                 value={movimientoForm.concepto || ''}
                 onChange={(e) => setMovimientoForm({ ...movimientoForm, concepto: e.target.value })}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                 placeholder="Descripcion del movimiento"
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Referencia</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Referencia</label>
                 <input
                   type="text"
                   value={movimientoForm.referencia || ''}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, referencia: e.target.value })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                   placeholder="N° de documento, factura, etc."
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Notas (opcional)</label>
+                <label className="block text-xs font-medium text-slate-600 mb-1">Notas (opcional)</label>
                 <input
                   type="text"
                   value={movimientoForm.notas || ''}
                   onChange={(e) => setMovimientoForm({ ...movimientoForm, notas: e.target.value })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                   placeholder="Notas adicionales"
                 />
               </div>
@@ -783,12 +783,12 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
           </div>
 
           {movimientoEditando && (movimientoEditando.ordenCompraNumero || movimientoEditando.ventaNumero || movimientoEditando.gastoNumero) && (
-            <div className="bg-gray-50 rounded-lg p-3 text-sm">
+            <div className="bg-slate-50 rounded-lg p-3 text-sm">
               <div className="flex items-center gap-2 mb-2">
-                <ExternalLink className="h-3.5 w-3.5 text-gray-500" />
-                <span className="text-xs font-medium text-gray-600">Documentos relacionados</span>
+                <ExternalLink className="h-3.5 w-3.5 text-slate-500" />
+                <span className="text-xs font-medium text-slate-600">Documentos relacionados</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-gray-600 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-600 text-xs">
                 {movimientoEditando.ordenCompraNumero && (
                   <div className="bg-white rounded px-2 py-1"><span className="font-medium">OC:</span> {movimientoEditando.ordenCompraNumero}</div>
                 )}
@@ -802,7 +802,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 pt-2 border-t border-gray-200">
+          <div className="flex justify-end space-x-3 pt-2 border-t border-slate-200">
             <Button variant="ghost" onClick={handleCerrarModalMovimiento}>Cancelar</Button>
             <Button
               variant="primary"

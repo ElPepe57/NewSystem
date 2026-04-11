@@ -182,38 +182,38 @@ export const Auditoria: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <Card padding="sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{stats.totalHoy}</div>
-              <div className="text-xs text-gray-500">Hoy</div>
+              <div className="text-2xl font-bold text-slate-900">{stats.totalHoy}</div>
+              <div className="text-xs text-slate-500">Hoy</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{stats.totalSemana}</div>
-              <div className="text-xs text-gray-500">Esta semana</div>
+              <div className="text-2xl font-bold text-slate-900">{stats.totalSemana}</div>
+              <div className="text-xs text-slate-500">Esta semana</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{stats.totalMes}</div>
-              <div className="text-xs text-gray-500">Este mes</div>
+              <div className="text-2xl font-bold text-slate-900">{stats.totalMes}</div>
+              <div className="text-xs text-slate-500">Este mes</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">{stats.warnings}</div>
-              <div className="text-xs text-gray-500">Warnings</div>
+              <div className="text-xs text-slate-500">Warnings</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">{stats.errores}</div>
-              <div className="text-xs text-gray-500">Errores</div>
+              <div className="text-xs text-slate-500">Errores</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-600">{stats.porUsuario.length}</div>
-              <div className="text-xs text-gray-500">Usuarios activos</div>
+              <div className="text-xs text-slate-500">Usuarios activos</div>
             </div>
           </Card>
         </div>
@@ -225,24 +225,24 @@ export const Auditoria: React.FC = () => {
           {/* Búsqueda */}
           <div className="flex-1 min-w-[250px]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Buscar por descripción, usuario, entidad..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
 
           {/* Filtro módulo */}
           <div className="flex items-center gap-2">
-            <Filter className="h-5 w-5 text-gray-400" />
+            <Filter className="h-5 w-5 text-slate-400" />
             <select
               value={filterModulo}
               onChange={(e) => setFilterModulo(e.target.value as ModuloAuditoria | '')}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+              className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Todos los módulos</option>
               <option value="auth">Autenticación</option>
@@ -261,7 +261,7 @@ export const Auditoria: React.FC = () => {
           <select
             value={filterNivel}
             onChange={(e) => setFilterNivel(e.target.value as NivelAuditoria | '')}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
           >
             <option value="">Todos los niveles</option>
             <option value="info">Info</option>
@@ -274,7 +274,7 @@ export const Auditoria: React.FC = () => {
           <select
             value={filterFecha}
             onChange={(e) => setFilterFecha(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500"
           >
             <option value="hoy">Hoy</option>
             <option value="semana">Última semana</option>
@@ -290,24 +290,24 @@ export const Auditoria: React.FC = () => {
           )}
         </div>
 
-        <div className="mt-3 text-sm text-gray-500">
+        <div className="mt-3 text-sm text-slate-500">
           {filteredLogs.length} registros encontrados
         </div>
       </Card>
 
       {/* Lista de logs */}
       <Card padding="none">
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-slate-100">
           {filteredLogs.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <Activity className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+            <div className="p-8 text-center text-slate-500">
+              <Activity className="h-12 w-12 mx-auto mb-2 text-slate-300" />
               <p>No hay registros de actividad</p>
             </div>
           ) : (
             filteredLogs.map((log) => (
               <div
                 key={log.id}
-                className="p-4 hover:bg-gray-50 transition-colors"
+                className="p-4 hover:bg-slate-50 transition-colors"
               >
                 <div
                   className="flex items-start gap-4 cursor-pointer"
@@ -316,9 +316,9 @@ export const Auditoria: React.FC = () => {
                   {/* Icono de expansión */}
                   <div className="mt-1">
                     {expandedLog === log.id ? (
-                      <ChevronDown className="h-4 w-4 text-gray-400" />
+                      <ChevronDown className="h-4 w-4 text-slate-400" />
                     ) : (
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                      <ChevronRight className="h-4 w-4 text-slate-400" />
                     )}
                   </div>
 
@@ -330,13 +330,13 @@ export const Auditoria: React.FC = () => {
                   {/* Contenido principal */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-slate-900">
                         {log.descripcion}
                       </span>
                       {getNivelBadge(log.nivel)}
                     </div>
 
-                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                    <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
                       <span className="flex items-center gap-1">
                         <User className="h-3 w-3" />
                         {log.usuarioNombre}
@@ -360,24 +360,24 @@ export const Auditoria: React.FC = () => {
 
                 {/* Detalles expandidos */}
                 {expandedLog === log.id && (
-                  <div className="mt-4 ml-12 p-4 bg-gray-50 rounded-lg space-y-3">
+                  <div className="mt-4 ml-12 p-4 bg-slate-50 rounded-lg space-y-3">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-500">Fecha completa:</span>
-                        <span className="ml-2 text-gray-900">{formatFecha(log.fechaCreacion)}</span>
+                        <span className="text-slate-500">Fecha completa:</span>
+                        <span className="ml-2 text-slate-900">{formatFecha(log.fechaCreacion)}</span>
                       </div>
                       <div>
-                        <span className="text-gray-500">Acción:</span>
-                        <span className="ml-2 text-gray-900">{log.accion}</span>
+                        <span className="text-slate-500">Acción:</span>
+                        <span className="ml-2 text-slate-900">{log.accion}</span>
                       </div>
                       <div>
-                        <span className="text-gray-500">Usuario:</span>
-                        <span className="ml-2 text-gray-900">{log.usuarioEmail}</span>
+                        <span className="text-slate-500">Usuario:</span>
+                        <span className="ml-2 text-slate-900">{log.usuarioEmail}</span>
                       </div>
                       {log.entidadNombre && (
                         <div>
-                          <span className="text-gray-500">Entidad:</span>
-                          <span className="ml-2 text-gray-900">{log.entidadTipo}: {log.entidadNombre}</span>
+                          <span className="text-slate-500">Entidad:</span>
+                          <span className="ml-2 text-slate-900">{log.entidadTipo}: {log.entidadNombre}</span>
                         </div>
                       )}
                     </div>
@@ -385,13 +385,13 @@ export const Auditoria: React.FC = () => {
                     {/* Cambios detectados */}
                     {log.cambios && log.cambios.length > 0 && (
                       <div className="mt-3">
-                        <div className="text-sm font-medium text-gray-700 mb-2">Cambios realizados:</div>
+                        <div className="text-sm font-medium text-slate-700 mb-2">Cambios realizados:</div>
                         <div className="space-y-1">
                           {log.cambios.map((cambio, idx) => (
                             <div key={idx} className="text-sm flex items-center gap-2">
-                              <span className="font-medium text-gray-600">{cambio.campo}:</span>
+                              <span className="font-medium text-slate-600">{cambio.campo}:</span>
                               <span className="text-red-500 line-through">{String(cambio.valorAnterior)}</span>
-                              <span className="text-gray-400">→</span>
+                              <span className="text-slate-400">→</span>
                               <span className="text-green-600">{String(cambio.valorNuevo)}</span>
                             </div>
                           ))}
@@ -402,7 +402,7 @@ export const Auditoria: React.FC = () => {
                     {/* Metadata */}
                     {log.metadata && Object.keys(log.metadata).length > 0 && (
                       <div className="mt-3">
-                        <div className="text-sm font-medium text-gray-700 mb-2">Información adicional:</div>
+                        <div className="text-sm font-medium text-slate-700 mb-2">Información adicional:</div>
                         <pre className="text-xs bg-white p-2 rounded border overflow-x-auto">
                           {JSON.stringify(log.metadata, null, 2)}
                         </pre>

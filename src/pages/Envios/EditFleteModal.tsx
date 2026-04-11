@@ -65,15 +65,15 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
     >
       <div className="space-y-4">
         {/* Info de la transferencia */}
-        <div className="bg-gray-50 rounded-lg p-3 text-sm">
+        <div className="bg-slate-50 rounded-lg p-3 text-sm">
           <div className="grid grid-cols-2 gap-2">
-            <div><span className="text-gray-500">Destino:</span> <span className="font-medium">{transferencia.almacenDestinoNombre}</span></div>
-            <div><span className="text-gray-500">Unidades:</span> <span className="font-medium">{transferencia.totalUnidades}</span></div>
+            <div><span className="text-slate-500">Destino:</span> <span className="font-medium">{transferencia.almacenDestinoNombre}</span></div>
+            <div><span className="text-slate-500">Unidades:</span> <span className="font-medium">{transferencia.totalUnidades}</span></div>
             {transferencia.viajeroNombre && (
-              <div><span className="text-gray-500">Viajero:</span> <span className="font-medium">{transferencia.viajeroNombre}</span></div>
+              <div><span className="text-slate-500">Viajero:</span> <span className="font-medium">{transferencia.viajeroNombre}</span></div>
             )}
             <div>
-              <span className="text-gray-500">Flete actual:</span>{' '}
+              <span className="text-slate-500">Flete actual:</span>{' '}
               <span className="font-medium">
                 {transferencia.costoFleteTotal && transferencia.costoFleteTotal > 0
                   ? `$${transferencia.costoFleteTotal.toFixed(2)}`
@@ -86,7 +86,7 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
         {/* Flete por producto */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-medium text-gray-700">Costo de Flete por Producto</h4>
+            <h4 className="text-sm font-medium text-slate-700">Costo de Flete por Producto</h4>
             <div className="text-lg font-bold text-blue-700">${totalFlete.toFixed(2)}</div>
           </div>
 
@@ -98,10 +98,10 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
               const productoFull = productosMap.get(producto.productoId);
 
               return (
-                <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-gray-200">
+                <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-slate-200">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <h5 className="font-medium text-gray-900 truncate">
+                      <h5 className="font-medium text-slate-900 truncate">
                         {productoFull?.nombreComercial || producto.nombre}
                       </h5>
                       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
@@ -109,10 +109,10 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                           <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{productoFull.marca}</span>
                         )}
                         {productoFull && getDescripcionProducto(productoFull) && (
-                          <span className="text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(productoFull)}</span>
+                          <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(productoFull)}</span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-slate-500 mt-1">
                         {producto.sku} &middot; {producto.cantidad} uds
                         {productoFull?.pesoLibras ? ` · ${(productoFull.pesoLibras * unidadesCount).toFixed(2)} lb total (${productoFull.pesoLibras} lb/ud)` : ''}
                       </p>
@@ -123,9 +123,9 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                       )}
                     </div>
                     <div className="flex-shrink-0 w-40">
-                      <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
+                      <label className="block text-xs text-slate-500 mb-1">Flete por unidad (USD)</label>
                       <div className="relative">
-                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
+                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
                         <input
                           type="number"
                           value={fletePorUnidadMap[producto.productoId] || ''}
@@ -136,7 +136,7 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
                               [producto.productoId]: valor
                             }));
                           }}
-                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
                           placeholder="0.00"
                           step="0.01"
                           min="0"

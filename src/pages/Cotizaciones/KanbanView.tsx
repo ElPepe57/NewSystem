@@ -66,16 +66,16 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Columna 1: SEGUIMIENTO */}
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className="bg-slate-50 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-          <h3 className="font-semibold text-gray-700">Seguimiento</h3>
+          <div className="w-3 h-3 rounded-full bg-slate-500"></div>
+          <h3 className="font-semibold text-slate-700">Seguimiento</h3>
           <Badge variant="default" size="sm">{nuevas.length}</Badge>
         </div>
-        <p className="text-xs text-gray-500 mb-3">Cotizaciones sin respuesta del cliente</p>
+        <p className="text-xs text-slate-500 mb-3">Cotizaciones sin respuesta del cliente</p>
         <div className="space-y-3 max-h-[600px] overflow-y-auto">
           {nuevas.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">Sin cotizaciones nuevas</p>
+            <p className="text-sm text-slate-500 text-center py-4">Sin cotizaciones nuevas</p>
           ) : (
             nuevas.map(c => (
               <KanbanCard
@@ -118,13 +118,13 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       <div className="bg-amber-50 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-          <h3 className="font-semibold text-gray-700">Esperando Pago</h3>
+          <h3 className="font-semibold text-slate-700">Esperando Pago</h3>
           <Badge variant="warning" size="sm">{pendienteAdelanto.length}</Badge>
         </div>
-        <p className="text-xs text-gray-500 mb-3">Comprometieron adelanto, pendiente de pago</p>
+        <p className="text-xs text-slate-500 mb-3">Comprometieron adelanto, pendiente de pago</p>
         <div className="space-y-3 max-h-[600px] overflow-y-auto">
           {pendienteAdelanto.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">Sin pagos pendientes</p>
+            <p className="text-sm text-slate-500 text-center py-4">Sin pagos pendientes</p>
           ) : (
             pendienteAdelanto.map(c => (
               <KanbanCard
@@ -156,10 +156,10 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       <div className="bg-green-50 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          <h3 className="font-semibold text-gray-700">Listas</h3>
+          <h3 className="font-semibold text-slate-700">Listas</h3>
           <Badge variant="success" size="sm">{listasParaConfirmar.length}</Badge>
         </div>
-        <p className="text-xs text-gray-500 mb-3">Pueden confirmarse como venta</p>
+        <p className="text-xs text-slate-500 mb-3">Pueden confirmarse como venta</p>
 
         {sinAdelanto.length > 0 && (
           <div className="mb-3">
@@ -210,7 +210,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         )}
 
         {listasParaConfirmar.length === 0 && (
-          <p className="text-sm text-gray-500 text-center py-4">Sin cotizaciones listas</p>
+          <p className="text-sm text-slate-500 text-center py-4">Sin cotizaciones listas</p>
         )}
       </div>
 
@@ -220,13 +220,13 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         <div className="bg-blue-50 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            <h3 className="font-semibold text-gray-700">Confirmadas</h3>
+            <h3 className="font-semibold text-slate-700">Confirmadas</h3>
             <Badge variant="info" size="sm">{confirmadas.length}</Badge>
           </div>
-          <p className="text-xs text-gray-500 mb-3">Convertidas en venta</p>
+          <p className="text-xs text-slate-500 mb-3">Convertidas en venta</p>
           <div className="space-y-3 max-h-[250px] overflow-y-auto">
             {confirmadas.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">Sin confirmadas</p>
+              <p className="text-sm text-slate-500 text-center py-4">Sin confirmadas</p>
             ) : (
               confirmadas.map(c => (
                 <div key={c.id} className="bg-white border border-blue-200 rounded-lg p-3 shadow-sm">
@@ -242,17 +242,17 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                       </a>
                     )}
                   </div>
-                  <p className="text-sm text-gray-900 truncate">{c.nombreCliente}</p>
+                  <p className="text-sm text-slate-900 truncate">{c.nombreCliente}</p>
                   <p className="text-lg font-bold text-green-600">{formatCurrency(c.totalPEN)}</p>
                   {c.fechaConfirmacion && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       Confirmada: {c.fechaConfirmacion.toDate?.().toLocaleDateString('es-PE')}
                     </p>
                   )}
                   <div className="flex gap-1 mt-2 pt-2 border-t">
                     <button
                       onClick={() => onVerDetalles(c)}
-                      className="flex-1 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                      className="flex-1 p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
                       title="Ver detalles"
                     >
                       <Eye className="h-4 w-4 mx-auto" />
@@ -260,7 +260,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     {c.ventaId && (
                       <a
                         href={`/ventas?id=${c.ventaId}`}
-                        className="flex-1 p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                        className="flex-1 p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
                         title="Ir a la venta"
                       >
                         <ExternalLink className="h-4 w-4 mx-auto" />
@@ -277,13 +277,13 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         <div className="bg-red-50 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <h3 className="font-semibold text-gray-700">Archivo</h3>
+            <h3 className="font-semibold text-slate-700">Archivo</h3>
             <Badge variant="danger" size="sm">{rechazadas.length}</Badge>
           </div>
-          <p className="text-xs text-gray-500 mb-3">Rechazadas y vencidas (análisis)</p>
+          <p className="text-xs text-slate-500 mb-3">Rechazadas y vencidas (análisis)</p>
           <div className="space-y-3 max-h-[250px] overflow-y-auto">
             {rechazadas.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">Sin rechazos</p>
+              <p className="text-sm text-slate-500 text-center py-4">Sin rechazos</p>
             ) : (
               rechazadas.map(c => (
                 <div key={c.id} className="bg-white border border-red-200 rounded-lg p-3 shadow-sm">
@@ -295,18 +295,18 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-900 truncate">{c.nombreCliente}</p>
-                  <p className="text-lg font-bold text-gray-500 line-through">{formatCurrency(c.totalPEN)}</p>
+                  <p className="text-sm text-slate-900 truncate">{c.nombreCliente}</p>
+                  <p className="text-lg font-bold text-slate-500 line-through">{formatCurrency(c.totalPEN)}</p>
                   <div className="flex gap-1 mt-2 pt-2 border-t">
                     <button
                       onClick={() => onVerDetalles(c)}
-                      className="flex-1 p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                      className="flex-1 p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
                     >
                       <Eye className="h-4 w-4 mx-auto" />
                     </button>
                     <button
                       onClick={() => onEliminar(c)}
-                      className="flex-1 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                      className="flex-1 p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                     >
                       <Archive className="h-4 w-4 mx-auto" />
                     </button>

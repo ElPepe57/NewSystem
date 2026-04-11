@@ -139,7 +139,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
   if (unidadesVencidas.length === 0) {
     return (
       <Modal isOpen onClose={onClose} title="Unidades Vencidas" size="md">
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-slate-500">
           <CheckCircle className="h-12 w-12 mx-auto text-green-400 mb-3" />
           <p className="font-medium">Sin unidades vencidas</p>
           <p className="text-sm mt-1">No hay productos pendientes de gestión.</p>
@@ -187,15 +187,15 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                 }`}
               >
                 {/* Product info */}
-                <div className="p-3 bg-gray-50 border-b">
+                <div className="p-3 bg-slate-50 border-b">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Package className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <Package className="h-4 w-4 text-slate-400 flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="font-medium text-gray-900 text-sm truncate">
+                        <p className="font-medium text-slate-900 text-sm truncate">
                           {u.productoNombre || u.sku}
                         </p>
-                        <p className="text-xs text-gray-500">{u.sku}</p>
+                        <p className="text-xs text-slate-500">{u.sku}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -209,7 +209,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                     </div>
                   </div>
                   {u.costoBasePEN > 0 && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       Costo: S/{(u.ctruInicial?.costoBasePEN || u.costoBasePEN || 0).toFixed(2)}
                     </p>
                   )}
@@ -229,7 +229,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                             className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer border transition-colors ${
                               isSelected
                                 ? op.color === 'red' ? 'bg-red-50 border-red-200' : 'bg-purple-50 border-purple-200'
-                                : 'border-transparent hover:bg-gray-50'
+                                : 'border-transparent hover:bg-slate-50'
                             }`}
                           >
                             <input
@@ -241,11 +241,11 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                               className="text-red-600 focus:ring-red-500"
                             />
                             <Icon className={`h-4 w-4 flex-shrink-0 ${
-                              isSelected ? (op.color === 'red' ? 'text-red-600' : 'text-purple-600') : 'text-gray-400'
+                              isSelected ? (op.color === 'red' ? 'text-red-600' : 'text-purple-600') : 'text-slate-400'
                             }`} />
                             <div>
-                              <span className="text-sm font-medium text-gray-900">{op.label}</span>
-                              <span className="block text-xs text-gray-500">{op.descripcion}</span>
+                              <span className="text-sm font-medium text-slate-900">{op.label}</span>
+                              <span className="block text-xs text-slate-500">{op.descripcion}</span>
                             </div>
                           </label>
                         );
@@ -256,7 +256,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                   {/* Destinatario donación */}
                   {decision?.disposicion === 'donacion' && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
                         Destinatario
                       </label>
                       <input
@@ -264,7 +264,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                         value={decision.destinatario || ''}
                         onChange={(e) => updateDecision(u.id, 'destinatario', e.target.value)}
                         placeholder="Ej: Cruz Roja, empleados"
-                        className="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-purple-400"
+                        className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-purple-400"
                       />
                     </div>
                   )}
@@ -272,7 +272,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                   {/* Motivo */}
                   {decision?.disposicion && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
                         Motivo adicional (opcional)
                       </label>
                       <input
@@ -280,7 +280,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
                         value={decision.motivo}
                         onChange={(e) => updateDecision(u.id, 'motivo', e.target.value)}
                         placeholder="Producto vencido"
-                        className="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-red-400"
+                        className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-red-400"
                       />
                     </div>
                   )}
@@ -292,15 +292,15 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
 
         {/* Confirmation */}
         {showConfirmacion && todasResueltas && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3" role="alertdialog">
-            <p className="text-sm font-medium text-gray-900 mb-2">Acciones a ejecutar:</p>
-            <ul className="space-y-1.5 text-xs text-gray-700">
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3" role="alertdialog">
+            <p className="text-sm font-medium text-slate-900 mb-2">Acciones a ejecutar:</p>
+            <ul className="space-y-1.5 text-xs text-slate-700">
               {unidadesVencidas.map(u => {
                 const decision = decisiones[u.id];
                 const opcion = OPCIONES_DISPOSICION.find(o => o.value === decision?.disposicion);
                 return (
                   <li key={u.id} className="flex items-center gap-2">
-                    <span className="font-mono text-gray-500">{u.sku}</span>
+                    <span className="font-mono text-slate-500">{u.sku}</span>
                     <span>→</span>
                     <span className="font-medium">{opcion?.label}</span>
                     {decision?.disposicion === 'baja_definitiva' && (

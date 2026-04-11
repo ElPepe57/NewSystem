@@ -52,7 +52,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
             <span className={`inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full ${
               order.estado === 'procesada' ? 'text-green-600 bg-green-50' :
               order.estado === 'error' ? 'text-red-600 bg-red-50' :
-              order.estado === 'ignorada' ? 'text-gray-600 bg-gray-50' :
+              order.estado === 'ignorada' ? 'text-slate-600 bg-slate-50' :
               'text-amber-600 bg-amber-50'
             }`}>
               {order.estado === 'procesada' ? <CheckCircle2 className="w-4 h-4" /> :
@@ -79,7 +79,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
               <span className="text-sm font-medium text-green-600">{order.numeroVenta}</span>
             )}
             {order.fechaOrdenML && (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-slate-400">
                 {order.fechaOrdenML.toDate().toLocaleDateString('es-PE', {
                   day: '2-digit', month: 'short', year: 'numeric',
                 })}
@@ -90,7 +90,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
 
         {/* ML Status */}
         {order.mlStatus && order.mlStatus !== 'paid' && (
-          <div className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
+          <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
             Estado en ML: <span className="font-medium">{order.mlStatus}</span>
           </div>
         )}
@@ -111,32 +111,32 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
         )}
 
         {/* Buyer */}
-        <div className="bg-gray-50 rounded-lg p-3 space-y-1">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase">Comprador</h4>
+        <div className="bg-slate-50 rounded-lg p-3 space-y-1">
+          <h4 className="text-xs font-semibold text-slate-500 uppercase">Comprador</h4>
           <p className="text-sm font-medium">{order.mlBuyerName ? toTitleCase(order.mlBuyerName) : `Buyer #${order.mlBuyerId}`}</p>
-          {order.mlBuyerNickname && <p className="text-xs text-gray-400">@{order.mlBuyerNickname}</p>}
-          {order.buyerDni && <p className="text-xs text-gray-500">{order.buyerDocType || 'DNI'}: {order.buyerDni}</p>}
-          {order.razonSocial && <p className="text-xs text-gray-500 font-medium">{order.razonSocial}</p>}
-          {order.buyerEmail && <p className="text-xs text-gray-500">{order.buyerEmail}</p>}
-          {order.buyerPhone && <p className="text-xs text-gray-500">Tel: {order.buyerPhone}</p>}
+          {order.mlBuyerNickname && <p className="text-xs text-slate-400">@{order.mlBuyerNickname}</p>}
+          {order.buyerDni && <p className="text-xs text-slate-500">{order.buyerDocType || 'DNI'}: {order.buyerDni}</p>}
+          {order.razonSocial && <p className="text-xs text-slate-500 font-medium">{order.razonSocial}</p>}
+          {order.buyerEmail && <p className="text-xs text-slate-500">{order.buyerEmail}</p>}
+          {order.buyerPhone && <p className="text-xs text-slate-500">Tel: {order.buyerPhone}</p>}
         </div>
 
         {/* Dirección */}
         {order.direccionEntrega && (
-          <div className="bg-gray-50 rounded-lg p-3 space-y-1">
-            <h4 className="text-xs font-semibold text-gray-500 uppercase">Dirección de entrega</h4>
+          <div className="bg-slate-50 rounded-lg p-3 space-y-1">
+            <h4 className="text-xs font-semibold text-slate-500 uppercase">Dirección de entrega</h4>
             <p className="text-sm">{order.direccionEntrega}</p>
             {(order.distrito || order.provincia) && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-500">
                 {[order.distrito, order.provincia].filter(Boolean).join(', ')}
                 {order.codigoPostal && ` · C.P. ${order.codigoPostal}`}
               </p>
             )}
             {order.referenciaEntrega && (
-              <p className="text-xs text-gray-500 italic">Ref: {order.referenciaEntrega}</p>
+              <p className="text-xs text-slate-500 italic">Ref: {order.referenciaEntrega}</p>
             )}
             {order.trackingNumber && (
-              <p className="text-xs text-gray-500">Tracking: {order.trackingNumber}</p>
+              <p className="text-xs text-slate-500">Tracking: {order.trackingNumber}</p>
             )}
           </div>
         )}
@@ -144,17 +144,17 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
         {/* Productos */}
         {order.productos && order.productos.length > 0 && (
           <div>
-            <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Productos</h4>
+            <h4 className="text-xs font-semibold text-slate-500 uppercase mb-2">Productos</h4>
             <div className="space-y-2">
               {order.productos.map((prod: any, i: number) => (
-                <div key={i} className="flex items-center justify-between bg-gray-50 rounded-lg p-2.5">
+                <div key={i} className="flex items-center justify-between bg-slate-50 rounded-lg p-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">
                       {prod.productoNombre || prod.mlTitle}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
                       {prod.productoSku && (
-                        <span className="text-xs text-gray-400">SKU: {prod.productoSku}</span>
+                        <span className="text-xs text-slate-400">SKU: {prod.productoSku}</span>
                       )}
                       <span className={`text-xs px-1.5 py-0.5 rounded ${
                         prod.vinculado
@@ -167,7 +167,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
                   </div>
                   <div className="text-right ml-3">
                     <p className="text-sm font-medium">{prod.cantidad} × S/ {prod.precioUnitario.toFixed(2)}</p>
-                    <p className="text-xs text-gray-400">Fee: S/ {(prod.saleFee * prod.cantidad).toFixed(2)}</p>
+                    <p className="text-xs text-slate-400">Fee: S/ {(prod.saleFee * prod.cantidad).toFixed(2)}</p>
                   </div>
                 </div>
               ))}
@@ -178,12 +178,12 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
         {/* Totales */}
         <div className="border-t pt-3 space-y-1">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Subtotal productos</span>
+            <span className="text-slate-500">Subtotal productos</span>
             <span className="font-medium">S/ {order.totalML.toFixed(2)}</span>
           </div>
           {esFlex && costoEnvioCliente > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Envío Flex (cliente paga)</span>
+              <span className="text-slate-500">Envío Flex (cliente paga)</span>
               <span className="font-medium">S/ {costoEnvioCliente.toFixed(2)}</span>
             </div>
           )}
@@ -192,13 +192,13 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
             <span>S/ {totalConEnvio.toFixed(2)}</span>
           </div>
           {order.comisionML > 0 && (
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs text-slate-400">
               <span>Comisión ML</span>
               <span>- S/ {order.comisionML.toFixed(2)}</span>
             </div>
           )}
           {cargoEnvioML > 0 && (
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs text-slate-400">
               <span>Cargo por envío ML{!esFlex && costoEnvioCliente > 0 ? ` (cliente pagó S/ ${costoEnvioCliente.toFixed(2)})` : ''}</span>
               <span>- S/ {cargoEnvioML.toFixed(2)}</span>
             </div>
@@ -238,7 +238,7 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
     pendiente: { icon: Clock, color: 'text-amber-600 bg-amber-50', label: 'Pendiente' },
     procesada: { icon: CheckCircle2, color: 'text-green-600 bg-green-50', label: 'Procesada' },
     error: { icon: XCircle, color: 'text-red-600 bg-red-50', label: 'Error' },
-    ignorada: { icon: XCircle, color: 'text-gray-600 bg-gray-50', label: 'Ignorada' },
+    ignorada: { icon: XCircle, color: 'text-slate-600 bg-slate-50', label: 'Ignorada' },
   };
   const cfg = estadoConfig[order.estado] || estadoConfig.pendiente;
   const Icon = cfg.icon;
@@ -311,7 +311,7 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
     <>
       {/* ---- Mobile card ---- */}
       <div
-        className="sm:hidden px-4 py-3 hover:bg-gray-50 cursor-pointer space-y-2"
+        className="sm:hidden px-4 py-3 hover:bg-slate-50 cursor-pointer space-y-2"
         onClick={() => setShowDetail(true)}
       >
         {/* Row 1: Estado + Total */}
@@ -320,11 +320,11 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
             <Icon className="w-3 h-3" />
             {cfg.label}
           </span>
-          <span className="text-sm font-bold text-gray-900">S/ {total.toFixed(2)}</span>
+          <span className="text-sm font-bold text-slate-900">S/ {total.toFixed(2)}</span>
         </div>
         {/* Row 2: Order ID + Venta */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-mono text-gray-600">
+          <span className="text-xs font-mono text-slate-600">
             {isPack ? `Pack-${order.packId}` : `ML-${order.mlOrderId}`}
           </span>
           {order.numeroVenta && (
@@ -336,13 +336,13 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
           {badges}
         </div>
         {/* Row 4: Buyer + Date */}
-        <div className="text-xs text-gray-500 truncate">
+        <div className="text-xs text-slate-500 truncate">
           {buyerName}
           {expanded && order.distrito && ` · ${order.distrito}`}
           {fechaStr && <span> · {fechaStr}</span>}
         </div>
         {/* Row 5: Financial details */}
-        <div className="flex items-center gap-3 text-[11px] text-gray-400">
+        <div className="flex items-center gap-3 text-[11px] text-slate-400">
           {order.comisionML > 0 && <span>Com: S/ {order.comisionML.toFixed(2)}</span>}
           {(order.costoEnvioCliente || 0) > 0 && <span>Envío: S/ {(order.costoEnvioCliente || 0).toFixed(2)}</span>}
           {(order.cargoEnvioML || 0) > 0 && <span>Envío ML: S/ {(order.cargoEnvioML || 0).toFixed(2)}</span>}
@@ -373,7 +373,7 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
 
       {/* ---- Desktop row ---- */}
       <div
-        className="hidden sm:flex items-center justify-between px-4 py-3 hover:bg-gray-50 cursor-pointer"
+        className="hidden sm:flex items-center justify-between px-4 py-3 hover:bg-slate-50 cursor-pointer"
         onClick={() => setShowDetail(true)}
       >
         <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -382,14 +382,14 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
             {cfg.label}
           </span>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-900 flex items-center gap-1.5 flex-wrap">
+            <p className="text-sm font-medium text-slate-900 flex items-center gap-1.5 flex-wrap">
               {isPack ? `Pack-${order.packId}` : `ML-${order.mlOrderId}`}
               {order.numeroVenta && (
                 <span className="text-green-600">→ {order.numeroVenta}</span>
               )}
               {badges}
             </p>
-            <p className="text-xs text-gray-400 truncate">
+            <p className="text-xs text-slate-400 truncate">
               {buyerName}
               {expanded && order.distrito && ` · ${order.distrito}`}
               {fechaStr && <span className="ml-1">· {fechaStr}</span>}
@@ -416,13 +416,13 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
           <div className="text-right">
             <p className="text-sm font-semibold">S/ {total.toFixed(2)}</p>
             {(order.costoEnvioCliente || 0) > 0 && (
-              <p className="text-xs text-gray-400">Envío: S/ {(order.costoEnvioCliente || 0).toFixed(2)}</p>
+              <p className="text-xs text-slate-400">Envío: S/ {(order.costoEnvioCliente || 0).toFixed(2)}</p>
             )}
             {order.comisionML > 0 && (
-              <p className="text-xs text-gray-400">Com: S/ {order.comisionML.toFixed(2)}</p>
+              <p className="text-xs text-slate-400">Com: S/ {order.comisionML.toFixed(2)}</p>
             )}
             {(order.cargoEnvioML || 0) > 0 && (
-              <p className="text-xs text-gray-400">Envío ML: S/ {(order.cargoEnvioML || 0).toFixed(2)}</p>
+              <p className="text-xs text-slate-400">Envío ML: S/ {(order.cargoEnvioML || 0).toFixed(2)}</p>
             )}
           </div>
           {processButton}

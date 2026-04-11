@@ -105,7 +105,7 @@ export const Register: React.FC = () => {
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">
             Crear Cuenta
           </h1>
-          <p className="text-gray-500 mt-1 text-sm">
+          <p className="text-slate-500 mt-1 text-sm">
             Completa tus datos para solicitar acceso al sistema
           </p>
           <DropletDivider />
@@ -119,7 +119,7 @@ export const Register: React.FC = () => {
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Juan Pérez"
             required
-            icon={<UserPlus className="h-4 w-4 text-gray-400" />}
+            icon={<UserPlus className="h-4 w-4 text-slate-400" />}
           />
 
           <Input
@@ -143,7 +143,7 @@ export const Register: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-[34px] text-slate-400 hover:text-slate-600 transition-colors"
               aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -178,10 +178,10 @@ export const Register: React.FC = () => {
         {/* Separador */}
         <div className="relative my-5">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+            <div className="w-full border-t border-slate-200" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white text-gray-500">o regístrate con</span>
+            <span className="px-4 bg-white text-slate-500">o regístrate con</span>
           </div>
         </div>
 
@@ -189,10 +189,10 @@ export const Register: React.FC = () => {
         <button
           onClick={handleGoogleRegister}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {googleLoading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-primary-600" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-primary-600" />
           ) : (
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -201,7 +201,7 @@ export const Register: React.FC = () => {
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
           )}
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-slate-700">
             {googleLoading ? 'Conectando...' : 'Registrarse con Google'}
           </span>
         </button>
@@ -215,7 +215,7 @@ export const Register: React.FC = () => {
 
         {/* Link a login */}
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             ¿Ya tienes cuenta?{' '}
             <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold transition-colors">
               Iniciar Sesión

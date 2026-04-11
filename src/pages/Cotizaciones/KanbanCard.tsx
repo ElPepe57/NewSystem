@@ -110,9 +110,9 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       </div>
 
       <div className="mb-2">
-        <p className="text-sm font-medium text-gray-900 truncate">{cotizacion.nombreCliente}</p>
+        <p className="text-sm font-medium text-slate-900 truncate">{cotizacion.nombreCliente}</p>
         {cotizacion.telefonoCliente && (
-          <p className="text-xs text-gray-500 flex items-center gap-1">
+          <p className="text-xs text-slate-500 flex items-center gap-1">
             <Phone className="h-3 w-3" />
             {cotizacion.telefonoCliente}
           </p>
@@ -120,8 +120,8 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       </div>
 
       <div className="flex items-center justify-between mb-2">
-        <span className="text-lg font-bold text-gray-900">{formatCurrency(cotizacion.totalPEN)}</span>
-        <span className="text-xs text-gray-500">{cotizacion.productos.length} prod.</span>
+        <span className="text-lg font-bold text-slate-900">{formatCurrency(cotizacion.totalPEN)}</span>
+        <span className="text-xs text-slate-500">{cotizacion.productos.length} prod.</span>
       </div>
       <div className="mb-3">
         <LineaNegocioBadge lineaNegocioId={cotizacion.lineaNegocioId} />
@@ -215,7 +215,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       <div className="flex items-center gap-1 pt-2 border-t">
         <button
           onClick={onView}
-          className="flex-1 p-1.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
+          className="flex-1 p-1.5 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
           title="Ver detalles"
         >
           <Eye className="h-4 w-4 mx-auto" />
@@ -223,7 +223,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {onDownloadPdf && (
           <button
             onClick={onDownloadPdf}
-            className="flex-1 p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
             title="Descargar PDF"
           >
             <Download className="h-4 w-4 mx-auto" />
@@ -232,7 +232,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {cotizacion.telefonoCliente && (
           <button
             onClick={onWhatsApp}
-            className="flex-1 p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
             title="WhatsApp"
           >
             <MessageCircle className="h-4 w-4 mx-auto" />
@@ -241,7 +241,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {showValidar && onValidar && (
           <button
             onClick={onValidar}
-            className="flex-1 p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
             title="Validar (cliente confirmó)"
           >
             <UserCheck className="h-4 w-4 mx-auto" />
@@ -250,7 +250,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {showRevertir && onRevertir && (
           <button
             onClick={onRevertir}
-            className="flex-1 p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors"
             title="Revertir validación"
           >
             <Undo2 className="h-4 w-4 mx-auto" />
@@ -259,7 +259,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {showAdelanto && onRegistrarAdelanto && (
           <button
             onClick={onRegistrarAdelanto}
-            className={`flex-1 p-1.5 text-gray-500 rounded transition-colors ${
+            className={`flex-1 p-1.5 text-slate-500 rounded transition-colors ${
               cotizacion.estado === 'pendiente_adelanto'
                 ? 'hover:text-green-600 hover:bg-green-50'
                 : 'hover:text-purple-600 hover:bg-purple-50'
@@ -276,7 +276,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {showConfirmar && onConfirmar && (
           <button
             onClick={onConfirmar}
-            className="flex-1 p-1.5 text-gray-500 hover:text-success-600 hover:bg-success-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-success-600 hover:bg-success-50 rounded transition-colors"
             title="Confirmar venta"
           >
             <CheckCircle className="h-4 w-4 mx-auto" />
@@ -285,7 +285,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {showRechazar && onRechazar && (
           <button
             onClick={onRechazar}
-            className="flex-1 p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
             title="Rechazar cotización"
           >
             <ThumbsDown className="h-4 w-4 mx-auto" />

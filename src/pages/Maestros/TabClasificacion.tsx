@@ -15,15 +15,15 @@ export const TabClasificacion: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-slate-200 rounded-lg p-4">
           <TipoProductoList />
         </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-slate-200 rounded-lg p-4">
           <CategoriaList />
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white border border-slate-200 rounded-lg p-4">
         <EtiquetaList />
       </div>
     </div>

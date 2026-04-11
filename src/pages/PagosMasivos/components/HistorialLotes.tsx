@@ -18,7 +18,7 @@ export const HistorialLotes: React.FC = () => {
 
   if (loadingHistorial) {
     return (
-      <div className="flex items-center justify-center py-12 text-gray-500">
+      <div className="flex items-center justify-center py-12 text-slate-500">
         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3" />
         Cargando historial...
       </div>
@@ -27,8 +27,8 @@ export const HistorialLotes: React.FC = () => {
 
   if (historial.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        <Clock size={40} className="mx-auto mb-3 text-gray-300" />
+      <div className="text-center py-12 text-slate-500">
+        <Clock size={40} className="mx-auto mb-3 text-slate-300" />
         <p className="font-medium">No hay lotes ejecutados</p>
         <p className="text-sm">Los lotes procesados apareceran aqui.</p>
       </div>
@@ -38,15 +38,15 @@ export const HistorialLotes: React.FC = () => {
   return (
     <div className="border rounded-lg overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-gray-50 border-b">
+        <thead className="bg-slate-50 border-b">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lote</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Items</th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Monto</th>
-            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Lote</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+            <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Items</th>
+            <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Monto</th>
+            <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Estado</th>
+            <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y">
@@ -57,14 +57,14 @@ export const HistorialLotes: React.FC = () => {
             const tieneErrores = lote.itemsConError > 0;
 
             return (
-              <tr key={lote.id} className="hover:bg-gray-50">
+              <tr key={lote.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-mono text-xs font-medium">{lote.id}</td>
                 <td className="px-4 py-3">
                   <Badge variant={lote.tipo === 'egreso' ? 'warning' : 'success'}>
                     {lote.tipo === 'egreso' ? 'Egreso' : 'Ingreso'}
                   </Badge>
                 </td>
-                <td className="px-4 py-3 text-gray-600">{fecha}</td>
+                <td className="px-4 py-3 text-slate-600">{fecha}</td>
                 <td className="px-4 py-3 text-center">
                   <span className="flex items-center justify-center gap-1">
                     <CheckCircle size={14} className="text-green-500" />

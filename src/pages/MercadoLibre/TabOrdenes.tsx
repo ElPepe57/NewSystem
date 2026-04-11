@@ -393,7 +393,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
     <div className="space-y-4">
       {/* Filters + Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="flex bg-gray-100 rounded-lg p-0.5 overflow-x-auto scrollbar-hide">
+        <div className="flex bg-slate-100 rounded-lg p-0.5 overflow-x-auto scrollbar-hide">
           {[
             { id: 'todos', label: 'Todas' },
             { id: 'pendiente', label: 'Pendientes' },
@@ -408,8 +408,8 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                 onClick={() => setFilter(f.id)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap flex-shrink-0 ${
                   filter === f.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 {f.label}{count > 0 ? ` (${count})` : ''}
@@ -423,7 +423,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
             <button
               onClick={() => setToolsOpen(!toolsOpen)}
               disabled={reenrichingBuyers || importingOrders || patchingEnvio || reparandoUrbano || reparandoNombres || consolidatingPacks || runningDiagnostic || reingenieriando || procesando}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 disabled:opacity-50 transition-colors"
             >
               {(reenrichingBuyers || importingOrders || patchingEnvio || reparandoUrbano || consolidatingPacks || runningDiagnostic || reingenieriando) ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -443,11 +443,11 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
             {toolsOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setToolsOpen(false)} />
-                <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20">
                   <button
                     onClick={() => { setToolsOpen(false); handleReenrichBuyers(); }}
                     disabled={reenrichingBuyers || importingOrders || procesando}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <RefreshCw className="w-3.5 h-3.5 text-purple-500" />
                     Actualizar Buyers
@@ -455,7 +455,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                   <button
                     onClick={() => { setToolsOpen(false); handlePatchEnvio(); }}
                     disabled={patchingEnvio || importingOrders || procesando}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <Truck className="w-3.5 h-3.5 text-teal-500" />
                     Patch Envíos
@@ -463,7 +463,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                   <button
                     onClick={() => { setToolsOpen(false); handleRepararUrbano(); }}
                     disabled={reparandoUrbano || procesando || reenrichingBuyers}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <AlertTriangle className="w-3.5 h-3.5 text-orange-500" />
                     Reparar Ventas Urbano
@@ -471,7 +471,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                   <button
                     onClick={() => { setToolsOpen(false); handleRepararNombres(); }}
                     disabled={reparandoNombres || procesando || reenrichingBuyers}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <Type className="w-3.5 h-3.5 text-purple-500" />
                     Reparar Nombres y DNI
@@ -479,16 +479,16 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                   <button
                     onClick={() => { setToolsOpen(false); handleImportarHistorial(); }}
                     disabled={importingOrders || procesando || reenrichingBuyers}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <Download className="w-3.5 h-3.5 text-blue-500" />
                     Importar Historial ML
                   </button>
-                  <div className="border-t border-gray-100 my-1" />
+                  <div className="border-t border-slate-100 my-1" />
                   <button
                     onClick={() => { setToolsOpen(false); handleConsolidarPacks(true); }}
                     disabled={consolidatingPacks || procesando}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <Package className="w-3.5 h-3.5 text-indigo-500" />
                     Diagnosticar Packs Duplicados
@@ -501,16 +501,16 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                     <Package className="w-3.5 h-3.5 text-red-500" />
                     Corregir Packs Duplicados
                   </button>
-                  <div className="border-t border-gray-100 my-1" />
+                  <div className="border-t border-slate-100 my-1" />
                   <button
                     onClick={() => { setToolsOpen(false); handleDiagnostico(); }}
                     disabled={runningDiagnostic || procesando}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <Search className="w-3.5 h-3.5 text-emerald-500" />
                     Diagnóstico Integral Sistema
                   </button>
-                  <div className="border-t border-gray-100 my-1" />
+                  <div className="border-t border-slate-100 my-1" />
                   <button
                     onClick={() => { setToolsOpen(false); handleLoadSuggestions(); }}
                     disabled={vinculacionLoading || procesando}
@@ -527,22 +527,22 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
                     {inconsistenciasLoading ? 'Analizando...' : 'Resolver Inconsistencias Financieras'}
                   </button>
-                  <div className="border-t border-gray-100 my-1" />
+                  <div className="border-t border-slate-100 my-1" />
                   <div className="px-3 py-1.5">
-                    <label className="text-[10px] text-gray-500 block mb-1">Saldo real MP (S/):</label>
+                    <label className="text-[10px] text-slate-500 block mb-1">Saldo real MP (S/):</label>
                     <input
                       type="number"
                       step="0.01"
                       value={saldoRealMP}
                       onChange={(e) => setSaldoRealMP(e.target.value)}
-                      className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-orange-300"
+                      className="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-orange-300"
                       placeholder="ej: 2677.51"
                     />
                   </div>
                   <button
                     onClick={() => { setToolsOpen(false); handleReingenieria(true); }}
                     disabled={reingenieriando || procesando}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
                     <RotateCw className="w-3.5 h-3.5 text-orange-500" />
                     Reingeniería ML (Preview)
@@ -795,13 +795,13 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                       {inc.tipo === 'sin_movimientos' ? 'SIN MOVIMIENTO' : 'MONTO INCORRECTO'}
                     </span>
                     <span className="font-mono font-semibold text-sm">{inc.ventaNumero}</span>
-                    <span className="text-xs text-gray-500">{inc.clienteNombre}</span>
-                    <span className="text-xs text-gray-400">|</span>
-                    <span className="text-xs text-gray-500">{fecha}</span>
-                    <span className="text-xs text-gray-400">|</span>
+                    <span className="text-xs text-slate-500">{inc.clienteNombre}</span>
+                    <span className="text-xs text-slate-400">|</span>
+                    <span className="text-xs text-slate-500">{fecha}</span>
+                    <span className="text-xs text-slate-400">|</span>
                     <span className="text-xs font-medium">{inc.metodoEnvio}</span>
                   </div>
-                  <div className="text-xs text-gray-600 mb-2">
+                  <div className="text-xs text-slate-600 mb-2">
                     Total correcto: <strong className="text-green-700">S/ {inc.totalPENCorrecto.toFixed(2)}</strong>
                     {' | '}Subtotal: S/ {inc.subtotalPEN.toFixed(2)}
                     {' | '}Comisión: S/ {inc.comisionML.toFixed(2)}
@@ -812,15 +812,15 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                     <div className="text-xs bg-red-50 p-2 rounded border border-red-100 mb-2">
                       Movimiento actual: <strong>S/ {inc.movimientoActual.monto.toFixed(2)}</strong> ({inc.movimientoActual.concepto})
                       <br />Diferencia: <strong className="text-red-600">S/ {inc.diferencia?.toFixed(2)}</strong>
-                      <br /><span className="text-gray-500 italic">La reingeniería anulará este movimiento y creará uno nuevo con el monto correcto.</span>
+                      <br /><span className="text-slate-500 italic">La reingeniería anulará este movimiento y creará uno nuevo con el monto correcto.</span>
                     </div>
                   )}
 
                   {inc.tipo === 'sin_movimientos' && (
                     <div className="space-y-1">
-                      <div className="text-[11px] text-gray-500 font-medium mb-1">Candidatos (movimientos huérfanos que podrían corresponder):</div>
+                      <div className="text-[11px] text-slate-500 font-medium mb-1">Candidatos (movimientos huérfanos que podrían corresponder):</div>
                       {inc.candidatos.length === 0 ? (
-                        <div className="text-xs text-gray-400 italic pl-2">Ningún candidato encontrado. Se creará movimiento nuevo en la reingeniería.</div>
+                        <div className="text-xs text-slate-400 italic pl-2">Ningún candidato encontrado. Se creará movimiento nuevo en la reingeniería.</div>
                       ) : (
                         inc.candidatos.map((cand: any) => (
                           <label key={cand.movId} className={`flex items-start gap-2 p-1.5 rounded cursor-pointer hover:bg-amber-50 ${resolucion?.movId === cand.movId && resolucion?.accion === 'vincular' ? 'bg-green-50 ring-1 ring-green-300' : ''}`}>
@@ -838,20 +838,20 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                             <div className="text-xs flex-1">
                               <div className="flex items-center gap-1.5">
                                 <span className="font-mono font-semibold">S/ {cand.monto.toFixed(2)}</span>
-                                <span className={`px-1 py-0.5 rounded text-[9px] font-medium ${cand.score >= 70 ? 'bg-green-100 text-green-700' : cand.score >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
+                                <span className={`px-1 py-0.5 rounded text-[9px] font-medium ${cand.score >= 70 ? 'bg-green-100 text-green-700' : cand.score >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-600'}`}>
                                   {cand.score} pts
                                 </span>
-                                <span className="text-gray-400 text-[10px]">{cand.matchDetail}</span>
+                                <span className="text-slate-400 text-[10px]">{cand.matchDetail}</span>
                               </div>
-                              <div className="text-gray-500 text-[10px] mt-0.5 truncate max-w-lg">
+                              <div className="text-slate-500 text-[10px] mt-0.5 truncate max-w-lg">
                                 {cand.tipo} | {cand.concepto} | {cand.fecha ? new Date(cand.fecha).toLocaleDateString('es-PE') : '?'}
                               </div>
-                              <div className="text-gray-400 text-[9px] font-mono">{cand.movId}</div>
+                              <div className="text-slate-400 text-[9px] font-mono">{cand.movId}</div>
                             </div>
                           </label>
                         ))
                       )}
-                      <label className={`flex items-center gap-2 p-1.5 rounded cursor-pointer hover:bg-gray-50 ${resolucion?.accion === 'skip' || !resolucion ? 'bg-gray-50 ring-1 ring-gray-200' : ''}`}>
+                      <label className={`flex items-center gap-2 p-1.5 rounded cursor-pointer hover:bg-slate-50 ${resolucion?.accion === 'skip' || !resolucion ? 'bg-slate-50 ring-1 ring-slate-200' : ''}`}>
                         <input
                           type="radio"
                           name={`inc-${inc.ventaId}`}
@@ -863,7 +863,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                           }}
                           className="mt-0.5"
                         />
-                        <span className="text-xs text-gray-500">No vincular (se creará movimiento nuevo en reingeniería)</span>
+                        <span className="text-xs text-slate-500">No vincular (se creará movimiento nuevo en reingeniería)</span>
                       </label>
                     </div>
                   )}
@@ -872,7 +872,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
             })}
 
             {inconsistenciasData.inconsistencias.length === 0 && (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-slate-400">
                 No se encontraron inconsistencias. El balance debería cuadrar correctamente.
               </div>
             )}
@@ -889,7 +889,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowInconsistencias(false)}
-                  className="px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded hover:bg-gray-50"
+                  className="px-3 py-1.5 text-xs text-slate-600 border border-slate-200 rounded hover:bg-slate-50"
                 >
                   Cancelar
                 </button>
@@ -912,12 +912,12 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Link2 className="w-4 h-4 text-blue-500" />
-              <h3 className="text-sm font-semibold text-gray-800">Vincular Órdenes ML ↔ Ventas</h3>
-              <span className="text-[11px] text-gray-400">
+              <h3 className="text-sm font-semibold text-slate-800">Vincular Órdenes ML ↔ Ventas</h3>
+              <span className="text-[11px] text-slate-400">
                 {vinculacionData.totalSyncPendientes} pendientes · {vinculacionData.totalVentasSinVincular} ventas sin vincular
               </span>
             </div>
-            <button onClick={() => setShowVinculacion(false)} className="text-gray-400 hover:text-gray-600">
+            <button onClick={() => setShowVinculacion(false)} className="text-slate-400 hover:text-slate-600">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -929,46 +929,46 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
           )}
 
           {vinculacionData.suggestions.length === 0 ? (
-            <p className="text-xs text-gray-500 text-center py-4">No hay órdenes pendientes por vincular.</p>
+            <p className="text-xs text-slate-500 text-center py-4">No hay órdenes pendientes por vincular.</p>
           ) : (
             <div className="space-y-2 max-h-[500px] overflow-y-auto">
               {vinculacionData.suggestions.map((s) => (
-                <div key={s.syncId} className="border border-gray-200 rounded-lg p-3 text-xs">
+                <div key={s.syncId} className="border border-slate-200 rounded-lg p-3 text-xs">
                   {/* ML Order info */}
                   <div className="flex items-start gap-3 mb-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-gray-800">ML #{s.mlOrderId}</span>
+                        <span className="font-semibold text-slate-800">ML #{s.mlOrderId}</span>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                           s.syncMetodoEnvio === 'flex' ? 'bg-green-100 text-green-700' :
                           s.syncMetodoEnvio === 'urbano' ? 'bg-purple-100 text-purple-700' :
-                          'bg-gray-100 text-gray-600'
+                          'bg-slate-100 text-slate-600'
                         }`}>
                           {s.syncMetodoEnvio}
                         </span>
-                        <span className="text-gray-500">{s.syncFecha}</span>
+                        <span className="text-slate-500">{s.syncFecha}</span>
                       </div>
-                      <div className="text-gray-600 mt-0.5">
+                      <div className="text-slate-600 mt-0.5">
                         {s.syncBuyerName} {s.syncBuyerDni ? `· DNI: ${s.syncBuyerDni}` : ''}
                         {' · '}S/ {s.syncTotal.toFixed(2)}
                       </div>
-                      <div className="text-gray-400 truncate">{s.syncProductos}</div>
+                      <div className="text-slate-400 truncate">{s.syncProductos}</div>
                     </div>
                   </div>
 
                   {/* Match candidates */}
                   {s.matches.length === 0 ? (
-                    <div className="text-gray-400 italic ml-4">Sin coincidencias encontradas</div>
+                    <div className="text-slate-400 italic ml-4">Sin coincidencias encontradas</div>
                   ) : (
                     <div className="ml-4 space-y-1">
-                      <div className="text-[10px] text-gray-400 uppercase tracking-wide">Coincidencias sugeridas:</div>
+                      <div className="text-[10px] text-slate-400 uppercase tracking-wide">Coincidencias sugeridas:</div>
                       {s.matches.map((m) => (
                         <label
                           key={m.ventaId}
                           className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer transition-colors ${
                             selectedMatches[s.syncId] === m.ventaId
                               ? 'bg-blue-50 border border-blue-300'
-                              : 'hover:bg-gray-50 border border-transparent'
+                              : 'hover:bg-slate-50 border border-transparent'
                           }`}
                         >
                           <input
@@ -980,26 +980,26 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-gray-700">{m.numeroVenta}</span>
+                              <span className="font-medium text-slate-700">{m.numeroVenta}</span>
                               <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                                 m.score >= 60 ? 'bg-emerald-100 text-emerald-700' :
                                 m.score >= 30 ? 'bg-amber-100 text-amber-700' :
-                                'bg-gray-100 text-gray-600'
+                                'bg-slate-100 text-slate-600'
                               }`}>
                                 {m.score}pts
                               </span>
-                              <span className="text-gray-400">{m.matchDetails.join(' · ')}</span>
+                              <span className="text-slate-400">{m.matchDetails.join(' · ')}</span>
                             </div>
-                            <div className="text-gray-500">
+                            <div className="text-slate-500">
                               {m.nombreCliente} {m.dniRuc ? `· ${m.dniRuc}` : ''} · S/ {m.totalPEN.toFixed(2)} · {m.fechaCreacion}
                             </div>
-                            <div className="text-gray-400 truncate">{m.productos}</div>
+                            <div className="text-slate-400 truncate">{m.productos}</div>
                           </div>
                         </label>
                       ))}
                       {/* Option to skip */}
-                      <label className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-gray-400 hover:bg-gray-50 ${
-                        !selectedMatches[s.syncId] ? 'bg-gray-50' : ''
+                      <label className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-slate-400 hover:bg-slate-50 ${
+                        !selectedMatches[s.syncId] ? 'bg-slate-50' : ''
                       }`}>
                         <input
                           type="radio"
@@ -1010,7 +1010,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                             delete next[s.syncId];
                             return next;
                           })}
-                          className="text-gray-400"
+                          className="text-slate-400"
                         />
                         <span>No vincular (omitir)</span>
                       </label>
@@ -1023,8 +1023,8 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
 
           {/* Action bar */}
           {vinculacionData.suggestions.some((s) => s.matches.length > 0) && (
-            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-              <span className="text-xs text-gray-500">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <span className="text-xs text-slate-500">
                 {Object.keys(selectedMatches).length} de {vinculacionData.suggestions.length} seleccionados
               </span>
               <button
@@ -1055,7 +1055,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
 
       {/* Origin summary when there are historical orders */}
       {countHistorico > 0 && orderSyncs.length > 0 && (
-        <div className="flex items-center gap-3 text-[11px] text-gray-400 px-1">
+        <div className="flex items-center gap-3 text-[11px] text-slate-400 px-1">
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-blue-300" /> {countHistorico} importado{countHistorico !== 1 ? 's' : ''}
           </span>
@@ -1068,14 +1068,14 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
       )}
 
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-1">
+        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+          <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <p className="text-slate-500 mb-1">
             No hay órdenes {filter !== 'todos' ? `con estado "${filter}"` : 'sincronizadas'}
           </p>
           {orderSyncs.length === 0 && (
             <div className="mt-4 space-y-2">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-slate-400">
                 Las órdenes llegan automáticamente por webhook, o puedes importar el historial desde ML.
               </p>
               <button
@@ -1094,7 +1094,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 divide-y">
+        <div className="bg-white rounded-xl border border-slate-200 divide-y">
           {filtered.map((order) => (
             <OrderRow key={order.id} order={order} expanded />
           ))}

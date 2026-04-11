@@ -139,7 +139,7 @@ export const TipoCambio: React.FC = () => {
         <Card padding="md">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-gray-600">TC Compra Hoy</div>
+              <div className="text-sm text-slate-600">TC Compra Hoy</div>
               <div className="text-2xl font-bold text-green-600 mt-1">
                 {tcDelDia ? `S/ ${tcDelDia.compra.toFixed(3)}` : "-"}
               </div>
@@ -153,7 +153,7 @@ export const TipoCambio: React.FC = () => {
         <Card padding="md">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-gray-600">TC Venta Hoy</div>
+              <div className="text-sm text-slate-600">TC Venta Hoy</div>
               <div className="text-2xl font-bold text-red-600 mt-1">
                 {tcDelDia ? `S/ ${tcDelDia.venta.toFixed(3)}` : "-"}
               </div>
@@ -167,7 +167,7 @@ export const TipoCambio: React.FC = () => {
         <Card padding="md">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-gray-600">Total Registros</div>
+              <div className="text-sm text-slate-600">Total Registros</div>
               <div className="text-2xl font-bold text-primary-600 mt-1">
                 {tiposCambio.length}
               </div>
@@ -182,7 +182,7 @@ export const TipoCambio: React.FC = () => {
       <TipoCambioChart tiposCambio={chartData} />
 
       <Card padding="md">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Historial de Tipos de Cambio</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Historial de Tipos de Cambio</h2>
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>

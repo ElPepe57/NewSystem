@@ -23,24 +23,24 @@ export const CotizacionesFaltanteModal: React.FC<CotizacionesFaltanteModalProps>
       size="lg"
     >
       <div className="space-y-4">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-600">
           Selecciona una cotizacion confirmada para generar automaticamente un requerimiento de compra con los productos faltantes.
         </p>
 
         {cotizaciones.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-slate-500">
             No hay cotizaciones confirmadas con faltante de stock
           </div>
         ) : (
           <div className="divide-y border rounded-lg max-h-96 overflow-y-auto">
             {cotizaciones.map((venta) => (
-              <div key={venta.id} className="p-4 hover:bg-gray-50">
+              <div key={venta.id} className="p-4 hover:bg-slate-50">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-slate-900">
                       {venta.numeroVenta} - {venta.nombreCliente}
                     </div>
-                    <div className="text-sm text-gray-500 mt-1">
+                    <div className="text-sm text-slate-500 mt-1">
                       Total: S/ {venta.totalPEN.toFixed(2)} | {venta.productos.length} productos
                     </div>
                     {venta.productosConFaltante && venta.productosConFaltante.length > 0 && (

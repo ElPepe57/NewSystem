@@ -54,12 +54,12 @@ export const RequerimientosKPIGrid: React.FC<RequerimientosKPIGridProps> = ({ st
       <Card padding="md">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-600 font-medium">Costo Pendiente</div>
-            <div className="text-lg font-bold text-gray-900">
+            <div className="text-xs text-slate-600 font-medium">Costo Pendiente</div>
+            <div className="text-lg font-bold text-slate-900">
               {formatCurrency(stats.costoEstimadoPendiente)}
             </div>
           </div>
-          <DollarSign className="h-8 w-8 text-gray-400" />
+          <DollarSign className="h-8 w-8 text-slate-400" />
         </div>
       </Card>
 

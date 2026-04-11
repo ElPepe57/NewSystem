@@ -72,45 +72,45 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-            esTipoTransferenciaInternacional(transferencia.tipo) ? 'bg-blue-100' : 'bg-gray-100'
+            esTipoTransferenciaInternacional(transferencia.tipo) ? 'bg-blue-100' : 'bg-slate-100'
           }`}>
             {esTipoTransferenciaInternacional(transferencia.tipo)
               ? <Plane className="h-6 w-6 text-blue-600" />
-              : <ArrowRightLeft className="h-6 w-6 text-gray-600" />
+              : <ArrowRightLeft className="h-6 w-6 text-slate-600" />
             }
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{transferencia.numeroTransferencia}</h3>
+            <h3 className="text-lg font-semibold text-slate-900">{transferencia.numeroTransferencia}</h3>
             <div className="flex items-center space-x-2 mt-1">
               {getTipoBadge(transferencia.tipo, (transferencia as any).paisOrigen)}
               {getEstadoBadge(transferencia.estado)}
             </div>
           </div>
         </div>
-        <div className="text-right text-sm text-gray-500">
+        <div className="text-right text-sm text-slate-500">
           {fechaCreacion.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
         </div>
       </div>
 
       {/* Ruta */}
-      <div className="flex items-center space-x-2 mb-4 p-3 bg-gray-50 rounded-lg">
+      <div className="flex items-center space-x-2 mb-4 p-3 bg-slate-50 rounded-lg">
         <div className="flex-1">
-          <div className="text-xs text-gray-500">Origen</div>
-          <div className="font-medium text-gray-900">{transferencia.almacenOrigenNombre}</div>
-          <div className="text-xs text-gray-500">{transferencia.almacenOrigenCodigo}</div>
+          <div className="text-xs text-slate-500">Origen</div>
+          <div className="font-medium text-slate-900">{transferencia.almacenOrigenNombre}</div>
+          <div className="text-xs text-slate-500">{transferencia.almacenOrigenCodigo}</div>
         </div>
-        <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+        <ChevronRight className="h-5 w-5 text-slate-400 flex-shrink-0" />
         <div className="flex-1 text-right">
-          <div className="text-xs text-gray-500">Destino</div>
-          <div className="font-medium text-gray-900">{transferencia.almacenDestinoNombre}</div>
-          <div className="text-xs text-gray-500">{transferencia.almacenDestinoCodigo}</div>
+          <div className="text-xs text-slate-500">Destino</div>
+          <div className="font-medium text-slate-900">{transferencia.almacenDestinoNombre}</div>
+          <div className="text-xs text-slate-500">{transferencia.almacenDestinoCodigo}</div>
         </div>
       </div>
 
       {/* Productos */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-gray-500 uppercase">
+          <span className="text-xs font-medium text-slate-500 uppercase">
             {(transferencia.productosSummary?.length ?? 0)} producto{(transferencia.productosSummary?.length ?? 0) !== 1 ? 's' : ''} · {transferencia.totalUnidades} unidades
           </span>
           {transferencia.costoFleteTotal != null && transferencia.costoFleteTotal > 0 ? (
@@ -127,29 +127,29 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
 
             const pFull = productosMap.get(producto.productoId);
             return (
-              <div key={producto.productoId} className="flex items-center justify-between py-1.5 px-2 bg-gray-50 rounded text-sm">
+              <div key={producto.productoId} className="flex items-center justify-between py-1.5 px-2 bg-slate-50 rounded text-sm">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</span>
-                    <span className="text-xs text-gray-400 flex-shrink-0">x{producto.cantidad}</span>
+                    <span className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || producto.nombre}</span>
+                    <span className="text-xs text-slate-400 flex-shrink-0">x{producto.cantidad}</span>
                   </div>
                   {pFull && (
                     <div className="flex flex-wrap items-center gap-1 mt-0.5">
                       {pFull.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                      {getDescripcionProducto(pFull) && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
+                      {getDescripcionProducto(pFull) && <span className="text-[10px] text-slate-600 bg-slate-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
                     </div>
                   )}
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
                     <span>{producto.sku}</span>
                     {lotes.length > 0 && (
                       <>
-                        <span className="text-gray-300">·</span>
+                        <span className="text-slate-300">·</span>
                         <span>Lote{lotes.length > 1 ? 's' : ''}: {lotes.slice(0, 2).join(', ')}{lotes.length > 2 ? ` +${lotes.length - 2}` : ''}</span>
                       </>
                     )}
                     {fleteUnitario > 0 && (
                       <>
-                        <span className="text-gray-300">·</span>
+                        <span className="text-slate-300">·</span>
                         <span className="text-green-600">Flete: ${fleteUnitario.toFixed(2)}/u</span>
                       </>
                     )}
@@ -159,7 +159,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
             );
           })}
           {(transferencia.productosSummary?.length ?? 0) > 4 && (
-            <div className="text-xs text-gray-400 text-center py-1">
+            <div className="text-xs text-slate-400 text-center py-1">
               +{(transferencia.productosSummary?.length ?? 0) - 4} productos mas
             </div>
           )}
@@ -195,7 +195,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
               </span>
               <span className="text-xs text-purple-500">{numRecepciones} recep.</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div className="w-full bg-slate-200 rounded-full h-1.5">
               <div className="bg-purple-500 h-1.5 rounded-full transition-all" style={{ width: `${(procesadas / totalU) * 100}%` }} />
             </div>
           </div>
@@ -204,8 +204,8 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
 
       {/* Tracking */}
       {transferencia.numeroTracking && (
-        <div className="mt-3 flex items-center text-sm text-gray-600">
-          <Package className="h-4 w-4 mr-2 text-gray-400" />
+        <div className="mt-3 flex items-center text-sm text-slate-600">
+          <Package className="h-4 w-4 mr-2 text-slate-400" />
           Tracking: {transferencia.numeroTracking}
         </div>
       )}
@@ -285,7 +285,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
       )}
 
       <div className="mt-4 flex justify-end">
-        <ChevronRight className="h-5 w-5 text-gray-400" />
+        <ChevronRight className="h-5 w-5 text-slate-400" />
       </div>
     </Card>
   );

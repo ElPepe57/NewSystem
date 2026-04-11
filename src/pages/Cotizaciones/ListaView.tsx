@@ -59,22 +59,22 @@ export const ListaView: React.FC<ListaViewProps> = ({
   return (
     <Card padding="none">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
-              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Cotización</th>
-              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
-              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-              <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-              <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">Fecha</th>
-              <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Cotización</th>
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Cliente</th>
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Estado</th>
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-slate-500 uppercase">Total</th>
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-slate-500 uppercase">Fecha</th>
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {cotizaciones.map((item) => {
               const requiereStock = item.productos.some(p => p.requiereStock);
               return (
-                <tr key={item.id} className={`hover:bg-gray-50 ${item.estado === 'rechazada' || item.estado === 'vencida' ? 'bg-red-50' : ''}`}>
+                <tr key={item.id} className={`hover:bg-slate-50 ${item.estado === 'rechazada' || item.estado === 'vencida' ? 'bg-red-50' : ''}`}>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-primary-600">{item.numeroCotizacion}</span>
@@ -83,14 +83,14 @@ export const ListaView: React.FC<ListaViewProps> = ({
                       )}
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-xs text-gray-500">{item.productos.length} producto(s)</span>
+                      <span className="text-xs text-slate-500">{item.productos.length} producto(s)</span>
                       <LineaNegocioBadge lineaNegocioId={item.lineaNegocioId} />
                     </div>
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4">
-                    <div className="text-sm font-medium text-gray-900">{item.nombreCliente}</div>
+                    <div className="text-sm font-medium text-slate-900">{item.nombreCliente}</div>
                     {item.telefonoCliente && (
-                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                      <div className="text-xs text-slate-500 flex items-center gap-1">
                         <Phone className="h-3 w-3" />
                         {item.telefonoCliente}
                       </div>
@@ -138,64 +138,64 @@ export const ListaView: React.FC<ListaViewProps> = ({
                     </div>
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                    <span className="text-sm font-medium text-gray-900">{formatCurrency(item.totalPEN)}</span>
+                    <span className="text-sm font-medium text-slate-900">{formatCurrency(item.totalPEN)}</span>
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
-                    <span className="text-sm text-gray-900">{formatFecha(item.fechaCreacion)}</span>
+                    <span className="text-sm text-slate-900">{formatFecha(item.fechaCreacion)}</span>
                   </td>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <button onClick={() => onVerDetalles(item)} className="p-1.5 text-gray-400 hover:text-primary-600" title="Ver">
+                      <button onClick={() => onVerDetalles(item)} className="p-1.5 text-slate-400 hover:text-primary-600" title="Ver">
                         <Eye className="h-4 w-4" />
                       </button>
                       {item.telefonoCliente && (
-                        <button onClick={() => onWhatsApp(item)} className="p-1.5 text-gray-400 hover:text-green-600" title="WhatsApp">
+                        <button onClick={() => onWhatsApp(item)} className="p-1.5 text-slate-400 hover:text-green-600" title="WhatsApp">
                           <MessageCircle className="h-4 w-4" />
                         </button>
                       )}
                       {item.estado === 'nueva' && (
                         <>
-                          <button onClick={() => onValidar(item)} className="p-1.5 text-gray-400 hover:text-blue-600" title="Validar">
+                          <button onClick={() => onValidar(item)} className="p-1.5 text-slate-400 hover:text-blue-600" title="Validar">
                             <UserCheck className="h-4 w-4" />
                           </button>
-                          <button onClick={() => onRechazar(item)} className="p-1.5 text-gray-400 hover:text-red-600" title="Rechazar">
+                          <button onClick={() => onRechazar(item)} className="p-1.5 text-slate-400 hover:text-red-600" title="Rechazar">
                             <ThumbsDown className="h-4 w-4" />
                           </button>
                         </>
                       )}
                       {item.estado === 'validada' && (
                         <>
-                          <button onClick={() => onConfirmar(item)} className="p-1.5 text-gray-400 hover:text-success-600" title="Confirmar Venta (sin adelanto)">
+                          <button onClick={() => onConfirmar(item)} className="p-1.5 text-slate-400 hover:text-success-600" title="Confirmar Venta (sin adelanto)">
                             <CheckCircle className="h-4 w-4" />
                           </button>
-                          <button onClick={() => onRegistrarAdelanto(item)} className="p-1.5 text-gray-400 hover:text-purple-600" title="Comprometer Adelanto">
+                          <button onClick={() => onRegistrarAdelanto(item)} className="p-1.5 text-slate-400 hover:text-purple-600" title="Comprometer Adelanto">
                             <Lock className="h-4 w-4" />
                           </button>
-                          <button onClick={() => onRevertirValidacion(item)} className="p-1.5 text-gray-400 hover:text-orange-600" title="Revertir">
+                          <button onClick={() => onRevertirValidacion(item)} className="p-1.5 text-slate-400 hover:text-orange-600" title="Revertir">
                             <Undo2 className="h-4 w-4" />
                           </button>
-                          <button onClick={() => onRechazar(item)} className="p-1.5 text-gray-400 hover:text-red-600" title="Rechazar">
+                          <button onClick={() => onRechazar(item)} className="p-1.5 text-slate-400 hover:text-red-600" title="Rechazar">
                             <ThumbsDown className="h-4 w-4" />
                           </button>
                         </>
                       )}
                       {item.estado === 'pendiente_adelanto' && (
                         <>
-                          <button onClick={() => onRegistrarAdelanto(item)} className="p-1.5 text-gray-400 hover:text-green-600" title="Registrar Pago">
+                          <button onClick={() => onRegistrarAdelanto(item)} className="p-1.5 text-slate-400 hover:text-green-600" title="Registrar Pago">
                             <DollarSign className="h-4 w-4" />
                           </button>
-                          <button onClick={() => onRechazar(item)} className="p-1.5 text-gray-400 hover:text-red-600" title="Rechazar">
+                          <button onClick={() => onRechazar(item)} className="p-1.5 text-slate-400 hover:text-red-600" title="Rechazar">
                             <ThumbsDown className="h-4 w-4" />
                           </button>
                         </>
                       )}
                       {(item.estado === 'adelanto_pagado' || item.estado === 'con_abono') && (
-                        <button onClick={() => onConfirmar(item)} className="p-1.5 text-gray-400 hover:text-success-600" title="Confirmar Venta">
+                        <button onClick={() => onConfirmar(item)} className="p-1.5 text-slate-400 hover:text-success-600" title="Confirmar Venta">
                           <CheckCircle className="h-4 w-4" />
                         </button>
                       )}
                       {(item.estado === 'nueva' || item.estado === 'rechazada') && (
-                        <button onClick={() => onEliminar(item)} className="p-1.5 text-gray-400 hover:text-danger-600" title="Eliminar">
+                        <button onClick={() => onEliminar(item)} className="p-1.5 text-slate-400 hover:text-danger-600" title="Eliminar">
                           <XCircle className="h-4 w-4" />
                         </button>
                       )}
@@ -209,8 +209,8 @@ export const ListaView: React.FC<ListaViewProps> = ({
       </div>
       {cotizaciones.length === 0 && (
         <div className="text-center py-12">
-          <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No hay cotizaciones</h3>
+          <FileText className="mx-auto h-12 w-12 text-slate-400" />
+          <h3 className="mt-2 text-sm font-medium text-slate-900">No hay cotizaciones</h3>
           <div className="mt-6">
             <Button onClick={onNuevaCotizacion}>
               <Plus className="h-4 w-4 mr-2" />

@@ -429,7 +429,7 @@ export const Transferencias: React.FC = () => {
         <StatDistribution
           title="Estado de Transferencias"
           data={[
-            { label: 'Borrador', value: pipelineStages[0]?.count || 0, color: 'bg-gray-400' },
+            { label: 'Borrador', value: pipelineStages[0]?.count || 0, color: 'bg-slate-400' },
             { label: 'Preparando', value: pipelineStages[1]?.count || 0, color: 'bg-yellow-500' },
             { label: 'En Transito', value: pipelineStages[2]?.count || 0, color: 'bg-blue-500' },
             { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-green-500' },
@@ -439,7 +439,7 @@ export const Transferencias: React.FC = () => {
           title="Tipo de Transferencias"
           data={[
             { label: 'Internacional → Peru', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
-            { label: 'Interna Origen', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-gray-500' },
+            { label: 'Interna Origen', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-slate-500' },
           ]}
         />
       </div>
@@ -501,11 +501,11 @@ export const Transferencias: React.FC = () => {
       ) : transferenciasFiltradas.length === 0 ? (
         <Card padding="lg">
           <div className="text-center py-12">
-            <ArrowRightLeft className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <ArrowRightLeft className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
               No hay transferencias
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-slate-600 mb-6">
               {activeTab === 'en_transito'
                 ? 'No hay env00edos en tr00e1nsito'
                 : activeTab === 'pendientes'

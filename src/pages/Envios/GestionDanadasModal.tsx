@@ -166,7 +166,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
   if (incidenciasDanadas.length === 0) {
     return (
       <Modal isOpen onClose={onClose} title="Unidades con Incidencia" size="md">
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-slate-500">
           <CheckCircle className="h-12 w-12 mx-auto text-green-400 mb-3" />
           <p className="font-medium">No hay incidencias pendientes</p>
           <p className="text-sm mt-1">Todas las unidades dañadas ya fueron procesadas.</p>
@@ -215,19 +215,19 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
               <div
                 key={inc.id}
                 className={`border rounded-lg overflow-hidden transition-colors ${
-                  isDecided ? 'border-green-200 bg-green-50/30' : 'border-gray-200 bg-white'
+                  isDecided ? 'border-green-200 bg-green-50/30' : 'border-slate-200 bg-white'
                 }`}
               >
                 {/* Product info */}
-                <div className="p-3 bg-gray-50 border-b">
+                <div className="p-3 bg-slate-50 border-b">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Package className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                      <Package className="h-4 w-4 text-slate-400 flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="font-medium text-gray-900 text-sm truncate">
+                        <p className="font-medium text-slate-900 text-sm truncate">
                           {producto?.marca} — {producto?.nombreComercial || inc.productoNombre}
                         </p>
-                        <p className="text-xs text-gray-500">{inc.sku}</p>
+                        <p className="text-xs text-slate-500">{inc.sku}</p>
                       </div>
                     </div>
                     {inc.evidenciaURL && (
@@ -243,7 +243,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
                     )}
                   </div>
                   {inc.descripcion && (
-                    <p className="text-xs text-gray-600 mt-1 italic">"{inc.descripcion}"</p>
+                    <p className="text-xs text-slate-600 mt-1 italic">"{inc.descripcion}"</p>
                   )}
                 </div>
 
@@ -263,7 +263,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
                             className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer border transition-colors ${
                               isSelected
                                 ? `bg-${op.color}-50 border-${op.color}-200`
-                                : 'border-transparent hover:bg-gray-50'
+                                : 'border-transparent hover:bg-slate-50'
                             }`}
                           >
                             <input
@@ -275,11 +275,11 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
                               className="text-amber-600 focus:ring-amber-500"
                             />
                             <Icon className={`h-4 w-4 flex-shrink-0 ${
-                              isSelected ? `text-${op.color}-600` : 'text-gray-400'
+                              isSelected ? `text-${op.color}-600` : 'text-slate-400'
                             }`} />
                             <div>
-                              <span className="text-sm font-medium text-gray-900">{op.label}</span>
-                              <span className="block text-xs text-gray-500">{op.descripcion}</span>
+                              <span className="text-sm font-medium text-slate-900">{op.label}</span>
+                              <span className="block text-xs text-slate-500">{op.descripcion}</span>
                             </div>
                           </label>
                         );
@@ -290,13 +290,13 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
                   {/* Responsable (only if devolucion selected) */}
                   {decision?.disposicion === 'devolucion_proveedor' && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
                         Responsable del daño
                       </label>
                       <select
                         value={decision.responsable}
                         onChange={(e) => updateDecision(inc.id, 'responsable', e.target.value)}
-                        className="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400"
+                        className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400"
                       >
                         {OPCIONES_RESPONSABLE.map((r) => (
                           <option key={r.value} value={r.value}>{r.label}</option>
@@ -308,7 +308,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
                   {/* Motivo adicional */}
                   {decision?.disposicion && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
                         Motivo adicional (opcional)
                       </label>
                       <input
@@ -316,7 +316,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
                         value={decision.motivo}
                         onChange={(e) => updateDecision(inc.id, 'motivo', e.target.value)}
                         placeholder="Ej: Tapa rota durante el vuelo"
-                        className="w-full text-sm border border-gray-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400"
+                        className="w-full text-sm border border-slate-300 rounded-md px-2 py-1.5 focus:ring-2 focus:ring-amber-400"
                       />
                     </div>
                   )}
@@ -328,15 +328,15 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
 
         {/* Confirmation panel */}
         {showConfirmacion && todasResueltas && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3" role="alertdialog">
-            <p className="text-sm font-medium text-gray-900 mb-2">Vas a ejecutar las siguientes acciones:</p>
-            <ul className="space-y-1.5 text-xs text-gray-700">
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3" role="alertdialog">
+            <p className="text-sm font-medium text-slate-900 mb-2">Vas a ejecutar las siguientes acciones:</p>
+            <ul className="space-y-1.5 text-xs text-slate-700">
               {incidenciasDanadas.map((inc) => {
                 const decision = decisiones[inc.id];
                 const opcion = OPCIONES_DISPOSICION.find((o) => o.value === decision?.disposicion);
                 return (
                   <li key={inc.id} className="flex items-center gap-2">
-                    <span className="font-mono text-gray-500">{inc.sku}</span>
+                    <span className="font-mono text-slate-500">{inc.sku}</span>
                     <span>→</span>
                     <span className="font-medium">{opcion?.label}</span>
                   </li>

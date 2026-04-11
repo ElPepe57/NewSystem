@@ -28,8 +28,8 @@ const fmt = (v: number) => formatCurrencyPEN(v);
 const DualTooltip: React.FC<any> = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-gray-100 rounded-xl shadow-lg px-4 py-3">
-      <p className="text-xs font-semibold text-gray-600 mb-1">{label}</p>
+    <div className="bg-white border border-slate-100 rounded-xl shadow-lg px-4 py-3">
+      <p className="text-xs font-semibold text-slate-600 mb-1">{label}</p>
       {payload.map((p: any) => (
         <p key={p.dataKey} className="text-sm font-bold" style={{ color: p.color }}>
           {p.name}: {fmtC(p.value ?? 0)}
@@ -154,10 +154,10 @@ export const CashLiquidezSection: React.FC<CashLiquidezSectionProps> = ({
       </div>
 
       {/* Card 3: Tendencia 30d dual SUP/SKC — light */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp className="h-4 w-4 text-blue-500" />
-          <span className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+          <span className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
             {hayDualLinea ? 'Tendencia SUP vs SKC' : 'Ventas 30 dias'}
           </span>
         </div>
@@ -221,9 +221,9 @@ export const CashLiquidezSection: React.FC<CashLiquidezSectionProps> = ({
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-44 flex items-center justify-center text-gray-400">
+          <div className="h-44 flex items-center justify-center text-slate-400">
             <div className="text-center">
-              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-gray-200" />
+              <TrendingUp className="h-8 w-8 mx-auto mb-2 text-slate-200" />
               <p className="text-xs">
                 {lineaFiltroGlobal
                   ? 'Selecciona "Todas las lineas" para ver comparativa SUP vs SKC'

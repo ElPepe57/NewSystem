@@ -46,10 +46,10 @@ const TABS: { id: MLTabType; label: string; icon: React.FC<{ className?: string 
 ];
 
 const NoConnectionCard: React.FC<{ onConnect: () => void }> = ({ onConnect }) => (
-  <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-    <WifiOff className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-    <h2 className="text-xl font-semibold text-gray-700 mb-2">Mercado Libre no está conectado</h2>
-    <p className="text-gray-500 mb-6 max-w-md mx-auto">
+  <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+    <WifiOff className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+    <h2 className="text-xl font-semibold text-slate-700 mb-2">Mercado Libre no está conectado</h2>
+    <p className="text-slate-500 mb-6 max-w-md mx-auto">
       Conecta tu cuenta de Mercado Libre para sincronizar productos, recibir órdenes automáticamente y responder preguntas desde tu ERP.
     </p>
     <button
@@ -168,7 +168,7 @@ export const MercadoLibre: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <RefreshCw className="w-6 h-6 animate-spin text-amber-500" />
-        <span className="ml-2 text-gray-600">Cargando Mercado Libre...</span>
+        <span className="ml-2 text-slate-600">Cargando Mercado Libre...</span>
       </div>
     );
   }
@@ -218,7 +218,7 @@ export const MercadoLibre: React.FC = () => {
             <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
           )}
           <span className="text-sm font-medium">{oauthMessage.text}</span>
-          <button onClick={() => setOauthMessage(null)} className="ml-auto text-gray-400 hover:text-gray-600">
+          <button onClick={() => setOauthMessage(null)} className="ml-auto text-slate-400 hover:text-slate-600">
             <XCircle className="w-4 h-4" />
           </button>
         </div>
@@ -238,7 +238,7 @@ export const MercadoLibre: React.FC = () => {
       )}
 
       {/* Tabs — icon-only on mobile, icon+label on sm+ */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-slate-200">
         <nav className="flex justify-between sm:justify-start sm:space-x-6">
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -258,7 +258,7 @@ export const MercadoLibre: React.FC = () => {
                 className={`relative flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 py-2 sm:py-3 px-1 sm:px-1 border-b-2 text-xs sm:text-sm font-medium transition-colors flex-1 sm:flex-initial ${
                   isActive
                     ? 'border-amber-500 text-amber-600'
-                    : 'border-transparent text-gray-400 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-slate-400 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
                 <span className="relative">

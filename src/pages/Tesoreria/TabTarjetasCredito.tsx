@@ -78,7 +78,7 @@ export const TabTarjetasCredito: React.FC = () => {
     <div className="space-y-4">
       {/* Header con boton crear */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Tarjetas de Cr\u00e9dito</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Tarjetas de Cr\u00e9dito</h3>
         <Button size="sm" onClick={() => setShowForm(true)}>
           <Plus className="h-4 w-4 mr-1" /> Nueva Tarjeta
         </Button>
@@ -88,15 +88,15 @@ export const TabTarjetasCredito: React.FC = () => {
       {tarjetas.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Card className="p-3 text-center">
-            <div className="text-xs text-gray-500">Tarjetas activas</div>
-            <div className="text-2xl font-bold text-gray-900">{tarjetasActivas.length}</div>
+            <div className="text-xs text-slate-500">Tarjetas activas</div>
+            <div className="text-2xl font-bold text-slate-900">{tarjetasActivas.length}</div>
           </Card>
           <Card className="p-3 text-center">
-            <div className="text-xs text-gray-500">Saldo adeudado</div>
+            <div className="text-xs text-slate-500">Saldo adeudado</div>
             <div className="text-2xl font-bold text-red-600">${saldoTotalUSD.toFixed(2)}</div>
           </Card>
           <Card className="p-3 text-center">
-            <div className="text-xs text-gray-500">Disponible total</div>
+            <div className="text-xs text-slate-500">Disponible total</div>
             <div className="text-2xl font-bold text-green-600">
               ${tarjetasActivas.reduce((s, t) => s + t.disponibleUSD, 0).toFixed(2)}
             </div>
@@ -106,8 +106,8 @@ export const TabTarjetasCredito: React.FC = () => {
 
       {/* Lista o empty state */}
       {tarjetas.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <CreditCard className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-12 text-slate-500">
+          <CreditCard className="h-12 w-12 mx-auto mb-3 text-slate-300" />
           <p className="font-medium">Sin tarjetas registradas</p>
           <p className="text-sm mt-1">Agrega tu primera tarjeta para registrar compras como pasivos.</p>
         </div>
@@ -119,12 +119,12 @@ export const TabTarjetasCredito: React.FC = () => {
               <Card key={tarjeta.id} className="p-4 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(tarjeta)}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <CreditCard className="h-5 w-5 text-gray-600" />
+                    <div className="p-2 bg-slate-100 rounded-lg">
+                      <CreditCard className="h-5 w-5 text-slate-600" />
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900">{tarjeta.nombre}</div>
-                      <div className="text-xs text-gray-500">{tarjeta.banco} &middot; ****{tarjeta.ultimosDigitos}</div>
+                      <div className="font-medium text-slate-900">{tarjeta.nombre}</div>
+                      <div className="text-xs text-slate-500">{tarjeta.banco} &middot; ****{tarjeta.ultimosDigitos}</div>
                     </div>
                   </div>
                   <Badge variant={tarjeta.activa ? 'success' : 'secondary'} className="text-xs">
@@ -132,21 +132,21 @@ export const TabTarjetasCredito: React.FC = () => {
                   </Badge>
                 </div>
                 <div className="mt-3">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <div className="flex justify-between text-xs text-slate-500 mb-1">
                     <span>Usado: ${tarjeta.saldoActualUSD.toFixed(2)}</span>
                     <span>L\u00edmite: ${tarjeta.limiteUSD.toFixed(2)}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full transition-all ${uso > 80 ? 'bg-red-500' : uso > 50 ? 'bg-amber-500' : 'bg-green-500'}`}
                       style={{ width: `${Math.min(uso, 100)}%` }}
                     />
                   </div>
-                  <div className="text-xs text-gray-400 mt-1 text-right">
+                  <div className="text-xs text-slate-400 mt-1 text-right">
                     Disponible: ${tarjeta.disponibleUSD.toFixed(2)}
                   </div>
                 </div>
-                <div className="mt-2 flex gap-4 text-xs text-gray-400">
+                <div className="mt-2 flex gap-4 text-xs text-slate-400">
                   <span>Corte: d\u00eda {tarjeta.diaCorte}</span>
                   <span>Pago: d\u00eda {tarjeta.diaPago}</span>
                 </div>

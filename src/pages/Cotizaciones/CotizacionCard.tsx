@@ -76,7 +76,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
             <FileText className="h-6 w-6 text-primary-600" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-slate-900">
               {cotizacion.numeroVenta}
             </h2>
             <div className="flex items-center gap-2 mt-1">
@@ -93,7 +93,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
           <div className="text-2xl font-bold text-primary-600">
             {formatCurrency(cotizacion.totalPEN)}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-slate-500">
             {cotizacion.productos.length} producto(s)
           </div>
         </div>
@@ -129,19 +129,19 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
       {/* Información del Cliente */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
             Datos del Cliente
           </h3>
 
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <User className="h-5 w-5 text-gray-400" />
+              <User className="h-5 w-5 text-slate-400" />
               <div>
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-slate-900">
                   {cotizacion.nombreCliente}
                 </div>
                 {cotizacion.dniRuc && (
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-slate-500">
                     DNI/RUC: {cotizacion.dniRuc}
                   </div>
                 )}
@@ -150,7 +150,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
 
             {cotizacion.telefonoCliente && (
               <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-gray-400" />
+                <Phone className="h-5 w-5 text-slate-400" />
                 <a
                   href={`tel:${cotizacion.telefonoCliente}`}
                   className="text-sm text-primary-600 hover:underline"
@@ -162,7 +162,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
 
             {cotizacion.emailCliente && (
               <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-slate-400" />
                 <a
                   href={`mailto:${cotizacion.emailCliente}`}
                   className="text-sm text-primary-600 hover:underline"
@@ -174,8 +174,8 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
 
             {cotizacion.direccionEntrega && (
               <div className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                <div className="text-sm text-gray-700">
+                <MapPin className="h-5 w-5 text-slate-400 mt-0.5" />
+                <div className="text-sm text-slate-700">
                   {cotizacion.direccionEntrega}
                 </div>
               </div>
@@ -184,29 +184,29 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
             Información
           </h3>
 
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-gray-400" />
+              <Calendar className="h-5 w-5 text-slate-400" />
               <div>
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-slate-900">
                   Fecha de Creación
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-slate-500">
                   {formatFecha(cotizacion.fechaCreacion)}
                 </div>
               </div>
             </div>
 
             {cotizacion.observaciones && (
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="text-xs font-medium text-gray-500 mb-1">
+              <div className="p-3 bg-slate-50 rounded-lg">
+                <div className="text-xs font-medium text-slate-500 mb-1">
                   Observaciones
                 </div>
-                <div className="text-sm text-gray-700">
+                <div className="text-sm text-slate-700">
                   {cotizacion.observaciones}
                 </div>
               </div>
@@ -217,39 +217,39 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
 
       {/* Productos */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
           Productos Cotizados
         </h3>
 
         <div className="border rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
+                <th className="px-4 py-2 text-left text-xs font-medium text-slate-500">
                   Producto
                 </th>
-                <th className="px-4 py-2 text-center text-xs font-medium text-gray-500">
+                <th className="px-4 py-2 text-center text-xs font-medium text-slate-500">
                   Cantidad
                 </th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">
                   Precio Unit.
                 </th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">
                   Subtotal
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-200">
               {cotizacion.productos.map((producto, index) => (
                 <tr key={index}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-gray-400" />
+                      <Package className="h-4 w-4 text-slate-400" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-slate-900">
                           {producto.sku}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-slate-500">
                           {producto.marca} - {producto.nombreComercial}
                         </div>
                       </div>
@@ -274,12 +274,12 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
         <div className="flex justify-end">
           <div className="w-64 space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Subtotal:</span>
+              <span className="text-slate-600">Subtotal:</span>
               <span>{formatCurrency(cotizacion.subtotalPEN)}</span>
             </div>
             {cotizacion.descuento && cotizacion.descuento > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Descuento:</span>
+                <span className="text-slate-600">Descuento:</span>
                 <span className="text-danger-600">
                   -{formatCurrency(cotizacion.descuento)}
                 </span>
@@ -287,13 +287,13 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
             )}
             {!cotizacion.incluyeEnvio && cotizacion.costoEnvio && cotizacion.costoEnvio > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Envío:</span>
+                <span className="text-slate-600">Envío:</span>
                 <span>{formatCurrency(cotizacion.costoEnvio)}</span>
               </div>
             )}
             {cotizacion.incluyeEnvio && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Envío:</span>
+                <span className="text-slate-600">Envío:</span>
                 <span className="text-success-600">Gratis</span>
               </div>
             )}

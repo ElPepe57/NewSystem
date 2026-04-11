@@ -88,11 +88,11 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
         {/* Header con contexto */}
         <div className="flex items-start justify-between border-b pb-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 flex items-center">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center">
               <ClipboardList className="h-6 w-6 mr-2 text-primary-600" />
               Nuevo Requerimiento de Compra
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-slate-500 mt-1">
               {tcDelDia && `TC del dia: S/ ${tcDelDia.venta.toFixed(3)}`}
             </p>
           </div>
@@ -106,8 +106,8 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                   formData.prioridad === p
                     ? p === 'alta' ? 'bg-red-500 text-white shadow-md'
                     : p === 'media' ? 'bg-yellow-500 text-white shadow-md'
-                    : 'bg-gray-500 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-slate-500 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 {p === 'alta' && <AlertTriangle className="h-3 w-3 inline mr-1" />}
@@ -119,7 +119,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
 
         {/* Solicitante - Cards visuales */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Quien solicita este requerimiento?</label>
+          <label className="block text-sm font-medium text-slate-700 mb-3">Quien solicita este requerimiento?</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
             {[
               { id: 'administracion', label: 'Administracion', sublabel: 'Mantener stock', icon: <Building2 className="h-5 w-5" />, color: 'gray' },
@@ -139,14 +139,14 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   formData.tipoSolicitante === tipo.id
                     ? `border-${tipo.color}-500 bg-${tipo.color}-50 shadow-md`
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
-                <div className={`${formData.tipoSolicitante === tipo.id ? `text-${tipo.color}-600` : 'text-gray-400'}`}>
+                <div className={`${formData.tipoSolicitante === tipo.id ? `text-${tipo.color}-600` : 'text-slate-400'}`}>
                   {tipo.icon}
                 </div>
-                <div className="mt-2 font-medium text-gray-900">{tipo.label}</div>
-                <div className="text-xs text-gray-500">{tipo.sublabel}</div>
+                <div className="mt-2 font-medium text-slate-900">{tipo.label}</div>
+                <div className="text-xs text-slate-500">{tipo.sublabel}</div>
               </button>
             ))}
           </div>
@@ -183,9 +183,9 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
         </div>
 
         {/* Buscador de productos inteligente */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border">
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-5 border">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-gray-900 flex items-center">
+            <h4 className="font-semibold text-slate-900 flex items-center">
               <Package className="h-5 w-5 mr-2 text-primary-600" />
               Agregar Productos
             </h4>
@@ -229,15 +229,15 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                         <span className="text-xs font-medium text-primary-600 bg-primary-100 px-2 py-0.5 rounded">
                           {selectedProd.sku}
                         </span>
-                        <h5 className="font-semibold text-gray-900 mt-1">
+                        <h5 className="font-semibold text-slate-900 mt-1">
                           {selectedProd.marca} {selectedProd.nombreComercial}
                         </h5>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-slate-500">
                           {getDescripcionProducto(selectedProd)}
                         </p>
                       </div>
                       <div className="text-right">
-                        <div className="text-xs text-gray-500">Stock actual</div>
+                        <div className="text-xs text-slate-500">Stock actual</div>
                         <div className={`text-lg font-bold ${(selectedProd.stockDisponible || 0) <= (selectedProd.stockMinimo || 5) ? 'text-red-600' : 'text-green-600'}`}>
                           {selectedProd.stockDisponible || 0}
                         </div>
@@ -256,7 +256,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
               ) : infoProductoSeleccionado && infoProductoSeleccionado.historial.length > 0 ? (
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-gray-700 flex items-center">
+                    <span className="text-sm font-medium text-slate-700 flex items-center">
                       <TrendingUp className="h-4 w-4 mr-1 text-green-500" />
                       Analisis de Mercado
                     </span>
@@ -271,9 +271,9 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
 
                   {/* Metricas de precio */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                    <div className="bg-gray-50 rounded-lg p-2 text-center">
-                      <div className="text-xs text-gray-500">Ultimo</div>
-                      <div className="font-bold text-gray-900">${infoProductoSeleccionado.ultimoPrecioUSD.toFixed(2)}</div>
+                    <div className="bg-slate-50 rounded-lg p-2 text-center">
+                      <div className="text-xs text-slate-500">Ultimo</div>
+                      <div className="font-bold text-slate-900">${infoProductoSeleccionado.ultimoPrecioUSD.toFixed(2)}</div>
                     </div>
                     <div className="bg-green-50 rounded-lg p-2 text-center">
                       <div className="text-xs text-green-600">Minimo</div>
@@ -314,13 +314,13 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                   {/* Historial expandido */}
                   {showHistorial === productoTemp.productoId && (
                     <div className="mt-3 pt-3 border-t">
-                      <div className="text-xs font-medium text-gray-500 mb-2">Historial de compras</div>
+                      <div className="text-xs font-medium text-slate-500 mb-2">Historial de compras</div>
                       <div className="space-y-2 max-h-32 overflow-y-auto">
                         {infoProductoSeleccionado.historial.map((h, idx) => (
-                          <div key={idx} className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
-                            <span className="text-gray-700">{h.proveedorNombre}</span>
-                            <span className="font-medium text-gray-900">${h.costoUnitarioUSD.toFixed(2)}</span>
-                            <span className="text-gray-500 text-xs">{h.fechaCompra.toLocaleDateString('es-PE')}</span>
+                          <div key={idx} className="flex items-center justify-between text-sm bg-slate-50 rounded-lg px-3 py-2">
+                            <span className="text-slate-700">{h.proveedorNombre}</span>
+                            <span className="font-medium text-slate-900">${h.costoUnitarioUSD.toFixed(2)}</span>
+                            <span className="text-slate-500 text-xs">{h.fechaCompra.toLocaleDateString('es-PE')}</span>
                           </div>
                         ))}
                       </div>
@@ -337,44 +337,44 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
               ) : null}
 
               {/* Campos de entrada */}
-              <div className="p-4 border-t bg-gray-50">
+              <div className="p-4 border-t bg-slate-50">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Cantidad</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Cantidad</label>
                     <input
                       type="number"
                       min="1"
                       value={productoTemp.cantidadSolicitada}
                       onChange={(e) => onProductoTempChange({ ...productoTemp, cantidadSolicitada: parseInt(e.target.value) || 1 })}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0 text-center font-semibold"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0 text-center font-semibold"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
                       Precio USD
                       {infoProductoSeleccionado?.proveedorRecomendado && (
                         <span className="text-green-600 ml-1">(sugerido)</span>
                       )}
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
                       <input
                         type="number"
                         step="0.01"
                         value={productoTemp.precioEstimadoUSD || ''}
                         onChange={(e) => onProductoTempChange({ ...productoTemp, precioEstimadoUSD: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0"
+                        className="w-full pl-7 pr-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0"
                         placeholder="0.00"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Proveedor</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Proveedor</label>
                     <input
                       type="text"
                       value={productoTemp.proveedorSugerido}
                       onChange={(e) => onProductoTempChange({ ...productoTemp, proveedorSugerido: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0"
                       placeholder="Amazon, iHerb..."
                     />
                   </div>
@@ -393,12 +393,12 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
 
                 {/* URL opcional */}
                 <div className="mt-3">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">URL de referencia (opcional)</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">URL de referencia (opcional)</label>
                   <input
                     type="text"
                     value={productoTemp.urlReferencia}
                     onChange={(e) => onProductoTempChange({ ...productoTemp, urlReferencia: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-0 text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-primary-500 focus:ring-0 text-sm"
                     placeholder="https://www.amazon.com/..."
                   />
                 </div>
@@ -411,15 +411,15 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
         {formData.productos && formData.productos.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-gray-900">
+              <h4 className="font-semibold text-slate-900">
                 Productos en este requerimiento
               </h4>
-              <div className="text-sm text-gray-500">
-                Total estimado: <span className="font-bold text-gray-900">
+              <div className="text-sm text-slate-500">
+                Total estimado: <span className="font-bold text-slate-900">
                   ${formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0).toFixed(2)}
                 </span>
                 {tcDelDia && (
-                  <span className="text-gray-400 ml-2">
+                  <span className="text-slate-400 ml-2">
                     (S/ {(formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0) * tcDelDia.venta).toFixed(2)})
                   </span>
                 )}
@@ -437,13 +437,13 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                         {prod.cantidadSolicitada}
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-slate-900">
                           {producto?.marca} {producto?.nombreComercial}
                         </div>
                         {detailStr && (
-                          <div className="text-xs text-gray-400">{detailStr}</div>
+                          <div className="text-xs text-slate-400">{detailStr}</div>
                         )}
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-slate-500">
                           {producto?.sku}
                           {prod.proveedorSugerido && ` • ${prod.proveedorSugerido}`}
                         </div>
@@ -451,9 +451,9 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <div className="font-semibold text-gray-900">${subtotal.toFixed(2)}</div>
+                        <div className="font-semibold text-slate-900">${subtotal.toFixed(2)}</div>
                         {prod.precioEstimadoUSD && (
-                          <div className="text-xs text-gray-500">${prod.precioEstimadoUSD} c/u</div>
+                          <div className="text-xs text-slate-500">${prod.precioEstimadoUSD} c/u</div>
                         )}
                       </div>
                       <button
@@ -472,26 +472,26 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
 
         {/* Justificacion */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Justificacion
-            <span className="text-gray-400 font-normal ml-1">(opcional)</span>
+            <span className="text-slate-400 font-normal ml-1">(opcional)</span>
           </label>
           <textarea
             value={formData.justificacion || ''}
             onChange={(e) => onFormDataChange({ ...formData, justificacion: e.target.value })}
             rows={2}
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary-500 focus:ring-0 resize-none"
+            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-primary-500 focus:ring-0 resize-none"
             placeholder="Ej: Reponer stock agotado, cliente urgente, precio especial encontrado..."
           />
         </div>
 
         {/* Footer con acciones y resumen */}
-        <div className="flex items-center justify-between pt-4 border-t bg-gray-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
-          <div className="text-sm text-gray-500">
+        <div className="flex items-center justify-between pt-4 border-t bg-slate-50 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
+          <div className="text-sm text-slate-500">
             {formData.productos && formData.productos.length > 0 ? (
               <span>
-                <strong className="text-gray-900">{formData.productos.length}</strong> producto(s) •
-                <strong className="text-gray-900 ml-1">
+                <strong className="text-slate-900">{formData.productos.length}</strong> producto(s) •
+                <strong className="text-slate-900 ml-1">
                   ${formData.productos.reduce((sum, p) => sum + (p.precioEstimadoUSD || 0) * p.cantidadSolicitada, 0).toFixed(2)} USD
                 </strong>
               </span>

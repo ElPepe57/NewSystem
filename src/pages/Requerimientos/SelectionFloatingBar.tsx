@@ -17,7 +17,7 @@ export const SelectionFloatingBar: React.FC<SelectionFloatingBarProps> = ({
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white shadow-xl border border-primary-200 rounded-xl px-6 py-3 flex items-center gap-4">
-      <div className="text-sm text-gray-700">
+      <div className="text-sm text-slate-700">
         <span className="font-semibold text-primary-600">{selectedCount}</span> requerimiento(s) seleccionado(s)
       </div>
       <Button

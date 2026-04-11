@@ -781,7 +781,7 @@ export const Productos: React.FC = () => {
           {/* Chips de filtros activos — siempre visible cuando hay filtros */}
           {(filters.estado || filters.marca || filters.tipoProductoId || filters.categoriaId || filters.etiquetaId || filters.stockStatus || filters.investigacion || filters.grupo) && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs sm:text-sm text-gray-500 flex-shrink-0">
+              <span className="text-xs sm:text-sm text-slate-500 flex-shrink-0">
                 <strong>{sortedProductos.length}</strong> de <strong>{productosArray.length}</strong> productos
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -813,7 +813,7 @@ export const Productos: React.FC = () => {
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="text-[10px] sm:text-xs text-gray-400 hover:text-red-500 ml-auto flex-shrink-0"
+                className="text-[10px] sm:text-xs text-slate-400 hover:text-red-500 ml-auto flex-shrink-0"
               >
                 Limpiar todos
               </button>
@@ -822,9 +822,9 @@ export const Productos: React.FC = () => {
 
           {/* Panel de filtros */}
           {showFilters && (
-            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+            <div className="bg-slate-50 p-4 rounded-lg space-y-3">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-900">Filtros</h3>
+                <h3 className="font-semibold text-slate-900">Filtros</h3>
                 <button
                   onClick={handleClearFilters}
                   className="text-sm text-primary-600 hover:text-primary-800 flex items-center"
@@ -837,7 +837,7 @@ export const Productos: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {/* Filtro por Estado */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Estado
                   </label>
                   <select
@@ -850,7 +850,7 @@ export const Productos: React.FC = () => {
                       const necesitaInactivos = nuevoEstado === '' || nuevoEstado === 'inactivo' || nuevoEstado === 'descontinuado';
                       fetchProductos(necesitaInactivos);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todos</option>
                     <option value="activo">Activo</option>
@@ -861,7 +861,7 @@ export const Productos: React.FC = () => {
 
                 {/* Filtro por Grupo */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Grupo
                   </label>
                   <select
@@ -870,7 +870,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, grupo: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todos</option>
                     {uniqueGrupos.map(grupo => (
@@ -881,7 +881,7 @@ export const Productos: React.FC = () => {
 
                 {/* Filtro por Marca */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Marca
                   </label>
                   <select
@@ -890,7 +890,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, marca: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todas</option>
                     {uniqueMarcas.map(marca => (
@@ -901,7 +901,7 @@ export const Productos: React.FC = () => {
 
                 {/* Filtro por Stock */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Stock
                   </label>
                   <select
@@ -910,7 +910,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, stockStatus: e.target.value as any });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todos</option>
                     <option value="critico">Stock Crítico</option>
@@ -921,7 +921,7 @@ export const Productos: React.FC = () => {
 
                 {/* Filtro por Investigación */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Investigación
                   </label>
                   <select
@@ -930,7 +930,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, investigacion: e.target.value as any });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todas</option>
                     <option value="sin_investigar">Sin investigar</option>
@@ -943,10 +943,10 @@ export const Productos: React.FC = () => {
               </div>
 
               {/* Segunda fila de filtros - Clasificación */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-200">
                 {/* Filtro por Tipo de Producto */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Tipo de Producto
                   </label>
                   <select
@@ -955,7 +955,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, tipoProductoId: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todos los tipos</option>
                     {tiposActivos.map(tipo => (
@@ -966,7 +966,7 @@ export const Productos: React.FC = () => {
 
                 {/* Filtro por Categoría */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Categoría
                   </label>
                   <select
@@ -975,7 +975,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, categoriaId: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todas las categorías</option>
                     {categoriasActivas.map(cat => (
@@ -989,7 +989,7 @@ export const Productos: React.FC = () => {
 
                 {/* Filtro por Etiqueta */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
                     Etiqueta
                   </label>
                   <select
@@ -998,7 +998,7 @@ export const Productos: React.FC = () => {
                       setFilters({ ...filters, etiquetaId: e.target.value });
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
                     <option value="">Todas las etiquetas</option>
                     {etiquetasActivas.map(etq => (
@@ -1009,7 +1009,7 @@ export const Productos: React.FC = () => {
               </div>
 
               {/* Resultados */}
-              <div className="text-sm text-gray-600 pt-2 border-t">
+              <div className="text-sm text-slate-600 pt-2 border-t">
                 Mostrando {paginatedProductos.length} de {sortedProductos.length} productos
                 {sortedProductos.length !== productosArray.length && ` (${productosArray.length} total)`}
               </div>
@@ -1025,7 +1025,7 @@ export const Productos: React.FC = () => {
           </div>
         ) : paginatedProductos.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">
+            <p className="text-slate-500">
               {searchTerm || Object.values(filters).some(Boolean)
                 ? 'No se encontraron productos con los filtros aplicados'
                 : 'No hay productos registrados'}
@@ -1053,7 +1053,7 @@ export const Productos: React.FC = () => {
             {/* Paginación */}
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-between border-t pt-4">
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-slate-600">
                   Página {currentPage} de {totalPages}
                 </div>
                 <div className="flex gap-2">
@@ -1087,7 +1087,7 @@ export const Productos: React.FC = () => {
                           className={`px-3 py-1 rounded text-sm ${
                             currentPage === pageNumber
                               ? 'bg-primary-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                           }`}
                         >
                           {pageNumber}

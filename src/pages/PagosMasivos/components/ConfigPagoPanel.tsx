@@ -124,14 +124,14 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
 
   return (
     <div className="bg-white border rounded-lg p-4 space-y-4 sticky top-4">
-      <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+      <h3 className="font-semibold text-slate-900 flex items-center gap-2">
         <Wallet size={18} />
         Configuracion del pago
       </h3>
 
       {/* Fecha */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Fecha de pago</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Fecha de pago</label>
         <input
           type="date"
           value={fechaPago}
@@ -142,7 +142,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
 
       {/* Moneda */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Moneda de pago</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Moneda de pago</label>
         <div className="flex gap-2">
           {(['PEN', 'USD'] as const).map((m) => (
             <button
@@ -152,7 +152,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
               className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
                 monedaPago === m
                   ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
               }`}
             >
               {m === 'PEN' ? 'S/ Soles' : '$ Dolares'}
@@ -163,7 +163,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
 
       {/* Tipo de cambio */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de cambio</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Tipo de cambio</label>
         <input
           type="number"
           value={tipoCambio}
@@ -176,7 +176,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
 
       {/* Cuenta */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Cuenta</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Cuenta</label>
         <select
           value={cuentaId}
           onChange={(e) => setCuentaId(e.target.value)}
@@ -190,7 +190,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
           ))}
         </select>
         {cuentaSeleccionada && (
-          <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+          <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
             {getIconoCuenta(cuentaSeleccionada.tipo)}
             <span>{cuentaSeleccionada.tipo} — {cuentaSeleccionada.banco || 'Sin banco'}</span>
           </div>
@@ -199,7 +199,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
 
       {/* Metodo */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Metodo de pago</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Metodo de pago</label>
         <select
           value={metodoPago}
           onChange={(e) => setMetodoPago(e.target.value as MetodoPagoUnificado)}
@@ -214,7 +214,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
       {/* Referencia */}
       {metodoInfo?.requiereReferencia && (
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Referencia / Nro. operacion</label>
+          <label className="block text-xs font-medium text-slate-600 mb-1">Referencia / Nro. operacion</label>
           <input
             type="text"
             value={referencia}
@@ -227,7 +227,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
 
       {/* Notas */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Notas (opcional)</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1">Notas (opcional)</label>
         <textarea
           value={notas}
           onChange={(e) => setNotas(e.target.value)}
@@ -240,18 +240,18 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
       {/* Resumen */}
       <div className="border-t pt-3 space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Documentos:</span>
+          <span className="text-slate-600">Documentos:</span>
           <span className="font-semibold">{totalSeleccionado.count}</span>
         </div>
         {totalSeleccionado.pen > 0 && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Total PEN:</span>
+            <span className="text-slate-600">Total PEN:</span>
             <span className="font-semibold font-mono">{formatCurrency(totalSeleccionado.pen, 'PEN')}</span>
           </div>
         )}
         {totalSeleccionado.usd > 0 && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Total USD:</span>
+            <span className="text-slate-600">Total USD:</span>
             <span className="font-semibold font-mono">{formatCurrency(totalSeleccionado.usd, 'USD')}</span>
           </div>
         )}
@@ -268,7 +268,7 @@ export const ConfigPagoPanel: React.FC<ConfigPagoPanelProps> = ({ onProcesar, lo
       </Button>
 
       {seleccionados.size === 0 && (
-        <p className="text-xs text-gray-400 flex items-center gap-1">
+        <p className="text-xs text-slate-400 flex items-center gap-1">
           <AlertCircle size={12} /> Selecciona documentos de la tabla
         </p>
       )}

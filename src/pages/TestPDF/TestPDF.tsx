@@ -75,10 +75,10 @@ export const TestPDF: React.FC = () => {
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      <h1 className="text-2xl font-bold text-slate-900 mb-2">
         Test - Guia Transportista PDF
       </h1>
-      <p className="text-gray-500 mb-8">
+      <p className="text-slate-500 mb-8">
         Genera PDFs de muestra para revisar el formato de la guia de transportista.
       </p>
 
@@ -116,8 +116,8 @@ export const TestPDF: React.FC = () => {
         </button>
       </div>
 
-      <div className="mt-8 p-4 bg-gray-50 rounded-lg text-sm text-gray-500">
-        <p className="font-medium text-gray-700 mb-2">Datos de muestra:</p>
+      <div className="mt-8 p-4 bg-slate-50 rounded-lg text-sm text-slate-500">
+        <p className="font-medium text-slate-700 mb-2">Datos de muestra:</p>
         <ul className="list-disc list-inside space-y-1">
           <li><strong>Cobro Pendiente:</strong> Ruth Cavero - Piura - S/ 65.00 por cobrar (Yape)</li>
           <li><strong>Pagado:</strong> Carlos Martinez - Lince, Lima - Sin cobro</li>

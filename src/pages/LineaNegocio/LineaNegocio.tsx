@@ -144,34 +144,34 @@ export const LineaNegocio: React.FC = () => {
           <div className="animate-spin h-8 w-8 border-4 border-primary-500 border-t-transparent rounded-full" />
         </div>
       ) : lineas.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <Layers className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-4">No hay lineas de negocio registradas</p>
+        <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
+          <Layers className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+          <p className="text-slate-500 mb-4">No hay lineas de negocio registradas</p>
           <Button onClick={handleNew} variant="primary" size="sm">
             <Plus className="h-4 w-4 mr-1" />
             Crear primera linea
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           {/* Desktop table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Color</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Codigo</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Descripcion</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase">Estado</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase">Productos</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase">Unidades</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Color</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Codigo</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Nombre</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Descripcion</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Estado</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Productos</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Unidades</th>
+                  <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {lineas.map((linea) => (
-                  <tr key={linea.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={linea.id} className="hover:bg-slate-50 transition-colors">
                     {/* Color swatch + icon */}
                     <td className="px-4 py-3">
                       <div
@@ -191,9 +191,9 @@ export const LineaNegocio: React.FC = () => {
                       </span>
                     </td>
                     {/* Nombre */}
-                    <td className="px-4 py-3 font-medium text-gray-900">{linea.nombre}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{linea.nombre}</td>
                     {/* Descripcion */}
-                    <td className="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">
+                    <td className="px-4 py-3 text-sm text-slate-500 max-w-xs truncate">
                       {linea.descripcion || '-'}
                     </td>
                     {/* Estado */}
@@ -204,18 +204,18 @@ export const LineaNegocio: React.FC = () => {
                           Activa
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
                           <XCircle className="h-3 w-3" />
                           Inactiva
                         </span>
                       )}
                     </td>
                     {/* Productos */}
-                    <td className="px-4 py-3 text-center text-sm text-gray-700">
+                    <td className="px-4 py-3 text-center text-sm text-slate-700">
                       {linea.totalProductos ?? 0}
                     </td>
                     {/* Unidades */}
-                    <td className="px-4 py-3 text-center text-sm text-gray-700">
+                    <td className="px-4 py-3 text-center text-sm text-slate-700">
                       {linea.totalUnidadesActivas ?? 0}
                     </td>
                     {/* Acciones */}
@@ -226,7 +226,7 @@ export const LineaNegocio: React.FC = () => {
                           className={`p-1.5 rounded-lg transition-colors ${
                             linea.activa
                               ? 'text-green-600 hover:bg-green-50'
-                              : 'text-gray-400 hover:bg-gray-100'
+                              : 'text-slate-400 hover:bg-slate-100'
                           }`}
                           title={linea.activa ? 'Desactivar' : 'Activar'}
                         >
@@ -238,7 +238,7 @@ export const LineaNegocio: React.FC = () => {
                         </button>
                         <button
                           onClick={() => handleEdit(linea)}
-                          className="p-1.5 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                           title="Editar"
                         >
                           <Pencil className="h-4 w-4" />
@@ -252,7 +252,7 @@ export const LineaNegocio: React.FC = () => {
           </div>
 
           {/* Mobile cards */}
-          <div className="md:hidden divide-y divide-gray-100">
+          <div className="md:hidden divide-y divide-slate-100">
             {lineas.map((linea) => (
               <div key={linea.id} className="p-4 flex items-center gap-3">
                 <div
@@ -263,7 +263,7 @@ export const LineaNegocio: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-gray-900 truncate">{linea.nombre}</p>
+                    <p className="font-medium text-slate-900 truncate">{linea.nombre}</p>
                     <span
                       className="inline-block px-1.5 py-0.5 rounded text-xs font-bold text-white flex-shrink-0"
                       style={{ backgroundColor: linea.color }}
@@ -271,11 +271,11 @@ export const LineaNegocio: React.FC = () => {
                       {linea.codigo}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500">
                     {linea.activa ? (
                       <span className="text-green-600">Activa</span>
                     ) : (
-                      <span className="text-gray-400">Inactiva</span>
+                      <span className="text-slate-400">Inactiva</span>
                     )}
                     <span>{linea.totalProductos ?? 0} productos</span>
                     <span>{linea.totalUnidadesActivas ?? 0} uds</span>
@@ -287,7 +287,7 @@ export const LineaNegocio: React.FC = () => {
                     className={`p-2 rounded-lg ${
                       linea.activa
                         ? 'text-green-600 hover:bg-green-50'
-                        : 'text-gray-400 hover:bg-gray-100'
+                        : 'text-slate-400 hover:bg-slate-100'
                     }`}
                   >
                     {linea.activa ? (
@@ -298,7 +298,7 @@ export const LineaNegocio: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleEdit(linea)}
-                    className="p-2 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50"
+                    className="p-2 rounded-lg text-slate-500 hover:text-primary-600 hover:bg-primary-50"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>

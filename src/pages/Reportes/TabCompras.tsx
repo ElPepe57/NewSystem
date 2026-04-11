@@ -118,17 +118,17 @@ export const TabCompras: React.FC = () => {
 
       {/* Tabla por proveedor */}
       <div className="bg-white rounded-xl border overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b">
-          <h3 className="font-semibold text-gray-900">Rendimiento por Proveedor</h3>
+        <div className="px-4 py-3 bg-slate-50 border-b">
+          <h3 className="font-semibold text-slate-900">Rendimiento por Proveedor</h3>
         </div>
 
         {proveedores.length === 0 ? (
-          <p className="text-center text-gray-400 py-10">No hay ordenes de compra</p>
+          <p className="text-center text-slate-400 py-10">No hay ordenes de compra</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-gray-500 border-b bg-gray-50">
+                <tr className="text-xs text-slate-500 border-b bg-slate-50">
                   <th className="text-left py-2 px-4">Proveedor</th>
                   <th className="text-center py-2 px-3">OC</th>
                   <th className="text-right py-2 px-3">Inversion (USD)</th>
@@ -139,10 +139,10 @@ export const TabCompras: React.FC = () => {
               </thead>
               <tbody className="divide-y">
                 {proveedores.map(p => (
-                  <tr key={p.nombre} className="hover:bg-gray-50">
-                    <td className="py-2.5 px-4 font-medium text-gray-900">{p.nombre}</td>
-                    <td className="py-2.5 px-3 text-center text-gray-600">{p.ordenes}</td>
-                    <td className="py-2.5 px-3 text-right text-gray-700">${p.totalUSD.toFixed(0)}</td>
+                  <tr key={p.nombre} className="hover:bg-slate-50">
+                    <td className="py-2.5 px-4 font-medium text-slate-900">{p.nombre}</td>
+                    <td className="py-2.5 px-3 text-center text-slate-600">{p.ordenes}</td>
+                    <td className="py-2.5 px-3 text-right text-slate-700">${p.totalUSD.toFixed(0)}</td>
                     <td className="py-2.5 px-3 text-center">
                       <span className="text-green-600 font-medium">{p.recibidas}</span>
                     </td>
@@ -150,7 +150,7 @@ export const TabCompras: React.FC = () => {
                       {p.pendientes > 0 ? (
                         <span className="text-amber-600 font-medium">{p.pendientes}</span>
                       ) : (
-                        <span className="text-gray-400">0</span>
+                        <span className="text-slate-400">0</span>
                       )}
                     </td>
                     <td className="py-2.5 px-3 text-center">

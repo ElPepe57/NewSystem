@@ -262,19 +262,19 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
       {/* Progress Steps */}
       <div className="flex items-center justify-center mb-6">
         <div className="flex items-center">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'}`}>1</div>
-          <div className={`w-24 h-1 mx-2 ${step >= 2 ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'}`}>2</div>
-          <div className={`w-24 h-1 mx-2 ${step >= 3 ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 3 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'}`}>3</div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600'}`}>1</div>
+          <div className={`w-24 h-1 mx-2 ${step >= 2 ? 'bg-primary-600' : 'bg-slate-200'}`}></div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600'}`}>2</div>
+          <div className={`w-24 h-1 mx-2 ${step >= 3 ? 'bg-primary-600' : 'bg-slate-200'}`}></div>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= 3 ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600'}`}>3</div>
         </div>
       </div>
 
       {/* Step 1: Configuracion basica */}
       {step === 1 && (
         <div className="space-y-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="bg-slate-50 p-4 rounded-lg">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               Tipo de Transferencia
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -284,7 +284,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                 className={`p-4 rounded-lg border-2 text-center transition-all ${
                   esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                    : 'border-slate-200 hover:border-slate-300 text-slate-600'
                 }`}
               >
                 <Plane className="h-8 w-8 mx-auto mb-2" />
@@ -297,7 +297,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                 className={`p-4 rounded-lg border-2 text-center transition-all ${
                   esTipoTransferenciaInterna(formData.tipo as TipoTransferencia)
                     ? 'border-purple-500 bg-purple-50 text-purple-700'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                    : 'border-slate-200 hover:border-slate-300 text-slate-600'
                 }`}
               >
                 <ArrowRightLeft className="h-8 w-8 mx-auto mb-2" />
@@ -440,8 +440,8 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
             {showScanner && (
               <div className="mt-3 p-3 bg-white border border-primary-200 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-gray-700">Escanear producto</span>
-                  <button type="button" onClick={() => setShowScanner(false)} className="text-gray-400 hover:text-gray-600">
+                  <span className="text-xs font-medium text-slate-700">Escanear producto</span>
+                  <button type="button" onClick={() => setShowScanner(false)} className="text-slate-400 hover:text-slate-600">
                     <XIcon className="h-4 w-4" />
                   </button>
                 </div>
@@ -456,10 +456,10 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
             </div>
           ) : Object.keys(unidadesAgrupadas).length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600">No hay unidades disponibles en este almacen</p>
-              <p className="text-sm text-gray-500 mt-1">Primero debes recibir una orden de compra</p>
+            <div className="text-center py-12 bg-slate-50 rounded-lg">
+              <Package className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+              <p className="text-slate-600">No hay unidades disponibles en este almacen</p>
+              <p className="text-sm text-slate-500 mt-1">Primero debes recibir una orden de compra</p>
             </div>
           ) : (
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
@@ -471,7 +471,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
 
                 return (
                   <div key={productoId} className="border rounded-lg overflow-hidden bg-white">
-                    <div className="p-3 bg-gray-50">
+                    <div className="p-3 bg-slate-50">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center flex-1">
                           <input
@@ -482,15 +482,15 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                             onClick={(e) => e.stopPropagation()}
                           />
                           <div className="min-w-0 flex-1">
-                            <h4 className="font-medium text-gray-900 truncate">{grupo.nombre}</h4>
+                            <h4 className="font-medium text-slate-900 truncate">{grupo.nombre}</h4>
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
-                              <span className="text-xs text-gray-500">{grupo.sku}</span>
-                              <span className="text-xs text-gray-300">·</span>
+                              <span className="text-xs text-slate-500">{grupo.sku}</span>
+                              <span className="text-xs text-slate-300">·</span>
                               <span className="text-xs text-green-600 font-medium">
                                 ${grupo.unidades[0]?.costoUnitarioUSD.toFixed(2)}/u
                               </span>
-                              <span className="text-xs text-gray-300">·</span>
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-slate-300">·</span>
+                              <span className="text-xs text-slate-500">
                                 Total: ${grupo.unidades.reduce((s, u) => s + u.costoUnitarioUSD, 0).toFixed(2)}
                               </span>
                               {(() => {
@@ -503,8 +503,8 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                 const diasRestantes = Math.ceil((proximaVencer.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
                                 return (
                                   <>
-                                    <span className="text-xs text-gray-300">·</span>
-                                    <span className={`text-xs ${diasRestantes < 90 ? 'text-red-600 font-medium' : diasRestantes < 180 ? 'text-amber-600' : 'text-gray-500'}`}>
+                                    <span className="text-xs text-slate-300">·</span>
+                                    <span className={`text-xs ${diasRestantes < 90 ? 'text-red-600 font-medium' : diasRestantes < 180 ? 'text-amber-600' : 'text-slate-500'}`}>
                                       Vence: {proximaVencer.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
                                       {diasRestantes < 180 && ` (${diasRestantes}d)`}
                                     </span>
@@ -513,7 +513,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                               })()}
                               {grupo.unidades[0]?.ordenCompraNumero && (
                                 <>
-                                  <span className="text-xs text-gray-300">·</span>
+                                  <span className="text-xs text-slate-300">·</span>
                                   <span className="text-xs text-blue-600">{grupo.unidades[0].ordenCompraNumero}</span>
                                 </>
                               )}
@@ -531,7 +531,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                 setCantidadRapida({ ...cantidadRapida, [productoId]: newCant });
                                 seleccionarCantidad(productoId, newCant);
                               }}
-                              className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-r"
+                              className="px-2 py-1 text-slate-500 hover:bg-slate-100 border-r"
                             >
                               <Minus className="h-3 w-3" />
                             </button>
@@ -563,7 +563,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                 setCantidadRapida({ ...cantidadRapida, [productoId]: newCant });
                                 seleccionarCantidad(productoId, newCant);
                               }}
-                              className="px-2 py-1 text-gray-500 hover:bg-gray-100 border-l"
+                              className="px-2 py-1 text-slate-500 hover:bg-slate-100 border-l"
                             >
                               <Plus className="h-3 w-3" />
                             </button>
@@ -576,7 +576,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                           <button
                             type="button"
                             onClick={() => toggleExpandirProducto(productoId)}
-                            className="p-1 text-gray-400 hover:text-gray-600 rounded"
+                            className="p-1 text-slate-400 hover:text-slate-600 rounded"
                           >
                             {estaExpandido ? (
                               <ChevronDown className="h-5 w-5" />
@@ -588,7 +588,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                       </div>
 
                       {!estaExpandido && unidadesProductoSeleccionadas > 0 && (
-                        <div className="mt-2 text-xs text-gray-500 ml-7">
+                        <div className="mt-2 text-xs text-slate-500 ml-7">
                           Seleccion FEFO: primeras {unidadesProductoSeleccionadas} unidades por vencer
                         </div>
                       )}
@@ -606,7 +606,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                           <div
                             key={unidad.id}
                             className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
-                              unidadesSeleccionadas.includes(unidad.id) ? 'bg-primary-50' : 'hover:bg-gray-50'
+                              unidadesSeleccionadas.includes(unidad.id) ? 'bg-primary-50' : 'hover:bg-slate-50'
                             }`}
                             onClick={() => toggleUnidad(unidad.id)}
                           >
@@ -619,15 +619,15 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                               />
                               <div>
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-xs bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">
+                                  <span className="text-xs bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">
                                     #{idx + 1}
                                   </span>
-                                  <span className="text-sm text-gray-900">Lote: {unidad.lote}</span>
+                                  <span className="text-sm text-slate-900">Lote: {unidad.lote}</span>
                                   {unidad.ordenCompraNumero && (
                                     <span className="text-xs text-blue-600">{unidad.ordenCompraNumero}</span>
                                   )}
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                <div className="flex items-center gap-2 text-xs text-slate-500">
                                   <span>
                                     Vence: {unidad.fechaVencimiento?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) || 'N/A'}
                                   </span>
@@ -639,12 +639,12 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                     if (dias < 180) return <span className="text-amber-600">({dias}d)</span>;
                                     return null;
                                   })()}
-                                  <span className="text-gray-300">·</span>
+                                  <span className="text-slate-300">·</span>
                                   <span>Recibida: {unidad.fechaRecepcion?.toDate?.().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) || 'N/A'}</span>
                                 </div>
                               </div>
                             </div>
-                            <span className="text-sm font-medium text-gray-900">${unidad.costoUnitarioUSD.toFixed(2)}</span>
+                            <span className="text-sm font-medium text-slate-900">${unidad.costoUnitarioUSD.toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
@@ -674,23 +674,23 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
       {/* Step 3: Confirmacion (flete opcional) */}
       {step === 3 && (
         <div className="space-y-6">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Resumen de Transferencia</h4>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h4 className="font-medium text-slate-900 mb-3">Resumen de Transferencia</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-500">Tipo:</span>
+                <span className="text-slate-500">Tipo:</span>
                 <span className="ml-2 font-medium">{getLabelTipoTransferencia(formData.tipo as TipoTransferencia)}</span>
               </div>
               <div>
-                <span className="text-gray-500">Unidades:</span>
+                <span className="text-slate-500">Unidades:</span>
                 <span className="ml-2 font-medium">{resumenSeleccion.cantidad}</span>
               </div>
               <div>
-                <span className="text-gray-500">Productos:</span>
+                <span className="text-slate-500">Productos:</span>
                 <span className="ml-2 font-medium">{resumenSeleccion.productosUnicos}</span>
               </div>
               <div>
-                <span className="text-gray-500">Valor mercancia:</span>
+                <span className="text-slate-500">Valor mercancia:</span>
                 <span className="ml-2 font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
               </div>
             </div>
@@ -708,11 +708,11 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                       setCostoFleteUnitarioPorProducto({});
                     }
                   }}
-                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                 />
                 <div>
-                  <span className="text-sm font-medium text-gray-900">Agregar costo de flete ahora</span>
-                  <p className="text-xs text-gray-500">Puedes agregar o editar el flete despues desde el detalle de la transferencia</p>
+                  <span className="text-sm font-medium text-slate-900">Agregar costo de flete ahora</span>
+                  <p className="text-xs text-slate-500">Puedes agregar o editar el flete despues desde el detalle de la transferencia</p>
                 </div>
               </label>
 
@@ -736,12 +736,12 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                         <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
-                              <h5 className="font-medium text-gray-900 truncate">{pFull?.nombreComercial || producto.nombre}</h5>
+                              <h5 className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || producto.nombre}</h5>
                               <div className="flex flex-wrap items-center gap-1 mt-0.5">
                                 {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
-                                {pFull && getDescripcionProducto(pFull) && <span className="text-[10px] text-gray-600 bg-gray-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
+                                {pFull && getDescripcionProducto(pFull) && <span className="text-[10px] text-slate-600 bg-slate-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
                               </div>
-                              <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                              <div className="flex items-center gap-3 mt-1 text-xs text-slate-600">
                                 <span>{producto.sku}</span>
                                 <span>•</span>
                                 <span>{producto.unidades} unidades</span>
@@ -751,9 +751,9 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                             </div>
 
                             <div className="flex-shrink-0 w-40">
-                              <label className="block text-xs text-gray-500 mb-1">Flete por unidad (USD)</label>
+                              <label className="block text-xs text-slate-500 mb-1">Flete por unidad (USD)</label>
                               <div className="relative">
-                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400" />
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
                                 <input
                                   type="number"
                                   value={costoFleteUnitarioPorProducto[producto.productoId] || ''}
@@ -764,7 +764,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                       [producto.productoId]: valor
                                     }));
                                   }}
-                                  className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                  className="w-full pl-6 pr-2 py-1.5 text-sm border border-slate-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
                                   placeholder="0.00"
                                   step="0.01"
                                   min="0"
@@ -785,15 +785,15 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                   {costoFleteTotal > 0 && (
                     <div className="mt-4 pt-3 border-t border-blue-200">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Total mercancia:</span>
+                        <span className="text-slate-600">Total mercancia:</span>
                         <span className="font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
                       </div>
                       <div className="flex items-center justify-between text-sm mt-1">
-                        <span className="text-gray-600">Total flete:</span>
+                        <span className="text-slate-600">Total flete:</span>
                         <span className="font-medium">${costoFleteTotal.toFixed(2)}</span>
                       </div>
                       <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-blue-200">
-                        <span className="font-medium text-gray-900">Costo total transferencia:</span>
+                        <span className="font-medium text-slate-900">Costo total transferencia:</span>
                         <span className="font-bold text-blue-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
                       </div>
                     </div>
@@ -826,12 +826,12 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notas (opcional)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Notas (opcional)</label>
             <textarea
               value={formData.notas || ''}
               onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="Notas adicionales..."
             />
           </div>

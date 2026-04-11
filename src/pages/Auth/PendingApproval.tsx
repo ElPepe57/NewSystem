@@ -90,13 +90,13 @@ export const PendingApproval: React.FC = () => {
 
         {/* Mensaje principal */}
         <div className="text-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
             {isPendingNew
               ? 'Cuenta Pendiente de Autorización'
               : 'Cuenta Desactivada'
             }
           </h2>
-          <p className="text-gray-500 text-sm leading-relaxed max-w-sm mx-auto">
+          <p className="text-slate-500 text-sm leading-relaxed max-w-sm mx-auto">
             {isPendingNew
               ? 'Tu cuenta ha sido creada exitosamente. Un administrador revisará tu solicitud y activará tu acceso al sistema.'
               : 'Tu cuenta ha sido desactivada por un administrador. Contacta al equipo de soporte para más información.'
@@ -105,25 +105,25 @@ export const PendingApproval: React.FC = () => {
         </div>
 
         {/* Info del usuario */}
-        <div className="bg-gray-50 rounded-xl p-4 mb-6 space-y-3">
+        <div className="bg-slate-50 rounded-xl p-4 mb-6 space-y-3">
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0 p-2 bg-white rounded-lg shadow-sm">
-              <User className="h-4 w-4 text-gray-500" />
+              <User className="h-4 w-4 text-slate-500" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-gray-400 uppercase tracking-wider">Nombre</p>
-              <p className="text-sm font-medium text-gray-800 truncate">
+              <p className="text-xs text-slate-400 uppercase tracking-wider">Nombre</p>
+              <p className="text-sm font-medium text-slate-800 truncate">
                 {userProfile?.displayName || user?.displayName || 'Usuario'}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0 p-2 bg-white rounded-lg shadow-sm">
-              <Mail className="h-4 w-4 text-gray-500" />
+              <Mail className="h-4 w-4 text-slate-500" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-gray-400 uppercase tracking-wider">Email</p>
-              <p className="text-sm font-medium text-gray-800 truncate">
+              <p className="text-xs text-slate-400 uppercase tracking-wider">Email</p>
+              <p className="text-sm font-medium text-slate-800 truncate">
                 {userProfile?.email || user?.email || ''}
               </p>
             </div>
@@ -179,7 +179,7 @@ export const PendingApproval: React.FC = () => {
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-slate-500 hover:text-slate-700"
           >
             <LogOut className="h-4 w-4 mr-2" />
             Cerrar Sesión
@@ -187,8 +187,8 @@ export const PendingApproval: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-          <p className="text-[11px] text-gray-400">
+        <div className="mt-4 pt-4 border-t border-slate-100 text-center">
+          <p className="text-[11px] text-slate-400">
             Sistema de Gestión - Acceso controlado por administrador
           </p>
         </div>

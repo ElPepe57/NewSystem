@@ -100,7 +100,7 @@ export const PagosMasivos: React.FC = () => {
       <Toolbar />
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-6 w-fit">
+      <div className="flex gap-1 bg-slate-100 rounded-lg p-1 mb-6 w-fit">
         {([
           { id: 'nuevo' as TabActiva, label: 'Nuevo Lote' },
           { id: 'historial' as TabActiva, label: 'Historial' },
@@ -111,8 +111,8 @@ export const PagosMasivos: React.FC = () => {
             onClick={() => setTabActiva(tab.id)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               tabActiva === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             {tab.label}
@@ -130,7 +130,7 @@ export const PagosMasivos: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
                 tipoLote === 'egreso'
                   ? 'bg-amber-50 border-amber-300 text-amber-800'
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
               <ArrowUpCircle size={18} />
@@ -142,7 +142,7 @@ export const PagosMasivos: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
                 tipoLote === 'ingreso'
                   ? 'bg-green-50 border-green-300 text-green-800'
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
               <ArrowDownCircle size={18} />

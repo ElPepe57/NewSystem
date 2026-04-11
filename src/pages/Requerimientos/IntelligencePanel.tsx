@@ -65,14 +65,14 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
           {expandedSections.alertas ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </div>
         {expandedSections.alertas && (
-          <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+          <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
             {sugerenciasStock.length === 0 ? (
-              <div className="p-4 text-center text-gray-500 text-sm">
+              <div className="p-4 text-center text-slate-500 text-sm">
                 No hay alertas de stock bajo
               </div>
             ) : (
               sugerenciasStock.slice(0, 5).map((sug, idx) => (
-                <div key={idx} className="p-3 hover:bg-gray-50">
+                <div key={idx} className="p-3 hover:bg-slate-50">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center">
@@ -84,7 +84,7 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
                           {sug.producto.nombreComercial}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-slate-500 mt-1">
                         Stock: {sug.stockActual} / Min: {sug.stockMinimo}
                       </div>
                     </div>
@@ -127,20 +127,20 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
           {expandedSections.cotizaciones ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </div>
         {expandedSections.cotizaciones && (
-          <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+          <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
             {cotizacionesConfirmadas.length === 0 ? (
-              <div className="p-4 text-center text-gray-500 text-sm">
+              <div className="p-4 text-center text-slate-500 text-sm">
                 No hay cotizaciones pendientes
               </div>
             ) : (
               cotizacionesConfirmadas.slice(0, 5).map((venta) => (
-                <div key={venta.id} className="p-3 hover:bg-gray-50">
+                <div key={venta.id} className="p-3 hover:bg-slate-50">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">
                         {venta.nombreCliente}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-slate-500">
                         {venta.numeroVenta} • {venta.productos.length} productos
                       </div>
                     </div>
@@ -187,28 +187,28 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
         <div className="p-4 space-y-4">
           <div>
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-600">TC Actual</span>
+              <span className="text-slate-600">TC Actual</span>
               <span className="font-semibold">S/ {tcDelDia?.venta?.toFixed(3) || '3.700'}</span>
             </div>
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-600">Total por aprobar</span>
+              <span className="text-slate-600">Total por aprobar</span>
               <span className="font-semibold">{formatCurrency(stats.costoEstimadoPendiente)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">En soles (aprox)</span>
-              <span className="font-semibold text-gray-900">
+              <span className="text-slate-600">En soles (aprox)</span>
+              <span className="font-semibold text-slate-900">
                 S/ {(stats.costoEstimadoPendiente * (tcDelDia?.venta || 0)).toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </span>
             </div>
           </div>
 
           <div className="pt-3 border-t">
-            <div className="text-xs text-gray-500 mb-2">Ciclo promedio</div>
+            <div className="text-xs text-slate-500 mb-2">Ciclo promedio</div>
             <div className="flex items-baseline">
-              <span className="text-2xl font-bold text-gray-900">7</span>
-              <span className="text-sm text-gray-500 ml-1">dias</span>
+              <span className="text-2xl font-bold text-slate-900">7</span>
+              <span className="text-sm text-slate-500 ml-1">dias</span>
             </div>
-            <div className="text-xs text-gray-500">desde requerimiento hasta recepcion</div>
+            <div className="text-xs text-slate-500">desde requerimiento hasta recepcion</div>
           </div>
         </div>
       </Card>

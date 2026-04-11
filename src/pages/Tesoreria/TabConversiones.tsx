@@ -40,8 +40,8 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
   return (
     <>
       <Card padding="none">
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900">
             Conversiones ({conversiones.length})
           </h3>
           <Button variant="primary" onClick={() => setIsConversionModalOpen(true)} className="w-full sm:w-auto">
@@ -52,39 +52,39 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
         </div>
 
         {/* Mobile card layout */}
-        <div className="md:hidden divide-y divide-gray-200">
+        <div className="md:hidden divide-y divide-slate-200">
           {conversiones.length === 0 ? (
-            <div className="px-4 py-8 text-center text-gray-500">
+            <div className="px-4 py-8 text-center text-slate-500">
               No hay conversiones registradas
             </div>
           ) : (
             conversiones.map((conv) => (
               <div key={conv.id} className="px-4 py-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">{formatDate(conv.fecha)}</span>
+                  <span className="text-xs text-slate-500">{formatDate(conv.fecha)}</span>
                   <span className={`text-xs font-medium ${conv.spreadCambiario >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     Spread: {conv.spreadCambiario >= 0 ? '+' : ''}{conv.spreadCambiario.toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex items-center justify-center gap-3">
                   <div className="text-center flex-1">
-                    <div className="text-[10px] text-gray-500 uppercase">Origen</div>
+                    <div className="text-[10px] text-slate-500 uppercase">Origen</div>
                     <div className="text-sm font-bold text-red-600">
                       {conv.monedaOrigen === 'PEN' ? 'S/ ' : '$ '}{conv.montoOrigen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-[10px] text-gray-400">{conv.monedaOrigen}</div>
+                    <div className="text-[10px] text-slate-400">{conv.monedaOrigen}</div>
                   </div>
-                  <RefreshCw className="h-4 w-4 text-gray-300 flex-shrink-0" />
+                  <RefreshCw className="h-4 w-4 text-slate-300 flex-shrink-0" />
                   <div className="text-center flex-1">
-                    <div className="text-[10px] text-gray-500 uppercase">Destino</div>
+                    <div className="text-[10px] text-slate-500 uppercase">Destino</div>
                     <div className="text-sm font-bold text-green-600">
                       {conv.monedaDestino === 'PEN' ? 'S/ ' : '$ '}{conv.montoDestino.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-[10px] text-gray-400">{conv.monedaDestino}</div>
+                    <div className="text-[10px] text-slate-400">{conv.monedaDestino}</div>
                   </div>
                 </div>
-                <div className="flex justify-center gap-4 text-[10px] text-gray-500">
-                  <span>TC: <strong className="text-gray-700">{conv.tipoCambio.toFixed(3)}</strong></span>
+                <div className="flex justify-center gap-4 text-[10px] text-slate-500">
+                  <span>TC: <strong className="text-slate-700">{conv.tipoCambio.toFixed(3)}</strong></span>
                   <span>Ref: {conv.tipoCambioReferencia.toFixed(3)}</span>
                 </div>
               </div>
@@ -94,46 +94,46 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
 
         {/* Desktop table */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Origen</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destino</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">TC Usado</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">TC Ref.</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Spread</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Origen</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Destino</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">TC Usado</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">TC Ref.</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Spread</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-slate-200">
               {conversiones.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
                     No hay conversiones registradas
                   </td>
                 </tr>
               ) : (
                 conversiones.map((conv) => (
-                  <tr key={conv.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(conv.fecha)}</td>
+                  <tr key={conv.id} className="hover:bg-slate-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{formatDate(conv.fecha)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-slate-900">
                         {conv.monedaOrigen === 'PEN' ? 'S/ ' : '$ '}
                         {conv.montoOrigen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
-                      <div className="text-gray-500 text-xs">{conv.monedaOrigen}</div>
+                      <div className="text-slate-500 text-xs">{conv.monedaOrigen}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-slate-900">
                         {conv.monedaDestino === 'PEN' ? 'S/ ' : '$ '}
                         {conv.montoDestino.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
-                      <div className="text-gray-500 text-xs">{conv.monedaDestino}</div>
+                      <div className="text-slate-500 text-xs">{conv.monedaDestino}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
                       {conv.tipoCambio.toFixed(3)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-500">
                       {conv.tipoCambioReferencia.toFixed(3)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
@@ -159,7 +159,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Moneda Origen</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Moneda Origen</label>
               <select
                 value={conversionForm.monedaOrigen}
                 onChange={(e) =>
@@ -170,20 +170,20 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                     cuentaDestinoId: undefined
                   })
                 }
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               >
                 <option value="USD">USD (Dolares)</option>
                 <option value="PEN">PEN (Soles)</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Monto Origen</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Monto Origen</label>
               <input
                 type="number"
                 step="0.01"
                 value={conversionForm.montoOrigen || ''}
                 onChange={(e) => setConversionForm({ ...conversionForm, montoOrigen: parseFloat(e.target.value) })}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                 placeholder="0.00"
               />
             </div>
@@ -191,47 +191,47 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Cambio</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Cambio</label>
               <input
                 type="number"
                 step="0.001"
                 value={conversionForm.tipoCambio || ''}
                 onChange={(e) => setConversionForm({ ...conversionForm, tipoCambio: parseFloat(e.target.value) })}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                 placeholder="3.700"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Entidad de Cambio</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Entidad de Cambio</label>
               <input
                 type="text"
                 value={conversionForm.entidadCambio || ''}
                 onChange={(e) => setConversionForm({ ...conversionForm, entidadCambio: e.target.value })}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                 placeholder="Casa de cambio, banco, etc."
               />
             </div>
           </div>
 
           {/* Seccion de Cuentas */}
-          <div className="border-t border-gray-200 pt-4 mt-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+          <div className="border-t border-slate-200 pt-4 mt-4">
+            <h4 className="text-sm font-medium text-slate-900 mb-3 flex items-center">
               <Wallet className="h-4 w-4 mr-2 text-primary-600" />
               Vincular con Cuentas (Opcional)
             </h4>
-            <p className="text-xs text-gray-500 mb-3">
+            <p className="text-xs text-slate-500 mb-3">
               Selecciona las cuentas para registrar automaticamente los movimientos de tesoreria
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
                   Cuenta Origen ({conversionForm.monedaOrigen || 'USD'})
                 </label>
                 <select
                   value={conversionForm.cuentaOrigenId || ''}
                   onChange={(e) => setConversionForm({ ...conversionForm, cuentaOrigenId: e.target.value || undefined })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                 >
                   <option value="">Sin cuenta (solo registro)</option>
                   {cuentas
@@ -251,14 +251,14 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   <ArrowDownCircle className="inline h-4 w-4 mr-1 text-green-500" />
                   Cuenta Destino ({conversionForm.monedaOrigen === 'USD' ? 'PEN' : 'USD'})
                 </label>
                 <select
                   value={conversionForm.cuentaDestinoId || ''}
                   onChange={(e) => setConversionForm({ ...conversionForm, cuentaDestinoId: e.target.value || undefined })}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                 >
                   <option value="">Sin cuenta (solo registro)</option>
                   {cuentas
@@ -284,22 +284,22 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
           {/* Preview de la conversion */}
           {conversionForm.montoOrigen && conversionForm.tipoCambio && (
             <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg border border-blue-200">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Vista Previa de Conversion</h4>
+              <h4 className="text-sm font-medium text-slate-900 mb-2">Vista Previa de Conversion</h4>
               <div className="flex items-center justify-center space-x-4">
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">Sale</p>
+                  <p className="text-xs text-slate-500">Sale</p>
                   <p className="text-lg font-bold text-red-600">
                     {conversionForm.monedaOrigen === 'USD' ? '$' : 'S/'}{conversionForm.montoOrigen.toFixed(2)}
                   </p>
                   {conversionForm.cuentaOrigenId && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-500">
                       de {cuentas.find(c => c.id === conversionForm.cuentaOrigenId)?.nombre}
                     </p>
                   )}
                 </div>
-                <RefreshCw className="h-6 w-6 text-gray-400" />
+                <RefreshCw className="h-6 w-6 text-slate-400" />
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">Entra</p>
+                  <p className="text-xs text-slate-500">Entra</p>
                   <p className="text-lg font-bold text-green-600">
                     {conversionForm.monedaOrigen === 'USD'
                       ? `S/${(conversionForm.montoOrigen * conversionForm.tipoCambio).toFixed(2)}`
@@ -307,19 +307,19 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                     }
                   </p>
                   {conversionForm.cuentaDestinoId && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-500">
                       a {cuentas.find(c => c.id === conversionForm.cuentaDestinoId)?.nombre}
                     </p>
                   )}
                 </div>
               </div>
-              <p className="text-xs text-center text-gray-500 mt-2">
+              <p className="text-xs text-center text-slate-500 mt-2">
                 TC: {conversionForm.tipoCambio.toFixed(3)}
               </p>
               {(conversionForm.cuentaOrigenId || conversionForm.cuentaDestinoId) && (
                 <div className="mt-3 pt-3 border-t border-blue-200">
-                  <p className="text-xs font-medium text-gray-700 mb-1">Movimientos a generar:</p>
-                  <ul className="text-xs text-gray-600 space-y-1">
+                  <p className="text-xs font-medium text-slate-700 mb-1">Movimientos a generar:</p>
+                  <ul className="text-xs text-slate-600 space-y-1">
                     {conversionForm.cuentaOrigenId && (
                       <li className="flex items-center">
                         <ArrowUpCircle className="h-3 w-3 text-red-500 mr-1" />
@@ -342,12 +342,12 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Motivo</label>
             <input
               type="text"
               value={conversionForm.motivo || ''}
               onChange={(e) => setConversionForm({ ...conversionForm, motivo: e.target.value })}
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="w-full rounded-md border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
               placeholder="Razon de la conversion"
             />
           </div>

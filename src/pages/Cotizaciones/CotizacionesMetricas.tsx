@@ -41,17 +41,17 @@ export const CotizacionesMetricas: React.FC<CotizacionesMetricasProps> = ({ metr
       <Card padding="md" className="border-l-4 border-l-gray-400">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Nuevas</div>
-            <div className="text-2xl font-bold text-gray-600">{metricas.nuevas}</div>
+            <div className="text-xs text-slate-500 uppercase">Nuevas</div>
+            <div className="text-2xl font-bold text-slate-600">{metricas.nuevas}</div>
           </div>
-          <FileText className="h-8 w-8 text-gray-300" />
+          <FileText className="h-8 w-8 text-slate-300" />
         </div>
       </Card>
 
       <Card padding="md" className="border-l-4 border-l-amber-400">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Esperando Pago</div>
+            <div className="text-xs text-slate-500 uppercase">Esperando Pago</div>
             <div className="text-2xl font-bold text-amber-600">{metricas.pendienteAdelanto}</div>
           </div>
           <Clock className="h-8 w-8 text-amber-300" />
@@ -61,7 +61,7 @@ export const CotizacionesMetricas: React.FC<CotizacionesMetricasProps> = ({ metr
       <Card padding="md" className="border-l-4 border-l-green-400">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Listas</div>
+            <div className="text-xs text-slate-500 uppercase">Listas</div>
             <div className="text-2xl font-bold text-green-600">{metricas.listasParaConfirmar}</div>
           </div>
           <CheckCircle className="h-8 w-8 text-green-300" />
@@ -71,7 +71,7 @@ export const CotizacionesMetricas: React.FC<CotizacionesMetricasProps> = ({ metr
       <Card padding="md" className="border-l-4 border-l-red-400">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Rechazadas</div>
+            <div className="text-xs text-slate-500 uppercase">Rechazadas</div>
             <div className="text-2xl font-bold text-red-600">{metricas.rechazadas}</div>
           </div>
           <ThumbsDown className="h-8 w-8 text-red-300" />
@@ -81,7 +81,7 @@ export const CotizacionesMetricas: React.FC<CotizacionesMetricasProps> = ({ metr
       <Card padding="md" className="border-l-4 border-l-amber-400">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Por Vencer</div>
+            <div className="text-xs text-slate-500 uppercase">Por Vencer</div>
             <div className="text-2xl font-bold text-amber-600">{metricas.proximasAVencer}</div>
           </div>
           <AlertTriangle className="h-8 w-8 text-amber-300" />
@@ -91,7 +91,7 @@ export const CotizacionesMetricas: React.FC<CotizacionesMetricasProps> = ({ metr
       <Card padding="md" className="border-l-4 border-l-purple-400">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Pipeline</div>
+            <div className="text-xs text-slate-500 uppercase">Pipeline</div>
             <div className="text-lg font-bold text-purple-600">{formatCurrency(metricas.valorTotal)}</div>
           </div>
           <DollarSign className="h-8 w-8 text-purple-300" />
@@ -101,7 +101,7 @@ export const CotizacionesMetricas: React.FC<CotizacionesMetricasProps> = ({ metr
       <Card padding="md" className="border-l-4 border-l-teal-400">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 uppercase">Conversión</div>
+            <div className="text-xs text-slate-500 uppercase">Conversión</div>
             <div className="text-2xl font-bold text-teal-600">{metricas.tasaConversion.toFixed(1)}%</div>
           </div>
           <TrendingUp className="h-8 w-8 text-teal-300" />

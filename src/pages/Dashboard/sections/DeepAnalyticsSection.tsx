@@ -37,10 +37,10 @@ const BarTooltip: React.FC<any> = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload;
   return (
-    <div className="bg-white border border-gray-100 rounded-xl shadow-lg px-3 py-2 text-xs">
-      <p className="font-semibold text-gray-800 mb-1">{d?.nombre}</p>
-      <p className="text-gray-600">Ventas: <span className="font-bold text-gray-900">{fmtC(d?.ventasTotalPEN ?? 0)}</span></p>
-      <p className="text-gray-600">Margen: <span className="font-bold text-gray-900">{(d?.margenPromedio ?? 0).toFixed(1)}%</span></p>
+    <div className="bg-white border border-slate-100 rounded-xl shadow-lg px-3 py-2 text-xs">
+      <p className="font-semibold text-slate-800 mb-1">{d?.nombre}</p>
+      <p className="text-slate-600">Ventas: <span className="font-bold text-slate-900">{fmtC(d?.ventasTotalPEN ?? 0)}</span></p>
+      <p className="text-slate-600">Margen: <span className="font-bold text-slate-900">{(d?.margenPromedio ?? 0).toFixed(1)}%</span></p>
     </div>
   );
 };
@@ -55,26 +55,26 @@ const LineaCard: React.FC<{
   <div className={`${bgColor} ${borderColor} border rounded-xl p-4`}>
     <div className="flex items-center gap-2 mb-3">
       <span className={`w-2.5 h-2.5 rounded-full ${color}`} />
-      <span className="text-sm font-bold text-gray-800">{nombre}</span>
+      <span className="text-sm font-bold text-slate-800">{nombre}</span>
     </div>
     <div className="grid grid-cols-2 gap-3">
       <div>
-        <div className="text-xs text-gray-500 mb-0.5">Ventas</div>
-        <div className="text-base font-bold text-gray-900">{fmtC(data.ventas)}</div>
+        <div className="text-xs text-slate-500 mb-0.5">Ventas</div>
+        <div className="text-base font-bold text-slate-900">{fmtC(data.ventas)}</div>
       </div>
       <div>
-        <div className="text-xs text-gray-500 mb-0.5">Utilidad</div>
-        <div className="text-base font-bold text-gray-900">{fmtC(data.utilidad)}</div>
+        <div className="text-xs text-slate-500 mb-0.5">Utilidad</div>
+        <div className="text-base font-bold text-slate-900">{fmtC(data.utilidad)}</div>
       </div>
       <div>
-        <div className="text-xs text-gray-500 mb-0.5">Margen</div>
+        <div className="text-xs text-slate-500 mb-0.5">Margen</div>
         <div className={`text-base font-bold ${data.margen >= 25 ? 'text-emerald-600' : data.margen >= 15 ? 'text-amber-600' : 'text-rose-600'}`}>
           {data.margen.toFixed(1)}%
         </div>
       </div>
       <div>
-        <div className="text-xs text-gray-500 mb-0.5">Ventas</div>
-        <div className="text-base font-bold text-gray-900">{data.cantidad}</div>
+        <div className="text-xs text-slate-500 mb-0.5">Ventas</div>
+        <div className="text-base font-bold text-slate-900">{data.cantidad}</div>
       </div>
     </div>
   </div>
@@ -107,7 +107,7 @@ export const DeepAnalyticsSection: React.FC<DeepAnalyticsSectionProps> = ({
       {/* Top 5 productos — barras horizontales */}
       <Card padding="md">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Top 5 Productos</h3>
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Top 5 Productos</h3>
           <Link
             to="/reportes"
             className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
@@ -117,7 +117,7 @@ export const DeepAnalyticsSection: React.FC<DeepAnalyticsSectionProps> = ({
         </div>
 
         {top5.length === 0 ? (
-          <div className="h-44 flex items-center justify-center text-gray-400">
+          <div className="h-44 flex items-center justify-center text-slate-400">
             <p className="text-sm">Sin ventas registradas</p>
           </div>
         ) : (
@@ -161,8 +161,8 @@ export const DeepAnalyticsSection: React.FC<DeepAnalyticsSectionProps> = ({
 
             {/* Concentracion */}
             {totalGlobal > 0 && (
-              <div className="mt-3 pt-3 border-t text-xs text-gray-500">
-                Top 5 representa <span className="font-semibold text-gray-700">
+              <div className="mt-3 pt-3 border-t text-xs text-slate-500">
+                Top 5 representa <span className="font-semibold text-slate-700">
                   {((totalVentas5 / totalGlobal) * 100).toFixed(0)}%
                 </span> del total de ventas
               </div>
@@ -174,7 +174,7 @@ export const DeepAnalyticsSection: React.FC<DeepAnalyticsSectionProps> = ({
       {/* Rentabilidad por linea */}
       <Card padding="md">
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+          <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
             {mostrarDualLinea ? 'Rentabilidad por Linea' : 'Rentabilidad del Mes'}
           </h3>
         </div>

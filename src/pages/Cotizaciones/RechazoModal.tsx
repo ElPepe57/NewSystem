@@ -46,15 +46,15 @@ export const RechazoModal: React.FC<RechazoModalProps> = ({
       size="md"
     >
       <div className="space-y-4">
-        <div className="bg-gray-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600">Cotización</p>
+        <div className="bg-slate-50 rounded-lg p-4">
+          <p className="text-sm text-slate-600">Cotización</p>
           <p className="font-semibold text-primary-600">{cotizacion.numeroCotizacion}</p>
           <p className="text-sm mt-1">{cotizacion.nombreCliente}</p>
           <p className="text-lg font-bold mt-2">{formatCurrency(cotizacion.totalPEN)}</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Motivo del rechazo
           </label>
           <Select
@@ -65,13 +65,13 @@ export const RechazoModal: React.FC<RechazoModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Descripción adicional (opcional)
           </label>
           <textarea
             value={descripcion}
             onChange={(e) => onDescripcion(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             rows={3}
             placeholder="¿Qué dijo el cliente? ¿Fue a la competencia?"
           />

@@ -124,7 +124,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
     setCanales([]);
   };
 
-  const ic = 'w-full rounded-md border-gray-300 text-sm focus:border-primary-500 focus:ring-primary-500';
+  const ic = 'w-full rounded-md border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500';
 
   return (
     <Modal isOpen={isOpen} onClose={() => { if (!esEdicion) reset(); onClose(); }}
@@ -136,7 +136,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de la cuenta *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de la cuenta *</label>
             <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} className={ic}
               placeholder="Ej: Cuenta Ahorros PEN" />
           </div>
@@ -156,13 +156,13 @@ export const CuentaBancoForm: React.FC<Props> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Producto</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Producto</label>
             <select value={producto} onChange={e => setProducto(e.target.value)} className={ic}>
               {PRODUCTOS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Moneda</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
             <select value={moneda} onChange={e => setMoneda(e.target.value as MonedaTesoreria)}
               className={ic} disabled={esEdicion}>
               <option value="PEN">PEN</option>
@@ -170,7 +170,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Titularidad</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Titularidad</label>
             <select value={titularidad} onChange={e => setTitularidad(e.target.value as any)} className={ic}>
               <option value="empresa">Empresa</option>
               <option value="personal">Personal</option>
@@ -181,13 +181,13 @@ export const CuentaBancoForm: React.FC<Props> = ({
         {/* Número de cuenta + CCI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Número de cuenta</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Número de cuenta</label>
             <input type="text" value={numeroCuenta}
               onChange={e => setNumeroCuenta(e.target.value)}
               className={ic} placeholder="Ej: 191-12345678-0-01" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">CCI (opcional)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">CCI (opcional)</label>
             <input type="text" value={cci}
               onChange={e => setCci(e.target.value)}
               className={ic} placeholder="Código interbancario" />
@@ -197,7 +197,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
         {/* Canales vinculados (Yape/Plin) */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-gray-700">Canales vinculados</label>
+            <label className="text-sm font-medium text-slate-700">Canales vinculados</label>
             {canales.length < CANALES_DISPONIBLES.length && (
               <button type="button"
                 onClick={() => {
@@ -211,7 +211,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
             )}
           </div>
           {canales.length === 0 ? (
-            <p className="text-xs text-gray-400">Sin canales digitales (Yape, Plin)</p>
+            <p className="text-xs text-slate-400">Sin canales digitales (Yape, Plin)</p>
           ) : (
             <div className="space-y-2">
               {canales.map((canal, idx) => (
@@ -219,15 +219,15 @@ export const CuentaBancoForm: React.FC<Props> = ({
                   <Phone className="h-3.5 w-3.5 text-purple-500 flex-shrink-0" />
                   <select value={canal.tipo}
                     onChange={e => setCanales(canales.map((c, i) => i === idx ? { ...c, tipo: e.target.value } : c))}
-                    className="rounded-md border-gray-300 text-xs py-1.5 px-2 w-20 flex-shrink-0">
+                    className="rounded-md border-slate-300 text-xs py-1.5 px-2 w-20 flex-shrink-0">
                     {CANALES_DISPONIBLES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
                   <input type="text" value={canal.identificador}
                     onChange={e => setCanales(canales.map((c, i) => i === idx ? { ...c, identificador: e.target.value } : c))}
-                    className="flex-1 rounded-md border-gray-300 text-sm py-1.5 px-2"
+                    className="flex-1 rounded-md border-slate-300 text-sm py-1.5 px-2"
                     placeholder="N° teléfono" />
                   <button type="button" onClick={() => setCanales(canales.filter((_, i) => i !== idx))}
-                    className="p-1.5 text-gray-300 hover:text-red-500 rounded-full">
+                    className="p-1.5 text-slate-300 hover:text-red-500 rounded-full">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -239,24 +239,24 @@ export const CuentaBancoForm: React.FC<Props> = ({
         {/* Saldos */}
         {!esEdicion ? (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Saldo inicial</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Saldo inicial</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
               <input type="number" step="0.01" value={saldoInicial || ''}
                 onChange={e => setSaldoInicial(parseFloat(e.target.value) || 0)}
                 className={ic + ' pl-8'} placeholder="0.00" />
             </div>
           </div>
         ) : (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-sm text-gray-600">
+          <div className="bg-slate-50 p-3 rounded-lg">
+            <p className="text-sm text-slate-600">
               <span className="font-medium">Saldo actual:</span>{' '}
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-lg font-bold text-slate-900">
                 {moneda === 'PEN' ? 'S/ ' : '$ '}
                 {(cuentaEditando?.saldoActual || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </span>
             </p>
-            <p className="text-xs text-gray-500 mt-1">Solo se modifica mediante movimientos</p>
+            <p className="text-xs text-slate-500 mt-1">Solo se modifica mediante movimientos</p>
           </div>
         )}
 
@@ -266,42 +266,42 @@ export const CuentaBancoForm: React.FC<Props> = ({
             <h4 className="text-sm font-medium text-amber-800">Línea de Crédito</h4>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Límite</label>
+                <label className="block text-xs text-slate-600 mb-1">Límite</label>
                 <input type="number" step="0.01" value={lineaLimite || ''}
                   onChange={e => setLineaLimite(+e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border-gray-300 text-sm" placeholder="0.00" />
+                  className="w-full px-3 py-2 rounded-md border-slate-300 text-sm" placeholder="0.00" />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Tasa anual (%)</label>
+                <label className="block text-xs text-slate-600 mb-1">Tasa anual (%)</label>
                 <input type="number" step="0.1" value={lineaTasa || ''}
                   onChange={e => setLineaTasa(+e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border-gray-300 text-sm" />
+                  className="w-full px-3 py-2 rounded-md border-slate-300 text-sm" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Día corte</label>
+                <label className="block text-xs text-slate-600 mb-1">Día corte</label>
                 <input type="number" min="1" max="28" value={lineaCorte || ''}
                   onChange={e => setLineaCorte(+e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border-gray-300 text-sm" />
+                  className="w-full px-3 py-2 rounded-md border-slate-300 text-sm" />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 mb-1">Día pago</label>
+                <label className="block text-xs text-slate-600 mb-1">Día pago</label>
                 <input type="number" min="1" max="28" value={lineaPago || ''}
                   onChange={e => setLineaPago(+e.target.value)}
-                  className="w-full px-3 py-2 rounded-md border-gray-300 text-sm" />
+                  className="w-full px-3 py-2 rounded-md border-slate-300 text-sm" />
               </div>
             </div>
             {cuentaEditando?.lineaCredito && (
               <div className="grid grid-cols-2 gap-3 pt-2 border-t border-amber-200">
                 <div className="text-center">
-                  <span className="text-xs text-gray-500">Utilizado</span>
+                  <span className="text-xs text-slate-500">Utilizado</span>
                   <p className="text-sm font-bold text-amber-700">
                     {moneda === 'USD' ? '$' : 'S/'} {(cuentaEditando.lineaCredito.utilizado || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="text-center">
-                  <span className="text-xs text-gray-500">Disponible</span>
+                  <span className="text-xs text-slate-500">Disponible</span>
                   <p className="text-sm font-bold text-green-600">
                     {moneda === 'USD' ? '$' : 'S/'} {(cuentaEditando.lineaCredito.disponible || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </p>
@@ -313,10 +313,10 @@ export const CuentaBancoForm: React.FC<Props> = ({
 
         {/* Saldo mínimo */}
         <div>
-          <label className="block text-xs text-gray-600 mb-1">Alerta saldo mínimo (opcional)</label>
+          <label className="block text-xs text-slate-600 mb-1">Alerta saldo mínimo (opcional)</label>
           <input type="number" step="0.01" value={saldoMinimo || ''}
             onChange={e => setSaldoMinimo(parseFloat(e.target.value) || undefined)}
-            className="w-full px-3 py-2 rounded-md border-gray-300 text-sm" placeholder="0" />
+            className="w-full px-3 py-2 rounded-md border-slate-300 text-sm" placeholder="0" />
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
