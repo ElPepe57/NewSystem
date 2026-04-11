@@ -41,7 +41,7 @@ import {
   StatDistribution,
   Button,
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard } from '../../design-system';
 import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
 import { contabilidadService } from '../../services/contabilidad.service';
@@ -274,60 +274,13 @@ export function Contabilidad() {
         <div className="space-y-6">
           {/* KPIs Principales */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-indigo-600" />
-              Resumen Financiero
-            </h3>
-            <KPIGrid columns={5}>
-              <KPICard
-                title="Ventas Netas"
-                value={formatCurrency(estado.ventasNetas)}
-                subtitle={`${estado.metricas.transacciones} transacciones`}
-                icon={DollarSign}
-                variant="info"
-                size="sm"
-                trend={varVentas !== null ? {
-                  value: varVentas,
-                  label: 'vs mes anterior'
-                } : undefined}
-              />
-              <KPICard
-                title="Total Activos"
-                value={formatCurrency(balance.activos.totalActivos)}
-                subtitle={`Inventario: ${formatCurrency(balance.activos.corriente.inventarios.totalValorPEN)}`}
-                icon={TrendingUp}
-                variant="success"
-                size="sm"
-              />
-              <KPICard
-                title="Total Pasivos"
-                value={formatCurrency(balance.pasivos.totalPasivos)}
-                subtitle={`CxP: ${formatCurrency(balance.pasivos.corriente.cuentasPorPagarProveedores.ordenesCompraPendientes)}`}
-                icon={Wallet}
-                variant="warning"
-                size="sm"
-              />
-              <KPICard
-                title="Patrimonio"
-                value={formatCurrency(balance.patrimonio.totalPatrimonio)}
-                subtitle={`Utilidad YTD: ${formatCurrency(balance.patrimonio.utilidadEjercicio)}`}
-                icon={PiggyBank}
-                variant="info"
-                size="sm"
-              />
-              <KPICard
-                title="Utilidad Neta"
-                value={formatCurrency(estado.utilidadNeta)}
-                subtitle={formatPercent(estado.utilidadNetaPorcentaje)}
-                icon={estado.utilidadNeta >= 0 ? TrendingUp : TrendingDown}
-                variant={estado.utilidadNeta >= 0 ? 'success' : 'danger'}
-                size="sm"
-                trend={varUtilidadNeta !== null ? {
-                  value: varUtilidadNeta,
-                  label: 'vs mes anterior'
-                } : undefined}
-              />
-            </KPIGrid>
+            <KPIBar columns={5}>
+              <DSStatCard label="Ventas Netas" value={formatCurrency(estado.ventasNetas)} icon={DollarSign} variant="info" size="sm" trend={varVentas !== null ? { value: varVentas, label: 'vs mes ant.' } : undefined} />
+              <DSStatCard label="Total Activos" value={formatCurrency(balance.activos.totalActivos)} icon={TrendingUp} variant="success" size="sm" />
+              <DSStatCard label="Total Pasivos" value={formatCurrency(balance.pasivos.totalPasivos)} icon={Wallet} variant="warning" size="sm" />
+              <DSStatCard label="Patrimonio" value={formatCurrency(balance.patrimonio.totalPatrimonio)} icon={PiggyBank} variant="brand" size="sm" />
+              <DSStatCard label="Utilidad Neta" value={formatCurrency(estado.utilidadNeta)} icon={estado.utilidadNeta >= 0 ? TrendingUp : TrendingDown} variant={estado.utilidadNeta >= 0 ? 'success' : 'danger'} size="sm" trend={varUtilidadNeta !== null ? { value: varUtilidadNeta, label: 'vs mes ant.' } : undefined} />
+            </KPIBar>
 
             {/* Alerta de Anticipos Pendientes */}
             {balance.pasivos.corriente.anticiposClientes &&
