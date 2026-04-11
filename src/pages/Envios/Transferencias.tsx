@@ -23,7 +23,7 @@ import {
   StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
-import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
 import { useTransferenciaStore } from '../../store/envioStore';
 import { useProductoStore } from "../../store/productoStore";
@@ -120,6 +120,7 @@ export const Transferencias: React.FC = () => {
   const [filtroTipo, setFiltroTipo] = useState<TipoTransferencia | 'todas'>('todas');
   const [filtroEstado, setFiltroEstado] = useState<EstadoTransferencia | 'todas'>('todas');
   const [busqueda, setBusqueda] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
 
   const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
@@ -453,20 +454,46 @@ export const Transferencias: React.FC = () => {
         title="Flujo de Transferencias"
       />
 
-      {/* Tabs y Filtros */}
-      <TransferenciaFilters
-        activeTab={activeTab}
-        filtroTipo={filtroTipo}
-        filtroEstado={filtroEstado}
-        busqueda={busqueda}
-        totalTransferencias={transferenciasPorLinea.length}
-        totalEnTransito={transferenciasEnTransito.length}
-        totalPendientes={transferenciasPendientes.length}
-        onTabChange={setActiveTab}
-        onFiltroTipoChange={setFiltroTipo}
-        onFiltroEstadoChange={setFiltroEstado}
-        onBusquedaChange={setBusqueda}
+      {/* Toolbar */}
+      <Toolbar
+        search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar envios...' }}
+        filterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
+        onFilterToggle={() => setShowFilters(true)}
+        resultCount={transferenciasFiltradas.length}
       />
+
+      {/* FilterDrawer */}
+      <FilterDrawer
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        onClearAll={() => { setFiltroTipo('todas'); setFiltroEstado(''); setActiveTab('todas'); }}
+        activeFilterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
+      >
+        <FilterSection title="Vista">
+          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={activeTab} onChange={e => setActiveTab(e.target.value as any)}>
+            <option value="todas">Todos los envios</option>
+            <option value="en_transito">En transito</option>
+            <option value="pendientes">Pendientes recepcion</option>
+          </select>
+        </FilterSection>
+        <FilterSection title="Tipo">
+          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroTipo} onChange={e => setFiltroTipo(e.target.value as any)}>
+            <option value="todas">Todos los tipos</option>
+            <option value="internacional_peru">Internacional</option>
+            <option value="interna_origen">Interna Origen</option>
+          </select>
+        </FilterSection>
+        <FilterSection title="Estado">
+          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+            <option value="">Todos</option>
+            <option value="borrador">Borrador</option>
+            <option value="preparando">Preparando</option>
+            <option value="en_transito">En Transito</option>
+            <option value="recibida_parcial">Parcial</option>
+            <option value="recibida_completa">Completada</option>
+          </select>
+        </FilterSection>
+      </FilterDrawer>
 
       {/* Lista de transferencias */}
       {loading ? (
