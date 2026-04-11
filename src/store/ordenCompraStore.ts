@@ -32,6 +32,7 @@ interface OrdenCompraState {
   createOrden: (data: OrdenCompraFormData, userId: string) => Promise<void>;
   updateOrden: (id: string, data: Partial<OrdenCompraFormData>, userId: string) => Promise<void>;
   cambiarEstadoOrden: (id: string, nuevoEstado: EstadoOrden, userId: string, datos?: any) => Promise<void>;
+  confirmarOC: (id: string, destinoCasillaId: string, userId: string, colaboradorId?: string) => Promise<{ unidadesCreadas: number; envioId: string }>;
   registrarPago: (id: string, datos: {
     fechaPago: Date;
     monedaPago: 'USD' | 'PEN';
@@ -198,12 +199,29 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
       await get().fetchOrdenes();
       await get().fetchStats();
 
-      // Si se seleccionó esta orden, recargarla
       if (get().selectedOrden?.id === id) {
         await get().fetchOrdenById(id);
       }
 
       set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  confirmarOC: async (id: string, destinoCasillaId: string, userId: string, colaboradorId?: string) => {
+    set({ loading: true, error: null });
+    try {
+      const { confirmarOC } = await import('../services/ordenCompra.crud.service');
+      const result = await confirmarOC(id, destinoCasillaId, userId, colaboradorId);
+      await get().fetchOrdenes();
+      await get().fetchStats();
+      if (get().selectedOrden?.id === id) {
+        await get().fetchOrdenById(id);
+      }
+      set({ loading: false });
+      return result;
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;

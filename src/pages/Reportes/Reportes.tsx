@@ -22,15 +22,19 @@ const TabLogistica = lazy(() => import('./TabLogistica').then(m => ({ default: m
 const TabClientes = lazy(() => import('./TabClientes').then(m => ({ default: m.TabClientes })));
 const TabAuditorias = lazy(() => import('./TabAuditorias').then(m => ({ default: m.TabAuditorias })));
 const TabCompras = lazy(() => import('./TabCompras').then(m => ({ default: m.TabCompras })));
+const TabCxC = lazy(() => import('./TabCxC').then(m => ({ default: m.TabCxC })));
+const TabCxP = lazy(() => import('./TabCxP').then(m => ({ default: m.TabCxP })));
 const TabGeografico = lazy(() => import('./TabGeografico').then(m => ({ default: m.TabGeografico })));
 
-type ReporteTab = 'rentabilidad' | 'logistica' | 'clientes' | 'auditorias' | 'compras' | 'geografico';
+type ReporteTab = 'rentabilidad' | 'logistica' | 'clientes' | 'auditorias' | 'compras' | 'geografico' | 'cxc' | 'cxp';
 
 const TABS: { id: ReporteTab; label: string; icon: React.ReactNode }[] = [
   { id: 'rentabilidad', label: 'Rentabilidad', icon: <TrendingUp className="h-4 w-4" /> },
+  { id: 'cxc', label: 'CxC', icon: <DollarSign className="h-4 w-4" /> },
+  { id: 'cxp', label: 'CxP', icon: <DollarSign className="h-4 w-4" /> },
   { id: 'logistica', label: 'Logistica', icon: <Truck className="h-4 w-4" /> },
   { id: 'clientes', label: 'Clientes', icon: <Users className="h-4 w-4" /> },
-  { id: 'geografico', label: 'Geográfico', icon: <Activity className="h-4 w-4" /> },
+  { id: 'geografico', label: 'Geogr\u00e1fico', icon: <Activity className="h-4 w-4" /> },
   { id: 'auditorias', label: 'Auditorias', icon: <ClipboardCheck className="h-4 w-4" /> },
   { id: 'compras', label: 'Compras', icon: <ShoppingCart className="h-4 w-4" /> },
 ];
@@ -426,6 +430,8 @@ export const Reportes: React.FC = () => {
           {activeTab === 'geografico' && <TabGeografico fechaInicio={fechasFiltro.inicio} fechaFin={fechasFiltro.fin} />}
           {activeTab === 'auditorias' && <TabAuditorias />}
           {activeTab === 'compras' && <TabCompras />}
+          {activeTab === 'cxc' && <TabCxC />}
+          {activeTab === 'cxp' && <TabCxP />}
         </Suspense>
       ) : (
       <>

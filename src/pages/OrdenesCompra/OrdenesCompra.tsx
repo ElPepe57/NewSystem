@@ -92,6 +92,7 @@ export const OrdenesCompra: React.FC = () => {
     createOrden,
     updateOrden,
     cambiarEstadoOrden,
+    confirmarOC,
     registrarPago,
     recibirOrden,
     recibirOrdenParcial,
@@ -458,6 +459,20 @@ export const OrdenesCompra: React.FC = () => {
   // Cambiar estado
   const handleCambiarEstado = async (nuevoEstado: EstadoOrden) => {
     if (!user || !selectedOrden) return;
+
+    // REINGENIERIA: Confirmar OC = crear unidades pedida + envio T1
+    if (nuevoEstado === 'confirmada') {
+      try {
+        // Usar el almacen destino de la OC como casilla destino
+        const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
+        const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid);
+        refreshSelectedOrden(selectedOrden.id);
+        toast.success(`OC confirmada: ${result.unidadesCreadas} unidades pedidas creadas`);
+      } catch (error: any) {
+        toast.error(error.message, 'Error al confirmar OC');
+      }
+      return;
+    }
 
     // Si cambia a "en_transito", pedir tracking
     if (nuevoEstado === 'en_transito') {
