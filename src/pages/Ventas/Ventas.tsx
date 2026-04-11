@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { DevolucionesTab } from './DevolucionesTab';
 import { DevolucionFormModal } from './DevolucionFormModal';
@@ -1036,6 +1036,9 @@ export const Ventas: React.FC = () => {
         </Card>
       )}
 
+      {/* Toolbar */}
+      <Toolbar resultCount={ventasFiltradas.length} />
+
       {/* Tabla de Ventas */}
       <Card padding="none">
         <div className="px-6 py-4 border-b border-gray-200">
@@ -1043,7 +1046,7 @@ export const Ventas: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900">
               {filtroEstado
                 ? `${pipelineStages.find(s => s.id === filtroEstado)?.label || 'Ventas'} (${ventasFiltradas.length})`
-                : `Ventas y Cotizaciones (${ventasLineaFiltradas.length})`
+                : `Ventas (${ventasLineaFiltradas.length})`
               }
             </h3>
             {/* Indicadores de rentabilidad con distribución proporcional */}
@@ -1051,7 +1054,7 @@ export const Ventas: React.FC = () => {
               {rentabilidad && rentabilidad.totalGastosGAGO > 0 && (
                 <div className="flex items-center text-sm text-gray-600 bg-orange-50 px-2 py-1 rounded-lg" title="Gastos Administrativos/Operativos distribuidos proporcionalmente">
                   <PieChart className="h-4 w-4 text-orange-500 mr-1" />
-                  <span className="text-xs">GA/GO:</span>
+                  <span className="text-xs">Gastos Fijos:</span>
                   <span className="font-semibold text-orange-600 ml-1">
                     S/ {(rentabilidad.totalGastosGAGO || 0).toFixed(0)}
                   </span>

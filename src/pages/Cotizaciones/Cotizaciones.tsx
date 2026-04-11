@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../utils/format';
 import { Plus, RefreshCw, FileText } from 'lucide-react';
 import { Button, ConfirmDialog, useConfirmDialog } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { CotizacionForm } from './CotizacionForm';
 import { CotizacionesMetricas } from './CotizacionesMetricas';
@@ -66,6 +66,7 @@ export const Cotizaciones: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [vista, setVista] = useState<VistaType>('kanban');
   const [filtroCanal, setFiltroCanal] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [generandoPdf, setGenerandoPdf] = useState(false);
 
   // Estado para el modal de adelanto
@@ -526,15 +527,34 @@ export const Cotizaciones: React.FC = () => {
       {/* Filtro de línea de negocio */}
       <LineaFilterInline />
 
-      {/* Filtros */}
-      <CotizacionesFiltros
-        busqueda={busqueda}
-        onBusquedaChange={setBusqueda}
-        filtroCanal={filtroCanal}
-        onFiltroCanalChange={setFiltroCanal}
-        vista={vista}
-        onVistaChange={setVista}
+      {/* Toolbar */}
+      <Toolbar
+        search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar cotizaciones...' }}
+        viewMode={vista === 'lista' ? 'table' : 'card'}
+        onViewModeChange={(mode) => setVista(mode === 'table' ? 'lista' : 'kanban')}
+        filterCount={filtroCanal ? 1 : 0}
+        onFilterToggle={() => setShowFilters(true)}
+        resultCount={cotizacionesFiltradas.length}
       />
+
+      <FilterDrawer
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        onClearAll={() => setFiltroCanal('')}
+        activeFilterCount={filtroCanal ? 1 : 0}
+      >
+        <FilterSection title="Canal">
+          <select
+            className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2"
+            value={filtroCanal}
+            onChange={(e) => setFiltroCanal(e.target.value)}
+          >
+            <option value="">Todos los canales</option>
+            <option value="mercado_libre">Mercado Libre</option>
+            <option value="directo">Venta Directa</option>
+          </select>
+        </FilterSection>
+      </FilterDrawer>
 
       {/* Contenido principal */}
       {loading ? (
