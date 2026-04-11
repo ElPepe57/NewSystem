@@ -3,7 +3,8 @@ import { Package, AlertTriangle, Plus } from 'lucide-react';
 import { useInsumoStore } from '../../store/insumoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import { Card, Badge, Button, Modal, Input, Select } from '../common';
+import { Card, Badge, Button, Input, Select } from '../common';
+import { FormModal } from '../../design-system';
 import type { InsumoFormData } from '../../types/insumo.types';
 
 const FORM_INITIAL: InsumoFormData = {
@@ -146,61 +147,25 @@ export const InsumosEmpaque: React.FC = () => {
         </div>
       )}
 
-      {/* Modal crear insumo */}
-      <Modal isOpen={showForm} onClose={closeForm} title={editingId ? 'Editar Insumo' : 'Nuevo Insumo de Empaque'} size="md">
-        <div className="space-y-4">
-          <Input
-            label="Nombre"
-            placeholder="Caja peque\u00f1a 20x15x10"
-            value={formData.nombre}
-            onChange={e => setFormData({ ...formData, nombre: e.target.value })}
-            required
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <Select
-              label="Tipo"
-              value={formData.tipo}
-              onChange={e => setFormData({ ...formData, tipo: e.target.value as any })}
-              options={TIPOS_INSUMO}
-            />
-            <Select
-              label="Unidad de medida"
-              value={formData.unidadMedida}
-              onChange={e => setFormData({ ...formData, unidadMedida: e.target.value as any })}
-              options={UNIDADES_MEDIDA}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Stock m\u00ednimo"
-              type="number"
-              min={0}
-              value={formData.stockMinimo}
-              onChange={e => setFormData({ ...formData, stockMinimo: parseInt(e.target.value) || 0 })}
-            />
-            <Input
-              label="Costo unitario (PEN)"
-              type="number"
-              min={0}
-              step={0.01}
-              value={formData.costoUnitarioPEN || ''}
-              onChange={e => setFormData({ ...formData, costoUnitarioPEN: parseFloat(e.target.value) || 0 })}
-            />
-          </div>
-          <Input
-            label="Proveedor (opcional)"
-            placeholder="Nombre del proveedor"
-            value={formData.proveedorNombre || ''}
-            onChange={e => setFormData({ ...formData, proveedorNombre: e.target.value })}
-          />
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={closeForm}>Cancelar</Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Insumo'}
-            </Button>
-          </div>
+      <FormModal
+        isOpen={showForm}
+        onClose={closeForm}
+        title={editingId ? 'Editar Insumo' : 'Nuevo Insumo de Empaque'}
+        onSubmit={handleSubmit}
+        loading={submitting}
+        variant={editingId ? 'edit' : 'create'}
+      >
+        <Input label="Nombre" placeholder="Caja 20x15x10" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} required />
+        <div className="grid grid-cols-2 gap-3">
+          <Select label="Tipo" value={formData.tipo} onChange={e => setFormData({ ...formData, tipo: e.target.value as any })} options={TIPOS_INSUMO} />
+          <Select label="Unidad" value={formData.unidadMedida} onChange={e => setFormData({ ...formData, unidadMedida: e.target.value as any })} options={UNIDADES_MEDIDA} />
         </div>
-      </Modal>
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="Stock minimo" type="number" min={0} value={formData.stockMinimo} onChange={e => setFormData({ ...formData, stockMinimo: parseInt(e.target.value) || 0 })} />
+          <Input label="Costo unitario (PEN)" type="number" min={0} step={0.01} value={formData.costoUnitarioPEN || ''} onChange={e => setFormData({ ...formData, costoUnitarioPEN: parseFloat(e.target.value) || 0 })} />
+        </div>
+        <Input label="Proveedor (opcional)" placeholder="Nombre del proveedor" value={formData.proveedorNombre || ''} onChange={e => setFormData({ ...formData, proveedorNombre: e.target.value })} />
+      </FormModal>
     </div>
   );
 };

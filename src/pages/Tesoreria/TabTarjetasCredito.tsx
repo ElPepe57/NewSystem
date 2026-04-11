@@ -3,7 +3,8 @@ import { CreditCard, Plus, X } from 'lucide-react';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import { Card, Badge, Button, Modal, Input, Select } from '../../components/common';
+import { Card, Badge, Button, Input, Select } from '../../components/common';
+import { FormModal } from '../../design-system';
 import type { TarjetaCreditoFormData } from '../../types/tarjetaCredito.types';
 
 const FORM_INITIAL: TarjetaCreditoFormData = {
@@ -156,66 +157,25 @@ export const TabTarjetasCredito: React.FC = () => {
       )}
 
       {/* Modal crear tarjeta */}
-      <Modal isOpen={showForm} onClose={closeForm} title={editingId ? 'Editar Tarjeta' : 'Nueva Tarjeta de Cr\u00e9dito'} size="md">
-        <div className="space-y-4">
-          <Input
-            label="Nombre"
-            placeholder="Visa BBVA ****6411"
-            value={formData.nombre}
-            onChange={e => setFormData({ ...formData, nombre: e.target.value })}
-            required
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Banco"
-              placeholder="BBVA, BCP, Interbank..."
-              value={formData.banco}
-              onChange={e => setFormData({ ...formData, banco: e.target.value })}
-              required
-            />
-            <Input
-              label="\u00daltimos 4 d\u00edgitos"
-              placeholder="6411"
-              maxLength={4}
-              value={formData.ultimosDigitos}
-              onChange={e => setFormData({ ...formData, ultimosDigitos: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-              required
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <Input
-              label="L\u00edmite USD"
-              type="number"
-              min={0}
-              value={formData.limiteUSD || ''}
-              onChange={e => setFormData({ ...formData, limiteUSD: parseFloat(e.target.value) || 0 })}
-              required
-            />
-            <Input
-              label="D\u00eda corte"
-              type="number"
-              min={1}
-              max={31}
-              value={formData.diaCorte}
-              onChange={e => setFormData({ ...formData, diaCorte: parseInt(e.target.value) || 15 })}
-            />
-            <Input
-              label="D\u00eda pago"
-              type="number"
-              min={1}
-              max={31}
-              value={formData.diaPago}
-              onChange={e => setFormData({ ...formData, diaPago: parseInt(e.target.value) || 5 })}
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={closeForm}>Cancelar</Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Tarjeta'}
-            </Button>
-          </div>
+      <FormModal
+        isOpen={showForm}
+        onClose={closeForm}
+        title={editingId ? 'Editar Tarjeta' : 'Nueva Tarjeta de Cr\u00e9dito'}
+        onSubmit={handleSubmit}
+        loading={submitting}
+        variant={editingId ? 'edit' : 'create'}
+      >
+        <Input label="Nombre" placeholder="Visa BBVA ****6411" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} required />
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="Banco" placeholder="BBVA, BCP, Interbank..." value={formData.banco} onChange={e => setFormData({ ...formData, banco: e.target.value })} required />
+          <Input label="Ultimos 4 digitos" placeholder="6411" maxLength={4} value={formData.ultimosDigitos} onChange={e => setFormData({ ...formData, ultimosDigitos: e.target.value.replace(/\D/g, '').slice(0, 4) })} required />
         </div>
-      </Modal>
+        <div className="grid grid-cols-3 gap-3">
+          <Input label="Limite USD" type="number" min={0} value={formData.limiteUSD || ''} onChange={e => setFormData({ ...formData, limiteUSD: parseFloat(e.target.value) || 0 })} required />
+          <Input label="Dia corte" type="number" min={1} max={31} value={formData.diaCorte} onChange={e => setFormData({ ...formData, diaCorte: parseInt(e.target.value) || 15 })} />
+          <Input label="Dia pago" type="number" min={1} max={31} value={formData.diaPago} onChange={e => setFormData({ ...formData, diaPago: parseInt(e.target.value) || 5 })} />
+        </div>
+      </FormModal>
     </div>
   );
 };

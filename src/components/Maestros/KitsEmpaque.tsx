@@ -4,7 +4,8 @@ import { useInsumoStore } from '../../store/insumoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { kitEmpaqueService } from '../../services/kitEmpaque.service';
-import { Card, Badge, Button, Modal, Input } from '../common';
+import { Card, Badge, Button, Input } from '../common';
+import { FormModal } from '../../design-system';
 import type { KitEmpaque, KitEmpaqueFormData } from '../../types/kitEmpaque.types';
 
 interface ComponenteForm {
@@ -184,8 +185,15 @@ export const KitsEmpaque: React.FC = () => {
       )}
 
       {/* Modal crear kit */}
-      <Modal isOpen={showForm} onClose={closeForm} title={editingId ? 'Editar Kit' : 'Nuevo Kit de Empaque'} size="md">
-        <div className="space-y-4">
+      <FormModal
+        isOpen={showForm}
+        onClose={closeForm}
+        title={editingId ? 'Editar Kit' : 'Nuevo Kit de Empaque'}
+        onSubmit={handleSubmit}
+        loading={submitting}
+        disabled={componentes.length === 0}
+        variant={editingId ? 'edit' : 'create'}
+      >
           <Input
             label="Nombre del kit"
             placeholder="Kit peque\u00f1o (0-1 lb)"
@@ -261,14 +269,7 @@ export const KitsEmpaque: React.FC = () => {
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={closeForm}>Cancelar</Button>
-            <Button onClick={handleSubmit} disabled={submitting || componentes.length === 0}>
-              {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Kit'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      </FormModal>
     </div>
   );
 };
