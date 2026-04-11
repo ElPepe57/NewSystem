@@ -4,7 +4,7 @@ import { formatCurrencyPEN } from '../../utils/format';
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2, Receipt } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton, GastoLineaBadge } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -50,6 +50,7 @@ export const Gastos: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
 
   // Filtrar gastos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
   const gastosPorLinea = useLineaFilter(gastos, g => g.lineaNegocioId, { allowUndefined: true });
@@ -588,85 +589,30 @@ export const Gastos: React.FC = () => {
       {/* Filtro de línea de negocio */}
       <LineaFilterInline />
 
-      {/* Toolbar + Filtros */}
+      {/* Toolbar */}
       <Toolbar
         search={{ value: searchTerm, onChange: setSearchTerm, placeholder: 'Buscar por descripcion, numero, proveedor...' }}
+        filterCount={[filtros.claseGasto, filtros.tipo, filtros.categoria, filtros.estado, filtros.esProrrateable].filter(Boolean).length}
+        onFilterToggle={() => setShowFilters(true)}
         resultCount={gastosVisibles.length}
       />
 
-      <Card padding="md">
-        <div className="space-y-4">
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
-            <Select
-              label="Clase"
-              value={filtros.claseGasto}
-              onChange={(e) => setFiltros({ ...filtros, claseGasto: e.target.value as ClaseGasto | '' })}
-              options={[
-                { value: '', label: 'Todas' },
-                { value: 'GVD', label: 'GVD - Venta y Distribución' },
-                { value: 'GAO', label: 'GAO - Admin. y Operativo' }
-              ]}
-            />
-
-            <Select
-              label="Tipo"
-              value={filtros.tipo}
-              onChange={(e) => setFiltros({ ...filtros, tipo: e.target.value as TipoGasto | '' })}
-              options={[
-                { value: '', label: 'Todos' },
-                ...tiposUnicos.map(tipo => ({ value: tipo, label: tipo }))
-              ]}
-            />
-
-            <Select
-              label="Categoría"
-              value={filtros.categoria}
-              onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value as CategoriaGasto | '' })}
-              options={[
-                { value: '', label: 'Todas' },
-                { value: 'GV', label: 'GV - Venta' },
-                { value: 'GD', label: 'GD - Distribución' },
-                { value: 'GA', label: 'GA - Administrativo' },
-                { value: 'GO', label: 'GO - Operativo' }
-              ]}
-            />
-
-            <Select
-              label="Estado"
-              value={filtros.estado}
-              onChange={(e) => setFiltros({ ...filtros, estado: e.target.value as EstadoGasto | '' })}
-              options={[
-                { value: '', label: 'Todos' },
-                { value: 'pendiente', label: 'Pendiente' },
-                { value: 'parcial', label: 'Parcial' },
-                { value: 'pagado', label: 'Pagado' },
-                { value: 'cancelado', label: 'Cancelado' }
-              ]}
-            />
-
-            <Select
-              label="Prorrateable"
-              value={filtros.esProrrateable}
-              onChange={(e) => setFiltros({ ...filtros, esProrrateable: e.target.value as 'true' | 'false' | '' })}
-              options={[
-                { value: '', label: 'Todos' },
-                { value: 'true', label: 'Sí (CTRU)' },
-                { value: 'false', label: 'No' }
-              ]}
-            />
-          </div>
-
-          {hayFiltrosActivos && (
-            <button
-              onClick={limpiarFiltros}
-              className="text-sm text-primary-600 hover:text-primary-700"
-            >
-              Limpiar filtros
-            </button>
-          )}
-        </div>
-      </Card>
+      {/* FilterDrawer */}
+      <FilterDrawer
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        onClearAll={limpiarFiltros}
+        activeFilterCount={[filtros.claseGasto, filtros.tipo, filtros.categoria, filtros.estado, filtros.esProrrateable].filter(Boolean).length}
+      >
+        <FilterSection title="Clasificacion">
+          <Select label="Clase" value={filtros.claseGasto} onChange={(e) => setFiltros({ ...filtros, claseGasto: e.target.value as ClaseGasto | '' })} options={[{ value: '', label: 'Todas' }, { value: 'GVD', label: 'Costos por Venta' }, { value: 'GAO', label: 'Gastos Fijos' }]} />
+          <Select label="Categoria" value={filtros.categoria} onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value as CategoriaGasto | '' })} options={[{ value: '', label: 'Todas' }, { value: 'GV', label: 'Venta' }, { value: 'GD', label: 'Distribucion' }, { value: 'GA', label: 'Administrativo' }, { value: 'GO', label: 'Operativo' }]} />
+          <Select label="Tipo" value={filtros.tipo} onChange={(e) => setFiltros({ ...filtros, tipo: e.target.value as TipoGasto | '' })} options={[{ value: '', label: 'Todos' }, ...tiposUnicos.map(tipo => ({ value: tipo, label: tipo }))]} />
+        </FilterSection>
+        <FilterSection title="Estado">
+          <Select label="Estado de pago" value={filtros.estado} onChange={(e) => setFiltros({ ...filtros, estado: e.target.value as EstadoGasto | '' })} options={[{ value: '', label: 'Todos' }, { value: 'pendiente', label: 'Pendiente' }, { value: 'parcial', label: 'Parcial' }, { value: 'pagado', label: 'Pagado' }, { value: 'cancelado', label: 'Cancelado' }]} />
+        </FilterSection>
+      </FilterDrawer>
 
       {/* Tabla de Gastos */}
       <Card padding="md">
