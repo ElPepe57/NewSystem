@@ -286,6 +286,15 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 <span className="text-lg font-semibold text-gray-900">S/ {orden.totalPEN.toFixed(2)}</span>
               </div>
             )}
+            {/* Indicador FX: tcReferencial vs tcPago */}
+            {orden.tcReferencial && orden.tcPago && orden.tcReferencial !== orden.tcPago && (
+              <div className="flex justify-between items-center text-xs bg-gray-50 rounded px-2 py-1">
+                <span className="text-gray-500">TC Ref: {orden.tcReferencial.toFixed(3)} → Pago: {orden.tcPago.toFixed(3)}</span>
+                <span className={`font-medium ${orden.tcPago > orden.tcReferencial ? 'text-red-600' : 'text-green-600'}`}>
+                  {orden.tcPago > orden.tcReferencial ? '+' : ''}{((orden.tcPago - orden.tcReferencial) / orden.tcReferencial * 100).toFixed(2)}% FX
+                </span>
+              </div>
+            )}
             {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-600">Diferencia Cambiaria:</span>
