@@ -23,7 +23,8 @@ import {
   useConfirmDialog,
   ConfirmDialog
 } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
+// Toolbar available for future use
 import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';
 import { useMarcaStore } from '../../store/marcaStore';
@@ -723,6 +724,9 @@ export const Maestros: React.FC = () => {
           { label: 'Canales', value: canales.length }
         ]}
       />
+
+      {/* Toolbar */}
+      <Toolbar />
 
       <TabNavigation
         tabs={tabs}
