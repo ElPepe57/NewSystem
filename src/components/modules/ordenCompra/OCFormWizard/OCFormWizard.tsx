@@ -11,6 +11,7 @@ import { Package, DollarSign } from 'lucide-react';
 import { Stepper, StepContent, StepNavigation } from '../../../common/Stepper';
 import type { Step } from '../../../common/Stepper';
 import { OCFormStep1 } from './OCFormStep1';
+import { OCFormStepSubOrdenes } from './OCFormStepSubOrdenes';
 import { OCFormStep2 } from './OCFormStep2';
 import { OCFormStep3 } from './OCFormStep3';
 import { ocFormReducer } from './ocFormReducer';
@@ -365,6 +366,17 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
       // Reingenieria: casilla destino y colaborador
       ...(state.casillaDestinoId ? { casillaDestinoId: state.casillaDestinoId } as any : {}),
       ...(state.colaboradorId ? { colaboradorId: state.colaboradorId } as any : {}),
+      // Sub-ordenes (si el usuario dividio la OC)
+      ...(state.subOrdenes.length > 0 ? {
+        subOrdenes: state.subOrdenes.map(sub => ({
+          referenciaProveedor: sub.referenciaProveedor,
+          productoIndices: sub.productoIndices,
+          totalUSD: sub.productoIndices.reduce((s, i) => {
+            const p = productosValidos[i];
+            return p ? s + p.cantidad * p.costoUnitario : s;
+          }, 0),
+        })),
+      } as any : {}),
       // Origen y linea de negocio (auto-heredados de productos)
       paisOrigen: derivedPaisOrigen,
       lineaNegocioId: derivedLineaNegocioId,

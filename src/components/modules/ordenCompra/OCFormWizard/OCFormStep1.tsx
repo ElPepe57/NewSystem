@@ -11,7 +11,8 @@ import { useAlmacenStore } from '../../../../store/casillaStore';
 import type { Producto } from '../../../../types/producto.types';
 import type { Proveedor, ProveedorFormData } from '../../../../types/ordenCompra.types';
 import type { OCFormState, OCFormAction, ProductoOrdenItem } from './ocFormTypes';
-import { EMPTY_PRODUCTO, getSubtotalUSD } from './ocFormTypes';
+import { EMPTY_PRODUCTO, getSubtotalUSD, getProductosValidos } from './ocFormTypes';
+import { OCFormStepSubOrdenes } from './OCFormStepSubOrdenes';
 
 // Inline selectors for casilla and colaborador
 const CasillaSelect: React.FC<{ value: string; onChange: (id: string, nombre: string) => void }> = ({ value, onChange }) => {
@@ -83,6 +84,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
   const { paisesActivos: paisesOrigen } = usePaisOrigenStore();
 
   const subtotalUSD = useMemo(() => getSubtotalUSD(state), [state.productos]);
+  const productosValidos = useMemo(() => getProductosValidos(state), [state.productos]);
 
   // --- Handlers ---
 
@@ -424,6 +426,13 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
           )}
         </div>
       </div>
+
+      {/* Sub-Ordenes (opcional, solo si hay >1 producto) */}
+      {productosValidos.length > 1 && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <OCFormStepSubOrdenes state={state} dispatch={dispatch} />
+        </div>
+      )}
     </div>
   );
 };
