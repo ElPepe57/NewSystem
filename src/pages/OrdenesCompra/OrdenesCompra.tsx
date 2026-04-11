@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
@@ -628,36 +629,36 @@ export const OrdenesCompra: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Órdenes de Compra</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">Gestión de compras y proveedores</p>
-        </div>
-        <div className="flex items-center gap-2 sm:space-x-3">
-          <Button
-            variant="outline"
-            onClick={() => exportService.exportOrdenesCompra(ordenes)}
-            disabled={ordenesLN.length === 0}
-            className="flex-1 sm:flex-initial justify-center"
-          >
-            <Download className="h-5 w-5 mr-2" />
-            <span className="hidden sm:inline">Exportar Excel</span>
-            <span className="sm:hidden">Exportar</span>
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => setIsOrdenModalOpen(true)}
-            disabled={proveedoresActivos.length === 0}
-            className="flex-1 sm:flex-initial justify-center"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            <span className="hidden sm:inline">Nueva Orden</span>
-            <span className="sm:hidden">Nueva OC</span>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Compras"
+        subtitle="Ordenes de compra y proveedores"
+        icon={Package}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportService.exportOrdenesCompra(ordenes)}
+              disabled={ordenesLN.length === 0}
+            >
+              <Download className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Exportar</span>
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setIsOrdenModalOpen(true)}
+              disabled={proveedoresActivos.length === 0}
+            >
+              <Plus className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Nueva OC</span>
+              <span className="sm:hidden">Nueva</span>
+            </Button>
+          </div>
+        }
+      />
 
       {/* Alerta si no hay proveedores */}
       {proveedoresActivos.length === 0 && (
@@ -945,6 +946,6 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* Modal de Acciones con campos */}
       <ActionModal {...actionModalProps} />
-    </div>
+    </PageShell>
   );
 };

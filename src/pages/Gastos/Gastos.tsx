@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { formatFecha } from '../../utils/dateFormatters';
 import { formatCurrencyPEN } from '../../utils/format';
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2 } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2, Receipt } from 'lucide-react';
 import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton, GastoLineaBadge } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { PageShell, PageHeader } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -296,39 +297,23 @@ export const Gastos: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gastos Fijos del Mes</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Gastos del per\u00edodo: personal, local, servicios, operativos
-          </p>
-        </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-          <Button
-            variant="outline"
-            onClick={() => exportService.exportGastos(gastosFiltrados)}
-            disabled={gastosVisibles.length === 0}
-            className="flex-shrink-0"
-          >
-            <Download className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Exportar Excel</span>
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={handleRecalcularCTRU}
-            className="flex-shrink-0"
-          >
-            <TrendingUp className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Recalcular CTRU</span>
-          </Button>
-          <Button onClick={() => { setGastoParaEditar(null); setShowModal(true); }} className="flex-shrink-0">
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Gasto
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Gastos Fijos"
+        subtitle="Gastos del per\u00edodo: personal, local, servicios, operativos"
+        icon={Receipt}
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => exportService.exportGastos(gastosFiltrados)} disabled={gastosVisibles.length === 0}>
+              <Download className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Exportar</span>
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => { setGastoParaEditar(null); setShowModal(true); }}>
+              <Plus className="h-4 w-4 mr-1.5" />Nuevo
+            </Button>
+          </div>
+        }
+      />
 
       {/* Navegador de Período */}
       <Card padding="md">
@@ -1128,6 +1113,6 @@ export const Gastos: React.FC = () => {
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
-    </div>
+    </PageShell>
   );
 };

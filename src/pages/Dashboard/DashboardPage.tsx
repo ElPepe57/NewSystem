@@ -1,6 +1,7 @@
 import React from 'react';
 import { LayoutDashboard } from 'lucide-react';
-import { DashboardSkeleton, GradientHeader, LineaFiltroActivoBanner } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
+import { DashboardSkeleton, LineaFiltroActivoBanner } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ErrorTesoreriaBanner } from '../../components/modules/dashboard/ErrorTesoreriaBanner';
 import { useDashboardData } from './useDashboardData';
@@ -21,9 +22,9 @@ export const DashboardPage: React.FC = () => {
   const cxcVencidos = data.dashboardCxPCxC?.cuentasPorCobrar.cantidadVencidos ?? 0;
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       {/* Header */}
-      <GradientHeader
+      <PageHeader
         title="Dashboard"
         subtitle={new Date().toLocaleDateString('es-PE', {
           weekday: 'long',
@@ -32,7 +33,6 @@ export const DashboardPage: React.FC = () => {
           day: 'numeric'
         })}
         icon={LayoutDashboard}
-        variant="dark"
       />
 
       {/* Banners de estado */}
@@ -40,9 +40,7 @@ export const DashboardPage: React.FC = () => {
       <LineaFiltroActivoBanner onClear={() => data.setLineaFiltroGlobal(null)} />
 
       {/* Filtro de linea */}
-      <div className="flex-1 min-w-0">
-        <LineaFilterInline />
-      </div>
+      <LineaFilterInline />
 
       {/* Zona 1 — Executive Pulse */}
       <ExecutiveSummarySection
@@ -96,13 +94,13 @@ export const DashboardPage: React.FC = () => {
       {/* Zona 4 — Insights proactivos */}
       <InsightsSection insights={data.insights} />
 
-      {/* Zona 4 — Profundidad: Top 5 + Rentabilidad por linea */}
+      {/* Zona 5 — Profundidad */}
       <DeepAnalyticsSection
         topProductosVendidos={data.topProductosVendidos}
         rentabilidadSUP={data.rentabilidadSUP}
         rentabilidadSKC={data.rentabilidadSKC}
         lineaFiltroGlobal={data.lineaFiltroGlobal}
       />
-    </div>
+    </PageShell>
   );
 };
