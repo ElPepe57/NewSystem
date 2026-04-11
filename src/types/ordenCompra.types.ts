@@ -4,11 +4,16 @@ import type { AtributosSkincare } from './producto.types';
 // Estado logístico de la orden (ciclo de vida del producto físico)
 export type EstadoOrden =
   | 'borrador'          // Creada pero no enviada
-  | 'enviada'           // Enviada al proveedor
-  | 'en_transito'       // Mercadería en camino
-  | 'recibida_parcial'  // Algunos productos recibidos, otros pendientes
-  | 'recibida'          // Recibida en almacén (completa)
-  | 'cancelada';        // Cancelada
+  | 'confirmada'        // OC aprobada, unidades creadas en estado 'pedida', Envio T1 creado
+  | 'en_proceso'        // Al menos una unidad salio de 'pedida' (en transito)
+  | 'despachada'        // Todas las unidades salieron del proveedor
+  | 'completada'        // Todas las unidades llegaron a destino
+  | 'cancelada'         // Cancelada
+  // Legacy (backward compat — no usar en codigo nuevo)
+  | 'enviada'           // Legacy: equivale a confirmada
+  | 'en_transito'       // Legacy: equivale a en_proceso
+  | 'recibida_parcial'  // Legacy: equivale a en_proceso
+  | 'recibida';         // Legacy: equivale a completada
 
 // Estado de pago (independiente del estado logístico)
 export type EstadoPagoOC =
@@ -252,12 +257,20 @@ export interface OrdenCompra {
   lineaNegocioNombre?: string;
 
   // Tipo de Cambio
-  tcCompra?: number;          // TC al momento de crear la orden
-  tcPago?: number;            // TC al momento del pago
+  tcReferencial?: number;     // TC del dia que se crea la OC (para estimar costos en PEN)
+  tcCompra?: number;          // TC al momento de crear la orden (legacy alias de tcReferencial)
+  tcPago?: number;            // TC al momento del pago real
   totalPEN?: number;          // totalUSD × tcPago
-  
+
   // Diferencia cambiaria (si TC pago != TC compra)
   diferenciaCambiaria?: number;
+
+  // ========== Sub-Ordenes (Acuerdo 5) ==========
+  subOrdenes?: SubOrdenCompra[];
+
+  // ========== Cargos y Descuentos del proveedor (Acuerdo 5) ==========
+  cargosOC?: CargoOC[];
+  descuentosOC?: DescuentoOC[];
   
   // Estados (logístico y financiero son independientes)
   estado: EstadoOrden;              // Estado logístico
@@ -444,4 +457,39 @@ export interface ProveedorStats {
     montoTotalUSD: number;
     clasificacion?: ClasificacionProveedor;
   }>;
+}
+
+// ========== REINGENIERIA: Sub-Ordenes, Cargos, Descuentos ==========
+
+/**
+ * Sub-orden de compra — division de una OC matriz
+ * Cada sub-orden tiene su propia referencia de proveedor y genera su propio Envio T1.
+ */
+export interface SubOrdenCompra {
+  id: string;                          // SUB-{ocId}-{secuencial}
+  referenciaProveedor: string;         // Numero de orden/factura del proveedor
+  productos: ProductoOrden[];
+  totalUSD: number;
+  envioId?: string;                    // ID del Envio T1 generado automaticamente
+  envioNumero?: string;
+}
+
+/**
+ * Cargo adicional en la OC (cobrado por el proveedor)
+ */
+export interface CargoOC {
+  id: string;
+  concepto: string;                    // "Shipping fee", "Handling fee", etc.
+  montoUSD: number;
+  metodoProrrateo: 'por_valor' | 'por_cantidad' | 'por_peso';
+}
+
+/**
+ * Descuento en la OC (dado por el proveedor)
+ */
+export interface DescuentoOC {
+  id: string;
+  concepto: string;                    // "Subscribe & Save", "Bulk discount", etc.
+  montoUSD: number;
+  metodoProrrateo: 'por_valor' | 'por_cantidad' | 'proporcional';
 }

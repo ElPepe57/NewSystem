@@ -255,12 +255,16 @@ export interface Venta {
   incluyeEnvio: boolean;      // true = envío gratuito, false = cliente paga
   totalPEN: number;           // subtotal - descuento + (incluyeEnvio ? 0 : costoEnvio)
 
-  // ========== Gastos de Venta (afectan la utilidad real) ==========
-  // Estos gastos se restan de la utilidad bruta para obtener la utilidad neta
+  // ========== Costos por Venta (Reingenieria: Acuerdo 3, Caja 2) ==========
+  // Array de costos directos asociados a esta venta
+  costosVenta?: CostoVenta[];
+  costoVentaTotalPEN?: number;  // Suma de todos los costosVenta en PEN
+
+  // ========== Gastos de Venta legacy (se migraran a costosVenta) ==========
   costoEnvioNegocio?: number;   // Delivery asumido por el negocio (no cliente) en PEN
-  comisionML?: number;          // Comisión de MercadoLibre en PEN
-  comisionMLPorcentaje?: number; // Porcentaje de comisión ML aplicado
-  costoEnvioML?: number;        // Costo de envío que cobra ML (si aplica)
+  comisionML?: number;          // Comision de MercadoLibre en PEN
+  comisionMLPorcentaje?: number; // Porcentaje de comision ML aplicado
+  costoEnvioML?: number;        // Costo de envio que cobra ML (si aplica)
   otrosGastosVenta?: number;    // Otros gastos directos de la venta
 
   // Rentabilidad (calculada después de asignar unidades)
@@ -534,4 +538,21 @@ export interface ProductoDisponible {
     demandaEstimada: 'baja' | 'media' | 'alta';
     fechaInvestigacion?: Date;
   };
+}
+
+// ========== REINGENIERIA: Costo por Venta ==========
+
+/**
+ * Costo directo asociado a una venta (Caja 2 del modelo de costos)
+ * Ejemplos: comision ML, delivery, empaque via kit
+ */
+export interface CostoVenta {
+  id: string;
+  categoriaCostoId: string;          // Ref al maestro dinamico
+  categoriaCostoNombre: string;      // Desnormalizado
+  descripcion?: string;
+  monto: number;                     // En moneda original
+  moneda: 'USD' | 'PEN';
+  montoPEN: number;                  // Convertido a PEN
+  tipoCambio?: number;               // Si moneda=USD
 }

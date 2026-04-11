@@ -1,38 +1,38 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
- * Estados posibles de una unidad (flujo Origen → Perú)
+ * Estados posibles de una unidad (flujo lineal + excepciones)
  *
- * Estados genéricos (multi-origen):
- *   recibida_origen    → Recibida en almacén/viajero/courier del país origen
- *   en_transito_origen → En tránsito entre almacenes del país origen (transferencia interna)
- *   en_transito_peru   → En tránsito internacional hacia Perú
- *   disponible_peru    → Disponible para venta en Perú
+ * Flujo normal:
+ *   pedida → en_transito → disponible → reservada → asignada_venta → vendida
  *
- * Legacy (backward compat, mismo significado que los genéricos cuando pais=USA):
- *   recibida_usa       → alias de recibida_origen para docs legacy
- *   en_transito_usa    → alias de en_transito_origen para docs legacy
+ * Excepciones (pueden ocurrir en cualquier punto):
+ *   danada, perdida, retenida_aduana
  */
 export type EstadoUnidad =
-  // Estados genéricos en origen (multi-país)
-  | 'recibida_origen'     // Recibida en almacén/viajero/courier del país origen
-  | 'en_transito_origen'  // En tránsito entre almacenes en país origen (transferencia interna)
-  // Estados legacy (backward compat — mismo significado, solo para docs existentes)
-  | 'recibida_usa'        // Legacy: equivale a recibida_origen cuando pais=USA
-  | 'en_transito_usa'     // Legacy: equivale a en_transito_origen cuando pais=USA
-  // Estados en tránsito internacional
-  | 'en_transito_peru'    // En tránsito internacional → Perú (con viajero/courier)
-  // Estados en Perú
-  | 'disponible_peru'     // Disponible para venta en Perú
-  | 'reservada'           // Reservada en una cotización/orden
-  | 'asignada_pedido'     // Asignada a un pedido/venta (pendiente de entrega)
+  // Flujo normal (Acuerdo 7)
+  | 'pedida'              // Nace al confirmar OC
+  | 'en_transito'         // En movimiento (cualquier envio)
+  | 'disponible'          // Disponible para venta en casilla destino
+  | 'reservada'           // Reservada para un cliente (intencion o adelanto)
+  | 'asignada_venta'      // Asignada a una venta especifica
   | 'vendida'             // Vendida y entregada
-  // Estados especiales
-  | 'vencida'             // Producto vencido
-  | 'danada'              // Producto dañado — pendiente de disposición
-  | 'en_reclamo'          // En proceso de reclamo a viajero/proveedor
-  | 'baja'                // Baja definitiva confirmada (destruida/descartada)
-  | 'donada';             // Donada a terceros (entidad benéfica, empleados)
+  // Excepciones (Acuerdo 7)
+  | 'danada'              // Producto danado fisicamente
+  | 'perdida'             // Producto extraviado o decomisado
+  | 'retenida_aduana'     // Retenido en aduana (puede liberarse o decomisarse)
+  // Legacy (backward compat — eliminados en reingenieria, solo para docs pre-existentes)
+  | 'recibida_origen'
+  | 'recibida_usa'
+  | 'en_transito_origen'
+  | 'en_transito_usa'
+  | 'en_transito_peru'
+  | 'disponible_peru'
+  | 'asignada_pedido'
+  | 'vencida'
+  | 'en_reclamo'
+  | 'baja'
+  | 'donada';
 
 /**
  * Disposición para unidades vencidas
@@ -40,19 +40,31 @@ export type EstadoUnidad =
 export type DisposicionVencida = 'baja_definitiva' | 'donacion';
 
 /**
- * Estados que representan "en origen" (genéricos + legacy)
- * Usar estos arrays para queries y filtros en vez de comparar strings directamente
+ * Estados activos para calculo de CTRU y stock
+ * Solo unidades que representan inventario disponible o comprometido
+ */
+export const ESTADOS_ACTIVOS: EstadoUnidad[] = [
+  'disponible',
+  'reservada',
+  'asignada_venta',
+];
+
+/**
+ * Estados que representan unidades en el pipeline (pedidas + transito + activas)
+ */
+export const ESTADOS_PIPELINE: EstadoUnidad[] = [
+  'pedida',
+  'en_transito',
+  'disponible',
+  'reservada',
+  'asignada_venta',
+];
+
+/**
+ * @deprecated Legacy — usar ESTADOS_ACTIVOS en su lugar
  */
 export const ESTADOS_EN_ORIGEN: EstadoUnidad[] = ['recibida_origen', 'recibida_usa'];
 export const ESTADOS_EN_TRANSITO_ORIGEN: EstadoUnidad[] = ['en_transito_origen', 'en_transito_usa'];
-export const ESTADOS_ACTIVOS: EstadoUnidad[] = [
-  'recibida_origen', 'recibida_usa',
-  'en_transito_origen', 'en_transito_usa',
-  'en_transito_peru',
-  'disponible_peru',
-  'reservada',
-  'asignada_pedido',
-];
 
 /**
  * Tipo de movimiento de una unidad
@@ -102,11 +114,13 @@ export interface Unidad {
   fechaVencimiento: Timestamp;
   diasParaVencer?: number;       // Calculado: días hasta vencimiento
 
-  // Ubicación actual
-  almacenId: string;
-  almacenNombre: string;         // Desnormalizado
-  pais: string;                  // Desnormalizado (PaisAlmacen: 'USA', 'Peru', 'China', 'Corea', etc.)
-  paisOrigen?: string;           // País donde se compró originalmente (desnormalizado)
+  // Ubicacion actual
+  casillaActualId: string;       // Casilla donde esta la unidad actualmente
+  casillaNombre?: string;        // Desnormalizado
+  /** @deprecated Usar casillaActualId */ almacenId?: string;
+  /** @deprecated Usar casillaNombre */ almacenNombre?: string;
+  pais: string;                  // Desnormalizado (PaisCasilla)
+  paisOrigen?: string;           // Pais donde se compro originalmente
 
   // Línea de negocio (desnormalizado del producto)
   lineaNegocioId?: string;
@@ -133,9 +147,12 @@ export interface Unidad {
   costoRecojoPEN?: number;       // En soles — monto variable por recepción
   transferenciaRecojoId?: string; // ID de la transferencia/recepción que generó el C3
 
-  // Desglose GA/GO (C4)
-  costoGAAsignado?: number;      // Gastos Administrativos prorrateados
-  costoGOAsignado?: number;      // Gastos Operativos prorrateados
+  // Costos landed prorrateados (del Envio)
+  costosLandedPEN?: number;      // Suma de costos landed prorrateados a esta unidad
+
+  // @deprecated — eliminados en reingenieria (Acuerdo 3: GA/GO no tocan CTRU)
+  costoGAAsignado?: number;
+  costoGOAsignado?: number;
 
   // Trazabilidad
   ordenCompraId: string;         // OC que generó esta unidad

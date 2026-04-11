@@ -302,11 +302,15 @@ export interface Gasto {
   // Identificación
   numeroGasto: string;            // GAS-0001, GAS-0002, etc.
 
-  // Clasificación
+  // Clasificacion
   tipo: TipoGasto;
-  categoria: CategoriaGasto;
-  claseGasto: ClaseGasto;         // GVD o GAO (derivado de categoría)
+  /** @deprecated Usar categoriaCostoId */ categoria: CategoriaGasto;
+  /** @deprecated Usar categoriaCostoId */ claseGasto: ClaseGasto;
   descripcion: string;
+
+  // Reingenieria: referencia al maestro dinamico de categorias de costo
+  categoriaCostoId?: string;
+  categoriaCostoNombre?: string;
 
   // Monto
   moneda: MonedaGasto;

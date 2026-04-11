@@ -65,9 +65,20 @@ export const COLLECTIONS = {
   SCAN_HISTORY: 'scanHistory',
   CONTEOS_INVENTARIO: 'conteosInventario',
 
-  // === Rendimiento Cambiario (Pool USD) ===
-  POOL_USD_MOVIMIENTOS: 'poolUSDMovimientos',
-  POOL_USD_SNAPSHOTS: 'poolUSDSnapshots',
+  // === Rendimiento Cambiario (Pool USD) — deprecado, se fusiona con Tesoreria ===
+  /** @deprecated Se fusionara con Tesoreria en reingenieria */ POOL_USD_MOVIMIENTOS: 'poolUSDMovimientos',
+  /** @deprecated Se fusionara con Tesoreria en reingenieria */ POOL_USD_SNAPSHOTS: 'poolUSDSnapshots',
+
+  // === Reingenieria: Red Logistica ===
+  CASILLAS: 'casillas',
+  COLABORADORES: 'colaboradores',
+  ENVIOS: 'envios',
+
+  // === Reingenieria: Costos y Finanzas ===
+  CATEGORIAS_COSTOS: 'categoriasCostos',
+  INSUMOS: 'insumos',
+  KITS_EMPAQUE: 'kitsEmpaque',
+  TARJETAS_CREDITO: 'tarjetasCredito',
 
   // === Colaboración ===
   PRESENCIA: 'presencia',

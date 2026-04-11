@@ -131,6 +131,43 @@ service cloud.firestore {
       allow write: if hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador']);
     }
 
+    // === Reingenieria: Red Logistica ===
+    match /casillas/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero']);
+    }
+
+    match /colaboradores/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero']);
+    }
+
+    match /envios/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero', 'comprador']);
+    }
+
+    // === Reingenieria: Costos y Finanzas ===
+    match /categoriasCostos/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    match /insumos/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero']);
+    }
+
+    match /kitsEmpaque/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'almacenero']);
+    }
+
+    match /tarjetasCredito/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
     match /ordenesCompra/{docId} {
       // Vendedor/comprador crea OC desde requerimientos, almacenero recibe
       allow read: if isActiveUser();
