@@ -250,7 +250,7 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead>
+              <thead className="bg-slate-50">
                 <tr className="border-b border-slate-100 text-slate-500 text-xs">
                   <th className="text-left py-2 px-4 font-medium">#</th>
                   <th className="text-left py-2 px-4 font-medium">Producto</th>

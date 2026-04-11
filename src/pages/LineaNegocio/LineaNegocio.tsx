@@ -157,7 +157,7 @@ export const LineaNegocio: React.FC = () => {
           {/* Desktop table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
-              <thead>
+              <thead className="bg-slate-50">
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Color</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Codigo</th>

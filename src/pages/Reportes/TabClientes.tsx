@@ -118,7 +118,7 @@ export const TabClientes: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="bg-slate-50">
                 <tr className="text-xs text-slate-500 border-b bg-slate-50">
                   <th className="text-left py-2 px-4">Cliente</th>
                   <th className="text-center py-2 px-3">Compras</th>

@@ -189,7 +189,7 @@ const TablaResultados: React.FC<{
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm">
-        <thead>
+        <thead className="bg-slate-50">
           <tr className="border-b border-slate-100">
             <th className="py-2 pr-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Producto</th>
             <th className="py-2 px-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Línea</th>

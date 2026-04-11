@@ -97,7 +97,7 @@ export const TabLogistica: React.FC = () => {
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead>
+              <thead className="bg-slate-50">
                 <tr className="text-slate-500 border-b bg-slate-50">
                   <th className="text-left py-2 px-3">#</th>
                   <th className="text-left py-2 px-3">Producto</th>
@@ -195,7 +195,7 @@ const ViajeroRow: React.FC<{ viajero: RendimientoViajero; isExpanded: boolean; o
           {/* Historial de envíos */}
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead>
+              <thead className="bg-slate-50">
                 <tr className="text-slate-500 border-b">
                   <th className="text-left py-1.5 pr-2">#</th>
                   <th className="text-left py-1.5 pr-2">Fecha</th>

@@ -699,7 +699,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               </div>
               <div className="bg-white rounded-lg border border-orange-200 overflow-hidden">
                 <table className="min-w-full divide-y divide-orange-100">
-                  <thead className="bg-orange-100">
+                  <thead className="bg-slate-50">
                     <tr>
                       <th className="px-3 py-2 text-left text-xs font-medium text-slate-600">Producto</th>
                       <th className="px-3 py-2 text-right text-xs font-medium text-slate-600">Venta</th>
@@ -830,7 +830,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               <h5 className="text-sm font-medium text-slate-700 mb-2">Historial de Pagos</h5>
               <div className="bg-white rounded-lg border border-green-200 overflow-hidden">
                 <table className="min-w-full divide-y divide-green-200">
-                  <thead className="bg-green-100">
+                  <thead className="bg-slate-50">
                     <tr>
                       <th className="px-3 py-2 text-left text-xs font-medium text-slate-600">Fecha</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-slate-600">Método</th>

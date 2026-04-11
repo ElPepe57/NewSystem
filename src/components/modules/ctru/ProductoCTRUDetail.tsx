@@ -361,7 +361,7 @@ function ComprasTab({ p, formatUSD, formatDate }: {
       {p.lotes.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="bg-slate-50">
               <tr className="border-b border-slate-200">
                 <th className="text-left py-2 px-2 font-medium text-slate-600">OC #</th>
                 <th className="text-left py-2 px-2 font-medium text-slate-600">Fecha</th>
@@ -443,7 +443,7 @@ function VentasTab({ p, formatDate }: {
       {p.ventasDetalle.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="bg-slate-50">
               <tr className="border-b border-slate-200">
                 <th className="text-left py-2 px-2 font-medium text-slate-600">Venta #</th>
                 <th className="text-left py-2 px-2 font-medium text-slate-600">Fecha</th>

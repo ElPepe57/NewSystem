@@ -281,7 +281,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
       {/* ═══ DESKTOP: Table Layout ═══ */}
       <div className="hidden sm:block overflow-x-auto -mx-4 sm:-mx-6">
         <table className="w-full text-sm min-w-[1100px]">
-          <thead>
+          <thead className="bg-slate-50">
             {/* Group headers row */}
             <tr className="border-b border-slate-100">
               <th className="py-1.5 px-2" />

@@ -945,7 +945,7 @@ export const Ventas: React.FC = () => {
                   </h4>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead>
+                      <thead className="bg-slate-50">
                         <tr className="border-b border-purple-200 text-left">
                           <th className="pb-2 pr-3 text-purple-600 font-medium">Socio</th>
                           <th className="pb-2 px-3 text-purple-600 font-medium text-center">Ventas</th>

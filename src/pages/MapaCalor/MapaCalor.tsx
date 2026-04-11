@@ -104,7 +104,7 @@ export function MapaCalor() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="bg-slate-50">
                 <tr className="bg-slate-50 text-slate-500 text-xs uppercase">
                   <th className="px-4 py-2 text-left">#</th>
                   <th className="px-4 py-2 text-left">Distrito</th>

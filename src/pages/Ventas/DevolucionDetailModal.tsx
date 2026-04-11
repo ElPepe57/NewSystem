@@ -390,7 +390,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead>
+                <thead className="bg-slate-50">
                   <tr className="border-b border-slate-200 text-left">
                     <th className="pb-2 text-slate-500 font-medium">Producto</th>
                     <th className="pb-2 text-slate-500 font-medium text-center">Cant.</th>

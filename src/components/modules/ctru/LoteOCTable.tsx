@@ -48,7 +48,7 @@ export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes }) => {
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="bg-slate-50">
             <tr className="border-b border-slate-200">
               <th className="text-left py-3 px-2 font-medium text-slate-600 w-8"></th>
               <th className="text-left py-3 px-2 font-medium text-slate-600">OC #</th>
@@ -175,7 +175,7 @@ export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes }) => {
 
                         <h4 className="text-xs font-semibold text-slate-700 mb-2">Productos en esta OC</h4>
                         <table className="w-full text-xs">
-                          <thead>
+                          <thead className="bg-slate-50">
                             <tr className="border-b">
                               <th className="text-left py-2 px-2 text-slate-500">SKU</th>
                               <th className="text-left py-2 px-2 text-slate-500">Producto</th>

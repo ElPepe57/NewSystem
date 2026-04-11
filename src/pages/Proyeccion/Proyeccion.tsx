@@ -272,7 +272,7 @@ const TabVentas: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
       <h3 className="font-semibold text-sm mb-3">Ventas Proyectadas por Producto</h3>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="bg-slate-50">
             <tr className="border-b text-xs text-slate-500">
               <th className="text-left py-2 px-2">Producto</th>
               <th className="text-right py-2 px-2">Vel. venta/mes</th>
@@ -518,7 +518,7 @@ const TabFlujoCaja: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
     <Card className="p-4">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="bg-slate-50">
             <tr className="border-b text-xs text-slate-500">
               <th className="text-left py-2 px-2">Semana</th>
               <th className="text-right py-2 px-2">Cobros</th>
