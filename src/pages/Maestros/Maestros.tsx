@@ -58,6 +58,7 @@ const TransportistasLogistica = lazy(() => import('../../components/Maestros/Tra
 const CanalesVentaAnalytics = lazy(() => import('../../components/Maestros/CanalesVentaAnalytics').then(m => ({ default: m.CanalesVentaAnalytics })));
 const CategoriasCostos = lazy(() => import('../../components/Maestros/CategoriasCostos').then(m => ({ default: m.CategoriasCostos })));
 const InsumosEmpaque = lazy(() => import('../../components/Maestros/InsumosEmpaque').then(m => ({ default: m.InsumosEmpaque })));
+const KitsEmpaque = lazy(() => import('../../components/Maestros/KitsEmpaque').then(m => ({ default: m.KitsEmpaque })));
 
 const TabFallback = (
   <div className="flex justify-center items-center py-12">
@@ -633,6 +634,7 @@ export const Maestros: React.FC = () => {
     { id: 'canales', label: 'Canales', icon: Store },
     { id: 'categorias_costos', label: 'Costos', icon: Boxes },
     { id: 'insumos', label: 'Insumos', icon: Package },
+    { id: 'kits', label: 'Kits', icon: Package },
     { id: 'clasificacion', label: 'Clasificacion', icon: Boxes }
   ];
 
@@ -909,6 +911,12 @@ export const Maestros: React.FC = () => {
           {tabActiva === 'insumos' && (
             <Suspense fallback={TabFallback}>
               <InsumosEmpaque />
+            </Suspense>
+          )}
+
+          {tabActiva === 'kits' && (
+            <Suspense fallback={TabFallback}>
+              <KitsEmpaque />
             </Suspense>
           )}
 
