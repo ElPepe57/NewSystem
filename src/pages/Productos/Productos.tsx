@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Filter, X, Package, Trash2, BarChart3 } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal } from '../../components/common';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
@@ -742,45 +742,19 @@ export const Productos: React.FC = () => {
       {/* Filtro de linea de negocio */}
       <LineaFilterInline />
 
-      {/* Toolbar */}
-      <Toolbar resultCount={productosFiltrados.length} />
+      {/* Toolbar con search */}
+      <Toolbar
+        search={{
+          value: searchTerm,
+          onChange: (v) => { setSearchTerm(v); setCurrentPage(1); },
+          placeholder: 'Buscar por SKU, marca, nombre...'
+        }}
+        filterCount={[filters.estado, filters.marca, filters.tipoProductoId, filters.categoriaId, filters.etiquetaId, filters.stockStatus, filters.investigacion, filters.grupo].filter(Boolean).length}
+        onFilterToggle={() => setShowFilters(!showFilters)}
+        resultCount={productosFiltrados.length}
+      />
 
-      {/* Busqueda y Filtros */}
-      <Card padding="md">
-        <div className="space-y-3">
-          {/* Barra de búsqueda */}
-          <div className="flex gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar por SKU, marca, nombre..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-            {/* Desktop: toggle panel */}
-            <Button
-              variant={showFilters ? 'primary' : 'outline'}
-              onClick={() => setShowFilters(!showFilters)}
-              className="hidden sm:flex"
-            >
-              <Filter className="h-5 w-5 mr-2" />
-              Filtros
-            </Button>
-            {/* Mobile: open bottom sheet */}
-            <Button
-              variant="outline"
-              onClick={() => setShowMobileFilters(true)}
-              className="sm:hidden"
-            >
-              <Filter className="h-5 w-5" />
-            </Button>
-          </div>
+      <div className="space-y-3">
 
           {/* Pills rápidos — siempre visibles */}
           <FiltrosRapidos
@@ -1041,8 +1015,7 @@ export const Productos: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
-      </Card>
+      </div>
 
       {/* Tabla de productos */}
       <Card padding="md">
