@@ -15,7 +15,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar, StatCard } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { TesoreriaService } from '../../services/tesoreria.service';
 
@@ -774,108 +774,18 @@ export const Tesoreria: React.FC = () => {
 
       {/* KPIs */}
       {stats && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card padding="md" className="bg-gradient-to-br from-green-50 to-white border-green-200">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-green-800 uppercase tracking-wide">Soles (PEN)</h3>
-                <Banknote className="h-5 w-5 sm:h-8 sm:w-8 text-green-500" />
-              </div>
-              <div className="text-xl sm:text-3xl font-bold text-green-700 mb-2 sm:mb-3">
-                S/ {stats.saldoTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-green-200">
-                <div>
-                  <div className="flex items-center text-xs text-gray-500 mb-1">
-                    <ArrowUpCircle className="h-3 w-3 mr-1 text-green-500" />
-                    Ingresos Mes
-                  </div>
-                  <div className="text-sm font-semibold text-green-600">
-                    +S/ {stats.ingresosMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center text-xs text-gray-500 mb-1">
-                    <ArrowDownCircle className="h-3 w-3 mr-1 text-red-500" />
-                    Egresos Mes
-                  </div>
-                  <div className="text-sm font-semibold text-red-600">
-                    -S/ {stats.egresosMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-2 pt-2 border-t border-green-100">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-gray-500">Balance Mes:</span>
-                  <span className={`font-semibold ${(stats.ingresosMesPEN - stats.egresosMesPEN) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(stats.ingresosMesPEN - stats.egresosMesPEN) >= 0 ? '+' : ''}S/ {(stats.ingresosMesPEN - stats.egresosMesPEN).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-            </Card>
-
-            <Card padding="md" className="bg-gradient-to-br from-blue-50 to-white border-blue-200">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-blue-800 uppercase tracking-wide">Dolares (USD)</h3>
-                <DollarSign className="h-5 w-5 sm:h-8 sm:w-8 text-blue-500" />
-              </div>
-              <div className="text-xl sm:text-3xl font-bold text-blue-700 mb-2 sm:mb-3">
-                $ {stats.saldoTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-3 border-t border-blue-200">
-                <div>
-                  <div className="flex items-center text-xs text-gray-500 mb-1">
-                    <ArrowUpCircle className="h-3 w-3 mr-1 text-green-500" />
-                    Ingresos Mes
-                  </div>
-                  <div className="text-sm font-semibold text-green-600">
-                    +$ {stats.ingresosMesUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center text-xs text-gray-500 mb-1">
-                    <ArrowDownCircle className="h-3 w-3 mr-1 text-red-500" />
-                    Egresos Mes
-                  </div>
-                  <div className="text-sm font-semibold text-red-600">
-                    -$ {stats.egresosMesUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-2 pt-2 border-t border-blue-100">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-gray-500">Balance Mes:</span>
-                  <span className={`font-semibold ${(stats.ingresosMesUSD - stats.egresosMesUSD) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(stats.ingresosMesUSD - stats.egresosMesUSD) >= 0 ? '+' : ''}$ {(stats.ingresosMesUSD - stats.egresosMesUSD).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-            <Card padding="sm" className="bg-gray-50">
-              <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Conversiones Mes</div>
-              <div className="text-base sm:text-lg font-bold text-gray-800">{stats.conversionesMes || 0}</div>
-              <div className="text-xs text-gray-400 mt-1">Spread prom: {(stats.spreadPromedioMes || 0).toFixed(3)}</div>
-            </Card>
-            <Card padding="sm" className="bg-gray-50">
-              <div className="text-[10px] sm:text-xs text-gray-500 mb-1"><span className="sm:hidden">TC Prom.</span><span className="hidden sm:inline">TC Promedio Usado</span></div>
-              <div className="text-base sm:text-lg font-bold text-gray-800">{(stats.tcPromedioMes || tcDefault).toFixed(3)}</div>
-              <div className="text-xs text-gray-400 mt-1">Este mes</div>
-            </Card>
-            <Card padding="sm" className="bg-amber-50 border-amber-200">
-              <div className="text-[10px] sm:text-xs text-amber-700 mb-1"><span className="sm:hidden">Pend. USD</span><span className="hidden sm:inline">Pagos Pendientes USD</span></div>
-              <div className="text-base sm:text-lg font-bold text-amber-800">$ {(stats.pagosPendientesUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-              <div className="text-xs text-amber-600 mt-1">Por pagar</div>
-            </Card>
-            <Card padding="sm" className="bg-amber-50 border-amber-200">
-              <div className="text-[10px] sm:text-xs text-amber-700 mb-1"><span className="sm:hidden">Pend. PEN</span><span className="hidden sm:inline">Pagos Pendientes PEN</span></div>
-              <div className="text-base sm:text-lg font-bold text-amber-800">S/ {(stats.pagosPendientesPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</div>
-              <div className="text-xs text-amber-600 mt-1">Por pagar</div>
-            </Card>
-          </div>
-        </div>
+        <>
+          <KPIBar columns={2}>
+            <StatCard label="Saldo PEN" value={`S/${stats.saldoTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`} icon={Banknote} variant="success" />
+            <StatCard label="Saldo USD" value={`$${stats.saldoTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`} icon={DollarSign} variant="brand" />
+          </KPIBar>
+          <KPIBar columns={4}>
+            <StatCard label="Conversiones Mes" value={stats.conversionesMes || 0} variant="neutral" size="sm" />
+            <StatCard label="TC Promedio" value={(stats.tcPromedioMes || tcDefault).toFixed(3)} variant="neutral" size="sm" />
+            <StatCard label="Pendiente USD" value={`$${(stats.pagosPendientesUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`} variant="warning" size="sm" />
+            <StatCard label="Pendiente PEN" value={`S/${(stats.pagosPendientesPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`} variant="warning" size="sm" />
+          </KPIBar>
+        </>
       )}
 
       {/* Tabs Navigation */}

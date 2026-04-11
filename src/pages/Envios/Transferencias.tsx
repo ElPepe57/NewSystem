@@ -378,10 +378,9 @@ export const Transferencias: React.FC = () => {
 
   return (
     <PageShell>
-      {/* Header con Gradiente */}
       <PageHeader
-        title="Env00edos"
-        subtitle="Gestiona el movimiento de productos entre almacenes"
+        title="Env\u00edos"
+        subtitle="Gestiona el movimiento de productos entre casillas"
         icon={ArrowRightLeft}
        
         actions={
