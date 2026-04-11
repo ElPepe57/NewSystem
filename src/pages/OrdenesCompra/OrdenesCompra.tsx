@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar, StatCard } from '../../design-system';
 import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
@@ -685,63 +685,12 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* KPIs */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Total Órdenes</div>
-                <div className="text-2xl font-bold text-gray-900 mt-1">
-                  {stats.totalOrdenes}
-                </div>
-              </div>
-              <Package className="h-10 w-10 text-gray-400" />
-            </div>
-          </Card>
-
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">En Proceso</div>
-                <div className="text-2xl font-bold text-warning-600 mt-1">
-                  {stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {stats.enviadas} env. / {stats.enTransito} trán.{(stats.recibidasParcial || 0) > 0 ? ` / ${stats.recibidasParcial} parc.` : ''}
-                </div>
-              </div>
-              <TrendingUp className="h-10 w-10 text-warning-400" />
-            </div>
-          </Card>
-
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Recibidas</div>
-                <div className="text-2xl font-bold text-success-600 mt-1">
-                  {stats.recibidas}
-                </div>
-              </div>
-              <Package className="h-10 w-10 text-success-400" />
-            </div>
-          </Card>
-
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-gray-600">Valor Total</div>
-                <div className="text-xl font-bold text-primary-600 mt-1">
-                  ${stats.valorTotalUSD.toFixed(0)}
-                </div>
-                {stats.valorTotalPEN > 0 && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    S/ {stats.valorTotalPEN.toFixed(0)}
-                  </div>
-                )}
-              </div>
-              <DollarSign className="h-10 w-10 text-primary-400" />
-            </div>
-          </Card>
-        </div>
+        <KPIBar columns={4}>
+          <StatCard label="Total Ordenes" value={stats.totalOrdenes} icon={Package} variant="neutral" />
+          <StatCard label="En Proceso" value={stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)} icon={TrendingUp} variant="warning" />
+          <StatCard label="Recibidas" value={stats.recibidas} icon={CheckCircle} variant="success" />
+          <StatCard label="Valor Total" value={`$${stats.valorTotalUSD.toFixed(0)}`} icon={DollarSign} variant="brand" />
+        </KPIBar>
       )}
 
       {/* Pipeline de Estados */}

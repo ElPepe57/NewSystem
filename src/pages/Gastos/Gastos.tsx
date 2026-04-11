@@ -301,7 +301,7 @@ export const Gastos: React.FC = () => {
       {/* Header */}
       <PageHeader
         title="Gastos Fijos"
-        subtitle="Gastos del periodo: personal, local, servicios, operativos"
+        subtitle="Gastos del per\u00edodo: personal, local, servicios, operativos"
         icon={Receipt}
         actions={
           <div className="flex gap-2">
