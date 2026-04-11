@@ -751,7 +751,7 @@ export const Productos: React.FC = () => {
         }}
         filterCount={[filters.estado, filters.marca, filters.tipoProductoId, filters.categoriaId, filters.etiquetaId, filters.stockStatus, filters.investigacion, filters.grupo].filter(Boolean).length}
         onFilterToggle={() => setShowFilters(!showFilters)}
-        resultCount={productosFiltrados.length}
+        resultCount={sortedProductos.length}
       />
 
       <div className="space-y-3">
