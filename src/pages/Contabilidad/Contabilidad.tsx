@@ -36,8 +36,6 @@ import {
 } from 'lucide-react';
 import {
   TabNavigation,
-  KPICard,
-  KPIGrid,
   StatDistribution,
   Button,
 } from '../../components/common';

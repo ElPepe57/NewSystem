@@ -21,11 +21,10 @@ import {
   Button,
   Card,
   Badge,
-  KPICard,
-  KPIGrid,
   AlertCard,
   StatDistribution
 } from '../../components/common';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import type { Cliente, Competidor } from '../../types/entidadesMaestras.types';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import type { Proveedor } from '../../types/ordenCompra.types';
@@ -88,64 +87,12 @@ export const TabResumen: React.FC<TabResumenProps> = ({
           <BarChart3 className="h-5 w-5 text-teal-600" />
           Metricas Globales del Negocio
         </h3>
-        <KPIGrid columns={5}>
-          <KPICard
-            title="Total Entidades"
-            value={clientes.length + marcas.length + proveedores.length + almacenes.length + competidores.length + transportistas.length + canales.length}
-            subtitle="en el sistema"
-            icon={Boxes}
-            variant="info"
-            size="sm"
-          />
-          <KPICard
-            title="Clientes Activos"
-            value={clienteStats?.clientesActivos || 0}
-            subtitle={`de ${clientes.length} totales`}
-            icon={Users}
-            variant="success"
-            size="sm"
-          />
-          <KPICard
-            title="Proveedores Activos"
-            value={proveedores.filter(p => p.activo).length}
-            subtitle={`de ${proveedores.length} totales`}
-            icon={Truck}
-            variant="success"
-            size="sm"
-          />
-          <KPICard
-            title="Inventario USA"
-            value={almacenStats?.unidadesTotalesUSA?.toLocaleString() || '0'}
-            subtitle={`$${(almacenStats?.valorInventarioUSA || 0).toLocaleString()} USD`}
-            icon={Package}
-            variant="info"
-            size="sm"
-          />
-          <KPICard
-            title="Ticket Promedio"
-            value={`S/ ${clienteStats?.ticketPromedioGeneral?.toFixed(0) || 0}`}
-            subtitle="por cliente"
-            icon={DollarSign}
-            variant="success"
-            size="sm"
-          />
-          <KPICard
-            title="Transportistas"
-            value={transportistas.filter((t: any) => t.estado === 'activo').length}
-            subtitle={`de ${transportistas.length} totales`}
-            icon={Truck}
-            variant="info"
-            size="sm"
-          />
-          <KPICard
-            title="Canales Venta"
-            value={canales.filter((c: any) => c.estado === 'activo').length}
-            subtitle={`de ${canales.length} totales`}
-            icon={Store}
-            variant="success"
-            size="sm"
-          />
-        </KPIGrid>
+        <DSKPIBar columns={4}>
+          <DSStatCard label="Total Entidades" value={clientes.length + marcas.length + proveedores.length + almacenes.length + competidores.length + transportistas.length + canales.length} icon={Boxes} variant="info" size="sm" />
+          <DSStatCard label="Clientes Activos" value={clienteStats?.clientesActivos || 0} icon={Users} variant="success" size="sm" />
+          <DSStatCard label="Proveedores" value={proveedores.filter(p => p.activo).length} icon={Truck} variant="success" size="sm" />
+          <DSStatCard label="Inventario USA" value={almacenStats?.unidadesTotalesUSA?.toLocaleString() || '0'} icon={Package} variant="info" size="sm" />
+        </DSKPIBar>
       </div>
 
       {/* Distribucion de Entidades */}

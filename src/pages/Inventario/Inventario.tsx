@@ -30,8 +30,6 @@ import {
   Modal,
   InventarioSkeleton,
   PipelineHeader,
-  KPIGrid,
-  KPICard,
   SearchInput,
   Select,
 
