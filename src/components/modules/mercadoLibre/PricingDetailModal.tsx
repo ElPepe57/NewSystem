@@ -33,7 +33,7 @@ const CostWaterfall: React.FC<{ ctru: CTRUProductoDetalle }> = ({ ctru }) => {
     { label: 'Envio OC', value: ctru.costoEnvioPENProm, pct: ctru.pctEnvio, color: 'bg-cyan-500' },
     { label: 'Otros OC', value: ctru.costoOtrosPENProm, pct: ctru.pctOtros, color: 'bg-cyan-400' },
     { label: 'Flete Intl', value: ctru.costoFleteIntlPENProm, pct: ctru.pctFleteIntl, color: 'bg-teal-500' },
-    { label: 'GA/GO', value: ctru.gastoGAGOProm || ctru.gastoGAGOEstimado, pct: ctru.pctGAGO, color: 'bg-amber-500' },
+    { label: 'Gastos Fijos', value: ctru.gastoGAGOProm || ctru.gastoGAGOEstimado, pct: ctru.pctGAGO, color: 'bg-amber-500' },
     { label: 'GV/GD', value: ctru.gastoGVGDProm, pct: ctru.pctGVGD, color: 'bg-red-400' },
   ];
 

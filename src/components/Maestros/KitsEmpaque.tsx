@@ -21,6 +21,7 @@ export const KitsEmpaque: React.FC = () => {
   const [kits, setKits] = useState<KitEmpaque[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
@@ -28,6 +29,28 @@ export const KitsEmpaque: React.FC = () => {
   const [pesoMinLb, setPesoMinLb] = useState(0);
   const [pesoMaxLb, setPesoMaxLb] = useState(1);
   const [componentes, setComponentes] = useState<ComponenteForm[]>([]);
+
+  const openEdit = (kit: KitEmpaque) => {
+    setNombre(kit.nombre);
+    setPesoMinLb(kit.pesoMinLb);
+    setPesoMaxLb(kit.pesoMaxLb);
+    setComponentes(kit.componentes.map(c => ({
+      insumoId: c.insumoId,
+      insumoNombre: c.insumoNombre,
+      cantidad: c.cantidad,
+    })));
+    setEditingId(kit.id);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setNombre('');
+    setPesoMinLb(0);
+    setPesoMaxLb(1);
+    setComponentes([]);
+  };
 
   const fetchKits = async () => {
     try {
@@ -90,13 +113,14 @@ export const KitsEmpaque: React.FC = () => {
         componentes: componentes.map(c => ({ insumoId: c.insumoId, cantidad: c.cantidad })),
         activo: true,
       };
-      await kitEmpaqueService.crear(data, user.uid);
-      toast.success(`Kit ${nombre} creado`);
-      setShowForm(false);
-      setNombre('');
-      setPesoMinLb(0);
-      setPesoMaxLb(1);
-      setComponentes([]);
+      if (editingId) {
+        await kitEmpaqueService.actualizar(editingId, data, user.uid);
+        toast.success('Kit actualizado');
+      } else {
+        await kitEmpaqueService.crear(data, user.uid);
+        toast.success(`Kit ${nombre} creado`);
+      }
+      closeForm();
       await fetchKits();
     } catch (error: any) {
       toast.error(error.message, 'Error');
@@ -125,7 +149,7 @@ export const KitsEmpaque: React.FC = () => {
       ) : (
         <div className="space-y-3">
           {kits.map(kit => (
-            <Card key={kit.id} className="p-4">
+            <Card key={kit.id} className="p-4 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(kit)}>
               <div className="flex items-start justify-between">
                 <div>
                   <div className="font-medium text-gray-900">{kit.nombre}</div>
@@ -160,7 +184,7 @@ export const KitsEmpaque: React.FC = () => {
       )}
 
       {/* Modal crear kit */}
-      <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Nuevo Kit de Empaque" size="md">
+      <Modal isOpen={showForm} onClose={closeForm} title={editingId ? 'Editar Kit' : 'Nuevo Kit de Empaque'} size="md">
         <div className="space-y-4">
           <Input
             label="Nombre del kit"
@@ -238,9 +262,9 @@ export const KitsEmpaque: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+            <Button variant="secondary" onClick={closeForm}>Cancelar</Button>
             <Button onClick={handleSubmit} disabled={submitting || componentes.length === 0}>
-              {submitting ? 'Guardando...' : 'Crear Kit'}
+              {submitting ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Kit'}
             </Button>
           </div>
         </div>

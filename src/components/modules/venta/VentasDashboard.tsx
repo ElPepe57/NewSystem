@@ -282,7 +282,7 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
             />
             <WaterfallArrow sign="-" />
             <WaterfallStep
-              label="GA/GO"
+              label="Gastos Fijos"
               amount={rentabilidad.totalGastosGAGO}
               pct={(rentabilidad.totalGastosGAGO / rentabilidad.totalVentas) * 100}
               color="purple"

@@ -1046,7 +1046,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               { label: 'Envío OC', pct: rentabilidadData.pctEnvio, color: 'bg-cyan-500' },
               { label: 'Otros', pct: rentabilidadData.pctOtros, color: 'bg-gray-400' },
               { label: 'Flete Intl', pct: rentabilidadData.pctFleteIntl, color: 'bg-amber-500' },
-              { label: 'GA/GO', pct: rentabilidadData.pctGAGO, color: 'bg-purple-500' },
+              { label: 'Gastos Fijos', pct: rentabilidadData.pctGAGO, color: 'bg-purple-500' },
               { label: 'GV/GD', pct: rentabilidadData.pctGVGD, color: 'bg-red-400' }
             ].filter(c => c.pct > 0).map(c => (
               <div
@@ -1067,7 +1067,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               { label: 'Envío OC', pct: rentabilidadData.pctEnvio, color: 'bg-cyan-500', desc: 'Prov→USA' },
               { label: 'Otros OC', pct: rentabilidadData.pctOtros, color: 'bg-gray-400', desc: 'Gastos OC' },
               { label: 'Flete Intl', pct: rentabilidadData.pctFleteIntl, color: 'bg-amber-500', desc: 'USA→Perú' },
-              { label: 'GA/GO', pct: rentabilidadData.pctGAGO, color: 'bg-purple-500', desc: 'Admin/Op' },
+              { label: 'Gastos Fijos', pct: rentabilidadData.pctGAGO, color: 'bg-purple-500', desc: 'Admin/Op' },
               { label: 'GV/GD', pct: rentabilidadData.pctGVGD, color: 'bg-red-400', desc: 'Venta/Dist' }
             ].map(c => (
               <div key={c.label} className="flex items-center gap-2">
@@ -1085,7 +1085,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               const capas = [
                 { label: 'compra', pct: rentabilidadData.pctCompra },
                 { label: 'flete internacional', pct: rentabilidadData.pctFleteIntl },
-                { label: 'GA/GO', pct: rentabilidadData.pctGAGO },
+                { label: 'Gastos Fijos', pct: rentabilidadData.pctGAGO },
                 { label: 'impuestos', pct: rentabilidadData.pctImpuesto },
                 { label: 'envío OC', pct: rentabilidadData.pctEnvio },
                 { label: 'GV/GD', pct: rentabilidadData.pctGVGD }
