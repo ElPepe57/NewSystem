@@ -165,7 +165,7 @@ export const ListaView: React.FC<ListaViewProps> = ({
                       )}
                       {item.estado === 'validada' && (
                         <>
-                          <button onClick={() => onConfirmar(item)} className="p-1.5 text-slate-400 hover:text-success-600" title="Confirmar Venta (sin adelanto)">
+                          <button onClick={() => onConfirmar(item)} className="p-1.5 text-slate-400 hover:text-emerald-600" title="Confirmar Venta (sin adelanto)">
                             <CheckCircle className="h-4 w-4" />
                           </button>
                           <button onClick={() => onRegistrarAdelanto(item)} className="p-1.5 text-slate-400 hover:text-purple-600" title="Comprometer Adelanto">
@@ -190,12 +190,12 @@ export const ListaView: React.FC<ListaViewProps> = ({
                         </>
                       )}
                       {(item.estado === 'adelanto_pagado' || item.estado === 'con_abono') && (
-                        <button onClick={() => onConfirmar(item)} className="p-1.5 text-slate-400 hover:text-success-600" title="Confirmar Venta">
+                        <button onClick={() => onConfirmar(item)} className="p-1.5 text-slate-400 hover:text-emerald-600" title="Confirmar Venta">
                           <CheckCircle className="h-4 w-4" />
                         </button>
                       )}
                       {(item.estado === 'nueva' || item.estado === 'rechazada') && (
-                        <button onClick={() => onEliminar(item)} className="p-1.5 text-slate-400 hover:text-danger-600" title="Eliminar">
+                        <button onClick={() => onEliminar(item)} className="p-1.5 text-slate-400 hover:text-red-600" title="Eliminar">
                           <XCircle className="h-4 w-4" />
                         </button>
                       )}

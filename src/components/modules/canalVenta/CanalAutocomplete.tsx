@@ -336,7 +336,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
       {label && (
         <label className="block text-sm font-medium text-slate-700 mb-1">
           {label}
-          {required && <span className="text-danger-500 ml-1">*</span>}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
 
@@ -345,7 +345,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
         <div
           className={`
             flex items-center w-full rounded-lg border
-            ${error ? 'border-danger-300' : 'border-slate-300'}
+            ${error ? 'border-red-300' : 'border-slate-300'}
             ${disabled ? 'bg-slate-100' : 'bg-white'}
             focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent
           `}
@@ -506,7 +506,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
       )}
 
       {error && (
-        <p className="mt-1 text-sm text-danger-600">{error}</p>
+        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
 
       {/* Modal para crear nuevo canal */}

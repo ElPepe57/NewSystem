@@ -276,7 +276,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {showConfirmar && onConfirmar && (
           <button
             onClick={onConfirmar}
-            className="flex-1 p-1.5 text-slate-500 hover:text-success-600 hover:bg-success-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
             title="Confirmar venta"
           >
             <CheckCircle className="h-4 w-4 mx-auto" />

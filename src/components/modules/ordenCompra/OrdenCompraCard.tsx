@@ -299,7 +299,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-600">Diferencia Cambiaria:</span>
                 <span className={`font-semibold flex items-center ${
-                  orden.diferenciaCambiaria > 0 ? 'text-danger-600' : 'text-success-600'
+                  orden.diferenciaCambiaria > 0 ? 'text-red-600' : 'text-emerald-600'
                 }`}>
                   <TrendingUp className="h-4 w-4 mr-1" />
                   S/ {Math.abs(orden.diferenciaCambiaria).toFixed(2)}

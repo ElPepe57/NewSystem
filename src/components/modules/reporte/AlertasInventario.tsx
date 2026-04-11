@@ -15,23 +15,23 @@ const iconos = {
 };
 
 const colores = {
-  stock_bajo: 'text-warning-600',
-  stock_critico: 'text-danger-600',
-  proximo_vencer: 'text-warning-600',
-  vencido: 'text-danger-600'
+  stock_bajo: 'text-amber-600',
+  stock_critico: 'text-red-600',
+  proximo_vencer: 'text-amber-600',
+  vencido: 'text-red-600'
 };
 
 const backgrounds = {
-  stock_bajo: 'bg-warning-50',
-  stock_critico: 'bg-danger-50',
-  proximo_vencer: 'bg-warning-50',
-  vencido: 'bg-danger-50'
+  stock_bajo: 'bg-amber-50',
+  stock_critico: 'bg-red-50',
+  proximo_vencer: 'bg-amber-50',
+  vencido: 'bg-red-50'
 };
 
 export const AlertasInventario: React.FC<AlertasInventarioProps> = ({ alertas }) => {
   if (alertas.length === 0) {
     return (
-      <div className="text-center py-6 text-success-600 text-sm">
+      <div className="text-center py-6 text-emerald-600 text-sm">
         No hay alertas - Todo está en orden
       </div>
     );

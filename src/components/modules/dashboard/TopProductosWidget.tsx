@@ -29,9 +29,9 @@ export const TopProductosWidget: React.FC<TopProductosWidgetProps> = ({
   const formatCurrency = (value: number) => formatCurrencyPEN(value);
 
   const getMargenColor = (margen: number) => {
-    if (margen >= 30) return 'text-success-600';
-    if (margen >= 15) return 'text-warning-600';
-    return 'text-danger-600';
+    if (margen >= 30) return 'text-emerald-600';
+    if (margen >= 15) return 'text-amber-600';
+    return 'text-red-600';
   };
 
   const getPositionBadge = (index: number) => {
@@ -49,7 +49,7 @@ export const TopProductosWidget: React.FC<TopProductosWidgetProps> = ({
     <Card padding="md">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-slate-900 flex items-center">
-          <TrendingUp className="h-5 w-5 mr-2 text-success-500" />
+          <TrendingUp className="h-5 w-5 mr-2 text-emerald-500" />
           {titulo}
         </h3>
         <Badge variant="success">{productos.length} productos</Badge>

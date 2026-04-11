@@ -49,11 +49,11 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
               <div className="grid grid-cols-3 gap-1.5 flex-1 text-[10px]">
                 <div>
                   <span className="text-slate-400">Disp.</span>
-                  <div className="font-semibold text-success-600">{item.unidadesDisponibles}</div>
+                  <div className="font-semibold text-emerald-600">{item.unidadesDisponibles}</div>
                 </div>
                 <div>
                   <span className="text-slate-400">Asig.</span>
-                  <div className="font-semibold text-warning-600">{item.unidadesAsignadas}</div>
+                  <div className="font-semibold text-amber-600">{item.unidadesAsignadas}</div>
                 </div>
                 <div>
                   <span className="text-slate-400">Total</span>
@@ -127,10 +127,10 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
                   </div>
                   <div className="text-xs text-slate-500">{item.sku}</div>
                 </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-success-600">
+                <td className="px-4 py-3 text-right text-sm font-semibold text-emerald-600">
                   {item.unidadesDisponibles}
                 </td>
-                <td className="px-4 py-3 text-right text-sm text-warning-600">
+                <td className="px-4 py-3 text-right text-sm text-amber-600">
                   {item.unidadesAsignadas}
                 </td>
                 <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">

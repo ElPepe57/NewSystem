@@ -375,7 +375,7 @@ const VentaCard: React.FC<{
             <Eye className="h-4 w-4" />
           </button>
           {venta.estado === 'cotizacion' && onDelete && (
-            <button onClick={(e) => { e.stopPropagation(); onDelete(venta); }} className="p-1.5 text-danger-600 hover:bg-danger-50 rounded">
+            <button onClick={(e) => { e.stopPropagation(); onDelete(venta); }} className="p-1.5 text-red-600 hover:bg-red-50 rounded">
               <Trash2 className="h-4 w-4" />
             </button>
           )}
@@ -635,7 +635,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     S/ {venta.totalPEN.toFixed(2)}
                   </div>
                   {venta.utilidadBrutaPEN !== undefined && (
-                    <div className={`text-xs ${venta.utilidadBrutaPEN >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                    <div className={`text-xs ${venta.utilidadBrutaPEN >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                       Util: S/ {venta.utilidadBrutaPEN.toFixed(2)}
                     </div>
                   )}
@@ -646,17 +646,17 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     <div>
                       <div className="flex items-center">
                         {margenBrutoPositivo ? (
-                          <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+                          <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
                         ) : (
-                          <TrendingDown className="h-4 w-4 text-danger-500 mr-1" />
+                          <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
                         )}
                         <span className={`text-sm font-medium ${
-                          margenBrutoPositivo ? 'text-success-600' : 'text-danger-600'
+                          margenBrutoPositivo ? 'text-emerald-600' : 'text-red-600'
                         }`}>
                           {rentabilidad.margenBruto.toFixed(1)}%
                         </span>
                       </div>
-                      <div className={`text-xs ${rentabilidad.utilidadBruta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                      <div className={`text-xs ${rentabilidad.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                         Bruto: S/ {rentabilidad.utilidadBruta.toFixed(2)}
                       </div>
                     </div>
@@ -665,12 +665,12 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                   ) : venta.margenPromedio !== undefined ? (
                     <div className="flex items-center">
                       {margenBrutoPositivo ? (
-                        <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+                        <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
                       ) : (
-                        <TrendingDown className="h-4 w-4 text-danger-500 mr-1" />
+                        <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
                       )}
                       <span className={`text-sm font-medium ${
-                        margenBrutoPositivo ? 'text-success-600' : 'text-danger-600'
+                        margenBrutoPositivo ? 'text-emerald-600' : 'text-red-600'
                       }`}>
                         {venta.margenPromedio.toFixed(1)}%
                       </span>
@@ -686,17 +686,17 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     <div title={`GA/GO: S/ ${rentabilidad.costoGAGO.toFixed(2)} (${((rentabilidad.costoBase / (datosRentabilidad?.baseCostoTotal || 1)) * 100).toFixed(1)}% proporcional)`}>
                       <div className="flex items-center">
                         {margenNetoPositivo ? (
-                          <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+                          <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
                         ) : (
-                          <TrendingDown className="h-4 w-4 text-danger-500 mr-1" />
+                          <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
                         )}
                         <span className={`text-sm font-medium ${
-                          margenNetoPositivo ? 'text-success-600' : 'text-danger-600'
+                          margenNetoPositivo ? 'text-emerald-600' : 'text-red-600'
                         }`}>
                           {rentabilidad.margenNeto.toFixed(1)}%
                         </span>
                       </div>
-                      <div className={`text-xs ${rentabilidad.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                      <div className={`text-xs ${rentabilidad.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                         Neto: S/ {rentabilidad.utilidadNeta.toFixed(2)}
                       </div>
                     </div>
@@ -785,7 +785,7 @@ export const VentaTable: React.FC<VentaTableProps> = ({
                     {venta.estado === 'cotizacion' && onDelete && (
                       <button
                         onClick={() => onDelete(venta)}
-                        className="text-danger-600 hover:text-danger-900"
+                        className="text-red-600 hover:text-red-900"
                         title="Eliminar"
                       >
                         <Trash2 className="h-4 w-4" />

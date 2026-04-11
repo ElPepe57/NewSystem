@@ -44,7 +44,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
           {subtitle && (
             <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
               {trend && (
-                <span className={trend.isPositive ? 'text-success-500' : 'text-danger-500'}>
+                <span className={trend.isPositive ? 'text-emerald-500' : 'text-red-500'}>
                   {trend.isPositive ? '↑' : '↓'} {trend.value}%
                 </span>
               )}

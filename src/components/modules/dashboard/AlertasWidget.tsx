@@ -26,13 +26,13 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
   const getAlertIcon = (tipo: string) => {
     switch (tipo) {
       case 'stock_critico':
-        return <XCircle className="h-5 w-5 text-danger-500" />;
+        return <XCircle className="h-5 w-5 text-red-500" />;
       case 'stock_bajo':
-        return <AlertTriangle className="h-5 w-5 text-warning-500" />;
+        return <AlertTriangle className="h-5 w-5 text-amber-500" />;
       case 'proximo_vencer':
-        return <Clock className="h-5 w-5 text-warning-500" />;
+        return <Clock className="h-5 w-5 text-amber-500" />;
       case 'vencido':
-        return <XCircle className="h-5 w-5 text-danger-500" />;
+        return <XCircle className="h-5 w-5 text-red-500" />;
       default:
         return <Package className="h-5 w-5 text-slate-500" />;
     }
@@ -75,7 +75,7 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
     <Card padding="md">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-slate-900 flex items-center">
-          <AlertTriangle className="h-5 w-5 mr-2 text-warning-500" />
+          <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
           Alertas del Sistema
         </h3>
         <div className="flex gap-2">
@@ -92,7 +92,7 @@ export const AlertasWidget: React.FC<AlertasWidgetProps> = ({
         <div className="text-center py-8 text-slate-500">
           <AlertTriangle className="h-12 w-12 mx-auto mb-2 text-slate-300" />
           <p className="text-sm">No hay alertas activas</p>
-          <p className="text-xs text-success-600 mt-1">Todo está en orden</p>
+          <p className="text-xs text-emerald-600 mt-1">Todo está en orden</p>
         </div>
       ) : (
         <div className="space-y-3">

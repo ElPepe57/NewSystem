@@ -22,10 +22,10 @@ export const Button: React.FC<ButtonProps> = ({
   const variantStyles = {
     primary: 'bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500',
     secondary: 'bg-slate-600 text-white hover:bg-slate-700 focus:ring-slate-500',
-    danger: 'bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
     ghost: 'text-slate-700 hover:bg-slate-100 focus:ring-slate-500',
     outline: 'border-2 border-slate-300 text-slate-700 hover:bg-slate-50 focus:ring-slate-500',
-    success: 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-500',
+    success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
     warning: 'bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500'
   };
   

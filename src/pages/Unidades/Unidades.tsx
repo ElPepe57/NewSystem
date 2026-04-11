@@ -342,8 +342,8 @@ export const Unidades: React.FC = () => {
 
   // Función para obtener color según días para vencer
   const getColorVencimiento = (dias: number): string => {
-    if (dias < 0) return 'text-danger-600';
-    if (dias <= 30) return 'text-warning-600';
+    if (dias < 0) return 'text-red-600';
+    if (dias <= 30) return 'text-amber-600';
     if (dias <= 90) return 'text-yellow-600';
     return 'text-slate-600';
   };

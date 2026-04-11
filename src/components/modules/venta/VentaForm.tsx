@@ -719,7 +719,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                             required
                           />
                           {stockInsuficiente && (
-                            <div className="flex items-center mt-1 text-xs text-danger-600">
+                            <div className="flex items-center mt-1 text-xs text-red-600">
                               <AlertCircle className="h-3 w-3 mr-1" />
                               Stock disponible: {stockDisponible}
                             </div>
@@ -776,7 +776,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => handleRemoveProducto(index)}
-                              className="text-danger-600 hover:text-danger-900 ml-2"
+                              className="text-red-600 hover:text-red-900 ml-2"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -1136,14 +1136,14 @@ export const VentaForm: React.FC<VentaFormProps> = ({
           <div className="border border-slate-200 rounded-lg overflow-hidden">
             <div
               className={`p-4 cursor-pointer transition-colors ${
-                registrarAdelanto ? 'bg-success-50 border-b border-success-200' : 'bg-slate-50 hover:bg-slate-100'
+                registrarAdelanto ? 'bg-emerald-50 border-b border-emerald-200' : 'bg-slate-50 hover:bg-slate-100'
               }`}
               onClick={() => setRegistrarAdelanto(!registrarAdelanto)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${registrarAdelanto ? 'bg-success-100' : 'bg-slate-200'}`}>
-                    <CreditCard className={`h-5 w-5 ${registrarAdelanto ? 'text-success-600' : 'text-slate-500'}`} />
+                  <div className={`p-2 rounded-lg ${registrarAdelanto ? 'bg-emerald-100' : 'bg-slate-200'}`}>
+                    <CreditCard className={`h-5 w-5 ${registrarAdelanto ? 'text-emerald-600' : 'text-slate-500'}`} />
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900">Registrar Adelanto</h4>
@@ -1155,7 +1155,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                   </div>
                 </div>
                 <div className={`w-12 h-6 rounded-full transition-colors ${
-                  registrarAdelanto ? 'bg-success-500' : 'bg-slate-300'
+                  registrarAdelanto ? 'bg-emerald-500' : 'bg-slate-300'
                 }`}>
                   <div className={`w-5 h-5 bg-white rounded-full shadow-sm transform transition-transform mt-0.5 ${
                     registrarAdelanto ? 'translate-x-6' : 'translate-x-0.5'
@@ -1273,7 +1273,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
               {descuento > 0 && (
                 <div className="flex justify-between">
                   <span className="text-slate-600">Descuento:</span>
-                  <span className="font-semibold text-danger-600">- S/ {descuento.toFixed(2)}</span>
+                  <span className="font-semibold text-red-600">- S/ {descuento.toFixed(2)}</span>
                 </div>
               )}
 
@@ -1297,7 +1297,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
               {registrarAdelanto && montoAdelanto > 0 && (
                 <div className="border-t border-teal-200 pt-2 mt-2">
-                  <div className="flex justify-between text-success-600">
+                  <div className="flex justify-between text-emerald-600">
                     <span className="font-medium">Adelanto a registrar:</span>
                     <span className="font-semibold">- S/ {montoAdelanto.toFixed(2)}</span>
                   </div>

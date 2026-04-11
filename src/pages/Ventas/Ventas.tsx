@@ -770,7 +770,7 @@ export const Ventas: React.FC = () => {
       {productosDisponibles.length === 0 && (
         <Card padding="md">
           <div className="flex items-center">
-            <Package className="h-5 w-5 text-warning-600 mr-3" />
+            <Package className="h-5 w-5 text-amber-600 mr-3" />
             <div>
               <p className="text-sm font-medium text-slate-900">No hay stock disponible en Perú</p>
               <p className="text-sm text-slate-600">

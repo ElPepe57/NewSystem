@@ -807,7 +807,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                     const inv = linea.investigacion;
                     return (
                       <React.Fragment key={linea.productoId}>
-                        <tr className={sinStock ? 'bg-warning-50' : ''}>
+                        <tr className={sinStock ? 'bg-amber-50' : ''}>
                           <td className="px-4 py-2">
                             <div className="text-sm font-medium text-slate-900">
                               {linea.sku}
@@ -878,7 +878,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                               value={linea.cantidad}
                               onChange={(e) => handleUpdateLinea(index, 'cantidad', parseInt(e.target.value) || 1)}
                               className={`w-full px-2 py-1 text-center border rounded ${
-                                sinStock ? 'border-warning-400 bg-warning-50' : 'border-slate-300'
+                                sinStock ? 'border-amber-400 bg-amber-50' : 'border-slate-300'
                               }`}
                             />
                           </td>
@@ -955,7 +955,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                             <button
                               type="button"
                               onClick={() => handleRemoveLinea(index)}
-                              className="p-1 text-slate-400 hover:text-danger-600"
+                              className="p-1 text-slate-400 hover:text-red-600"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -1104,21 +1104,21 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
             {/* Alerta de productos sin stock (legacy) */}
             {hayProductosSinStock && !lineas.some(l => l.disponibilidadMultiAlmacen) && (
-              <div className="bg-warning-50 border border-warning-200 rounded-lg p-3">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                 <div className="flex items-start gap-2">
-                  <AlertTriangle className="h-5 w-5 text-warning-600 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <div className="text-sm font-medium text-warning-800">
+                    <div className="text-sm font-medium text-amber-800">
                       Productos sin stock disponible
                     </div>
-                    <div className="text-xs text-warning-700 mt-1">
+                    <div className="text-xs text-amber-700 mt-1">
                       {productosSinStock.map(p => (
                         <div key={p.productoId}>
                           • {p.marca} {p.nombre}: {p.stockDisponible} disp. / {p.cantidad} solicit.
                         </div>
                       ))}
                     </div>
-                    <div className="text-xs text-warning-600 mt-2">
+                    <div className="text-xs text-amber-600 mt-2">
                       La cotización se creará pero requerirá conseguir stock antes de confirmar.
                     </div>
                   </div>
@@ -1134,7 +1134,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               {totales.descuento > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600">Descuento:</span>
-                  <span className="font-medium text-danger-600">
+                  <span className="font-medium text-red-600">
                     -{formatCurrency(totales.descuento)}
                   </span>
                 </div>

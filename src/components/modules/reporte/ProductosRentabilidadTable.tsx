@@ -43,12 +43,12 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
               </div>
               <div className="flex items-center shrink-0">
                 {producto.margenPromedio >= 0 ? (
-                  <TrendingUp className="h-3 w-3 text-success-500 mr-0.5" />
+                  <TrendingUp className="h-3 w-3 text-emerald-500 mr-0.5" />
                 ) : (
-                  <TrendingDown className="h-3 w-3 text-danger-500 mr-0.5" />
+                  <TrendingDown className="h-3 w-3 text-red-500 mr-0.5" />
                 )}
                 <span className={`text-xs font-bold ${
-                  producto.margenPromedio >= 0 ? 'text-success-600' : 'text-danger-600'
+                  producto.margenPromedio >= 0 ? 'text-emerald-600' : 'text-red-600'
                 }`}>
                   {producto.margenPromedio.toFixed(1)}%
                 </span>
@@ -65,7 +65,7 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
               </div>
               <div>
                 <span className="text-slate-400">Utilidad</span>
-                <div className="font-semibold text-success-600">S/ {producto.utilidadPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+                <div className="font-semibold text-emerald-600">S/ {producto.utilidadPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               </div>
             </div>
           </div>
@@ -115,18 +115,18 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
                 <td className="px-4 py-3 text-right text-sm text-slate-600">
                   S/ {producto.costoTotalPEN.toFixed(2)}
                 </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-success-600">
+                <td className="px-4 py-3 text-right text-sm font-semibold text-emerald-600">
                   S/ {producto.utilidadPEN.toFixed(2)}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end">
                     {producto.margenPromedio >= 0 ? (
-                      <TrendingUp className="h-4 w-4 text-success-500 mr-1" />
+                      <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
                     ) : (
-                      <TrendingDown className="h-4 w-4 text-danger-500 mr-1" />
+                      <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
                     )}
                     <span className={`text-sm font-medium ${
-                      producto.margenPromedio >= 0 ? 'text-success-600' : 'text-danger-600'
+                      producto.margenPromedio >= 0 ? 'text-emerald-600' : 'text-red-600'
                     }`}>
                       {producto.margenPromedio.toFixed(1)}%
                     </span>

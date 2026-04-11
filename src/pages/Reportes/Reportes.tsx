@@ -469,12 +469,12 @@ export const Reportes: React.FC = () => {
               </div>
 
               {/* Utilidad del Periodo */}
-              <div className="bg-white border border-success-200 rounded-xl p-3 sm:p-4">
+              <div className="bg-white border border-emerald-200 rounded-xl p-3 sm:p-4">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-success-500" />
+                  <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500" />
                   <span className="text-[11px] sm:text-sm text-slate-500">Utilidad del Periodo</span>
                 </div>
-                <div className="text-lg sm:text-2xl font-bold text-success-600 leading-tight">
+                <div className="text-lg sm:text-2xl font-bold text-emerald-600 leading-tight">
                   S/ {ventasKPILinea.utilidadPEN.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5">
@@ -501,10 +501,10 @@ export const Reportes: React.FC = () => {
 
               <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4">
                 <div className="flex items-center gap-1 mb-0.5">
-                  <Package className="h-3 w-3 sm:h-4 sm:w-4 text-warning-500" />
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
                   <span className="text-[10px] sm:text-xs text-slate-500">Inventario</span>
                 </div>
-                <div className="text-sm sm:text-lg font-bold text-warning-600 leading-tight">
+                <div className="text-sm sm:text-lg font-bold text-amber-600 leading-tight">
                   {inventarioValorizado.length > 0
                     ? `S/ ${invValorPEN.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
                     : loading ? '...' : 'S/ 0'}
@@ -565,7 +565,7 @@ export const Reportes: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-baseline gap-1">
                   <span className="text-[10px] sm:text-xs text-slate-400">Disp.</span>
-                  <span className="text-[11px] sm:text-sm font-semibold text-success-600">{resumenEjecutivo.unidadesDisponibles}</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-emerald-600">{resumenEjecutivo.unidadesDisponibles}</span>
                 </div>
                 <div className="flex justify-between items-baseline gap-1">
                   <span className="text-[10px] sm:text-xs text-slate-400">Prod.</span>
@@ -579,11 +579,11 @@ export const Reportes: React.FC = () => {
               <div className="space-y-1 sm:space-y-2">
                 <div className="flex justify-between items-baseline gap-1">
                   <span className="text-[10px] sm:text-xs text-slate-400">Activas</span>
-                  <span className="text-[11px] sm:text-sm font-semibold text-warning-600">{resumenEjecutivo.ordenesActivas}</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-amber-600">{resumenEjecutivo.ordenesActivas}</span>
                 </div>
                 <div className="flex justify-between items-baseline gap-1">
                   <span className="text-[10px] sm:text-xs text-slate-400">Recib.</span>
-                  <span className="text-[11px] sm:text-sm font-semibold text-success-600">{resumenEjecutivo.ordenesRecibidas}</span>
+                  <span className="text-[11px] sm:text-sm font-semibold text-emerald-600">{resumenEjecutivo.ordenesRecibidas}</span>
                 </div>
                 <div className="flex justify-between items-baseline gap-1">
                   <span className="text-[10px] sm:text-xs text-slate-400">TC</span>
@@ -620,7 +620,7 @@ export const Reportes: React.FC = () => {
 
             <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-slate-200">
               <div className="text-[10px] sm:text-xs text-slate-500 mb-0.5">Utilidad Bruta</div>
-              <div className={`text-sm sm:text-xl font-bold leading-tight ${rentabilidadNeta.utilidadBruta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+              <div className={`text-sm sm:text-xl font-bold leading-tight ${rentabilidadNeta.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 S/ {rentabilidadNeta.utilidadBruta.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <div className="text-[10px] text-slate-400">{rentabilidadNeta.margenBruto.toFixed(1)}%</div>
@@ -634,12 +634,12 @@ export const Reportes: React.FC = () => {
               <div className="text-[10px] text-slate-400">S/ {rentabilidadNeta.cargaPorUnidad.toFixed(2)}/ud</div>
             </div>
 
-            <div className={`rounded-lg p-2.5 sm:p-3 border-2 ${rentabilidadNeta.utilidadNeta >= 0 ? 'bg-success-50 border-success-300' : 'bg-danger-50 border-danger-300'}`}>
+            <div className={`rounded-lg p-2.5 sm:p-3 border-2 ${rentabilidadNeta.utilidadNeta >= 0 ? 'bg-emerald-50 border-emerald-300' : 'bg-red-50 border-red-300'}`}>
               <div className="text-[10px] sm:text-xs text-slate-500 mb-0.5">Utilidad Neta</div>
-              <div className={`text-sm sm:text-xl font-bold leading-tight ${rentabilidadNeta.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+              <div className={`text-sm sm:text-xl font-bold leading-tight ${rentabilidadNeta.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 S/ {rentabilidadNeta.utilidadNeta.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <div className={`text-[10px] font-semibold ${rentabilidadNeta.margenNeto >= 0 ? 'text-success-700' : 'text-danger-700'}`}>
+              <div className={`text-[10px] font-semibold ${rentabilidadNeta.margenNeto >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
                 Neto: {rentabilidadNeta.margenNeto.toFixed(1)}%
               </div>
             </div>
@@ -659,7 +659,7 @@ export const Reportes: React.FC = () => {
               </div>
               <div className="flex justify-between border-t border-slate-100 pt-1.5">
                 <span className="text-slate-700 font-medium">= Util. Bruta</span>
-                <span className={`font-semibold ${rentabilidadNeta.utilidadBruta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                <span className={`font-semibold ${rentabilidadNeta.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   S/ {rentabilidadNeta.utilidadBruta.toFixed(2)} <span className="text-slate-400 font-normal">({rentabilidadNeta.margenBruto.toFixed(1)}%)</span>
                 </span>
               </div>
@@ -673,7 +673,7 @@ export const Reportes: React.FC = () => {
               </div>
               <div className="flex justify-between border-t-2 border-slate-300 pt-1.5">
                 <span className="text-slate-900 font-bold">= UTIL. NETA</span>
-                <span className={`font-bold ${rentabilidadNeta.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                <span className={`font-bold ${rentabilidadNeta.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   S/ {rentabilidadNeta.utilidadNeta.toFixed(2)} <span className="text-slate-400 font-normal">({rentabilidadNeta.margenNeto.toFixed(1)}%)</span>
                 </span>
               </div>
@@ -686,11 +686,11 @@ export const Reportes: React.FC = () => {
       {alertasInventario.length > 0 && (
         <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-5">
           <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
-            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-warning-600" />
+            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
             <h2 className="text-sm sm:text-lg font-semibold text-slate-900">
               Alertas de Inventario
             </h2>
-            <span className="text-[10px] sm:text-xs bg-warning-100 text-warning-700 px-1.5 py-0.5 rounded-full font-medium">
+            <span className="text-[10px] sm:text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
               {alertasInventario.length}
             </span>
           </div>
@@ -777,7 +777,7 @@ export const Reportes: React.FC = () => {
       {resumenEjecutivo && resumenEjecutivo.productosMasVendidos.length > 0 && (
         <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-5">
           <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
-            <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-success-600" />
+            <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
             <h2 className="text-sm sm:text-lg font-semibold text-slate-900">
               Top 5 Productos Más Vendidos
             </h2>
@@ -879,7 +879,7 @@ export const Reportes: React.FC = () => {
         <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-5">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className="flex items-center gap-1.5">
-              <Package className="h-4 w-4 sm:h-5 sm:w-5 text-warning-600" />
+              <Package className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
               <h2 className="text-sm sm:text-lg font-semibold text-slate-900">
                 Inventario Valorizado
               </h2>

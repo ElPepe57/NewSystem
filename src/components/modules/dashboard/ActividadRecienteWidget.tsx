@@ -46,17 +46,17 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
       case 'venta_nueva':
         return <ShoppingCart className="h-4 w-4 text-teal-500" />;
       case 'venta_entregada':
-        return <CheckCircle className="h-4 w-4 text-success-500" />;
+        return <CheckCircle className="h-4 w-4 text-emerald-500" />;
       case 'orden_creada':
         return <Package className="h-4 w-4 text-blue-500" />;
       case 'orden_recibida':
-        return <CheckCircle className="h-4 w-4 text-success-500" />;
+        return <CheckCircle className="h-4 w-4 text-emerald-500" />;
       case 'transferencia_enviada':
         return <Truck className="h-4 w-4 text-orange-500" />;
       case 'transferencia_recibida':
-        return <ArrowRightLeft className="h-4 w-4 text-success-500" />;
+        return <ArrowRightLeft className="h-4 w-4 text-emerald-500" />;
       case 'stock_critico':
-        return <AlertCircle className="h-4 w-4 text-danger-500" />;
+        return <AlertCircle className="h-4 w-4 text-red-500" />;
       default:
         return <Activity className="h-4 w-4 text-slate-500" />;
     }

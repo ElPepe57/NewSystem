@@ -614,8 +614,8 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                       </Badge>
                       {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
                         <div className="flex items-center">
-                          <TrendingUp className="h-3 w-3 text-warning-500 mr-1" />
-                          <span className="text-xs text-warning-600">
+                          <TrendingUp className="h-3 w-3 text-amber-500 mr-1" />
+                          <span className="text-xs text-amber-600">
                             Dif. FX
                           </span>
                         </div>
@@ -663,7 +663,7 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                       {['borrador', 'enviada', 'en_transito', 'cancelada'].includes(orden.estado) && !orden.inventarioGenerado && onDelete && (
                         <button
                           onClick={() => onDelete(orden)}
-                          className="text-danger-600 hover:text-danger-900"
+                          className="text-red-600 hover:text-red-900"
                           title="Eliminar"
                         >
                           <Trash2 className="h-4 w-4" />

@@ -160,7 +160,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
             value={formData.courierExterno || ''}
             onChange={(e) => handleChange('courierExterno', e.target.value as CourierExterno)}
             className={`block w-full rounded-lg border ${
-              errors.courierExterno ? 'border-danger-300' : 'border-slate-300'
+              errors.courierExterno ? 'border-red-300' : 'border-slate-300'
             } px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500`}
           >
             <option value="">Seleccionar courier...</option>
@@ -171,7 +171,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
             ))}
           </select>
           {errors.courierExterno && (
-            <p className="mt-1 text-sm text-danger-600">{errors.courierExterno}</p>
+            <p className="mt-1 text-sm text-red-600">{errors.courierExterno}</p>
           )}
         </div>
       )}

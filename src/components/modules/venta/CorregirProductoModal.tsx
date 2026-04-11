@@ -81,7 +81,7 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
         {/* Producto actual */}
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
-            <Package className="h-4 w-4 text-danger-500" />
+            <Package className="h-4 w-4 text-red-500" />
             Producto Actual (incorrecto)
           </h3>
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -107,7 +107,7 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
         {/* Buscador de nuevo producto */}
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-2">
-            <Package className="h-4 w-4 text-success-500" />
+            <Package className="h-4 w-4 text-emerald-500" />
             Nuevo Producto (correcto)
           </h3>
           <ProductoSearchVentas

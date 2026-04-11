@@ -223,15 +223,15 @@ const ProductoCardResponsive: React.FC<{
           <button onClick={() => onView(producto)} className="p-1.5 text-teal-600 hover:bg-teal-50 rounded" title="Ver">
             <Eye className="h-4 w-4" />
           </button>
-          <button onClick={() => onEdit(producto)} className="p-1.5 text-warning-600 hover:bg-warning-50 rounded" title="Editar">
+          <button onClick={() => onEdit(producto)} className="p-1.5 text-amber-600 hover:bg-amber-50 rounded" title="Editar">
             <Pencil className="h-4 w-4" />
           </button>
           {producto.estado === 'inactivo' && onReactivar ? (
-            <button onClick={() => onReactivar(producto)} className="p-1.5 text-success-600 hover:bg-success-50 rounded" title="Reactivar">
+            <button onClick={() => onReactivar(producto)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded" title="Reactivar">
               <RefreshCw className="h-4 w-4" />
             </button>
           ) : (
-            <button onClick={() => onDelete(producto)} className="p-1.5 text-danger-600 hover:bg-danger-50 rounded" title="Eliminar">
+            <button onClick={() => onDelete(producto)} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="Eliminar">
               <Trash2 className="h-4 w-4" />
             </button>
           )}
@@ -807,15 +807,15 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
                         <button onClick={() => onView(producto)} className="p-1 text-teal-600 hover:bg-teal-50 rounded" title="Ver">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button onClick={() => onEdit(producto)} className="p-1 text-warning-600 hover:bg-warning-50 rounded" title="Editar">
+                        <button onClick={() => onEdit(producto)} className="p-1 text-amber-600 hover:bg-amber-50 rounded" title="Editar">
                           <Pencil className="h-4 w-4" />
                         </button>
                         {producto.estado === 'inactivo' && onReactivar ? (
-                          <button onClick={() => onReactivar(producto)} className="p-1 text-success-600 hover:bg-success-50 rounded" title="Reactivar">
+                          <button onClick={() => onReactivar(producto)} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded" title="Reactivar">
                             <RefreshCw className="h-4 w-4" />
                           </button>
                         ) : (
-                          <button onClick={() => onDelete(producto)} className="p-1 text-danger-600 hover:bg-danger-50 rounded" title="Eliminar">
+                          <button onClick={() => onDelete(producto)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Eliminar">
                             <Trash2 className="h-4 w-4" />
                           </button>
                         )}

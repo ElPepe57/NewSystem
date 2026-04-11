@@ -665,7 +665,7 @@ export const OrdenesCompra: React.FC = () => {
         <Card padding="md">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-warning-600 mr-3" />
+              <AlertCircle className="h-5 w-5 text-amber-600 mr-3" />
               <div>
                 <p className="text-sm font-medium text-slate-900">No hay proveedores registrados</p>
                 <p className="text-sm text-slate-600">Crea proveedores desde el Gestor de Maestros antes de hacer órdenes de compra.</p>

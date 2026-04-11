@@ -268,9 +268,9 @@ export const Configuracion: React.FC = () => {
                   <label className="text-sm font-medium text-slate-700">Estado de verificación</label>
                   <p className="text-sm text-slate-900">
                     {user.emailVerified ? (
-                      <span className="text-success-600">✓ Email verificado</span>
+                      <span className="text-emerald-600">✓ Email verificado</span>
                     ) : (
-                      <span className="text-warning-600">⚠ Email no verificado</span>
+                      <span className="text-amber-600">⚠ Email no verificado</span>
                     )}
                   </p>
                 </div>

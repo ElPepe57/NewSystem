@@ -373,7 +373,7 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
       )}
 
       {/* Resumen de impacto */}
-      <div className="bg-gradient-to-r from-teal-50 to-success-50 rounded-lg p-4 border border-teal-200">
+      <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-lg p-4 border border-teal-200">
         <h4 className="font-medium text-slate-900 mb-3">Impacto en Rentabilidad</h4>
 
         <div className="space-y-2 text-sm">
@@ -395,13 +395,13 @@ export const GastosVentaForm: React.FC<GastosVentaFormProps> = ({
           )}
           <div className="border-t pt-2 flex justify-between">
             <span className="font-medium text-slate-900">Utilidad Neta Proyectada:</span>
-            <span className={`font-bold ${utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+            <span className={`font-bold ${utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               S/ {utilidadNeta.toFixed(2)}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Margen Neto:</span>
-            <span className={`font-medium ${margenNeto >= 20 ? 'text-success-600' : margenNeto >= 10 ? 'text-warning-600' : 'text-danger-600'}`}>
+            <span className={`font-medium ${margenNeto >= 20 ? 'text-emerald-600' : margenNeto >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
               {margenNeto.toFixed(1)}%
             </span>
           </div>

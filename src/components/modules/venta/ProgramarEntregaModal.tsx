@@ -540,7 +540,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
               )}
 
               {!hayProductos && !todosEntregados && (
-                <p className="mt-2 text-sm text-danger-600 flex items-center">
+                <p className="mt-2 text-sm text-red-600 flex items-center">
                   <AlertCircle className="h-4 w-4 mr-1" />
                   Selecciona al menos un producto para entregar
                 </p>

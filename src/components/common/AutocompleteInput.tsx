@@ -189,7 +189,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       {label && (
         <label className="block text-sm font-medium text-slate-700 mb-1">
           {label}
-          {required && <span className="text-danger-500 ml-1">*</span>}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
 
@@ -206,7 +206,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           disabled={disabled}
           className={`
             block w-full rounded-lg border pr-16
-            ${error ? 'border-danger-300' : 'border-slate-300'}
+            ${error ? 'border-red-300' : 'border-slate-300'}
             pl-3 py-2 text-slate-900 placeholder-slate-400
             focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
             disabled:bg-slate-100 disabled:cursor-not-allowed
@@ -289,7 +289,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       )}
 
       {error && (
-        <p className="mt-1 text-sm text-danger-600">{error}</p>
+        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
 
       {!error && helperText && (

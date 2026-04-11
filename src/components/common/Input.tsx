@@ -26,18 +26,15 @@ export const Input: React.FC<InputProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label
-          htmlFor={inputId}
-          className="block text-sm font-medium text-slate-700 mb-1"
-        >
+        <label htmlFor={inputId} className="block text-sm font-medium text-slate-700 mb-1.5">
           {label}
-          {props.required && <span className="text-danger-500 ml-1" aria-hidden="true">*</span>}
+          {props.required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
 
       <div className="relative">
         {icon && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             {icon}
           </div>
         )}
@@ -46,35 +43,19 @@ export const Input: React.FC<InputProps> = ({
           id={inputId}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : helperText ? helperId : undefined}
-          aria-required={props.required}
-          className={`
-            block w-full rounded-lg border ${error ? 'border-danger-300' : 'border-slate-300'}
-            ${icon ? 'pl-10' : 'pl-3'} pr-3 py-2
-            text-slate-900 placeholder-slate-400
-            focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent
-            disabled:bg-slate-100 disabled:cursor-not-allowed
-            ${className}
-          `}
+          className={`block w-full rounded-lg border ${error ? 'border-red-300 focus:ring-red-500' : 'border-slate-300 focus:ring-teal-500'} ${icon ? 'pl-10' : 'pl-3'} pr-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed transition-colors ${className}`}
           {...props}
         />
       </div>
 
       {error && (
-        <p id={errorId} className="mt-1 text-sm text-danger-600" role="alert">
-          {error}
-        </p>
+        <p id={errorId} className="mt-1 text-sm text-red-600" role="alert">{error}</p>
       )}
-
       {!error && helperText && (
-        <p id={helperId} className="mt-1 text-sm text-slate-500">
-          {helperText}
-        </p>
+        <p id={helperId} className="mt-1 text-xs text-slate-500">{helperText}</p>
       )}
-
       {!error && !helperText && hint && (
-        <p className="mt-1 text-sm text-slate-400 italic">
-          {hint}
-        </p>
+        <p className="mt-1 text-xs text-slate-400">{hint}</p>
       )}
     </div>
   );

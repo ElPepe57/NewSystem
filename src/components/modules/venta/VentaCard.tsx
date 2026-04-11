@@ -511,7 +511,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             {venta.descuento && venta.descuento > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Descuento:</span>
-                <span className="text-danger-600">- S/ {venta.descuento.toFixed(2)}</span>
+                <span className="text-red-600">- S/ {venta.descuento.toFixed(2)}</span>
               </div>
             )}
             {venta.costoEnvio && venta.costoEnvio > 0 && (
@@ -540,15 +540,15 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-600">Utilidad Bruta:</span>
-                <span className={`font-semibold ${utilidadCorregida >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                <span className={`font-semibold ${utilidadCorregida >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   S/ {utilidadCorregida.toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Margen:</span>
                 <div className="flex items-center">
-                  <TrendingUp className={`h-4 w-4 mr-1 ${margenCorregido >= 0 ? 'text-success-500' : 'text-danger-500'}`} />
-                  <span className={`text-lg font-bold ${margenCorregido >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                  <TrendingUp className={`h-4 w-4 mr-1 ${margenCorregido >= 0 ? 'text-emerald-500' : 'text-red-500'}`} />
+                  <span className={`text-lg font-bold ${margenCorregido >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     {margenCorregido.toFixed(1)}%
                   </span>
                 </div>
@@ -621,7 +621,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               {/* Resultado: Utilidad Bruta */}
               <div className="flex justify-between text-sm bg-blue-50 p-2 rounded border border-blue-200">
                 <span className="text-blue-800 font-medium">= Utilidad Bruta:</span>
-                <span className={`font-semibold ${rentabilidadProporcional.utilidadBruta >= 0 ? 'text-blue-700' : 'text-danger-600'}`}>
+                <span className={`font-semibold ${rentabilidadProporcional.utilidadBruta >= 0 ? 'text-blue-700' : 'text-red-600'}`}>
                   S/ {rentabilidadProporcional.utilidadBruta.toFixed(2)}
                   <span className="text-xs ml-1">({rentabilidadProporcional.margenBruto.toFixed(1)}%)</span>
                 </span>
@@ -644,7 +644,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
               <div className="border-t border-orange-300 pt-2 mt-2">
                 <div className="flex justify-between bg-gradient-to-r from-green-50 to-emerald-50 p-2 rounded border border-green-200">
                   <span className="font-semibold text-slate-900">= Utilidad Neta:</span>
-                  <span className={`text-lg font-bold ${rentabilidadProporcional.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                  <span className={`text-lg font-bold ${rentabilidadProporcional.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     S/ {rentabilidadProporcional.utilidadNeta.toFixed(2)}
                     <span className="text-sm ml-1">({rentabilidadProporcional.margenNeto.toFixed(1)}%)</span>
                   </span>
@@ -737,10 +737,10 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                         <td className="px-3 py-2 text-right text-sm font-medium text-slate-900">
                           S/ {prod.costoTotal.toFixed(2)}
                         </td>
-                        <td className={`px-3 py-2 text-right text-sm font-medium ${prod.utilidadNeta >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                        <td className={`px-3 py-2 text-right text-sm font-medium ${prod.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                           S/ {prod.utilidadNeta.toFixed(2)}
                         </td>
-                        <td className={`px-3 py-2 text-right text-sm font-medium ${prod.margenNeto >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                        <td className={`px-3 py-2 text-right text-sm font-medium ${prod.margenNeto >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                           {prod.margenNeto.toFixed(1)}%
                         </td>
                       </tr>
@@ -814,11 +814,11 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             </div>
             <div className="bg-white p-3 rounded-lg">
               <div className="text-xs text-slate-500 mb-1">Cobrado</div>
-              <div className="text-lg font-bold text-success-600">S/ {(venta.montoPagado || 0).toFixed(2)}</div>
+              <div className="text-lg font-bold text-emerald-600">S/ {(venta.montoPagado || 0).toFixed(2)}</div>
             </div>
             <div className="bg-white p-3 rounded-lg">
               <div className="text-xs text-slate-500 mb-1">Pendiente</div>
-              <div className={`text-lg font-bold ${(venta.montoPendiente || 0) > 0 ? 'text-danger-600' : 'text-success-600'}`}>
+              <div className={`text-lg font-bold ${(venta.montoPendiente || 0) > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                 S/ {(venta.montoPendiente || 0).toFixed(2)}
               </div>
             </div>
@@ -853,14 +853,14 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                         <td className="px-3 py-2 text-sm text-slate-600">
                           {pago.referencia || '-'}
                         </td>
-                        <td className="px-3 py-2 text-sm font-semibold text-success-600 text-right">
+                        <td className="px-3 py-2 text-sm font-semibold text-emerald-600 text-right">
                           S/ {(pago.monto || 0).toFixed(2)}
                         </td>
                         {onEliminarPago && venta.estado !== 'entregada' && (
                           <td className="px-3 py-2 text-center">
                             <button
                               onClick={() => onEliminarPago(pago.id)}
-                              className="text-danger-500 hover:text-danger-700 p-1"
+                              className="text-red-500 hover:text-red-700 p-1"
                               title="Eliminar pago"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -877,7 +877,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
 
           {/* Fecha de pago completo */}
           {venta.fechaPagoCompleto && (
-            <div className="mt-3 text-sm text-success-600">
+            <div className="mt-3 text-sm text-emerald-600">
               Pago completado el {formatDate(venta.fechaPagoCompleto)}
             </div>
           )}
@@ -932,7 +932,7 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                         </td>
                         <td className="px-4 py-3 text-right text-sm font-medium">
                           {producto.costoTotalUnidades ? (
-                            <span className={margenProductoCorregido >= 0 ? 'text-success-600' : 'text-danger-600'}>
+                            <span className={margenProductoCorregido >= 0 ? 'text-emerald-600' : 'text-red-600'}>
                               {margenProductoCorregido.toFixed(1)}%
                             </span>
                           ) : '-'}

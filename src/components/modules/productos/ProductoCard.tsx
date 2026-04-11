@@ -148,25 +148,25 @@ const CalculadoraRentabilidad: React.FC<{
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <div className="text-center p-2 sm:p-3 bg-slate-50 rounded-lg border border-slate-100">
           <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Ganancia</p>
-          <p className={`text-sm sm:text-base font-bold ${ganancia >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+          <p className={`text-sm sm:text-base font-bold ${ganancia >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             S/ {ganancia.toFixed(2)}
           </p>
         </div>
         <div className="text-center p-2 sm:p-3 bg-slate-50 rounded-lg border border-slate-100">
           <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Margen</p>
-          <p className={`text-sm sm:text-base font-bold ${margen >= 30 ? 'text-success-600' : margen >= 20 ? 'text-warning-600' : 'text-danger-600'}`}>
+          <p className={`text-sm sm:text-base font-bold ${margen >= 30 ? 'text-emerald-600' : margen >= 20 ? 'text-amber-600' : 'text-red-600'}`}>
             {margen.toFixed(1)}%
           </p>
         </div>
         <div className="text-center p-2 sm:p-3 bg-slate-50 rounded-lg border border-slate-100">
           <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">ROI</p>
-          <p className={`text-sm sm:text-base font-bold ${roi >= 50 ? 'text-success-600' : roi >= 25 ? 'text-warning-600' : 'text-danger-600'}`}>
+          <p className={`text-sm sm:text-base font-bold ${roi >= 50 ? 'text-emerald-600' : roi >= 25 ? 'text-amber-600' : 'text-red-600'}`}>
             {roi.toFixed(1)}%
           </p>
         </div>
         <div className="text-center p-2 sm:p-3 bg-slate-50 rounded-lg border border-slate-100">
           <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Multiplicador</p>
-          <p className={`text-sm sm:text-base font-bold ${multiplicador >= 2 ? 'text-success-600' : multiplicador >= 1.5 ? 'text-warning-600' : 'text-danger-600'}`}>
+          <p className={`text-sm sm:text-base font-bold ${multiplicador >= 2 ? 'text-emerald-600' : multiplicador >= 1.5 ? 'text-amber-600' : 'text-red-600'}`}>
             {multiplicador.toFixed(2)}x
           </p>
         </div>
@@ -235,10 +235,10 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <h2 className="text-lg sm:text-xl font-bold text-white">{producto.marca}</h2>
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
                 producto.estado === 'activo'
-                  ? 'bg-success-500 text-white'
+                  ? 'bg-emerald-500 text-white'
                   : producto.estado === 'inactivo'
                   ? 'bg-slate-500 text-white'
-                  : 'bg-danger-500 text-white'
+                  : 'bg-red-500 text-white'
               }`}>
                 {producto.estado === 'activo' ? 'Activo' : producto.estado === 'inactivo' ? 'Inactivo' : 'Descontinuado'}
               </span>
@@ -276,7 +276,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             {producto.estado === 'inactivo' && onReactivar ? (
               <button
                 onClick={onReactivar}
-                className="p-2 bg-success-600 hover:bg-success-700 text-white rounded-lg transition-colors shadow-sm"
+                className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors shadow-sm"
                 title="Reactivar producto"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -284,7 +284,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             ) : (
               <button
                 onClick={onDelete}
-                className="p-2 bg-danger-600 hover:bg-danger-700 text-white rounded-lg transition-colors shadow-sm"
+                className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-sm"
                 title="Eliminar"
               >
                 <Trash2 className="h-4 w-4" />
@@ -323,7 +323,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           >
             <span className="font-mono">{producto.sku}</span>
             {copiedSku ? (
-              <Check className="h-3.5 w-3.5 text-success-400" />
+              <Check className="h-3.5 w-3.5 text-emerald-400" />
             ) : (
               <Copy className="h-3.5 w-3.5 text-slate-300" />
             )}
@@ -373,7 +373,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           label="Stock Perú"
           value={producto.stockPeru}
           subtext={stockCritico ? '⚠️ Crítico' : `Mín: ${producto.stockMinimo}`}
-          bgColor={stockCritico ? 'bg-danger-500' : 'bg-success-500'}
+          bgColor={stockCritico ? 'bg-red-500' : 'bg-emerald-500'}
         />
         <KPICard
           label="Stock USA"
@@ -391,8 +391,8 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           label="Rotación"
           value={`${producto.rotacionPromedio || 0}`}
           subtext="unidades/mes"
-          bgColor="bg-warning-500"
-          textColor="text-warning-900"
+          bgColor="bg-amber-500"
+          textColor="text-amber-900"
         />
       </div>
 
@@ -415,19 +415,19 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 flex-wrap justify-end">
                 {invResumen.estaVigente ? (
-                  <span className="bg-success-500 text-white text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md flex items-center gap-1">
+                  <span className="bg-emerald-500 text-white text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md flex items-center gap-1">
                     <Clock className="h-3 w-3 hidden sm:block" />
                     Vigente ({invResumen.diasRestantes}d)
                   </span>
                 ) : (
-                  <span className="bg-danger-500 text-white text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md flex items-center gap-1">
+                  <span className="bg-red-500 text-white text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md flex items-center gap-1">
                     <AlertTriangle className="h-3 w-3 hidden sm:block" />
                     Vencida
                   </span>
                 )}
                 <span className={`text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md flex items-center gap-1 ${
-                  inv.recomendacion === 'importar' ? 'bg-success-500 text-white' :
-                  inv.recomendacion === 'descartar' ? 'bg-danger-500 text-white' : 'bg-warning-500 text-warning-900'
+                  inv.recomendacion === 'importar' ? 'bg-emerald-500 text-white' :
+                  inv.recomendacion === 'descartar' ? 'bg-red-500 text-white' : 'bg-amber-500 text-amber-900'
                 }`}>
                   {inv.recomendacion === 'importar' && <CheckCircle className="h-3 w-3" />}
                   {inv.recomendacion === 'descartar' && <XCircle className="h-3 w-3" />}
@@ -467,7 +467,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                 </div>
                 <div className="text-center p-2 bg-white rounded-lg border border-slate-100">
                   <p className="text-[10px] text-slate-500 mb-0.5">TC</p>
-                  <p className="text-sm font-bold text-warning-600">
+                  <p className="text-sm font-bold text-amber-600">
                     {inv.ctruEstimado > 0 && (inv.precioUSAMin || inv.precioUSAPromedio) > 0
                       ? (inv.ctruEstimado / ((inv.precioUSAMin || inv.precioUSAPromedio) + (inv.logisticaEstimada || 0))).toFixed(2)
                       : '?'}
@@ -518,7 +518,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                 {/* TC */}
                 <div className="text-center flex-1">
                   <p className="text-xs text-slate-500 mb-1">TC</p>
-                  <p className="text-lg font-bold text-warning-600">
+                  <p className="text-lg font-bold text-amber-600">
                     {inv.ctruEstimado > 0 && (inv.precioUSAMin || inv.precioUSAPromedio) > 0
                       ? (inv.ctruEstimado / ((inv.precioUSAMin || inv.precioUSAPromedio) + (inv.logisticaEstimada || 0))).toFixed(2)
                       : '?'}
@@ -544,13 +544,13 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                 <div className="flex items-center justify-between sm:flex-col sm:items-start">
                   <div className="flex items-center gap-2 sm:mb-2">
-                    <div className="p-1.5 bg-success-100 rounded-md">
-                      <Target className="h-3.5 w-3.5 text-success-600" />
+                    <div className="p-1.5 bg-emerald-100 rounded-md">
+                      <Target className="h-3.5 w-3.5 text-emerald-600" />
                     </div>
                     <span className="text-xs text-slate-500 font-medium">Precio Perú</span>
                   </div>
                   <div className="text-right sm:text-left">
-                    <p className="text-lg sm:text-xl font-bold text-success-600">
+                    <p className="text-lg sm:text-xl font-bold text-emerald-600">
                       S/ {(inv.precioEntrada || inv.precioPERUPromedio).toFixed(2)}
                     </p>
                     <p className="text-[10px] sm:text-xs text-slate-400">
@@ -564,20 +564,20 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                 <div className="flex items-center justify-between sm:flex-col sm:items-start">
                   <div className="flex items-center gap-2 sm:mb-2">
                     <div className={`p-1.5 rounded-md ${
-                      inv.margenEstimado >= 30 ? 'bg-success-100' :
-                      inv.margenEstimado >= 20 ? 'bg-warning-100' : 'bg-danger-100'
+                      inv.margenEstimado >= 30 ? 'bg-emerald-100' :
+                      inv.margenEstimado >= 20 ? 'bg-amber-100' : 'bg-red-100'
                     }`}>
                       <TrendingUp className={`h-3.5 w-3.5 ${
-                        inv.margenEstimado >= 30 ? 'text-success-600' :
-                        inv.margenEstimado >= 20 ? 'text-warning-600' : 'text-danger-600'
+                        inv.margenEstimado >= 30 ? 'text-emerald-600' :
+                        inv.margenEstimado >= 20 ? 'text-amber-600' : 'text-red-600'
                       }`} />
                     </div>
                     <span className="text-xs text-slate-500 font-medium">Margen Est.</span>
                   </div>
                   <div className="text-right sm:text-left">
                     <p className={`text-lg sm:text-xl font-bold ${
-                      inv.margenEstimado >= 30 ? 'text-success-600' :
-                      inv.margenEstimado >= 20 ? 'text-warning-600' : 'text-danger-600'
+                      inv.margenEstimado >= 30 ? 'text-emerald-600' :
+                      inv.margenEstimado >= 20 ? 'text-amber-600' : 'text-red-600'
                     }`}>
                       {inv.margenEstimado.toFixed(1)}%
                     </p>
@@ -599,8 +599,8 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                   <div className="text-right sm:text-left">
                     <p className={`text-lg sm:text-xl font-bold ${
                       ((inv.precioEntrada || inv.precioPERUPromedio) - inv.ctruEstimado) > 0
-                        ? 'text-success-600'
-                        : 'text-danger-600'
+                        ? 'text-emerald-600'
+                        : 'text-red-600'
                     }`}>
                       S/ {((inv.precioEntrada || inv.precioPERUPromedio) - inv.ctruEstimado).toFixed(2)}
                     </p>
@@ -612,26 +612,26 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
             {/* Métricas ROI */}
             {metricsROI && (
-              <div className="bg-success-500 rounded-lg p-3 sm:p-4 shadow-sm">
+              <div className="bg-emerald-500 rounded-lg p-3 sm:p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <Zap className="h-4 w-4 text-white" />
                   <span className="font-medium text-white text-sm sm:text-base">Rendimiento de Inversión</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div className="bg-white/20 rounded-lg p-2 sm:p-3 text-center backdrop-blur-sm">
-                    <p className="text-[10px] sm:text-xs text-success-100 mb-0.5 sm:mb-1">Ganancia/Unidad</p>
+                    <p className="text-[10px] sm:text-xs text-emerald-100 mb-0.5 sm:mb-1">Ganancia/Unidad</p>
                     <p className="text-base sm:text-lg font-bold text-white">S/ {metricsROI.ganancia.toFixed(2)}</p>
                   </div>
                   <div className="bg-white/20 rounded-lg p-2 sm:p-3 text-center backdrop-blur-sm">
-                    <p className="text-[10px] sm:text-xs text-success-100 mb-0.5 sm:mb-1">ROI</p>
+                    <p className="text-[10px] sm:text-xs text-emerald-100 mb-0.5 sm:mb-1">ROI</p>
                     <p className="text-base sm:text-lg font-bold text-white">{metricsROI.roi.toFixed(1)}%</p>
                   </div>
                   <div className="bg-white/20 rounded-lg p-2 sm:p-3 text-center backdrop-blur-sm">
-                    <p className="text-[10px] sm:text-xs text-success-100 mb-0.5 sm:mb-1">Multiplicador</p>
+                    <p className="text-[10px] sm:text-xs text-emerald-100 mb-0.5 sm:mb-1">Multiplicador</p>
                     <p className="text-base sm:text-lg font-bold text-white">{metricsROI.multiplicador.toFixed(2)}x</p>
                   </div>
                   <div className="bg-white/20 rounded-lg p-2 sm:p-3 text-center backdrop-blur-sm">
-                    <p className="text-[10px] sm:text-xs text-success-100 mb-0.5 sm:mb-1">Precio Venta</p>
+                    <p className="text-[10px] sm:text-xs text-emerald-100 mb-0.5 sm:mb-1">Precio Venta</p>
                     <p className="text-base sm:text-lg font-bold text-white">S/ {metricsROI.precioVenta.toFixed(2)}</p>
                   </div>
                 </div>
@@ -747,7 +747,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                       }`}
                     >
                       {cat.categoriaId === producto.categoriaPrincipalId && (
-                        <Star className="h-3 w-3 mr-1 text-warning-500 fill-warning-500" />
+                        <Star className="h-3 w-3 mr-1 text-amber-500 fill-amber-500" />
                       )}
                       {cat.nombre}
                     </span>
@@ -868,16 +868,16 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
         <CollapsibleSection
           title="Inventario"
           icon={<Box className="h-4 w-4" />}
-          iconBgColor={stockCritico ? 'bg-danger-100' : 'bg-success-100'}
-          iconColor={stockCritico ? 'text-danger-600' : 'text-success-600'}
-          badge={stockCritico ? <AlertTriangle className="h-4 w-4 text-danger-500 ml-2" /> : undefined}
+          iconBgColor={stockCritico ? 'bg-red-100' : 'bg-emerald-100'}
+          iconColor={stockCritico ? 'text-red-600' : 'text-emerald-600'}
+          badge={stockCritico ? <AlertTriangle className="h-4 w-4 text-red-500 ml-2" /> : undefined}
           defaultOpen={stockCritico}
         >
           <div className="mt-3 space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-              <div className={`rounded-lg p-2 sm:p-3 text-center ${stockCritico ? 'bg-danger-50 border border-danger-100' : 'bg-success-50 border border-success-100'}`}>
+              <div className={`rounded-lg p-2 sm:p-3 text-center ${stockCritico ? 'bg-red-50 border border-red-100' : 'bg-emerald-50 border border-emerald-100'}`}>
                 <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Perú</p>
-                <p className={`text-lg sm:text-xl font-bold ${stockCritico ? 'text-danger-600' : 'text-success-600'}`}>
+                <p className={`text-lg sm:text-xl font-bold ${stockCritico ? 'text-red-600' : 'text-emerald-600'}`}>
                   {producto.stockPeru}
                 </p>
               </div>
@@ -885,9 +885,9 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                 <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">USA</p>
                 <p className="text-lg sm:text-xl font-bold text-teal-600">{producto.stockUSA}</p>
               </div>
-              <div className="bg-warning-50 border border-warning-100 rounded-lg p-2 sm:p-3 text-center">
+              <div className="bg-amber-50 border border-amber-100 rounded-lg p-2 sm:p-3 text-center">
                 <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Tránsito</p>
-                <p className="text-lg sm:text-xl font-bold text-warning-600">{producto.stockTransito}</p>
+                <p className="text-lg sm:text-xl font-bold text-amber-600">{producto.stockTransito}</p>
               </div>
               <div className="bg-slate-50 border border-slate-100 rounded-lg p-2 sm:p-3 text-center">
                 <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Disponible</p>
@@ -930,7 +930,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             </div>
             <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
               <span className="text-xs text-slate-500 block mb-1">Margen Objetivo (Categoría)</span>
-              <p className="text-lg font-bold text-success-600">{(producto.categorias?.find((c: any) => c.id === producto.categoriaPrincipalId) || producto.categorias?.[0])?.margenObjetivo ?? 35}%</p>
+              <p className="text-lg font-bold text-emerald-600">{(producto.categorias?.find((c: any) => c.id === producto.categoriaPrincipalId) || producto.categorias?.[0])?.margenObjetivo ?? 35}%</p>
             </div>
           </div>
         </CollapsibleSection>
@@ -940,8 +940,8 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           <CollapsibleSection
             title="Métricas de Rendimiento"
             icon={<TrendingUp className="h-4 w-4" />}
-            iconBgColor="bg-warning-100"
-            iconColor="text-warning-600"
+            iconBgColor="bg-amber-100"
+            iconColor="text-amber-600"
           >
             <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
               <div className="bg-slate-50 p-2 sm:p-3 rounded-lg text-center border border-slate-100">

@@ -101,14 +101,14 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
 
       {/* Alerta de stock requerido */}
       {cotizacion.requiereStock && cotizacion.productosConFaltante && cotizacion.productosConFaltante.length > 0 && (
-        <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-warning-600 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <div className="text-sm font-medium text-warning-800">
+              <div className="text-sm font-medium text-amber-800">
                 Esta cotización requiere conseguir stock
               </div>
-              <div className="text-sm text-warning-700 mt-2 space-y-1">
+              <div className="text-sm text-amber-700 mt-2 space-y-1">
                 {cotizacion.productosConFaltante.map((p, idx) => (
                   <div key={idx} className="flex justify-between">
                     <span>{p.nombre}</span>
@@ -118,7 +118,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
                   </div>
                 ))}
               </div>
-              <div className="text-xs text-warning-600 mt-3">
+              <div className="text-xs text-amber-600 mt-3">
                 Debes conseguir el stock faltante antes de confirmar esta cotización como venta.
               </div>
             </div>
@@ -280,7 +280,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
             {cotizacion.descuento && cotizacion.descuento > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Descuento:</span>
-                <span className="text-danger-600">
+                <span className="text-red-600">
                   -{formatCurrency(cotizacion.descuento)}
                 </span>
               </div>
@@ -294,7 +294,7 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
             {cotizacion.incluyeEnvio && (
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Envío:</span>
-                <span className="text-success-600">Gratis</span>
+                <span className="text-emerald-600">Gratis</span>
               </div>
             )}
             <div className="flex justify-between pt-2 border-t">

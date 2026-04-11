@@ -451,14 +451,14 @@ export const Gastos: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="min-w-0">
                 <div className="text-[11px] sm:text-sm text-slate-600 truncate"><span className="sm:hidden">Pendientes</span><span className="hidden sm:inline">Pendientes de Pago</span></div>
-                <div className="text-base sm:text-2xl font-bold text-warning-600 mt-0.5 sm:mt-1 truncate">
+                <div className="text-base sm:text-2xl font-bold text-amber-600 mt-0.5 sm:mt-1 truncate">
                   {formatCurrency(stats.totalPendientePago)}
                 </div>
                 <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
                   {stats.cantidadPendientePago} gastos
                 </div>
               </div>
-              <AlertCircle className="h-5 w-5 sm:h-8 sm:w-8 text-warning-400 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 sm:h-8 sm:w-8 text-amber-400 flex-shrink-0" />
             </div>
           </Card>
 
@@ -467,7 +467,7 @@ export const Gastos: React.FC = () => {
               <div className="min-w-0">
                 <div className="text-[11px] sm:text-sm text-slate-600 truncate"><span className="sm:hidden">Variación</span><span className="hidden sm:inline">Variación vs Mes Anterior</span></div>
                 <div className={`text-base sm:text-2xl font-bold mt-0.5 sm:mt-1 ${
-                  stats.variacionVsMesAnterior >= 0 ? 'text-danger-600' : 'text-success-600'
+                  stats.variacionVsMesAnterior >= 0 ? 'text-red-600' : 'text-emerald-600'
                 }`}>
                   {stats.variacionVsMesAnterior >= 0 ? '+' : ''}
                   {stats.variacionVsMesAnterior.toFixed(1)}%
@@ -477,9 +477,9 @@ export const Gastos: React.FC = () => {
                 </div>
               </div>
               {stats.variacionVsMesAnterior >= 0 ? (
-                <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-danger-400 flex-shrink-0" />
+                <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-red-400 flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-5 w-5 sm:h-8 sm:w-8 text-success-400 flex-shrink-0" />
+                <TrendingDown className="h-5 w-5 sm:h-8 sm:w-8 text-emerald-400 flex-shrink-0" />
               )}
             </div>
           </Card>
@@ -540,8 +540,8 @@ export const Gastos: React.FC = () => {
                 // Colores para las barras de progreso
                 const colores = [
                   'bg-teal-500',
-                  'bg-success-500',
-                  'bg-warning-500',
+                  'bg-emerald-500',
+                  'bg-amber-500',
                   'bg-info-500',
                   'bg-purple-500',
                   'bg-pink-500',

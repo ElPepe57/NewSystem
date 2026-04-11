@@ -923,11 +923,11 @@ export const Inventario: React.FC = () => {
                     </div>
                     <div className="text-xs text-teal-700">Corregidas</div>
                   </div>
-                  <div className="bg-success-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-success-600">
+                  <div className="bg-emerald-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-emerald-600">
                       {resultadoSync.estadosUnidades?.reservasLiberadas || 0}
                     </div>
-                    <div className="text-xs text-success-700">Reservas Lib.</div>
+                    <div className="text-xs text-emerald-700">Reservas Lib.</div>
                   </div>
                 </div>
               </div>
@@ -954,11 +954,11 @@ export const Inventario: React.FC = () => {
                     </div>
                     <div className="text-xs text-blue-700">CTRU Actualiz.</div>
                   </div>
-                  <div className="bg-danger-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-danger-600">
+                  <div className="bg-red-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-red-600">
                       {resultadoSync.errores || 0}
                     </div>
-                    <div className="text-xs text-danger-700">Errores</div>
+                    <div className="text-xs text-red-700">Errores</div>
                   </div>
                 </div>
               </div>
@@ -966,7 +966,7 @@ export const Inventario: React.FC = () => {
               {/* Mensaje de resultado */}
               {(resultadoSync.estadosUnidades?.correccionesRealizadas === 0 &&
                resultadoSync.stockProductos?.productosActualizados === 0) ? (
-                <div className="flex items-center gap-2 text-success-600 bg-success-50 p-3 rounded-lg">
+                <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 p-3 rounded-lg">
                   <CheckCircle className="h-5 w-5" />
                   <span>Todo sincronizado correctamente. No se encontraron inconsistencias.</span>
                 </div>
