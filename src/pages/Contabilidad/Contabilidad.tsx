@@ -42,7 +42,7 @@ import {
   StatDistribution,
   Button,
 } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
 import { contabilidadService } from '../../services/contabilidad.service';
@@ -251,6 +251,9 @@ export function Contabilidad() {
           { label: 'Patrimonio', value: formatCurrency(balance.patrimonio.totalPatrimonio) },
         ] : []}
       />
+
+      {/* Toolbar */}
+      <Toolbar />
 
       {/* Tabs */}
       <TabNavigation

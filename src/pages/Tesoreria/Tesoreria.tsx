@@ -15,7 +15,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { TesoreriaService } from '../../services/tesoreria.service';
 
@@ -768,6 +768,9 @@ export const Tesoreria: React.FC = () => {
 
       {/* Pool USD Widget */}
       <PoolUSDWidget />
+
+      {/* Toolbar */}
+      <Toolbar />
 
       {/* KPIs */}
       {stats && (
