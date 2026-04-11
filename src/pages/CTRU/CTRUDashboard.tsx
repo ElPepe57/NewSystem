@@ -6,7 +6,8 @@ import {
   BarChart3,
   AlertTriangle
 } from 'lucide-react';
-import { Card, GradientHeader } from '../../components/common';
+import { Card } from '../../components/common';
+import { Toolbar } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import {
   CTRUKPIGrid,

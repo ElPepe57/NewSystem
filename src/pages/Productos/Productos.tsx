@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Filter, X, Package, Trash2, BarChart3 } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
@@ -739,10 +739,13 @@ export const Productos: React.FC = () => {
         ]}
       />
 
-      {/* Filtro de línea de negocio */}
+      {/* Filtro de linea de negocio */}
       <LineaFilterInline />
 
-      {/* Búsqueda y Filtros — Rediseñado */}
+      {/* Toolbar */}
+      <Toolbar resultCount={productosFiltrados.length} />
+
+      {/* Busqueda y Filtros */}
       <Card padding="md">
         <div className="space-y-3">
           {/* Barra de búsqueda */}
