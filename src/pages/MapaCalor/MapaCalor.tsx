@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { MapPin, RefreshCw } from 'lucide-react';
 import { GradientHeader, Button } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { useMapaCalorStore } from '../../store/mapaCalorStore';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { MapaCalorMapa } from './MapaCalorMapa';
@@ -26,11 +27,11 @@ export function MapaCalor() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <GradientHeader
+      <PageHeader
         title="Mapa de Calor de Ventas"
         subtitle="Analisis geografico de ventas, ticket promedio por zona y productos por sector"
         icon={MapPin}
-        variant="blue"
+       
         actions={
           <Button
             variant="ghost"

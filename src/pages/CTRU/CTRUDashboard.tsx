@@ -70,11 +70,11 @@ export const CTRUDashboard: React.FC = () => {
   return (
     <div className="space-y-0 overflow-x-hidden">
       {/* Header */}
-      <GradientHeader
+      <PageHeader
         title="CTRU - Costo Total Real por Unidad"
         subtitle="Analisis completo de costos, margenes y pricing por producto"
         icon={Calculator}
-        variant="blue"
+       
       />
 
       {/* Filtro de línea de negocio */}

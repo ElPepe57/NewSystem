@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Filter, X, Package, Trash2, BarChart3 } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
@@ -695,11 +696,11 @@ export const Productos: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Profesional con Gradiente - Estilo Maestros */}
-      <GradientHeader
+      <PageHeader
         title="Gestión de Productos"
         subtitle="Administra tu catálogo de productos, precios e investigaciones de mercado"
         icon={Package}
-        variant="dark"
+       
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <Button

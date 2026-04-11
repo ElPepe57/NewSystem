@@ -5,9 +5,11 @@ import {
   RefreshCw,
   AlertCircle,
   Layers,
-  CheckSquare
+  CheckSquare,
+  ClipboardList
 } from 'lucide-react';
 import { Button, ConfirmDialog, Modal, useConfirmDialog } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { AsignacionResponsableForm } from '../../components/modules/requerimiento/AsignacionResponsableForm';
@@ -588,84 +590,82 @@ export const Requerimientos: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Requerimientos</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">
-            Gestion de solicitudes de compra
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          {/* Toggle de vista */}
-          <div className="bg-gray-100 rounded-lg p-1 flex">
-            <button
-              onClick={() => setViewMode('kanban')}
-              className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                viewMode === 'kanban' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Kanban
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                viewMode === 'list' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Lista
-            </button>
-          </div>
+    <PageShell>
+      <PageHeader
+        title="Requerimientos"
+        subtitle="Gestion de solicitudes de compra"
+        icon={ClipboardList}
+        actions={
+          <>
+            {/* Toggle de vista */}
+            <div className="bg-gray-100 rounded-lg p-1 flex">
+              <button
+                onClick={() => setViewMode('kanban')}
+                className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                  viewMode === 'kanban' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Kanban
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                  viewMode === 'list' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Lista
+              </button>
+            </div>
 
-          <Button
-            variant="ghost"
-            onClick={() => setShowIntelligencePanel(!showIntelligencePanel)}
-            className="hidden sm:flex"
-          >
-            <Zap className={`h-5 w-5 ${showIntelligencePanel ? 'text-yellow-500' : 'text-gray-400'}`} />
-          </Button>
-
-          {cotizacionesConfirmadas.length > 0 && (
             <Button
               variant="ghost"
-              onClick={handleLimpiarDatos}
-              className="hidden sm:flex text-red-500 hover:text-red-700"
-              title="Limpiar duplicados y corregir datos"
+              onClick={() => setShowIntelligencePanel(!showIntelligencePanel)}
+              className="hidden sm:flex"
             >
-              <RefreshCw className="h-4 w-4" />
+              <Zap className={`h-5 w-5 ${showIntelligencePanel ? 'text-yellow-500' : 'text-gray-400'}`} />
             </Button>
-          )}
 
-          <Button
-            variant="outline"
-            onClick={() => setIsPendientesOpen(true)}
-            className="hidden sm:flex"
-            title="Ver productos pendientes de compra"
-          >
-            <AlertCircle className="h-4 w-4 mr-1 text-indigo-500" />
-            Pendientes
-          </Button>
+            {cotizacionesConfirmadas.length > 0 && (
+              <Button
+                variant="ghost"
+                onClick={handleLimpiarDatos}
+                className="hidden sm:flex text-red-500 hover:text-red-700"
+                title="Limpiar duplicados y corregir datos"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
 
-          <Button
-            variant={selectionMode ? 'warning' : 'outline'}
-            onClick={() => {
-              setSelectionMode(!selectionMode);
-              if (selectionMode) setSelectedReqIds(new Set());
-            }}
-            className="hidden sm:flex"
-          >
-            {selectionMode ? <CheckSquare className="h-4 w-4 mr-1" /> : <Layers className="h-4 w-4 mr-1" />}
-            {selectionMode ? 'Cancelar' : 'OC Consolidada'}
-          </Button>
+            <Button
+              variant="outline"
+              onClick={() => setIsPendientesOpen(true)}
+              className="hidden sm:flex"
+              title="Ver productos pendientes de compra"
+            >
+              <AlertCircle className="h-4 w-4 mr-1 text-indigo-500" />
+              Pendientes
+            </Button>
 
-          <Button variant="primary" onClick={() => setIsModalOpen(true)} className="flex-1 sm:flex-none">
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Nuevo Requerimiento</span>
-            <span className="sm:hidden">Nuevo</span>
-          </Button>
-        </div>
-      </div>
+            <Button
+              variant={selectionMode ? 'warning' : 'outline'}
+              onClick={() => {
+                setSelectionMode(!selectionMode);
+                if (selectionMode) setSelectedReqIds(new Set());
+              }}
+              className="hidden sm:flex"
+            >
+              {selectionMode ? <CheckSquare className="h-4 w-4 mr-1" /> : <Layers className="h-4 w-4 mr-1" />}
+              {selectionMode ? 'Cancelar' : 'OC Consolidada'}
+            </Button>
+
+            <Button variant="primary" onClick={() => setIsModalOpen(true)} className="flex-1 sm:flex-none">
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Nuevo Requerimiento</span>
+              <span className="sm:hidden">Nuevo</span>
+            </Button>
+          </>
+        }
+      />
 
       {/* KPIs */}
       <RequerimientosKPIGrid stats={stats} />
@@ -853,6 +853,6 @@ export const Requerimientos: React.FC = () => {
           setIsOCBuilderOpen(true);
         }}
       />
-    </div>
+    </PageShell>
   );
 };

@@ -39,6 +39,7 @@ const TABS: { id: ReporteTab; label: string; icon: React.ReactNode }[] = [
   { id: 'compras', label: 'Compras', icon: <ShoppingCart className="h-4 w-4" /> },
 ];
 import { Card, Button, Badge } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { TendenciaChart } from '../../components/modules/reporte/TendenciaChart';
 import { ProductosRentabilidadTable } from '../../components/modules/reporte/ProductosRentabilidadTable';
@@ -370,12 +371,12 @@ export const Reportes: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl sm:text-3xl font-bold text-gray-900">Reportes</h1>
-        {activeTab === 'rentabilidad' && (
-          <div className="flex gap-1.5 sm:gap-2">
+    <PageShell>
+      <PageHeader
+        title="Reportes"
+        icon={BarChart3}
+        actions={activeTab === 'rentabilidad' ? (
+          <>
             <button
               onClick={() => fetchAll()}
               disabled={loading}
@@ -391,9 +392,9 @@ export const Reportes: React.FC = () => {
               <FileSpreadsheet className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">Exportar</span>
             </button>
-          </div>
-        )}
-      </div>
+          </>
+        ) : undefined}
+      />
 
       {/* Filtro de línea de negocio */}
       <LineaFilterInline />
@@ -893,6 +894,6 @@ export const Reportes: React.FC = () => {
       )}
       </>
       )}
-    </div>
+    </PageShell>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ScanLine, Search, ClipboardCheck, Truck, PackageCheck, ArrowRightLeft, ArrowLeft } from 'lucide-react';
 import { GradientHeader } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { BarcodeScanner } from '../../components/common/BarcodeScanner';
 import { Tabs } from '../../components/common/Tabs';
 import { ModoConsulta } from '../../components/modules/escaner/modos/ModoConsulta';
@@ -76,10 +77,10 @@ export const Escaner: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <GradientHeader
+      <PageHeader
         title="Escaner de Productos"
         subtitle={MODE_SUBTITLES[activeMode]}
-        variant="blue"
+       
       />
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">

@@ -13,6 +13,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { Button, Card, Modal, GradientHeader } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import {
   ResumenCajaCard,
@@ -122,10 +123,10 @@ export const ProductosIntel: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <GradientHeader
+      <PageHeader
         title="Inteligencia de Productos"
         subtitle="Analisis de rotacion, liquidez y rentabilidad"
-        variant="blue"
+       
       />
 
       {/* Filtro de línea de negocio */}

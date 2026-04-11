@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { DevolucionesTab } from './DevolucionesTab';
 import { DevolucionFormModal } from './DevolucionFormModal';
@@ -710,22 +711,22 @@ export const Ventas: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Ventas</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">Gestión de ventas y cotizaciones con FEFO automático</p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto justify-center"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Nueva Venta
-        </Button>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Ventas"
+        subtitle="Gestión de ventas y cotizaciones con FEFO automático"
+        icon={ShoppingCart}
+        actions={
+          <Button
+            variant="primary"
+            onClick={() => setIsModalOpen(true)}
+            className="w-full sm:w-auto justify-center"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Nueva Venta
+          </Button>
+        }
+      />
 
       {/* Tabs: Ventas | Devoluciones */}
       <div className="border-b border-gray-200">
@@ -1283,6 +1284,6 @@ export const Ventas: React.FC = () => {
           }}
         />
       )}
-    </div>
+    </PageShell>
   );
 };

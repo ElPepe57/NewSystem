@@ -39,6 +39,7 @@ import {
   StatDistribution,
   Tabs
 } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import type { Tab } from '../../components/common/Tabs';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
@@ -600,11 +601,11 @@ export const Inventario: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Profesional con Gradiente */}
-      <GradientHeader
+      <PageHeader
         title="Inventario"
         subtitle="Vista consolidada del stock calculada desde las unidades físicas"
         icon={Boxes}
-        variant="dark"
+       
         actions={
           <div className="flex items-center space-x-3">
             <Button
@@ -658,19 +659,19 @@ export const Inventario: React.FC = () => {
               label="Total Unidades"
               value={inventarioStats.total}
               icon={Package}
-              variant="blue"
+             
             />
             <StatCard
               label="Valor USD"
               value={formatCurrency(inventarioStats.valorTotalUSD)}
               icon={DollarSign}
-              variant="green"
+             
             />
             <StatCard
               label="En Origen"
               value={inventarioStats.enOrigen}
               icon={Warehouse}
-              variant="blue"
+             
               onClick={() => setFiltroEstado(filtroEstado === 'en_origen' ? null : 'en_origen')}
               active={filtroEstado === 'en_origen'}
             />
@@ -686,7 +687,7 @@ export const Inventario: React.FC = () => {
               label="En Perú"
               value={inventarioStats.disponiblePeru}
               icon={CheckCircle}
-              variant="green"
+             
               onClick={() => setFiltroPais('Peru')}
               active={filtroPais === 'Peru'}
             />
@@ -694,7 +695,7 @@ export const Inventario: React.FC = () => {
               label="Reserv. Origen"
               value={inventarioStats.reservadaOrigen}
               icon={ShoppingBag}
-              variant="purple"
+             
               onClick={() => setFiltroEstado('reservada')}
               active={filtroEstado === 'reservada'}
             />
@@ -702,7 +703,7 @@ export const Inventario: React.FC = () => {
               label="Reserv. Perú"
               value={inventarioStats.reservadaPeru}
               icon={ShoppingBag}
-              variant="purple"
+             
               onClick={() => setFiltroEstado('reservada')}
               active={filtroEstado === 'reservada'}
             />

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Layers, Plus, Pencil, Package, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
 import { Button, Modal, GradientHeader, StatCard } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaNegocioForm } from '../../components/modules/lineaNegocio/LineaNegocioForm';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { useAuthStore } from '../../store/authStore';
@@ -93,11 +94,11 @@ export const LineaNegocio: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <GradientHeader
+      <PageHeader
         title="Lineas de Negocio"
         subtitle="Gestiona las lineas de tu negocio"
         icon={Layers}
-        variant="purple"
+       
         actions={
           <Button
             onClick={handleNew}
@@ -115,19 +116,19 @@ export const LineaNegocio: React.FC = () => {
           label="Total lineas"
           value={totalLineas}
           icon={Layers}
-          variant="purple"
+         
         />
         <StatCard
           label="Activas"
           value={totalActivas}
           icon={CheckCircle}
-          variant="green"
+         
         />
         <StatCard
           label="Total productos"
           value={totalProductos}
           icon={Package}
-          variant="blue"
+         
         />
         <StatCard
           label="Ventas del mes"

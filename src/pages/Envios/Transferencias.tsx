@@ -378,11 +378,11 @@ export const Transferencias: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header con Gradiente */}
-      <GradientHeader
+      <PageHeader
         title="Env00edos"
         subtitle="Gestiona el movimiento de productos entre almacenes"
         icon={ArrowRightLeft}
-        variant="dark"
+       
         actions={
           <div className="flex items-center space-x-3">
             <Button
@@ -420,13 +420,13 @@ export const Transferencias: React.FC = () => {
           label="Total"
           value={transferenciasPorLinea.length}
           icon={ArrowRightLeft}
-          variant="blue"
+         
         />
         <StatCard
           label="En Transito"
           value={resumen?.enTransito || 0}
           icon={Truck}
-          variant="blue"
+         
           onClick={() => setActiveTab('en_transito')}
           active={activeTab === 'en_transito'}
         />
@@ -442,7 +442,7 @@ export const Transferencias: React.FC = () => {
           label="Completadas"
           value={resumen?.completadasMes || 0}
           icon={CheckCircle}
-          variant="green"
+         
         />
         <StatCard
           label="Incidencias"
@@ -454,7 +454,7 @@ export const Transferencias: React.FC = () => {
           label="Valor USD"
           value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'}
           icon={DollarSign}
-          variant="green"
+         
         />
       </div>
 

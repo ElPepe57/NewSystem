@@ -42,6 +42,7 @@ import {
   StatDistribution,
   Button,
 } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
 import { contabilidadService } from '../../services/contabilidad.service';
@@ -200,11 +201,11 @@ export function Contabilidad() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <GradientHeader
+      <PageHeader
         title="Contabilidad de Negocio"
         subtitle={`${MESES[mes - 1]} ${anio} - Estados Financieros`}
         icon={Calculator}
-        variant="dark"
+       
         actions={
           <div className="flex items-center gap-2 sm:space-x-3">
             {/* Selector de período */}

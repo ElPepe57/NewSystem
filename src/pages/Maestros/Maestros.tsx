@@ -23,6 +23,7 @@ import {
   useConfirmDialog,
   ConfirmDialog
 } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';
 import { useMarcaStore } from '../../store/marcaStore';
@@ -694,11 +695,11 @@ export const Maestros: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <GradientHeader
+      <PageHeader
         title="Gestion de Maestros"
         subtitle="Administra clientes, marcas, proveedores, almacenes y competidores"
         icon={Boxes}
-        variant="dark"
+       
         actions={
           <div className="flex items-center space-x-3">
             <Button
@@ -736,7 +737,7 @@ export const Maestros: React.FC = () => {
             label="Clientes"
             value={clientes.length}
             icon={Users}
-            variant="blue"
+           
             onClick={() => setTabActiva('clientes')}
             active={tabActiva === 'clientes'}
           />
@@ -744,7 +745,7 @@ export const Maestros: React.FC = () => {
             label="Marcas"
             value={marcas.length}
             icon={Tag}
-            variant="green"
+           
             onClick={() => setTabActiva('marcas')}
             active={tabActiva === 'marcas'}
           />
@@ -752,7 +753,7 @@ export const Maestros: React.FC = () => {
             label="Proveedores"
             value={proveedores.length}
             icon={Truck}
-            variant="purple"
+           
             onClick={() => setTabActiva('proveedores')}
             active={tabActiva === 'proveedores'}
           />
@@ -776,7 +777,7 @@ export const Maestros: React.FC = () => {
             label="Transportistas"
             value={transportistas.length}
             icon={Truck}
-            variant="blue"
+           
             onClick={() => setTabActiva('transportistas')}
             active={tabActiva === 'transportistas'}
           />
@@ -784,7 +785,7 @@ export const Maestros: React.FC = () => {
             label="Canales"
             value={canales.length}
             icon={Store}
-            variant="green"
+           
             onClick={() => setTabActiva('canales')}
             active={tabActiva === 'canales'}
           />

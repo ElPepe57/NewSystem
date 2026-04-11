@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../utils/format';
-import { Plus, RefreshCw } from 'lucide-react';
+import { Plus, RefreshCw, FileText } from 'lucide-react';
 import { Button, ConfirmDialog, useConfirmDialog } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { CotizacionForm } from './CotizacionForm';
 import { CotizacionesMetricas } from './CotizacionesMetricas';
@@ -492,24 +493,24 @@ export const Cotizaciones: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cotizaciones</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base hidden sm:block">Flujo: Nueva → Validada → Con Abono → Confirmada</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => fetchCotizaciones()} className="flex-1 sm:flex-initial justify-center">
-            <RefreshCw className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Actualizar</span>
-          </Button>
-          <Button onClick={() => setShowModal(true)} className="flex-1 sm:flex-initial justify-center">
-            <Plus className="h-4 w-4 mr-2" />
-            Nueva Cotización
-          </Button>
-        </div>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Cotizaciones"
+        subtitle="Flujo: Nueva → Validada → Con Abono → Confirmada"
+        icon={FileText}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => fetchCotizaciones()} className="flex-1 sm:flex-initial justify-center">
+              <RefreshCw className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Actualizar</span>
+            </Button>
+            <Button onClick={() => setShowModal(true)} className="flex-1 sm:flex-initial justify-center">
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva Cotización
+            </Button>
+          </>
+        }
+      />
 
       {/* Métricas */}
       <CotizacionesMetricas metricas={metricas} />
@@ -689,6 +690,6 @@ export const Cotizaciones: React.FC = () => {
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
-    </div>
+    </PageShell>
   );
 };

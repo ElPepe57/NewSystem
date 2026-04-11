@@ -15,6 +15,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { TesoreriaService } from '../../services/tesoreria.service';
 
@@ -728,41 +729,39 @@ export const Tesoreria: React.FC = () => {
 
   // ============ Render ============
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Tesoreria</h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">
-            Gestion de caja, movimientos y conversiones
-          </p>
-        </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          {!statsOptimizadas && (
+    <PageShell>
+      <PageHeader
+        title="Tesoreria"
+        subtitle="Gestion de caja, movimientos y conversiones"
+        icon={Wallet}
+        actions={
+          <>
+            {!statsOptimizadas && (
+              <Button
+                variant="secondary"
+                onClick={handleRecalcularEstadisticas}
+                disabled={isRecalculando || loading}
+                title="Inicializar estadisticas optimizadas (solo una vez)"
+                className="text-xs"
+              >
+                {isRecalculando ? (
+                  <><RefreshCw className="h-4 w-4 mr-1 animate-spin" /><span className="hidden sm:inline">Calculando...</span></>
+                ) : (
+                  <><TrendingUp className="h-4 w-4 mr-1" /><span className="hidden sm:inline">Optimizar</span></>
+                )}
+              </Button>
+            )}
             <Button
-              variant="secondary"
-              onClick={handleRecalcularEstadisticas}
-              disabled={isRecalculando || loading}
-              title="Inicializar estadisticas optimizadas (solo una vez)"
-              className="text-xs"
+              variant="ghost"
+              onClick={handleRefresh}
+              disabled={isRefreshing || loading}
+              title="Actualizar datos"
             >
-              {isRecalculando ? (
-                <><RefreshCw className="h-4 w-4 mr-1 animate-spin" /><span className="hidden sm:inline">Calculando...</span></>
-              ) : (
-                <><TrendingUp className="h-4 w-4 mr-1" /><span className="hidden sm:inline">Optimizar</span></>
-              )}
+              <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            onClick={handleRefresh}
-            disabled={isRefreshing || loading}
-            title="Actualizar datos"
-          >
-            <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </Button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Filtro de linea de negocio */}
       <LineaFilterInline />
@@ -988,6 +987,6 @@ export const Tesoreria: React.FC = () => {
       )}
 
       <ConfirmDialog {...dialogProps} />
-    </div>
+    </PageShell>
   );
 };

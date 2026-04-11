@@ -36,6 +36,7 @@ import {
   LineaNegocioBadge,
   PaisOrigenBadge
 } from '../../components/common';
+import { PageShell, PageHeader } from '../../design-system';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
 import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
@@ -354,11 +355,11 @@ export const Unidades: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Profesional con Gradiente */}
-      <GradientHeader
+      <PageHeader
         title="Unidades"
         subtitle="Fuente única de verdad - Trazabilidad FEFO (First Expired, First Out)"
         icon={Boxes}
-        variant="dark"
+       
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -396,19 +397,19 @@ export const Unidades: React.FC = () => {
           label="Total Unidades"
           value={unidadesStats.total}
           icon={Package}
-          variant="blue"
+         
         />
         <StatCard
           label="Valor USD"
           value={formatCurrency(unidadesStats.valorTotalUSD)}
           icon={DollarSign}
-          variant="green"
+         
         />
         <StatCard
           label="En Origen"
           value={unidadesStats.enOrigen + unidadesStats.enTransitoOrigen}
           icon={Warehouse}
-          variant="blue"
+         
           onClick={() => setFiltroEstadoPipeline(filtroEstadoPipeline === 'en_origen' ? null : 'en_origen')}
           active={filtroEstadoPipeline === 'en_origen'}
         />
@@ -424,7 +425,7 @@ export const Unidades: React.FC = () => {
           label="En Perú"
           value={unidadesStats.disponiblePeru}
           icon={CheckCircle}
-          variant="green"
+         
           onClick={() => setFiltros(prev => ({ ...prev, pais: prev.pais === 'Peru' ? '' : 'Peru' }))}
           active={filtros.pais === 'Peru'}
         />
