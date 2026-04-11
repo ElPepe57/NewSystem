@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Layers, Plus, Pencil, Package, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
-import { Button, Modal, GradientHeader, StatCard } from '../../components/common';
+import { Button, Modal, StatCard } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
 import { LineaNegocioForm } from '../../components/modules/lineaNegocio/LineaNegocioForm';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
@@ -92,7 +92,7 @@ export const LineaNegocio: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       {/* Header */}
       <PageHeader
         title="Lineas de Negocio"
@@ -323,6 +323,6 @@ export const LineaNegocio: React.FC = () => {
           isSubmitting={isSubmitting}
         />
       </Modal>
-    </div>
+    </PageShell>
   );
 };

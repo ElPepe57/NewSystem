@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Filter, X, Package, Trash2, BarChart3 } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
-import { Button, Card, Modal, GradientHeader } from '../../components/common';
+import { Button, Card, Modal } from '../../components/common';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';

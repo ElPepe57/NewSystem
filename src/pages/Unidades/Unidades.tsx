@@ -30,7 +30,7 @@ import {
   PipelineHeader,
   SearchInput,
   Pagination,
-  GradientHeader,
+
   StatCard,
   StatDistribution,
   LineaNegocioBadge,

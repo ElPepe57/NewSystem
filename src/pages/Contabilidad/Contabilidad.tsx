@@ -35,7 +35,6 @@ import {
   Lock,
 } from 'lucide-react';
 import {
-  GradientHeader,
   TabNavigation,
   KPICard,
   KPIGrid,
@@ -199,7 +198,7 @@ export function Contabilidad() {
   const promedioMensual = tendencia.length > 0 ? acumuladoUtilidadNeta / tendencia.length : 0;
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       {/* Header */}
       <PageHeader
         title="Contabilidad de Negocio"
@@ -967,7 +966,7 @@ export function Contabilidad() {
       {!loading && tabActiva === 'cierre' && (
         <CierreMensual mes={mes} anio={anio} />
       )}
-    </div>
+    </PageShell>
   );
 }
 

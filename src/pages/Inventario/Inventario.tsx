@@ -34,7 +34,7 @@ import {
   KPICard,
   SearchInput,
   Select,
-  GradientHeader,
+
   StatCard,
   StatDistribution,
   Tabs

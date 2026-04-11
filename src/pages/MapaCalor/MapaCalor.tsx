@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { MapPin, RefreshCw } from 'lucide-react';
-import { GradientHeader, Button } from '../../components/common';
+import { Button } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
 // Toolbar available for future use
 import { useMapaCalorStore } from '../../store/mapaCalorStore';
@@ -26,7 +26,7 @@ export function MapaCalor() {
   const hayPanel = zonaSeleccionada || ventaSeleccionada;
 
   return (
-    <div className="space-y-4">
+    <PageShell>
       {/* Header */}
       <PageHeader
         title="Mapa de Calor de Ventas"
@@ -142,6 +142,6 @@ export function MapaCalor() {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

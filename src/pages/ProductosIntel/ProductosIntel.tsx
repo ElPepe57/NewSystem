@@ -12,7 +12,7 @@ import {
   Package,
   ChevronDown
 } from 'lucide-react';
-import { Button, Card, Modal, GradientHeader } from '../../components/common';
+import { Button, Card, Modal } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import {

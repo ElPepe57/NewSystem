@@ -18,12 +18,11 @@ import {
   ConfirmDialog,
   useConfirmDialog,
   PipelineHeader,
-  GradientHeader,
   StatCard,
   StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
-import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell } from '../../design-system';
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
 import { useTransferenciaStore } from '../../store/envioStore';
 import { useProductoStore } from "../../store/productoStore";
@@ -378,7 +377,7 @@ export const Transferencias: React.FC = () => {
   }, [user, transferenciaParaFlete, actualizarFlete]);
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       {/* Header con Gradiente */}
       <PageHeader
         title="Env00edos"
@@ -642,6 +641,6 @@ export const Transferencias: React.FC = () => {
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
-    </div>
+    </PageShell>
   );
 };

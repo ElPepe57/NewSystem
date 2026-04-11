@@ -7,7 +7,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Card } from '../../components/common';
-import { Toolbar } from '../../design-system';
+import { Toolbar, PageShell } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import {
   CTRUKPIGrid,
@@ -69,7 +69,7 @@ export const CTRUDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-0 overflow-x-hidden">
+    <PageShell>
       {/* Header */}
       <PageHeader
         title="CTRU - Costo Total Real por Unidad"
@@ -232,6 +232,6 @@ export const CTRUDashboard: React.FC = () => {
           onClose={() => setProductoSeleccionado(null)}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
