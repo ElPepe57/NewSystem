@@ -23,7 +23,7 @@ import { useVentaStore } from '../../../store/ventaStore';
 import { useOrdenCompraStore } from '../../../store/ordenCompraStore';
 import { useCotizacionStore } from '../../../store/cotizacionStore';
 import { useRequerimientoStore } from '../../../store/requerimientoStore';
-import { useTransferenciaStore } from '../../../store/transferenciaStore';
+import { useTransferenciaStore } from '../../../store/envioStore';
 import { useAuthStore } from '../../../store/authStore';
 import { calcularTareasDia } from '../../../services/tareasDia.service';
 import { formatCurrency } from '../../../utils/format';

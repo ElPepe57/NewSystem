@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { ArrowRightLeft, Warehouse, Package, CheckCircle2, Trash2, Minus, Plus, AlertCircle, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
-import { almacenService } from '../../../../services/almacen.service';
+import { almacenService } from '../../../../services/casilla.service';
 import { unidadService } from '../../../../services/unidad.service';
 import { transferenciaService } from '../../../../services/transferencia.service';
 import { ProductoService } from '../../../../services/producto.service';

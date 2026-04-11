@@ -22,15 +22,15 @@ const SCANNER_TABS: Tab[] = [
   { id: 'auditoria', label: 'Auditoria', icon: <ClipboardCheck className="h-3.5 w-3.5" /> },
   { id: 'recepcion', label: 'Recepcion', icon: <Truck className="h-3.5 w-3.5" /> },
   { id: 'despacho', label: 'Despacho', icon: <PackageCheck className="h-3.5 w-3.5" /> },
-  { id: 'transferencia', label: 'Transferencia', icon: <ArrowRightLeft className="h-3.5 w-3.5" /> },
+  { id: 'transferencia', label: 'Env\u00edo', icon: <ArrowRightLeft className="h-3.5 w-3.5" /> },
 ];
 
 const MODE_SUBTITLES: Record<ScannerModoId, string> = {
   consulta: 'Buscar productos por codigo de barras UPC/EAN',
   auditoria: 'Conteo fisico vs stock del sistema',
-  recepcion: 'Recibir productos de transferencias pendientes',
+  recepcion: 'Recibir productos de env\u00edos pendientes',
   despacho: 'Validar y despachar pedidos',
-  transferencia: 'Mover productos entre almacenes',
+  transferencia: 'Mover productos entre casillas',
 };
 
 const VALID_MODES: ScannerModoId[] = ['consulta', 'auditoria', 'recepcion', 'despacho', 'transferencia'];
@@ -88,14 +88,14 @@ export const Escaner: React.FC = () => {
           <div className="mb-4 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
             <div className="flex items-center gap-2 text-sm text-blue-800">
               <ArrowLeft className="h-4 w-4 flex-shrink-0" />
-              <span className="font-medium">Recepción de transferencia</span>
+              <span className="font-medium">Recepci\u00f3n de env\u00edo</span>
             </div>
             <button
               type="button"
-              onClick={() => navigate(`/transferencias?transferenciaId=${transferenciaIdParam}`)}
+              onClick={() => navigate(`/envios?transferenciaId=${transferenciaIdParam}`)}
               className="text-xs font-medium text-blue-700 hover:text-blue-900 underline flex-shrink-0"
             >
-              Volver a Transferencias
+              Volver a Env\u00edos
             </button>
           </div>
         )}

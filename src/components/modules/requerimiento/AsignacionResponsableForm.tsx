@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Package, Calendar, DollarSign, Plus, X, Truck, Check, AlertCircle } from 'lucide-react';
 import { Button, Modal } from '../../common';
-import { almacenService } from '../../../services/almacen.service';
+import { almacenService } from '../../../services/casilla.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
 import { useToastStore } from '../../../store/toastStore';
 import type { Almacen } from '../../../types/almacen.types';

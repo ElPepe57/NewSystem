@@ -57,7 +57,7 @@ import type { PromocionData } from '../../components/modules/inventario';
 import type { ProductoConUnidades, AlertaProducto } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
 import { useProductoStore } from '../../store/productoStore';
-import { useAlmacenStore } from '../../store/almacenStore';
+import { useAlmacenStore } from '../../store/casillaStore';
 import { useInventarioStore } from '../../store/inventarioStore';
 import { useCTRUStore } from '../../store/ctruStore';
 import { exportService } from '../../services/export.service';
@@ -802,7 +802,7 @@ export const Inventario: React.FC = () => {
                     value={filtroAlmacen}
                     onChange={(e) => setFiltroAlmacen(e.target.value)}
                     options={[
-                      { value: '', label: 'Todos los almacenes' },
+                      { value: '', label: 'Todas las casillas' },
                       ...almacenes.map(a => ({
                         value: a.id,
                         label: `${getPaisEmoji(a.pais)} ${a.nombre}`

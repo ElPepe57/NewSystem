@@ -26,13 +26,13 @@ import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';
 import { useMarcaStore } from '../../store/marcaStore';
 import { useProveedorStore } from '../../store/proveedorStore';
-import { useAlmacenStore } from '../../store/almacenStore';
+import { useAlmacenStore } from '../../store/casillaStore';
 import { useCompetidorStore } from '../../store/competidorStore';
 import { useTransportistaStore } from '../../store/transportistaStore';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useAuthStore } from '../../store/authStore';
 import { metricasService } from '../../services/metricas.service';
-import { almacenService } from '../../services/almacen.service';
+import { almacenService } from '../../services/casilla.service';
 import { MaestrosModals } from './MaestrosModals';
 import type {
   Cliente,
@@ -624,7 +624,7 @@ export const Maestros: React.FC = () => {
     { id: 'clientes', label: 'Clientes', icon: Users, count: clientes.length },
     { id: 'marcas', label: 'Marcas', icon: Tag, count: marcas.length },
     { id: 'proveedores', label: 'Proveedores', icon: Truck, count: proveedores.length },
-    { id: 'almacenes', label: 'Almacenes', icon: Warehouse, count: almacenes.length },
+    { id: 'almacenes', label: 'Red Log\u00edstica', icon: Warehouse, count: almacenes.length },
     { id: 'competidores', label: 'Competidores', icon: Shield, count: competidores.length },
     { id: 'transportistas', label: 'Transportistas', icon: Truck },
     { id: 'canales', label: 'Canales', icon: Store },

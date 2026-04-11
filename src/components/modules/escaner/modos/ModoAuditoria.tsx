@@ -3,7 +3,7 @@ import { ClipboardCheck, Download, Save, Warehouse, RotateCcw, CheckCircle2, Ale
 import { ScanAccumulatorList } from '../ScanAccumulatorList';
 import { useScanAccumulator } from '../../../../hooks/useScanAccumulator';
 import { inventarioService } from '../../../../services/inventario.service';
-import { almacenService } from '../../../../services/almacen.service';
+import { almacenService } from '../../../../services/casilla.service';
 import { conteoInventarioService } from '../../../../services/conteoInventario.service';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';

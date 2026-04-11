@@ -43,7 +43,7 @@ import {
   usePagination
 } from '../common';
 import { AlmacenDetailView } from './AlmacenDetailView';
-import { useAlmacenStore } from '../../store/almacenStore';
+import { useAlmacenStore } from '../../store/casillaStore';
 import type { Almacen, PaisAlmacen, TipoAlmacen, EstadoAlmacen } from '../../types/almacen.types';
 import { PAISES_CONFIG } from '../../types/almacen.types';
 

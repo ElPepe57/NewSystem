@@ -15,7 +15,7 @@ import {
   AlmacenDetalleModal,
   CompetidorDetalleModal
 } from '../../components/Maestros/DetalleModals';
-import { ViajeroDetalle } from '../../components/modules/almacen/ViajeroDetalle';
+import { ViajeroDetalle } from '../../components/modules/casilla/ViajeroDetalle';
 import { ClienteDetalle } from '../../components/modules/cliente/ClienteDetalle';
 import { CanalAutocomplete } from '../../components/modules/canalVenta/CanalAutocomplete';
 import type {

@@ -31,7 +31,7 @@ import { ESTADOS_EN_ORIGEN } from '../types/unidad.types';
 import { TIPOS_TRANSFERENCIA_INTERNA, TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
 import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, esEstadoEnOrigen } from '../utils/multiOrigen.helpers';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
-import { almacenService } from './almacen.service';
+import { almacenService } from './casilla.service';
 import { ProductoService } from './producto.service';
 import { tesoreriaService } from './tesoreria.service';
 import { inventarioService } from './inventario.service';

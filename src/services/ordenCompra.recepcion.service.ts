@@ -21,7 +21,7 @@ import type { RecepcionParcial } from '../types/ordenCompra.types';
 import { ProductoService } from './producto.service';
 import { inventarioService } from './inventario.service';
 import { unidadService } from './unidad.service';
-import { almacenService } from './almacen.service';
+import { almacenService } from './casilla.service';
 import { requerimientoService } from './requerimiento.service';
 import { ctruService } from './ctru.service';
 import { actividadService } from './actividad.service';

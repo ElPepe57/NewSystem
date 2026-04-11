@@ -40,7 +40,7 @@ import type { PipelineStage } from '../../components/common/PipelineHeader';
 import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
 import { useProductoStore } from '../../store/productoStore';
-import { useAlmacenStore } from '../../store/almacenStore';
+import { useAlmacenStore } from '../../store/casillaStore';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
 import { unidadService } from '../../services/unidad.service';

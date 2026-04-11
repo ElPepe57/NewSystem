@@ -5,7 +5,7 @@
  */
 
 import { transferenciaService } from './transferencia.service';
-import { almacenService } from './almacen.service';
+import { almacenService } from './casilla.service';
 import type { Transferencia } from '../types/transferencia.types';
 import type { Almacen } from '../types/almacen.types';
 import { logger } from '../lib/logger';

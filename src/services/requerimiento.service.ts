@@ -29,7 +29,7 @@ import type {
   RequerimientoResumen,
   ResumenAsignaciones
 } from '../types/requerimiento.types';
-import { almacenService } from './almacen.service';
+import { almacenService } from './casilla.service';
 import { COLLECTIONS } from '../config/collections';
 import { logger } from '../lib/logger';
 import { tipoCambioService } from './tipoCambio.service';

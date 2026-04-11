@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { almacenService } from '../services/almacen.service';
+import { almacenService } from '../services/casilla.service';
 import type { Almacen, AlmacenFormData, ResumenAlmacenesUSA } from '../types/almacen.types';
 
 // Tipo para estadísticas de almacenes

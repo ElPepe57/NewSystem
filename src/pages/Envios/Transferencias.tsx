@@ -24,9 +24,9 @@ import {
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
-import { useTransferenciaStore } from "../../store/transferenciaStore";
+import { useTransferenciaStore } from '../../store/envioStore';
 import { useProductoStore } from "../../store/productoStore";
-import { useAlmacenStore } from "../../store/almacenStore";
+import { useAlmacenStore } from '../../store/casillaStore';
 import { useAuthStore } from "../../store/authStore";
 import { tesoreriaService } from "../../services/tesoreria.service";
 import { useTipoCambioStore } from "../../store/tipoCambioStore";
@@ -263,7 +263,7 @@ export const Transferencias: React.FC = () => {
     if (!user) return;
     const confirmed = await confirmDialog({
       title: 'Confirmar Transferencia',
-      message: 'Confirmar esta transferencia para preparacion?',
+      message: 'Confirmar esta env00edo para preparaci00f3n?',
       confirmText: 'Confirmar',
       variant: 'info',
     });
@@ -276,7 +276,7 @@ export const Transferencias: React.FC = () => {
     if (!user) return;
     const confirmed = await confirmDialog({
       title: 'Enviar Transferencia',
-      message: 'Marcar esta transferencia como enviada?',
+      message: 'Marcar esta env00edo como enviado?',
       confirmText: 'Enviar',
       variant: 'info',
     });
@@ -379,7 +379,7 @@ export const Transferencias: React.FC = () => {
     <div className="space-y-6">
       {/* Header con Gradiente */}
       <GradientHeader
-        title="Transferencias"
+        title="Env00edos"
         subtitle="Gestiona el movimiento de productos entre almacenes"
         icon={ArrowRightLeft}
         variant="dark"
@@ -515,10 +515,10 @@ export const Transferencias: React.FC = () => {
             </h3>
             <p className="text-gray-600 mb-6">
               {activeTab === 'en_transito'
-                ? 'No hay transferencias en transito'
+                ? 'No hay env00edos en tr00e1nsito'
                 : activeTab === 'pendientes'
-                  ? 'No hay transferencias pendientes de recepcion'
-                  : 'Crea tu primera transferencia para mover productos entre almacenes'
+                  ? 'No hay env00edos pendientes de recepci00f3n'
+                  : 'Crea tu primer env00edo para mover productos entre casillas'
               }
             </p>
             {activeTab === 'todas' && (

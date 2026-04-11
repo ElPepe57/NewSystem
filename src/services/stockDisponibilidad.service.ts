@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import { inventarioService } from './inventario.service';
-import { almacenService } from './almacen.service';
+import { almacenService } from './casilla.service';
 import { unidadService } from './unidad.service';
 import type { Almacen, PaisAlmacen } from '../types/almacen.types';
 import type { InventarioProducto } from '../types/inventario.types';

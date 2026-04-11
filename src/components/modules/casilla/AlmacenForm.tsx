@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, Select } from '../../common';
-import { almacenService } from '../../../services/almacen.service';
+import { almacenService } from '../../../services/casilla.service';
 import type { Almacen, AlmacenFormData, TipoAlmacen, EstadoAlmacen, PaisAlmacen, FrecuenciaViaje } from '../../../types/almacen.types';
 import { PAISES_CONFIG } from '../../../types/almacen.types';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';

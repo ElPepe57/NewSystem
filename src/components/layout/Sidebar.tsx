@@ -82,7 +82,7 @@ const menuGroups: MenuGroup[] = [
       { icon: Package, label: 'Productos', path: '/productos', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
-      { icon: ArrowRightLeft, label: 'Transferencias', path: '/transferencias', permiso: PERMISOS.TRANSFERIR_UNIDADES },
+      { icon: ArrowRightLeft, label: 'Env\u00edos', path: '/envios', permiso: PERMISOS.TRANSFERIR_UNIDADES },
       { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },
     ]
   },
@@ -92,7 +92,7 @@ const menuGroups: MenuGroup[] = [
     icon: Wallet,
     defaultOpen: false,
     items: [
-      { icon: Receipt, label: 'Gastos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
+      { icon: Receipt, label: 'Gastos Fijos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
       { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_TESORERIA },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
       { icon: Banknote, label: 'Planilla', path: '/planilla', permiso: PERMISOS.VER_PLANILLA },

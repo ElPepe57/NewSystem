@@ -8,7 +8,7 @@ import {
   Plane,
   Calendar
 } from 'lucide-react';
-import { useAlmacenStore } from '../../../store/almacenStore';
+import { useAlmacenStore } from '../../../store/casillaStore';
 import type { Almacen } from '../../../types/almacen.types';
 
 export interface AlmacenSnapshot {

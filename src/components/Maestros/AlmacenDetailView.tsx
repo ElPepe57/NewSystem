@@ -15,7 +15,7 @@ import {
   type ProductoInventario,
   type RotacionProducto,
   type AlertaAlmacen
-} from '../../services/almacen.analytics.service';
+} from '../../services/casilla.analytics.service';
 
 type DetailTab = 'resumen' | 'inventario' | 'movimientos' | 'analisis' | 'comparativa';
 

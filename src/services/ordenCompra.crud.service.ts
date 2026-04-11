@@ -30,7 +30,7 @@ import type {
   ProductoOrden
 } from '../types/ordenCompra.types';
 import { ProductoService } from './producto.service';
-import { almacenService } from './almacen.service';
+import { almacenService } from './casilla.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
 import { metricasService } from './metricas.service';
