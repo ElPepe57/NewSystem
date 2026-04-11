@@ -2,50 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom animations */
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
+/* ============================================================
+   TEMA CENTRALIZADO — Cambiar aqui afecta TODA la app
+   ============================================================
+   Para cambiar el color de marca: modifica --brand-*
+   Para cambiar neutrales: modifica --surface-*, --text-*, --border-*
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* Brand (Indigo) — cambiar estos 3 valores cambia toda la marca */
+    --brand: 99 102 241;       /* indigo-500: botones, acentos, links */
+    --brand-hover: 79 70 229;  /* indigo-600: hover de botones */
+    --brand-light: 238 242 255; /* indigo-50: fondos tint */
+    --brand-text: 67 56 202;   /* indigo-700: texto sobre fondo claro */
+
+    /* Superficies */
+    --surface-page: 248 250 252;  /* slate-50: fondo de pagina */
+    --surface-card: 255 255 255;  /* white: fondo de cards */
+
+    /* Texto */
+    --text-primary: 15 23 42;     /* slate-900: titulos */
+    --text-secondary: 51 65 85;   /* slate-700: subtitulos */
+    --text-body: 71 85 105;       /* slate-600: body */
+    --text-caption: 100 116 139;  /* slate-500: captions */
+    --text-muted: 148 163 184;    /* slate-400: placeholders */
+
+    /* Bordes */
+    --border-default: 226 232 240; /* slate-200 */
+    --border-subtle: 241 245 249;  /* slate-100 */
   }
 }
 
+/* Custom animations */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
 .animate-slide-in-right {
   animation: slide-in-right 0.2s ease-out;
 }
 
-/* Hide scrollbar for scrollable tabs and horizontal lists */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
-}
-
-/* Thin scrollbar for desktop */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
-  border-radius: 3px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af;
-}
+/* Scrollbar utilities */
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }

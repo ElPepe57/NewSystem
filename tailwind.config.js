@@ -7,6 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
+        // ============================================================
+        // BRAND — Controlado desde CSS variables en src/index.css
+        // Cambiar --brand-* en :root cambia TODA la app
+        // ============================================================
+        brand: {
+          DEFAULT: 'rgb(var(--brand) / <alpha-value>)',
+          hover: 'rgb(var(--brand-hover) / <alpha-value>)',
+          light: 'rgb(var(--brand-light) / <alpha-value>)',
+          text: 'rgb(var(--brand-text) / <alpha-value>)',
+        },
+        surface: {
+          page: 'rgb(var(--surface-page) / <alpha-value>)',
+          card: 'rgb(var(--surface-card) / <alpha-value>)',
+        },
+
+        // Legacy — mantener para backward compat
         primary: {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -21,42 +37,21 @@ export default {
           950: '#082f1a',
         },
         success: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
+          50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac',
+          400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d',
+          800: '#166534', 900: '#14532d',
         },
         danger: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
+          50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca', 300: '#fca5a5',
+          400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c',
+          800: '#991b1b', 900: '#7f1d1d',
         },
         warning: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
-        }
-      }
+          50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d',
+          400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309',
+          800: '#92400e', 900: '#78350f',
+        },
+      },
     },
   },
   plugins: [],
