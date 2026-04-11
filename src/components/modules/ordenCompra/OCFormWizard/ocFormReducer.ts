@@ -21,6 +21,36 @@ export function ocFormReducer(state: OCFormState, action: OCFormAction): OCFormS
     case 'SET_ALMACEN':
       return { ...state, almacenDestino: action.payload };
 
+    case 'SET_CASILLA_DESTINO':
+      return { ...state, casillaDestinoId: action.payload.id, casillaDestinoNombre: action.payload.nombre };
+
+    case 'SET_COLABORADOR':
+      return { ...state, colaboradorId: action.payload.id, colaboradorNombre: action.payload.nombre };
+
+    case 'ADD_SUBORDEN':
+      return {
+        ...state,
+        subOrdenes: [
+          ...state.subOrdenes,
+          {
+            id: `SUB-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            referenciaProveedor: '',
+            productoIndices: [],
+            totalUSD: 0,
+          },
+        ],
+      };
+
+    case 'REMOVE_SUBORDEN':
+      return { ...state, subOrdenes: state.subOrdenes.filter(s => s.id !== action.payload) };
+
+    case 'UPDATE_SUBORDEN': {
+      const subOrdenes = state.subOrdenes.map(s =>
+        s.id === action.payload.id ? { ...s, [action.payload.field]: action.payload.value } : s
+      );
+      return { ...state, subOrdenes };
+    }
+
     case 'SET_TC':
       return { ...state, tcCompra: action.payload };
 

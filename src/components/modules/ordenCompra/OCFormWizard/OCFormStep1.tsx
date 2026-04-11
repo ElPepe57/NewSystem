@@ -1,15 +1,59 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Plus, Trash2, Globe, Package, ClipboardList } from 'lucide-react';
 import { usePaisOrigenStore } from '../../../../store/paisOrigenStore';
+import { useColaboradorStore } from '../../../../store/colaboradorStore';
 import { ProveedorAutocomplete } from '../../entidades/ProveedorAutocomplete';
 import { AlmacenAutocomplete } from '../../entidades/AlmacenAutocomplete';
 import { ProductoAutocomplete } from '../../entidades/ProductoAutocomplete';
 import type { ProductoSnapshot } from '../../entidades/ProductoAutocomplete';
 import { Input } from '../../../common/Input';
+import { useAlmacenStore } from '../../../../store/casillaStore';
 import type { Producto } from '../../../../types/producto.types';
 import type { Proveedor, ProveedorFormData } from '../../../../types/ordenCompra.types';
 import type { OCFormState, OCFormAction, ProductoOrdenItem } from './ocFormTypes';
 import { EMPTY_PRODUCTO, getSubtotalUSD } from './ocFormTypes';
+
+// Inline selectors for casilla and colaborador
+const CasillaSelect: React.FC<{ value: string; onChange: (id: string, nombre: string) => void }> = ({ value, onChange }) => {
+  const { almacenes, fetchAlmacenes } = useAlmacenStore();
+  useEffect(() => { if (almacenes.length === 0) fetchAlmacenes(); }, []);
+  return (
+    <select
+      className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2"
+      value={value}
+      onChange={e => {
+        const selected = almacenes.find(a => a.id === e.target.value);
+        onChange(e.target.value, selected?.nombre || '');
+      }}
+    >
+      <option value="">Seleccionar casilla...</option>
+      {almacenes.filter(a => a.estadoAlmacen === 'activo').map(a => (
+        <option key={a.id} value={a.id}>{a.nombre} ({a.pais})</option>
+      ))}
+    </select>
+  );
+};
+
+const ColaboradorSelect: React.FC<{ value: string; onChange: (id: string, nombre: string) => void }> = ({ value, onChange }) => {
+  const { colaboradores, fetchColaboradores } = useColaboradorStore();
+  useEffect(() => { if (colaboradores.length === 0) fetchColaboradores(); }, []);
+  const transportadores = colaboradores.filter(c => c.tipo === 'viajero' || c.tipo === 'courier_externo');
+  return (
+    <select
+      className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2"
+      value={value}
+      onChange={e => {
+        const selected = transportadores.find(c => c.id === e.target.value);
+        onChange(e.target.value, selected?.nombre || '');
+      }}
+    >
+      <option value="">Sin transportador (directo)</option>
+      {transportadores.map(c => (
+        <option key={c.id} value={c.id}>{c.nombre} ({c.tipo === 'viajero' ? 'Viajero' : 'Courier'})</option>
+      ))}
+    </select>
+  );
+};
 
 interface OCFormStep1Props {
   state: OCFormState;
@@ -210,6 +254,34 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
               onChange={(e) => dispatch({ type: 'SET_TC', payload: parseFloat(e.target.value) || 0 })}
               className="text-sm"
             />
+          </div>
+        </div>
+
+        {/* Row 2.5: Casilla destino + Colaborador (Reingenieria) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Casilla Destino
+            </label>
+            <CasillaSelect
+              value={state.casillaDestinoId}
+              onChange={(id, nombre) => dispatch({ type: 'SET_CASILLA_DESTINO', payload: { id, nombre } })}
+            />
+            <p className="text-[10px] text-gray-400 mt-0.5">
+              Donde se recibir\u00e1n los productos
+            </p>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              Transportador (opcional)
+            </label>
+            <ColaboradorSelect
+              value={state.colaboradorId}
+              onChange={(id, nombre) => dispatch({ type: 'SET_COLABORADOR', payload: { id, nombre } })}
+            />
+            <p className="text-[10px] text-gray-400 mt-0.5">
+              Viajero o courier que transporta
+            </p>
           </div>
         </div>
 

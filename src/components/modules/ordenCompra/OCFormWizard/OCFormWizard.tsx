@@ -362,6 +362,9 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
       numeroTracking: state.numeroTracking.trim() || undefined,
       courier: state.courier.trim() || undefined,
       observaciones: state.observaciones.trim() || undefined,
+      // Reingenieria: casilla destino y colaborador
+      ...(state.casillaDestinoId ? { casillaDestinoId: state.casillaDestinoId } as any : {}),
+      ...(state.colaboradorId ? { colaboradorId: state.colaboradorId } as any : {}),
       // Origen y linea de negocio (auto-heredados de productos)
       paisOrigen: derivedPaisOrigen,
       lineaNegocioId: derivedLineaNegocioId,

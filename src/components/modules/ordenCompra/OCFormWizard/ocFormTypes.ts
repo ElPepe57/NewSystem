@@ -16,13 +16,27 @@ export interface ProductoOrdenItem {
   paisOrigen?: string;
 }
 
+export interface SubOrdenFormItem {
+  id: string;
+  referenciaProveedor: string;
+  productoIndices: number[];  // indices de productos en el array principal
+  totalUSD: number;
+}
+
 export interface OCFormState {
   // Step 1
   proveedor: ProveedorSnapshot | null;
   paisOrigenOC: string;
   almacenDestino: AlmacenSnapshot | null;
+  // Reingenieria: casilla destino + colaborador transportador
+  casillaDestinoId: string;
+  casillaDestinoNombre: string;
+  colaboradorId: string;
+  colaboradorNombre: string;
   tcCompra: number;
   productos: ProductoOrdenItem[];
+  // Sub-ordenes (opcional)
+  subOrdenes: SubOrdenFormItem[];
 
   // Step 2 - Intelligence cache
   intelligenceCache: Record<string, PriceIntelligenceResult>;
@@ -45,6 +59,11 @@ export type OCFormAction =
   | { type: 'SET_PROVEEDOR'; payload: ProveedorSnapshot | null }
   | { type: 'SET_PAIS_ORIGEN'; payload: string }
   | { type: 'SET_ALMACEN'; payload: AlmacenSnapshot | null }
+  | { type: 'SET_CASILLA_DESTINO'; payload: { id: string; nombre: string } }
+  | { type: 'SET_COLABORADOR'; payload: { id: string; nombre: string } }
+  | { type: 'ADD_SUBORDEN' }
+  | { type: 'REMOVE_SUBORDEN'; payload: string }
+  | { type: 'UPDATE_SUBORDEN'; payload: { id: string; field: string; value: any } }
   | { type: 'SET_TC'; payload: number }
   | { type: 'ADD_PRODUCTO' }
   | { type: 'REMOVE_PRODUCTO'; payload: number }
@@ -77,8 +96,13 @@ export const INITIAL_STATE: OCFormState = {
   proveedor: null,
   paisOrigenOC: '',
   almacenDestino: null,
+  casillaDestinoId: '',
+  casillaDestinoNombre: '',
+  colaboradorId: '',
+  colaboradorNombre: '',
   tcCompra: 0,
   productos: [{ ...EMPTY_PRODUCTO }],
+  subOrdenes: [],
   intelligenceCache: {},
   intelligenceLoading: {},
   porcentajeTax: 0,
