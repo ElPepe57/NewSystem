@@ -23,6 +23,7 @@ import {
   StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
 import { useTransferenciaStore } from '../../store/envioStore';
 import { useProductoStore } from "../../store/productoStore";
@@ -415,48 +416,14 @@ export const Transferencias: React.FC = () => {
       <LineaFilterInline />
 
       {/* StatCards interactivos */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <StatCard
-          label="Total"
-          value={transferenciasPorLinea.length}
-          icon={ArrowRightLeft}
-         
-        />
-        <StatCard
-          label="En Transito"
-          value={resumen?.enTransito || 0}
-          icon={Truck}
-         
-          onClick={() => setActiveTab('en_transito')}
-          active={activeTab === 'en_transito'}
-        />
-        <StatCard
-          label="Pendientes"
-          value={resumen?.pendientesRecepcion || 0}
-          icon={Clock}
-          variant="amber"
-          onClick={() => setActiveTab('pendientes')}
-          active={activeTab === 'pendientes'}
-        />
-        <StatCard
-          label="Completadas"
-          value={resumen?.completadasMes || 0}
-          icon={CheckCircle}
-         
-        />
-        <StatCard
-          label="Incidencias"
-          value={resumen?.transferenciasConIncidencias || 0}
-          icon={AlertTriangle}
-          variant={resumen?.transferenciasConIncidencias ? 'red' : 'default'}
-        />
-        <StatCard
-          label="Valor USD"
-          value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'}
-          icon={DollarSign}
-         
-        />
-      </div>
+      <DSKPIBar columns={6}>
+        <DSStatCard label="Total" value={transferenciasPorLinea.length} icon={ArrowRightLeft} variant="neutral" />
+        <DSStatCard label="En Transito" value={resumen?.enTransito || 0} icon={Truck} variant="info" onClick={() => setActiveTab('en_transito')} active={activeTab === 'en_transito'} />
+        <DSStatCard label="Pendientes" value={resumen?.pendientesRecepcion || 0} icon={Clock} variant="warning" onClick={() => setActiveTab('pendientes')} active={activeTab === 'pendientes'} />
+        <DSStatCard label="Completadas" value={resumen?.completadasMes || 0} icon={CheckCircle} variant="success" />
+        <DSStatCard label="Incidencias" value={resumen?.transferenciasConIncidencias || 0} icon={AlertTriangle} variant={resumen?.transferenciasConIncidencias ? 'danger' : 'neutral'} />
+        <DSStatCard label="Valor USD" value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'} icon={DollarSign} variant="brand" />
+      </DSKPIBar>
 
       {/* Distribucion Visual */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
