@@ -8,8 +8,8 @@ export { PageLoader } from './PageLoader';
 export { ConfirmDialog, useConfirmDialog, GlobalConfirmDialog, useGlobalConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogVariant, UseConfirmDialogOptions } from './ConfirmDialog';
 export { AutocompleteInput } from './AutocompleteInput';
-export { KPICard, KPIGrid, AlertCard, StatDistribution } from './KPICard';
-export type { KPICardProps, KPIGridProps, AlertCardProps, StatDistributionProps } from './KPICard';
+export { AlertCard, StatDistribution } from './KPICard';
+export type { AlertCardProps, StatDistributionProps } from './KPICard';
 export { ListSummary, ListSummaryCompact } from './ListSummary';
 export type { SummaryIcon } from './ListSummary';
 

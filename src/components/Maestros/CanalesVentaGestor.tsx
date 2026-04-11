@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import {
   Tag,
@@ -17,7 +18,7 @@ import {
   TrendingUp,
   DollarSign
 } from 'lucide-react';
-import { Button, Card, Badge, Modal, KPICard, KPIGrid, SearchInput } from '../common';
+import { Button, Card, Badge, Modal, SearchInput } from '../common';
 import { CanalVentaForm } from '../modules/canalVenta/CanalVentaForm';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useAuthStore } from '../../store/authStore';
@@ -182,32 +183,32 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
   return (
     <div className="space-y-6">
       {/* KPIs */}
-      <KPIGrid columns={4}>
-        <KPICard
-          title="Total Canales"
+      <DSKPIBar columns={4}>
+        <DSStatCard
+          label="Total Canales"
           value={totalCanales}
           icon={Tag}
           variant="info"
         />
-        <KPICard
-          title="Canales Activos"
+        <DSStatCard
+          label="Canales Activos"
           value={canalesActivos}
           icon={CheckCircle}
           variant="success"
         />
-        <KPICard
-          title="Con Comisión"
+        <DSStatCard
+          label="Con Comisión"
           value={canalesConComision}
           icon={Percent}
           variant="warning"
         />
-        <KPICard
-          title="Comisión Promedio"
+        <DSStatCard
+          label="Comisión Promedio"
           value={`${comisionPromedio.toFixed(1)}%`}
           icon={DollarSign}
           variant="default"
         />
-      </KPIGrid>
+      </DSKPIBar>
 
       {/* Barra de acciones */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -392,7 +393,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
           setShowFormModal(false);
           setEditingCanal(null);
         }}
-        title={editingCanal ? 'Editar Canal de Venta' : 'Nuevo Canal de Venta'}
+        label={editingCanal ? 'Editar Canal de Venta' : 'Nuevo Canal de Venta'}
         size="lg"
       >
         <CanalVentaForm

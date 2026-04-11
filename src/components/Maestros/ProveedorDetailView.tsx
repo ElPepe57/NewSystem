@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import {
@@ -33,7 +34,7 @@ import {
   Scale,
   TrendingUp as ChartLine
 } from 'lucide-react';
-import { Button, Card, Badge, KPICard, KPIGrid } from '../common';
+import { Button, Card, Badge } from '../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import { ProveedorAnalyticsService, type ProveedorAnalytics, type ComparativoPrecioProducto } from '../../services/proveedor.analytics.service';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
@@ -258,77 +259,77 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
               )}
 
               {/* KPIs principales */}
-              <KPIGrid columns={5}>
-                <KPICard
-                  title="Total Compras"
+              <DSKPIBar columns={5}>
+                <DSStatCard
+                  label="Total Compras"
                   value={formatCurrency(analytics.montoTotalUSD)}
                   icon={DollarSign}
                   variant="success"
                   size="sm"
                 />
-                <KPICard
-                  title="Ordenes"
+                <DSStatCard
+                  label="Ordenes"
                   value={analytics.totalOrdenes}
                   subtitle={`${analytics.ordenesUltimos90Dias} en 90d`}
                   icon={ShoppingCart}
                   variant="info"
                   size="sm"
                 />
-                <KPICard
-                  title="Orden Promedio"
+                <DSStatCard
+                  label="Orden Promedio"
                   value={formatCurrency(analytics.ordenPromedio)}
                   icon={BarChart3}
                   variant="default"
                   size="sm"
                 />
-                <KPICard
-                  title="Productos"
+                <DSStatCard
+                  label="Productos"
                   value={analytics.totalProductosDistintos}
                   icon={Package}
                   variant="default"
                   size="sm"
                 />
-                <KPICard
-                  title="Evaluacion"
+                <DSStatCard
+                  label="Evaluacion"
                   value={`${analytics.puntuacionActual.toFixed(0)}/100`}
                   icon={Award}
                   variant={analytics.puntuacionActual >= 70 ? 'success' : analytics.puntuacionActual >= 50 ? 'warning' : 'danger'}
                   size="sm"
                 />
-              </KPIGrid>
+              </DSKPIBar>
 
               {/* Segunda fila de KPIs */}
-              <KPIGrid columns={4}>
-                <KPICard
-                  title="Ultima Orden"
+              <DSKPIBar columns={4}>
+                <DSStatCard
+                  label="Ultima Orden"
                   value={analytics.diasDesdeUltimaOrden === 999 ? 'Sin ordenes' : `Hace ${analytics.diasDesdeUltimaOrden}d`}
                   icon={Calendar}
                   variant={analytics.diasDesdeUltimaOrden > 60 ? 'warning' : 'default'}
                   size="sm"
                 />
-                <KPICard
-                  title="Frecuencia"
+                <DSStatCard
+                  label="Frecuencia"
                   value={analytics.frecuenciaCompraDias > 0 ? `${analytics.frecuenciaCompraDias} dias` : 'N/A'}
                   icon={Clock}
                   variant="default"
                   size="sm"
                 />
-                <KPICard
-                  title="Tiempo Entrega"
+                <DSStatCard
+                  label="Tiempo Entrega"
                   value={`${analytics.tiempoEntregaPromedio.toFixed(1)} dias`}
                   subtitle={`+/- ${analytics.desviacionTiempoEntrega.toFixed(1)}d`}
                   icon={Truck}
                   variant="default"
                   size="sm"
                 />
-                <KPICard
-                  title="Puntualidad"
+                <DSStatCard
+                  label="Puntualidad"
                   value={`${analytics.tasaPuntualidad.toFixed(0)}%`}
                   icon={CheckCircle}
                   variant={analytics.tasaPuntualidad >= 80 ? 'success' : analytics.tasaPuntualidad >= 60 ? 'warning' : 'danger'}
                   size="sm"
                 />
-              </KPIGrid>
+              </DSKPIBar>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Producto mas comprado */}

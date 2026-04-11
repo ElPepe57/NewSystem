@@ -21,7 +21,7 @@ import {
 import { Button, Badge } from '../../common';
 import { Card } from '../../common/Card';
 import { Tabs, TabsProvider, TabPanel, useTabs } from '../../common/Tabs';
-import { KPICard, KPIGrid, AlertCard, StatDistribution } from '../../common/KPICard';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../../design-system';
 import { SimpleAreaChart, MultiLineChart, SimpleBarChart, CHART_COLORS } from '../../common/Charts';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
 import type { Almacen } from '../../../types/almacen.types';
@@ -456,38 +456,38 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
             <TabPanel tabId="resumen">
               <div className="space-y-6">
                 {/* KPIs Principales */}
-                <KPIGrid columns={4}>
-                  <KPICard
-                    title="Unidades Actuales"
+                <DSKPIBar columns={4}>
+                  <DSStatCard
+                    label="Unidades Actuales"
                     value={metricasInventario.loading ? '...' : metricasInventario.unidadesActuales}
                     subtitle={almacen.capacidadUnidades ? `de ${almacen.capacidadUnidades}` : undefined}
                     icon={Package}
                     variant="info"
                   />
-                  <KPICard
-                    title="Capacidad Usada"
+                  <DSStatCard
+                    label="Capacidad Usada"
                     value={`${capacidadUsada.toFixed(1)}%`}
                     icon={Percent}
                     variant={getCapacidadVariant()}
                   />
-                  <KPICard
-                    title="Total Recibidas"
+                  <DSStatCard
+                    label="Total Recibidas"
                     value={almacen.totalUnidadesRecibidas || 0}
                     icon={TrendingDown}
                     iconColor="text-blue-600"
                   />
-                  <KPICard
-                    title="Total Enviadas"
+                  <DSStatCard
+                    label="Total Enviadas"
                     value={almacen.totalUnidadesEnviadas || 0}
                     icon={TrendingUp}
                     iconColor="text-green-600"
                   />
-                </KPIGrid>
+                </DSKPIBar>
 
                 {/* Información Básica */}
                 <div className="grid grid-cols-2 gap-6">
                   {/* Ubicación */}
-                  <Card title="Ubicación" padding="md">
+                  <Card label="Ubicación" padding="md">
                     <div className="space-y-3">
                       <div className="flex items-start gap-3">
                         <MapPin className="h-5 w-5 text-slate-400 mt-0.5" />
@@ -506,7 +506,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                   </Card>
 
                   {/* Contacto */}
-                  <Card title="Contacto" padding="md">
+                  <Card label="Contacto" padding="md">
                     <div className="space-y-2">
                       {almacen.telefono && (
                         <div className="flex items-center gap-2">
@@ -570,7 +570,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
 
                 {/* Notas */}
                 {almacen.notas && (
-                  <Card title="Notas" padding="md">
+                  <Card label="Notas" padding="md">
                     <p className="text-sm text-slate-600 whitespace-pre-wrap">{almacen.notas}</p>
                   </Card>
                 )}
@@ -581,33 +581,33 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
             <TabPanel tabId="inventario">
               <div className="space-y-6">
                 {/* KPIs de Inventario */}
-                <KPIGrid columns={3}>
-                  <KPICard
-                    title="Unidades Disponibles"
+                <DSKPIBar columns={3}>
+                  <DSStatCard
+                    label="Unidades Disponibles"
                     value={metricasInventario.loading ? '...' : metricasInventario.unidadesActuales}
                     subtitle="En stock actual"
                     icon={Package}
                     variant="success"
                   />
-                  <KPICard
-                    title="Valor Total"
+                  <DSStatCard
+                    label="Valor Total"
                     value={metricasInventario.loading ? '...' : `$${metricasInventario.valorInventarioUSD.toFixed(0)}`}
                     subtitle="USD"
                     icon={Activity}
                     variant="info"
                   />
-                  <KPICard
-                    title="Productos Únicos"
+                  <DSStatCard
+                    label="Productos Únicos"
                     value={metricasInventario.loading ? '...' : metricasInventario.productosPorSKU.length}
                     subtitle="SKUs diferentes"
                     icon={BarChart3}
                   />
-                </KPIGrid>
+                </DSKPIBar>
 
                 {/* Alertas de Stock */}
                 {metricasInventario.unidadesProximasVencer.length > 0 && (
                   <AlertCard
-                    title="Unidades Próximas a Vencer"
+                    label="Unidades Próximas a Vencer"
                     variant="warning"
                     icon={AlertTriangle}
                     items={metricasInventario.unidadesProximasVencer.map(u => ({
@@ -623,7 +623,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                 {/* Alerta de Capacidad */}
                 {capacidadUsada >= 75 && (
                   <AlertCard
-                    title={capacidadUsada >= 90 ? "Capacidad Crítica" : "Capacidad Alta"}
+                    label={capacidadUsada >= 90 ? "Capacidad Crítica" : "Capacidad Alta"}
                     variant={capacidadUsada >= 90 ? "danger" : "warning"}
                     icon={AlertTriangle}
                     items={[{
@@ -636,7 +636,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
 
                 {/* Distribución por Producto */}
                 {metricasInventario.productosPorSKU.length > 0 && (
-                  <Card title="Stock por Producto" padding="md">
+                  <Card label="Stock por Producto" padding="md">
                     <div className="space-y-3">
                       {metricasInventario.productosPorSKU.slice(0, 10).map((producto, index) => (
                         <div key={producto.sku} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -673,9 +673,9 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
             <TabPanel tabId="movimientos">
               <div className="space-y-6">
                 {/* KPIs de Movimientos */}
-                <KPIGrid columns={3}>
-                  <KPICard
-                    title="Total Recibidas"
+                <DSKPIBar columns={3}>
+                  <DSStatCard
+                    label="Total Recibidas"
                     value={metricasMovimientos.loading ? '...' : metricasMovimientos.totalRecibidas}
                     icon={TrendingDown}
                     iconColor="text-blue-600"
@@ -684,24 +684,24 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                       isPositiveGood: true
                     }}
                   />
-                  <KPICard
-                    title="Total Enviadas"
+                  <DSStatCard
+                    label="Total Enviadas"
                     value={metricasMovimientos.loading ? '...' : metricasMovimientos.totalEnviadas}
                     icon={TrendingUp}
                     iconColor="text-green-600"
                   />
-                  <KPICard
-                    title="Balance Neto"
+                  <DSStatCard
+                    label="Balance Neto"
                     value={metricasMovimientos.loading ? '...' : metricasMovimientos.balanceNeto}
                     subtitle={metricasMovimientos.balanceNeto > 0 ? 'Entrada neta' : 'Salida neta'}
                     icon={ArrowUpDown}
                     variant={metricasMovimientos.balanceNeto >= 0 ? 'success' : 'warning'}
                   />
-                </KPIGrid>
+                </DSKPIBar>
 
                 {/* Gráfico de Movimientos por Mes */}
                 {metricasMovimientos.movimientosPorMes.length > 0 && (
-                  <Card title="Movimientos por Mes" padding="md">
+                  <Card label="Movimientos por Mes" padding="md">
                     <MultiLineChart
                       data={metricasMovimientos.movimientosPorMes}
                       lines={[
@@ -716,7 +716,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
 
                 {/* Últimas Transferencias */}
                 {metricasMovimientos.ultimasTransferencias.length > 0 && (
-                  <Card title="Últimas Transferencias" padding="md">
+                  <Card label="Últimas Transferencias" padding="md">
                     <div className="space-y-2">
                       {metricasMovimientos.ultimasTransferencias.map((transferencia) => (
                         <div
@@ -765,40 +765,40 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
             <TabPanel tabId="analytics">
               <div className="space-y-6">
                 {/* KPIs de Analytics */}
-                <KPIGrid columns={almacen.esViajero ? 4 : 3}>
-                  <KPICard
-                    title="Rotación de Inventario"
+                <DSKPIBar columns={almacen.esViajero ? 4 : 3}>
+                  <DSStatCard
+                    label="Rotación de Inventario"
                     value={metricasAnalytics.loading ? '...' : `${metricasAnalytics.rotacionInventario}x`}
                     subtitle="Veces por periodo"
                     icon={Activity}
                     variant="info"
                   />
-                  <KPICard
-                    title="Eficiencia del Almacén"
+                  <DSStatCard
+                    label="Eficiencia del Almacén"
                     value={metricasAnalytics.loading ? '...' : `${metricasAnalytics.eficienciaAlmacen}%`}
                     icon={TrendingUp}
                     variant={metricasAnalytics.eficienciaAlmacen >= 70 ? 'success' : 'warning'}
                   />
-                  <KPICard
-                    title="Tiempo Promedio"
+                  <DSStatCard
+                    label="Tiempo Promedio"
                     value={metricasAnalytics.loading ? '...' : `${almacen.tiempoPromedioAlmacenamiento || 0}d`}
                     subtitle="Días en almacén"
                     icon={Clock}
                   />
                   {almacen.esViajero && metricasAnalytics.cumplimientoViajes !== undefined && (
-                    <KPICard
-                      title="Cumplimiento Viajes"
+                    <DSStatCard
+                      label="Cumplimiento Viajes"
                       value={`${metricasAnalytics.cumplimientoViajes.toFixed(1)}%`}
                       subtitle="Viajes a tiempo"
                       icon={CheckCircle}
                       variant={metricasAnalytics.cumplimientoViajes >= 80 ? 'success' : 'warning'}
                     />
                   )}
-                </KPIGrid>
+                </DSKPIBar>
 
                 {/* Evolución de Ocupación */}
                 {metricasAnalytics.ocupacionHistorica.length > 0 && (
-                  <Card title="Evolución de Ocupación" padding="md">
+                  <Card label="Evolución de Ocupación" padding="md">
                     <SimpleAreaChart
                       data={metricasAnalytics.ocupacionHistorica}
                       dataKey="ocupacion"
@@ -812,7 +812,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                 {/* Distribución de Capacidad */}
                 {almacen.capacidadUnidades && almacen.capacidadUnidades > 0 && (
                   <StatDistribution
-                    title="Distribución de Capacidad"
+                    label="Distribución de Capacidad"
                     data={[
                       {
                         label: 'Ocupado',
@@ -831,7 +831,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
 
                 {/* Métricas Operativas */}
                 {almacen.metricasOperativas && (
-                  <Card title="Métricas Operativas" padding="md">
+                  <Card label="Métricas Operativas" padding="md">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <div className="p-4 bg-slate-50 rounded-lg">
                         <div className="text-xs text-slate-600">Transferencias Recibidas</div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import {
   Users,
   Crown,
@@ -39,8 +40,6 @@ import {
   Button,
   Card,
   Badge,
-  KPICard,
-  KPIGrid,
   AlertCard,
   StatDistribution,
   TabNavigation,
@@ -275,44 +274,44 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
       {subTab === 'dashboard' && statsCRM && (
         <div className="space-y-6">
           {/* KPIs principales */}
-          <KPIGrid columns={5}>
-            <KPICard
-              title="Total Clientes"
+          <DSKPIBar columns={5}>
+            <DSStatCard
+              label="Total Clientes"
               value={clientes.length}
               icon={Users}
               variant="info"
               size="sm"
             />
-            <KPICard
-              title="Tasa Retención"
+            <DSStatCard
+              label="Tasa Retención"
               value={`${statsCRM.tasaRetencion.toFixed(0)}%`}
               subtitle="últimos 90 días"
               icon={Target}
               variant={statsCRM.tasaRetencion >= 70 ? 'success' : statsCRM.tasaRetencion >= 50 ? 'warning' : 'danger'}
               size="sm"
             />
-            <KPICard
-              title="Nuevos (7 días)"
+            <DSStatCard
+              label="Nuevos (7 días)"
               value={statsCRM.clientesNuevosUltimos7Dias}
               icon={TrendingUp}
               variant="success"
               size="sm"
             />
-            <KPICard
-              title="Nuevos (30 días)"
+            <DSStatCard
+              label="Nuevos (30 días)"
               value={statsCRM.clientesNuevosUltimos30Dias}
               icon={TrendingUp}
               variant="info"
               size="sm"
             />
-            <KPICard
-              title="En Riesgo"
+            <DSStatCard
+              label="En Riesgo"
               value={statsCRM.clientesEnRiesgo.length + statsCRM.clientesPerdidos.length}
               icon={AlertTriangle}
               variant={statsCRM.clientesEnRiesgo.length > 0 ? 'warning' : 'default'}
               size="sm"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Pirámide ABC y Segmentos */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -408,7 +407,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
           {/* Top Performers */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <AlertCard
-              title="Top Clase A"
+              label="Top Clase A"
               icon={Crown}
               variant="success"
               emptyMessage="Sin clientes Clase A aún"
@@ -425,7 +424,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
               }}
             />
             <AlertCard
-              title="Top Clase B"
+              label="Top Clase B"
               icon={Star}
               variant="info"
               emptyMessage="Sin clientes Clase B aún"
@@ -442,7 +441,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
               }}
             />
             <AlertCard
-              title="Mayor Crecimiento"
+              label="Mayor Crecimiento"
               icon={TrendingUp}
               variant="success"
               emptyMessage="Sin datos de crecimiento"
@@ -466,48 +465,48 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
       {subTab === 'alertas' && statsCRM && (
         <div className="space-y-6">
           {/* Resumen de alertas */}
-          <KPIGrid columns={5}>
-            <KPICard
-              title="Recompras"
+          <DSKPIBar columns={5}>
+            <DSStatCard
+              label="Recompras"
               value={alertasRecompra?.totalAlertas || 0}
               subtitle="productos por reponer"
               icon={RotateCcw}
               variant={(alertasRecompra?.alertasUrgentes?.length || 0) > 0 ? 'danger' : (alertasRecompra?.totalAlertas || 0) > 0 ? 'warning' : 'default'}
               size="sm"
             />
-            <KPICard
-              title="En Riesgo"
+            <DSStatCard
+              label="En Riesgo"
               value={statsCRM.clientesEnRiesgo.length}
               subtitle="requieren atención"
               icon={AlertTriangle}
               variant={statsCRM.clientesEnRiesgo.length > 0 ? 'warning' : 'default'}
               size="sm"
             />
-            <KPICard
-              title="Perdidos"
+            <DSStatCard
+              label="Perdidos"
               value={statsCRM.clientesPerdidos.length}
               subtitle=">180 días sin comprar"
               icon={UserX}
               variant={statsCRM.clientesPerdidos.length > 0 ? 'danger' : 'default'}
               size="sm"
             />
-            <KPICard
-              title="VIPs Inactivos"
+            <DSStatCard
+              label="VIPs Inactivos"
               value={statsCRM.clientesVIPInactivos.length}
               subtitle=">15 días sin comprar"
               icon={Crown}
               variant={statsCRM.clientesVIPInactivos.length > 0 ? 'warning' : 'default'}
               size="sm"
             />
-            <KPICard
-              title="Sin Contacto"
+            <DSStatCard
+              label="Sin Contacto"
               value={statsCRM.clientesSinContacto30Dias.length}
               subtitle=">30 días"
               icon={Phone}
               variant="info"
               size="sm"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* ====== ALERTAS DE RECOMPRA ====== */}
           <Card padding="lg">
@@ -578,7 +577,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                                   const url = recompraService.getWhatsAppUrl(alerta);
                                   if (url) window.open(url, '_blank');
                                 }}
-                                title="Enviar WhatsApp"
+                                label="Enviar WhatsApp"
                               >
                                 <MessageSquare className="h-4 w-4 text-green-600" />
                               </Button>
@@ -634,7 +633,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                                   const url = recompraService.getWhatsAppUrl(alerta);
                                   if (url) window.open(url, '_blank');
                                 }}
-                                title="Enviar WhatsApp"
+                                label="Enviar WhatsApp"
                               >
                                 <MessageSquare className="h-4 w-4 text-green-600" />
                               </Button>
@@ -909,37 +908,37 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
         <div className="space-y-4">
           {/* KPIs rápidos */}
           {clienteStats && (
-            <KPIGrid columns={4}>
-              <KPICard
-                title="Ticket Promedio"
+            <DSKPIBar columns={4}>
+              <DSStatCard
+                label="Ticket Promedio"
                 value={`S/ ${clienteStats.ticketPromedioGeneral?.toFixed(0) || 0}`}
                 icon={DollarSign}
                 variant="success"
                 size="sm"
               />
-              <KPICard
-                title="Clientes Activos"
+              <DSStatCard
+                label="Clientes Activos"
                 value={clienteStats.clientesActivos || 0}
                 icon={Users}
                 variant="info"
                 size="sm"
               />
-              <KPICard
-                title="Nuevos Este Mes"
+              <DSStatCard
+                label="Nuevos Este Mes"
                 value={clienteStats.clientesNuevosMes || 0}
                 icon={TrendingUp}
                 variant="success"
                 size="sm"
               />
-              <KPICard
-                title="Con Compras"
+              <DSStatCard
+                label="Con Compras"
                 value={clienteStats.clientesConCompras || 0}
                 subtitle={`${((clienteStats.clientesConCompras || 0) / (clienteStats.totalClientes || 1) * 100).toFixed(0)}%`}
                 icon={ShoppingCart}
                 variant="default"
                 size="sm"
               />
-            </KPIGrid>
+            </DSKPIBar>
           )}
 
           {/* Filtros */}
@@ -1111,28 +1110,28 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           <button
                             onClick={() => setClienteDetalle(cliente)}
                             className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded"
-                            title="Ver analytics detallado"
+                            label="Ver analytics detallado"
                           >
                             <BarChart3 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onViewCliente(cliente)}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
+                            label="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onEditCliente(cliente)}
                             className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
-                            title="Editar"
+                            label="Editar"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onDeleteCliente(cliente.id)}
                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            title="Eliminar"
+                            label="Eliminar"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

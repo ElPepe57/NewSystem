@@ -23,7 +23,7 @@ import {
 import type { Transportista } from '../../../types/transportista.types';
 import { Badge } from '../../common/Badge';
 import { Card } from '../../common/Card';
-import { KPICard, KPIGrid, StatDistribution, AlertCard } from '../../common/KPICard';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../../design-system';
 import { Tabs, TabsProvider, TabPanel } from '../../common/Tabs';
 import {
   SimpleBarChart,
@@ -303,14 +303,14 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
               <button
                 onClick={onEdit}
                 className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                title="Editar transportista"
+                label="Editar transportista"
               >
                 <Edit className="h-5 w-5" />
               </button>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                title="Cerrar"
+                label="Cerrar"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -338,36 +338,36 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 {/* KPIs Principales */}
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 mb-4">Métricas Principales</h3>
-                  <KPIGrid columns={4}>
-                    <KPICard
-                      title="Total Entregas"
+                  <DSKPIBar columns={4}>
+                    <DSStatCard
+                      label="Total Entregas"
                       value={totalEntregas}
                       icon={Package}
                       variant="default"
                       subtitle="Últimos 30 días"
                     />
-                    <KPICard
-                      title="Entregas Exitosas"
+                    <DSStatCard
+                      label="Entregas Exitosas"
                       value={entregasExitosas}
                       icon={CheckCircle}
                       variant="success"
                       subtitle={`${tasaExito.toFixed(1)}% tasa de éxito`}
                     />
-                    <KPICard
-                      title="Tiempo Promedio"
+                    <DSStatCard
+                      label="Tiempo Promedio"
                       value={`${tiempoPromedio.toFixed(1)}h`}
                       icon={Clock}
                       variant={tiempoPromedio > 6 ? 'warning' : 'info'}
                       subtitle="Por entrega"
                     />
-                    <KPICard
-                      title="Costo Promedio"
+                    <DSStatCard
+                      label="Costo Promedio"
                       value={formatCurrency(costoPromedio)}
                       icon={DollarSign}
                       variant="default"
                       subtitle="Por entrega"
                     />
-                  </KPIGrid>
+                  </DSKPIBar>
                 </div>
 
                 {/* Información adicional y distribuciones */}
@@ -437,7 +437,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
 
                   {/* Distribución por Estado */}
                   <StatDistribution
-                    title="Distribución de Entregas"
+                    label="Distribución de Entregas"
                     data={distribucionEstado}
                     showPercentage
                   />
@@ -446,7 +446,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 {/* Alertas */}
                 {alertas.length > 0 && (
                   <AlertCard
-                    title="Alertas y Notificaciones"
+                    label="Alertas y Notificaciones"
                     items={alertas}
                     icon={AlertTriangle}
                     variant={tasaExito < 85 ? 'danger' : 'warning'}
@@ -569,7 +569,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 {/* Rendimiento Mensual */}
                 <Card className="p-4">
                   <SimpleBarChart
-                    title="Entregas por Mes"
+                    label="Entregas por Mes"
                     data={rendimientoMensual}
                     dataKey="entregas"
                     xAxisKey="name"
@@ -582,7 +582,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 {/* Tasa de éxito mensual */}
                 <Card className="p-4">
                   <SimpleLineChart
-                    title="Tasa de Éxito Mensual (%)"
+                    label="Tasa de Éxito Mensual (%)"
                     data={rendimientoMensual}
                     dataKey="tasaExito"
                     xAxisKey="name"
@@ -596,7 +596,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                   {/* Distribución por Zona */}
                   <Card className="p-4">
                     <DonutChart
-                      title="Entregas por Zona"
+                      label="Entregas por Zona"
                       data={distribucionZona}
                       height={300}
                       formatValue={formatNumber}
@@ -668,9 +668,9 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 <h3 className="text-lg font-semibold text-slate-900">Predicciones e Insights</h3>
 
                 {/* Métricas predictivas */}
-                <KPIGrid columns={3}>
-                  <KPICard
-                    title="Capacidad Estimada"
+                <DSKPIBar columns={3}>
+                  <DSStatCard
+                    label="Capacidad Estimada"
                     value={`${Math.round(totalEntregas / 30 * 1.2)}/día`}
                     icon={Target}
                     variant="info"
@@ -680,15 +680,15 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                       label: 'vs mes anterior'
                     }}
                   />
-                  <KPICard
-                    title="Probabilidad de Éxito"
+                  <DSStatCard
+                    label="Probabilidad de Éxito"
                     value={`${Math.min(100, tasaExito + 2).toFixed(0)}%`}
                     icon={TrendingUp}
                     variant={tasaExito >= 90 ? 'success' : 'warning'}
                     subtitle="Próxima entrega"
                   />
-                  <KPICard
-                    title="Tiempo Estimado"
+                  <DSStatCard
+                    label="Tiempo Estimado"
                     value={`${(tiempoPromedio * 0.95).toFixed(1)}h`}
                     icon={Clock}
                     variant="default"
@@ -698,7 +698,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                       label: 'mejora esperada'
                     }}
                   />
-                </KPIGrid>
+                </DSKPIBar>
 
                 {/* Insights */}
                 <Card className="p-6">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import {
   Truck,
   Star,
@@ -31,8 +32,6 @@ import {
   Button,
   Card,
   Badge,
-  KPICard,
-  KPIGrid,
   AlertCard,
   TabNavigation,
   Pagination,
@@ -204,44 +203,44 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
       {subTab === 'dashboard' && stats && (
         <div className="space-y-6">
           {/* KPIs principales */}
-          <KPIGrid columns={5}>
-            <KPICard
-              title="Total Proveedores"
+          <DSKPIBar columns={5}>
+            <DSStatCard
+              label="Total Proveedores"
               value={stats.totalProveedores}
               icon={Truck}
               variant="info"
               size="sm"
             />
-            <KPICard
-              title="Activos"
+            <DSStatCard
+              label="Activos"
               value={stats.proveedoresActivos}
               icon={CheckCircle}
               variant="success"
               size="sm"
             />
-            <KPICard
-              title="Preferidos"
+            <DSStatCard
+              label="Preferidos"
               value={proveedoresPreferidos.length}
               icon={Star}
               variant="success"
               size="sm"
             />
-            <KPICard
-              title="Rating Promedio"
+            <DSStatCard
+              label="Rating Promedio"
               value={promedioRating.toFixed(1)}
               subtitle="de 10"
               icon={Award}
               variant={promedioRating >= 7 ? 'success' : promedioRating >= 5 ? 'warning' : 'danger'}
               size="sm"
             />
-            <KPICard
-              title="Suspendidos"
+            <DSStatCard
+              label="Suspendidos"
               value={proveedoresSuspendidos.length}
               icon={AlertTriangle}
               variant={proveedoresSuspendidos.length > 0 ? 'warning' : 'default'}
               size="sm"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Distribución */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -318,7 +317,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
           {/* Top Proveedores */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <AlertCard
-              title="Top por Compras"
+              label="Top por Compras"
               icon={ShoppingCart}
               variant="success"
               emptyMessage="Sin datos de compras"
@@ -335,7 +334,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
               }}
             />
             <AlertCard
-              title="Mejor Rating"
+              label="Mejor Rating"
               icon={Star}
               variant="info"
               emptyMessage="Sin evaluaciones"
@@ -363,37 +362,37 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
       {subTab === 'evaluacion' && (
         <div className="space-y-6">
           {/* KPIs de evaluación */}
-          <KPIGrid columns={4}>
-            <KPICard
-              title="Sin Evaluar"
+          <DSKPIBar columns={4}>
+            <DSStatCard
+              label="Sin Evaluar"
               value={proveedoresSinEvaluar.length}
               icon={AlertCircle}
               variant={proveedoresSinEvaluar.length > 0 ? 'warning' : 'success'}
               size="sm"
             />
-            <KPICard
-              title="Rating > 7"
+            <DSStatCard
+              label="Rating > 7"
               value={proveedores.filter(p => (p.evaluacion?.puntuacion || 0) >= 7).length}
               icon={Star}
               variant="success"
               size="sm"
             />
-            <KPICard
-              title="Rating < 5"
+            <DSStatCard
+              label="Rating < 5"
               value={proveedores.filter(p => p.evaluacion && p.evaluacion.puntuacion < 5).length}
               icon={TrendingDown}
               variant="danger"
               size="sm"
             />
-            <KPICard
-              title="Promedio General"
+            <DSStatCard
+              label="Promedio General"
               value={promedioRating.toFixed(1)}
               subtitle="de 10 puntos"
               icon={Award}
               variant="info"
               size="sm"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Proveedores sin evaluar */}
           {proveedoresSinEvaluar.length > 0 && (
@@ -640,7 +639,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                              title="Visitar sitio"
+                              label="Visitar sitio"
                             >
                               <ExternalLink className="h-4 w-4" />
                             </a>
@@ -648,28 +647,28 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                           <button
                             onClick={() => setProveedorDetalle(proveedor)}
                             className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded"
-                            title="Ver analytics detallado"
+                            label="Ver analytics detallado"
                           >
                             <BarChart3 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onViewProveedor(proveedor)}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
+                            label="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onEditProveedor(proveedor)}
                             className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
-                            title="Editar"
+                            label="Editar"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onDeleteProveedor(proveedor.id)}
                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            title="Eliminar"
+                            label="Eliminar"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

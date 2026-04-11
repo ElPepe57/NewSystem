@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { groupProductMaps } from '../../../store/mercadoLibreStore';
 import { useCTRUStore } from '../../../store/ctruStore';
-import { KPICard, KPIGrid } from '../../common/KPICard';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../../design-system';
 import { PricingIntelTable } from './PricingIntelTable';
 import { PricingIntelCard } from './PricingIntelCard';
 import { PricingDetailModal } from './PricingDetailModal';
@@ -138,9 +138,9 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
   return (
     <div className="space-y-4">
       {/* KPIs */}
-      <KPIGrid columns={4}>
-        <KPICard
-          title="Margen Promedio"
+      <DSKPIBar columns={4}>
+        <DSStatCard
+          label="Margen Promedio"
           value={kpis.margenPromedio != null ? fmtPct(kpis.margenPromedio) : '—'}
           icon={TrendingUp}
           variant={
@@ -150,31 +150,31 @@ export const PricingIntelPanel: React.FC<PricingIntelPanelProps> = ({ productMap
           }
           size="sm"
         />
-        <KPICard
-          title="Buy Box Ganando"
+        <DSStatCard
+          label="Buy Box Ganando"
           value={`${kpis.buyBoxGanando} / ${kpis.buyBoxTotal}`}
           subtitle={kpis.buyBoxTotal > 0 ? `${((kpis.buyBoxGanando / kpis.buyBoxTotal) * 100).toFixed(0)}% del catálogo` : 'Sin catálogo'}
           icon={Trophy}
           variant={kpis.buyBoxTotal === 0 ? 'default' : kpis.buyBoxGanando === kpis.buyBoxTotal ? 'success' : 'warning'}
           size="sm"
         />
-        <KPICard
-          title="Precio < Costo"
+        <DSStatCard
+          label="Precio < Costo"
           value={kpis.precioMenorCosto}
           subtitle={kpis.precioMenorCosto > 0 ? 'Productos perdiendo dinero' : 'Todos rentables'}
           icon={AlertTriangle}
           variant={kpis.precioMenorCosto > 0 ? 'danger' : 'success'}
           size="sm"
         />
-        <KPICard
-          title="Vinculados"
+        <DSStatCard
+          label="Vinculados"
           value={`${kpis.vinculados} / ${kpis.total}`}
           subtitle={kpis.total > 0 ? `${((kpis.vinculados / kpis.total) * 100).toFixed(0)}% con datos de costo` : ''}
           icon={Link2}
           variant={kpis.vinculados === kpis.total ? 'success' : 'info'}
           size="sm"
         />
-      </KPIGrid>
+      </DSKPIBar>
 
       {/* Filters toolbar */}
       <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">

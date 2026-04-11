@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import { formatCurrencyPEN } from '../../utils/format';
 import {
   Tag,
@@ -31,8 +32,6 @@ import {
   Card,
   Badge,
   Modal,
-  KPICard,
-  KPIGrid,
   SearchInput,
   TabNavigation,
   StatDistribution
@@ -524,74 +523,74 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {subTab === 'dashboard' && (
         <div className="space-y-6">
           {/* KPIs Principales - Ventas */}
-          <KPIGrid columns={2} mdColumns={3} lgColumns={5}>
-            <KPICard
-              title="Facturación Total"
+          <DSKPIBar columns={2} mdColumns={3} lgColumns={5}>
+            <DSStatCard
+              label="Facturación Total"
               value={formatCurrency(statsGlobales.montoTotal)}
               icon={DollarSign}
               variant="success"
               subtitle={`${statsGlobales.totalVentas} ventas`}
             />
-            <KPICard
-              title="Tasa Conversión"
+            <DSStatCard
+              label="Tasa Conversión"
               value={`${statsGlobales.tasaConversionGlobal.toFixed(1)}%`}
               icon={Target}
               variant={statsGlobales.tasaConversionGlobal >= 50 ? 'success' : statsGlobales.tasaConversionGlobal >= 30 ? 'warning' : 'danger'}
               subtitle={`${statsGlobales.totalVentas} de ${statsGlobales.totalVentas + statsGlobales.totalCotizaciones}`}
             />
-            <KPICard
-              title="Ticket Promedio"
+            <DSStatCard
+              label="Ticket Promedio"
               value={formatCurrency(statsGlobales.ticketPromedioGlobal)}
               icon={ShoppingBag}
               variant="info"
             />
-            <KPICard
-              title="Comisiones Pagadas"
+            <DSStatCard
+              label="Comisiones Pagadas"
               value={formatCurrency(statsGlobales.comisionTotal)}
               icon={Percent}
               variant="warning"
               subtitle={`${statsGlobales.comisionPromedio.toFixed(1)}% promedio`}
             />
-            <KPICard
-              title="Ingreso Neto"
+            <DSStatCard
+              label="Ingreso Neto"
               value={formatCurrency(statsGlobales.roiNeto)}
               icon={TrendingUp}
               variant="success"
               subtitle="facturación - comisiones"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* KPIs de Canales */}
-          <KPIGrid columns={2} mdColumns={2} lgColumns={4}>
-            <KPICard
-              title="Total Canales"
+          <DSKPIBar columns={2} mdColumns={2} lgColumns={4}>
+            <DSStatCard
+              label="Total Canales"
               value={statsGlobales.totalCanales}
               icon={Tag}
               variant="info"
               subtitle={`${statsGlobales.canalesActivos} activos`}
             />
-            <KPICard
-              title="Canal Top (Ventas)"
+            <DSStatCard
+              label="Canal Top (Ventas)"
               value={statsGlobales.canalTop?.nombre || 'N/A'}
               icon={Crown}
               variant="success"
               subtitle={statsGlobales.canalTop ? formatCurrency(statsGlobales.canalTop.montoTotal) : ''}
             />
-            <KPICard
-              title="Mejor Conversión"
+            <DSStatCard
+              label="Mejor Conversión"
               value={statsGlobales.mejorConversion?.nombre || 'N/A'}
               icon={Target}
               variant="info"
               subtitle={statsGlobales.mejorConversion ? `${statsGlobales.mejorConversion.tasaConversion.toFixed(0)}%` : ''}
             />
-            <KPICard
-              title="Mejor Ticket"
+            <DSStatCard
+              label="Mejor Ticket"
               value={statsGlobales.mejorTicket?.nombre || 'N/A'}
               icon={Zap}
               variant="warning"
               subtitle={statsGlobales.mejorTicket ? formatCurrency(statsGlobales.mejorTicket.ticketPromedio) : ''}
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Sección de Conversión por Canal */}
           <Card className="p-6">
@@ -679,7 +678,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                 <CheckCircle className="h-5 w-5 text-teal-600" />
                 Por Estado
               </h3>
-              <StatDistribution title="Estado" data={distribuciones.porEstado} />
+              <StatDistribution label="Estado" data={distribuciones.porEstado} />
             </Card>
 
             <Card className="p-6">
@@ -687,7 +686,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                 <Percent className="h-5 w-5 text-teal-600" />
                 Por Comisión
               </h3>
-              <StatDistribution title="Comisión" data={distribuciones.porComision} />
+              <StatDistribution label="Comisión" data={distribuciones.porComision} />
             </Card>
 
             <Card className="p-6">
@@ -696,7 +695,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                 Distribución de Ventas
               </h3>
               {distribuciones.porVentas.length > 0 ? (
-                <StatDistribution title="Ventas" data={distribuciones.porVentas} />
+                <StatDistribution label="Ventas" data={distribuciones.porVentas} />
               ) : (
                 <div className="text-center py-8 text-slate-500">
                   <Package className="h-8 w-8 mx-auto mb-2 text-slate-300" />
@@ -816,32 +815,32 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {subTab === 'lista' && (
         <div className="space-y-6">
           {/* KPIs simplificados */}
-          <KPIGrid columns={2} mdColumns={2} lgColumns={4}>
-            <KPICard
-              title="Total Canales"
+          <DSKPIBar columns={2} mdColumns={2} lgColumns={4}>
+            <DSStatCard
+              label="Total Canales"
               value={statsGlobales.totalCanales}
               icon={Tag}
               variant="info"
             />
-            <KPICard
-              title="Canales Activos"
+            <DSStatCard
+              label="Canales Activos"
               value={statsGlobales.canalesActivos}
               icon={CheckCircle}
               variant="success"
             />
-            <KPICard
-              title="Con Comisión"
+            <DSStatCard
+              label="Con Comisión"
               value={statsGlobales.canalesConComision}
               icon={Percent}
               variant="warning"
             />
-            <KPICard
-              title="Comisión Promedio"
+            <DSStatCard
+              label="Comisión Promedio"
               value={`${statsGlobales.comisionPromedio.toFixed(1)}%`}
               icon={DollarSign}
               variant="default"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Barra de acciones */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1045,32 +1044,32 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {subTab === 'rendimiento' && (
         <div className="space-y-6">
           {/* Resumen de rendimiento */}
-          <KPIGrid columns={2} mdColumns={2} lgColumns={4}>
-            <KPICard
-              title="Facturación Total"
+          <DSKPIBar columns={2} mdColumns={2} lgColumns={4}>
+            <DSStatCard
+              label="Facturación Total"
               value={formatCurrency(statsGlobales.montoTotal)}
               icon={DollarSign}
               variant="success"
             />
-            <KPICard
-              title="Ventas Totales"
+            <DSStatCard
+              label="Ventas Totales"
               value={statsGlobales.totalVentas}
               icon={ShoppingBag}
               variant="success"
             />
-            <KPICard
-              title="Ticket Promedio"
+            <DSStatCard
+              label="Ticket Promedio"
               value={formatCurrency(statsGlobales.totalVentas > 0 ? statsGlobales.montoTotal / statsGlobales.totalVentas : 0)}
               icon={Target}
               variant="info"
             />
-            <KPICard
-              title="Canal Top"
+            <DSStatCard
+              label="Canal Top"
               value={statsGlobales.canalTop?.nombre || 'N/A'}
               icon={Zap}
               variant="warning"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Tabla de rendimiento por canal */}
           <Card className="p-6">
@@ -1273,7 +1272,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
           setShowFormModal(false);
           setEditingCanal(null);
         }}
-        title={editingCanal ? 'Editar Canal de Venta' : 'Nuevo Canal de Venta'}
+        label={editingCanal ? 'Editar Canal de Venta' : 'Nuevo Canal de Venta'}
         size="lg"
       >
         <CanalVentaForm

@@ -35,13 +35,12 @@ import {
   Button,
   Card,
   Badge,
-  KPICard,
-  KPIGrid,
   AlertCard,
   TabNavigation,
   Pagination,
   usePagination
 } from '../common';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import { AlmacenDetailView } from './AlmacenDetailView';
 import { useAlmacenStore } from '../../store/casillaStore';
 import type { Almacen, PaisAlmacen, TipoAlmacen, EstadoAlmacen } from '../../types/almacen.types';
@@ -339,47 +338,47 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
       {subTab === 'dashboard' && metricas && (
         <div className="space-y-6">
           {/* KPIs principales */}
-          <KPIGrid columns={5}>
-            <KPICard
-              title="Total Almacenes"
+          <DSKPIBar columns={5}>
+            <DSStatCard
+              label="Total Almacenes"
               value={metricas.totalAlmacenes}
               subtitle={`${metricas.activos} activos`}
               icon={Warehouse}
               variant="info"
               size="sm"
             />
-            <KPICard
-              title="Origen / Perú"
+            <DSStatCard
+              label="Origen / Perú"
               value={`${metricas.almacenesOrigen} / ${metricas.almacenesPeru}`}
               subtitle="distribución"
               icon={Globe}
               variant="default"
               size="sm"
             />
-            <KPICard
-              title="Viajeros Activos"
+            <DSStatCard
+              label="Viajeros Activos"
               value={metricas.viajerosActivos}
               subtitle={`de ${metricas.viajeros} total`}
               icon={Plane}
               variant="success"
               size="sm"
             />
-            <KPICard
-              title="Unidades en Origen"
+            <DSStatCard
+              label="Unidades en Origen"
               value={metricas.totalUnidadesOrigen}
               icon={Package}
               variant="info"
               size="sm"
             />
-            <KPICard
-              title="Valor Inventario"
+            <DSStatCard
+              label="Valor Inventario"
               value={`$${metricas.totalValorUSD.toLocaleString()}`}
               subtitle="USD total"
               icon={DollarSign}
               variant="success"
               size="sm"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Distribution Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -505,7 +504,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
           {/* AlertCards */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <AlertCard
-              title="Capacidad Crítica"
+              label="Capacidad Crítica"
               icon={AlertTriangle}
               variant="warning"
               emptyMessage="Sin alertas de capacidad"
@@ -523,7 +522,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
             />
 
             <AlertCard
-              title="Próximos Viajes"
+              label="Próximos Viajes"
               icon={Plane}
               variant="info"
               emptyMessage="Sin viajes programados en 7 días"
@@ -545,7 +544,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
             />
 
             <AlertCard
-              title="Sin Movimiento"
+              label="Sin Movimiento"
               icon={Clock}
               variant="warning"
               emptyMessage="Todos los almacenes activos"
@@ -649,40 +648,40 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
       {subTab === 'evaluacion' && (
         <div className="space-y-6">
           {/* KPIs de evaluación */}
-          <KPIGrid columns={4}>
-            <KPICard
-              title="Con Evaluación"
+          <DSKPIBar columns={4}>
+            <DSStatCard
+              label="Con Evaluación"
               value={datosEvaluacion.conEvaluacion}
               subtitle={`de ${almacenes.length} total`}
               icon={Award}
               variant="info"
               size="sm"
             />
-            <KPICard
-              title="Excelentes"
+            <DSStatCard
+              label="Excelentes"
               value={datosEvaluacion.porClasificacion.excelente}
               subtitle="≥80 puntos"
               icon={Star}
               variant="success"
               size="sm"
             />
-            <KPICard
-              title="Buenos"
+            <DSStatCard
+              label="Buenos"
               value={datosEvaluacion.porClasificacion.bueno}
               subtitle="60-79 puntos"
               icon={TrendingUp}
               variant="info"
               size="sm"
             />
-            <KPICard
-              title="Requieren Atención"
+            <DSStatCard
+              label="Requieren Atención"
               value={datosEvaluacion.porClasificacion.regular + datosEvaluacion.porClasificacion.deficiente}
               subtitle="<60 puntos"
               icon={AlertTriangle}
               variant={datosEvaluacion.porClasificacion.deficiente > 0 ? 'danger' : 'warning'}
               size="sm"
             />
-          </KPIGrid>
+          </DSKPIBar>
 
           {/* Distribución por clasificación */}
           <Card padding="lg">
@@ -889,37 +888,37 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
         <div className="space-y-4">
           {/* KPIs rápidos */}
           {stats && (
-            <KPIGrid columns={4}>
-              <KPICard
-                title="Total Almacenes"
+            <DSKPIBar columns={4}>
+              <DSStatCard
+                label="Total Almacenes"
                 value={stats.totalAlmacenes}
                 icon={Warehouse}
                 variant="info"
                 size="sm"
               />
-              <KPICard
-                title="Viajeros Activos"
+              <DSStatCard
+                label="Viajeros Activos"
                 value={stats.viajeros}
                 icon={Plane}
                 variant="success"
                 size="sm"
               />
-              <KPICard
-                title="Unidades USA"
+              <DSStatCard
+                label="Unidades USA"
                 value={stats.unidadesTotalesUSA}
                 icon={Package}
                 variant="info"
                 size="sm"
               />
-              <KPICard
-                title="Valor Inventario"
+              <DSStatCard
+                label="Valor Inventario"
                 value={`$${stats.valorInventarioUSA.toLocaleString()}`}
                 subtitle="USD"
                 icon={DollarSign}
                 variant="success"
                 size="sm"
               />
-            </KPIGrid>
+            </DSKPIBar>
           )}
 
           {/* Filtros */}
@@ -1095,14 +1094,14 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                           <button
                             onClick={() => setAlmacenDetalle(almacen)}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
-                            title="Ver detalle"
+                            label="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onEditAlmacen(almacen)}
                             className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
-                            title="Editar"
+                            label="Editar"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>

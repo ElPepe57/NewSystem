@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import {
   Truck,
@@ -14,7 +15,7 @@ import {
   Edit2,
   Search
 } from 'lucide-react';
-import { Button, Card, Badge, Modal, KPICard, KPIGrid, SearchInput } from '../common';
+import { Button, Card, Badge, Modal, SearchInput } from '../common';
 import { TransportistaForm } from '../modules/transportista/TransportistaForm';
 import { useTransportistaStore } from '../../store/transportistaStore';
 import { useAuthStore } from '../../store/authStore';
@@ -345,48 +346,48 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
   return (
     <div className="space-y-6">
       {/* KPIs */}
-      <KPIGrid columns={5}>
-        <KPICard
-          title="Total Transportistas"
+      <DSKPIBar columns={5}>
+        <DSStatCard
+          label="Total Transportistas"
           value={transportistas.length}
           subtitle={`${totalActivos} activos`}
           icon={Truck}
           variant="info"
           size="sm"
         />
-        <KPICard
-          title="Internos (Lima)"
+        <DSStatCard
+          label="Internos (Lima)"
           value={internos}
           subtitle="repartidores propios"
           icon={User}
           variant="info"
           size="sm"
         />
-        <KPICard
-          title="Externos (Couriers)"
+        <DSStatCard
+          label="Externos (Couriers)"
           value={externos}
           subtitle="empresas de envío"
           icon={Truck}
           variant="warning"
           size="sm"
         />
-        <KPICard
-          title="Costo Promedio"
+        <DSStatCard
+          label="Costo Promedio"
           value={`S/ ${costoPromedioGeneral.toFixed(0)}`}
           subtitle="por entrega"
           icon={DollarSign}
           variant="success"
           size="sm"
         />
-        <KPICard
-          title="Tasa de Éxito"
+        <DSStatCard
+          label="Tasa de Éxito"
           value={`${tasaExitoGeneral.toFixed(0)}%`}
           subtitle="promedio general"
           icon={TrendingUp}
           variant={tasaExitoGeneral >= 90 ? 'success' : tasaExitoGeneral >= 70 ? 'warning' : 'danger'}
           size="sm"
         />
-      </KPIGrid>
+      </DSKPIBar>
 
       {/* Barra de acciones */}
       <div className="flex items-center justify-between">
@@ -537,7 +538,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
           setShowFormModal(false);
           setEditingTransportista(null);
         }}
-        title={editingTransportista ? 'Editar Transportista' : 'Nuevo Transportista'}
+        label={editingTransportista ? 'Editar Transportista' : 'Nuevo Transportista'}
         size="lg"
       >
         <TransportistaForm

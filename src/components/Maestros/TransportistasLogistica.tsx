@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import {
   Truck,
@@ -23,8 +24,6 @@ import {
   Card,
   Badge,
   Modal,
-  KPICard,
-  KPIGrid,
   SearchInput,
   TabNavigation,
   AlertCard,
@@ -528,7 +527,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
       ) : (
         <EmptyState
           icon={Search}
-          title="No se encontraron transportistas"
+          label="No se encontraron transportistas"
           description="Intenta ajustar los filtros de búsqueda"
         />
       )}
@@ -540,7 +539,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
       return (
         <EmptyState
           icon={Truck}
-          title="No hay datos disponibles"
+          label="No hay datos disponibles"
           description="Crea transportistas para ver el dashboard"
         />
       );
@@ -549,53 +548,53 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
     return (
       <div className="space-y-6">
         {/* KPIs Principales */}
-        <KPIGrid columns={5}>
-          <KPICard
-            title="Total Transportistas"
+        <DSKPIBar columns={5}>
+          <DSStatCard
+            label="Total Transportistas"
             value={metricas.totalTransportistas}
             subtitle={`${metricas.activos} activos`}
             icon={Truck}
             variant="info"
             size="sm"
           />
-          <KPICard
-            title="Activos"
+          <DSStatCard
+            label="Activos"
             value={metricas.activos}
             subtitle={`${((metricas.activos / metricas.totalTransportistas) * 100).toFixed(0)}% del total`}
             icon={Activity}
             variant="success"
             size="sm"
           />
-          <KPICard
-            title="Entregas Realizadas"
+          <DSStatCard
+            label="Entregas Realizadas"
             value={metricas.totalEntregas.toLocaleString()}
             subtitle={`${metricas.totalExitosas} exitosas`}
             icon={Package}
             variant="info"
             size="sm"
           />
-          <KPICard
-            title="Tasa de Puntualidad"
+          <DSStatCard
+            label="Tasa de Puntualidad"
             value={`${metricas.tasaPuntualidad.toFixed(1)}%`}
             subtitle="entregas exitosas"
             icon={CheckCircle}
             variant={metricas.tasaPuntualidad >= 90 ? 'success' : metricas.tasaPuntualidad >= 70 ? 'warning' : 'danger'}
             size="sm"
           />
-          <KPICard
-            title="Valoración Promedio"
+          <DSStatCard
+            label="Valoración Promedio"
             value={metricas.calificacionPromedio > 0 ? metricas.calificacionPromedio.toFixed(1) : 'N/A'}
             subtitle={metricas.calificacionPromedio > 0 ? '/ 5.0 estrellas' : 'sin calificaciones'}
             icon={Star}
             variant={metricas.calificacionPromedio >= 4 ? 'success' : metricas.calificacionPromedio >= 3 ? 'warning' : 'danger'}
             size="sm"
           />
-        </KPIGrid>
+        </DSKPIBar>
 
         {/* Distribuciones */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           <StatDistribution
-            title="Por Estado"
+            label="Por Estado"
             data={[
               {
                 label: 'Activos',
@@ -611,7 +610,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           />
 
           <StatDistribution
-            title="Por Tipo de Servicio"
+            label="Por Tipo de Servicio"
             data={[
               {
                 label: 'Internos',
@@ -627,7 +626,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           />
 
           <StatDistribution
-            title="Couriers Externos"
+            label="Couriers Externos"
             data={Object.entries(metricas.porServicio).map(([servicio, cantidad]) => ({
               label: courierLabels[servicio] || servicio,
               value: cantidad,
@@ -641,7 +640,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           {/* Top 3 Mejor Rendimiento */}
           <AlertCard
             variant="success"
-            title="Mejor Rendimiento"
+            label="Mejor Rendimiento"
             icon={Award}
             emptyMessage="No hay datos suficientes"
             items={metricas.top3.map((t) => ({
@@ -654,7 +653,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           {/* Necesitan Atención */}
           <AlertCard
             variant="warning"
-            title="Necesitan Atención"
+            label="Necesitan Atención"
             icon={AlertTriangle}
             emptyMessage="Todos los transportistas están bien"
             items={metricas.necesitanAtencion.map((t) => ({
@@ -667,7 +666,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           {/* Sin Entregas Recientes */}
           <AlertCard
             variant="info"
-            title="Sin Entregas Recientes"
+            label="Sin Entregas Recientes"
             icon={Clock}
             emptyMessage="Todos activos recientemente"
             items={metricas.sinEntregasRecientes.map((t) => ({
@@ -688,7 +687,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
       return (
         <EmptyState
           icon={TrendingUp}
-          title="No hay datos de rendimiento"
+          label="No hay datos de rendimiento"
           description="Cuando se realicen entregas, podrás ver el análisis de rendimiento aquí"
         />
       );
@@ -697,40 +696,40 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
     return (
       <div className="space-y-6">
         {/* KPIs de Rendimiento */}
-        <KPIGrid columns={4}>
-          <KPICard
-            title="Con Entregas"
+        <DSKPIBar columns={4}>
+          <DSStatCard
+            label="Con Entregas"
             value={transportistasConEntregas.length}
             subtitle={`de ${transportistas.length} total`}
             icon={Package}
             variant="info"
             size="sm"
           />
-          <KPICard
-            title="Promedio Entregas"
+          <DSStatCard
+            label="Promedio Entregas"
             value={(transportistasConEntregas.reduce((sum, t) => sum + (t.totalEntregas || 0), 0) / transportistasConEntregas.length).toFixed(1)}
             subtitle="por transportista"
             icon={Activity}
             variant="info"
             size="sm"
           />
-          <KPICard
-            title="Mejor Tasa"
+          <DSStatCard
+            label="Mejor Tasa"
             value={`${Math.max(...transportistasConEntregas.map(t => t.tasaExito || 0)).toFixed(0)}%`}
             subtitle="de éxito"
             icon={TrendingUp}
             variant="success"
             size="sm"
           />
-          <KPICard
-            title="Requieren Mejora"
+          <DSStatCard
+            label="Requieren Mejora"
             value={transportistasConEntregas.filter(t => (t.tasaExito || 0) < 80).length}
             subtitle="< 80% éxito"
             icon={TrendingDown}
             variant="warning"
             size="sm"
           />
-        </KPIGrid>
+        </DSKPIBar>
 
         {/* Ranking Completo */}
         <Card padding="lg">
@@ -860,7 +859,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
             setShowFormModal(false);
             setEditingTransportista(null);
           }}
-          title="Nuevo Transportista"
+          label="Nuevo Transportista"
           size="lg"
         >
           <TransportistaForm
@@ -911,7 +910,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           setShowFormModal(false);
           setEditingTransportista(null);
         }}
-        title={editingTransportista ? 'Editar Transportista' : 'Nuevo Transportista'}
+        label={editingTransportista ? 'Editar Transportista' : 'Nuevo Transportista'}
         size="lg"
       >
         <TransportistaForm

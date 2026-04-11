@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../../design-system';
 import {
   Pencil,
   Trash2,
@@ -252,7 +253,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onInvestigar}
                 className="p-2 bg-transparent border border-slate-500 text-slate-200 hover:bg-slate-600/50 rounded-lg transition-colors"
-                title="Investigar"
+                label="Investigar"
               >
                 <Search className="h-4 w-4" />
               </button>
@@ -261,7 +262,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onCreateVariante}
                 className="p-2 bg-transparent border border-slate-500 text-slate-200 hover:bg-slate-600/50 rounded-lg transition-colors"
-                title="Crear variante"
+                label="Crear variante"
               >
                 <Copy className="h-4 w-4" />
               </button>
@@ -269,7 +270,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             <button
               onClick={onEdit}
               className="p-2 bg-transparent border border-slate-500 text-slate-200 hover:bg-slate-600/50 rounded-lg transition-colors"
-              title="Editar"
+              label="Editar"
             >
               <Pencil className="h-4 w-4" />
             </button>
@@ -277,7 +278,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onReactivar}
                 className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors shadow-sm"
-                title="Reactivar producto"
+                label="Reactivar producto"
               >
                 <RefreshCw className="h-4 w-4" />
               </button>
@@ -285,7 +286,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onDelete}
                 className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-sm"
-                title="Eliminar"
+                label="Eliminar"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -369,25 +370,25 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
       {/* ============ MÉTRICAS KPI ============ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-        <KPICard
+        <DSStatCard
           label="Stock Perú"
           value={producto.stockPeru}
           subtext={stockCritico ? '⚠️ Crítico' : `Mín: ${producto.stockMinimo}`}
           bgColor={stockCritico ? 'bg-red-500' : 'bg-emerald-500'}
         />
-        <KPICard
+        <DSStatCard
           label="Stock USA"
           value={producto.stockUSA}
           subtext="unidades"
           bgColor="bg-teal-500"
         />
-        <KPICard
+        <DSStatCard
           label="CTRU Promedio"
           value={`S/ ${(producto.ctruPromedio || 0).toFixed(2)}`}
           subtext="costo unitario"
           bgColor="bg-slate-600"
         />
-        <KPICard
+        <DSStatCard
           label="Rotación"
           value={`${producto.rotacionPromedio || 0}`}
           subtext="unidades/mes"
@@ -709,7 +710,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
       <div className="space-y-2">
         {/* Información del Producto */}
         <CollapsibleSection
-          title="Información del Producto"
+          label="Información del Producto"
           icon={<Package className="h-4 w-4" />}
           iconBgColor="bg-slate-100"
           iconColor="text-slate-600"
@@ -866,7 +867,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
         {/* Inventario */}
         <CollapsibleSection
-          title="Inventario"
+          label="Inventario"
           icon={<Box className="h-4 w-4" />}
           iconBgColor={stockCritico ? 'bg-red-100' : 'bg-emerald-100'}
           iconColor={stockCritico ? 'text-red-600' : 'text-emerald-600'}
@@ -914,7 +915,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
         {/* Datos Comerciales */}
         <CollapsibleSection
-          title="Datos Comerciales"
+          label="Datos Comerciales"
           icon={<DollarSign className="h-4 w-4" />}
           iconBgColor="bg-teal-100"
           iconColor="text-teal-600"
@@ -938,7 +939,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
         {/* Métricas de Rendimiento */}
         {(producto.rotacionPromedio > 0 || producto.diasParaQuiebre > 0) && (
           <CollapsibleSection
-            title="Métricas de Rendimiento"
+            label="Métricas de Rendimiento"
             icon={<TrendingUp className="h-4 w-4" />}
             iconBgColor="bg-amber-100"
             iconColor="text-amber-600"
@@ -963,7 +964,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
         {/* Historial placeholder */}
         <CollapsibleSection
-          title="Historial"
+          label="Historial"
           icon={<History className="h-4 w-4" />}
           iconBgColor="bg-slate-100"
           iconColor="text-slate-500"
