@@ -288,7 +288,7 @@ export function sortRows(rows: PricingIntelRow[], field: SortField, dir: SortDir
 // ============================================================
 
 export function getMarginColor(margin: number | null): string {
-  if (margin == null) return 'text-gray-400';
+  if (margin == null) return 'text-slate-400';
   if (margin < 0) return 'text-red-700';
   if (margin < 10) return 'text-red-600';
   if (margin < 20) return 'text-yellow-700';

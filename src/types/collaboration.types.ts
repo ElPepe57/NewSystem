@@ -158,12 +158,12 @@ export const ACTIVIDAD_CONFIG: Record<TipoActividad, { emoji: string; color: str
   devolucion_rechazada:  { emoji: '🚫', color: 'text-red-600' },
   devolucion_ejecutada:  { emoji: '📦', color: 'text-amber-700' },
   devolucion_completada: { emoji: '✅', color: 'text-green-600' },
-  devolucion_cancelada:  { emoji: '❌', color: 'text-gray-500' },
+  devolucion_cancelada:  { emoji: '❌', color: 'text-slate-500' },
   unidades_recibidas:    { emoji: '📦', color: 'text-sky-600' },
   transferencia_creada:  { emoji: '🔀', color: 'text-violet-600' },
   llamada_iniciada:      { emoji: '📞', color: 'text-green-600' },
   usuario_conectado:     { emoji: '🟢', color: 'text-green-500' },
-  usuario_desconectado:  { emoji: '⚫', color: 'text-gray-400' },
+  usuario_desconectado:  { emoji: '⚫', color: 'text-slate-400' },
 };
 
 /** Umbral en milisegundos para considerar un usuario "online" (3 minutos) */
