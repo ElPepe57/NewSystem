@@ -198,6 +198,9 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         getUnidadesVendidasConCache()
       ]);
 
+      // REINGENIERIA (Acuerdo 3): GA/GO ya NO se prorratean a ventas individuales.
+      // Son "Gastos Fijos del Mes" y aparecen como linea separada en el P&L.
+      // totalGastosGAGO se mantiene para referencia pero costoGAGO por venta = 0.
       const gastosGAGO = todosLosGastos.filter(
         g => g.categoria === 'GA' || g.categoria === 'GO'
       );
@@ -297,16 +300,15 @@ export function useRentabilidadVentas(ventas: Venta[]) {
         // Total GV + GD
         const gastosGVGD = gastosGV + gastosGD;
 
-        // GA/GO prorrateado
-        const proporcionCostoVenta = costoBase / baseCostoTotal;
-        const costoGAGO = totalGastosGAGO * proporcionCostoVenta;
+        // REINGENIERIA: GA/GO ya no se prorratean por venta (Acuerdo 3)
+        const costoGAGO = 0;
 
-        // Costo total
-        const costoTotal = costoBase + gastosGVGD + costoGAGO;
+        // Costo total (sin GA/GO)
+        const costoTotal = costoBase + gastosGVGD;
 
-        // Utilidades
+        // Utilidades — Margen Bruto = Venta - CTRU - GV/GD
         const utilidadBruta = venta.totalPEN - costoBase - gastosGVGD;
-        const utilidadNeta = utilidadBruta - costoGAGO;
+        const utilidadNeta = utilidadBruta; // sin GA/GO, utilidadNeta = utilidadBruta
 
         const margenBruto = venta.totalPEN > 0 ? (utilidadBruta / venta.totalPEN) * 100 : 0;
         const margenNeto = venta.totalPEN > 0 ? (utilidadNeta / venta.totalPEN) * 100 : 0;
@@ -347,11 +349,11 @@ export function useRentabilidadVentas(ventas: Venta[]) {
             const proporcionCosto = costoBase > 0 ? costoBaseProducto / costoBase : 0;
 
             const costoGVGDProducto = gastosGVGD * proporcionVenta;
-            const costoGAGOProducto = costoGAGO * proporcionCosto;
-            const costoTotalProducto = costoBaseProducto + costoGVGDProducto + costoGAGOProducto;
+            const costoGAGOProducto = 0; // REINGENIERIA: GA/GO no se asignan por producto
+            const costoTotalProducto = costoBaseProducto + costoGVGDProducto;
 
             const utilidadBrutaProducto = ventaAjustada - costoBaseProducto - costoGVGDProducto;
-            const utilidadNetaProducto = ventaAjustada - costoTotalProducto;
+            const utilidadNetaProducto = utilidadBrutaProducto; // sin GA/GO
 
             const margenBrutoProducto = ventaAjustada > 0
               ? (utilidadBrutaProducto / ventaAjustada) * 100

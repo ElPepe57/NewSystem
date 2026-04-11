@@ -511,6 +511,7 @@ export class VentaService {
         if (derivedLineaNegocioNombre) nuevaVenta.lineaNegocioNombre = derivedLineaNegocioNombre;
       }
 
+      // Gastos de venta legacy (backward compat)
       if (data.comisionML) nuevaVenta.comisionML = data.comisionML;
       if (data.comisionMLPorcentaje) nuevaVenta.comisionMLPorcentaje = data.comisionMLPorcentaje;
       if (data.costoEnvioML) nuevaVenta.costoEnvioML = data.costoEnvioML;
@@ -518,6 +519,14 @@ export class VentaService {
       if (data.otrosGastosVenta) nuevaVenta.otrosGastosVenta = data.otrosGastosVenta;
       const gastosVentaPEN = (data.comisionML || 0) + (data.costoEnvioML || 0) + (data.costoEnvioNegocio || 0) + (data.otrosGastosVenta || 0);
       if (gastosVentaPEN > 0) nuevaVenta.gastosVentaPEN = gastosVentaPEN;
+
+      // REINGENIERIA: costosVenta[] (Caja 2 — costos directos por venta)
+      if ((data as any).costosVenta && (data as any).costosVenta.length > 0) {
+        nuevaVenta.costosVenta = (data as any).costosVenta;
+        nuevaVenta.costoVentaTotalPEN = (data as any).costosVenta.reduce(
+          (sum: number, c: any) => sum + (c.montoPEN || 0), 0
+        );
+      }
 
       if (!esVentaDirecta && requiereStock) {
         nuevaVenta.requiereStock = true;

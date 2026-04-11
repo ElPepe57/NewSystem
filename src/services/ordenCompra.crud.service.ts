@@ -525,3 +525,104 @@ export async function deleteOrden(id: string): Promise<void> {
     throw new Error(error.message || 'Error al eliminar orden');
   }
 }
+
+// ─── REINGENIERIA: Confirmar OC (Acuerdo 6) ─────────────────────────────────
+
+/**
+ * Confirma una OC: crea N unidades en estado 'pedida' y un Envio T1 en 'borrador'.
+ *
+ * Acuerdo 6: Las unidades nacen al confirmar la OC, no al recibir.
+ * Acuerdo 2: Toda OC pasa obligatoriamente por al menos 1 Envio.
+ * Acuerdo 4: Estado OC pasa de 'borrador' a 'confirmada'.
+ *
+ * @param ocId - ID de la OC a confirmar
+ * @param destinoCasillaId - Casilla destino para el Envio T1
+ * @param colaboradorId - Colaborador transportador (viajero/courier) - opcional
+ * @param userId - ID del usuario que confirma
+ */
+export async function confirmarOC(
+  ocId: string,
+  destinoCasillaId: string,
+  userId: string,
+  colaboradorId?: string
+): Promise<{ unidadesCreadas: number; envioId: string }> {
+  const { writeBatch: createBatch } = await import('firebase/firestore');
+  const { envioCrudService } = await import('./envio.crud.service');
+
+  const orden = await getById(ocId);
+  if (!orden) throw new Error('Orden no encontrada');
+
+  if (orden.estado !== 'borrador') {
+    throw new Error('Solo se pueden confirmar ordenes en estado borrador');
+  }
+
+  const batch = createBatch(db);
+  const now = Timestamp.now();
+  const unidadIds: string[] = [];
+
+  // 1. Crear N unidades en estado 'pedida'
+  for (const prod of orden.productos) {
+    for (let i = 0; i < prod.cantidad; i++) {
+      const unidadRef = doc(collection(db, 'unidades'));
+      const unidadData: Record<string, unknown> = {
+        productoId: prod.productoId,
+        productoSKU: prod.sku,
+        productoNombre: prod.nombreComercial,
+        lote: 'PENDIENTE',
+        fechaVencimiento: Timestamp.fromDate(new Date('2099-12-31')), // placeholder
+        casillaActualId: 'PROVEEDOR', // ubicacion virtual del proveedor
+        pais: orden.paisOrigen || 'USA',
+        estado: 'pedida',
+        costoUnitarioUSD: prod.costoUnitario,
+        tcCompra: orden.tcReferencial || orden.tcCompra || 0,
+        ordenCompraId: ocId,
+        ordenCompraNumero: orden.numeroOrden,
+        fechaRecepcion: now, // placeholder — se actualiza al recibir
+        movimientos: [],
+        creadoPor: userId,
+        fechaCreacion: now,
+      };
+
+      // Linea de negocio
+      if (orden.lineaNegocioId) {
+        unidadData.lineaNegocioId = orden.lineaNegocioId;
+        if (orden.lineaNegocioNombre) unidadData.lineaNegocioNombre = orden.lineaNegocioNombre;
+      }
+
+      // Peso
+      if (prod.pesoLibras) unidadData.pesoLibras = prod.pesoLibras;
+
+      batch.set(unidadRef, unidadData);
+      unidadIds.push(unidadRef.id);
+    }
+  }
+
+  // 2. Actualizar OC a 'confirmada'
+  const ocRef = doc(db, ORDENES_COLLECTION, ocId);
+  batch.update(ocRef, {
+    estado: 'confirmada',
+    inventarioGenerado: true,
+    unidadesGeneradas: unidadIds,
+    ultimaEdicion: now,
+    editadoPor: userId,
+  });
+
+  await batch.commit();
+
+  // 3. Crear Envio T1 automatico en 'borrador'
+  const envioId = await envioCrudService.crear({
+    origenTipo: 'proveedor',
+    origenProveedorId: orden.proveedorId,
+    destinoCasillaId,
+    colaboradorId,
+    ordenCompraId: ocId,
+    unidadesIds: unidadIds,
+  }, userId);
+
+  logger.success(`OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + Envio T1 creado`);
+
+  return {
+    unidadesCreadas: unidadIds.length,
+    envioId,
+  };
+}
