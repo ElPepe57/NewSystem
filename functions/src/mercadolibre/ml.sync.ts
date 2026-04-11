@@ -1207,9 +1207,9 @@ export async function processShipmentNotification(shipment: MLShipment): Promise
                 const u = uDoc.data();
                 switch (u.estado) {
                   case "recibida_origen": case "recibida_usa": sUSA++; sDisponible++; break;
-                  case "disponible_peru": sPeru++; sDisponible++; sDisponiblePeru++; break;
-                  case "en_transito_origen": case "en_transito_usa": case "en_transito_peru": sTransito++; break;
-                  case "reservada": case "asignada_pedido":
+                  case "disponible": case "disponible_peru": sPeru++; sDisponible++; sDisponiblePeru++; break;
+                  case "pedida": case "en_transito": case "en_transito_origen": case "en_transito_usa": case "en_transito_peru": sTransito++; break;
+                  case "reservada": case "asignada_venta": case "asignada_pedido":
                     sReservado++;
                     if (u.pais === "USA") sUSA++; else sPeru++;
                     break;

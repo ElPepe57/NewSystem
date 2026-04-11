@@ -226,14 +226,15 @@ export const mlsyncstock = functions.https.onCall(async (data, context) => {
     return { synced: 0, errors: 0, details: [] };
   }
 
-  // Calcular stock real para cada productoId (solo disponible_peru — ML vende desde Perú)
+  // Calcular stock real para cada productoId (disponible en Peru — ML vende desde Peru)
+  // REINGENIERIA: soporta ambos estados 'disponible' (nuevo) y 'disponible_peru' (legacy)
   const productoIds = [...new Set(mapQuery.docs.map((d) => d.data().productoId as string))];
   const stockMap = new Map<string, number>();
 
   for (const pid of productoIds) {
     const disponiblesSnap = await db.collection(COLLECTIONS.UNIDADES)
       .where("productoId", "==", pid)
-      .where("estado", "==", "disponible_peru")
+      .where("estado", "in", ["disponible", "disponible_peru"])
       .get();
     const stockDisponiblePeru = disponiblesSnap.size;
 
@@ -403,10 +404,11 @@ export const mlmigratestockpendiente = functions.https.onCall(async (_data, cont
       const pendienteCorrecto = pendienteMap.get(productoId) || 0;
       const currentPendiente = pData.stockPendienteML || 0;
 
-      // Contar unidades disponible_peru reales (fuente de verdad)
+      // Contar unidades disponibles reales (fuente de verdad)
+      // REINGENIERIA: soporta ambos estados
       const unidadesSnap = await db.collection(COLLECTIONS.UNIDADES)
         .where("productoId", "==", productoId)
-        .where("estado", "==", "disponible_peru")
+        .where("estado", "in", ["disponible", "disponible_peru"])
         .get();
       const disponiblePeru = unidadesSnap.size;
       const stockEfectivoML = Math.max(0, disponiblePeru - pendienteCorrecto);

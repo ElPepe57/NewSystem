@@ -7,10 +7,7 @@
  */
 
 import * as functions from "firebase-functions/v1";
-import * as admin from "firebase-admin";
 import { getSecret } from "./secrets";
-
-const db = admin.firestore();
 
 /**
  * Calcula un geohash simple de precisión 6 (~1.2km)

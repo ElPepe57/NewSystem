@@ -82,11 +82,15 @@ const db = admin.firestore();
 /**
  * FUNCIÓN 1: Generar unidades al recibir OC en origen
  *
- * FLUJO CORRECTO según el modelo de negocio:
- * 1. OC se marca como "recibida" (en almacén/viajero de origen: USA, China, Corea, etc.)
- * 2. Se generan unidades con estado "recibida_origen"
- * 3. Posteriormente se crea una Transferencia Origen → Perú
- * 4. Al recibir en Perú, las unidades pasan a "disponible_peru"
+ * REINGENIERIA (Acuerdos 2, 4, 6):
+ * 1. OC se confirma (borrador → confirmada)
+ * 2. Se generan unidades en estado "pedida"
+ * 3. Se crea Envio T1 automatico en estado "borrador"
+ * 4. Al recibir el Envio, las unidades pasan a "disponible"
+ *
+ * NOTA: Si la creacion se hace 100% desde frontend (confirmarOC()),
+ * este trigger se puede desactivar para evitar doble creacion.
+ * Por ahora se mantiene como fallback para OCs confirmadas desde backend.
  */
 export const onOrdenCompraRecibida = functions.firestore
   .document("ordenesCompra/{ordenId}")
@@ -94,10 +98,12 @@ export const onOrdenCompraRecibida = functions.firestore
     const before = change.before.data();
     const after = change.after.data();
 
-    // Solo procesar si cambió a estado "recibida" y no se han generado unidades
+    // REINGENIERIA: trigger en 'confirmada' (nuevo) o 'recibida' (legacy)
+    const estadoTrigger = after.estado === "confirmada" || after.estado === "recibida";
+    const cambioEstado = before.estado !== after.estado;
     if (
-      before.estado !== "recibida" &&
-      after.estado === "recibida" &&
+      cambioEstado &&
+      estadoTrigger &&
       !after.inventarioGenerado
     ) {
       const ordenId = context.params.ordenId;
@@ -179,15 +185,16 @@ export const onOrdenCompraRecibida = functions.firestore
               ordenCompraNumero: after.numeroOrden,    // FIX: era 'numeroOrden'
               proveedorId: after.proveedorId,
 
-              // Estado
-              estado: "recibida_origen",
-              pais: almacenPais,                       // FIX: era 'paisActual'
-              paisOrigen: almacenPais,                 // Campo adicional del tipo
+              // Estado — REINGENIERIA: 'pedida' si confirmada, 'recibida_origen' si legacy recibida
+              estado: after.estado === "confirmada" ? "pedida" : "recibida_origen",
+              pais: almacenPais,
+              paisOrigen: almacenPais,
 
-              // Ubicación — nombres según interface Unidad
-              almacenId: almacenDestinoId || null,     // FIX: era 'almacenActualId'
-              almacenNombre: almacenNombre,            // FIX: era 'almacenActualNombre'
-              almacenCodigo: almacenCodigo,            // Extra: mantener para referencia
+              // Ubicacion — REINGENIERIA: casillaActualId + legacy almacenId
+              casillaActualId: almacenDestinoId || "PROVEEDOR",
+              casillaNombre: almacenNombre,
+              almacenId: almacenDestinoId || null,     // Legacy backward compat
+              almacenNombre: almacenNombre,
 
               // Costos
               costoUnitarioUSD,
@@ -2062,11 +2069,14 @@ export const recalcularMetricas = functions.https.onCall(
 
 // ============================================================
 // POOL USD — SNAPSHOT MENSUAL AUTOMÁTICO (TAREA-072)
+// @deprecated REINGENIERIA: Pool USD se fusiona con Tesoreria.
+// El TCPA se calcula desde movimientos de cuentas USD en Tesoreria (poolUSD.view.service.ts).
+// Esta funcion se mantiene desactivada. Para eliminar completamente, borrar el export.
 // ============================================================
 
 /**
- * Genera un snapshot mensual del Pool USD el 1ro de cada mes a las 6:00 AM.
- * Registra saldo, TCPA, TC SUNAT al cierre, e impacto cambiario acumulado.
+ * @deprecated Pool USD ya no tiene colecciones propias.
+ * El TCPA se calcula desde poolUSD.view.service.ts.
  */
 export const poolUSDSnapshotMensual = functions.pubsub
   .schedule("0 6 1 * *")
@@ -2178,7 +2188,7 @@ export const poolUSDSnapshotMensual = functions.pubsub
 
 /**
  * Cada hora, busca unidades con estado 'reservada' cuya vigencia de reserva expiró
- * y las devuelve a estado 'disponible_peru' o su estado previo.
+ * y las devuelve a estado 'disponible' o su estado previo.
  */
 export const liberarReservasVencidas = functions.pubsub
   .schedule("0 * * * *")
@@ -2204,7 +2214,7 @@ export const liberarReservasVencidas = functions.pubsub
 
       for (const doc of snapshot.docs) {
         const data = doc.data();
-        const estadoPrevio = data.reserva?.estadoPrevio || "disponible_peru";
+        const estadoPrevio = data.reserva?.estadoPrevio || "disponible";
 
         batch.update(doc.ref, {
           estado: estadoPrevio,
@@ -2225,7 +2235,7 @@ export const liberarReservasVencidas = functions.pubsub
         try {
           const unidadesSnap = await db.collection(COLLECTIONS.UNIDADES)
             .where("productoId", "==", productoId)
-            .where("estado", "==", "disponible_peru")
+            .where("estado", "in", ["disponible", "disponible_peru"])
             .get();
           const stockPeru = unidadesSnap.size;
 
@@ -2268,7 +2278,7 @@ export const marcarUnidadesVencidas = functions.pubsub
     const ahora = admin.firestore.Timestamp.now();
 
     const estadosActivos = [
-      "disponible_peru",
+      "disponible_peru", "disponible",
       "recibida_origen",
       "recibida_usa",
       "en_transito_peru",
@@ -2351,7 +2361,7 @@ export const marcarUnidadesVencidas = functions.pubsub
           const dispSnap = await db
             .collection(COLLECTIONS.UNIDADES)
             .where("productoId", "==", productoId)
-            .where("estado", "==", "disponible_peru")
+            .where("estado", "in", ["disponible", "disponible_peru"])
             .get();
           await db.collection(COLLECTIONS.PRODUCTOS).doc(productoId).update({
             stockPeru: dispSnap.size,

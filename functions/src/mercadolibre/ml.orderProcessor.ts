@@ -728,9 +728,10 @@ async function asignarInventarioFEFO(
     }
 
     // Query unidades disponibles, ordenadas por fecha de vencimiento (FEFO)
+    // REINGENIERIA: soporta 'disponible' (nuevo) y 'disponible_peru' (legacy)
     const unidadesQuery = await db.collection(COLLECTIONS.UNIDADES)
       .where("productoId", "==", prod.productoId)
-      .where("estado", "==", "disponible_peru")
+      .where("estado", "in", ["disponible", "disponible_peru"])
       .orderBy("fechaVencimiento", "asc")
       .limit(prod.cantidad * 2) // Margen para filtrar reservadas
       .get();
@@ -1383,11 +1384,14 @@ async function sincronizarStockProducto(productoId: string): Promise<void> {
         stockUSA++;
         stockDisponible++;
         break;
+      case "disponible":
       case "disponible_peru":
         stockPeru++;
         stockDisponible++;
         stockDisponiblePeru++;
         break;
+      case "pedida":
+      case "en_transito":
       case "en_transito_origen":
       case "en_transito_usa":
       case "en_transito_peru":
