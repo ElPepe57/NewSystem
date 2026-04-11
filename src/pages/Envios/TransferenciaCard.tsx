@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Card, Badge, Button } from "../../components/common";
 import type { Transferencia, EstadoTransferencia, TipoTransferencia } from "../../types/transferencia.types";
+import { StatusBadge } from '../../design-system';
 import type { Producto } from "../../types/producto.types";
 import { getDescripcionProducto } from "../../utils/producto.helpers";
 import {
@@ -31,22 +32,22 @@ interface TransferenciaCardProps {
 }
 
 const getEstadoBadge = (estado: EstadoTransferencia) => {
-  const config: Record<EstadoTransferencia, { variant: "default" | "warning" | "success" | "danger" | "info"; label: string }> = {
-    borrador: { variant: "default", label: "Borrador" },
+  const config: Record<EstadoTransferencia, { variant: "neutral" | "warning" | "success" | "danger" | "info"; label: string }> = {
+    borrador: { variant: "neutral", label: "Borrador" },
     preparando: { variant: "warning", label: "Preparando" },
-    en_transito: { variant: "info", label: "En Tránsito" },
+    en_transito: { variant: "info", label: "En Tr\u00e1nsito" },
     recibida_parcial: { variant: "warning", label: "Parcial" },
     recibida_completa: { variant: "success", label: "Completada" },
     cancelada: { variant: "danger", label: "Cancelada" }
   };
   const { variant, label } = config[estado];
-  return <Badge variant={variant}>{label}</Badge>;
+  return <StatusBadge variant={variant} dot>{label}</StatusBadge>;
 };
 
 const getTipoBadge = (tipo: TipoTransferencia, paisOrigen?: string) => {
   return esTipoTransferenciaInterna(tipo)
-    ? <Badge variant="default">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>
-    : <Badge variant="info">{getLabelTipoTransferencia(tipo, paisOrigen)}</Badge>;
+    ? <StatusBadge variant="neutral">{getLabelTipoTransferencia(tipo, paisOrigen)}</StatusBadge>
+    : <StatusBadge variant="info">{getLabelTipoTransferencia(tipo, paisOrigen)}</StatusBadge>;
 };
 
 export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({

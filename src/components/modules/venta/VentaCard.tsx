@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, CreditCard, Trash2, Calculator, Receipt, FileText, Link2, ClipboardList, PieChart, MapPin, Pencil, Clock } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
+import { StatusBadge } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
 import type { Venta, EstadoVenta, EstadoPago } from '../../../types/venta.types';
 import type { Requerimiento } from '../../../types/requerimiento.types';
@@ -352,17 +353,17 @@ export const VentaCard: React.FC<VentaCardProps> = ({
         </div>
         <div className="flex items-center gap-2">
           {venta.estado !== 'cotizacion' && venta.estado !== 'cancelada' && venta.estadoPago && estadoPagoLabels[venta.estadoPago] && (
-            <Badge variant={estadoPagoLabels[venta.estadoPago].variant} size="lg">
+            <StatusBadge variant={estadoPagoLabels[venta.estadoPago].variant as any} icon={CreditCard}>
               {estadoPagoLabels[venta.estadoPago].label}
-            </Badge>
+            </StatusBadge>
           )}
-          <Badge variant={estadoInfo.variant} size="lg">
+          <StatusBadge variant={(estadoInfo.variant === 'default' ? 'neutral' : estadoInfo.variant) as any} dot size="md">
             {estadoInfo.label}
-          </Badge>
+          </StatusBadge>
           {venta.esVentaSocio && (
-            <Badge variant="default" size="lg">
+            <StatusBadge variant="neutral">
               Socio{venta.socioNombre ? `: ${venta.socioNombre}` : ''}
-            </Badge>
+            </StatusBadge>
           )}
         </div>
       </div>

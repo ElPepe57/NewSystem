@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
+import { StatusBadge } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
@@ -180,13 +181,12 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <Badge variant={estadoInfo.variant} size="lg">
+          <StatusBadge variant={estadoInfo.variant as any} dot size="md">
             {estadoInfo.label}
-          </Badge>
-          <Badge variant={estadoPagoInfo.variant}>
-            <CreditCard className="h-3 w-3 mr-1" />
+          </StatusBadge>
+          <StatusBadge variant={estadoPagoInfo.variant as any} icon={CreditCard}>
             {estadoPagoInfo.label}
-          </Badge>
+          </StatusBadge>
         </div>
       </div>
 
