@@ -39,6 +39,7 @@ import { TabTransferencias } from './TabTransferencias';
 import { TabCuentas } from './TabCuentas';
 import { TabPagosMasivos } from './TabPagosMasivos';
 import { TabTarjetasCredito } from './TabTarjetasCredito';
+import { PoolUSDWidget } from '../../components/modules/tesoreria/PoolUSDWidget';
 
 type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pagosMasivos' | 'tarjetas';
 
@@ -763,8 +764,11 @@ export const Tesoreria: React.FC = () => {
         </div>
       </div>
 
-      {/* Filtro de línea de negocio */}
+      {/* Filtro de linea de negocio */}
       <LineaFilterInline />
+
+      {/* Pool USD Widget */}
+      <PoolUSDWidget />
 
       {/* KPIs */}
       {stats && (

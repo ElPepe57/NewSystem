@@ -14,10 +14,15 @@ interface OrdenCompraCardProps {
   onRevertirRecepciones?: () => void;
 }
 
-const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
+const estadoLabels: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
   borrador: { label: 'Borrador', variant: 'default' },
+  confirmada: { label: 'Confirmada', variant: 'info' },
+  en_proceso: { label: 'En Proceso', variant: 'warning' },
+  despachada: { label: 'Despachada', variant: 'warning' },
+  completada: { label: 'Completada', variant: 'success' },
+  // Legacy
   enviada: { label: 'Enviada', variant: 'info' },
-  en_transito: { label: 'En Tránsito', variant: 'warning' },
+  en_transito: { label: 'En Tr\u00e1nsito', variant: 'warning' },
   recibida_parcial: { label: 'Recibida Parcial', variant: 'warning' },
   recibida: { label: 'Recibida', variant: 'success' },
   cancelada: { label: 'Cancelada', variant: 'danger' }
@@ -42,20 +47,19 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   const estadoInfo = estadoLabels[orden.estado];
   const estadoPagoInfo = estadoPagoLabels[orden.estadoPago || 'pendiente'];
 
-  // Generar pasos del timeline (5 pasos con recibida_parcial)
+  // Generar pasos del timeline (soporta estados nuevos + legacy)
   const timelineSteps: TimelineStep[] = useMemo(() => {
     const estadoIndex: Record<string, number> = {
       'borrador': 0,
-      'enviada': 1,
-      'en_transito': 2,
-      'recibida_parcial': 3,
-      'recibida': 4,
+      'confirmada': 1, 'enviada': 1,
+      'en_proceso': 2, 'en_transito': 2,
+      'despachada': 3, 'recibida_parcial': 3,
+      'completada': 4, 'recibida': 4,
       'cancelada': -1
     };
 
     const currentIndex = estadoIndex[orden.estado] ?? 0;
     const isCancelled = orden.estado === 'cancelada';
-    const hasParcial = orden.recepcionesParciales && orden.recepcionesParciales.length > 0;
 
     return [
       {
@@ -65,29 +69,26 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         status: isCancelled ? 'skipped' : currentIndex >= 0 ? 'completed' : 'pending'
       },
       {
-        id: 'enviada',
-        label: 'Enviada',
+        id: 'confirmada',
+        label: 'Confirmada',
         date: orden.fechaEnviada,
         status: isCancelled ? 'skipped' : currentIndex > 1 ? 'completed' : currentIndex === 1 ? 'current' : 'pending'
       },
       {
-        id: 'en_transito',
-        label: 'En Tránsito',
+        id: 'en_proceso',
+        label: 'En Proceso',
         date: orden.fechaEnTransito,
         status: isCancelled ? 'skipped' : currentIndex > 2 ? 'completed' : currentIndex === 2 ? 'current' : 'pending'
       },
       {
-        id: 'recibida_parcial',
-        label: 'Parcial',
+        id: 'despachada',
+        label: 'Despachada',
         date: orden.fechaPrimeraRecepcion,
-        status: isCancelled ? 'skipped'
-          : currentIndex > 3 ? (hasParcial ? 'completed' : 'skipped')
-          : currentIndex === 3 ? 'current'
-          : 'pending'
+        status: isCancelled ? 'skipped' : currentIndex > 3 ? 'completed' : currentIndex === 3 ? 'current' : 'pending'
       },
       {
-        id: 'recibida',
-        label: 'Recibida',
+        id: 'completada',
+        label: 'Completada',
         date: orden.fechaRecibida,
         status: isCancelled ? 'skipped' : currentIndex === 4 ? 'completed' : 'pending'
       }
@@ -96,20 +97,35 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
   // Determinar la siguiente acción basada en el estado
   const nextAction: NextAction | undefined = useMemo(() => {
-    if (orden.estado === 'cancelada' || orden.estado === 'recibida') return undefined;
+    if (orden.estado === 'cancelada' || orden.estado === 'recibida' || orden.estado === 'completada') return undefined;
 
     const actions: Record<string, NextAction> = {
       borrador: {
-        label: 'Marcar como Enviada',
-        description: 'Indica que la orden fue enviada al proveedor',
-        buttonText: onCambiarEstado ? 'Enviar' : undefined,
-        onClick: onCambiarEstado ? () => onCambiarEstado('enviada') : undefined,
+        label: 'Confirmar OC',
+        description: 'Confirma la orden, crea unidades pedidas y env\u00edo autom\u00e1tico',
+        buttonText: onCambiarEstado ? 'Confirmar' : undefined,
+        onClick: onCambiarEstado ? () => onCambiarEstado('confirmada') : undefined,
         variant: 'primary'
       },
+      confirmada: {
+        label: 'En Proceso',
+        description: 'Indica que los productos est\u00e1n en camino',
+        buttonText: onCambiarEstado ? 'En Proceso' : undefined,
+        onClick: onCambiarEstado ? () => onCambiarEstado('en_proceso') : undefined,
+        variant: 'warning'
+      },
+      en_proceso: {
+        label: 'Recibir Productos',
+        description: 'Registra los productos recibidos via env\u00edo',
+        buttonText: onRecibirOrden ? 'Recibir' : undefined,
+        onClick: onRecibirOrden,
+        variant: 'success'
+      },
+      // Legacy states
       enviada: {
-        label: 'Poner en Tránsito',
+        label: 'Poner en Tr\u00e1nsito',
         description: 'Registra el tracking y marca la orden en camino',
-        buttonText: onCambiarEstado ? 'En Tránsito' : undefined,
+        buttonText: onCambiarEstado ? 'En Tr\u00e1nsito' : undefined,
         onClick: onCambiarEstado ? () => onCambiarEstado('en_transito') : undefined,
         variant: 'warning'
       },
@@ -121,7 +137,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         variant: 'success'
       },
       recibida_parcial: {
-        label: 'Recibir Más Productos',
+        label: 'Recibir M\u00e1s Productos',
         description: 'Registrar siguiente entrega de productos',
         buttonText: onRecibirOrden ? 'Recibir Más' : undefined,
         onClick: onRecibirOrden,
