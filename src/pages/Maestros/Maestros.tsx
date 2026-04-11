@@ -12,7 +12,8 @@ import {
   Crown,
   LayoutDashboard,
   Zap,
-  Boxes
+  Boxes,
+  Package
 } from 'lucide-react';
 import {
   Button,
@@ -55,6 +56,8 @@ const AlmacenesLogistica = lazy(() => import('../../components/Maestros/Almacene
 const CompetidoresIntel = lazy(() => import('../../components/Maestros/CompetidoresIntel').then(m => ({ default: m.CompetidoresIntel })));
 const TransportistasLogistica = lazy(() => import('../../components/Maestros/TransportistasLogistica').then(m => ({ default: m.TransportistasLogistica })));
 const CanalesVentaAnalytics = lazy(() => import('../../components/Maestros/CanalesVentaAnalytics').then(m => ({ default: m.CanalesVentaAnalytics })));
+const CategoriasCostos = lazy(() => import('../../components/Maestros/CategoriasCostos').then(m => ({ default: m.CategoriasCostos })));
+const InsumosEmpaque = lazy(() => import('../../components/Maestros/InsumosEmpaque').then(m => ({ default: m.InsumosEmpaque })));
 
 const TabFallback = (
   <div className="flex justify-center items-center py-12">
@@ -628,6 +631,8 @@ export const Maestros: React.FC = () => {
     { id: 'competidores', label: 'Competidores', icon: Shield, count: competidores.length },
     { id: 'transportistas', label: 'Transportistas', icon: Truck },
     { id: 'canales', label: 'Canales', icon: Store },
+    { id: 'categorias_costos', label: 'Costos', icon: Boxes },
+    { id: 'insumos', label: 'Insumos', icon: Package },
     { id: 'clasificacion', label: 'Clasificacion', icon: Boxes }
   ];
 
@@ -892,6 +897,18 @@ export const Maestros: React.FC = () => {
           {tabActiva === 'canales' && (
             <Suspense fallback={TabFallback}>
               <CanalesVentaAnalytics />
+            </Suspense>
+          )}
+
+          {tabActiva === 'categorias_costos' && (
+            <Suspense fallback={TabFallback}>
+              <CategoriasCostos />
+            </Suspense>
+          )}
+
+          {tabActiva === 'insumos' && (
+            <Suspense fallback={TabFallback}>
+              <InsumosEmpaque />
             </Suspense>
           )}
 

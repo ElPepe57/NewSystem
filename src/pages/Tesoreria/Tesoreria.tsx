@@ -11,7 +11,8 @@ import {
   Building2,
   Banknote,
   ArrowLeftRight,
-  Layers
+  Layers,
+  CreditCard
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
@@ -37,8 +38,9 @@ import { TabConversiones } from './TabConversiones';
 import { TabTransferencias } from './TabTransferencias';
 import { TabCuentas } from './TabCuentas';
 import { TabPagosMasivos } from './TabPagosMasivos';
+import { TabTarjetasCredito } from './TabTarjetasCredito';
 
-type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pagosMasivos';
+type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pagosMasivos' | 'tarjetas';
 
 interface TransferenciaEntreCuentas {
   id: string;
@@ -878,6 +880,7 @@ export const Tesoreria: React.FC = () => {
             { key: 'conversiones', icon: RefreshCw, label: 'Conversiones', labelSm: 'Conv.' },
             { key: 'transferencias', icon: ArrowLeftRight, label: 'Transferencias', labelSm: 'Transf.' },
             { key: 'cuentas', icon: Building2, label: 'Cuentas', labelSm: 'Ctas.' },
+            { key: 'tarjetas', icon: CreditCard, label: 'Tarjetas', labelSm: 'TC' },
             { key: 'pagosMasivos', icon: Layers, label: 'Pagos Masivos', labelSm: 'Lotes' },
           ] as { key: TabActiva; icon: any; label: string; labelSm: string }[]).map(({ key, icon: Icon, label, labelSm }) => (
             <button
@@ -974,6 +977,10 @@ export const Tesoreria: React.FC = () => {
 
       {tabActiva === 'pagosMasivos' && (
         <TabPagosMasivos />
+      )}
+
+      {tabActiva === 'tarjetas' && (
+        <TabTarjetasCredito />
       )}
 
       <ConfirmDialog {...dialogProps} />
