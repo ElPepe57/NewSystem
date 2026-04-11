@@ -43,6 +43,7 @@ import {
   Button,
 } from '../../components/common';
 import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
+import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
 import { contabilidadService } from '../../services/contabilidad.service';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import type {
@@ -496,7 +497,10 @@ export function Contabilidad() {
 
       {/* ESTADO DE RESULTADOS */}
       {!loading && tabActiva === 'estado-resultados' && (
-        <EstadoResultados />
+        <>
+          <EstadoResultados />
+          <ReporteDirectoIndirecto mes={mes} anio={anio} />
+        </>
       )}
 
       {/* INDICADORES FINANCIEROS */}
