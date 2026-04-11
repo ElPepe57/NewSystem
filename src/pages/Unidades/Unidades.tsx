@@ -36,7 +36,7 @@ import {
   LineaNegocioBadge,
   PaisOrigenBadge
 } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
 import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
@@ -470,45 +470,13 @@ export const Unidades: React.FC = () => {
       {/* Búsqueda y Filtros */}
       <Card padding="md">
         <div className="space-y-4">
-          {/* Barra de búsqueda y toggle */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <div className="flex-1">
-              <SearchInput
-                value={busqueda}
-                onChange={setBusqueda}
-                placeholder="Buscar por SKU, nombre, lote o almacén..."
-              />
-            </div>
-
-            {/* Toggle de vista */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 hidden sm:inline">Vista:</span>
-              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
-                <button
-                  onClick={() => setVistaActual('cards')}
-                  className={`p-2 ${
-                    vistaActual === 'cards'
-                      ? 'bg-primary-100 text-primary-700'
-                      : 'bg-white text-gray-500 hover:bg-gray-50'
-                  }`}
-                  title="Vista de tarjetas"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setVistaActual('tabla')}
-                  className={`p-2 ${
-                    vistaActual === 'tabla'
-                      ? 'bg-primary-100 text-primary-700'
-                      : 'bg-white text-gray-500 hover:bg-gray-50'
-                  }`}
-                  title="Vista de tabla"
-                >
-                  <List className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+          {/* Toolbar */}
+          <Toolbar
+            search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar por SKU, nombre, lote...' }}
+            viewMode={vistaActual === 'tabla' ? 'table' : 'card'}
+            onViewModeChange={(mode) => setVistaActual(mode === 'table' ? 'tabla' : 'cards')}
+            resultCount={unidadesFiltradas.length}
+          />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <Select
