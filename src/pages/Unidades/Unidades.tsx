@@ -25,13 +25,13 @@ import {
   Select,
   Button,
   ListSummary,
-  KPIGrid,
-  KPICard,
+
+
   PipelineHeader,
   SearchInput,
   Pagination,
 
-  StatCard,
+
   StatDistribution,
   LineaNegocioBadge,
   PaisOrigenBadge

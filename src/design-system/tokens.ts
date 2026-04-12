@@ -30,7 +30,7 @@ export const semantic = {
   danger: 'red',
   info: 'sky',
   neutral: 'slate',
-  brand: 'indigo',
+  brand: 'teal',
 } as const;
 
 // ─── Surfaces ────────────────────────────────────────────────────────────────
@@ -42,7 +42,7 @@ export const surface = {
   sunken: 'bg-slate-100',
   overlay: 'bg-black/50',
   hover: 'hover:bg-slate-50',
-  active: 'bg-indigo-50',
+  active: 'bg-teal-50',
 } as const;
 
 // ─── Typography ──────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ export const border = {
   default: 'border border-slate-200',
   subtle: 'border border-slate-100',
   strong: 'border border-slate-300',
-  focus: 'ring-2 ring-indigo-500 ring-offset-2',
+  focus: 'ring-2 ring-teal-500 ring-offset-2',
   accent: (variant: keyof typeof semantic = 'brand') => `border-l-4 border-l-${semantic[variant]}-500`,
 } as const;
 
@@ -117,5 +117,5 @@ export const statusColors: Record<StatusVariant, { bg: string; text: string; bor
   danger: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' },
   info: { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200', dot: 'bg-sky-500' },
   neutral: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200', dot: 'bg-slate-500' },
-  brand: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', dot: 'bg-indigo-500' },
+  brand: { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200', dot: 'bg-teal-500' },
 };

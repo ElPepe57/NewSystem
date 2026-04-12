@@ -32,12 +32,10 @@ import {
   PipelineHeader,
   SearchInput,
   Select,
-
-  StatCard,
   StatDistribution,
   Tabs
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection, StatCard as DSStatCard } from '../../design-system';
 import { LineaFilterInline } from '../../components/common/LineaFilterInline';
 import type { Tab } from '../../components/common/Tabs';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
@@ -650,23 +648,23 @@ export const Inventario: React.FC = () => {
         ]}
       />
 
-      {/* StatCards interactivos - Solo visible en tab Lista */}
+      {/* s interactivos - Solo visible en tab Lista */}
       {tabActivo === 'lista' && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
-            <StatCard
+            <DSStatCard
               label="Total Unidades"
               value={inventarioStats.total}
               icon={Package}
              
             />
-            <StatCard
+            <DSStatCard
               label="Valor USD"
               value={formatCurrency(inventarioStats.valorTotalUSD)}
               icon={DollarSign}
              
             />
-            <StatCard
+            <DSStatCard
               label="En Origen"
               value={inventarioStats.enOrigen}
               icon={Warehouse}
@@ -674,7 +672,7 @@ export const Inventario: React.FC = () => {
               onClick={() => setFiltroEstado(filtroEstado === 'en_origen' ? null : 'en_origen')}
               active={filtroEstado === 'en_origen'}
             />
-            <StatCard
+            <DSStatCard
               label="En Tránsito"
               value={inventarioStats.enTransito}
               icon={Plane}
@@ -682,7 +680,7 @@ export const Inventario: React.FC = () => {
               onClick={() => setFiltroEstado('en_transito')}
               active={filtroEstado === 'en_transito'}
             />
-            <StatCard
+            <DSStatCard
               label="En Perú"
               value={inventarioStats.disponiblePeru}
               icon={CheckCircle}
@@ -690,7 +688,7 @@ export const Inventario: React.FC = () => {
               onClick={() => setFiltroPais('Peru')}
               active={filtroPais === 'Peru'}
             />
-            <StatCard
+            <DSStatCard
               label="Reserv. Origen"
               value={inventarioStats.reservadaOrigen}
               icon={ShoppingBag}
@@ -698,7 +696,7 @@ export const Inventario: React.FC = () => {
               onClick={() => setFiltroEstado('reservada')}
               active={filtroEstado === 'reservada'}
             />
-            <StatCard
+            <DSStatCard
               label="Reserv. Perú"
               value={inventarioStats.reservadaPeru}
               icon={ShoppingBag}
@@ -706,7 +704,7 @@ export const Inventario: React.FC = () => {
               onClick={() => setFiltroEstado('reservada')}
               active={filtroEstado === 'reservada'}
             />
-            <StatCard
+            <DSStatCard
               label="Vendidas"
               value={inventarioStats.vendida}
               icon={TrendingUp}

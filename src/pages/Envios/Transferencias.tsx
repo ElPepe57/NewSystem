@@ -18,7 +18,7 @@ import {
   ConfirmDialog,
   useConfirmDialog,
   PipelineHeader,
-  StatCard,
+
   StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";

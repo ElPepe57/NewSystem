@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { StatCard as DSStatCard } from '../../../design-system';
 import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { formatCurrency } from '../../../utils/format';
@@ -31,7 +32,7 @@ import {
   Percent,
   Activity
 } from 'lucide-react';
-import { Card, Badge, StatCard, StatDistribution, Select, Button } from '../../common';
+import { Card, Badge,  StatDistribution, Select, Button } from '../../common';
 import type { Unidad } from '../../../types/unidad.types';
 import type { Producto, AtributosSkincare } from '../../../types/producto.types';
 import type { Almacen } from '../../../types/almacen.types';
@@ -719,12 +720,12 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
 
       {/* KPIs Operativos */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard label="Valor Total" value={formatCurrency(kpis.valorTotalUSD)} icon={DollarSign} variant="green" />
-        <StatCard label="Días Promedio" value={kpis.diasPromedioInventario} subtitle="en inventario" icon={Clock} variant={kpis.diasPromedioInventario > 60 ? 'amber' : 'blue'} />
-        <StatCard label="Rotación" value={kpis.rotacionPromedio} subtitle="veces/año" icon={RotateCw} variant={parseFloat(kpis.rotacionPromedio) > 4 ? 'green' : 'amber'} />
-        <StatCard label="Sin Movimiento" value={kpis.sinMovimiento} subtitle=">90 días" icon={Package} variant={kpis.sinMovimiento > 0 ? 'red' : 'default'} />
-        <StatCard label="Por Vencer" value={kpis.porVencer30} subtitle="30 días" icon={AlertTriangle} variant={kpis.porVencer30 > 0 ? 'amber' : 'default'} />
-        <StatCard label="Stock Crítico" value={kpis.productosStockCritico} subtitle="productos" icon={TrendingDown} variant={kpis.productosStockCritico > 0 ? 'red' : 'default'} />
+        <DSStatCard label="Valor Total" value={formatCurrency(kpis.valorTotalUSD)} icon={DollarSign} variant="green" />
+        <DSStatCard label="Días Promedio" value={kpis.diasPromedioInventario} subtitle="en inventario" icon={Clock} variant={kpis.diasPromedioInventario > 60 ? 'amber' : 'blue'} />
+        <DSStatCard label="Rotación" value={kpis.rotacionPromedio} subtitle="veces/año" icon={RotateCw} variant={parseFloat(kpis.rotacionPromedio) > 4 ? 'green' : 'amber'} />
+        <DSStatCard label="Sin Movimiento" value={kpis.sinMovimiento} subtitle=">90 días" icon={Package} variant={kpis.sinMovimiento > 0 ? 'red' : 'default'} />
+        <DSStatCard label="Por Vencer" value={kpis.porVencer30} subtitle="30 días" icon={AlertTriangle} variant={kpis.porVencer30 > 0 ? 'amber' : 'default'} />
+        <DSStatCard label="Stock Crítico" value={kpis.productosStockCritico} subtitle="productos" icon={TrendingDown} variant={kpis.productosStockCritico > 0 ? 'red' : 'default'} />
       </div>
 
       {/* ==================== DASHBOARD DE RENTABILIDAD ==================== */}
@@ -1053,7 +1054,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
                 key={c.label}
                 className={`${c.color} flex items-center justify-center transition-all duration-500`}
                 style={{ width: `${Math.max(c.pct, 2)}%` }}
-                title={`${c.label}: ${c.pct.toFixed(1)}%`}
+                label={`${c.label}: ${c.pct.toFixed(1)}%`}
               >
                 {c.pct >= 8 && <span className="text-[10px] font-bold text-white">{c.pct.toFixed(0)}%</span>}
               </div>
@@ -1265,7 +1266,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
             <h3 className="font-semibold text-slate-900">Calendario de Vencimientos</h3>
           </div>
           <StatDistribution
-            title=""
+            label=""
             data={[
               { label: 'Vencen en 7 días', value: unidadesActivas.filter(u => { const d = calcularDiasParaVencer(u.fechaVencimiento); return d !== null && d >= 0 && d <= 7; }).length, color: 'bg-red-500' },
               { label: 'Vencen en 8-30 días', value: unidadesActivas.filter(u => { const d = calcularDiasParaVencer(u.fechaVencimiento); return d !== null && d > 7 && d <= 30; }).length, color: 'bg-amber-500' },
@@ -1403,7 +1404,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           <div className="space-y-2">
             {concentracionMarca.slice(0, 8).map(m => (
               <div key={m.marca} className="flex items-center gap-3">
-                <div className="w-28 text-sm font-medium text-slate-700 truncate" title={m.marca}>{m.marca}</div>
+                <div className="w-28 text-sm font-medium text-slate-700 truncate" label={m.marca}>{m.marca}</div>
                 <div className="flex-1">
                   <div className="h-5 bg-slate-100 rounded-full overflow-hidden">
                     <div

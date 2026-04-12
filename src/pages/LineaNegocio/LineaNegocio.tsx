@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { StatCard as DSStatCard } from '../../design-system';
 import { Layers, Plus, Pencil, Package, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
-import { Button, Modal, StatCard } from '../../components/common';
+import { Button, Modal } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
 import { LineaNegocioForm } from '../../components/modules/lineaNegocio/LineaNegocioForm';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
@@ -95,7 +96,7 @@ export const LineaNegocio: React.FC = () => {
     <PageShell>
       {/* Header */}
       <PageHeader
-        title="Lineas de Negocio"
+        label="Lineas de Negocio"
         subtitle="Gestiona las lineas de tu negocio"
         icon={Layers}
        
@@ -112,25 +113,25 @@ export const LineaNegocio: React.FC = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
+        <DSStatCard
           label="Total lineas"
           value={totalLineas}
           icon={Layers}
          
         />
-        <StatCard
+        <DSStatCard
           label="Activas"
           value={totalActivas}
           icon={CheckCircle}
          
         />
-        <StatCard
+        <DSStatCard
           label="Total productos"
           value={totalProductos}
           icon={Package}
          
         />
-        <StatCard
+        <DSStatCard
           label="Ventas del mes"
           value={`S/ ${totalVentasMes.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`}
           icon={TrendingUp}
@@ -228,7 +229,7 @@ export const LineaNegocio: React.FC = () => {
                               ? 'text-green-600 hover:bg-green-50'
                               : 'text-slate-400 hover:bg-slate-100'
                           }`}
-                          title={linea.activa ? 'Desactivar' : 'Activar'}
+                          label={linea.activa ? 'Desactivar' : 'Activar'}
                         >
                           {linea.activa ? (
                             <CheckCircle className="h-4 w-4" />
@@ -239,7 +240,7 @@ export const LineaNegocio: React.FC = () => {
                         <button
                           onClick={() => handleEdit(linea)}
                           className="p-1.5 rounded-lg text-slate-500 hover:text-teal-600 hover:bg-teal-50 transition-colors"
-                          title="Editar"
+                          label="Editar"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
@@ -313,7 +314,7 @@ export const LineaNegocio: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedLinea ? 'Editar linea de negocio' : 'Nueva linea de negocio'}
+        label={selectedLinea ? 'Editar linea de negocio' : 'Nueva linea de negocio'}
         size="sm"
       >
         <LineaNegocioForm

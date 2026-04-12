@@ -41,7 +41,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       className={cn(
         'bg-white', border.default, radius.md, transition.fast,
         'border-l-4',
-        active ? `${colors.bg} border-l-${variant === 'brand' ? 'indigo' : variant === 'neutral' ? 'slate' : variant === 'success' ? 'emerald' : variant === 'warning' ? 'amber' : variant === 'danger' ? 'red' : 'sky'}-500` : 'border-l-transparent',
+        active ? `${colors.bg} border-l-${variant === 'brand' ? 'teal' : variant === 'neutral' ? 'slate' : variant === 'success' ? 'emerald' : variant === 'warning' ? 'amber' : variant === 'danger' ? 'red' : 'sky'}-500` : 'border-l-transparent',
         isClickable && 'cursor-pointer hover:shadow-md',
         size === 'sm' ? 'p-3' : 'p-4',
         className,

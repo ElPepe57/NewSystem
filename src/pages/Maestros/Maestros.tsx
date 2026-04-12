@@ -17,13 +17,13 @@ import {
 } from 'lucide-react';
 import {
   Button,
-  StatCard,
+
 
   TabNavigation,
   useConfirmDialog,
   ConfirmDialog
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar as DSStatCard } from '../../design-system';
 // Toolbar available for future use
 import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { StatCard as DSStatCard } from '../../../design-system';
 import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
 import { formatCurrency } from '../../../utils/format';
 import {
@@ -18,7 +19,7 @@ import {
   Lightbulb,
   Percent
 } from 'lucide-react';
-import { Card, Badge, Button, Select, SearchInput, StatCard } from '../../common';
+import { Card, Badge, Button, Select, SearchInput } from '../../common';
 import type { Unidad } from '../../../types/unidad.types';
 import type { Producto } from '../../../types/producto.types';
 
@@ -310,13 +311,13 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
     <div className="space-y-6">
       {/* Resumen de Alertas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
+        <DSStatCard
           label="Alertas Activas"
           value={contadores.total}
           icon={Bell}
           variant={contadores.alta > 0 ? 'red' : contadores.total > 0 ? 'amber' : 'default'}
         />
-        <StatCard
+        <DSStatCard
           label="Prioridad Alta"
           value={contadores.alta}
           icon={AlertTriangle}
@@ -324,7 +325,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
           onClick={() => setFiltroPrioridad(filtroPrioridad === 'alta' ? '' : 'alta')}
           active={filtroPrioridad === 'alta'}
         />
-        <StatCard
+        <DSStatCard
           label="Por Vencer"
           value={contadores.vencimiento}
           icon={Clock}
@@ -332,7 +333,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
           onClick={() => setFiltroTipo(filtroTipo === 'vencimiento' ? 'todos' : 'vencimiento')}
           active={filtroTipo === 'vencimiento'}
         />
-        <StatCard
+        <DSStatCard
           label="Valor en Riesgo"
           value={formatCurrency(contadores.valorTotal)}
           icon={DollarSign}

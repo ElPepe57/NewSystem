@@ -52,20 +52,15 @@ export type { TooltipProps, TooltipPosition } from './Tooltip';
 export { Dropdown, DropdownSelect, ActionsDropdown } from './Dropdown';
 export type { DropdownProps, DropdownItem, DropdownSelectProps } from './Dropdown';
 
-// Professional UI Components
+// Professional UI Components (legacy — migrar a design-system)
 export {
-  EntityAvatar,
-  GradientHeader,
-  StatCard,
-  EntityCard,
   TabNavigation,
+  QuickStatRow,
   SectionHeader,
   EmptyState,
   HighlightBox,
-  MasterCard,
-  QuickStatRow
+  EntityAvatar,
 } from './ProfessionalUI';
-export type { MasterCardVariant } from './ProfessionalUI';
 
 // Virtual List
 export { VirtualList, useVirtualTable } from './VirtualList';
