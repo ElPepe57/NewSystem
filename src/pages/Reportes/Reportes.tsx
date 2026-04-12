@@ -597,7 +597,7 @@ export const Reportes: React.FC = () => {
 
       {/* Rentabilidad Neta del Periodo */}
       {rentabilidadNeta && (
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-3 sm:p-5">
+        <div className="bg-amber-50 border border-orange-200 rounded-xl p-3 sm:p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-1.5">
               <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />

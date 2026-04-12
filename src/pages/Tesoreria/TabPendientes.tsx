@@ -113,7 +113,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
 
       {/* Flujo de Caja Proyectado */}
       {dashboardPendientes.flujoCajaProyectado && (
-        <Card padding="md" className="bg-gradient-to-r from-teal-50 to-purple-50 border border-teal-200">
+        <Card padding="md" className="bg-teal-50 border border-teal-200">
           <h3 className="font-semibold text-teal-800 mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <span className="sm:hidden">Flujo Proyectado</span>

@@ -412,7 +412,7 @@ export function Contabilidad() {
 
           {/* Acumulado del Año */}
           {tendencia.length > 0 && (
-            <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200 p-6">
+            <div className="bg-teal-50 rounded-lg border border-teal-200 p-6">
               <h4 className="font-semibold text-teal-800 mb-4 flex items-center gap-2">
                 <CircleDollarSign className="w-5 h-5" />
                 Acumulado {anio}

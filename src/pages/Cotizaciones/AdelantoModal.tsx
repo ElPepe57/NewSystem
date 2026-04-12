@@ -86,7 +86,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
     >
       <div className="space-y-5">
         {/* Info de la cotización */}
-        <div className={`rounded-lg p-4 ${tipoModal === 'comprometer' ? 'bg-gradient-to-r from-purple-50 to-teal-50' : 'bg-gradient-to-r from-green-50 to-emerald-50'}`}>
+        <div className={`rounded-lg p-4 ${tipoModal === 'comprometer' ? 'bg-gradient-to-r from-purple-50 to-teal-50' : 'bg-emerald-50'}`}>
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm text-slate-600">Cotización</p>

@@ -648,7 +648,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
             {/* Preview de equivalencias */}
             {formData.montoOriginal > 0 && (formData.tipoCambio ?? 0) > 0 && (
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-3 sm:p-4 rounded-lg border border-slate-200">
+              <div className="bg-emerald-50 p-3 sm:p-4 rounded-lg border border-slate-200">
                 <div className="text-xs sm:text-sm font-medium text-slate-700 mb-2">Equivalencias:</div>
                 <div className="grid grid-cols-2 gap-2 sm:gap-4">
                   <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-green-100 ring-2 ring-green-300' : 'bg-white'}`}>

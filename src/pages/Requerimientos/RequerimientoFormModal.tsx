@@ -183,7 +183,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
         </div>
 
         {/* Buscador de productos inteligente */}
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-5 border">
+        <div className="bg-slate-50 rounded-xl p-5 border">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-semibold text-slate-900 flex items-center">
               <Package className="h-5 w-5 mr-2 text-teal-600" />
@@ -291,7 +291,7 @@ export const RequerimientoFormModal: React.FC<RequerimientoFormModalProps> = ({
 
                   {/* Proveedor recomendado */}
                   {infoProductoSeleccionado.proveedorRecomendado && (
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
+                    <div className="bg-emerald-50 rounded-lg p-3 border border-green-200">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
                           <Check className="h-5 w-5 text-green-500 mr-2" />

@@ -11,7 +11,7 @@ interface RequerimientosKPIGridProps {
 export const RequerimientosKPIGrid: React.FC<RequerimientosKPIGridProps> = ({ stats }) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      <Card padding="md" className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+      <Card padding="md" className="bg-amber-50 border-yellow-200">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs text-yellow-600 font-medium">Pendientes</div>
@@ -21,7 +21,7 @@ export const RequerimientosKPIGrid: React.FC<RequerimientosKPIGridProps> = ({ st
         </div>
       </Card>
 
-      <Card padding="md" className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+      <Card padding="md" className="bg-sky-50 border-blue-200">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs text-blue-600 font-medium">Aprobados</div>
@@ -31,7 +31,7 @@ export const RequerimientosKPIGrid: React.FC<RequerimientosKPIGridProps> = ({ st
         </div>
       </Card>
 
-      <Card padding="md" className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+      <Card padding="md" className="bg-purple-50 border-purple-200">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs text-purple-600 font-medium">En Proceso</div>
@@ -41,7 +41,7 @@ export const RequerimientosKPIGrid: React.FC<RequerimientosKPIGridProps> = ({ st
         </div>
       </Card>
 
-      <Card padding="md" className={`${stats.urgentes > 0 ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-200' : ''}`}>
+      <Card padding="md" className={`${stats.urgentes > 0 ? 'bg-red-50 border-red-200' : ''}`}>
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs text-red-600 font-medium">Urgentes</div>

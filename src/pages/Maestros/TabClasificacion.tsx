@@ -4,7 +4,7 @@ import { TipoProductoList, CategoriaList, EtiquetaList } from '../../components/
 export const TabClasificacion: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div className="bg-gradient-to-r from-teal-50 to-purple-50 border border-teal-200 rounded-lg p-4">
+      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-teal-900 mb-2">
           Sistema de Clasificacion de Productos
         </h3>
