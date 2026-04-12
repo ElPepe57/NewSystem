@@ -5,6 +5,8 @@ import type {
   ProductoOrden, CargoOC, DescuentoOC, ImpuestoOC,
   SubOrdenCompra,
 } from '../../../../types/ordenCompra.types';
+import { deriveModoFromConfig } from './WizardStepEntrega';
+import type { ConfigLogistica } from './WizardStepEntrega';
 
 export type OCWizardAction =
   | { type: 'SET_STEP'; step: number }
@@ -30,6 +32,7 @@ export type OCWizardAction =
   | { type: 'REMOVE_IMPUESTO'; id: string }
   | { type: 'UPDATE_IMPUESTO'; impuesto: ImpuestoOC }
   | { type: 'SET_OBSERVACIONES'; text: string }
+  | { type: 'SET_CONFIG_LOGISTICA'; config: ConfigLogistica }
   | { type: 'RESET' };
 
 export function ocWizardReducer(state: OCWizardState, action: OCWizardAction): OCWizardState {
@@ -113,6 +116,16 @@ export function ocWizardReducer(state: OCWizardState, action: OCWizardAction): O
 
     case 'SET_OBSERVACIONES':
       return { ...state, observaciones: action.text };
+
+    case 'SET_CONFIG_LOGISTICA': {
+      const derived = deriveModoFromConfig(action.config);
+      return {
+        ...state,
+        configLogistica: action.config,
+        modoEntregaDetallado: derived.modoEntregaDetallado,
+        quienPagaFlete: derived.quienPagaFlete,
+      };
+    }
 
     case 'RESET':
       return { ...initialWizardState };

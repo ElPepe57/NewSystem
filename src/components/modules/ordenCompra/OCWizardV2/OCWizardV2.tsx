@@ -49,7 +49,7 @@ function isStepValid(step: number, state: ReturnType<typeof initialWizardState e
 function isStepValid(step: number, state: typeof initialWizardState): boolean {
   switch (step) {
     case 0:
-      return state.modoEntregaDetallado !== null;
+      return !!state.configLogistica.quienEnvia && !!state.configLogistica.quienTransporta;
     case 1:
       return state.quienPagaFlete !== null;
     case 2:
@@ -192,8 +192,8 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
       case 0:
         return (
           <WizardStepEntrega
-            value={state.modoEntregaDetallado}
-            onChange={(modo) => dispatch({ type: 'SET_MODO_ENTREGA', modo } as OCWizardAction)}
+            config={state.configLogistica}
+            onChange={(config) => dispatch({ type: 'SET_CONFIG_LOGISTICA', config } as OCWizardAction)}
           />
         );
 

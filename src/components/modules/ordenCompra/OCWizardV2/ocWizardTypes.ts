@@ -3,6 +3,7 @@ import type {
   ProductoOrden, CargoOC, DescuentoOC, ImpuestoOC,
   SubOrdenCompra,
 } from '../../../../types/ordenCompra.types';
+import type { ConfigLogistica } from './WizardStepEntrega';
 
 // ========== Delivery Config (derived from steps 0+1) ==========
 
@@ -72,7 +73,10 @@ export function deriveDeliveryConfig(
 export interface OCWizardState {
   currentStep: number;
 
-  // Step 0-1: Delivery
+  // Step 0: Delivery config (smart form)
+  configLogistica: ConfigLogistica;
+
+  // Step 0-1: Delivery (derived from configLogistica at submit time)
   modoEntregaDetallado: ModoEntregaDetallado | null;
   quienPagaFlete: QuienPagaFlete | null;
   colaboradorId: string;
@@ -98,6 +102,13 @@ export interface OCWizardState {
 
 export const initialWizardState: OCWizardState = {
   currentStep: 0,
+  configLogistica: {
+    quienEnvia: null,
+    destinoEntrega: null,
+    quienTransporta: null,
+    quienPagaFlete: null,
+    entregaDomicilio: null,
+  },
   modoEntregaDetallado: null,
   quienPagaFlete: null,
   colaboradorId: '',
