@@ -168,6 +168,8 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
       ...(state.cargosOC.length > 0 && { cargosOC: state.cargosOC }),
       ...(state.descuentosOC.length > 0 && { descuentosOC: state.descuentosOC }),
       ...(state.impuestosOC.length > 0 && { impuestosOC: state.impuestosOC }),
+      // Sub-órdenes
+      ...(state.useSubOrdenes && state.subOrdenes.length > 0 && { subOrdenes: state.subOrdenes }),
       // Impuesto total from impuestosOC
       ...(totalImpuestos > 0 && { impuestoCompraUSD: totalImpuestos }),
       // Requerimiento links
@@ -228,6 +230,12 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
             }
             onUpdateProducto={(index: number, producto: ProductoOrden) =>
               dispatch({ type: 'UPDATE_PRODUCTO', index, producto } as OCWizardAction)
+            }
+            useSubOrdenes={state.useSubOrdenes}
+            subOrdenes={state.subOrdenes}
+            onToggleSubOrdenes={() => dispatch({ type: 'TOGGLE_SUBORDENES' } as OCWizardAction)}
+            onSetSubOrdenes={(subOrdenes) =>
+              dispatch({ type: 'SET_SUBORDENES', subOrdenes } as OCWizardAction)
             }
           />
         );

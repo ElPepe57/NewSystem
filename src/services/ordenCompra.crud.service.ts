@@ -214,6 +214,8 @@ export async function create(
     }
     if (finalPaisOrigen) nuevaOrden.paisOrigen = finalPaisOrigen;
 
+    if (data.subOrdenes && data.subOrdenes.length > 0) nuevaOrden.subOrdenes = data.subOrdenes;
+
     if (data.requerimientoId) nuevaOrden.requerimientoId = data.requerimientoId;
 
     if (data.requerimientoIds && data.requerimientoIds.length > 0) {
@@ -573,8 +575,13 @@ export async function confirmarOC(
   const now = Timestamp.now();
   const unidadIds: string[] = [];
 
+  // Track units per productoId so sub-ordenes can map correctly
+  const unitsByProductoId: Record<string, string[]> = {};
+
   // 1. Crear N unidades en estado 'pedida'
   for (const prod of orden.productos) {
+    if (!unitsByProductoId[prod.productoId]) unitsByProductoId[prod.productoId] = [];
+
     for (let i = 0; i < prod.cantidad; i++) {
       const unidadRef = doc(collection(db, 'unidades'));
       const unidadData: Record<string, unknown> = {
@@ -607,6 +614,7 @@ export async function confirmarOC(
 
       batch.set(unidadRef, unidadData);
       unidadIds.push(unidadRef.id);
+      unitsByProductoId[prod.productoId].push(unidadRef.id);
     }
   }
 
@@ -622,42 +630,89 @@ export async function confirmarOC(
 
   await batch.commit();
 
-  // 3. Crear Envio T1 automatico en 'borrador'
-  // Usar colaborador del wizard V2 si existe, sino el parámetro directo
+  // 3. Crear Envio(s) T1 en 'borrador'
   const transporteColaboradorId = orden.colaboradorTransporteId || colaboradorId;
+  const metodoProrrateoMap: Record<string, string> = {
+    por_valor: 'total_por_valor',
+    por_peso: 'total_por_peso',
+    por_cantidad: 'fijo_por_unidad',
+  };
 
-  const envioId = await envioCrudService.crear({
-    origenTipo: 'proveedor',
-    origenProveedorId: orden.proveedorId,
-    destinoCasillaId,
-    colaboradorId: transporteColaboradorId,
-    ordenCompraId: ocId,
-    unidadesIds: unidadIds,
-  }, userId);
-
-  // 4. Heredar cargosOC como costosLanded iniciales del Envio T1 (Acuerdo 25)
-  if (orden.cargosOC && orden.cargosOC.length > 0) {
-    for (const cargo of orden.cargosOC) {
-      const metodoProrrateoMap: Record<string, string> = {
-        por_valor: 'total_por_valor',
-        por_peso: 'total_por_peso',
-        por_cantidad: 'fijo_por_unidad',
-      };
-      await envioCrudService.agregarCostoLanded(envioId, {
-        categoriaCostoId: `cargo-oc-${cargo.id}`,
-        categoriaCostoNombre: cargo.concepto || 'Cargo OC',
-        monto: cargo.montoUSD,
-        moneda: 'USD',
-        montoPEN: cargo.montoUSD * (orden.tcReferencial || orden.tcCompra || 1),
-        tipoCambio: orden.tcReferencial || orden.tcCompra,
-        metodoProrrateo: (metodoProrrateoMap[cargo.metodoProrrateo] || 'total_por_valor') as any,
-        pagado: false,
-      }, userId);
+  // Helper: heredar cargosOC a un envio creado
+  const heredarCargos = async (targetEnvioId: string) => {
+    if (orden.cargosOC && orden.cargosOC.length > 0) {
+      for (const cargo of orden.cargosOC) {
+        await envioCrudService.agregarCostoLanded(targetEnvioId, {
+          categoriaCostoId: `cargo-oc-${cargo.id}`,
+          categoriaCostoNombre: cargo.concepto || 'Cargo OC',
+          monto: cargo.montoUSD,
+          moneda: 'USD',
+          montoPEN: cargo.montoUSD * (orden.tcReferencial || orden.tcCompra || 1),
+          tipoCambio: orden.tcReferencial || orden.tcCompra,
+          metodoProrrateo: (metodoProrrateoMap[cargo.metodoProrrateo] || 'total_por_valor') as any,
+          pagado: false,
+        }, userId);
+      }
     }
-    logger.info(`${orden.cargosOC.length} cargos OC heredados al Envio T1 como costosLanded`);
-  }
+  };
 
-  logger.success(`OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + Envio T1 creado`);
+  let envioId: string;
+
+  if (orden.subOrdenes && orden.subOrdenes.length > 0) {
+    // 3a. Multi-envio: one Envio T1 per sub-orden
+    const subOrdenesActualizadas = [];
+    let firstEnvioId: string | undefined;
+
+    for (const subOrden of orden.subOrdenes) {
+      // Collect unidad IDs for all products in this sub-orden.
+      // Each productoId may appear in multiple sub-ordenes only if the same product
+      // was split (unusual), so we consume units in order from the pool.
+      const subUnidadIds: string[] = subOrden.productos.flatMap(
+        (p) => unitsByProductoId[p.productoId] || []
+      );
+
+      const subEnvioId = await envioCrudService.crear({
+        origenTipo: 'proveedor',
+        origenProveedorId: orden.proveedorId,
+        destinoCasillaId,
+        colaboradorId: transporteColaboradorId,
+        ordenCompraId: ocId,
+        subOrdenId: subOrden.id,
+        unidadesIds: subUnidadIds,
+      }, userId);
+
+      await heredarCargos(subEnvioId);
+
+      subOrdenesActualizadas.push({ ...subOrden, envioId: subEnvioId });
+      if (!firstEnvioId) firstEnvioId = subEnvioId;
+    }
+
+    // Persist envioIds back to the sub-ordenes array on the OC document
+    await updateDoc(ocRef, { subOrdenes: subOrdenesActualizadas });
+
+    envioId = firstEnvioId!;
+    logger.info(`${orden.cargosOC?.length ?? 0} cargos OC heredados a ${orden.subOrdenes.length} Envios T1`);
+    logger.success(
+      `OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + ${orden.subOrdenes.length} Envios T1 (sub-órdenes)`
+    );
+  } else {
+    // 3b. Envio unico (comportamiento original)
+    envioId = await envioCrudService.crear({
+      origenTipo: 'proveedor',
+      origenProveedorId: orden.proveedorId,
+      destinoCasillaId,
+      colaboradorId: transporteColaboradorId,
+      ordenCompraId: ocId,
+      unidadesIds: unidadIds,
+    }, userId);
+
+    await heredarCargos(envioId);
+
+    if (orden.cargosOC && orden.cargosOC.length > 0) {
+      logger.info(`${orden.cargosOC.length} cargos OC heredados al Envio T1 como costosLanded`);
+    }
+    logger.success(`OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + Envio T1 creado`);
+  }
 
   return {
     unidadesCreadas: unidadIds.length,

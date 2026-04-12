@@ -403,6 +403,8 @@ export interface OrdenCompraFormData {
   courier?: string;
   observaciones?: string;
   requerimientoId?: string;   // Vinculación con requerimiento origen (singular)
+  // Sub-órdenes (división de OC en órdenes separadas del proveedor)
+  subOrdenes?: SubOrdenCompra[];
   // Soporte multi-requerimiento (OC consolidada)
   requerimientoIds?: string[];
   productosOrigen?: Array<{
