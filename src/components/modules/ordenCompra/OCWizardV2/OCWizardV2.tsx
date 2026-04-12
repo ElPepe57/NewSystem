@@ -114,6 +114,38 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
   );
   const grandTotal = subtotal + totalCargos - totalDescuentos + totalImpuestos;
 
+  // ---- Auto-sync shipping cost from config logistica to cargos ----
+  // When moving to cargos step, if shipping was specified in entrega, add it as a cargo
+  React.useEffect(() => {
+    const cfg = state.configLogistica;
+    if (cfg.fleteProveedorIncluido === false && cfg.costoShippingProveedor && cfg.costoShippingProveedor > 0) {
+      const shippingId = '__shipping_proveedor__';
+      const alreadyExists = state.cargosOC.some(c => c.id === shippingId);
+      if (!alreadyExists) {
+        const label = cfg.tipoShipping === 'internacional' ? 'Shipping internacional' : cfg.tipoShipping === 'local' ? 'Shipping local' : 'Shipping proveedor';
+        dispatch({
+          type: 'ADD_CARGO',
+          cargo: {
+            id: shippingId,
+            concepto: label,
+            montoUSD: cfg.costoShippingProveedor,
+            metodoProrrateo: 'por_valor',
+          },
+        } as OCWizardAction);
+      } else {
+        // Update existing shipping cargo if amount changed
+        const existing = state.cargosOC.find(c => c.id === shippingId);
+        if (existing && existing.montoUSD !== cfg.costoShippingProveedor) {
+          const label = cfg.tipoShipping === 'internacional' ? 'Shipping internacional' : cfg.tipoShipping === 'local' ? 'Shipping local' : 'Shipping proveedor';
+          dispatch({
+            type: 'UPDATE_CARGO',
+            cargo: { ...existing, concepto: label, montoUSD: cfg.costoShippingProveedor },
+          } as OCWizardAction);
+        }
+      }
+    }
+  }, [state.configLogistica.costoShippingProveedor, state.configLogistica.tipoShipping, state.configLogistica.fleteProveedorIncluido]);
+
   // ---- Navigation ----
 
   const handleNext = () => {
