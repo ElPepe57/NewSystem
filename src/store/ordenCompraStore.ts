@@ -196,6 +196,15 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await OrdenCompraService.cambiarEstado(id, nuevoEstado, userId, datos);
+
+      // Optimistic update: reflejar el cambio inmediatamente
+      const currentOrdenes = get().ordenes;
+      set({
+        ordenes: currentOrdenes.map(o =>
+          o.id === id ? { ...o, estado: nuevoEstado } : o
+        ),
+      });
+
       await get().fetchOrdenes();
       await get().fetchStats();
 
@@ -215,6 +224,16 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
     try {
       const { confirmarOC } = await import('../services/ordenCompra.crud.service');
       const result = await confirmarOC(id, destinoCasillaId, userId, colaboradorId);
+
+      // Optimistic update: reflejar el cambio de estado inmediatamente en la tabla
+      const currentOrdenes = get().ordenes;
+      set({
+        ordenes: currentOrdenes.map(o =>
+          o.id === id ? { ...o, estado: 'confirmada' as const, inventarioGenerado: true } : o
+        ),
+      });
+
+      // Re-fetch para obtener datos completos de Firestore
       await get().fetchOrdenes();
       await get().fetchStats();
       if (get().selectedOrden?.id === id) {
