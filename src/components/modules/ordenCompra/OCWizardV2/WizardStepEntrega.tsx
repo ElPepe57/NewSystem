@@ -2,13 +2,16 @@ import React, { useEffect, useMemo } from 'react';
 import {
   Truck, UserCheck, Send, ShoppingBag, Package, MapPin,
   DollarSign, Home, Building2, AlertCircle, Zap, ChevronRight,
-  Plane, Car,
+  Plane, Car, Plus, Trash2,
 } from 'lucide-react';
 import { cn } from '../../../../design-system';
-import type { QuienPagaFlete } from '../../../../types/ordenCompra.types';
+import type { QuienPagaFlete, ProductoOrden } from '../../../../types/ordenCompra.types';
 import { ProveedorAutocomplete } from '../../entidades/ProveedorAutocomplete';
 import type { ProveedorSnapshot } from '../../entidades/ProveedorAutocomplete';
+import { ProductoAutocomplete } from '../../entidades/ProductoAutocomplete';
+import type { ProductoSnapshot } from '../../entidades/ProductoAutocomplete';
 import { useColaboradorStore } from '../../../../store/colaboradorStore';
+import { useProductoStore } from '../../../../store/productoStore';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -61,6 +64,11 @@ export const emptyConfig: ConfigLogistica = {
 interface WizardStepEntregaProps {
   config: ConfigLogistica;
   onChange: (config: ConfigLogistica) => void;
+  // Product selection (added)
+  productos: ProductoOrden[];
+  onAddProducto: (producto: ProductoOrden) => void;
+  onRemoveProducto: (index: number) => void;
+  onUpdateProducto: (index: number, producto: ProductoOrden) => void;
 }
 
 // ─── Derive legacy types for downstream compatibility ─────────────
@@ -219,11 +227,23 @@ const inputCls =
 
 // ─── Main Component ───────────────────────────────────────────────
 
-export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, onChange }) => {
+export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
+  config,
+  onChange,
+  productos,
+  onAddProducto,
+  onRemoveProducto,
+  onUpdateProducto,
+}) => {
   const { colaboradores, fetchColaboradores, getByTipo } = useColaboradorStore();
+  const { productos: catalogoProductos, fetchProductos, loading: loadingProductos } = useProductoStore();
 
   useEffect(() => {
     if (colaboradores.length === 0) fetchColaboradores();
+  }, []);
+
+  useEffect(() => {
+    if (catalogoProductos.length === 0) fetchProductos();
   }, []);
 
   const viajeros = getByTipo('viajero');
@@ -313,6 +333,46 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, on
 
     onChange(next);
   };
+
+  // ---- Product handlers ----
+
+  const handleSelectProducto = (snapshot: ProductoSnapshot | null) => {
+    if (!snapshot) return;
+    const nuevo: ProductoOrden = {
+      productoId: snapshot.productoId,
+      sku: snapshot.sku,
+      marca: snapshot.marca,
+      nombreComercial: snapshot.nombreComercial,
+      presentacion: snapshot.presentacion,
+      cantidad: 1,
+      costoUnitario: 0,
+      subtotal: 0,
+    };
+    onAddProducto(nuevo);
+  };
+
+  const handleFieldChange = (
+    index: number,
+    field: 'cantidad' | 'costoUnitario',
+    raw: string,
+  ) => {
+    const p = productos[index];
+    const value = field === 'cantidad' ? parseInt(raw, 10) || 0 : parseFloat(raw) || 0;
+    const updated: ProductoOrden = {
+      ...p,
+      [field]: value,
+      subtotal:
+        field === 'cantidad'
+          ? value * (p.costoUnitario || 0)
+          : (p.cantidad || 0) * value,
+    };
+    onUpdateProducto(index, updated);
+  };
+
+  const productosSubtotal = useMemo(
+    () => productos.reduce((sum, p) => sum + (p.costoUnitario || 0) * (p.cantidad || 0), 0),
+    [productos],
+  );
 
   // Dynamic question numbering
   const qNum = {
@@ -599,6 +659,125 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, on
             </div>
           )}
         </Question>
+
+        {/* PRODUCTOS — only shown once proveedor is selected */}
+        {config.proveedorId && (
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-slate-400" />
+                <span className="text-sm font-semibold text-slate-700">Productos</span>
+                {productos.length > 0 && (
+                  <span className="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-medium">
+                    {productos.length}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 space-y-3">
+              {/* Existing product rows */}
+              {productos.map((item, index) => (
+                <div
+                  key={`${item.productoId}-${index}`}
+                  className={cn(
+                    'p-3 rounded-lg border transition-all',
+                    item.costoUnitario > 0
+                      ? 'bg-slate-50 border-slate-200'
+                      : 'bg-slate-50 border-dashed border-slate-300',
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center text-xs font-medium text-teal-700 flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-slate-900 truncate block">{item.nombreComercial}</span>
+                        <span className="text-xs text-slate-400">{item.sku} · {item.presentacion}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onRemoveProducto(index)}
+                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                      aria-label="Eliminar producto"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-2">
+                    <div>
+                      <label className="block text-[10px] text-slate-500 mb-0.5">Cantidad</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.cantidad}
+                        onChange={(e) => handleFieldChange(index, 'cantidad', e.target.value)}
+                        className="w-20 px-2 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-center"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-[10px] text-slate-500 mb-0.5">Precio USD / ud.</label>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.costoUnitario || ''}
+                          onChange={(e) => handleFieldChange(index, 'costoUnitario', e.target.value)}
+                          placeholder="0.00"
+                          className="w-full pl-6 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-right"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-right min-w-[70px]">
+                      <div className="text-[10px] text-slate-500">Subtotal</div>
+                      <div className="text-sm font-semibold text-slate-900">
+                        ${((item.cantidad || 0) * (item.costoUnitario || 0)).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Add product autocomplete */}
+              <div className="pt-1">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
+                  Agregar producto
+                </label>
+                {loadingProductos ? (
+                  <div className="w-full py-3 text-sm text-slate-400 text-center border border-dashed border-slate-300 rounded-lg">
+                    Cargando catálogo...
+                  </div>
+                ) : (
+                  <ProductoAutocomplete
+                    productos={catalogoProductos}
+                    value={null}
+                    onChange={handleSelectProducto}
+                    placeholder="Buscar producto por nombre, SKU o marca..."
+                    showInvestigacionSugerencia={false}
+                    proveedorSeleccionado={config.proveedorNombre || undefined}
+                  />
+                )}
+                <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                  <Plus className="h-3 w-3" />
+                  Seleccionar agrega el producto a la lista
+                </p>
+              </div>
+
+              {/* Subtotal footer */}
+              {productosSubtotal > 0 && (
+                <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                  <span className="text-sm text-slate-500">Subtotal productos</span>
+                  <span className="text-base font-bold text-slate-900">${productosSubtotal.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Consequences panel */}
         {consequences.length > 0 && (

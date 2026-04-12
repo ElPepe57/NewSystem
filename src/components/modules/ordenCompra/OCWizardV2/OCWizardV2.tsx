@@ -13,7 +13,7 @@ import {
 import type { OCWizardAction } from './ocWizardReducer';
 import { WizardStepEntrega } from './WizardStepEntrega';
 import { WizardStepFlete } from './WizardStepFlete';
-import { WizardStepProductos } from './WizardStepProductos';
+import { WizardStepInteligencia } from './WizardStepInteligencia';
 import { WizardStepCargos } from './WizardStepCargos';
 import { WizardStepConfirm } from './WizardStepConfirm';
 import type { ProductoOrden, CargoOC, DescuentoOC, ImpuestoOC } from '../../../../types/ordenCompra.types';
@@ -38,7 +38,7 @@ interface OCWizardV2Props {
 const STEP_LABELS: Record<number, string> = {
   0: 'Entrega',
   1: 'Flete',
-  2: 'Productos',
+  2: 'Inteligencia',
   3: 'Cargos',
   4: 'Confirmar',
 };
@@ -49,16 +49,18 @@ function isStepValid(step: number, state: ReturnType<typeof initialWizardState e
 function isStepValid(step: number, state: typeof initialWizardState): boolean {
   switch (step) {
     case 0:
-      return !!state.configLogistica.proveedorId && !!state.configLogistica.salidaProveedor && !!state.configLogistica.llegadaPeru;
+      return (
+        !!state.configLogistica.proveedorId &&
+        !!state.configLogistica.salidaProveedor &&
+        !!state.configLogistica.llegadaPeru &&
+        state.productos.length > 0 &&
+        state.productos.some((p) => p.costoUnitario > 0)
+      );
     case 1:
       return state.quienPagaFlete !== null;
     case 2:
-      return (
-        state.proveedorId !== '' &&
-        state.tcCompra > 0 &&
-        state.productos.length > 0 &&
-        state.productos.every((p) => p.productoId && p.cantidad > 0)
-      );
+      // Intelligence step is informational only — always valid
+      return true;
     case 3:
       // Cargos step is always optional
       return true;
@@ -226,6 +228,10 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
           <WizardStepEntrega
             config={state.configLogistica}
             onChange={(config) => dispatch({ type: 'SET_CONFIG_LOGISTICA', config } as OCWizardAction)}
+            productos={state.productos}
+            onAddProducto={(p) => dispatch({ type: 'ADD_PRODUCTO', producto: p } as OCWizardAction)}
+            onRemoveProducto={(i) => dispatch({ type: 'REMOVE_PRODUCTO', index: i } as OCWizardAction)}
+            onUpdateProducto={(i, p) => dispatch({ type: 'UPDATE_PRODUCTO', index: i, producto: p } as OCWizardAction)}
           />
         );
 
@@ -240,28 +246,9 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
 
       case 2:
         return (
-          <WizardStepProductos
-            proveedorId={state.proveedorId}
-            proveedorNombre={state.proveedorNombre}
-            paisOrigen={state.paisOrigen}
-            tcCompra={state.tcCompra}
+          <WizardStepInteligencia
             productos={state.productos}
-            onSetProveedor={(id, nombre) =>
-              dispatch({ type: 'SET_PROVEEDOR', id, nombre } as OCWizardAction)
-            }
-            onSetPaisOrigen={(pais) =>
-              dispatch({ type: 'SET_PAIS_ORIGEN', pais } as OCWizardAction)
-            }
-            onSetTC={(tc) => dispatch({ type: 'SET_TC', tc } as OCWizardAction)}
-            onAddProducto={(producto: ProductoOrden) =>
-              dispatch({ type: 'ADD_PRODUCTO', producto } as OCWizardAction)
-            }
-            onRemoveProducto={(index: number) =>
-              dispatch({ type: 'REMOVE_PRODUCTO', index } as OCWizardAction)
-            }
-            onUpdateProducto={(index: number, producto: ProductoOrden) =>
-              dispatch({ type: 'UPDATE_PRODUCTO', index, producto } as OCWizardAction)
-            }
+            tcCompra={state.tcCompra}
           />
         );
 
