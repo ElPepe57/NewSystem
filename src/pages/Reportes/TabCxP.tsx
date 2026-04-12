@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { DollarSign, CheckCircle } from 'lucide-react';
 import { Card, Badge } from '../../components/common';
+import { DataTable } from '../../design-system';
 import * as OrdenCompraService from '../../services/ordenCompra.crud.service';
 import type { OrdenCompra } from '../../types/ordenCompra.types';
 
@@ -70,36 +71,25 @@ export const TabCxP: React.FC = () => {
         </div>
       ) : (
         <Card className="p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
-              <tr>
-                <th className="px-3 py-2 text-left">OC</th>
-                <th className="px-3 py-2 text-left">Proveedor</th>
-                <th className="px-3 py-2 text-right">Total USD</th>
-                <th className="px-3 py-2 text-right">Pendiente</th>
-                <th className="px-3 py-2 text-center">Estado</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {ocPendientes.map(oc => {
+          <DataTable
+            columns={[
+              { key: 'oc', header: 'OC', render: (oc: OrdenCompra) => <span className="font-medium text-slate-900">{oc.numeroOrden}</span> },
+              { key: 'proveedor', header: 'Proveedor', render: (oc: OrdenCompra) => oc.nombreProveedor },
+              { key: 'total', header: 'Total USD', align: 'right' as const, render: (oc: OrdenCompra) => fmtUSD(oc.totalUSD) },
+              { key: 'pendiente', header: 'Pendiente', align: 'right' as const, render: (oc: OrdenCompra) => {
                 const pagado = (oc.historialPagos || []).reduce((s, p) => s + (p.montoUSD || 0), 0);
-                const pendiente = (oc.totalUSD || 0) - pagado;
-                return (
-                  <tr key={oc.id} className="hover:bg-slate-50">
-                    <td className="px-3 py-2 font-medium text-slate-900">{oc.numeroOrden}</td>
-                    <td className="px-3 py-2 text-slate-600">{oc.nombreProveedor}</td>
-                    <td className="px-3 py-2 text-right">{fmtUSD(oc.totalUSD)}</td>
-                    <td className="px-3 py-2 text-right font-medium text-red-600">{fmtUSD(pendiente)}</td>
-                    <td className="px-3 py-2 text-center">
-                      <Badge variant={oc.estadoPago === 'parcial' ? 'warning' : 'danger'} className="text-xs">
-                        {oc.estadoPago === 'parcial' ? 'Parcial' : 'Pendiente'}
-                      </Badge>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                return <span className="font-medium text-red-600">{fmtUSD((oc.totalUSD || 0) - pagado)}</span>;
+              }},
+              { key: 'estado', header: 'Estado', align: 'center' as const, render: (oc: OrdenCompra) => (
+                <Badge variant={oc.estadoPago === 'parcial' ? 'warning' : 'danger'} className="text-xs">
+                  {oc.estadoPago === 'parcial' ? 'Parcial' : 'Pendiente'}
+                </Badge>
+              )},
+            ]}
+            data={ocPendientes}
+            keyExtractor={(oc: OrdenCompra) => oc.id}
+            compact
+          />
         </Card>
       )}
     </div>

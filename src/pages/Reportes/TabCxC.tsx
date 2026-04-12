@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { DollarSign, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 import { Card, Badge } from '../../components/common';
+import { DataTable } from '../../design-system';
 import { VentaService } from '../../services/venta.service';
 import type { Venta } from '../../types/venta.types';
 
@@ -95,37 +96,25 @@ export const TabCxC: React.FC = () => {
         </div>
       ) : (
         <Card className="p-0 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
-              <tr>
-                <th className="px-3 py-2 text-left">Venta</th>
-                <th className="px-3 py-2 text-left">Cliente</th>
-                <th className="px-3 py-2 text-right">Total</th>
-                <th className="px-3 py-2 text-right">Pendiente</th>
-                <th className="px-3 py-2 text-center">D\u00edas</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {ventasPendientes.slice(0, 20).map(v => {
+          <DataTable
+            columns={[
+              { key: 'venta', header: 'Venta', render: (v: any) => <span className="font-medium text-slate-900">{v.numeroVenta}</span> },
+              { key: 'cliente', header: 'Cliente', render: (v: any) => v.nombreCliente },
+              { key: 'total', header: 'Total', align: 'right' as const, render: (v: any) => fmt(v.totalPEN) },
+              { key: 'pendiente', header: 'Pendiente', align: 'right' as const, render: (v: any) => {
+                const pendiente = (v.totalPEN || 0) - ((v as any).montoPagado || 0);
+                return <span className="font-medium text-red-600">{fmt(pendiente)}</span>;
+              }},
+              { key: 'dias', header: 'Dias', align: 'center' as const, render: (v: any) => {
                 const fecha = v.fechaVenta?.toDate?.() || v.fechaCreacion?.toDate?.();
                 const dias = fecha ? Math.floor((hoy.getTime() - fecha.getTime()) / (1000 * 60 * 60 * 24)) : 0;
-                const pendiente = (v.totalPEN || 0) - ((v as any).montoPagado || 0);
-                return (
-                  <tr key={v.id} className="hover:bg-slate-50">
-                    <td className="px-3 py-2 font-medium text-slate-900">{v.numeroVenta}</td>
-                    <td className="px-3 py-2 text-slate-600">{v.nombreCliente}</td>
-                    <td className="px-3 py-2 text-right">{fmt(v.totalPEN)}</td>
-                    <td className="px-3 py-2 text-right font-medium text-red-600">{fmt(pendiente)}</td>
-                    <td className="px-3 py-2 text-center">
-                      <Badge variant={dias > 60 ? 'danger' : dias > 30 ? 'warning' : 'default'} className="text-xs">
-                        {dias}d
-                      </Badge>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                return <Badge variant={dias > 60 ? 'danger' : dias > 30 ? 'warning' : 'default'} className="text-xs">{dias}d</Badge>;
+              }},
+            ]}
+            data={ventasPendientes.slice(0, 20)}
+            keyExtractor={(v: any) => v.id}
+            compact
+          />
         </Card>
       )}
     </div>
