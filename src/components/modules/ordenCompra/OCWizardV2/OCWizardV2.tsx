@@ -49,7 +49,7 @@ function isStepValid(step: number, state: ReturnType<typeof initialWizardState e
 function isStepValid(step: number, state: typeof initialWizardState): boolean {
   switch (step) {
     case 0:
-      return !!state.configLogistica.salidaProveedor && !!state.configLogistica.llegadaPeru;
+      return !!state.configLogistica.proveedorId && !!state.configLogistica.salidaProveedor && !!state.configLogistica.llegadaPeru;
     case 1:
       return state.quienPagaFlete !== null;
     case 2:

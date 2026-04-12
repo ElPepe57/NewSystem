@@ -124,6 +124,17 @@ export function ocWizardReducer(state: OCWizardState, action: OCWizardAction): O
         configLogistica: action.config,
         modoEntregaDetallado: derived.modoEntregaDetallado,
         quienPagaFlete: derived.quienPagaFlete,
+        // Sync proveedor from config logistica to main state
+        ...(action.config.proveedorId && {
+          proveedorId: action.config.proveedorId,
+          proveedorNombre: action.config.proveedorNombre,
+          paisOrigen: action.config.paisOrigen,
+        }),
+        // Sync colaborador from config logistica
+        ...(action.config.colaboradorId && {
+          colaboradorId: action.config.colaboradorId,
+          colaboradorNombre: action.config.colaboradorNombre,
+        }),
       };
     }
 

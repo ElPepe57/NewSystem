@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { QuienPagaFlete } from '../../../../types/ordenCompra.types';
+import { ProveedorAutocomplete } from '../../entidades/ProveedorAutocomplete';
+import type { ProveedorSnapshot } from '../../entidades/ProveedorAutocomplete';
 import { useColaboradorStore } from '../../../../store/colaboradorStore';
 
 // ─── Types ────────────────────────────────────────────────────────
@@ -20,6 +22,11 @@ export type LlegadaPeru = 'ddp_directo' | 'viajero' | 'courier_internacional' | 
 export type UltimaMilla = 'entrega_domicilio' | 'yo_recojo';
 
 export interface ConfigLogistica {
+  // Pregunta 0: Proveedor
+  proveedorId: string;
+  proveedorNombre: string;
+  paisOrigen: string;
+
   // Tramo 1: Salida del proveedor
   salidaProveedor: SalidaProveedor | null;
   fleteProveedorIncluido: boolean | null;
@@ -37,6 +44,9 @@ export interface ConfigLogistica {
 }
 
 export const emptyConfig: ConfigLogistica = {
+  proveedorId: '',
+  proveedorNombre: '',
+  paisOrigen: '',
   salidaProveedor: null,
   fleteProveedorIncluido: null,
   costoShippingProveedor: null,
@@ -221,10 +231,39 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, on
 
   const consequences = useMemo(() => getConsequences(config), [config]);
 
+  // Proveedor snapshot for autocomplete
+  const proveedorValue: ProveedorSnapshot | null = config.proveedorId
+    ? { proveedorId: config.proveedorId, nombre: config.proveedorNombre, pais: config.paisOrigen }
+    : null;
+
+  const handleProveedorChange = (snap: ProveedorSnapshot | null) => {
+    if (!snap) {
+      onChange({ ...emptyConfig }); // Reset everything
+      return;
+    }
+    onChange({
+      ...config,
+      proveedorId: snap.proveedorId,
+      proveedorNombre: snap.nombre,
+      paisOrigen: snap.pais || '',
+      // Reset downstream
+      salidaProveedor: null,
+      fleteProveedorIncluido: null,
+      costoShippingProveedor: null,
+      tipoShipping: null,
+      llegadaPeru: null,
+      colaboradorId: '',
+      colaboradorNombre: '',
+      ultimaMilla: null,
+      requiereRecojo: false,
+    });
+  };
+
   // Visibility logic
+  const hasProveedor = !!config.proveedorId;
   const show = {
-    salidaProveedor: true,
-    fleteProveedor: config.salidaProveedor === 'proveedor_envia',
+    salidaProveedor: hasProveedor,
+    fleteProveedor: hasProveedor && config.salidaProveedor === 'proveedor_envia',
     shippingCost: config.salidaProveedor === 'proveedor_envia' && config.fleteProveedorIncluido === false,
     llegadaPeru:
       config.salidaProveedor !== null &&
@@ -277,10 +316,10 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, on
 
   // Dynamic question numbering
   const qNum = {
-    salida: 1,
-    flete: 2,
-    llegada: show.fleteProveedor ? 3 : 2,
-    ultimaMilla: show.fleteProveedor ? 4 : 3,
+    salida: 2,
+    flete: 3,
+    llegada: show.fleteProveedor ? 4 : 3,
+    ultimaMilla: show.fleteProveedor ? 5 : 4,
   };
 
   return (
@@ -293,6 +332,21 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, on
       </div>
 
       <div className="max-w-2xl mx-auto space-y-6">
+
+        {/* PREGUNTA 0: Proveedor */}
+        <Question number={1} title="¿A quién le compras?" visible={true} answered={hasProveedor}>
+          <ProveedorAutocomplete
+            value={proveedorValue}
+            onChange={handleProveedorChange}
+            placeholder="Buscar proveedor..."
+            required
+          />
+          {hasProveedor && config.paisOrigen && (
+            <p className="text-xs text-teal-600 mt-1">
+              Proveedor: <strong>{config.proveedorNombre}</strong> · País: {config.paisOrigen}
+            </p>
+          )}
+        </Question>
 
         {/* TRAMO 1: Salida del proveedor */}
         <Question
