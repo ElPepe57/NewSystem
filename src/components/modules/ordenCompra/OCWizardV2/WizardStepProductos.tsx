@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Globe, Package, Plus, Trash2, RefreshCw, Layers, AlertTriangle } from 'lucide-react';
+import { Globe, Package, Plus, Trash2, RefreshCw } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import { useProductoStore } from '../../../../store/productoStore';
 import { useTipoCambioStore } from '../../../../store/tipoCambioStore';
@@ -7,7 +7,7 @@ import { ProveedorAutocomplete } from '../../entidades/ProveedorAutocomplete';
 import { ProductoAutocomplete } from '../../entidades/ProductoAutocomplete';
 import type { ProductoSnapshot } from '../../entidades/ProductoAutocomplete';
 import type { ProveedorSnapshot } from '../../entidades/ProveedorAutocomplete';
-import type { ProductoOrden, SubOrdenCompra } from '../../../../types/ordenCompra.types';
+import type { ProductoOrden } from '../../../../types/ordenCompra.types';
 
 // ---- Constants ----
 
@@ -27,10 +27,6 @@ interface WizardStepProductosProps {
   onAddProducto: (producto: ProductoOrden) => void;
   onRemoveProducto: (index: number) => void;
   onUpdateProducto: (index: number, producto: ProductoOrden) => void;
-  useSubOrdenes: boolean;
-  subOrdenes: SubOrdenCompra[];
-  onToggleSubOrdenes: () => void;
-  onSetSubOrdenes: (subOrdenes: SubOrdenCompra[]) => void;
 }
 
 // ---- Component ----
@@ -47,99 +43,11 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
   onAddProducto,
   onRemoveProducto,
   onUpdateProducto,
-  useSubOrdenes,
-  subOrdenes,
-  onToggleSubOrdenes,
-  onSetSubOrdenes,
 }) => {
   const { productos: catalogoProductos, fetchProductos, loading: loadingProductos } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
   const [tcAutoLoaded, setTcAutoLoaded] = useState(false);
   const [loadingTC, setLoadingTC] = useState(false);
-
-  // Sub-ordenes: assignment map — product index → subOrden id ('' = sin asignar)
-  const [subOrdenAssignment, setSubOrdenAssignment] = useState<Record<number, string>>({});
-
-  // When sub-ordenes are toggled ON, initialize first sub-orden with all products
-  const handleToggleSubOrdenes = () => {
-    if (!useSubOrdenes && productos.length >= 2) {
-      // Turning ON: create default sub-orden 1 and assign all products to it
-      const defaultId = 'SUB-1';
-      const defaultSub: SubOrdenCompra = {
-        id: defaultId,
-        referenciaProveedor: '',
-        productos: [...productos],
-        totalUSD: productos.reduce((s, p) => s + (p.costoUnitario || 0) * (p.cantidad || 0), 0),
-      };
-      const initAssignment: Record<number, string> = {};
-      productos.forEach((_, i) => { initAssignment[i] = defaultId; });
-      setSubOrdenAssignment(initAssignment);
-      onToggleSubOrdenes();
-      // Call parent with the initial sub-orden array (after toggle the parent state flips to true)
-      // We need to push the subOrdenes up — do it after the toggle resolves via effect
-      // Use a small workaround: call onSetSubOrdenes directly
-      onSetSubOrdenes([defaultSub]);
-    } else {
-      // Turning OFF
-      setSubOrdenAssignment({});
-      onToggleSubOrdenes();
-    }
-  };
-
-  // Rebuild sub-ordenes whenever assignment or products change
-  const rebuildSubOrdenes = (
-    assignment: Record<number, string>,
-    currentSubOrdenes: SubOrdenCompra[],
-    currentProductos: ProductoOrden[],
-  ): SubOrdenCompra[] => {
-    return currentSubOrdenes.map((sub) => {
-      const assignedProds = currentProductos.filter((_, idx) => assignment[idx] === sub.id);
-      const totalUSD = assignedProds.reduce(
-        (s, p) => s + (p.costoUnitario || 0) * (p.cantidad || 0),
-        0,
-      );
-      return { ...sub, productos: assignedProds, totalUSD };
-    });
-  };
-
-  const handleAssignmentChange = (productIndex: number, subOrdenId: string) => {
-    const newAssignment = { ...subOrdenAssignment, [productIndex]: subOrdenId };
-    setSubOrdenAssignment(newAssignment);
-    onSetSubOrdenes(rebuildSubOrdenes(newAssignment, subOrdenes, productos));
-  };
-
-  const handleAddSubOrden = () => {
-    const uniqueId = `SUB-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-    const newSub: SubOrdenCompra = {
-      id: uniqueId,
-      referenciaProveedor: '',
-      productos: [],
-      totalUSD: 0,
-    };
-    onSetSubOrdenes([...subOrdenes, newSub]);
-  };
-
-  const handleRemoveSubOrden = (subId: string) => {
-    if (subOrdenes.length <= 1) return; // keep at least one
-    // Unassign products that were in this sub-orden
-    const newAssignment = { ...subOrdenAssignment };
-    Object.keys(newAssignment).forEach((k) => {
-      if (newAssignment[Number(k)] === subId) newAssignment[Number(k)] = '';
-    });
-    setSubOrdenAssignment(newAssignment);
-    const remaining = subOrdenes.filter((s) => s.id !== subId);
-    onSetSubOrdenes(rebuildSubOrdenes(newAssignment, remaining, productos));
-  };
-
-  const handleSubOrdenRefChange = (subId: string, ref: string) => {
-    const updated = subOrdenes.map((s) => s.id === subId ? { ...s, referenciaProveedor: ref } : s);
-    onSetSubOrdenes(updated);
-  };
-
-  // Products not assigned to any sub-orden
-  const unassignedIndices = useSubOrdenes
-    ? productos.map((_, i) => i).filter((i) => !subOrdenAssignment[i])
-    : [];
 
   // Load productos catalog on mount
   useEffect(() => {
@@ -434,202 +342,6 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
             )}
           </div>
         </div>
-
-        {/* ---- Section: Sub-Ordenes ---- */}
-        {productos.length >= 2 && (
-          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-            {/* Header / toggle */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <Layers className="h-4 w-4 text-slate-400" />
-                <span className="text-sm font-semibold text-slate-700">Sub-Ordenes</span>
-                <span className="text-xs text-slate-400">
-                  (divide esta OC en órdenes separadas del proveedor)
-                </span>
-              </div>
-              {/* Toggle switch */}
-              <button
-                type="button"
-                onClick={handleToggleSubOrdenes}
-                className={cn(
-                  'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none',
-                  useSubOrdenes ? 'bg-teal-600' : 'bg-slate-200',
-                )}
-                aria-label="Dividir en sub-órdenes"
-              >
-                <span
-                  className={cn(
-                    'inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform',
-                    useSubOrdenes ? 'translate-x-4' : 'translate-x-1',
-                  )}
-                />
-              </button>
-            </div>
-
-            {useSubOrdenes && (
-              <div className="p-4 space-y-4">
-                {/* Assignment dropdowns per product */}
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                    Asignar productos a sub-órdenes
-                  </p>
-                  {productos.map((prod, idx) => (
-                    <div
-                      key={`assign-${prod.productoId}-${idx}`}
-                      className="py-2 px-3 bg-slate-50 rounded-lg space-y-2"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-[10px] font-medium text-teal-700 flex-shrink-0">
-                            {idx + 1}
-                          </div>
-                          <span className="text-sm text-slate-700 truncate">{prod.nombreComercial}</span>
-                          <span className="text-xs text-slate-400 flex-shrink-0">{prod.sku}</span>
-                        </div>
-                        <select
-                          value={subOrdenAssignment[idx] || ''}
-                          onChange={(e) => handleAssignmentChange(idx, e.target.value)}
-                          className={cn(
-                            'text-xs border rounded-lg px-2 py-1 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white flex-shrink-0',
-                            !subOrdenAssignment[idx]
-                              ? 'border-amber-300 text-amber-700'
-                              : 'border-slate-300 text-slate-900',
-                          )}
-                        >
-                          <option value="">Sin asignar</option>
-                          {subOrdenes.map((sub, sIdx) => (
-                            <option key={sub.id} value={sub.id}>
-                              Sub-orden {sIdx + 1}
-                              {sub.referenciaProveedor ? ` — ${sub.referenciaProveedor}` : ''}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      {/* Editable quantity + price */}
-                      <div className="flex items-center gap-2 pl-7">
-                        <div className="flex items-center gap-1">
-                          <label className="text-[10px] text-slate-500">Cant:</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={prod.cantidad}
-                            onChange={(e) => handleFieldChange(idx, 'cantidad', e.target.value)}
-                            className="w-14 px-1.5 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-center"
-                          />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <label className="text-[10px] text-slate-500">$:</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={prod.costoUnitario || ''}
-                            onChange={(e) => handleFieldChange(idx, 'costoUnitario', e.target.value)}
-                            placeholder="0.00"
-                            className="w-20 px-1.5 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-right"
-                          />
-                        </div>
-                        <span className="text-xs font-medium text-slate-700 ml-auto">
-                          ${((prod.cantidad || 0) * (prod.costoUnitario || 0)).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Unassigned warning */}
-                {unassignedIndices.length > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                    <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
-                    {unassignedIndices.length === 1
-                      ? '1 producto sin asignar a ninguna sub-orden'
-                      : `${unassignedIndices.length} productos sin asignar a ninguna sub-orden`}
-                  </div>
-                )}
-
-                {/* Sub-orden cards */}
-                <div className="space-y-3">
-                  {subOrdenes.map((sub, sIdx) => (
-                    <div
-                      key={sub.id}
-                      className="border border-slate-200 rounded-xl p-3 space-y-2 bg-slate-50"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full">
-                            Sub-orden {sIdx + 1}
-                          </span>
-                        </div>
-                        {subOrdenes.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSubOrden(sub.id)}
-                            className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                            aria-label="Eliminar sub-orden"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Referencia proveedor */}
-                      <div>
-                        <label className="block text-[10px] text-slate-500 mb-0.5">
-                          Referencia proveedor (ej. "Amazon Order #111-222")
-                        </label>
-                        <input
-                          key={`ref-${sub.id}`}
-                          type="text"
-                          value={sub.referenciaProveedor}
-                          onChange={(e) => handleSubOrdenRefChange(sub.id, e.target.value)}
-                          placeholder="Número de orden / factura del proveedor"
-                          className="w-full text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 bg-white"
-                        />
-                      </div>
-
-                      {/* Products in this sub-orden */}
-                      {sub.productos.length > 0 ? (
-                        <div className="space-y-1">
-                          {sub.productos.map((p, pIdx) => (
-                            <div
-                              key={`${sub.id}-prod-${pIdx}`}
-                              className="flex items-center justify-between text-xs text-slate-600 bg-white border border-slate-100 rounded-lg px-2 py-1"
-                            >
-                              <span className="truncate">{p.nombreComercial}</span>
-                              <span className="text-slate-400 flex-shrink-0 ml-2">
-                                x{p.cantidad} · ${((p.cantidad || 0) * (p.costoUnitario || 0)).toFixed(2)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-slate-400 italic">Sin productos asignados</p>
-                      )}
-
-                      {/* Subtotal */}
-                      <div className="flex justify-between items-center pt-1 border-t border-slate-200">
-                        <span className="text-xs text-slate-500">Subtotal sub-orden</span>
-                        <span className="text-sm font-semibold text-slate-900">
-                          ${sub.totalUSD.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Add sub-orden button */}
-                <button
-                  type="button"
-                  onClick={handleAddSubOrden}
-                  className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-teal-300 rounded-xl text-sm text-teal-600 hover:bg-teal-50 transition-colors"
-                >
-                  <Plus className="h-4 w-4" />
-                  Agregar sub-orden
-                </button>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Validation hint */}
         {productos.length === 0 && (

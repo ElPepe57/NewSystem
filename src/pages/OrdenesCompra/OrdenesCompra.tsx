@@ -14,6 +14,8 @@ import { OCWizardV2 } from '../../components/modules/ordenCompra/OCWizardV2/OCWi
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { RecepcionParcialModal } from '../../components/modules/ordenCompra/RecepcionParcialModal';
+import { ConfirmarOCModal } from '../../components/modules/ordenCompra/ConfirmarOCModal';
+import type { SubOrdenCompra } from '../../types/ordenCompra.types';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useProveedorStore } from '../../store/proveedorStore';
 import { useProductoStore } from '../../store/productoStore';
@@ -113,6 +115,7 @@ export const OrdenesCompra: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [isRecepcionModalOpen, setIsRecepcionModalOpen] = useState(false);
+  const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
@@ -473,18 +476,10 @@ export const OrdenesCompra: React.FC = () => {
   const handleCambiarEstado = async (nuevoEstado: EstadoOrden) => {
     if (!user || !selectedOrden) return;
 
-    // REINGENIERIA: Confirmar OC = crear unidades pedida + envio T1
+    // REINGENIERIA: Confirmar OC — abrir ConfirmarOCModal para preguntar sub-órdenes
     if (nuevoEstado === 'confirmada') {
-      try {
-        // Usar el almacen destino de la OC como casilla destino
-        const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
-        const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid);
-        await refreshSelectedOrden(selectedOrden.id);
-        setIsDetailsModalOpen(false);
-        toast.success(`OC confirmada: ${result.unidadesCreadas} unidades pedidas creadas`);
-      } catch (error: any) {
-        toast.error(error.message, 'Error al confirmar OC');
-      }
+      setIsDetailsModalOpen(false);
+      setIsConfirmarModalOpen(true);
       return;
     }
 
@@ -540,6 +535,33 @@ export const OrdenesCompra: React.FC = () => {
       } catch (error: any) {
         toast.error(error.message, 'Error');
       }
+    }
+  };
+
+  // Confirmar OC con sub-órdenes opcionales (llamado desde ConfirmarOCModal)
+  const handleConfirmarConSubOrdenes = async (subOrdenes?: SubOrdenCompra[]) => {
+    if (!user || !selectedOrden) return;
+    try {
+      setIsSubmitting(true);
+
+      // Guardar sub-órdenes en Firestore antes de confirmar (si las hay)
+      if (subOrdenes && subOrdenes.length > 0) {
+        const { updateDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('../../lib/firebase');
+        await updateDoc(doc(db, 'ordenesCompra', selectedOrden.id), { subOrdenes });
+      }
+
+      const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
+      const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid);
+      await refreshSelectedOrden(selectedOrden.id);
+      setIsConfirmarModalOpen(false);
+      toast.success(
+        `OC confirmada: ${result.unidadesCreadas} unidades pedidas${subOrdenes && subOrdenes.length > 0 ? ` + ${subOrdenes.length} envíos` : ''}`,
+      );
+    } catch (error: any) {
+      toast.error(error.message, 'Error al confirmar OC');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -969,6 +991,17 @@ export const OrdenesCompra: React.FC = () => {
           onClose={() => setIsRecepcionModalOpen(false)}
           orden={selectedOrden}
           onSubmit={handleSubmitRecepcion}
+        />
+      )}
+
+      {/* Modal Confirmar OC */}
+      {selectedOrden && (
+        <ConfirmarOCModal
+          isOpen={isConfirmarModalOpen}
+          onClose={() => setIsConfirmarModalOpen(false)}
+          orden={selectedOrden}
+          onConfirmar={handleConfirmarConSubOrdenes}
+          isSubmitting={isSubmitting}
         />
       )}
 
