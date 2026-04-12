@@ -52,9 +52,11 @@ export type { TooltipProps, TooltipPosition } from './Tooltip';
 export { Dropdown, DropdownSelect, ActionsDropdown } from './Dropdown';
 export type { DropdownProps, DropdownItem, DropdownSelectProps } from './Dropdown';
 
-// Professional UI Components (legacy — migrar a design-system)
+// Tab Navigation (extraido de ProfessionalUI)
+export { TabNavigation } from './TabNavigation';
+
+// Professional UI Components (legacy)
 export {
-  TabNavigation,
   SectionHeader,
   EmptyState,
   HighlightBox,
