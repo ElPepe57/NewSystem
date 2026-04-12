@@ -609,7 +609,7 @@ export const Inventario: React.FC = () => {
               variant="ghost"
               onClick={handleSincronizarCompleto}
               disabled={sincronizando}
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             >
               <RefreshCw className={`h-5 w-5 ${sincronizando ? 'animate-spin' : ''}`} />
             </Button>

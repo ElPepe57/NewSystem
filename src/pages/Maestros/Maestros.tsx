@@ -708,7 +708,7 @@ export const Maestros: React.FC = () => {
               onClick={loadAllData}
               disabled={isRefreshing || isSyncing}
               title="Actualizar datos"
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             >
               <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>

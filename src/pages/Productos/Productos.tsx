@@ -706,10 +706,12 @@ export const Productos: React.FC = () => {
             <Button
               variant="ghost"
               onClick={() => setIsArchivoModalOpen(true)}
-              className="relative text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5"
+              variant="outline"
+              size="sm"
+              className="relative"
             >
-              <Trash2 className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline text-sm">Archivo</span>
+              <Trash2 className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Archivo</span>
               {archivados.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                   {archivados.length}
@@ -717,16 +719,16 @@ export const Productos: React.FC = () => {
               )}
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
+              size="sm"
               onClick={() => setIsDashboardOpen(true)}
-              className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5"
             >
-              <BarChart3 className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden sm:inline text-sm">Intel</span>
+              <BarChart3 className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Intel</span>
             </Button>
-            <Button variant="ghost" onClick={handleCreate} className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5">
-              <Plus className="h-5 w-5 sm:mr-1.5" />
-              <span className="hidden sm:inline text-sm">Nuevo</span>
+            <Button variant="primary" size="sm" onClick={handleCreate}>
+              <Plus className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Nuevo</span>
             </Button>
           </div>
         }

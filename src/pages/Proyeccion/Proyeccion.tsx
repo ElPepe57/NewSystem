@@ -568,7 +568,7 @@ const Hero: React.FC<{ horizonte: Horizonte360; setHorizonte: (h: Horizonte360) 
         {([30, 90] as const).map(h => (
           <button key={h} onClick={() => setHorizonte(h)}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-              horizonte === h ? 'bg-white text-violet-700 shadow' : 'text-white/70 hover:text-white'
+              horizonte === h ? 'bg-white text-violet-700 shadow' : 'text-slate-600 hover:text-slate-900'
             }`}>{h} días</button>
         ))}
       </div>

@@ -366,7 +366,7 @@ export const Unidades: React.FC = () => {
             <Button
               variant="ghost"
               onClick={() => setShowEditarVencimiento(true)}
-              className="text-white/70 hover:text-white hover:bg-white/10 flex items-center gap-1.5"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5"
             >
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline text-sm">Vencimientos</span>
@@ -375,7 +375,7 @@ export const Unidades: React.FC = () => {
               variant="ghost"
               onClick={handleSincronizar}
               disabled={sincronizando}
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             >
               <RefreshCw className={`h-5 w-5 ${sincronizando ? 'animate-spin' : ''}`} />
             </Button>

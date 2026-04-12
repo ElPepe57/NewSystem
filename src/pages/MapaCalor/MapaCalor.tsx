@@ -38,7 +38,7 @@ export function MapaCalor() {
             variant="ghost"
             onClick={fetchVentasGeo}
             disabled={loading}
-            className="text-white/70 hover:text-white hover:bg-white/10 !px-2 !py-1.5"
+            className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 !px-2 !py-1.5"
           >
             <RefreshCw className={`h-4 w-4 sm:mr-1.5 ${loading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline text-sm">Actualizar</span>

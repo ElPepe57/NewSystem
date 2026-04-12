@@ -207,7 +207,7 @@ export function Contabilidad() {
           <div className="flex items-center gap-2 sm:space-x-3">
             {/* Selector de período */}
             <div className="flex items-center gap-1 sm:gap-2 bg-white/10 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
-              <Calendar className="w-4 h-4 text-white/70 hidden sm:block" />
+              <Calendar className="w-4 h-4 text-slate-600 hidden sm:block" />
               <select
                 value={mes}
                 onChange={(e) => setMes(Number(e.target.value))}
@@ -235,7 +235,7 @@ export function Contabilidad() {
               variant="ghost"
               onClick={cargarDatos}
               disabled={loading}
-              className="text-white/70 hover:text-white hover:bg-white/10"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             >
               <RefreshCw className={`h-4 w-4 sm:h-5 sm:w-5 ${loading ? 'animate-spin' : ''}`} />
             </Button>
