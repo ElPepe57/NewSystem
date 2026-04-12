@@ -17,7 +17,7 @@ const iconosPorTipo: Record<string, string> = {
 // Colores según prioridad
 const coloresPorPrioridad: Record<string, string> = {
   baja: 'bg-slate-100 border-slate-300',
-  media: 'bg-blue-50 border-blue-300',
+  media: 'bg-sky-50 border-sky-300',
   alta: 'bg-yellow-50 border-yellow-400',
   urgente: 'bg-red-50 border-red-400'
 };
@@ -69,7 +69,7 @@ function NotificationItem({
           {!notificacion.leida && (
             <button
               onClick={onMarcarLeida}
-              className="p-1 text-slate-400 hover:text-blue-500 transition-colors"
+              className="p-1 text-slate-400 hover:text-sky-500 transition-colors"
               title="Marcar como leída"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@ function NotificationItem({
               onClick={() => onAccion(accion)}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 accion.tipo === 'primary'
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-sky-600 text-white hover:bg-sky-700'
                   : accion.tipo === 'danger'
                   ? 'bg-red-600 text-white hover:bg-red-700'
                   : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
@@ -111,7 +111,7 @@ function NotificationItem({
       )}
 
       {notificacion.accionada && (
-        <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
+        <div className="mt-2 text-xs text-emerald-600 flex items-center gap-1">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
@@ -248,7 +248,7 @@ export function NotificationCenter() {
             {contadores.noLeidas > 0 && (
               <button
                 onClick={marcarTodasComoLeidas}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                className="text-xs text-sky-600 hover:text-sky-800 font-medium"
               >
                 Marcar todas como leídas
               </button>
@@ -295,7 +295,7 @@ export function NotificationCenter() {
                   navigate('/notificaciones');
                   setIsOpen(false);
                 }}
-                className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium"
+                className="w-full text-center text-sm text-sky-600 hover:text-sky-800 font-medium"
               >
                 Ver todas las notificaciones
               </button>

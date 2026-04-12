@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
-import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import {
@@ -36,7 +37,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, Badge } from '../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
-import { ProveedorAnalyticsService, type ProveedorAnalytics, type ComparativoPrecioProducto } from '../../services/proveedor.analytics.service';
+import { ProveedorAnalyticsService, type ProveedorAnalytics, type ComparativoPrecioProducto, type ProductoProveedorMetrics } from '../../services/proveedor.analytics.service';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useProveedorStore } from '../../store/proveedorStore';
@@ -119,8 +120,8 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
 
   const getClasificacionConfig = (clasificacion?: ClasificacionProveedor) => {
     const configs: Record<ClasificacionProveedor, { color: string; bg: string; icon: React.ReactNode; label: string }> = {
-      preferido: { color: 'text-green-700', bg: 'bg-green-100', icon: <Star className="h-4 w-4 fill-green-500 text-green-500" />, label: 'Preferido' },
-      aprobado: { color: 'text-blue-700', bg: 'bg-blue-100', icon: <CheckCircle className="h-4 w-4 text-blue-500" />, label: 'Aprobado' },
+      preferido: { color: 'text-emerald-700', bg: 'bg-emerald-100', icon: <Star className="h-4 w-4 fill-green-500 text-emerald-500" />, label: 'Preferido' },
+      aprobado: { color: 'text-sky-700', bg: 'bg-sky-100', icon: <CheckCircle className="h-4 w-4 text-sky-500" />, label: 'Aprobado' },
       condicional: { color: 'text-amber-700', bg: 'bg-amber-100', icon: <AlertCircle className="h-4 w-4 text-amber-500" />, label: 'Condicional' },
       suspendido: { color: 'text-red-700', bg: 'bg-red-100', icon: <XCircle className="h-4 w-4 text-red-500" />, label: 'Suspendido' }
     };
@@ -129,7 +130,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
 
   const getTendenciaIcon = (tendencia: 'subiendo' | 'bajando' | 'estable' | 'creciente' | 'decreciente' | 'mejorando' | 'empeorando') => {
     if (tendencia === 'subiendo' || tendencia === 'creciente' || tendencia === 'mejorando') {
-      return <ArrowUpRight className="h-4 w-4 text-green-500" />;
+      return <ArrowUpRight className="h-4 w-4 text-emerald-500" />;
     }
     if (tendencia === 'bajando' || tendencia === 'decreciente' || tendencia === 'empeorando') {
       return <ArrowDownRight className="h-4 w-4 text-red-500" />;
@@ -248,7 +249,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                       className={`flex items-center gap-3 p-3 rounded-lg ${
                         alerta.severidad === 'danger' ? 'bg-red-50 text-red-700' :
                         alerta.severidad === 'warning' ? 'bg-amber-50 text-amber-700' :
-                        'bg-blue-50 text-blue-700'
+                        'bg-sky-50 text-sky-700'
                       }`}
                     >
                       <AlertTriangle className="h-5 w-5 flex-shrink-0" />
@@ -279,14 +280,14 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                   label="Orden Promedio"
                   value={formatCurrency(analytics.ordenPromedio)}
                   icon={BarChart3}
-                  variant="default"
+                  variant="neutral"
                   size="sm"
                 />
                 <DSStatCard
                   label="Productos"
                   value={analytics.totalProductosDistintos}
                   icon={Package}
-                  variant="default"
+                  variant="neutral"
                   size="sm"
                 />
                 <DSStatCard
@@ -311,7 +312,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                   label="Frecuencia"
                   value={analytics.frecuenciaCompraDias > 0 ? `${analytics.frecuenciaCompraDias} dias` : 'N/A'}
                   icon={Clock}
-                  variant="default"
+                  variant="neutral"
                   size="sm"
                 />
                 <DSStatCard
@@ -319,7 +320,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                   value={`${analytics.tiempoEntregaPromedio.toFixed(1)} dias`}
                   subtitle={`+/- ${analytics.desviacionTiempoEntrega.toFixed(1)}d`}
                   icon={Truck}
-                  variant="default"
+                  variant="neutral"
                   size="sm"
                 />
                 <DSStatCard
@@ -364,7 +365,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                         <div className="flex items-center gap-2">
                           <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-green-500 rounded-full"
+                              className="h-full bg-emerald-500 rounded-full"
                               style={{ width: `${(proveedor.evaluacion.factores.calidadProductos / 25) * 100}%` }}
                             />
                           </div>
@@ -376,7 +377,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                         <div className="flex items-center gap-2">
                           <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-blue-500 rounded-full"
+                              className="h-full bg-sky-500 rounded-full"
                               style={{ width: `${(proveedor.evaluacion.factores.puntualidadEntrega / 25) * 100}%` }}
                             />
                           </div>
@@ -430,8 +431,8 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                   Compras por Periodo
                 </h3>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">
+                  <div className="text-center p-4 bg-sky-50 rounded-lg">
+                    <p className="text-2xl font-bold text-sky-600">
                       {formatCurrency(analytics.montoUltimos30DiasUSD)}
                     </p>
                     <p className="text-sm text-slate-600 mt-1">Ultimos 30 dias</p>
@@ -552,73 +553,63 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                   <Package className="h-12 w-12 text-slate-400 mx-auto mb-4" />
                   <p className="text-slate-600">No hay productos registrados</p>
                 </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-200">
-                    <thead className="bg-slate-50">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Unidades</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ordenes</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Costo Prom.</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ultimo Costo</th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Tendencia</th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Mejor Precio?</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-slate-200">
-                      {analytics.productosComprados.map((producto) => (
-                        <tr key={producto.productoId} className="hover:bg-slate-50">
-                          <td className="px-4 py-4">
-                            <div>
-                              <p className="font-medium text-slate-900">
-                                {producto.marca} {producto.nombreComercial}
-                              </p>
-                              <p className="text-xs text-slate-500">{producto.sku} - {producto.presentacion}</p>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-right font-medium">
-                            {producto.unidadesCompradas}
-                          </td>
-                          <td className="px-4 py-4 text-right text-slate-600">
-                            {producto.ordenesCompra}
-                          </td>
-                          <td className="px-4 py-4 text-right">
-                            <span className="font-medium">{formatCurrency(producto.costoPromedioUSD)}</span>
-                            {producto.costoMinimoUSD !== producto.costoMaximoUSD && (
-                              <p className="text-xs text-slate-500">
-                                {formatCurrency(producto.costoMinimoUSD)} - {formatCurrency(producto.costoMaximoUSD)}
-                              </p>
-                            )}
-                          </td>
-                          <td className="px-4 py-4 text-right font-medium">
-                            {formatCurrency(producto.ultimoCostoUSD)}
-                          </td>
-                          <td className="px-4 py-4 text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              {getTendenciaIcon(producto.tendenciaCosto)}
-                              {producto.variacionCosto !== 0 && (
-                                <span className={`text-xs ${producto.variacionCosto > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                  {producto.variacionCosto > 0 ? '+' : ''}{producto.variacionCosto.toFixed(1)}%
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-center">
-                            {producto.esMejorPrecio ? (
-                              <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
-                            ) : producto.costosOtrosProveedores && producto.costosOtrosProveedores.length > 0 ? (
-                              <XCircle className="h-5 w-5 text-amber-500 mx-auto" />
-                            ) : (
-                              <Minus className="h-5 w-5 text-slate-300 mx-auto" />
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              ) : (() => {
+                const productosColumns: DataTableColumn<ProductoProveedorMetrics>[] = [
+                  {
+                    key: 'producto', header: 'Producto',
+                    render: p => (
+                      <div>
+                        <p className="font-medium text-slate-900">{p.marca} {p.nombreComercial}</p>
+                        <p className="text-xs text-slate-500">{p.sku} - {p.presentacion}</p>
+                      </div>
+                    ),
+                  },
+                  { key: 'unidades', header: 'Unidades', align: 'right', render: p => <span className="font-medium">{p.unidadesCompradas}</span> },
+                  { key: 'ordenes', header: 'Ordenes', align: 'right', render: p => <span>{p.ordenesCompra}</span>, hideOnMobile: true },
+                  {
+                    key: 'costoProm', header: 'Costo Prom.', align: 'right',
+                    render: p => (
+                      <div>
+                        <span className="font-medium">{formatCurrency(p.costoPromedioUSD)}</span>
+                        {p.costoMinimoUSD !== p.costoMaximoUSD && (
+                          <p className="text-xs text-slate-500">{formatCurrency(p.costoMinimoUSD)} - {formatCurrency(p.costoMaximoUSD)}</p>
+                        )}
+                      </div>
+                    ),
+                    hideOnMobile: true,
+                  },
+                  { key: 'ultimoCosto', header: 'Ultimo Costo', align: 'right', render: p => <span className="font-medium">{formatCurrency(p.ultimoCostoUSD)}</span>, hideOnMobile: true },
+                  {
+                    key: 'tendencia', header: 'Tendencia', align: 'center',
+                    render: p => (
+                      <div className="flex items-center justify-center gap-1">
+                        {getTendenciaIcon(p.tendenciaCosto)}
+                        {p.variacionCosto !== 0 && (
+                          <span className={`text-xs ${p.variacionCosto > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                            {p.variacionCosto > 0 ? '+' : ''}{p.variacionCosto.toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
+                    ),
+                    hideOnMobile: true,
+                  },
+                  {
+                    key: 'mejorPrecio', header: 'Mejor Precio?', align: 'center',
+                    render: p => p.esMejorPrecio
+                      ? <CheckCircle className="h-5 w-5 text-emerald-500 mx-auto" />
+                      : p.costosOtrosProveedores && p.costosOtrosProveedores.length > 0
+                        ? <XCircle className="h-5 w-5 text-amber-500 mx-auto" />
+                        : <Minus className="h-5 w-5 text-slate-300 mx-auto" />,
+                  },
+                ];
+                return (
+                  <DataTable
+                    columns={productosColumns}
+                    data={analytics.productosComprados}
+                    keyExtractor={p => p.productoId}
+                  />
+                );
+              })()}
             </div>
           )}
 
@@ -673,7 +664,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                               >
                                 <div className="flex items-center gap-3">
                                   <span className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                    esMejor ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'
+                                    esMejor ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'
                                   }`}>
                                     {idx + 1}
                                   </span>
@@ -693,7 +684,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                                     <p className="text-xs text-red-600">+{diferencia.toFixed(1)}% vs mejor</p>
                                   )}
                                   {esMejor && (
-                                    <p className="text-xs text-green-600 flex items-center justify-end gap-1">
+                                    <p className="text-xs text-emerald-600 flex items-center justify-end gap-1">
                                       <Star className="h-3 w-3 fill-green-500" /> Mejor precio
                                     </p>
                                   )}
@@ -743,8 +734,8 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                     </p>
                     <p className="text-sm text-slate-600 mt-1">Fecha estimada</p>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <p className="text-xl font-bold text-green-600">
+                  <div className="text-center p-4 bg-emerald-50 rounded-lg">
+                    <p className="text-xl font-bold text-emerald-600">
                       {formatCurrency(analytics.predicciones.montoEstimadoProximaCompra)}
                     </p>
                     <p className="text-sm text-slate-600 mt-1">Monto estimado</p>
@@ -798,7 +789,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                       <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
-                            analytics.predicciones.riesgoIncidencia < 30 ? 'bg-green-500' :
+                            analytics.predicciones.riesgoIncidencia < 30 ? 'bg-emerald-500' :
                             analytics.predicciones.riesgoIncidencia < 60 ? 'bg-amber-500' : 'bg-red-500'
                           }`}
                           style={{ width: `${analytics.predicciones.riesgoIncidencia}%` }}
@@ -813,7 +804,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                       <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
-                            analytics.predicciones.riesgoInactividad < 30 ? 'bg-green-500' :
+                            analytics.predicciones.riesgoInactividad < 30 ? 'bg-emerald-500' :
                             analytics.predicciones.riesgoInactividad < 60 ? 'bg-amber-500' : 'bg-red-500'
                           }`}
                           style={{ width: `${analytics.predicciones.riesgoInactividad}%` }}
@@ -827,12 +818,12 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
               {/* Valor */}
               <Card padding="lg">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <DollarSign className="h-5 w-5 text-emerald-600" />
                   Valor del Proveedor
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-6 bg-green-50 rounded-lg">
-                    <p className="text-3xl font-bold text-green-600">
+                  <div className="text-center p-6 bg-emerald-50 rounded-lg">
+                    <p className="text-3xl font-bold text-emerald-600">
                       {formatCurrency(analytics.predicciones.valorAnualEstimado)}
                     </p>
                     <p className="text-sm text-slate-600 mt-2">Valor anual estimado</p>

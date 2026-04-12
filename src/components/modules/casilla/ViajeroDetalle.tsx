@@ -244,7 +244,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-purple-50 to-white">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-purple-50">
           <div className="flex items-center space-x-4">
             <div className="h-14 w-14 bg-purple-100 rounded-full flex items-center justify-center">
               <Users className="h-7 w-7 text-purple-600" />
@@ -344,27 +344,27 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                       </div>
                     </Card>
 
-                    <Card padding="md" className="bg-green-50">
+                    <Card padding="md" className="bg-emerald-50">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-xs text-green-600 font-medium">Valor Inventario</div>
-                          <div className="text-2xl font-bold text-green-700">
+                          <div className="text-xs text-emerald-600 font-medium">Valor Inventario</div>
+                          <div className="text-2xl font-bold text-emerald-700">
                             {metricas.loading ? '...' : `$${metricas.valorInventarioUSD.toFixed(0)}`}
                           </div>
                         </div>
-                        <DollarSign className="h-8 w-8 text-green-400" />
+                        <DollarSign className="h-8 w-8 text-emerald-400" />
                       </div>
                     </Card>
 
-                    <Card padding="md" className="bg-blue-50">
+                    <Card padding="md" className="bg-sky-50">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-xs text-blue-600 font-medium">Total Enviadas</div>
-                          <div className="text-2xl font-bold text-blue-700">
+                          <div className="text-xs text-sky-600 font-medium">Total Enviadas</div>
+                          <div className="text-2xl font-bold text-sky-700">
                             {metricas.loading ? '...' : metricas.totalUnidadesEnviadas}
                           </div>
                         </div>
-                        <TrendingUp className="h-8 w-8 text-blue-400" />
+                        <TrendingUp className="h-8 w-8 text-sky-400" />
                       </div>
                     </Card>
 
@@ -383,10 +383,10 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
 
                   {/* Proximo viaje */}
                   {proximoViaje && (
-                    <Card padding="md" className={diasParaViaje && diasParaViaje <= 7 ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'}>
+                    <Card padding="md" className={diasParaViaje && diasParaViaje <= 7 ? 'bg-amber-50 border-amber-200' : 'bg-sky-50 border-sky-200'}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          <Plane className={`h-6 w-6 ${diasParaViaje && diasParaViaje <= 7 ? 'text-amber-600' : 'text-blue-600'}`} />
+                          <Plane className={`h-6 w-6 ${diasParaViaje && diasParaViaje <= 7 ? 'text-amber-600' : 'text-sky-600'}`} />
                           <div>
                             <div className="font-semibold text-slate-900">Proximo Viaje</div>
                             <div className="text-sm text-slate-600">
@@ -395,8 +395,8 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                           </div>
                         </div>
                         {diasParaViaje !== null && (
-                          <div className={`text-right px-4 py-2 rounded-lg ${diasParaViaje <= 7 ? 'bg-amber-100' : 'bg-blue-100'}`}>
-                            <div className={`text-2xl font-bold ${diasParaViaje <= 7 ? 'text-amber-700' : 'text-blue-700'}`}>
+                          <div className={`text-right px-4 py-2 rounded-lg ${diasParaViaje <= 7 ? 'bg-amber-100' : 'bg-sky-100'}`}>
+                            <div className={`text-2xl font-bold ${diasParaViaje <= 7 ? 'text-amber-700' : 'text-sky-700'}`}>
                               {diasParaViaje === 0 ? 'Hoy' : diasParaViaje === 1 ? 'Manana' : `${diasParaViaje} dias`}
                             </div>
                           </div>
@@ -437,7 +437,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                         {viajero.whatsapp && (
                           <div className="flex items-center">
                             <span className="text-slate-500 w-20">WhatsApp:</span>
-                            <span className="text-green-600">{viajero.whatsapp}</span>
+                            <span className="text-emerald-600">{viajero.whatsapp}</span>
                           </div>
                         )}
                         {viajero.email && (
@@ -472,13 +472,13 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                 <div className="space-y-6">
                   {/* Resumen de transferencias */}
                   <div className="grid grid-cols-3 gap-4">
-                    <Card padding="md" className="bg-green-50">
+                    <Card padding="md" className="bg-emerald-50">
                       <div className="text-center">
-                        <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-green-700">
+                        <CheckCircle className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-emerald-700">
                           {historial.resumen.transferenciasCompletadas}
                         </div>
-                        <div className="text-xs text-green-600">Completadas</div>
+                        <div className="text-xs text-emerald-600">Completadas</div>
                       </div>
                     </Card>
 
@@ -492,13 +492,13 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                       </div>
                     </Card>
 
-                    <Card padding="md" className="bg-blue-50">
+                    <Card padding="md" className="bg-sky-50">
                       <div className="text-center">
-                        <Package className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-blue-700">
+                        <Package className="h-8 w-8 text-sky-500 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-sky-700">
                           {historial.resumen.totalUnidadesTransportadas}
                         </div>
-                        <div className="text-xs text-blue-600">Unidades Transportadas</div>
+                        <div className="text-xs text-sky-600">Unidades Transportadas</div>
                       </div>
                     </Card>
                   </div>
@@ -537,7 +537,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                                   </div>
 
                                   <div className="text-center">
-                                    <div className="text-sm font-medium text-green-600">
+                                    <div className="text-sm font-medium text-emerald-600">
                                       ${(t.costoFleteTotal || 0).toFixed(2)}
                                     </div>
                                     <div className="text-xs text-slate-500">Flete</div>
@@ -562,13 +562,13 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                 <div className="space-y-6">
                   {/* KPIs financieros */}
                   <div className="grid grid-cols-4 gap-4">
-                    <Card padding="md" className="bg-green-50">
+                    <Card padding="md" className="bg-emerald-50">
                       <div className="text-center">
-                        <CheckCircle className="h-6 w-6 text-green-500 mx-auto mb-2" />
-                        <div className="text-xl font-bold text-green-700">
+                        <CheckCircle className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
+                        <div className="text-xl font-bold text-emerald-700">
                           ${historial.resumen.totalFletePagado.toFixed(2)}
                         </div>
-                        <div className="text-xs text-green-600">Total Pagado</div>
+                        <div className="text-xs text-emerald-600">Total Pagado</div>
                       </div>
                     </Card>
 
@@ -582,13 +582,13 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                       </div>
                     </Card>
 
-                    <Card padding="md" className="bg-blue-50">
+                    <Card padding="md" className="bg-sky-50">
                       <div className="text-center">
-                        <TrendingUp className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-                        <div className="text-xl font-bold text-blue-700">
+                        <TrendingUp className="h-6 w-6 text-sky-500 mx-auto mb-2" />
+                        <div className="text-xl font-bold text-sky-700">
                           ${historial.resumen.promedioFletePorUnidad.toFixed(2)}
                         </div>
-                        <div className="text-xs text-blue-600">Promedio por Unidad</div>
+                        <div className="text-xs text-sky-600">Promedio por Unidad</div>
                       </div>
                     </Card>
 
@@ -660,7 +660,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                   {historial.pagados.length > 0 && (
                     <div>
                       <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-                        <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+                        <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" />
                         Pagos Realizados ({historial.pagados.length})
                       </h3>
                       <div className="space-y-3">
@@ -670,7 +670,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                             : (t.pagoViajero ? [t.pagoViajero] : []);
                           const ultimoPago = pagos[pagos.length - 1];
                           return (
-                            <Card key={t.id} padding="sm" className="border-l-4 border-l-green-400 bg-green-50">
+                            <Card key={t.id} padding="sm" className="border-l-4 border-l-emerald-400 bg-emerald-50">
                               <div className="flex items-center justify-between">
                                 <div>
                                   <div className="font-medium text-slate-900">{t.numeroTransferencia}</div>
@@ -686,7 +686,7 @@ export const ViajeroDetalle: React.FC<ViajeroDetalleProps> = ({
                                 </div>
                                 <div className="flex items-center space-x-4">
                                   <div className="text-right">
-                                    <div className="text-lg font-bold text-green-700">
+                                    <div className="text-lg font-bold text-emerald-700">
                                       ${(t.costoFleteTotal || 0).toFixed(2)}
                                     </div>
                                     <div className="text-xs text-slate-500">

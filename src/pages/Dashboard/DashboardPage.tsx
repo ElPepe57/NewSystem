@@ -2,7 +2,7 @@ import React from 'react';
 import { LayoutDashboard } from 'lucide-react';
 import { PageShell, PageHeader } from '../../design-system';
 import { DashboardSkeleton, LineaFiltroActivoBanner } from '../../components/common';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { ErrorTesoreriaBanner } from '../../components/modules/dashboard/ErrorTesoreriaBanner';
 import { useDashboardData } from './useDashboardData';
 import { ExecutiveSummarySection } from './sections/ExecutiveSummarySection';
@@ -33,14 +33,12 @@ export const DashboardPage: React.FC = () => {
           day: 'numeric'
         })}
         icon={LayoutDashboard}
+        titleExtra={<LineaDropdown />}
       />
 
       {/* Banners de estado */}
       <ErrorTesoreriaBanner />
       <LineaFiltroActivoBanner onClear={() => data.setLineaFiltroGlobal(null)} />
-
-      {/* Filtro de linea */}
-      <LineaFilterInline />
 
       {/* Zona 1 — Executive Pulse */}
       <ExecutiveSummarySection

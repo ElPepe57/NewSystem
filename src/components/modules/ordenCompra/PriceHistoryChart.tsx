@@ -197,7 +197,7 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({
           <span>Promedio</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className={`w-3 h-0.5 rounded ${precioActual > promedioHistorico ? 'bg-red-500' : 'bg-green-500'}`}></div>
+          <div className={`w-3 h-0.5 rounded ${precioActual > promedioHistorico ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
           <span>Precio actual</span>
         </div>
       </div>

@@ -140,7 +140,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
     return (
       <Modal isOpen onClose={onClose} title="Unidades Vencidas" size="md">
         <div className="text-center py-8 text-slate-500">
-          <CheckCircle className="h-12 w-12 mx-auto text-green-400 mb-3" />
+          <CheckCircle className="h-12 w-12 mx-auto text-emerald-400 mb-3" />
           <p className="font-medium">Sin unidades vencidas</p>
           <p className="text-sm mt-1">No hay productos pendientes de gestión.</p>
         </div>
@@ -183,7 +183,7 @@ export const GestionVencidasModal: React.FC<GestionVencidasModalProps> = ({
               <div
                 key={u.id}
                 className={`border rounded-lg overflow-hidden transition-colors ${
-                  isDecided ? 'border-green-200 bg-green-50/30' : 'border-red-200 bg-white'
+                  isDecided ? 'border-emerald-200 bg-emerald-50/30' : 'border-red-200 bg-white'
                 }`}
               >
                 {/* Product info */}

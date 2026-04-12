@@ -160,7 +160,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
 
   const estadoBadge = (estado: string) => {
     switch (estado) {
-      case 'asignada': return <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">Asignada</span>;
+      case 'asignada': return <span className="text-xs bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-medium">Asignada</span>;
       case 'en_entrega': return <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-medium">En entrega</span>;
       default: return null;
     }
@@ -171,7 +171,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
       {/* Venta selector */}
       <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
         <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
-          <FileText className="h-4 w-4 text-blue-500" />
+          <FileText className="h-4 w-4 text-sky-500" />
           Venta a despachar
         </label>
         {loading ? (
@@ -201,17 +201,17 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
 
         {/* Venta summary */}
         {selectedVenta && (
-          <div className="mt-3 p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-xs space-y-1">
+          <div className="mt-3 p-2.5 bg-sky-50 border border-sky-200 rounded-lg text-xs space-y-1">
             <div className="flex items-center justify-between">
-              <p><span className="text-blue-600 font-medium">Cliente:</span> {selectedVenta.nombreCliente}</p>
+              <p><span className="text-sky-600 font-medium">Cliente:</span> {selectedVenta.nombreCliente}</p>
               {estadoBadge(selectedVenta.estado)}
             </div>
-            <p><span className="text-blue-600 font-medium">Total:</span> S/ {selectedVenta.totalPEN.toFixed(2)}</p>
-            <p><span className="text-blue-600 font-medium">Canal:</span> {selectedVenta.canalNombre || selectedVenta.canal}</p>
+            <p><span className="text-sky-600 font-medium">Total:</span> S/ {selectedVenta.totalPEN.toFixed(2)}</p>
+            <p><span className="text-sky-600 font-medium">Canal:</span> {selectedVenta.canalNombre || selectedVenta.canal}</p>
             {selectedVenta.direccionEntrega && (
-              <p><span className="text-blue-600 font-medium">Direccion:</span> {selectedVenta.direccionEntrega}</p>
+              <p><span className="text-sky-600 font-medium">Direccion:</span> {selectedVenta.direccionEntrega}</p>
             )}
-            <p><span className="text-blue-600 font-medium">Productos:</span> {selectedVenta.productos.length} items, {selectedVenta.productos.reduce((s, p) => s + p.cantidad, 0)} uds</p>
+            <p><span className="text-sky-600 font-medium">Productos:</span> {selectedVenta.productos.length} items, {selectedVenta.productos.reduce((s, p) => s + p.cantidad, 0)} uds</p>
           </div>
         )}
       </div>
@@ -226,7 +226,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
                 Validacion: {totalEscaneado}/{totalEsperado}
               </span>
               {isValidated && (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                   <CheckCircle2 className="h-3 w-3" /> Completo
                 </span>
               )}
@@ -234,7 +234,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
             <div className="w-full bg-slate-200 rounded-full h-2.5">
               <div
                 className={`h-2.5 rounded-full transition-all ${
-                  progreso >= 100 ? 'bg-green-500' : progreso > 0 ? 'bg-blue-500' : 'bg-slate-300'
+                  progreso >= 100 ? 'bg-emerald-500' : progreso > 0 ? 'bg-sky-500' : 'bg-slate-300'
                 }`}
                 style={{ width: `${Math.min(progreso, 100)}%` }}
               />
@@ -252,7 +252,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
                   key={prod.productoId}
                   className={`bg-white border rounded-lg p-3 transition-all ${
                     completo
-                      ? 'border-green-300 bg-green-50/30'
+                      ? 'border-emerald-300 bg-emerald-50/30'
                       : parcial
                         ? 'border-amber-300 bg-amber-50/20'
                         : 'border-slate-200'
@@ -262,7 +262,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         {completo ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                         ) : parcial ? (
                           <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
                         ) : (
@@ -275,7 +275,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
 
                     <div className="text-center min-w-[3rem] shrink-0">
                       <span className={`text-sm font-bold tabular-nums ${
-                        completo ? 'text-green-600' : parcial ? 'text-amber-600' : 'text-slate-900'
+                        completo ? 'text-emerald-600' : parcial ? 'text-amber-600' : 'text-slate-900'
                       }`}>
                         {prod.escaneado}
                       </span>
@@ -289,15 +289,15 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
 
           {/* Validated — confirm dispatch */}
           {isValidated && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-              <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <p className="text-sm font-medium text-green-700">Todos los productos validados</p>
-              <p className="text-xs text-green-600 mt-1 mb-3">La venta esta lista para despacho</p>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
+              <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
+              <p className="text-sm font-medium text-emerald-700">Todos los productos validados</p>
+              <p className="text-xs text-emerald-600 mt-1 mb-3">La venta esta lista para despacho</p>
               <button
                 type="button"
                 onClick={handleConfirmarDespacho}
                 disabled={isDispatching}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
               >
                 <Truck className="h-4 w-4" />
                 {isDispatching ? 'Confirmando...' : 'Confirmar Validacion'}
@@ -310,7 +310,7 @@ export const DespachoCotizacion = forwardRef<DespachoCotizacionHandle>((_props, 
       {/* Empty state */}
       {selectedVenta && productos.length === 0 && (
         <div className="text-center py-8">
-          <Package className="h-8 w-8 text-green-400 mx-auto mb-2" />
+          <Package className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
           <p className="text-sm text-slate-500">Todos los productos ya fueron entregados</p>
         </div>
       )}

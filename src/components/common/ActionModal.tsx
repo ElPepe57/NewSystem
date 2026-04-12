@@ -42,8 +42,8 @@ const variantConfig: Record<ActionModalVariant, {
 }> = {
   info: {
     icon: <Info className="h-6 w-6" />,
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
+    iconBg: 'bg-sky-100',
+    iconColor: 'text-sky-600',
     buttonVariant: 'primary'
   },
   warning: {
@@ -54,8 +54,8 @@ const variantConfig: Record<ActionModalVariant, {
   },
   success: {
     icon: <CheckCircle className="h-6 w-6" />,
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-600',
+    iconBg: 'bg-emerald-100',
+    iconColor: 'text-emerald-600',
     buttonVariant: 'primary'
   },
   danger: {

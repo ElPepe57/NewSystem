@@ -230,22 +230,22 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
     >
       <div className="space-y-4 sm:space-y-5">
         {/* Progreso global */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+        <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <Truck className="h-4 w-4 text-blue-600" />
-              <span className="text-xs sm:text-sm font-medium text-blue-900">Progreso</span>
+              <Truck className="h-4 w-4 text-sky-600" />
+              <span className="text-xs sm:text-sm font-medium text-sky-900">Progreso</span>
             </div>
-            <span className="text-xs sm:text-sm font-bold text-blue-900">{totalRecibido}/{totalOrdenado} ({porcentajeGlobal.toFixed(0)}%)</span>
+            <span className="text-xs sm:text-sm font-bold text-sky-900">{totalRecibido}/{totalOrdenado} ({porcentajeGlobal.toFixed(0)}%)</span>
           </div>
-          <div className="w-full bg-blue-200 rounded-full h-2.5">
+          <div className="w-full bg-sky-200 rounded-full h-2.5">
             <div
-              className="bg-blue-600 h-2.5 rounded-full transition-all"
+              className="bg-sky-600 h-2.5 rounded-full transition-all"
               style={{ width: `${porcentajeGlobal}%` }}
             />
           </div>
           {orden.recepcionesParciales && orden.recepcionesParciales.length > 0 && (
-            <div className="mt-2 text-xs text-blue-700">
+            <div className="mt-2 text-xs text-sky-700">
               {orden.recepcionesParciales.length} recepción(es) previas registradas
             </div>
           )}
@@ -253,12 +253,12 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
 
         {/* Resultado */}
         {resultado?.success && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-1">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <span className="font-semibold text-green-900">Recepción registrada</span>
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <span className="font-semibold text-emerald-900">Recepción registrada</span>
             </div>
-            <p className="text-sm text-green-800">{resultado.message}</p>
+            <p className="text-sm text-emerald-800">{resultado.message}</p>
             <Button variant="primary" className="mt-3" onClick={handleClose}>
               Cerrar
             </Button>
@@ -372,15 +372,15 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                         key={p.productoId}
                         className={`transition-all duration-300 ${
                           isFlashing
-                            ? 'bg-green-100 ring-2 ring-inset ring-green-400'
+                            ? 'bg-emerald-100 ring-2 ring-inset ring-emerald-400'
                             : p.completo
-                            ? 'bg-green-50 opacity-60'
+                            ? 'bg-emerald-50 opacity-60'
                             : 'hover:bg-slate-50'
                         }`}
                       >
                         <td className="px-3 py-2">
                           {p.completo ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                           ) : (
                             <input
                               type="checkbox"
@@ -396,13 +396,13 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                         </td>
                         <td className="px-2 py-2 text-center font-medium">{p.cantidad}</td>
                         <td className="px-2 py-2 text-center">
-                          <span className={p.recibido > 0 ? 'text-green-600 font-medium' : 'text-slate-400'}>
+                          <span className={p.recibido > 0 ? 'text-emerald-600 font-medium' : 'text-slate-400'}>
                             {p.recibido}
                           </span>
                         </td>
                         <td className="px-2 py-2 text-center">
                           {p.completo ? (
-                            <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">Completo</span>
+                            <span className="text-xs font-medium text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Completo</span>
                           ) : (
                             <span className="text-amber-600 font-medium">{p.pendiente}</span>
                           )}
@@ -411,7 +411,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                           {p.completo ? (
                             <span className="text-slate-400">-</span>
                           ) : modoEscaner ? (
-                            <span className={`font-bold text-lg ${(cantidades[p.productoId] || 0) > 0 ? 'text-green-600' : 'text-slate-300'}`}>
+                            <span className={`font-bold text-lg ${(cantidades[p.productoId] || 0) > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>
                               {cantidades[p.productoId] || 0}
                             </span>
                           ) : (
@@ -448,14 +448,14 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
 
             {/* Resumen */}
             {resumen.totalUnidades > 0 && (
-              <div className={`rounded-lg p-4 border ${resumen.esRecepcionFinal ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
+              <div className={`rounded-lg p-4 border ${resumen.esRecepcionFinal ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}>
                 <div className="flex items-center gap-2 mb-2">
                   <Package className="h-4 w-4 text-slate-600" />
                   <span className="text-sm font-semibold text-slate-900">
                     Resumen de recepción #{numeroRecepcion}
                   </span>
                   {resumen.esRecepcionFinal && (
-                    <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-medium text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
                       RECEPCIÓN FINAL
                     </span>
                   )}

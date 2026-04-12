@@ -153,9 +153,9 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       </div>
 
       {/* Columna 3: LISTAS PARA CONFIRMAR */}
-      <div className="bg-green-50 rounded-lg p-4">
+      <div className="bg-emerald-50 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+          <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
           <h3 className="font-semibold text-slate-700">Listas</h3>
           <Badge variant="success" size="sm">{listasParaConfirmar.length}</Badge>
         </div>
@@ -163,7 +163,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
         {sinAdelanto.length > 0 && (
           <div className="mb-3">
-            <div className="text-xs font-medium text-blue-600 mb-1 flex items-center gap-1">
+            <div className="text-xs font-medium text-sky-600 mb-1 flex items-center gap-1">
               <Clock className="h-3 w-3" />
               Sin adelanto ({sinAdelanto.length}) - 7 días
             </div>
@@ -189,7 +189,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
         {conAdelantoPagado.length > 0 && (
           <div className="mb-3">
-            <div className="text-xs font-medium text-green-600 mb-1 flex items-center gap-1">
+            <div className="text-xs font-medium text-emerald-600 mb-1 flex items-center gap-1">
               <Lock className="h-3 w-3" />
               Con adelanto ({conAdelantoPagado.length}) - Stock reservado
             </div>
@@ -217,9 +217,9 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       {/* Columna 4: ARCHIVO */}
       <div className="space-y-4">
         {/* Sección: CONFIRMADAS */}
-        <div className="bg-blue-50 rounded-lg p-4">
+        <div className="bg-sky-50 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+            <div className="w-3 h-3 rounded-full bg-sky-500"></div>
             <h3 className="font-semibold text-slate-700">Confirmadas</h3>
             <Badge variant="info" size="sm">{confirmadas.length}</Badge>
           </div>
@@ -229,13 +229,13 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               <p className="text-sm text-slate-500 text-center py-4">Sin confirmadas</p>
             ) : (
               confirmadas.map(c => (
-                <div key={c.id} className="bg-white border border-blue-200 rounded-lg p-3 shadow-sm">
+                <div key={c.id} className="bg-white border border-sky-200 rounded-lg p-3 shadow-sm">
                   <div className="flex items-start justify-between mb-2">
-                    <span className="text-sm font-semibold text-blue-600">{c.numeroCotizacion}</span>
+                    <span className="text-sm font-semibold text-sky-600">{c.numeroCotizacion}</span>
                     {c.numeroVenta && (
                       <a
                         href={`/ventas?id=${c.ventaId}`}
-                        className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded flex items-center gap-1 hover:bg-green-200 transition-colors"
+                        className="text-xs px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded flex items-center gap-1 hover:bg-emerald-200 transition-colors"
                       >
                         <ShoppingCart className="h-3 w-3" />
                         {c.numeroVenta}
@@ -243,7 +243,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     )}
                   </div>
                   <p className="text-sm text-slate-900 truncate">{c.nombreCliente}</p>
-                  <p className="text-lg font-bold text-green-600">{formatCurrency(c.totalPEN)}</p>
+                  <p className="text-lg font-bold text-emerald-600">{formatCurrency(c.totalPEN)}</p>
                   {c.fechaConfirmacion && (
                     <p className="text-xs text-slate-500 mt-1">
                       Confirmada: {c.fechaConfirmacion.toDate?.().toLocaleDateString('es-PE')}
@@ -260,7 +260,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     {c.ventaId && (
                       <a
                         href={`/ventas?id=${c.ventaId}`}
-                        className="flex-1 p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                        className="flex-1 p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
                         title="Ir a la venta"
                       >
                         <ExternalLink className="h-4 w-4 mx-auto" />

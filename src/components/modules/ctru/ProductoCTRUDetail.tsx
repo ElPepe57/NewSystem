@@ -3,7 +3,9 @@ import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Calculator, TrendingUp, ArrowRight, ShoppingCart, DollarSign, BarChart3 } from 'lucide-react';
 import { Modal } from '../../common';
 import { MultiLineChart, formatCurrency, CHART_COLORS } from '../../common/Charts';
-import type { CTRUProductoDetalle } from '../../../store/ctruStore';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
+import type { CTRUProductoDetalle, LoteProducto, VentaProductoDetalle } from '../../../store/ctruStore';
 
 interface ProductoCTRUDetailProps {
   producto: CTRUProductoDetalle;
@@ -40,9 +42,9 @@ export const ProductoCTRUDetail: React.FC<ProductoCTRUDetailProps> = ({ producto
         <div className="flex items-center gap-3 pb-3 border-b">
           <span className="font-mono text-sm bg-slate-100 px-3 py-1 rounded-lg">{p.productoSKU || '-'}</span>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-            p.estadoProducto === 'activo' ? 'bg-green-100 text-green-700' :
+            p.estadoProducto === 'activo' ? 'bg-emerald-100 text-emerald-700' :
             p.estadoProducto === 'vendido' ? 'bg-slate-200 text-slate-600' :
-            'bg-blue-100 text-blue-700'
+            'bg-sky-100 text-sky-700'
           }`}>
             {p.estadoProducto === 'activo' ? 'En inventario' :
              p.estadoProducto === 'vendido' ? 'Todo vendido' : 'Mixto'}
@@ -61,7 +63,7 @@ export const ProductoCTRUDetail: React.FC<ProductoCTRUDetailProps> = ({ producto
               onClick={() => setSubTab(tab.id)}
               className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
                 subTab === tab.id
-                  ? 'border-blue-600 text-blue-700'
+                  ? 'border-sky-600 text-sky-700'
                   : 'border-transparent text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -101,8 +103,8 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
       usd: formatUSD(p.costoCompraUSDProm),
       pen: formatCurrency(p.costoCompraPENProm),
       pct: `${p.pctCompra.toFixed(1)}%`,
-      color: 'border-l-blue-500',
-      bg: 'bg-blue-50'
+      color: 'border-l-sky-500',
+      bg: 'bg-sky-50'
     },
     {
       label: 'Impuesto (Tax)',
@@ -205,7 +207,7 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
           {/* CTRU */}
           <div className="flex items-center justify-between p-3 bg-slate-100 rounded-lg">
             <span className="text-sm font-bold text-slate-800">= CTRU (Capas 1-6)</span>
-            <span className="text-lg font-bold text-blue-700">{formatCurrency(p.ctruPromedio)}</span>
+            <span className="text-lg font-bold text-sky-700">{formatCurrency(p.ctruPromedio)}</span>
           </div>
 
           {/* Costo Total Real */}
@@ -218,19 +220,19 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
           {p.ventasCount > 0 && (
             <>
               <div className="border-t border-slate-200 my-1" />
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
                 <span className="text-sm text-slate-700">Precio Venta Prom.</span>
                 <span className="text-sm font-semibold text-slate-800">{formatCurrency(p.precioVentaProm)}</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
                 <span className="text-sm text-slate-700">Margen Bruto (sin GV/GD)</span>
-                <span className={`text-sm font-bold ${p.margenBrutoProm >= 20 ? 'text-green-600' : p.margenBrutoProm >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
+                <span className={`text-sm font-bold ${p.margenBrutoProm >= 20 ? 'text-emerald-600' : p.margenBrutoProm >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
                   {formatCurrency(margenBrutoMonto)} ({p.margenBrutoProm.toFixed(1)}%)
                 </span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border-2 border-green-200">
+              <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border-2 border-emerald-200">
                 <span className="text-sm font-bold text-slate-800">Margen Neto Real</span>
-                <span className={`text-lg font-bold ${p.margenNetoProm >= 20 ? 'text-green-600' : p.margenNetoProm >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
+                <span className={`text-lg font-bold ${p.margenNetoProm >= 20 ? 'text-emerald-600' : p.margenNetoProm >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
                   {formatCurrency(margenNetoMonto)} ({p.margenNetoProm.toFixed(1)}%)
                 </span>
               </div>
@@ -253,9 +255,9 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
         </h4>
 
         <div className="space-y-3">
-          <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="bg-sky-50 p-4 rounded-lg">
             <div className="text-xs text-slate-500 mb-1">Costo base para pricing (Costo Total Real)</div>
-            <div className="text-2xl font-bold text-blue-700">{formatCurrency(p.pricing.costoTotal > 0 ? p.pricing.costoTotal : p.pricing.ctru)}</div>
+            <div className="text-2xl font-bold text-sky-700">{formatCurrency(p.pricing.costoTotal > 0 ? p.pricing.costoTotal : p.pricing.ctru)}</div>
           </div>
 
           {p.unidadesVendidas === 0 && p.gastoGAGOEstimado > 0 && (
@@ -270,7 +272,7 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
           {([
             { label: '10% margen', value: p.pricing.precioMinimo10, color: 'text-red-600', bg: 'bg-red-50' },
             { label: '20% margen', value: p.pricing.precioMinimo20, color: 'text-amber-600', bg: 'bg-amber-50' },
-            { label: '30% margen', value: p.pricing.precioMinimo30, color: 'text-green-600', bg: 'bg-green-50' }
+            { label: '30% margen', value: p.pricing.precioMinimo30, color: 'text-emerald-600', bg: 'bg-emerald-50' }
           ]).map(target => (
             <div key={target.label} className={`flex items-center justify-between p-3 ${target.bg} rounded-lg`}>
               <span className="text-sm text-slate-700">{target.label}</span>
@@ -288,7 +290,7 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
               <div className="flex items-center justify-between p-3 bg-slate-100 rounded-lg">
                 <span className="text-sm text-slate-700">Margen actual</span>
                 <span className={`text-sm font-bold ${
-                  p.pricing.margenActual >= 20 ? 'text-green-600' :
+                  p.pricing.margenActual >= 20 ? 'text-emerald-600' :
                   p.pricing.margenActual >= 10 ? 'text-amber-600' : 'text-red-600'
                 }`}>
                   {p.pricing.margenActual.toFixed(1)}%
@@ -300,9 +302,9 @@ function CostosTab({ p, formatUSD, costoTotal, margenBrutoMonto, margenNetoMonto
 
         {/* Summary stats */}
         <div className="grid grid-cols-2 gap-3 mt-4">
-          <div className="bg-blue-50 p-3 rounded-lg text-center">
+          <div className="bg-sky-50 p-3 rounded-lg text-center">
             <div className="text-xs text-slate-500">CTRU Promedio</div>
-            <div className="text-lg font-bold text-blue-700">{formatCurrency(p.ctruPromedio)}</div>
+            <div className="text-lg font-bold text-sky-700">{formatCurrency(p.ctruPromedio)}</div>
           </div>
           <div className="bg-slate-50 p-3 rounded-lg text-center">
             <div className="text-xs text-slate-500">Compra USD Prom.</div>
@@ -358,42 +360,63 @@ function ComprasTab({ p, formatUSD, formatDate }: {
       )}
 
       {/* Table */}
-      {p.lotes.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr className="border-b border-slate-200">
-                <th className="text-left py-2 px-2 font-medium text-slate-600">OC #</th>
-                <th className="text-left py-2 px-2 font-medium text-slate-600">Fecha</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">Cantidad</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">Costo USD</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">Costo PEN</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">TC</th>
-              </tr>
-            </thead>
-            <tbody>
-              {p.lotes.map((lote) => (
-                <tr key={lote.ordenCompraId} className="border-b border-slate-100">
-                  <td className="py-2 px-2">
-                    <span className="font-mono text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
-                      {lote.ordenCompraNumero}
-                    </span>
-                  </td>
-                  <td className="py-2 px-2 text-slate-600">{formatDate(lote.fecha)}</td>
-                  <td className="py-2 px-2 text-right">
-                    <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs font-medium">
-                      {lote.cantidad}
-                    </span>
-                  </td>
-                  <td className="py-2 px-2 text-right">{formatUSD(lote.costoUnitarioUSD)}</td>
-                  <td className="py-2 px-2 text-right font-semibold">{formatCurrency(lote.costoUnitarioPEN)}</td>
-                  <td className="py-2 px-2 text-right text-slate-500">S/ {lote.tc.toFixed(4)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {p.lotes.length > 0 && (() => {
+        const columnasLotes: DataTableColumn<LoteProducto>[] = [
+          {
+            key: 'oc',
+            header: 'OC #',
+            render: lote => (
+              <span className="font-mono text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded">
+                {lote.ordenCompraNumero}
+              </span>
+            )
+          },
+          {
+            key: 'fecha',
+            header: 'Fecha',
+            render: lote => <span className="text-slate-600">{formatDate(lote.fecha)}</span>
+          },
+          {
+            key: 'cantidad',
+            header: 'Cantidad',
+            align: 'right',
+            render: lote => (
+              <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                {lote.cantidad}
+              </span>
+            )
+          },
+          {
+            key: 'costoUSD',
+            header: 'Costo USD',
+            align: 'right',
+            hideOnMobile: true,
+            render: lote => <span>{formatUSD(lote.costoUnitarioUSD)}</span>
+          },
+          {
+            key: 'costoPEN',
+            header: 'Costo PEN',
+            align: 'right',
+            render: lote => <span className="font-semibold">{formatCurrency(lote.costoUnitarioPEN)}</span>
+          },
+          {
+            key: 'tc',
+            header: 'TC',
+            align: 'right',
+            hideOnMobile: true,
+            render: lote => <span className="text-slate-500">S/ {lote.tc.toFixed(4)}</span>
+          }
+        ];
+        return (
+          <DataTable
+            columns={columnasLotes}
+            data={p.lotes}
+            keyExtractor={lote => lote.ordenCompraId}
+            compact
+            emptyMessage="Sin órdenes de compra registradas"
+          />
+        );
+      })()}
 
       {p.lotes.length === 0 && (
         <div className="text-center py-8 text-slate-400">
@@ -440,57 +463,84 @@ function VentasTab({ p, formatDate }: {
       )}
 
       {/* Table */}
-      {p.ventasDetalle.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr className="border-b border-slate-200">
-                <th className="text-left py-2 px-2 font-medium text-slate-600">Venta #</th>
-                <th className="text-left py-2 px-2 font-medium text-slate-600">Fecha</th>
-                <th className="text-left py-2 px-2 font-medium text-slate-600">Cliente</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">Cant</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">Precio Unit</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">Costo Unit</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">GV/GD</th>
-                <th className="text-right py-2 px-2 font-medium text-slate-600">Margen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {p.ventasDetalle.map((v) => (
-                <tr key={v.ventaId} className="border-b border-slate-100">
-                  <td className="py-2 px-2">
-                    <span className="font-mono text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded">
-                      {v.ventaNumero}
-                    </span>
-                  </td>
-                  <td className="py-2 px-2 text-slate-600 text-xs">{formatDate(v.fecha)}</td>
-                  <td className="py-2 px-2 text-slate-700 text-xs max-w-[150px] truncate">{v.cliente}</td>
-                  <td className="py-2 px-2 text-right">{v.cantidad}</td>
-                  <td className="py-2 px-2 text-right">{formatCurrency(v.precioUnitario)}</td>
-                  <td className="py-2 px-2 text-right text-slate-600">
-                    {v.costoUnitario > 0 ? formatCurrency(v.costoUnitario) : <span className="text-slate-400">-</span>}
-                  </td>
-                  <td className="py-2 px-2 text-right text-slate-600 text-xs">
-                    {v.gvgdUnitario > 0 ? formatCurrency(v.gvgdUnitario) : <span className="text-slate-400">-</span>}
-                  </td>
-                  <td className="py-2 px-2 text-right">
-                    {v.margenNeto !== 0 ? (
-                      <span className={`text-xs font-bold ${
-                        v.margenNeto >= 20 ? 'text-green-600' :
-                        v.margenNeto >= 10 ? 'text-amber-600' : 'text-red-600'
-                      }`}>
-                        {v.margenNeto.toFixed(1)}%
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 text-xs">-</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
+      {p.ventasDetalle.length > 0 ? (() => {
+        const columnasVentas: DataTableColumn<VentaProductoDetalle>[] = [
+          {
+            key: 'ventaNumero',
+            header: 'Venta #',
+            render: v => (
+              <span className="font-mono text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">
+                {v.ventaNumero}
+              </span>
+            )
+          },
+          {
+            key: 'fecha',
+            header: 'Fecha',
+            render: v => <span className="text-slate-600 text-xs">{formatDate(v.fecha)}</span>
+          },
+          {
+            key: 'cliente',
+            header: 'Cliente',
+            render: v => <span className="text-slate-700 text-xs max-w-[150px] truncate block">{v.cliente}</span>
+          },
+          {
+            key: 'cantidad',
+            header: 'Cant',
+            align: 'right',
+            render: v => <span>{v.cantidad}</span>
+          },
+          {
+            key: 'precioUnitario',
+            header: 'Precio Unit',
+            align: 'right',
+            hideOnMobile: true,
+            render: v => <span>{formatCurrency(v.precioUnitario)}</span>
+          },
+          {
+            key: 'costoUnitario',
+            header: 'Costo Unit',
+            align: 'right',
+            hideOnMobile: true,
+            render: v => v.costoUnitario > 0
+              ? <span className="text-slate-600">{formatCurrency(v.costoUnitario)}</span>
+              : <span className="text-slate-400">-</span>
+          },
+          {
+            key: 'gvgd',
+            header: 'GV/GD',
+            align: 'right',
+            hideOnMobile: true,
+            render: v => v.gvgdUnitario > 0
+              ? <span className="text-slate-600 text-xs">{formatCurrency(v.gvgdUnitario)}</span>
+              : <span className="text-slate-400 text-xs">-</span>
+          },
+          {
+            key: 'margen',
+            header: 'Margen',
+            align: 'right',
+            render: v => v.margenNeto !== 0 ? (
+              <span className={`text-xs font-bold ${
+                v.margenNeto >= 20 ? 'text-emerald-600' :
+                v.margenNeto >= 10 ? 'text-amber-600' : 'text-red-600'
+              }`}>
+                {v.margenNeto.toFixed(1)}%
+              </span>
+            ) : (
+              <span className="text-slate-400 text-xs">-</span>
+            )
+          }
+        ];
+        return (
+          <DataTable
+            columns={columnasVentas}
+            data={p.ventasDetalle}
+            keyExtractor={v => v.ventaId}
+            compact
+            emptyMessage="Sin ventas registradas"
+          />
+        );
+      })() : (
         <div className="text-center py-8 text-slate-400">
           <ShoppingCart className="w-8 h-8 mx-auto mb-2" />
           <p className="text-sm">No hay ventas registradas para este producto</p>

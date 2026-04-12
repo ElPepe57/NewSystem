@@ -481,7 +481,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                     disabled={importingOrders || procesando || reenrichingBuyers}
                     className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                   >
-                    <Download className="w-3.5 h-3.5 text-blue-500" />
+                    <Download className="w-3.5 h-3.5 text-sky-500" />
                     Importar Historial ML
                   </button>
                   <div className="border-t border-slate-100 my-1" />
@@ -514,9 +514,9 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                   <button
                     onClick={() => { setToolsOpen(false); handleLoadSuggestions(); }}
                     disabled={vinculacionLoading || procesando}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-sky-600 hover:bg-sky-50 disabled:opacity-50"
                   >
-                    <Link2 className="w-3.5 h-3.5 text-blue-500" />
+                    <Link2 className="w-3.5 h-3.5 text-sky-500" />
                     {vinculacionLoading ? 'Cargando...' : 'Vincular Órdenes ML ↔ Ventas'}
                   </button>
                   <button
@@ -579,7 +579,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
 
       {/* Import result banner */}
       {importResult && (
-        <div className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
+        <div className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-sky-50 border border-sky-200 text-sky-700">
           <Download className="w-4 h-4 flex-shrink-0" />
           <span>
             {importResult.importadas} orden{importResult.importadas !== 1 ? 'es' : ''} importada{importResult.importadas !== 1 ? 's' : ''}
@@ -587,7 +587,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
             {importResult.errores > 0 && `, ${importResult.errores} error${importResult.errores !== 1 ? 'es' : ''}`}
             {' '}(total en ML: {importResult.totalEnML})
           </span>
-          <button onClick={() => setImportResult(null)} className="ml-auto text-blue-400 hover:text-blue-600">
+          <button onClick={() => setImportResult(null)} className="ml-auto text-sky-400 hover:text-sky-600">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -710,7 +710,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
               <button
                 onClick={() => handleAnalizarBalance(true)}
                 disabled={analizandoBalance}
-                className="px-2.5 py-1 text-[11px] font-medium rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors flex items-center gap-1"
+                className="px-2.5 py-1 text-[11px] font-medium rounded bg-sky-500 text-white hover:bg-sky-600 disabled:opacity-50 transition-colors flex items-center gap-1"
               >
                 {analizandoBalance && <Loader2 className="w-3 h-3 animate-spin" />}
                 {analizandoBalance ? 'Analizando...' : 'Analizar Descuadre MP'}
@@ -802,7 +802,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                     <span className="text-xs font-medium">{inc.metodoEnvio}</span>
                   </div>
                   <div className="text-xs text-slate-600 mb-2">
-                    Total correcto: <strong className="text-green-700">S/ {inc.totalPENCorrecto.toFixed(2)}</strong>
+                    Total correcto: <strong className="text-emerald-700">S/ {inc.totalPENCorrecto.toFixed(2)}</strong>
                     {' | '}Subtotal: S/ {inc.subtotalPEN.toFixed(2)}
                     {' | '}Comisión: S/ {inc.comisionML.toFixed(2)}
                     {inc.cargoEnvioML > 0 && <> | Cargo envío: S/ {inc.cargoEnvioML.toFixed(2)}</>}
@@ -823,7 +823,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                         <div className="text-xs text-slate-400 italic pl-2">Ningún candidato encontrado. Se creará movimiento nuevo en la reingeniería.</div>
                       ) : (
                         inc.candidatos.map((cand: any) => (
-                          <label key={cand.movId} className={`flex items-start gap-2 p-1.5 rounded cursor-pointer hover:bg-amber-50 ${resolucion?.movId === cand.movId && resolucion?.accion === 'vincular' ? 'bg-green-50 ring-1 ring-green-300' : ''}`}>
+                          <label key={cand.movId} className={`flex items-start gap-2 p-1.5 rounded cursor-pointer hover:bg-amber-50 ${resolucion?.movId === cand.movId && resolucion?.accion === 'vincular' ? 'bg-emerald-50 ring-1 ring-emerald-300' : ''}`}>
                             <input
                               type="radio"
                               name={`inc-${inc.ventaId}`}
@@ -838,7 +838,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                             <div className="text-xs flex-1">
                               <div className="flex items-center gap-1.5">
                                 <span className="font-mono font-semibold">S/ {cand.monto.toFixed(2)}</span>
-                                <span className={`px-1 py-0.5 rounded text-[9px] font-medium ${cand.score >= 70 ? 'bg-green-100 text-green-700' : cand.score >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-600'}`}>
+                                <span className={`px-1 py-0.5 rounded text-[9px] font-medium ${cand.score >= 70 ? 'bg-emerald-100 text-emerald-700' : cand.score >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-600'}`}>
                                   {cand.score} pts
                                 </span>
                                 <span className="text-slate-400 text-[10px]">{cand.matchDetail}</span>
@@ -908,10 +908,10 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
 
       {/* Vinculación ML ↔ Ventas panel */}
       {showVinculacion && vinculacionData && (
-        <div className="bg-white rounded-xl border border-blue-200 p-4 space-y-3">
+        <div className="bg-white rounded-xl border border-sky-200 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Link2 className="w-4 h-4 text-blue-500" />
+              <Link2 className="w-4 h-4 text-sky-500" />
               <h3 className="text-sm font-semibold text-slate-800">Vincular Órdenes ML ↔ Ventas</h3>
               <span className="text-[11px] text-slate-400">
                 {vinculacionData.totalSyncPendientes} pendientes · {vinculacionData.totalVentasSinVincular} ventas sin vincular
@@ -940,7 +940,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-slate-800">ML #{s.mlOrderId}</span>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                          s.syncMetodoEnvio === 'flex' ? 'bg-green-100 text-green-700' :
+                          s.syncMetodoEnvio === 'flex' ? 'bg-emerald-100 text-emerald-700' :
                           s.syncMetodoEnvio === 'urbano' ? 'bg-purple-100 text-purple-700' :
                           'bg-slate-100 text-slate-600'
                         }`}>
@@ -967,7 +967,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                           key={m.ventaId}
                           className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer transition-colors ${
                             selectedMatches[s.syncId] === m.ventaId
-                              ? 'bg-blue-50 border border-blue-300'
+                              ? 'bg-sky-50 border border-sky-300'
                               : 'hover:bg-slate-50 border border-transparent'
                           }`}
                         >
@@ -976,7 +976,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
                             name={`match-${s.syncId}`}
                             checked={selectedMatches[s.syncId] === m.ventaId}
                             onChange={() => setSelectedMatches((prev) => ({ ...prev, [s.syncId]: m.ventaId }))}
-                            className="text-blue-600"
+                            className="text-sky-600"
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -1030,7 +1030,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
               <button
                 onClick={handleConfirmMatches}
                 disabled={vinculando || Object.keys(selectedMatches).length === 0}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-lg bg-sky-500 text-white hover:bg-sky-600 disabled:opacity-50 transition-colors"
               >
                 {vinculando ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1046,7 +1046,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
 
       {/* Batch process result */}
       {batchResult && (
-        <div className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-green-50 border border-green-200 text-green-700">
+        <div className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700">
           <CheckCircle2 className="w-4 h-4" />
           {batchResult.procesadas} procesada{batchResult.procesadas !== 1 ? 's' : ''}
           {batchResult.errores > 0 && `, ${batchResult.errores} error${batchResult.errores !== 1 ? 'es' : ''}`}
@@ -1057,11 +1057,11 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
       {countHistorico > 0 && orderSyncs.length > 0 && (
         <div className="flex items-center gap-3 text-[11px] text-slate-400 px-1">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-300" /> {countHistorico} importado{countHistorico !== 1 ? 's' : ''}
+            <span className="w-2 h-2 rounded-full bg-sky-300" /> {countHistorico} importado{countHistorico !== 1 ? 's' : ''}
           </span>
           {countWebhook > 0 && (
             <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-300" /> {countWebhook} tiempo real
+              <span className="w-2 h-2 rounded-full bg-emerald-300" /> {countWebhook} tiempo real
             </span>
           )}
         </div>
@@ -1081,7 +1081,7 @@ export const TabOrdenes: React.FC<TabOrdenesProps> = ({ orderSyncs }) => {
               <button
                 onClick={handleImportarHistorial}
                 disabled={importingOrders}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg bg-sky-500 text-white hover:bg-sky-600 disabled:opacity-50 transition-colors"
               >
                 {importingOrders ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

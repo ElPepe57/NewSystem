@@ -157,10 +157,10 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       )}
 
       {showDiasValidez && onActualizarDiasValidez && (
-        <div className="mb-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="mb-3 p-2 bg-sky-50 rounded-lg border border-sky-200">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-blue-600 flex-shrink-0" />
-            <span className="text-xs text-blue-700">Validez:</span>
+            <Clock className="h-4 w-4 text-sky-600 flex-shrink-0" />
+            <span className="text-xs text-sky-700">Validez:</span>
             <input
               type="number"
               min="1"
@@ -177,9 +177,9 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
                   (e.target as HTMLInputElement).blur();
                 }
               }}
-              className="w-12 px-1 py-0.5 text-center text-sm font-semibold border border-blue-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-12 px-1 py-0.5 text-center text-sm font-semibold border border-sky-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
-            <span className="text-xs text-blue-700">días</span>
+            <span className="text-xs text-sky-700">días</span>
           </div>
         </div>
       )}
@@ -232,7 +232,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {cotizacion.telefonoCliente && (
           <button
             onClick={onWhatsApp}
-            className="flex-1 p-1.5 text-slate-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
             title="WhatsApp"
           >
             <MessageCircle className="h-4 w-4 mx-auto" />
@@ -241,7 +241,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         {showValidar && onValidar && (
           <button
             onClick={onValidar}
-            className="flex-1 p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            className="flex-1 p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded transition-colors"
             title="Validar (cliente confirmó)"
           >
             <UserCheck className="h-4 w-4 mx-auto" />
@@ -261,7 +261,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
             onClick={onRegistrarAdelanto}
             className={`flex-1 p-1.5 text-slate-500 rounded transition-colors ${
               cotizacion.estado === 'pendiente_adelanto'
-                ? 'hover:text-green-600 hover:bg-green-50'
+                ? 'hover:text-emerald-600 hover:bg-emerald-50'
                 : 'hover:text-purple-600 hover:bg-purple-50'
             }`}
             title={cotizacion.estado === 'pendiente_adelanto' ? 'Registrar Pago' : 'Comprometer Adelanto'}

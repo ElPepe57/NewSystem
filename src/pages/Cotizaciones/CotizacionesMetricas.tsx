@@ -62,9 +62,9 @@ export const CotizacionesMetricas: React.FC<CotizacionesMetricasProps> = ({ metr
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs text-slate-500 uppercase">Listas</div>
-            <div className="text-2xl font-bold text-green-600">{metricas.listasParaConfirmar}</div>
+            <div className="text-2xl font-bold text-emerald-600">{metricas.listasParaConfirmar}</div>
           </div>
-          <CheckCircle className="h-8 w-8 text-green-300" />
+          <CheckCircle className="h-8 w-8 text-emerald-300" />
         </div>
       </Card>
 

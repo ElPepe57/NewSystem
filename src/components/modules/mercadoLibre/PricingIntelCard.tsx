@@ -19,7 +19,7 @@ const BuyBoxMiniMobile: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
   if (!row.hasCatalogo || !row.buyBoxStatus) return null;
 
   const cfg: Record<string, { label: string; bg: string; text: string }> = {
-    winning: { label: 'GANANDO', bg: 'bg-green-50', text: 'text-green-700' },
+    winning: { label: 'GANANDO', bg: 'bg-emerald-50', text: 'text-emerald-700' },
     competing: { label: 'PERDIENDO', bg: 'bg-red-50', text: 'text-red-700' },
     sharing_first_place: { label: 'COMPARTIDO', bg: 'bg-yellow-50', text: 'text-yellow-700' },
     listed: { label: 'SIN COMPETIR', bg: 'bg-slate-100', text: 'text-slate-500' },
@@ -68,7 +68,7 @@ export const PricingIntelCard: React.FC<PricingIntelCardProps> = ({
           <p className="text-sm font-medium text-slate-900 line-clamp-2 leading-tight">{row.mlTitle}</p>
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
             {row.hasCatalogo && (
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">CAT</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-sky-50 text-sky-700">CAT</span>
             )}
             {row.hasClasica && (
               <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">CLA</span>

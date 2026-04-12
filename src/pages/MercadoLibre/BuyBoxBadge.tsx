@@ -7,7 +7,7 @@ export const BuyBoxBadge: React.FC<{ listing: MLProductMap }> = ({ listing }) =>
   }
 
   const statusConfig: Record<string, { label: string; bg: string; text: string }> = {
-    winning: { label: 'GANANDO', bg: 'bg-green-50', text: 'text-green-700' },
+    winning: { label: 'GANANDO', bg: 'bg-emerald-50', text: 'text-emerald-700' },
     competing: { label: 'PERDIENDO', bg: 'bg-red-50', text: 'text-red-700' },
     sharing_first_place: { label: 'COMPARTIENDO', bg: 'bg-yellow-50', text: 'text-yellow-700' },
     listed: { label: 'SIN COMPETIR', bg: 'bg-slate-100', text: 'text-slate-500' },

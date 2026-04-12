@@ -7,8 +7,8 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { Card } from '../../components/common';
-import { Toolbar, PageShell } from '../../design-system';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { Toolbar, PageShell, PageHeader } from '../../design-system';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
   CTRUKPIGrid,
   CostCompositionChart,
@@ -55,7 +55,7 @@ export const CTRUDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto" />
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-sky-600 mx-auto" />
           <p className="mt-4 text-slate-600">Cargando datos de CTRU...</p>
         </div>
       </div>
@@ -75,11 +75,11 @@ export const CTRUDashboard: React.FC = () => {
         title="CTRU - Costo Total Real por Unidad"
         subtitle="Analisis completo de costos, margenes y pricing por producto"
         icon={Calculator}
+        titleExtra={<LineaDropdown />}
        
       />
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
 
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-white border-b shadow-sm px-3 sm:px-6 py-2 sm:py-3">
@@ -91,7 +91,7 @@ export const CTRUDashboard: React.FC = () => {
                 onClick={() => setTabActiva(tab.id)}
                 className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                   tabActiva === tab.id
-                    ? 'bg-blue-100 text-blue-700'
+                    ? 'bg-teal-50 text-teal-700'
                     : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -100,7 +100,7 @@ export const CTRUDashboard: React.FC = () => {
                 <span className="hidden sm:inline">{tab.label}</span>
                 {tab.badge !== undefined && tab.badge > 0 && (
                   <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    tabActiva === tab.id ? 'bg-blue-200 text-blue-800' : 'bg-slate-200 text-slate-600'
+                    tabActiva === tab.id ? 'bg-teal-100 text-teal-800' : 'bg-slate-200 text-slate-600'
                   }`}>
                     {tab.badge}
                   </span>
@@ -116,7 +116,7 @@ export const CTRUDashboard: React.FC = () => {
                   onClick={() => setVistaCosto('contable')}
                   className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-md transition-colors ${
                     vistaCosto === 'contable'
-                      ? 'bg-white text-blue-700 shadow-sm'
+                      ? 'bg-white text-teal-700 shadow-sm'
                       : 'text-slate-500 hover:text-slate-700'
                   }`}
                   title="CTRU Contable: Precio + Costos Landed. Para P&L y estados financieros."
@@ -204,7 +204,7 @@ export const CTRUDashboard: React.FC = () => {
             {/* Vista info banner */}
             <div className={`text-xs px-3 py-2 rounded-lg border ${
               vistaCosto === 'contable'
-                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                ? 'bg-teal-50 border-teal-200 text-teal-700'
                 : 'bg-emerald-50 border-emerald-200 text-emerald-700'
             }`}>
               {vistaCosto === 'contable'

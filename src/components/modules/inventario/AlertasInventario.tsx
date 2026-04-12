@@ -337,7 +337,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
           label="Valor en Riesgo"
           value={formatCurrency(contadores.valorTotal)}
           icon={DollarSign}
-          variant="default"
+          variant="neutral"
         />
       </div>
 
@@ -397,7 +397,7 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
       {alertasFiltradas.length === 0 ? (
         <Card padding="lg">
           <div className="text-center py-12">
-            <CheckCircle className="mx-auto h-16 w-16 text-green-400" />
+            <CheckCircle className="mx-auto h-16 w-16 text-emerald-400" />
             <h3 className="mt-4 text-lg font-medium text-slate-900">
               {hayFiltrosActivos ? 'No hay alertas con esos criterios' : 'Todo en orden'}
             </h3>
@@ -466,18 +466,18 @@ export const AlertasInventario: React.FC<AlertasInventarioProps> = ({
 
                 {/* Sugerencia de Acción - Solo para vencimiento y sin_movimiento */}
                 {alerta.descuentoSugerido && alerta.descuentoSugerido > 0 && (
-                  <div className="mb-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                  <div className="mb-4 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
                     <div className="flex items-start gap-2 mb-2">
-                      <Lightbulb className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-xs font-medium text-green-800">
-                        Sugerencia: Aplicar <span className="font-bold text-green-700">{alerta.descuentoSugerido}% descuento</span>
+                      <Lightbulb className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs font-medium text-emerald-800">
+                        Sugerencia: Aplicar <span className="font-bold text-emerald-700">{alerta.descuentoSugerido}% descuento</span>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-2">
                       <div className="text-center bg-white/60 rounded p-1.5">
                         <div className="text-xs text-slate-500 line-through">{formatCurrency(alerta.valorAfectado)}</div>
-                        <div className="text-sm font-bold text-green-700">{formatCurrency(alerta.valorConDescuento || 0)}</div>
-                        <div className="text-xs text-green-600">recuperas</div>
+                        <div className="text-sm font-bold text-emerald-700">{formatCurrency(alerta.valorConDescuento || 0)}</div>
+                        <div className="text-xs text-emerald-600">recuperas</div>
                       </div>
                       <div className="text-center bg-white/60 rounded p-1.5">
                         <div className="text-sm font-bold text-amber-600">

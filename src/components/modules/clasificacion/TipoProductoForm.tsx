@@ -146,9 +146,9 @@ export function TipoProductoForm({
           </div>
         )}
 
-        <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <FlaskConical className="h-5 w-5 text-blue-600" />
-          <p className="text-sm text-blue-700">
+        <div className="flex items-center gap-2 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+          <FlaskConical className="h-5 w-5 text-sky-600" />
+          <p className="text-sm text-sky-700">
             El tipo agrupa productos que son "lo mismo" de diferentes marcas (ej: Omega 3, Colageno)
           </p>
         </div>
@@ -244,7 +244,7 @@ export function TipoProductoForm({
               {formData.beneficiosPrincipales.map((beneficio) => (
                 <span
                   key={beneficio}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm"
                 >
                   {beneficio}
                   <button

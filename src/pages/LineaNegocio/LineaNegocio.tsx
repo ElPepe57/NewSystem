@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StatCard as DSStatCard } from '../../design-system';
+import { StatCard as DSStatCard, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { Layers, Plus, Pencil, Package, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
 import { Button, Modal } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
@@ -156,101 +157,128 @@ export const LineaNegocio: React.FC = () => {
       ) : (
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           {/* Desktop table */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50">
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Color</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Codigo</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Nombre</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Descripcion</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Estado</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Productos</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Unidades</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {lineas.map((linea) => (
-                  <tr key={linea.id} className="hover:bg-slate-50 transition-colors">
-                    {/* Color swatch + icon */}
-                    <td className="px-4 py-3">
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm"
-                        style={{ backgroundColor: linea.color }}
-                      >
-                        {linea.icono || linea.codigo.slice(0, 2)}
-                      </div>
-                    </td>
-                    {/* Codigo */}
-                    <td className="px-4 py-3">
-                      <span
-                        className="inline-block px-2 py-0.5 rounded text-xs font-bold text-white"
-                        style={{ backgroundColor: linea.color }}
-                      >
-                        {linea.codigo}
-                      </span>
-                    </td>
-                    {/* Nombre */}
-                    <td className="px-4 py-3 font-medium text-slate-900">{linea.nombre}</td>
-                    {/* Descripcion */}
-                    <td className="px-4 py-3 text-sm text-slate-500 max-w-xs truncate">
-                      {linea.descripcion || '-'}
-                    </td>
-                    {/* Estado */}
-                    <td className="px-4 py-3 text-center">
+          {(() => {
+            const lineaColumns: DataTableColumn<LineaNegocioType>[] = [
+              {
+                key: 'color',
+                header: 'Color',
+                render: (linea) => (
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm"
+                    style={{ backgroundColor: linea.color }}
+                  >
+                    {linea.icono || linea.codigo.slice(0, 2)}
+                  </div>
+                ),
+              },
+              {
+                key: 'codigo',
+                header: 'Codigo',
+                render: (linea) => (
+                  <span
+                    className="inline-block px-2 py-0.5 rounded text-xs font-bold text-white"
+                    style={{ backgroundColor: linea.color }}
+                  >
+                    {linea.codigo}
+                  </span>
+                ),
+              },
+              {
+                key: 'nombre',
+                header: 'Nombre',
+                render: (linea) => (
+                  <span className="font-medium text-slate-900">{linea.nombre}</span>
+                ),
+              },
+              {
+                key: 'descripcion',
+                header: 'Descripcion',
+                hideOnMobile: true,
+                render: (linea) => (
+                  <span className="text-sm text-slate-500 max-w-xs truncate block">
+                    {linea.descripcion || '-'}
+                  </span>
+                ),
+              },
+              {
+                key: 'estado',
+                header: 'Estado',
+                align: 'center',
+                render: (linea) => (
+                  linea.activa ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                      <CheckCircle className="h-3 w-3" />
+                      Activa
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                      <XCircle className="h-3 w-3" />
+                      Inactiva
+                    </span>
+                  )
+                ),
+              },
+              {
+                key: 'productos',
+                header: 'Productos',
+                align: 'center',
+                hideOnMobile: true,
+                render: (linea) => (
+                  <span className="text-sm text-slate-700">{linea.totalProductos ?? 0}</span>
+                ),
+              },
+              {
+                key: 'unidades',
+                header: 'Unidades',
+                align: 'center',
+                hideOnMobile: true,
+                render: (linea) => (
+                  <span className="text-sm text-slate-700">{linea.totalUnidadesActivas ?? 0}</span>
+                ),
+              },
+              {
+                key: 'acciones',
+                header: 'Acciones',
+                align: 'right',
+                render: (linea) => (
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleActiva(linea); }}
+                      className={`p-1.5 rounded-lg transition-colors ${
+                        linea.activa
+                          ? 'text-emerald-600 hover:bg-emerald-50'
+                          : 'text-slate-400 hover:bg-slate-100'
+                      }`}
+                      title={linea.activa ? 'Desactivar' : 'Activar'}
+                    >
                       {linea.activa ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                          <CheckCircle className="h-3 w-3" />
-                          Activa
-                        </span>
+                        <CheckCircle className="h-4 w-4" />
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
-                          <XCircle className="h-3 w-3" />
-                          Inactiva
-                        </span>
+                        <XCircle className="h-4 w-4" />
                       )}
-                    </td>
-                    {/* Productos */}
-                    <td className="px-4 py-3 text-center text-sm text-slate-700">
-                      {linea.totalProductos ?? 0}
-                    </td>
-                    {/* Unidades */}
-                    <td className="px-4 py-3 text-center text-sm text-slate-700">
-                      {linea.totalUnidadesActivas ?? 0}
-                    </td>
-                    {/* Acciones */}
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleToggleActiva(linea)}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            linea.activa
-                              ? 'text-green-600 hover:bg-green-50'
-                              : 'text-slate-400 hover:bg-slate-100'
-                          }`}
-                          label={linea.activa ? 'Desactivar' : 'Activar'}
-                        >
-                          {linea.activa ? (
-                            <CheckCircle className="h-4 w-4" />
-                          ) : (
-                            <XCircle className="h-4 w-4" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleEdit(linea)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-teal-600 hover:bg-teal-50 transition-colors"
-                          label="Editar"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleEdit(linea); }}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-teal-600 hover:bg-teal-50 transition-colors"
+                      title="Editar"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  </div>
+                ),
+              },
+            ];
+
+            return (
+              <div className="hidden md:block">
+                <DataTable<LineaNegocioType>
+                  columns={lineaColumns}
+                  data={lineas}
+                  keyExtractor={(l) => l.id}
+                />
+              </div>
+            );
+          })()}
 
           {/* Mobile cards */}
           <div className="md:hidden divide-y divide-slate-100">
@@ -274,7 +302,7 @@ export const LineaNegocio: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500">
                     {linea.activa ? (
-                      <span className="text-green-600">Activa</span>
+                      <span className="text-emerald-600">Activa</span>
                     ) : (
                       <span className="text-slate-400">Inactiva</span>
                     )}
@@ -287,7 +315,7 @@ export const LineaNegocio: React.FC = () => {
                     onClick={() => handleToggleActiva(linea)}
                     className={`p-2 rounded-lg ${
                       linea.activa
-                        ? 'text-green-600 hover:bg-green-50'
+                        ? 'text-emerald-600 hover:bg-emerald-50'
                         : 'text-slate-400 hover:bg-slate-100'
                     }`}
                   >

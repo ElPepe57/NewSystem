@@ -115,8 +115,8 @@ export const AlertaMargenReposicion: React.FC<AlertaMargenReposicionProps> = ({
         </div>
         <div className="text-center">
           <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">CTRU actual</p>
-          <p className="text-sm font-bold text-green-700">S/ {ctruPromedio.toFixed(2)}</p>
-          <p className="text-[10px] text-green-600">+{margenCtru.toFixed(1)}%</p>
+          <p className="text-sm font-bold text-emerald-700">S/ {ctruPromedio.toFixed(2)}</p>
+          <p className="text-[10px] text-emerald-600">+{margenCtru.toFixed(1)}%</p>
         </div>
         <div className="text-center">
           <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-0.5">Costo reposición</p>

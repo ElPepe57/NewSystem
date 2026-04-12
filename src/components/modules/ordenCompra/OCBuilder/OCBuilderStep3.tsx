@@ -16,15 +16,15 @@ interface Props {
 }
 
 const colorBg: Record<GroupColor, string> = {
-  blue: 'bg-blue-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
+  blue: 'bg-sky-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
   rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-teal-500',
 };
 const colorBorder: Record<GroupColor, string> = {
-  blue: 'border-blue-400', emerald: 'border-emerald-400', amber: 'border-amber-400', purple: 'border-purple-400',
+  blue: 'border-sky-400', emerald: 'border-emerald-400', amber: 'border-amber-400', purple: 'border-purple-400',
   rose: 'border-rose-400', cyan: 'border-cyan-400', orange: 'border-orange-400', indigo: 'border-teal-400',
 };
 const colorHeaderBg: Record<GroupColor, string> = {
-  blue: 'bg-blue-50', emerald: 'bg-emerald-50', amber: 'bg-amber-50', purple: 'bg-purple-50',
+  blue: 'bg-sky-50', emerald: 'bg-emerald-50', amber: 'bg-amber-50', purple: 'bg-purple-50',
   rose: 'bg-rose-50', cyan: 'bg-cyan-50', orange: 'bg-orange-50', indigo: 'bg-teal-50',
 };
 
@@ -38,13 +38,13 @@ const SummaryCard: React.FC<{ group: OCDraftGroup; state: OCBuilderState }> = ({
 
   return (
     <div className={`rounded-lg border-l-4 ${colorBorder[group.color]} border border-slate-200 bg-white overflow-hidden ${
-      created ? 'ring-2 ring-green-300' : error ? 'ring-2 ring-red-300' : ''
+      created ? 'ring-2 ring-emerald-300' : error ? 'ring-2 ring-red-300' : ''
     }`}>
       {/* Header */}
       <div className={`px-4 py-3 ${colorHeaderBg[group.color]} flex items-center gap-2`}>
         <div className={`w-3 h-3 rounded-full ${colorBg[group.color]}`} />
         <h4 className="font-semibold text-slate-900 flex-1">{group.nombre}</h4>
-        {created && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+        {created && <CheckCircle2 className="h-5 w-5 text-emerald-500" />}
         {error && <XCircle className="h-5 w-5 text-red-500" />}
       </div>
 
@@ -117,7 +117,7 @@ const SummaryCard: React.FC<{ group: OCDraftGroup; state: OCBuilderState }> = ({
 
         {/* Created OC number */}
         {created && (
-          <div className="bg-green-50 text-green-700 text-xs px-3 py-2 rounded-lg font-medium">
+          <div className="bg-emerald-50 text-emerald-700 text-xs px-3 py-2 rounded-lg font-medium">
             Creada: {created.numeroOrden}
           </div>
         )}

@@ -105,7 +105,7 @@ export function CategoriaList() {
           {categoria.nombre}
         </span>
         {categoria.mostrarEnWeb && (
-          <Globe className="h-3 w-3 text-green-500" />
+          <Globe className="h-3 w-3 text-emerald-500" />
         )}
         {/* Lineas de negocio badges */}
         {(categoria.lineaNegocioIds)?.length ? (
@@ -134,7 +134,7 @@ export function CategoriaList() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setViewingCategoria(categoria)}
-            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+            className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
             title="Ver Analytics"
           >
             <BarChart3 className="h-4 w-4" />
@@ -142,7 +142,7 @@ export function CategoriaList() {
           {!isChild && (
             <button
               onClick={() => handleAddSubcategoria(categoria.id)}
-              className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded"
+              className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded"
               title="Agregar subcategoria"
             >
               <Plus className="h-4 w-4" />

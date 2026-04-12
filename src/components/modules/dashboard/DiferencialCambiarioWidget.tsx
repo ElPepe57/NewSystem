@@ -84,7 +84,7 @@ export const DiferencialCambiarioWidget: React.FC = () => {
   const fmt = (n: number) => `S/${Math.abs(n).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
-    <Card className={`p-4 ${esGanancia ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200' : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200'}`}>
+    <Card className={`p-4 ${esGanancia ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <DollarSign className={`h-5 w-5 ${esGanancia ? 'text-emerald-600' : 'text-red-600'}`} />

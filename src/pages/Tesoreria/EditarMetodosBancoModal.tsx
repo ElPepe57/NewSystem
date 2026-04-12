@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
-import { Button, Modal } from '../../components/common';
+import { Button } from '../../components/common';
+import { FormModal } from '../../design-system';
 
 const METODOS_PREDEFINIDOS = [
   { id: 'transferencia', label: 'Transferencia bancaria' },
@@ -44,7 +45,16 @@ export const EditarMetodosBancoModal: React.FC<Props> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Métodos de pago — ${bancoNombre}`} size="sm">
+    <FormModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Métodos de pago — ${bancoNombre}`}
+      size="sm"
+      variant="edit"
+      submitLabel={isSubmitting ? 'Guardando...' : 'Guardar'}
+      onSubmit={() => onGuardar(metodos)}
+      loading={isSubmitting}
+    >
       <p className="text-xs text-slate-500 mb-3">Aplican a todas las cuentas de este banco. Yape/Plin se configuran por cuenta individual.</p>
 
       <div className="space-y-2 mb-4">
@@ -88,12 +98,6 @@ export const EditarMetodosBancoModal: React.FC<Props> = ({
         </Button>
       </div>
 
-      <div className="flex justify-end gap-3">
-        <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-        <Button variant="primary" onClick={() => onGuardar(metodos)} disabled={isSubmitting}>
-          {isSubmitting ? 'Guardando...' : 'Guardar'}
-        </Button>
-      </div>
-    </Modal>
+    </FormModal>
   );
 };

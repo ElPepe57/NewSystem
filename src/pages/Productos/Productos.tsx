@@ -4,7 +4,7 @@ import { Plus, Search, Filter, X, Package, Trash2, BarChart3 } from 'lucide-reac
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { ProductoForm } from '../../components/modules/productos/ProductoForm';
 import { ProductoTable } from '../../components/modules/productos/ProductoTable';
 import { ProductoCard } from '../../components/modules/productos/ProductoCard';
@@ -740,9 +740,6 @@ export const Productos: React.FC = () => {
           { label: 'Sin Investigar', value: productosSinInvestigar }
         ]}
       />
-
-      {/* Filtro de linea de negocio */}
-      <LineaFilterInline />
 
       {/* Toolbar con search */}
       <Toolbar

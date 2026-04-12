@@ -1,6 +1,6 @@
 import { Flame, Layers, MapPin } from 'lucide-react';
 import { useMapaCalorStore } from '../../store/mapaCalorStore';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import type { PeriodoPresetMapa, CapaMapa } from '../../types/mapaCalor.types';
 
 const PERIODOS: { id: PeriodoPresetMapa; label: string }[] = [
@@ -24,7 +24,7 @@ export function MapaCalorFiltros() {
   return (
     <div className="space-y-3">
       {/* Línea de negocio */}
-      <LineaFilterInline />
+      <LineaDropdown />
 
       <div className="flex flex-wrap items-center gap-3">
         {/* Periodo */}

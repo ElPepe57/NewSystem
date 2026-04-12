@@ -211,7 +211,7 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
       {/* Costos */}
       <div className="bg-slate-50 p-4 rounded-lg">
         <h4 className="font-medium text-slate-900 mb-3 flex items-center">
-          <DollarSign className="h-5 w-5 mr-2 text-green-600" />
+          <DollarSign className="h-5 w-5 mr-2 text-emerald-600" />
           Costos y Comisiones
         </h4>
         <div className="grid grid-cols-2 gap-4">
@@ -244,9 +244,9 @@ export const TransportistaForm: React.FC<TransportistaFormProps> = ({
 
       {/* Documentos (solo para internos) */}
       {formData.tipo === 'interno' && (
-        <div className="bg-blue-50 p-4 rounded-lg">
+        <div className="bg-sky-50 p-4 rounded-lg">
           <h4 className="font-medium text-slate-900 mb-3 flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-blue-600" />
+            <FileText className="h-5 w-5 mr-2 text-sky-600" />
             Documentos
           </h4>
           <div className="grid grid-cols-2 gap-4">

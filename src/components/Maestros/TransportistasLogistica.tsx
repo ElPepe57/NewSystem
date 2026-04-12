@@ -299,11 +299,11 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           <div className="flex items-center space-x-3">
             <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
               transportista.tipo === 'interno'
-                ? 'bg-blue-100'
+                ? 'bg-sky-100'
                 : 'bg-purple-100'
             }`}>
               {transportista.tipo === 'interno' ? (
-                <User className="h-6 w-6 text-blue-600" />
+                <User className="h-6 w-6 text-sky-600" />
               ) : (
                 <Truck className="h-6 w-6 text-purple-600" />
               )}
@@ -334,7 +334,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
           <div className="bg-slate-50 rounded-lg p-2 text-center">
             <div className="text-xs text-slate-500 mb-1">Éxito</div>
             <div className={`text-lg font-bold ${
-              tasaExito >= 90 ? 'text-green-600' :
+              tasaExito >= 90 ? 'text-emerald-600' :
               tasaExito >= 70 ? 'text-amber-600' : 'text-red-600'
             }`}>
               {tasaExito.toFixed(0)}%
@@ -358,7 +358,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
             <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full ${
-                  tasaExito >= 90 ? 'bg-green-500' :
+                  tasaExito >= 90 ? 'bg-emerald-500' :
                   tasaExito >= 70 ? 'bg-amber-500' : 'bg-red-500'
                 }`}
                 style={{ width: `${tasaExito}%` }}
@@ -393,7 +393,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
             className={`text-sm font-medium ${
               transportista.estado === 'activo'
                 ? 'text-red-600 hover:text-red-700'
-                : 'text-green-600 hover:text-green-700'
+                : 'text-emerald-600 hover:text-emerald-700'
             }`}
           >
             {transportista.estado === 'activo' ? 'Desactivar' : 'Activar'}
@@ -432,14 +432,14 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
             <Package className="h-4 w-4 mr-1" />
             {transportista.totalEntregas} entregas
             <span className="mx-2">·</span>
-            <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+            <CheckCircle className="h-4 w-4 mr-1 text-emerald-500" />
             {transportista.entregasExitosas} exitosas
           </div>
         </div>
 
         <div className="text-right">
           <div className={`text-2xl font-bold ${
-            (transportista.tasaExito || 0) >= 90 ? 'text-green-600' :
+            (transportista.tasaExito || 0) >= 90 ? 'text-emerald-600' :
             (transportista.tasaExito || 0) >= 70 ? 'text-amber-600' : 'text-red-600'
           }`}>
             {(transportista.tasaExito || 0).toFixed(1)}%
@@ -480,7 +480,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
             onClick={() => setFiltroTipo('interno')}
             className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               filtroTipo === 'interno'
-                ? 'bg-white shadow text-blue-600'
+                ? 'bg-white shadow text-sky-600'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -599,7 +599,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
               {
                 label: 'Activos',
                 value: metricas.porEstado.activo,
-                color: 'bg-green-500'
+                color: 'bg-emerald-500'
               },
               {
                 label: 'Inactivos',
@@ -615,7 +615,7 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
               {
                 label: 'Internos',
                 value: metricas.porTipo.interno,
-                color: 'bg-blue-500'
+                color: 'bg-sky-500'
               },
               {
                 label: 'Externos',
@@ -758,14 +758,14 @@ export const TransportistasLogistica: React.FC<TransportistasLogisticaProps> = (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <Card padding="lg">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-              <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+              <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" />
               Alto Rendimiento (&gt;90%)
             </h3>
             <div className="space-y-2">
               {transportistasConEntregas
                 .filter(t => (t.tasaExito || 0) >= 90)
                 .map(t => (
-                  <div key={t.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div key={t.id} className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
                     <div>
                       <p className="font-medium text-slate-900">{t.nombre}</p>
                       <p className="text-sm text-slate-600">

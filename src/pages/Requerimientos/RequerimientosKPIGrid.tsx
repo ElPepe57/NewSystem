@@ -21,13 +21,13 @@ export const RequerimientosKPIGrid: React.FC<RequerimientosKPIGridProps> = ({ st
         </div>
       </Card>
 
-      <Card padding="md" className="bg-sky-50 border-blue-200">
+      <Card padding="md" className="bg-sky-50 border-sky-200">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-blue-600 font-medium">Aprobados</div>
-            <div className="text-2xl font-bold text-blue-700">{stats.aprobados}</div>
+            <div className="text-xs text-sky-600 font-medium">Aprobados</div>
+            <div className="text-2xl font-bold text-sky-700">{stats.aprobados}</div>
           </div>
-          <Check className="h-8 w-8 text-blue-400" />
+          <Check className="h-8 w-8 text-sky-400" />
         </div>
       </Card>
 
@@ -63,7 +63,7 @@ export const RequerimientosKPIGrid: React.FC<RequerimientosKPIGridProps> = ({ st
         </div>
       </Card>
 
-      <Card padding="md" className={`${stats.alertasStock > 0 ? 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200' : ''}`}>
+      <Card padding="md" className={`${stats.alertasStock > 0 ? 'bg-orange-50 border-orange-200' : ''}`}>
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs text-orange-600 font-medium">Alertas Stock</div>

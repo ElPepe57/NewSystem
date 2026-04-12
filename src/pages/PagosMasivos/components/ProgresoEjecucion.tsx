@@ -6,14 +6,16 @@
 import React from 'react';
 import { CheckCircle, XCircle, Loader2, Clock } from 'lucide-react';
 import { Modal, Button } from '../../../components/common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { formatCurrency } from '../../../utils/format';
 import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
-import type { EstadoItemLote } from '../../../types/pagoMasivo.types';
+import type { EstadoItemLote, ResultadoItemLote } from '../../../types/pagoMasivo.types';
 
 const ESTADO_ICONO: Record<EstadoItemLote, React.ReactNode> = {
   pendiente:   <Clock size={14} className="text-slate-400" />,
   procesando:  <Loader2 size={14} className="text-teal-600 animate-spin" />,
-  exitoso:     <CheckCircle size={14} className="text-green-600" />,
+  exitoso:     <CheckCircle size={14} className="text-emerald-600" />,
   error:       <XCircle size={14} className="text-red-600" />,
 };
 
@@ -32,6 +34,48 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
     : 0;
 
   const terminado = !ejecutando && loteResultado;
+
+  const itemColumns: DataTableColumn<ResultadoItemLote>[] = [
+    {
+      key: 'estado',
+      header: '',
+      width: '32px',
+      render: (item) => ESTADO_ICONO[item.estado],
+    },
+    {
+      key: 'numeroDocumento',
+      header: 'Documento',
+      render: (item) => <span className="font-mono text-xs">{item.numeroDocumento}</span>,
+    },
+    {
+      key: 'contraparteNombre',
+      header: 'Contraparte',
+      render: (item) => <span className="truncate max-w-[150px] block">{item.contraparteNombre}</span>,
+    },
+    {
+      key: 'montoPagado',
+      header: 'Monto',
+      align: 'right',
+      render: (item) => (
+        <span className="font-mono">{formatCurrency(item.montoPagado, item.monedaDocumento)}</span>
+      ),
+    },
+    {
+      key: 'estadoLabel',
+      header: 'Estado',
+      render: (item) =>
+        item.estado === 'error' ? (
+          <span className="text-xs text-red-600" title={item.error}>{item.error}</span>
+        ) : (
+          <span className={`text-xs capitalize ${
+            item.estado === 'exitoso' ? 'text-emerald-600' :
+            item.estado === 'procesando' ? 'text-teal-600' : 'text-slate-500'
+          }`}>
+            {item.estado}
+          </span>
+        ),
+    },
+  ];
 
   return (
     <Modal
@@ -65,9 +109,9 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
         {/* Resumen */}
         {terminado && (
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold text-green-700">{progreso.exitosos}</div>
-              <div className="text-xs text-green-600">Exitosos</div>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-emerald-700">{progreso.exitosos}</div>
+              <div className="text-xs text-emerald-600">Exitosos</div>
             </div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-red-700">{progreso.errores}</div>
@@ -103,42 +147,14 @@ export const ProgresoEjecucion: React.FC<ProgresoEjecucionProps> = ({ open, onCl
         )}
 
         {/* Detalle por item */}
-        <div className="border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b sticky top-0">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 w-8"></th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Documento</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Contraparte</th>
-                <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">Monto</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Estado</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {progreso.resultados.map((item, i) => (
-                <tr key={i} className={item.estado === 'error' ? 'bg-red-50' : ''}>
-                  <td className="px-3 py-2">{ESTADO_ICONO[item.estado]}</td>
-                  <td className="px-3 py-2 font-mono text-xs">{item.numeroDocumento}</td>
-                  <td className="px-3 py-2 truncate max-w-[150px]">{item.contraparteNombre}</td>
-                  <td className="px-3 py-2 text-right font-mono">
-                    {formatCurrency(item.montoPagado, item.monedaDocumento)}
-                  </td>
-                  <td className="px-3 py-2">
-                    {item.estado === 'error' ? (
-                      <span className="text-xs text-red-600" title={item.error}>{item.error}</span>
-                    ) : (
-                      <span className={`text-xs capitalize ${
-                        item.estado === 'exitoso' ? 'text-green-600' :
-                        item.estado === 'procesando' ? 'text-teal-600' : 'text-slate-500'
-                      }`}>
-                        {item.estado}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="max-h-[300px] overflow-y-auto">
+          <DataTable<ResultadoItemLote>
+            columns={itemColumns}
+            data={progreso.resultados}
+            keyExtractor={(item) => item.documentoId}
+            stickyHeader
+            compact
+          />
         </div>
 
         {/* Acciones */}

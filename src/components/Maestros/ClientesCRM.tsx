@@ -181,8 +181,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
   // Helpers de UI
   const getClasificacionColor = (clasificacion?: ClasificacionABC) => {
     switch (clasificacion) {
-      case 'A': return 'bg-green-100 text-green-700 border-green-300';
-      case 'B': return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'A': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+      case 'B': return 'bg-sky-100 text-sky-700 border-sky-300';
       case 'C': return 'bg-amber-100 text-amber-700 border-amber-300';
       default: return 'bg-slate-100 text-slate-700 border-slate-300';
     }
@@ -192,7 +192,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
     const configs: Record<SegmentoCliente, { color: string; icon: React.ReactNode; label: string }> = {
       vip: { color: 'bg-purple-100 text-purple-700', icon: <Crown className="h-3 w-3" />, label: 'VIP' },
       premium: { color: 'bg-teal-100 text-teal-700', icon: <Star className="h-3 w-3" />, label: 'Premium' },
-      frecuente: { color: 'bg-blue-100 text-blue-700', icon: <TrendingUp className="h-3 w-3" />, label: 'Frecuente' },
+      frecuente: { color: 'bg-sky-100 text-sky-700', icon: <TrendingUp className="h-3 w-3" />, label: 'Frecuente' },
       regular: { color: 'bg-cyan-100 text-cyan-700', icon: <UserCheck className="h-3 w-3" />, label: 'Regular' },
       ocasional: { color: 'bg-slate-100 text-slate-700', icon: <Clock className="h-3 w-3" />, label: 'Ocasional' },
       nuevo: { color: 'bg-emerald-100 text-emerald-700', icon: <Plus className="h-3 w-3" />, label: 'Nuevo' },
@@ -343,8 +343,8 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                       <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${
-                            item.clase === 'A' ? 'bg-green-500' :
-                            item.clase === 'B' ? 'bg-blue-500' : 'bg-amber-500'
+                            item.clase === 'A' ? 'bg-emerald-500' :
+                            item.clase === 'B' ? 'bg-sky-500' : 'bg-amber-500'
                           }`}
                           style={{ width: `${porcentajeValor}%` }}
                         />
@@ -579,7 +579,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                                 }}
                                 label="Enviar WhatsApp"
                               >
-                                <MessageSquare className="h-4 w-4 text-green-600" />
+                                <MessageSquare className="h-4 w-4 text-emerald-600" />
                               </Button>
                             )}
                             <Button
@@ -635,7 +635,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                                 }}
                                 label="Enviar WhatsApp"
                               >
-                                <MessageSquare className="h-4 w-4 text-green-600" />
+                                <MessageSquare className="h-4 w-4 text-emerald-600" />
                               </Button>
                             )}
                             <Button
@@ -658,7 +658,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 {/* Alertas futuras (8-30 días) */}
                 {alertasRecompra.alertasFuturas.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-medium text-blue-700 mb-2 flex items-center gap-1">
+                    <h4 className="text-sm font-medium text-sky-700 mb-2 flex items-center gap-1">
                       <TrendingUp className="h-4 w-4" />
                       Próximas semanas ({alertasRecompra.alertasFuturas.length})
                     </h4>
@@ -666,16 +666,16 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                       {alertasRecompra.alertasFuturas.slice(0, 3).map(alerta => (
                         <div
                           key={alerta.id}
-                          className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100"
+                          className="flex items-center justify-between p-3 bg-sky-50 rounded-lg border border-sky-100"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                              <Package className="h-5 w-5 text-blue-600" />
+                            <div className="h-10 w-10 bg-sky-100 rounded-full flex items-center justify-center">
+                              <Package className="h-5 w-5 text-sky-600" />
                             </div>
                             <div>
                               <p className="font-medium text-slate-900">{alerta.clienteNombre}</p>
                               <p className="text-sm text-slate-600">{alerta.productoNombre}</p>
-                              <p className="text-xs text-blue-600">
+                              <p className="text-xs text-sky-600">
                                 Recompra estimada en {alerta.diasRestantes} días
                               </p>
                             </div>
@@ -852,7 +852,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
             {/* Sin contacto */}
             <Card padding="lg">
               <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <Phone className="h-5 w-5 text-blue-500" />
+                <Phone className="h-5 w-5 text-sky-500" />
                 Sin Contacto (30+ días)
                 {statsCRM.clientesSinContacto30Dias.length > 0 && (
                   <Badge variant="info">{statsCRM.clientesSinContacto30Dias.length}</Badge>
@@ -867,12 +867,12 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                     return (
                       <div
                         key={cliente.id}
-                        className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 cursor-pointer transition-colors"
+                        className="flex items-center justify-between p-3 bg-sky-50 rounded-lg border border-sky-100 hover:bg-sky-100 cursor-pointer transition-colors"
                         onClick={() => onViewCliente(cliente)}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="h-5 w-5 text-blue-600" />
+                          <div className="h-10 w-10 bg-sky-100 rounded-full flex items-center justify-center">
+                            <User className="h-5 w-5 text-sky-600" />
                           </div>
                           <div>
                             <p className="font-medium text-slate-900">{cliente.nombre}</p>
@@ -891,7 +891,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                             }
                           }}
                         >
-                          <MessageSquare className="h-4 w-4 text-green-600" />
+                          <MessageSquare className="h-4 w-4 text-emerald-600" />
                         </Button>
                       </div>
                     );
@@ -935,7 +935,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                 value={clienteStats.clientesConCompras || 0}
                 subtitle={`${((clienteStats.clientesConCompras || 0) / (clienteStats.totalClientes || 1) * 100).toFixed(0)}%`}
                 icon={ShoppingCart}
-                variant="default"
+                variant="neutral"
                 size="sm"
               />
             </DSKPIBar>
@@ -952,7 +952,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por nombre, teléfono, DNI..."
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-sky-500"
                 />
               </div>
 
@@ -1044,11 +1044,11 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                       className="px-6 py-4 hover:bg-slate-50 flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center relative">
+                        <div className="h-12 w-12 bg-sky-100 rounded-full flex items-center justify-center relative">
                           {cliente.tipoCliente === 'empresa' ? (
-                            <Building2 className="h-6 w-6 text-blue-600" />
+                            <Building2 className="h-6 w-6 text-sky-600" />
                           ) : (
-                            <User className="h-6 w-6 text-blue-600" />
+                            <User className="h-6 w-6 text-sky-600" />
                           )}
                           {/* Badge de clasificación */}
                           {cliente.clasificacionABC && cliente.clasificacionABC !== 'nuevo' && (
@@ -1101,7 +1101,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           <div className="text-sm font-medium text-slate-900">
                             {cliente.metricas.totalCompras} compras
                           </div>
-                          <div className="text-sm text-green-600 font-medium">
+                          <div className="text-sm text-emerald-600 font-medium">
                             S/ {cliente.metricas.montoTotalPEN.toLocaleString()}
                           </div>
                         </div>
@@ -1116,7 +1116,7 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           </button>
                           <button
                             onClick={() => onViewCliente(cliente)}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                             label="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />

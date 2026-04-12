@@ -88,12 +88,12 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
         </div>
         <div className="grid grid-cols-3 gap-2">
           {/* Origen */}
-          <div className="text-center p-2 bg-blue-50 rounded-lg">
-            <Warehouse className="h-4 w-4 text-blue-500 mx-auto mb-1" />
-            <div className="text-lg font-bold text-blue-600">
+          <div className="text-center p-2 bg-sky-50 rounded-lg">
+            <Warehouse className="h-4 w-4 text-sky-500 mx-auto mb-1" />
+            <div className="text-lg font-bold text-sky-600">
               {producto.enOrigen}
             </div>
-            <div className="text-[10px] text-blue-500 font-medium">Origen</div>
+            <div className="text-[10px] text-sky-500 font-medium">Origen</div>
           </div>
 
           {/* Tránsito */}
@@ -106,12 +106,12 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
           </div>
 
           {/* Perú */}
-          <div className="text-center p-2 bg-green-50 rounded-lg">
-            <MapPin className="h-4 w-4 text-green-500 mx-auto mb-1" />
-            <div className="text-lg font-bold text-green-600">
+          <div className="text-center p-2 bg-emerald-50 rounded-lg">
+            <MapPin className="h-4 w-4 text-emerald-500 mx-auto mb-1" />
+            <div className="text-lg font-bold text-emerald-600">
               {producto.disponiblePeru}
             </div>
-            <div className="text-[10px] text-green-500 font-medium">Perú</div>
+            <div className="text-[10px] text-emerald-500 font-medium">Perú</div>
           </div>
 
           {/* Reservadas Origen */}
@@ -154,7 +154,7 @@ export const StockProductoCard: React.FC<StockProductoCardProps> = ({
           </div>
           <div className="text-right">
             <div className="text-xs text-slate-500">Valor Total</div>
-            <div className="text-lg font-bold text-green-600">
+            <div className="text-lg font-bold text-emerald-600">
               {formatCurrency(producto.valorTotalUSD)}
             </div>
           </div>

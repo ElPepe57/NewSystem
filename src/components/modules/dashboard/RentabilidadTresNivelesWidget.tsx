@@ -98,8 +98,8 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
         nombre: 'Margen Bruto',
         valor: margenBruto,
         margen: (margenBruto / data.totalVentas) * 100,
-        color: 'text-blue-700',
-        bgColor: 'bg-blue-50 border-blue-200',
+        color: 'text-sky-700',
+        bgColor: 'bg-sky-50 border-sky-200',
         descripcion: 'Venta - CTRU (precio + costos importaci\u00f3n)',
       },
       {
@@ -114,8 +114,8 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
         nombre: 'Margen Operativo',
         valor: margenOperativo,
         margen: (margenOperativo / data.totalVentas) * 100,
-        color: margenOperativo >= 0 ? 'text-green-700' : 'text-red-700',
-        bgColor: margenOperativo >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
+        color: margenOperativo >= 0 ? 'text-emerald-700' : 'text-red-700',
+        bgColor: margenOperativo >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200',
         descripcion: 'Contribuci\u00f3n - Gastos Fijos del Mes',
       },
     ];
@@ -184,7 +184,7 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
                   {nivel.valor < 0 ? '-' : ''}{formatCurrency(nivel.valor)}
                 </div>
                 <div className="text-xs text-slate-500 flex items-center gap-1 justify-end">
-                  {nivel.margen > 0 ? <TrendingUp className="h-3 w-3 text-green-500" /> :
+                  {nivel.margen > 0 ? <TrendingUp className="h-3 w-3 text-emerald-500" /> :
                    nivel.margen < 0 ? <TrendingDown className="h-3 w-3 text-red-500" /> :
                    <Minus className="h-3 w-3 text-slate-400" />}
                   {nivel.margen.toFixed(1)}%

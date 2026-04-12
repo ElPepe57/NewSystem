@@ -26,6 +26,8 @@ import { BuyBoxBadge } from './BuyBoxBadge';
 import type { MLProductMap, MLProductGroup } from '../../types/mercadoLibre.types';
 import type { Producto } from '../../types/producto.types';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 
 // ---- MOBILE: LISTING SUB-ITEM ----
 const MobileListingItem: React.FC<{ listing: MLProductMap }> = ({ listing }) => {
@@ -37,7 +39,7 @@ const MobileListingItem: React.FC<{ listing: MLProductMap }> = ({ listing }) => 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-            listingType === 'catalogo' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600'
+            listingType === 'catalogo' ? 'bg-sky-50 text-sky-700' : 'bg-slate-100 text-slate-600'
           }`}>
             {listingType === 'catalogo' ? 'Catálogo' : 'Clásica'}
           </span>
@@ -97,7 +99,7 @@ export const ProductGroupCard: React.FC<{
               </span>
             )}
             {group.vinculado ? (
-              <span className="text-[10px] font-medium text-green-700 bg-green-50 px-1.5 py-0.5 rounded-full">Vinculado</span>
+              <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">Vinculado</span>
             ) : (
               <span className="text-[10px] font-medium text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded-full">Pendiente</span>
             )}
@@ -209,6 +211,117 @@ export const ProductGroupCard: React.FC<{
   );
 };
 
+// ---- LISTING SUB-ITEM (div-based, used inside DataTable expandedRowRender) ----
+const ListingSubItem: React.FC<{ listing: MLProductMap }> = ({ listing }) => {
+  const { updatePrice } = useMercadoLibreStore();
+  const [editingPrice, setEditingPrice] = useState(false);
+  const [priceValue, setPriceValue] = useState(String(listing.mlPrice));
+  const [savingPrice, setSavingPrice] = useState(false);
+
+  const listingType = listing.mlListingType || (listing.mlCatalogProductId ? 'catalogo' : 'clasica');
+
+  const handleSavePrice = async () => {
+    const newPrice = parseFloat(priceValue);
+    if (isNaN(newPrice) || newPrice <= 0 || newPrice === listing.mlPrice) {
+      setEditingPrice(false);
+      return;
+    }
+    setSavingPrice(true);
+    try {
+      await updatePrice(listing.id, newPrice);
+      setEditingPrice(false);
+    } catch {
+      // error in store
+    } finally {
+      setSavingPrice(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-4 bg-slate-50/50 hover:bg-slate-100/50 px-4 py-2 border-b border-slate-100 last:border-b-0">
+      {/* Title + type */}
+      <div className="flex items-center gap-2 pl-4 flex-1 min-w-0">
+        <span className="w-1 h-6 bg-slate-200 rounded-full shrink-0" />
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+              listingType === 'catalogo'
+                ? 'bg-sky-50 text-sky-700'
+                : 'bg-slate-100 text-slate-600'
+            }`}>
+              {listingType === 'catalogo' ? 'Catálogo' : 'Clásica'}
+            </span>
+            <p className="text-xs text-slate-500 truncate max-w-[160px]">{listing.mlTitle}</p>
+          </div>
+          <p className="text-[10px] text-slate-400">{listing.mlItemId}</p>
+        </div>
+      </div>
+      {/* SKU */}
+      <span className="text-xs text-slate-500 w-24 shrink-0">{listing.mlSku || '—'}</span>
+      {/* Price (editable) */}
+      <div className="w-32 shrink-0">
+        {editingPrice ? (
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-slate-400">S/</span>
+            <input
+              type="number"
+              value={priceValue}
+              onChange={(e) => setPriceValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSavePrice();
+                if (e.key === 'Escape') setEditingPrice(false);
+              }}
+              className="w-20 px-1.5 py-0.5 border border-amber-300 rounded text-xs focus:ring-amber-500 focus:border-amber-500"
+              autoFocus
+              step="0.01"
+              min="0.01"
+            />
+            {savingPrice ? (
+              <RefreshCw className="w-3 h-3 text-amber-500 animate-spin" />
+            ) : (
+              <>
+                <button onClick={handleSavePrice} className="p-0.5 text-emerald-600 hover:bg-emerald-50 rounded">
+                  <Check className="w-3 h-3" />
+                </button>
+                <button onClick={() => setEditingPrice(false)} className="p-0.5 text-slate-400 hover:bg-slate-100 rounded">
+                  <X className="w-3 h-3" />
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={() => { setPriceValue(String(listing.mlPrice)); setEditingPrice(true); }}
+            className="group flex items-center gap-1 text-xs font-medium text-slate-700 hover:text-amber-600"
+            title="Editar precio en ML"
+          >
+            S/ {listing.mlPrice?.toFixed(2)}
+            <Edit3 className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+        )}
+      </div>
+      {/* Stock */}
+      <span className="text-xs text-slate-500 w-16 text-right">{listing.mlAvailableQuantity}</span>
+      {/* Buy Box */}
+      <div className="w-24 shrink-0">
+        <BuyBoxBadge listing={listing} />
+      </div>
+      {/* External link */}
+      <div className="shrink-0">
+        <a
+          href={listing.mlPermalink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-1 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+          title="Ver en ML"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+      </div>
+    </div>
+  );
+};
+
 // ---- LISTING SUB-ROW (publicacion individual dentro de un grupo) ----
 const ListingSubRow: React.FC<{ listing: MLProductMap }> = ({ listing }) => {
   const { updatePrice } = useMercadoLibreStore();
@@ -245,7 +358,7 @@ const ListingSubRow: React.FC<{ listing: MLProductMap }> = ({ listing }) => {
             <div className="flex items-center gap-2">
               <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
                 listingType === 'catalogo'
-                  ? 'bg-blue-50 text-blue-700'
+                  ? 'bg-sky-50 text-sky-700'
                   : 'bg-slate-100 text-slate-600'
               }`}>
                 {listingType === 'catalogo' ? 'Catálogo' : 'Clásica'}
@@ -278,7 +391,7 @@ const ListingSubRow: React.FC<{ listing: MLProductMap }> = ({ listing }) => {
               <RefreshCw className="w-3 h-3 text-amber-500 animate-spin" />
             ) : (
               <>
-                <button onClick={handleSavePrice} className="p-0.5 text-green-600 hover:bg-green-50 rounded">
+                <button onClick={handleSavePrice} className="p-0.5 text-emerald-600 hover:bg-emerald-50 rounded">
                   <Check className="w-3 h-3" />
                 </button>
                 <button onClick={() => setEditingPrice(false)} className="p-0.5 text-slate-400 hover:bg-slate-100 rounded">
@@ -410,7 +523,7 @@ const ProductGroupRow: React.FC<{
         </td>
         <td className="px-4 py-3">
           {group.vinculado ? (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full">
               <CheckCircle2 className="w-3 h-3" /> Vinculado
             </span>
           ) : (
@@ -602,6 +715,16 @@ export const TabProductos: React.FC<TabProductosProps> = ({
   const [filter, setFilter] = useState<'todos' | 'vinculados' | 'sin_vincular'>('todos');
   const [search, setSearch] = useState('');
   const [vinculandoPM, setVinculandoPM] = useState<MLProductMap | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  const handleToggleExpand = (key: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
   const { vincularProducto, desvincularProducto } = useMercadoLibreStore();
   const { productos, fetchProductos } = useProductoStore();
 
@@ -712,7 +835,7 @@ export const TabProductos: React.FC<TabProductosProps> = ({
           <button
             onClick={onSyncStock}
             disabled={syncingStock}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs sm:text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg disabled:opacity-50"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs sm:text-sm bg-sky-50 text-sky-700 hover:bg-sky-100 rounded-lg disabled:opacity-50"
             title="Sincronizar stock del ERP hacia ML"
           >
             <ArrowUpDown className={`w-3.5 h-3.5 ${syncingStock ? 'animate-pulse' : ''}`} />
@@ -764,37 +887,179 @@ export const TabProductos: React.FC<TabProductosProps> = ({
           ) : (
             <>
               {/* Desktop: table */}
-              <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-slate-50 border-b">
-                    <tr>
-                      <th className="w-8 px-2 py-3"></th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Producto ML</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">SKU ML</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Precio</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Stock ML</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Stock ERP</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Producto ERP</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Competencia</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Estado</th>
-                      <th className="text-right text-xs font-medium text-slate-500 uppercase px-4 py-3">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredGroups.map((group) => (
-                      <ProductGroupRow
-                        key={group.groupKey}
-                        group={group}
-                        stockERP={group.productoId ? stockERPMap.get(group.productoId) : undefined}
-                        onVincular={handleVincular}
-                        onDesvincular={handleDesvincular}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-                {filteredGroups.length === 0 && (
-                  <p className="text-center text-slate-400 text-sm py-8">No se encontraron productos</p>
-                )}
+              <div className="hidden md:block">
+                {(() => {
+                  const productGroupColumns: DataTableColumn<MLProductGroup>[] = [
+                    {
+                      key: 'producto',
+                      header: 'Producto ML',
+                      render: (group) => {
+                        const primary = group.listings[0];
+                        return (
+                          <div className="flex items-center gap-3">
+                            {primary.mlThumbnail && (
+                              <img src={primary.mlThumbnail} alt="" className="w-10 h-10 rounded-lg object-cover bg-slate-100" />
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-slate-900 truncate max-w-[200px]">{primary.mlTitle}</p>
+                              <div className="flex items-center gap-1.5">
+                                <p className="text-xs text-slate-400">{primary.mlItemId}</p>
+                                {group.listings.length > 1 && (
+                                  <span className="text-xs bg-purple-50 text-purple-700 px-1.5 py-0.5 rounded font-medium">
+                                    {group.listings.length} publicaciones
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      },
+                    },
+                    {
+                      key: 'sku',
+                      header: 'SKU ML',
+                      render: (group) => <span className="text-sm text-slate-600">{group.mlSku || '—'}</span>,
+                    },
+                    {
+                      key: 'precio',
+                      header: 'Precio',
+                      render: (group) => {
+                        const prices = group.listings.map((l) => l.mlPrice);
+                        const minPrice = Math.min(...prices);
+                        const maxPrice = Math.max(...prices);
+                        const display = minPrice === maxPrice
+                          ? `S/ ${minPrice.toFixed(2)}`
+                          : `S/ ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`;
+                        return <span className="text-sm font-medium">{display}</span>;
+                      },
+                    },
+                    {
+                      key: 'stockML',
+                      header: 'Stock ML',
+                      align: 'center',
+                      render: (group) => <span className="text-sm">{group.stockML}</span>,
+                    },
+                    {
+                      key: 'stockERP',
+                      header: 'Stock ERP',
+                      align: 'center',
+                      render: (group) => {
+                        const stockERP = group.productoId ? stockERPMap.get(group.productoId) : undefined;
+                        if (!group.vinculado) return <span className="text-slate-300">—</span>;
+                        if (stockERP !== undefined && stockERP !== group.stockML) {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-orange-700 font-medium">
+                              {stockERP}
+                              <AlertTriangle className="w-3 h-3" />
+                            </span>
+                          );
+                        }
+                        return <span className="text-slate-600">{stockERP ?? '—'}</span>;
+                      },
+                    },
+                    {
+                      key: 'productoERP',
+                      header: 'Producto ERP',
+                      render: (group) => {
+                        const primary = group.listings[0];
+                        if (group.vinculado) {
+                          return (
+                            <div>
+                              <p className="text-sm font-medium text-slate-900">{group.productoNombre}</p>
+                              <p className="text-xs text-slate-400">{group.productoSku}</p>
+                            </div>
+                          );
+                        }
+                        return (
+                          <button
+                            onClick={() => handleVincular(primary)}
+                            className="text-sm text-amber-600 hover:text-amber-700 font-medium hover:underline"
+                          >
+                            Vincular producto
+                          </button>
+                        );
+                      },
+                    },
+                    {
+                      key: 'competencia',
+                      header: 'Competencia',
+                      render: (group) => <BuyBoxBadge listing={group.listings[0]} />,
+                    },
+                    {
+                      key: 'estado',
+                      header: 'Estado',
+                      render: (group) =>
+                        group.vinculado ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full">
+                            <CheckCircle2 className="w-3 h-3" /> Vinculado
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-orange-700 bg-orange-50 px-2 py-1 rounded-full">
+                            <AlertCircle className="w-3 h-3" /> Pendiente
+                          </span>
+                        ),
+                    },
+                    {
+                      key: 'acciones',
+                      header: 'Acciones',
+                      align: 'right',
+                      render: (group) => {
+                        const primary = group.listings[0];
+                        return (
+                          <div className="flex items-center justify-end gap-1">
+                            {group.vinculado ? (
+                              <button
+                                onClick={() => handleDesvincular(primary)}
+                                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Desvincular grupo"
+                              >
+                                <Unlink className="w-4 h-4" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleVincular(primary)}
+                                className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                title="Vincular"
+                              >
+                                <LinkIcon className="w-4 h-4" />
+                              </button>
+                            )}
+                            <a
+                              href={primary.mlPermalink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                              title="Ver en ML"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </div>
+                        );
+                      },
+                    },
+                  ];
+                  return (
+                    <DataTable
+                      columns={productGroupColumns}
+                      data={filteredGroups}
+                      keyExtractor={(g) => g.groupKey}
+                      compact
+                      emptyMessage="No se encontraron productos"
+                      expandedKeys={expandedGroups}
+                      onToggleExpand={handleToggleExpand}
+                      expandedRowRender={(group) =>
+                        group.listings.length > 1 ? (
+                          <div>
+                            {group.listings.map((listing) => (
+                              <ListingSubItem key={listing.id} listing={listing} />
+                            ))}
+                          </div>
+                        ) : null
+                      }
+                      className="bg-white rounded-xl border border-slate-200 overflow-hidden"
+                    />
+                  );
+                })()}
               </div>
 
               {/* Mobile: cards */}

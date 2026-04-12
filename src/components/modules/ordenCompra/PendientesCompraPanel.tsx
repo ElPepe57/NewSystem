@@ -239,7 +239,7 @@ export const PendientesCompraPanel: React.FC<Props> = ({
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-xs text-slate-400 font-mono">{item.sku}</span>
                           {item.proveedorSugerido && (
-                            <span className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
+                            <span className="text-xs bg-sky-50 text-sky-600 px-1.5 py-0.5 rounded">
                               {item.proveedorSugerido}
                             </span>
                           )}

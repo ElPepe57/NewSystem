@@ -272,8 +272,8 @@ const ResultSection: React.FC<{
           </p>
 
           {externalInfo && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-left">
-              <p className="text-xs text-blue-600 font-medium mb-1">
+            <div className="mb-4 p-3 bg-sky-50 border border-sky-200 rounded-lg text-left">
+              <p className="text-xs text-sky-600 font-medium mb-1">
                 Info de {externalInfo.source === 'openfoodfacts' ? 'Open Food Facts' : 'API externa'}:
               </p>
               {externalInfo.brand && (
@@ -298,7 +298,7 @@ const ResultSection: React.FC<{
             <button
               type="button"
               onClick={onVincular}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
             >
               <Link2 className="h-4 w-4" />
               Vincular a Producto

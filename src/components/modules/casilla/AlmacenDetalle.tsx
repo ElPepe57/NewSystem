@@ -380,9 +380,9 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
   }, [almacen.id, almacen.unidadesActuales, almacen.capacidadUnidades, almacen.totalUnidadesEnviadas, almacen.esViajero, almacen.metricasOperativas, capacidadUsada]);
 
   // Determinar color del header según tipo
-  const headerGradient = almacen.esViajero
-    ? 'from-green-50 via-teal-50 to-white'
-    : 'from-blue-50 via-teal-50 to-white';
+  const headerBg = almacen.esViajero
+    ? 'bg-emerald-50'
+    : 'bg-sky-50';
 
   const iconColor = almacen.esViajero ? 'text-teal-600' : 'text-teal-600';
   const iconBg = almacen.esViajero ? 'bg-teal-100' : 'bg-teal-100';
@@ -406,7 +406,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className={`flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r ${headerGradient}`}>
+        <div className={`flex items-center justify-between p-6 border-b border-slate-200 ${headerBg}`}>
           <div className="flex items-center space-x-4">
             <div className={`h-14 w-14 ${iconBg} rounded-full flex items-center justify-center`}>
               {almacen.esViajero ? (
@@ -474,13 +474,13 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                     label="Total Recibidas"
                     value={almacen.totalUnidadesRecibidas || 0}
                     icon={TrendingDown}
-                    iconColor="text-blue-600"
+                    iconColor="text-sky-600"
                   />
                   <DSStatCard
                     label="Total Enviadas"
                     value={almacen.totalUnidadesEnviadas || 0}
                     icon={TrendingUp}
-                    iconColor="text-green-600"
+                    iconColor="text-emerald-600"
                   />
                 </DSKPIBar>
 
@@ -517,9 +517,9 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                       )}
                       {almacen.whatsapp && (
                         <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4 text-green-500" />
+                          <Phone className="h-4 w-4 text-emerald-500" />
                           <span className="text-sm text-slate-600">WhatsApp:</span>
-                          <span className="text-sm font-medium text-green-600">{almacen.whatsapp}</span>
+                          <span className="text-sm font-medium text-emerald-600">{almacen.whatsapp}</span>
                         </div>
                       )}
                       {almacen.email && (
@@ -561,7 +561,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                       {almacen.costoPromedioFlete !== undefined && (
                         <div>
                           <div className="text-xs text-slate-600">Costo Flete Promedio</div>
-                          <div className="text-sm font-medium text-green-600">${almacen.costoPromedioFlete.toFixed(2)}</div>
+                          <div className="text-sm font-medium text-emerald-600">${almacen.costoPromedioFlete.toFixed(2)}</div>
                         </div>
                       )}
                     </div>
@@ -650,7 +650,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                               <div className="text-xs text-slate-500">unidades</div>
                             </div>
                             <div className="text-right">
-                              <div className="text-sm font-medium text-green-600">${producto.valorUSD.toFixed(2)}</div>
+                              <div className="text-sm font-medium text-emerald-600">${producto.valorUSD.toFixed(2)}</div>
                               <div className="text-xs text-slate-500">valor</div>
                             </div>
                           </div>
@@ -678,7 +678,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                     label="Total Recibidas"
                     value={metricasMovimientos.loading ? '...' : metricasMovimientos.totalRecibidas}
                     icon={TrendingDown}
-                    iconColor="text-blue-600"
+                    iconColor="text-sky-600"
                     trend={{
                       value: 0,
                       isPositiveGood: true
@@ -688,7 +688,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                     label="Total Enviadas"
                     value={metricasMovimientos.loading ? '...' : metricasMovimientos.totalEnviadas}
                     icon={TrendingUp}
-                    iconColor="text-green-600"
+                    iconColor="text-emerald-600"
                   />
                   <DSStatCard
                     label="Balance Neto"
@@ -722,14 +722,14 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                         <div
                           key={transferencia.id}
                           className={`flex items-center justify-between p-3 rounded-lg ${
-                            transferencia.tipo === 'entrada' ? 'bg-blue-50' : 'bg-green-50'
+                            transferencia.tipo === 'entrada' ? 'bg-sky-50' : 'bg-emerald-50'
                           }`}
                         >
                           <div className="flex items-center gap-3">
                             {transferencia.tipo === 'entrada' ? (
-                              <TrendingDown className="h-5 w-5 text-blue-600" />
+                              <TrendingDown className="h-5 w-5 text-sky-600" />
                             ) : (
-                              <TrendingUp className="h-5 w-5 text-green-600" />
+                              <TrendingUp className="h-5 w-5 text-emerald-600" />
                             )}
                             <div>
                               <div className="font-medium text-slate-900">{transferencia.numero}</div>
@@ -817,7 +817,7 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                       {
                         label: 'Ocupado',
                         value: almacen.unidadesActuales || 0,
-                        color: 'bg-blue-500'
+                        color: 'bg-sky-500'
                       },
                       {
                         label: 'Disponible',
@@ -867,9 +867,9 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
                               {almacen.metricasOperativas.viajesRealizados}
                             </div>
                           </div>
-                          <div className="p-4 bg-green-50 rounded-lg">
-                            <div className="text-xs text-green-600">Viajes a Tiempo</div>
-                            <div className="text-2xl font-bold text-green-700">
+                          <div className="p-4 bg-emerald-50 rounded-lg">
+                            <div className="text-xs text-emerald-600">Viajes a Tiempo</div>
+                            <div className="text-2xl font-bold text-emerald-700">
                               {almacen.metricasOperativas.viajesATiempo || 0}
                             </div>
                           </div>

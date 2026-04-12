@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -202,18 +202,17 @@ export const MercadoLibre: React.FC = () => {
       />
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
       <Toolbar />
 
       {/* OAuth callback message */}
       {oauthMessage && (
         <div className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
           oauthMessage.type === 'success'
-            ? 'bg-green-50 border border-green-200 text-green-800'
+            ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
             : 'bg-red-50 border border-red-200 text-red-800'
         }`}>
           {oauthMessage.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
           ) : (
             <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
           )}

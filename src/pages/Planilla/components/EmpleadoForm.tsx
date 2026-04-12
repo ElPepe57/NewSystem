@@ -2,7 +2,7 @@
  * EmpleadoForm.tsx — Modal para crear/editar perfil laboral de un usuario.
  */
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Input, Select } from '../../../components/common';
+import { FormModal, FormField } from '../../../design-system';
 import { useToastStore } from '../../../store/toastStore';
 import { usePlanillaStore } from '../../../store/planillaStore';
 import { TIPO_EMPLEADO_LABELS } from '../../../types/planilla.types';
@@ -77,179 +77,170 @@ export const EmpleadoForm: React.FC<EmpleadoFormProps> = ({ empleado, open, onCl
   if (!empleado) return null;
 
   return (
-    <Modal isOpen={open} onClose={onClose} title={`Perfil Laboral — ${empleado.displayName}`} size="lg">
-      <div className="space-y-4">
-        {/* Info del usuario */}
-        <div className="bg-slate-50 rounded-lg p-3 text-sm">
-          <div><span className="font-medium">Email:</span> {empleado.email}</div>
-          <div><span className="font-medium">Cargo:</span> {empleado.cargo || '—'}</div>
-          <div><span className="font-medium">Rol:</span> {empleado.role}</div>
-        </div>
+    <FormModal
+      isOpen={open}
+      onClose={onClose}
+      title={`Perfil Laboral — ${empleado.displayName}`}
+      size="lg"
+      variant="edit"
+      submitLabel="Guardar perfil laboral"
+      onSubmit={handleSubmit}
+      loading={loading}
+    >
+      {/* Info del usuario */}
+      <div className="bg-slate-50 rounded-lg p-3 text-sm">
+        <div><span className="font-medium">Email:</span> {empleado.email}</div>
+        <div><span className="font-medium">Cargo:</span> {empleado.cargo || '—'}</div>
+        <div><span className="font-medium">Rol:</span> {empleado.role}</div>
+      </div>
 
-        {/* Tipo */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de perfil</label>
-          <div className="flex gap-2">
-            {(Object.entries(TIPO_EMPLEADO_LABELS) as [TipoEmpleado, string][]).map(([key, label]) => (
+      {/* Tipo */}
+      <FormField label="Tipo de perfil">
+        <div className="flex gap-2">
+          {(Object.entries(TIPO_EMPLEADO_LABELS) as [TipoEmpleado, string][]).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTipo(key)}
+              className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                tipo === key
+                  ? 'bg-teal-600 text-white border-teal-600'
+                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </FormField>
+
+      {/* Salario */}
+      {tipo !== 'comisionista' && (
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Salario base mensual">
+            <input
+              type="number"
+              value={salarioBase}
+              onChange={(e) => setSalarioBase(parseFloat(e.target.value) || 0)}
+              className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
+              step="0.01"
+              min="0"
+            />
+          </FormField>
+          <FormField label="Moneda">
+            <select
+              value={monedaSalario}
+              onChange={(e) => setMonedaSalario(e.target.value as 'PEN' | 'USD')}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+            >
+              <option value="PEN">S/ Soles</option>
+              <option value="USD">$ Dolares</option>
+            </select>
+          </FormField>
+        </div>
+      )}
+
+      {/* Comisiones */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+          <input
+            type="checkbox"
+            checked={tieneComision}
+            onChange={(e) => setTieneComision(e.target.checked)}
+            className="rounded border-slate-300"
+          />
+          Esquema de comisiones por ventas
+        </label>
+
+        {tieneComision && (
+          <div className="space-y-3 pl-6">
+            <div className="flex gap-2">
               <button
-                key={key}
                 type="button"
-                onClick={() => setTipo(key)}
-                className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${
-                  tipo === key
-                    ? 'bg-teal-600 text-white border-teal-600'
-                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                onClick={() => setTipoComision('porcentaje_venta')}
+                className={`px-3 py-1.5 text-sm rounded-lg border ${
+                  tipoComision === 'porcentaje_venta'
+                    ? 'bg-teal-100 border-teal-300 text-teal-700'
+                    : 'bg-white border-slate-300'
                 }`}
               >
-                {label}
+                % de la venta
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Salario (no para comisionistas puros) */}
-        {tipo !== 'comisionista' && (
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Salario base mensual</label>
-              <input
-                type="number"
-                value={salarioBase}
-                onChange={(e) => setSalarioBase(parseFloat(e.target.value) || 0)}
-                className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
-                step="0.01"
-                min="0"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
-              <select
-                value={monedaSalario}
-                onChange={(e) => setMonedaSalario(e.target.value as 'PEN' | 'USD')}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+              <button
+                type="button"
+                onClick={() => setTipoComision('monto_fijo')}
+                className={`px-3 py-1.5 text-sm rounded-lg border ${
+                  tipoComision === 'monto_fijo'
+                    ? 'bg-teal-100 border-teal-300 text-teal-700'
+                    : 'bg-white border-slate-300'
+                }`}
               >
-                <option value="PEN">S/ Soles</option>
-                <option value="USD">$ Dolares</option>
-              </select>
+                Monto fijo por venta
+              </button>
             </div>
-          </div>
-        )}
 
-        {/* Comisiones */}
-        <div className="border rounded-lg p-3 space-y-3">
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-            <input
-              type="checkbox"
-              checked={tieneComision}
-              onChange={(e) => setTieneComision(e.target.checked)}
-              className="rounded border-slate-300"
-            />
-            Esquema de comisiones por ventas
-          </label>
-
-          {tieneComision && (
-            <div className="space-y-3 pl-6">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setTipoComision('porcentaje_venta')}
-                  className={`px-3 py-1.5 text-sm rounded-lg border ${
-                    tipoComision === 'porcentaje_venta'
-                      ? 'bg-teal-100 border-teal-300 text-teal-700'
-                      : 'bg-white border-slate-300'
-                  }`}
-                >
-                  % de la venta
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTipoComision('monto_fijo')}
-                  className={`px-3 py-1.5 text-sm rounded-lg border ${
-                    tipoComision === 'monto_fijo'
-                      ? 'bg-teal-100 border-teal-300 text-teal-700'
-                      : 'bg-white border-slate-300'
-                  }`}
-                >
-                  Monto fijo por venta
-                </button>
-              </div>
-
-              {tipoComision === 'porcentaje_venta' ? (
-                <div>
-                  <label className="block text-xs text-slate-600 mb-1">Porcentaje sobre totalPEN</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={porcentaje}
-                      onChange={(e) => setPorcentaje(parseFloat(e.target.value) || 0)}
-                      className="w-24 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
-                      step="0.5"
-                      min="0"
-                      max="100"
-                    />
-                    <span className="text-sm text-slate-500">%</span>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-xs text-slate-600 mb-1">Monto fijo por venta (PEN)</label>
+            {tipoComision === 'porcentaje_venta' ? (
+              <FormField label="Porcentaje sobre totalPEN">
+                <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    value={montoFijo}
-                    onChange={(e) => setMontoFijo(parseFloat(e.target.value) || 0)}
-                    className="w-32 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
-                    step="1"
+                    value={porcentaje}
+                    onChange={(e) => setPorcentaje(parseFloat(e.target.value) || 0)}
+                    className="w-24 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
+                    step="0.5"
                     min="0"
+                    max="100"
                   />
+                  <span className="text-sm text-slate-500">%</span>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Datos bancarios */}
-        <div className="border-t pt-3">
-          <h4 className="text-sm font-medium text-slate-700 mb-2">Datos bancarios (opcional)</h4>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs text-slate-600 mb-1">Banco</label>
-              <input
-                type="text"
-                value={banco}
-                onChange={(e) => setBanco(e.target.value)}
-                placeholder="BCP, IBK..."
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-slate-600 mb-1">Nro. cuenta</label>
-              <input
-                type="text"
-                value={numeroCuenta}
-                onChange={(e) => setNumeroCuenta(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-slate-600 mb-1">CCI</label>
-              <input
-                type="text"
-                value={cci}
-                onChange={(e) => setCci(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
+              </FormField>
+            ) : (
+              <FormField label="Monto fijo por venta (PEN)">
+                <input
+                  type="number"
+                  value={montoFijo}
+                  onChange={(e) => setMontoFijo(parseFloat(e.target.value) || 0)}
+                  className="w-32 border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
+                  step="1"
+                  min="0"
+                />
+              </FormField>
+            )}
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Acciones */}
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar perfil laboral'}
-          </Button>
+      {/* Datos bancarios */}
+      <div className="border-t pt-3">
+        <h4 className="text-sm font-medium text-slate-700 mb-2">Datos bancarios (opcional)</h4>
+        <div className="grid grid-cols-3 gap-3">
+          <FormField label="Banco">
+            <input
+              type="text"
+              value={banco}
+              onChange={(e) => setBanco(e.target.value)}
+              placeholder="BCP, IBK..."
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+            />
+          </FormField>
+          <FormField label="Nro. cuenta">
+            <input
+              type="text"
+              value={numeroCuenta}
+              onChange={(e) => setNumeroCuenta(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+            />
+          </FormField>
+          <FormField label="CCI">
+            <input
+              type="text"
+              value={cci}
+              onChange={(e) => setCci(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+            />
+          </FormField>
         </div>
       </div>
-    </Modal>
+    </FormModal>
   );
 };

@@ -36,19 +36,19 @@ export interface StatusTimelineProps {
 const statusConfig = {
   completed: {
     icon: <Check className="h-4 w-4" />,
-    bgColor: 'bg-green-100',
-    iconColor: 'text-green-600',
-    borderColor: 'border-green-500',
-    lineColor: 'bg-green-500',
-    textColor: 'text-green-700'
+    bgColor: 'bg-emerald-100',
+    iconColor: 'text-emerald-600',
+    borderColor: 'border-emerald-500',
+    lineColor: 'bg-emerald-500',
+    textColor: 'text-emerald-700'
   },
   current: {
     icon: <Clock className="h-4 w-4 animate-pulse" />,
-    bgColor: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-    borderColor: 'border-blue-500',
-    lineColor: 'bg-blue-500',
-    textColor: 'text-blue-700'
+    bgColor: 'bg-sky-100',
+    iconColor: 'text-sky-600',
+    borderColor: 'border-sky-500',
+    lineColor: 'bg-sky-500',
+    textColor: 'text-sky-700'
   },
   pending: {
     icon: null,
@@ -82,16 +82,16 @@ const actionVariantConfig: Record<string, { bg: string; border: string; text: st
     button: 'bg-amber-600 hover:bg-amber-700 text-white'
   },
   success: {
-    bg: 'bg-green-50',
-    border: 'border-green-200',
-    text: 'text-green-700',
-    button: 'bg-green-600 hover:bg-green-700 text-white'
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    text: 'text-emerald-700',
+    button: 'bg-emerald-600 hover:bg-emerald-700 text-white'
   },
   info: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    text: 'text-blue-700',
-    button: 'bg-blue-600 hover:bg-blue-700 text-white'
+    bg: 'bg-sky-50',
+    border: 'border-sky-200',
+    text: 'text-sky-700',
+    button: 'bg-sky-600 hover:bg-sky-700 text-white'
   }
 };
 
@@ -143,7 +143,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                       {step.label}
                     </span>
                     {step.status === 'current' && (
-                      <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                      <span className="px-2 py-0.5 text-xs font-medium bg-sky-100 text-sky-700 rounded-full">
                         Actual
                       </span>
                     )}
@@ -232,7 +232,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
 
                 {/* Badge de estado actual */}
                 {step.status === 'current' && (
-                  <span className="mt-1 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                  <span className="mt-1 px-2 py-0.5 text-xs font-medium bg-sky-100 text-sky-700 rounded-full">
                     Actual
                   </span>
                 )}

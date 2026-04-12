@@ -21,12 +21,12 @@ export const BulletProgressBar: React.FC<BulletProgressBarProps> = ({
       : '#10b981';
 
   return (
-    <div className="relative h-3 w-full rounded-full overflow-hidden bg-slate-800/60">
+    <div className="relative h-3 w-full rounded-full overflow-hidden bg-slate-100">
       {/* Zonas de fondo */}
       <div className="absolute inset-0 flex">
-        <div className="bg-rose-900/30" style={{ width: `${dangerThreshold}%` }} />
-        <div className="bg-amber-900/30" style={{ width: `${warningThreshold - dangerThreshold}%` }} />
-        <div className="bg-emerald-900/30" style={{ width: `${100 - warningThreshold}%` }} />
+        <div className="bg-red-50" style={{ width: `${dangerThreshold}%` }} />
+        <div className="bg-amber-50" style={{ width: `${warningThreshold - dangerThreshold}%` }} />
+        <div className="bg-emerald-50" style={{ width: `${100 - warningThreshold}%` }} />
       </div>
       {/* Barra real */}
       <div

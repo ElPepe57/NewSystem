@@ -237,10 +237,10 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
   const getDisponibilidadStyle = (fuente: string) => {
     switch (fuente) {
       case 'peru':
-        return { bg: 'bg-green-100', text: 'text-green-700', icon: MapPin };
+        return { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: MapPin };
       case 'usa_viajero':
       case 'origen_viajero':
-        return { bg: 'bg-blue-100', text: 'text-blue-700', icon: Plane };
+        return { bg: 'bg-sky-100', text: 'text-sky-700', icon: Plane };
       case 'usa_almacen':
       case 'origen_almacen':
         return { bg: 'bg-teal-100', text: 'text-teal-700', icon: Plane };
@@ -274,7 +274,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
               block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
               focus:ring-teal-500 focus:border-teal-500
               ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
-              ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
+              ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
             `}
           />
 
@@ -282,7 +282,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
             {value ? (
               <div className="flex items-center space-x-1">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-emerald-500" />
                 {!disabled && (
                   <button type="button" onClick={handleClear} className="text-slate-400 hover:text-slate-600">
                     <X className="h-4 w-4" />
@@ -358,10 +358,10 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
                   </span>
                   <div className="flex items-center gap-1.5 sm:gap-3 text-[10px] sm:text-xs text-slate-400">
                     <span className="flex items-center gap-0.5">
-                      <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" /> PE
+                      <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-500" /> PE
                     </span>
                     <span className="flex items-center gap-0.5">
-                      <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-500" /> US
+                      <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-sky-500" /> US
                     </span>
                     <span className="flex items-center gap-0.5">
                       <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Entrega
@@ -396,7 +396,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
                           {producto.sku}
                         </span>
                         {inv && (
-                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-blue-100 text-blue-700 flex items-center flex-shrink-0">
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-sky-100 text-sky-700 flex items-center flex-shrink-0">
                             <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
                             <span className="hidden sm:inline">Precios ref.</span>
                             <span className="sm:hidden">Ref.</span>
@@ -419,15 +419,15 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
                     {/* Metrics row: compact horizontal pills */}
                     <div className="flex items-center gap-1 sm:gap-2 mt-1 sm:mt-1.5 flex-wrap">
                       {/* Stock Perú */}
-                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-50 rounded text-[10px] sm:text-xs">
-                        <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-600" />
-                        <span className="font-bold text-green-700">{disp.peru}</span>
+                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-emerald-50 rounded text-[10px] sm:text-xs">
+                        <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-600" />
+                        <span className="font-bold text-emerald-700">{disp.peru}</span>
                       </div>
 
                       {/* Stock USA */}
-                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-50 rounded text-[10px] sm:text-xs">
-                        <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-600" />
-                        <span className="font-bold text-blue-700">{disp.usa}</span>
+                      <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-sky-50 rounded text-[10px] sm:text-xs">
+                        <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-sky-600" />
+                        <span className="font-bold text-sky-700">{disp.usa}</span>
                       </div>
 
                       {/* Tiempo entrega */}
@@ -472,7 +472,7 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
 
       {/* Panel de info del producto seleccionado */}
       {value && (
-        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-teal-50 to-purple-50 border border-teal-200 rounded-lg">
+        <div className="mt-2 p-2 sm:p-3 bg-teal-50 border border-teal-200 rounded-lg">
           <div className="flex items-center justify-between gap-1 mb-2">
             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
               <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-teal-600 flex-shrink-0" />
@@ -493,17 +493,17 @@ export const ProductoSearchCotizaciones: React.FC<ProductoSearchCotizacionesProp
             {/* Stock Perú */}
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
               <p className="text-[10px] sm:text-xs text-slate-600 flex items-center justify-center gap-0.5 sm:gap-1">
-                <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" /> Perú
+                <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-500" /> Perú
               </p>
-              <p className="font-bold text-sm sm:text-lg text-green-600">{value.stockPeru}</p>
+              <p className="font-bold text-sm sm:text-lg text-emerald-600">{value.stockPeru}</p>
             </div>
 
             {/* Stock USA */}
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
               <p className="text-[10px] sm:text-xs text-slate-600 flex items-center justify-center gap-0.5 sm:gap-1">
-                <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-500" /> USA
+                <Plane className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-sky-500" /> USA
               </p>
-              <p className="font-bold text-sm sm:text-lg text-blue-600">{value.stockUSA}</p>
+              <p className="font-bold text-sm sm:text-lg text-sky-600">{value.stockUSA}</p>
             </div>
 
             {/* Tiempo entrega */}

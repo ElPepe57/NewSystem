@@ -1,6 +1,8 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import {
   Users, Globe, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, Target, Shield, ShieldAlert, ShieldCheck, Eye, X,
@@ -64,7 +66,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
     switch (nivel) {
       case 'alto': return 'bg-red-100 text-red-800 border-red-300';
       case 'medio': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'bajo': return 'bg-green-100 text-green-800 border-green-300';
+      case 'bajo': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
       default: return 'bg-slate-100 text-slate-800 border-slate-300';
     }
   };
@@ -73,14 +75,14 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
     switch (nivel) {
       case 'alto': return <ShieldAlert className="w-5 h-5 text-red-500" />;
       case 'medio': return <Shield className="w-5 h-5 text-yellow-500" />;
-      case 'bajo': return <ShieldCheck className="w-5 h-5 text-green-500" />;
+      case 'bajo': return <ShieldCheck className="w-5 h-5 text-emerald-500" />;
       default: return <Shield className="w-5 h-5 text-slate-500" />;
     }
   };
 
   const getVentajaColor = (ventaja: string) => {
     switch (ventaja) {
-      case 'nosotros': return 'text-green-600 bg-green-100';
+      case 'nosotros': return 'text-emerald-600 bg-emerald-100';
       case 'competidor': return 'text-red-600 bg-red-100';
       default: return 'text-slate-600 bg-slate-100';
     }
@@ -90,7 +92,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
     switch (severidad) {
       case 'danger': return <AlertCircle className="w-4 h-4 text-red-500" />;
       case 'warning': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      default: return <AlertCircle className="w-4 h-4 text-blue-500" />;
+      default: return <AlertCircle className="w-4 h-4 text-sky-500" />;
     }
   };
 
@@ -103,7 +105,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
           <div className={`w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold ${
             analytics?.nivelAmenaza === 'alto' ? 'bg-red-100 text-red-600' :
             analytics?.nivelAmenaza === 'medio' ? 'bg-yellow-100 text-yellow-600' :
-            'bg-green-100 text-green-600'
+            'bg-emerald-100 text-emerald-600'
           }`}>
             {getNivelAmenazaIcon(analytics?.nivelAmenaza)}
           </div>
@@ -130,7 +132,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                   href={competidor.urlTienda}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                  className="flex items-center gap-1 text-sm text-sky-600 hover:underline"
                 >
                   <ExternalLink className="w-4 h-4" />
                   Ver perfil
@@ -140,7 +142,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
 
             <div className="flex gap-2 mt-3">
               <span className={`px-2 py-1 text-xs rounded-full ${
-                competidor.estado === 'activo' ? 'bg-green-100 text-green-800' :
+                competidor.estado === 'activo' ? 'bg-emerald-100 text-emerald-800' :
                 competidor.estado === 'inactivo' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-red-100 text-red-800'
               }`}>
@@ -182,7 +184,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
               Diferencia Promedio
             </div>
             <div className={`text-2xl font-bold ${
-              analytics.diferenciaPromedioGlobal > 0 ? 'text-red-600' : 'text-green-600'
+              analytics.diferenciaPromedioGlobal > 0 ? 'text-red-600' : 'text-emerald-600'
             }`}>
               {analytics.diferenciaPromedioGlobal > 0 ? '+' : ''}{formatPercent(analytics.diferenciaPromedioGlobal)}
             </div>
@@ -196,7 +198,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
               <ThumbsUp className="w-4 h-4" />
               Nosotros + Baratos
             </div>
-            <div className="text-2xl font-bold text-green-600">{analytics.productosMasCaros}</div>
+            <div className="text-2xl font-bold text-emerald-600">{analytics.productosMasCaros}</div>
             <div className="text-xs text-slate-500">
               productos con ventaja
             </div>
@@ -254,7 +256,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-500"
+                      className="h-full bg-sky-500"
                       style={{ width: `${analytics.factoresAmenaza.precioCompetitivo}%` }}
                     />
                   </div>
@@ -278,7 +280,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-green-500"
+                      className="h-full bg-emerald-500"
                       style={{ width: `${analytics.factoresAmenaza.variedadProductos}%` }}
                     />
                   </div>
@@ -316,7 +318,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                 className={`p-3 rounded-lg border ${
                   alerta.severidad === 'danger' ? 'bg-red-50 border-red-200' :
                   alerta.severidad === 'warning' ? 'bg-yellow-50 border-yellow-200' :
-                  'bg-blue-50 border-blue-200'
+                  'bg-sky-50 border-sky-200'
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -327,7 +329,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                       <div className="text-sm text-slate-600 mt-1">{alerta.detalle}</div>
                     )}
                     {alerta.accionRecomendada && (
-                      <div className="text-sm text-blue-600 mt-1">
+                      <div className="text-sm text-sky-600 mt-1">
                         → {alerta.accionRecomendada}
                       </div>
                     )}
@@ -347,9 +349,9 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
       {/* Resumen de precios */}
       {analytics && (
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-green-50 rounded-lg p-4 text-center">
-            <ThumbsUp className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-green-600">{analytics.productosMasCaros}</div>
+          <div className="bg-emerald-50 rounded-lg p-4 text-center">
+            <ThumbsUp className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-emerald-600">{analytics.productosMasCaros}</div>
             <div className="text-sm text-slate-600">Nosotros más baratos</div>
           </div>
           <div className="bg-slate-50 rounded-lg p-4 text-center">
@@ -371,41 +373,50 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Comparación de Precios ({analytics.analisisPreciosActual.length})
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">SKU</th>
-                  <th className="text-left py-2 px-2">Producto</th>
-                  <th className="text-right py-2 px-2">Nuestro Precio</th>
-                  <th className="text-right py-2 px-2">Su Precio</th>
-                  <th className="text-right py-2 px-2">Diferencia</th>
-                  <th className="text-center py-2 px-2">Ventaja</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.analisisPreciosActual.slice(0, 20).map((precio, idx) => (
-                  <tr key={idx} className="border-b hover:bg-slate-50">
-                    <td className="py-2 px-2 font-mono text-xs">{precio.sku}</td>
-                    <td className="py-2 px-2">{precio.nombreProducto}</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(precio.nuestroPrecio)}</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(precio.precioCompetidor)}</td>
-                    <td className={`py-2 px-2 text-right font-medium ${
-                      precio.diferenciaPorcentaje > 0 ? 'text-red-600' : 'text-green-600'
-                    }`}>
-                      {precio.diferenciaPorcentaje > 0 ? '+' : ''}{formatPercent(precio.diferenciaPorcentaje)}
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={`px-2 py-1 text-xs rounded-full ${getVentajaColor(precio.ventajaCompetitiva)}`}>
-                        {precio.ventajaCompetitiva === 'nosotros' ? 'Nosotros' :
-                         precio.ventajaCompetitiva === 'competidor' ? 'Ellos' : 'Igual'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            type PrecioItem = typeof analytics.analisisPreciosActual[number];
+            const colsPrecios: DataTableColumn<PrecioItem>[] = [
+              {
+                key: 'sku', header: 'SKU',
+                render: precio => <span className="font-mono text-xs">{precio.sku}</span>,
+              },
+              { key: 'nombreProducto', header: 'Producto', render: precio => <span>{precio.nombreProducto}</span> },
+              {
+                key: 'nuestroPrecio', header: 'Nuestro Precio', align: 'right',
+                render: precio => <span>{formatCurrency(precio.nuestroPrecio)}</span>,
+              },
+              {
+                key: 'precioCompetidor', header: 'Su Precio', align: 'right',
+                render: precio => <span>{formatCurrency(precio.precioCompetidor)}</span>,
+              },
+              {
+                key: 'diferenciaPorcentaje', header: 'Diferencia', align: 'right',
+                render: precio => (
+                  <span className={`font-medium ${precio.diferenciaPorcentaje > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                    {precio.diferenciaPorcentaje > 0 ? '+' : ''}{formatPercent(precio.diferenciaPorcentaje)}
+                  </span>
+                ),
+              },
+              {
+                key: 'ventajaCompetitiva', header: 'Ventaja', align: 'center',
+                render: precio => (
+                  <span className={`px-2 py-1 text-xs rounded-full ${getVentajaColor(precio.ventajaCompetitiva)}`}>
+                    {precio.ventajaCompetitiva === 'nosotros' ? 'Nosotros' :
+                     precio.ventajaCompetitiva === 'competidor' ? 'Ellos' : 'Igual'}
+                  </span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsPrecios}
+                data={analytics.analisisPreciosActual.slice(0, 20)}
+                keyExtractor={precio => precio.productoId}
+                compact
+                emptyMessage="Sin comparaciones de precios"
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -425,21 +436,21 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                 </div>
                 <div className="text-center">
                   <div className={`text-lg font-bold ${
-                    prod.diferencia > 0 ? 'text-red-600' : 'text-green-600'
+                    prod.diferencia > 0 ? 'text-red-600' : 'text-emerald-600'
                   }`}>
                     {prod.diferencia > 0 ? '+' : ''}{formatPercent(prod.diferencia)}
                   </div>
                   <div className={`text-xs px-2 py-1 rounded-full ${
                     prod.importanciaEstrategica === 'alta' ? 'bg-red-100 text-red-700' :
                     prod.importanciaEstrategica === 'media' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-green-100 text-green-700'
+                    'bg-emerald-100 text-emerald-700'
                   }`}>
                     {prod.importanciaEstrategica}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-slate-500">Recomendación:</div>
-                  <div className="text-sm text-blue-600">{prod.recomendacion}</div>
+                  <div className="text-sm text-sky-600">{prod.recomendacion}</div>
                 </div>
               </div>
             ))}
@@ -476,7 +487,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                 <div className="text-center">
                   <div className={`flex items-center gap-1 ${
                     tend.tendencia === 'subiendo' ? 'text-red-600' :
-                    tend.tendencia === 'bajando' ? 'text-green-600' :
+                    tend.tendencia === 'bajando' ? 'text-emerald-600' :
                     'text-slate-600'
                   }`}>
                     {tend.tendencia === 'subiendo' ? <TrendingUp className="w-4 h-4" /> :
@@ -487,7 +498,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                   <div className={`text-xs px-2 py-1 rounded-full ${
                     tend.volatilidad === 'alta' ? 'bg-red-100 text-red-700' :
                     tend.volatilidad === 'media' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-green-100 text-green-700'
+                    'bg-emerald-100 text-emerald-700'
                   }`}>
                     volatilidad {tend.volatilidad}
                   </div>
@@ -527,18 +538,18 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Nuestras fortalezas */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-green-600 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-emerald-600 mb-4 flex items-center gap-2">
               <ThumbsUp className="w-5 h-5" />
               Nuestras Fortalezas ({analytics.fortalezas.length})
             </h3>
             <div className="space-y-3">
               {analytics.fortalezas.map((f, idx) => (
-                <div key={idx} className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div key={idx} className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      f.impacto === 'alto' ? 'bg-green-200 text-green-800' :
-                      f.impacto === 'medio' ? 'bg-green-100 text-green-700' :
-                      'bg-green-50 text-green-600'
+                      f.impacto === 'alto' ? 'bg-emerald-200 text-emerald-800' :
+                      f.impacto === 'medio' ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-emerald-50 text-emerald-600'
                     }`}>
                       {f.impacto}
                     </span>
@@ -597,7 +608,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     rec.prioridad === 'alta' ? 'bg-red-100 text-red-700' :
                     rec.prioridad === 'media' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-green-100 text-green-700'
+                    'bg-emerald-100 text-emerald-700'
                   }`}>
                     {rec.prioridad}
                   </span>
@@ -629,11 +640,11 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Score Competitivo</h3>
           <div className="flex items-center gap-8">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{analytics.scoreCompetitivoNuestro}</div>
+              <div className="text-3xl font-bold text-emerald-600">{analytics.scoreCompetitivoNuestro}</div>
               <div className="text-sm text-slate-500">Nosotros</div>
             </div>
             <div className="flex-1 flex items-center">
-              <div className="flex-1 h-4 bg-green-200 rounded-l-full" style={{ width: `${analytics.scoreCompetitivoNuestro}%` }} />
+              <div className="flex-1 h-4 bg-emerald-200 rounded-l-full" style={{ width: `${analytics.scoreCompetitivoNuestro}%` }} />
               <div className="flex-1 h-4 bg-red-200 rounded-r-full" style={{ width: `${analytics.scoreCompetitivoSuyo}%` }} />
             </div>
             <div className="text-center">
@@ -677,45 +688,46 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
       {analytics && analytics.comparativaCompetidores.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Comparativa con Otros Competidores</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">#</th>
-                  <th className="text-left py-2 px-2">Competidor</th>
-                  <th className="text-center py-2 px-2">Amenaza</th>
-                  <th className="text-right py-2 px-2">Productos</th>
-                  <th className="text-right py-2 px-2">Dif. Precio</th>
-                  <th className="text-right py-2 px-2">Reputación</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.comparativaCompetidores.slice(0, 10).map((comp, idx) => (
-                  <tr
-                    key={idx}
-                    className={`border-b ${comp.competidorId === competidor.id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
-                  >
-                    <td className="py-2 px-2 font-bold">{comp.ranking}</td>
-                    <td className="py-2 px-2">
-                      <div className="font-medium">{comp.nombre}</div>
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={`px-2 py-1 text-xs rounded-full ${getNivelAmenazaColor(comp.nivelAmenaza)}`}>
-                        {comp.nivelAmenaza}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-right">{comp.productosEnComun}</td>
-                    <td className={`py-2 px-2 text-right ${
-                      comp.precioPromedioVsNosotros > 0 ? 'text-red-600' : 'text-green-600'
-                    }`}>
-                      {comp.precioPromedioVsNosotros > 0 ? '+' : ''}{formatPercent(comp.precioPromedioVsNosotros)}
-                    </td>
-                    <td className="py-2 px-2 text-right">{comp.reputacion}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            type CompItem = typeof analytics.comparativaCompetidores[number];
+            const colsComparativa: DataTableColumn<CompItem>[] = [
+              { key: 'ranking', header: '#', render: comp => <span className="font-bold">{comp.ranking}</span> },
+              { key: 'nombre', header: 'Competidor', render: comp => <span className="font-medium">{comp.nombre}</span> },
+              {
+                key: 'nivelAmenaza', header: 'Amenaza', align: 'center',
+                render: comp => (
+                  <span className={`px-2 py-1 text-xs rounded-full ${getNivelAmenazaColor(comp.nivelAmenaza)}`}>
+                    {comp.nivelAmenaza}
+                  </span>
+                ),
+              },
+              {
+                key: 'productosEnComun', header: 'Productos', align: 'right', hideOnMobile: true,
+                render: comp => <span>{comp.productosEnComun}</span>,
+              },
+              {
+                key: 'precioPromedioVsNosotros', header: 'Dif. Precio', align: 'right',
+                render: comp => (
+                  <span className={comp.precioPromedioVsNosotros > 0 ? 'text-red-600' : 'text-emerald-600'}>
+                    {comp.precioPromedioVsNosotros > 0 ? '+' : ''}{formatPercent(comp.precioPromedioVsNosotros)}
+                  </span>
+                ),
+              },
+              {
+                key: 'reputacion', header: 'Reputación', align: 'right', hideOnMobile: true,
+                render: comp => <span>{comp.reputacion}</span>,
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsComparativa}
+                data={analytics.comparativaCompetidores.slice(0, 10)}
+                keyExtractor={comp => comp.competidorId}
+                compact
+                emptyMessage="Sin comparativas disponibles"
+              />
+            );
+          })()}
         </div>
       )}
     </div>
@@ -755,7 +767,7 @@ export function CompetidorDetailView({ competidor, onClose, onEdit }: Competidor
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-sky-500 text-sky-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >

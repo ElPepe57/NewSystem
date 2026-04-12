@@ -9,6 +9,8 @@ interface PageHeaderProps {
   icon?: LucideIcon;
   actions?: React.ReactNode;
   badge?: React.ReactNode;
+  /** Renderiza contenido junto al título (ej: LineaDropdown) */
+  titleExtra?: React.ReactNode;
   className?: string;
 }
 
@@ -17,7 +19,7 @@ interface PageHeaderProps {
  * Limpio, sin gradientes. Titulo + subtitulo + acciones.
  */
 export const PageHeader: React.FC<PageHeaderProps> = ({
-  title, subtitle, icon: Icon, actions, badge, className,
+  title, subtitle, icon: Icon, actions, badge, titleExtra, className,
 }) => (
   <div className={cn('bg-white border-b border-slate-200 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 sm:py-5', className)}>
     <div className="flex items-center justify-between gap-4">
@@ -35,8 +37,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           {subtitle && <p className={cn(text.caption, 'mt-0.5')}>{subtitle}</p>}
         </div>
       </div>
-      {actions && (
-        <div className="flex items-center gap-2 flex-shrink-0">
+      {(titleExtra || actions) && (
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {titleExtra}
           {actions}
         </div>
       )}

@@ -137,10 +137,10 @@ export const LLAMADA_RING_TIMEOUT_MS = 30_000;
 
 /** Iconos y colores por tipo de actividad para el feed */
 export const ACTIVIDAD_CONFIG: Record<TipoActividad, { emoji: string; color: string }> = {
-  venta_creada:          { emoji: '🛒', color: 'text-green-600' },
-  venta_confirmada:      { emoji: '✅', color: 'text-green-700' },
+  venta_creada:          { emoji: '🛒', color: 'text-emerald-600' },
+  venta_confirmada:      { emoji: '✅', color: 'text-emerald-700' },
   venta_cancelada:       { emoji: '❌', color: 'text-red-600' },
-  venta_entregada:       { emoji: '📦', color: 'text-blue-600' },
+  venta_entregada:       { emoji: '📦', color: 'text-sky-600' },
   cotizacion_creada:     { emoji: '📋', color: 'text-purple-600' },
   cotizacion_validada:   { emoji: '✔️', color: 'text-purple-700' },
   requerimiento_creado:  { emoji: '📝', color: 'text-orange-600' },
@@ -157,12 +157,12 @@ export const ACTIVIDAD_CONFIG: Record<TipoActividad, { emoji: string; color: str
   devolucion_aprobada:   { emoji: '↩️', color: 'text-amber-600' },
   devolucion_rechazada:  { emoji: '🚫', color: 'text-red-600' },
   devolucion_ejecutada:  { emoji: '📦', color: 'text-amber-700' },
-  devolucion_completada: { emoji: '✅', color: 'text-green-600' },
+  devolucion_completada: { emoji: '✅', color: 'text-emerald-600' },
   devolucion_cancelada:  { emoji: '❌', color: 'text-slate-500' },
   unidades_recibidas:    { emoji: '📦', color: 'text-sky-600' },
   transferencia_creada:  { emoji: '🔀', color: 'text-violet-600' },
-  llamada_iniciada:      { emoji: '📞', color: 'text-green-600' },
-  usuario_conectado:     { emoji: '🟢', color: 'text-green-500' },
+  llamada_iniciada:      { emoji: '📞', color: 'text-emerald-600' },
+  usuario_conectado:     { emoji: '🟢', color: 'text-emerald-500' },
   usuario_desconectado:  { emoji: '⚫', color: 'text-slate-400' },
 };
 

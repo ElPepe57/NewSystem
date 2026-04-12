@@ -354,7 +354,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
   };
 
   const getPuntuacionColor = (puntuacion: number) => {
-    if (puntuacion >= 70) return 'text-green-600';
+    if (puntuacion >= 70) return 'text-emerald-600';
     if (puntuacion >= 50) return 'text-yellow-600';
     return 'text-red-600';
   };
@@ -436,7 +436,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
         <TabPanel tabId="proveedores">
           <div className="space-y-4">
             {/* Sección de Proveedores USA */}
-            <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+            <div className="bg-sky-50/50 p-4 rounded-lg border border-sky-100">
               <ProveedorOrigenList
                 proveedores={proveedoresUSA}
                 onChange={setProveedoresUSA}
@@ -559,7 +559,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
                       className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                         formData.recomendacion === rec
                           ? rec === 'importar'
-                            ? 'bg-green-600 text-white'
+                            ? 'bg-emerald-600 text-white'
                             : rec === 'descartar'
                             ? 'bg-red-600 text-white'
                             : 'bg-yellow-500 text-white'
@@ -642,7 +642,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
       {/* Panel de Análisis Automático */}
       {(proveedoresUSA.length > 0 || competidoresPeru.length > 0) && (
-        <div className={`p-4 rounded-lg ${calculos.esRentable ? 'bg-green-100' : 'bg-red-100'}`}>
+        <div className={`p-4 rounded-lg ${calculos.esRentable ? 'bg-emerald-100' : 'bg-red-100'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0 mb-3">
             <h4 className="font-semibold text-slate-800 flex items-center">
               <BarChart3 className="h-4 w-4 mr-2" />
@@ -686,7 +686,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
             </div>
             <div className="bg-white bg-opacity-60 p-3 rounded-lg">
               <p className="text-xs text-slate-600">Margen Estimado</p>
-              <p className={`text-lg font-bold ${calculos.esRentable ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-lg font-bold ${calculos.esRentable ? 'text-emerald-600' : 'text-red-600'}`}>
                 {calculos.margenEstimado.toFixed(1)}%
               </p>
               <p className="text-xs text-slate-500">
@@ -730,19 +730,19 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div className="bg-white bg-opacity-60 p-3 rounded-lg text-center">
                   <p className="text-xs text-slate-600 mb-1">Ganancia/Unidad</p>
-                  <p className={`text-xl font-bold ${calculos.gananciaUnidad > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-xl font-bold ${calculos.gananciaUnidad > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     S/ {calculos.gananciaUnidad.toFixed(2)}
                   </p>
                 </div>
                 <div className="bg-white bg-opacity-60 p-3 rounded-lg text-center">
                   <p className="text-xs text-slate-600 mb-1">ROI</p>
-                  <p className={`text-xl font-bold ${calculos.roi > 50 ? 'text-green-600' : calculos.roi > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <p className={`text-xl font-bold ${calculos.roi > 50 ? 'text-emerald-600' : calculos.roi > 0 ? 'text-yellow-600' : 'text-red-600'}`}>
                     {calculos.roi.toFixed(1)}%
                   </p>
                 </div>
                 <div className="bg-white bg-opacity-60 p-3 rounded-lg text-center">
                   <p className="text-xs text-slate-600 mb-1">Multiplicador</p>
-                  <p className={`text-xl font-bold ${calculos.multiplicador >= 2 ? 'text-green-600' : calculos.multiplicador >= 1.5 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <p className={`text-xl font-bold ${calculos.multiplicador >= 2 ? 'text-emerald-600' : calculos.multiplicador >= 1.5 ? 'text-yellow-600' : 'text-red-600'}`}>
                     {calculos.multiplicador.toFixed(2)}x
                   </p>
                 </div>
@@ -791,7 +791,7 @@ export const InvestigacionModal: React.FC<InvestigacionModalProps> = ({
 
       {/* Sección de Historial de Precios (solo si existe) */}
       {inv?.historialPrecios && inv.historialPrecios.length > 0 && (
-        <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-4 rounded-lg border border-cyan-200">
+        <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
           <h4 className="font-semibold text-slate-800 mb-3 flex items-center">
             <History className="h-4 w-4 mr-2 text-cyan-600" />
             Historial de Precios

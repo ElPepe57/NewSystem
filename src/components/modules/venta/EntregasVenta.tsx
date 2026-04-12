@@ -440,10 +440,10 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
     <div className="space-y-4">
       {/* Resumen */}
       {resumenVenta && (
-        <div className="bg-blue-50 p-4 rounded-lg">
+        <div className="bg-sky-50 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Package className="h-5 w-5 text-blue-600 mr-2" />
+              <Package className="h-5 w-5 text-sky-600 mr-2" />
               <span className="font-medium text-slate-900">Resumen de Entregas</span>
             </div>
             <Badge variant={resumenVenta.entregaCompleta ? 'success' : 'warning'}>
@@ -484,10 +484,10 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${
-                    entrega.tipoTransportista === 'interno' ? 'bg-blue-100' : 'bg-purple-100'
+                    entrega.tipoTransportista === 'interno' ? 'bg-sky-100' : 'bg-purple-100'
                   }`}>
                     <Truck className={`h-5 w-5 ${
-                      entrega.tipoTransportista === 'interno' ? 'text-blue-600' : 'text-purple-600'
+                      entrega.tipoTransportista === 'interno' ? 'text-sky-600' : 'text-purple-600'
                     }`} />
                   </div>
                   <div>
@@ -522,7 +522,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     )}
                   </div>
                   {entrega.telefonoTransportista && (
-                    <a href={`tel:${entrega.telefonoTransportista}`} className="text-slate-500 flex items-center mt-1 hover:text-blue-600">
+                    <a href={`tel:${entrega.telefonoTransportista}`} className="text-slate-500 flex items-center mt-1 hover:text-sky-600">
                       <Phone className="h-3 w-3 mr-1" />
                       {entrega.telefonoTransportista}
                     </a>
@@ -564,7 +564,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                   )}
                   {/* ISSUE 6: Display de costo mas prominente */}
                   <span className={`font-medium ${
-                    (entrega.costoTransportista || 0) > 0 ? 'text-blue-600' : 'text-red-500'
+                    (entrega.costoTransportista || 0) > 0 ? 'text-sky-600' : 'text-red-500'
                   }`}>
                     <DollarSign className="h-3.5 w-3.5 inline mr-0.5" />
                     GD: S/ {(entrega.costoTransportista || 0).toFixed(2)}
@@ -622,7 +622,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                         )}
                         {entrega.estado !== 'cancelada' && (
                           <button
-                            className="w-full flex items-center px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                            className="w-full flex items-center px-3 py-2 text-sm text-sky-600 hover:bg-sky-50"
                             onClick={() => {
                               setEntregaCostoExtra(entrega);
                               setCostoExtraMonto('');
@@ -801,11 +801,11 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
           size="sm"
         >
           <div className="space-y-4">
-            <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-              <p className="text-sm font-medium text-green-800">
+            <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+              <p className="text-sm font-medium text-emerald-800">
                 {entregaCompletando.codigo}
               </p>
-              <p className="text-xs text-green-600 mt-1">
+              <p className="text-xs text-emerald-600 mt-1">
                 GD: S/ {(entregaCompletando.costoTransportista || 0).toFixed(2)} - {entregaCompletando.nombreTransportista}
               </p>
             </div>
@@ -820,7 +820,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                 type="datetime-local"
                 value={fechaEntregaReal}
                 onChange={(e) => setFechaEntregaReal(e.target.value)}
-                className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               {fechaEntregaReal && (() => {
                 const now = new Date();
@@ -858,7 +858,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                     onChange={(e) => setCobroRealizado(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                 </label>
               </div>
 
@@ -982,11 +982,11 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
           size="sm"
         >
           <div className="space-y-4">
-            <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-              <p className="text-sm font-medium text-blue-800">
+            <div className="bg-sky-50 p-3 rounded-lg border border-sky-200">
+              <p className="text-sm font-medium text-sky-800">
                 {entregaCostoExtra.codigo} - {entregaCostoExtra.nombreTransportista}
               </p>
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-sky-600 mt-1">
                 Costo base: S/ {(entregaCostoExtra.costoTransportista || 0).toFixed(2)}
               </p>
             </div>
@@ -1036,11 +1036,11 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
           size="sm"
         >
           <div className="space-y-4">
-            <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-              <p className="text-sm font-medium text-blue-800">
+            <div className="bg-sky-50 p-3 rounded-lg border border-sky-200">
+              <p className="text-sm font-medium text-sky-800">
                 {entregaEditando.codigo}
               </p>
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-sky-600 mt-1">
                 {entregaEditando.nombreCliente} - {entregaEditando.direccionEntrega}
               </p>
             </div>

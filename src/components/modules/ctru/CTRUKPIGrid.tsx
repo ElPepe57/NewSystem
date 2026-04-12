@@ -46,8 +46,8 @@ export const CTRUKPIGrid: React.FC<CTRUKPIGridProps> = ({ resumen, productosDeta
       value: `${resumen.totalUnidadesActivas}`,
       valueSuffix: ' activas',
       detail: `${resumen.totalUnidadesVendidas} vendidas · ${resumen.totalUnidadesActivas + resumen.totalUnidadesVendidas} total`,
-      borderColor: 'border-blue-500',
-      valueColor: 'text-blue-700'
+      borderColor: 'border-sky-500',
+      valueColor: 'text-sky-700'
     },
     {
       label: 'CTRU Promedio',
@@ -62,8 +62,8 @@ export const CTRUKPIGrid: React.FC<CTRUKPIGridProps> = ({ resumen, productosDeta
       detail: resumen.totalVentasAnalizadas > 0
         ? `${formatPEN(utilidadProm)} utilidad prom`
         : 'Sin ventas registradas',
-      borderColor: resumen.margenPromedioPercent >= 20 ? 'border-green-500' : resumen.margenPromedioPercent >= 10 ? 'border-amber-500' : 'border-red-500',
-      valueColor: resumen.margenPromedioPercent >= 20 ? 'text-green-700' : resumen.margenPromedioPercent >= 10 ? 'text-amber-700' : 'text-red-700'
+      borderColor: resumen.margenPromedioPercent >= 20 ? 'border-emerald-500' : resumen.margenPromedioPercent >= 10 ? 'border-amber-500' : 'border-red-500',
+      valueColor: resumen.margenPromedioPercent >= 20 ? 'text-emerald-700' : resumen.margenPromedioPercent >= 10 ? 'text-amber-700' : 'text-red-700'
     },
     {
       label: 'Precio Venta Prom',

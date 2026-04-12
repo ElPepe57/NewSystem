@@ -106,16 +106,16 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* CARD 1: INGRESOS */}
-        <div className="bg-gradient-to-br from-blue-50 to-teal-50 border border-blue-200 rounded-xl p-5">
+        <div className="bg-sky-50 border border-sky-200 rounded-xl p-5">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <p className="text-sm font-medium text-blue-700">Ingresos</p>
+              <p className="text-sm font-medium text-sky-700">Ingresos</p>
               <p className="text-3xl font-bold text-slate-900 mt-1">
                 {fmtCurrency(stats.ventasTotalPEN)}
               </p>
             </div>
-            <div className="h-11 w-11 bg-blue-100 rounded-xl flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-blue-600" />
+            <div className="h-11 w-11 bg-sky-100 rounded-xl flex items-center justify-center">
+              <DollarSign className="h-6 w-6 text-sky-600" />
             </div>
           </div>
 
@@ -128,7 +128,7 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
           </div>
 
           {/* Canal breakdown */}
-          <div className="mt-3 pt-3 border-t border-blue-200/50">
+          <div className="mt-3 pt-3 border-t border-sky-200/50">
             <div className="flex items-center gap-4 text-xs text-slate-600">
               {stats.ventasML > 0 && (
                 <span>ML: <span className="font-semibold text-slate-800">{stats.ventasML}</span></span>
@@ -144,7 +144,7 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
         </div>
 
         {/* CARD 2: RENTABILIDAD */}
-        <div className={`bg-gradient-to-br ${utilidadNeta >= 0 ? 'from-emerald-50 to-green-50 border-emerald-200' : 'from-red-50 to-rose-50 border-red-200'} border rounded-xl p-5`}>
+        <div className={`${utilidadNeta >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} border rounded-xl p-5`}>
           <div className="flex items-start justify-between mb-3">
             <div>
               <p className={`text-sm font-medium ${utilidadNeta >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
@@ -191,7 +191,7 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
 
         {/* CARD 3: COBRANZA */}
         {resumenPagos && (
-          <div className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-5">
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-5">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="text-sm font-medium text-violet-700">Cobranza</p>
@@ -399,8 +399,8 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
                 {totalEntregadas}/{totalVentas} entregadas
               </p>
             </div>
-            <div className="h-9 w-9 bg-blue-50 rounded-lg flex items-center justify-center">
-              <Truck className="h-5 w-5 text-blue-500" />
+            <div className="h-9 w-9 bg-sky-50 rounded-lg flex items-center justify-center">
+              <Truck className="h-5 w-5 text-sky-500" />
             </div>
           </div>
         </div>
@@ -414,12 +414,12 @@ export const VentasDashboard: React.FC<VentasDashboardProps> = ({
 /* ═══════════════════════════════════════════════════════════════ */
 
 const colorMap: Record<string, { text: string; bg: string; bar: string }> = {
-  blue:    { text: 'text-blue-700',    bg: 'bg-blue-50',    bar: 'bg-blue-400' },
+  blue:    { text: 'text-sky-700',    bg: 'bg-sky-50',    bar: 'bg-sky-400' },
   gray:    { text: 'text-slate-700',    bg: 'bg-slate-50',    bar: 'bg-slate-400' },
   emerald: { text: 'text-emerald-700', bg: 'bg-emerald-50', bar: 'bg-emerald-400' },
   orange:  { text: 'text-orange-700',  bg: 'bg-orange-50',  bar: 'bg-orange-400' },
   purple:  { text: 'text-purple-700',  bg: 'bg-purple-50',  bar: 'bg-purple-400' },
-  green:   { text: 'text-green-700',   bg: 'bg-green-50',   bar: 'bg-green-500' },
+  green:   { text: 'text-emerald-700',   bg: 'bg-emerald-50',   bar: 'bg-emerald-500' },
   red:     { text: 'text-red-700',     bg: 'bg-red-50',     bar: 'bg-red-500' },
 };
 

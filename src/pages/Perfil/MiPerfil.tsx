@@ -179,14 +179,14 @@ export const MiPerfil: React.FC = () => {
 
   // Config visual del rol
   const roleBadgeColor: Record<string, string> = {
-    admin: 'bg-gradient-to-r from-red-500 to-orange-500 text-white',
-    gerente: 'bg-gradient-to-r from-purple-500 to-violet-500 text-white',
-    vendedor: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white',
-    comprador: 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white',
-    almacenero: 'bg-gradient-to-r from-green-500 to-emerald-500 text-white',
-    finanzas: 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white',
-    supervisor: 'bg-gradient-to-r from-teal-500 to-blue-600 text-white',
-    invitado: 'bg-slate-500 text-white',
+    admin: 'bg-red-50 text-red-700',
+    gerente: 'bg-purple-50 text-purple-700',
+    vendedor: 'bg-sky-50 text-sky-700',
+    comprador: 'bg-amber-50 text-amber-700',
+    almacenero: 'bg-emerald-50 text-emerald-700',
+    finanzas: 'bg-teal-50 text-teal-700',
+    supervisor: 'bg-teal-50 text-teal-700',
+    invitado: 'bg-slate-100 text-slate-500',
   };
 
   if (!profile) {
@@ -215,9 +215,9 @@ export const MiPerfil: React.FC = () => {
         </div>
       )}
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center">
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg flex justify-between items-center">
           {success}
-          <button onClick={() => setSuccess(null)} className="text-green-500 hover:text-green-700">
+          <button onClick={() => setSuccess(null)} className="text-emerald-500 hover:text-emerald-700">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -226,7 +226,7 @@ export const MiPerfil: React.FC = () => {
       {/* Header con perfil */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         {/* Banner */}
-        <div className="h-24 bg-gradient-to-r from-teal-600 via-teal-500 to-teal-700" />
+        <div className="h-24 bg-teal-600" />
 
         <div className="px-6 pb-6">
           {/* Avatar + Info */}
@@ -241,7 +241,7 @@ export const MiPerfil: React.FC = () => {
                     className="w-full h-full rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-lg bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                  <div className="w-full h-full rounded-lg bg-slate-200 flex items-center justify-center">
                     <span className="text-2xl font-bold text-slate-600">
                       {displayName?.charAt(0).toUpperCase() || 'U'}
                     </span>
@@ -284,7 +284,7 @@ export const MiPerfil: React.FC = () => {
                     <button
                       onClick={handleSaveName}
                       disabled={savingName || !newName.trim()}
-                      className="p-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                      className="p-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
                     >
                       {savingName ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     </button>
@@ -313,7 +313,7 @@ export const MiPerfil: React.FC = () => {
                 <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-lg ${roleBadgeColor[role || 'invitado']}`}>
                   {ROLE_LABELS[role as keyof typeof ROLE_LABELS] || 'Sin Rol'}
                 </span>
-                <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${profile.activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${profile.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                   {profile.activo ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
@@ -447,7 +447,7 @@ export const MiPerfil: React.FC = () => {
                         className={`flex items-center gap-2 text-sm ${tiene ? 'text-slate-700' : 'text-slate-300'}`}
                       >
                         {tiene ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                         ) : (
                           <XCircle className="h-4 w-4 text-slate-300 flex-shrink-0" />
                         )}

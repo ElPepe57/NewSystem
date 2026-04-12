@@ -74,7 +74,7 @@ function LineaResultado({
   const getColorClass = () => {
     switch (colorValor) {
       case 'success':
-        return 'text-green-600';
+        return 'text-emerald-600';
       case 'danger':
         return 'text-red-600';
       case 'warning':
@@ -219,7 +219,7 @@ export default function EstadoResultados() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+        <RefreshCw className="w-8 h-8 animate-spin text-sky-500" />
       </div>
     );
   }
@@ -277,7 +277,7 @@ export default function EstadoResultados() {
           </button>
           {/* Botón exportar */}
           <button
-            className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+            className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 text-sm"
             title="Exportar"
           >
             <Download className="w-4 h-4" />
@@ -295,14 +295,14 @@ export default function EstadoResultados() {
         </div>
         <div className="bg-white rounded-lg border p-3 sm:p-4">
           <div className="text-xs sm:text-sm text-slate-500">Utilidad Bruta</div>
-          <div className={`text-lg sm:text-2xl font-bold ${estado.utilidadBruta >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+          <div className={`text-lg sm:text-2xl font-bold ${estado.utilidadBruta >= 0 ? 'text-sky-600' : 'text-red-600'}`}>
             {formatPercent(estado.utilidadBrutaPorcentaje)}
           </div>
           <div className="text-xs text-slate-400">{formatCurrency(estado.utilidadBruta)}</div>
         </div>
         <div className="bg-white rounded-lg border p-3 sm:p-4">
           <div className="text-xs sm:text-sm text-slate-500">Utilidad Operativa</div>
-          <div className={`text-lg sm:text-2xl font-bold ${estado.utilidadOperativa >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div className={`text-lg sm:text-2xl font-bold ${estado.utilidadOperativa >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {formatCurrency(estado.utilidadOperativa)}
           </div>
           <div className="text-xs text-slate-400">{formatPercent(estado.utilidadOperativaPorcentaje)}</div>
@@ -321,16 +321,16 @@ export default function EstadoResultados() {
       {/* Estado de Resultados principal */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         {/* Título del reporte */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4">
+        <div className="bg-sky-600 text-white px-6 py-4">
           <h2 className="text-xl font-bold">ESTADO DE RESULTADOS</h2>
-          <p className="text-blue-100">
+          <p className="text-sky-100">
             {estado.periodo.nombreMes} {estado.periodo.anio} - Flujo de Actividad del Negocio
           </p>
         </div>
 
         {/* INGRESOS */}
-        <div className="border-b-2 border-blue-200">
-          <div className="bg-blue-50 px-4 py-2 font-bold text-blue-800">INGRESOS</div>
+        <div className="border-b-2 border-sky-200">
+          <div className="bg-sky-50 px-4 py-2 font-bold text-sky-800">INGRESOS</div>
           <LineaResultado label="Ventas Brutas" valor={estado.ventasBrutas} />
           {estado.descuentos > 0 && (
             <LineaResultado label="Descuentos" valor={estado.descuentos} esNegativo />
@@ -476,7 +476,7 @@ export default function EstadoResultados() {
           </div>
 
           {/* GD */}
-          <div className="border-l-4 border-blue-300 ml-4 mt-2">
+          <div className="border-l-4 border-sky-300 ml-4 mt-2">
             <LineaResultado
               label="Gastos de Distribución (GD)"
               valor={estado.costosVariables.gd.total}
@@ -571,7 +571,7 @@ export default function EstadoResultados() {
           </div>
 
           {/* GO */}
-          <div className="border-l-4 border-green-300 ml-4 mt-2">
+          <div className="border-l-4 border-emerald-300 ml-4 mt-2">
             <LineaResultado
               label="Gastos Operativos (GO)"
               valor={estado.costosFijos.go.total}
@@ -707,18 +707,18 @@ export default function EstadoResultados() {
         )}
 
         {/* UTILIDAD NETA */}
-        <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white">
+        <div className="bg-slate-800 text-white">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-3 sm:py-4 px-4 sm:px-6 gap-1 sm:gap-0">
             <div className="flex items-center gap-2 sm:gap-3">
               {estado.utilidadNeta >= 0 ? (
-                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
               ) : (
                 <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
               )}
               <span className="text-sm sm:text-lg font-bold">UTILIDAD NETA ANTES DE IMPUESTOS</span>
             </div>
             <div className="flex items-center gap-3 sm:gap-6 pl-7 sm:pl-0">
-              <span className={`text-xl sm:text-2xl font-bold ${estado.utilidadNeta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <span className={`text-xl sm:text-2xl font-bold ${estado.utilidadNeta >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                 {formatCurrency(estado.utilidadNeta)}
               </span>
               <span className="text-slate-300 text-sm sm:text-lg">
@@ -732,7 +732,7 @@ export default function EstadoResultados() {
       {/* Indicadores Clave */}
       <div className="bg-white rounded-lg border p-4 sm:p-6">
         <h3 className="font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-blue-600" />
+          <TrendingUp className="w-5 h-5 text-sky-600" />
           Indicadores Clave
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
@@ -741,21 +741,21 @@ export default function EstadoResultados() {
             <div className="text-sm font-semibold text-slate-600 border-b pb-1">Márgenes</div>
             <div>
               <div className="text-sm text-slate-500">Margen Bruto</div>
-              <div className={`text-xl font-semibold ${estado.indicadores.margenBruto >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+              <div className={`text-xl font-semibold ${estado.indicadores.margenBruto >= 0 ? 'text-sky-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenBruto)}
               </div>
               <div className="text-xs text-slate-400">(Ventas - Compras) / Ventas</div>
             </div>
             <div>
               <div className="text-sm text-slate-500">Margen Operativo</div>
-              <div className={`text-xl font-semibold ${estado.indicadores.margenOperativo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-xl font-semibold ${estado.indicadores.margenOperativo >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenOperativo)}
               </div>
               <div className="text-xs text-slate-400">EBIT / Ventas</div>
             </div>
             <div>
               <div className="text-sm text-slate-500">Margen Neto</div>
-              <div className={`text-xl font-semibold ${estado.indicadores.margenNeto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-xl font-semibold ${estado.indicadores.margenNeto >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenNeto)}
               </div>
               <div className="text-xs text-slate-400">Utilidad Neta / Ventas</div>
@@ -807,7 +807,7 @@ export default function EstadoResultados() {
             </div>
             <div>
               <div className="text-sm text-slate-500">Margen de Seguridad</div>
-              <div className={`text-xl font-semibold ${estado.indicadores.margenSeguridad >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-xl font-semibold ${estado.indicadores.margenSeguridad >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {formatPercent(estado.indicadores.margenSeguridad)}
               </div>
               <div className="text-xs text-slate-400">(Ventas - PE) / Ventas</div>
@@ -819,7 +819,7 @@ export default function EstadoResultados() {
       {/* Métricas Operativas */}
       <div className="bg-white rounded-lg border p-4 sm:p-6">
         <h3 className="font-bold text-slate-800 mb-3 sm:mb-4 flex items-center gap-2">
-          <Package className="w-5 h-5 text-green-600" />
+          <Package className="w-5 h-5 text-emerald-600" />
           Métricas Operativas
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
@@ -857,15 +857,15 @@ export default function EstadoResultados() {
       </div>
 
       {/* Notas Contables */}
-      <div className="bg-blue-50 rounded-lg border border-blue-200 p-4 sm:p-6">
-        <h3 className="font-bold text-blue-800 mb-3 flex items-center gap-2 text-sm sm:text-base">
+      <div className="bg-sky-50 rounded-lg border border-sky-200 p-4 sm:p-6">
+        <h3 className="font-bold text-sky-800 mb-3 flex items-center gap-2 text-sm sm:text-base">
           <AlertTriangle className="w-5 h-5" />
           Notas Contables
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-xs sm:text-sm text-blue-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-xs sm:text-sm text-sky-800">
           <div>
             <div className="font-semibold mb-2">Criterio de Reconocimiento:</div>
-            <ul className="space-y-1 text-blue-700">
+            <ul className="space-y-1 text-sky-700">
               <li><strong>Ventas:</strong> Cuando se registra la venta (no cotización)</li>
               <li><strong>Compras:</strong> Cuando la mercadería es RECIBIDA en almacén</li>
               <li><strong>Gastos:</strong> Cuando corresponden al mes/año del período</li>
@@ -873,16 +873,16 @@ export default function EstadoResultados() {
           </div>
           <div>
             <div className="font-semibold mb-2">Moneda y Conversión:</div>
-            <ul className="space-y-1 text-blue-700">
+            <ul className="space-y-1 text-sky-700">
               <li><strong>Moneda funcional:</strong> Soles (PEN)</li>
               <li><strong>Compras USD:</strong> Convertidas al TC de pago o compra</li>
               <li><strong>Diferencia cambiaria:</strong> Registrada en Otros Ingresos/Gastos</li>
             </ul>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-blue-200">
-          <div className="font-semibold mb-2 text-blue-800">Limitaciones:</div>
-          <ul className="text-blue-700 text-xs sm:text-sm space-y-1">
+        <div className="mt-4 pt-4 border-t border-sky-200">
+          <div className="font-semibold mb-2 text-sky-800">Limitaciones:</div>
+          <ul className="text-sky-700 text-xs sm:text-sm space-y-1">
             <li>• Este reporte es para uso interno de gestión, no es un Estado Financiero auditado</li>
             <li>• Las compras reflejan la inversión en inventario del período, no el CMV tradicional</li>
             <li>• El punto de equilibrio es aproximado, basado en el margen de contribución actual</li>

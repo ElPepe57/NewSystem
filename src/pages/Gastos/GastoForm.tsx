@@ -350,9 +350,9 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   const getCategoriaColor = (cat: CategoriaGasto) => {
     const colors: Record<CategoriaGasto, string> = {
       GV: 'bg-purple-50 border-purple-200 text-purple-800',
-      GD: 'bg-blue-50 border-blue-200 text-blue-800',
+      GD: 'bg-sky-50 border-sky-200 text-sky-800',
       GA: 'bg-amber-50 border-amber-200 text-amber-800',
-      GO: 'bg-green-50 border-green-200 text-green-800'
+      GO: 'bg-emerald-50 border-emerald-200 text-emerald-800'
     };
     return colors[cat];
   };
@@ -585,7 +585,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   onClick={() => handleChange('moneda', 'PEN')}
                   className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                     formData.moneda === 'PEN'
-                      ? 'border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200'
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200'
                       : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -598,7 +598,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   onClick={() => handleChange('moneda', 'USD')}
                   className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 text-sm sm:text-base font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
                     formData.moneda === 'USD'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
+                      ? 'border-sky-500 bg-sky-50 text-sky-700 ring-2 ring-sky-200'
                       : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -651,17 +651,17 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
               <div className="bg-emerald-50 p-3 sm:p-4 rounded-lg border border-slate-200">
                 <div className="text-xs sm:text-sm font-medium text-slate-700 mb-2">Equivalencias:</div>
                 <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-green-100 ring-2 ring-green-300' : 'bg-white'}`}>
+                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'PEN' ? 'bg-emerald-100 ring-2 ring-emerald-300' : 'bg-white'}`}>
                     <div className="text-[10px] sm:text-xs text-slate-500">En Soles</div>
-                    <div className="text-sm sm:text-lg font-bold text-green-700">
+                    <div className="text-sm sm:text-lg font-bold text-emerald-700">
                       S/ {formData.moneda === 'PEN'
                         ? formData.montoOriginal.toFixed(2)
                         : (formData.montoOriginal * (formData.tipoCambio ?? 1)).toFixed(2)}
                     </div>
                   </div>
-                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'USD' ? 'bg-blue-100 ring-2 ring-blue-300' : 'bg-white'}`}>
+                  <div className={`p-2 sm:p-3 rounded-lg ${formData.moneda === 'USD' ? 'bg-sky-100 ring-2 ring-sky-300' : 'bg-white'}`}>
                     <div className="text-[10px] sm:text-xs text-slate-500">En Dólares</div>
-                    <div className="text-sm sm:text-lg font-bold text-blue-700">
+                    <div className="text-sm sm:text-lg font-bold text-sky-700">
                       $ {formData.moneda === 'USD'
                         ? formData.montoOriginal.toFixed(2)
                         : (formData.montoOriginal / (formData.tipoCambio ?? 1)).toFixed(2)}
@@ -763,7 +763,7 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                     onClick={() => handleChange('estado', 'pagado')}
                     className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
                       formData.estado === 'pagado'
-                        ? 'border-green-500 bg-green-50 text-green-700'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
                         : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -776,18 +776,18 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
 
           {/* Sección 6: Información de Pago - Solo si está pagado */}
           {formData.estado === 'pagado' && (
-            <div className="bg-green-50 rounded-lg border border-green-200 overflow-hidden">
+            <div className="bg-emerald-50 rounded-lg border border-emerald-200 overflow-hidden">
               {pagoConfirmado ? (
                 <div className="p-4 flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-5 w-5 text-emerald-600" />
                   <div>
-                    <div className="font-medium text-green-800">Pago configurado</div>
-                    <div className="text-sm text-green-600">
+                    <div className="font-medium text-emerald-800">Pago configurado</div>
+                    <div className="text-sm text-emerald-600">
                       {metodoPago} — {formData.moneda === 'USD' ? '$' : 'S/'} {formData.montoOriginal.toFixed(2)}
                     </div>
                   </div>
                   <button type="button" onClick={() => setPagoConfirmado(false)}
-                    className="ml-auto text-xs text-green-600 underline">Modificar</button>
+                    className="ml-auto text-xs text-emerald-600 underline">Modificar</button>
                 </div>
               ) : (
                 <div className="p-4">

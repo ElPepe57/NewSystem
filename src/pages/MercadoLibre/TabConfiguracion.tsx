@@ -41,7 +41,7 @@ const ReconcileStockButton: React.FC = () => {
       <button
         onClick={handleReconcile}
         disabled={loading}
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+        className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 text-sm font-medium flex items-center gap-2 disabled:opacity-50"
       >
         {loading ? (
           <>
@@ -56,7 +56,7 @@ const ReconcileStockButton: React.FC = () => {
         )}
       </button>
       {result && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 space-y-1">
+        <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg text-xs text-sky-800 space-y-1">
           <p><strong>{result.ordenesPendientes}</strong> órdenes pendientes encontradas</p>
           <p><strong>{result.ordenesMigradas}</strong> órdenes migradas (nuevas)</p>
           <p><strong>{result.productosActualizados}</strong> productos actualizados</p>
@@ -110,8 +110,8 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
         {config?.connected ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-green-700">Conectado</span>
+              <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-sm font-medium text-emerald-700">Conectado</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
               <div>
@@ -215,8 +215,8 @@ export const TabConfiguracion: React.FC<TabConfiguracionProps> = ({ config, onCo
           {webhookStatus.registered || config?.webhookRegistered ? (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className="text-sm text-green-700 font-medium">Webhook registrado</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span className="text-sm text-emerald-700 font-medium">Webhook registrado</span>
               </div>
               <p className="text-xs text-slate-400 font-mono break-all">
                 {webhookStatus.url || config?.webhookUrl}

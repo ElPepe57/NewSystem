@@ -86,7 +86,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
     >
       <div className="space-y-5">
         {/* Info de la cotización */}
-        <div className={`rounded-lg p-4 ${tipoModal === 'comprometer' ? 'bg-gradient-to-r from-purple-50 to-teal-50' : 'bg-emerald-50'}`}>
+        <div className={`rounded-lg p-4 ${tipoModal === 'comprometer' ? 'bg-purple-50' : 'bg-emerald-50'}`}>
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm text-slate-600">Cotización</p>
@@ -109,8 +109,8 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
             </p>
           </div>
         ) : (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-sm text-green-800">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+            <p className="text-sm text-emerald-800">
               <strong>Registrar pago:</strong> El cliente ya pagó el adelanto.
               El stock se reservará y la cotización estará lista para confirmar.
             </p>
@@ -180,7 +180,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                     onClick={() => onMonedaChange('PEN')}
                     className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
                       moneda === 'PEN'
-                        ? 'bg-green-600 text-white shadow-md'
+                        ? 'bg-teal-600 text-white shadow-md'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -191,7 +191,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                     onClick={() => onMonedaChange('USD')}
                     className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
                       moneda === 'USD'
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-sky-600 text-white shadow-md'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -245,7 +245,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
 
               {/* Tipo de cambio - Solo para USD */}
               {moneda === 'USD' && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-3">
+                <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
                       Tipo de Cambio (PEN / USD)
@@ -261,14 +261,14 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                       TC del día cargado automáticamente. Puedes ajustarlo si es necesario.
                     </p>
                   </div>
-                  <div className="bg-white rounded p-2 border border-blue-100">
+                  <div className="bg-white rounded p-2 border border-sky-100">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-slate-600">Adelanto comprometido:</span>
                       <span className="font-medium">{formatCurrency(monto)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-1">
                       <span className="text-slate-600">Equivalente a pagar en USD:</span>
-                      <span className="font-bold text-blue-700">
+                      <span className="font-bold text-sky-700">
                         {formatCurrencyBimoneda(
                           Math.round((monto / tipoCambio) * 100) / 100,
                           'USD'
@@ -296,7 +296,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
         </div>
 
         {/* Resumen */}
-        <div className={`border rounded-lg p-4 ${tipoModal === 'comprometer' ? 'bg-purple-50 border-purple-200' : 'bg-green-50 border-green-200'}`}>
+        <div className={`border rounded-lg p-4 ${tipoModal === 'comprometer' ? 'bg-purple-50 border-purple-200' : 'bg-emerald-50 border-emerald-200'}`}>
           {tipoModal === 'comprometer' ? (
             <>
               <div className="flex justify-between items-center mb-2">
@@ -313,7 +313,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
               {moneda === 'PEN' && (
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-slate-600">Adelanto a pagar:</span>
-                  <span className="font-bold text-green-700">{formatCurrency(monto)}</span>
+                  <span className="font-bold text-emerald-700">{formatCurrency(monto)}</span>
                 </div>
               )}
               {moneda === 'USD' && (
@@ -324,7 +324,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                   </div>
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-sm text-slate-600">A pagar en USD:</span>
-                    <span className="font-bold text-blue-700">
+                    <span className="font-bold text-sky-700">
                       {formatCurrencyBimoneda(
                         Math.round((monto / tipoCambio) * 100) / 100,
                         'USD'
@@ -337,8 +337,8 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
                   </div>
                 </>
               )}
-              <div className="mt-3 pt-3 border-t border-green-200">
-                <div className="flex items-center gap-2 text-sm text-green-700">
+              <div className="mt-3 pt-3 border-t border-emerald-200">
+                <div className="flex items-center gap-2 text-sm text-emerald-700">
                   <Clock className="h-4 w-4" />
                   <span>El stock se reservará por <strong>90 días</strong></span>
                 </div>
@@ -359,7 +359,7 @@ export const AdelantoModal: React.FC<AdelantoModalProps> = ({
           </Button>
           <Button
             variant="primary"
-            className={`flex-1 ${tipoModal === 'comprometer' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-green-600 hover:bg-green-700'}`}
+            className={`flex-1 ${tipoModal === 'comprometer' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}
             disabled={procesando || monto <= 0 || monto > cotizacion.totalPEN}
             onClick={handleSubmit}
           >

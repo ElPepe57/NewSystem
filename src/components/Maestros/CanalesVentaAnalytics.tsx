@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { formatCurrencyPEN } from '../../utils/format';
 import {
   Tag,
@@ -307,7 +308,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {
         label: 'Activos',
         value: activosCount,
-        color: 'bg-green-500'
+        color: 'bg-emerald-500'
       },
       {
         label: 'Inactivos',
@@ -329,7 +330,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       {
         label: 'Sin comisión',
         value: sinComision,
-        color: 'bg-green-500'
+        color: 'bg-emerald-500'
       }
     ];
 
@@ -340,7 +341,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       .map(m => ({
         label: m.nombre,
         value: m.totalVentas,
-        color: 'bg-blue-500'
+        color: 'bg-sky-500'
       }));
 
     // Por conversión (canales con mejor tasa de conversión)
@@ -351,7 +352,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
       .map(m => ({
         label: m.nombre,
         value: Math.round(m.tasaConversion),
-        color: m.tasaConversion >= 70 ? 'bg-green-500' : m.tasaConversion >= 40 ? 'bg-amber-500' : 'bg-red-500'
+        color: m.tasaConversion >= 70 ? 'bg-emerald-500' : m.tasaConversion >= 40 ? 'bg-amber-500' : 'bg-red-500'
       }));
 
     // Por ticket promedio (top 5)
@@ -598,77 +599,68 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
               <Target className="h-5 w-5 text-teal-600" />
               Análisis de Conversión por Canal
             </h3>
-            {Object.values(metricas).filter(m => (m.totalVentas + m.totalCotizaciones) > 0).length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Canal</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Cotizaciones</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Ventas</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Tasa Conversión</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Facturación</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ticket Prom.</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-slate-200">
-                    {Object.values(metricas)
-                      .filter(m => (m.totalVentas + m.totalCotizaciones) > 0)
-                      .sort((a, b) => b.tasaConversion - a.tasaConversion)
-                      .map(m => {
-                        const totalOps = m.totalVentas + m.totalCotizaciones;
-                        return (
-                          <tr key={m.canalId} className="hover:bg-slate-50">
-                            <td className="px-4 py-3 whitespace-nowrap">
-                              <div className="flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: m.color }} />
-                                <span className="font-medium text-slate-900">{m.nombre}</span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-center text-sm text-slate-600">
-                              {m.totalCotizaciones}
-                            </td>
-                            <td className="px-4 py-3 text-center text-sm font-medium text-slate-900">
-                              {m.totalVentas}
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <div className="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                  <div
-                                    className={`h-full rounded-full ${
-                                      m.tasaConversion >= 70 ? 'bg-green-500' :
-                                      m.tasaConversion >= 40 ? 'bg-amber-500' : 'bg-red-500'
-                                    }`}
-                                    style={{ width: `${Math.min(m.tasaConversion, 100)}%` }}
-                                  />
-                                </div>
-                                <span className={`text-sm font-medium ${
-                                  m.tasaConversion >= 70 ? 'text-green-600' :
-                                  m.tasaConversion >= 40 ? 'text-amber-600' : 'text-red-600'
-                                }`}>
-                                  {m.tasaConversion.toFixed(0)}%
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
-                              {formatCurrency(m.montoTotal)}
-                            </td>
-                            <td className="px-4 py-3 text-right text-sm text-slate-600">
-                              {formatCurrency(m.ticketPromedio)}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-slate-500">
-                <Target className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                <p>No hay datos de conversión disponibles</p>
-                <p className="text-sm mt-1">Registra cotizaciones y ventas para ver el análisis</p>
-              </div>
-            )}
+            {(() => {
+              const conversionData = Object.values(metricas)
+                .filter(m => (m.totalVentas + m.totalCotizaciones) > 0)
+                .sort((a, b) => b.tasaConversion - a.tasaConversion);
+              const colsConversion: DataTableColumn<CanalMetrics>[] = [
+                {
+                  key: 'nombre', header: 'Canal',
+                  render: m => (
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: m.color }} />
+                      <span className="font-medium text-slate-900">{m.nombre}</span>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'totalCotizaciones', header: 'Cotizaciones', align: 'center', hideOnMobile: true,
+                  render: m => <span className="text-slate-600">{m.totalCotizaciones}</span>,
+                },
+                {
+                  key: 'totalVentas', header: 'Ventas', align: 'center',
+                  render: m => <span className="font-medium">{m.totalVentas}</span>,
+                },
+                {
+                  key: 'tasaConversion', header: 'Tasa Conversión', align: 'center',
+                  render: m => (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${m.tasaConversion >= 70 ? 'bg-emerald-500' : m.tasaConversion >= 40 ? 'bg-amber-500' : 'bg-red-500'}`}
+                          style={{ width: `${Math.min(m.tasaConversion, 100)}%` }}
+                        />
+                      </div>
+                      <span className={`text-sm font-medium ${m.tasaConversion >= 70 ? 'text-emerald-600' : m.tasaConversion >= 40 ? 'text-amber-600' : 'text-red-600'}`}>
+                        {m.tasaConversion.toFixed(0)}%
+                      </span>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'montoTotal', header: 'Facturación', align: 'right',
+                  render: m => <span className="font-semibold">{formatCurrency(m.montoTotal)}</span>,
+                },
+                {
+                  key: 'ticketPromedio', header: 'Ticket Prom.', align: 'right', hideOnMobile: true,
+                  render: m => <span className="text-slate-600">{formatCurrency(m.ticketPromedio)}</span>,
+                },
+              ];
+              return conversionData.length > 0 ? (
+                <DataTable
+                  columns={colsConversion}
+                  data={conversionData}
+                  keyExtractor={m => m.canalId}
+                  emptyMessage="No hay datos de conversión disponibles"
+                />
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  <Target className="h-12 w-12 mx-auto mb-3 text-slate-300" />
+                  <p>No hay datos de conversión disponibles</p>
+                  <p className="text-sm mt-1">Registra cotizaciones y ventas para ver el análisis</p>
+                </div>
+              );
+            })()}
           </Card>
 
           {/* Distribuciones */}
@@ -751,7 +743,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                           </p>
                           {metrics.tendenciaVentas !== 0 && (
                             <p className={`text-xs flex items-center gap-1 ${
-                              metrics.tendenciaVentas > 0 ? 'text-green-600' : 'text-red-600'
+                              metrics.tendenciaVentas > 0 ? 'text-emerald-600' : 'text-red-600'
                             }`}>
                               {metrics.tendenciaVentas > 0 ? (
                                 <TrendingUp className="h-3 w-3" />
@@ -795,7 +787,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                         {metrics.margenPromedio > 0 && (
                           <div className="flex justify-between">
                             <span>Margen promedio:</span>
-                            <span className="font-medium text-green-600">
+                            <span className="font-medium text-emerald-600">
                               {metrics.margenPromedio.toFixed(1)}%
                             </span>
                           </div>
@@ -838,7 +830,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
               label="Comisión Promedio"
               value={`${statsGlobales.comisionPromedio.toFixed(1)}%`}
               icon={DollarSign}
-              variant="default"
+              variant="neutral"
             />
           </DSKPIBar>
 
@@ -1078,103 +1070,76 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
               Rendimiento Detallado por Canal
             </h3>
 
-            {Object.values(metricas).filter(m => m.totalVentas > 0 || m.totalCotizaciones > 0).length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Canal
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Cotizaciones
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Ventas
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Tasa Conv.
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Facturación
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Ticket Prom.
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Comisión
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Margen
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-slate-200">
-                    {Object.values(metricas)
-                      .filter(m => m.totalVentas > 0 || m.totalCotizaciones > 0)
-                      .sort((a, b) => b.montoTotal - a.montoTotal)
-                      .map((metrics) => (
-                        <tr key={metrics.canalId} className="hover:bg-slate-50">
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: metrics.color }}
-                              />
-                              <span className="text-sm font-medium text-slate-900">
-                                {metrics.nombre}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600">
-                            {metrics.totalCotizaciones}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-slate-900">
-                            {metrics.totalVentas}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm">
-                            <span className={`font-medium ${
-                              metrics.tasaConversion >= 50 ? 'text-green-600' :
-                              metrics.tasaConversion >= 25 ? 'text-yellow-600' :
-                              'text-red-600'
-                            }`}>
-                              {metrics.tasaConversion.toFixed(1)}%
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-900">
-                            {formatCurrency(metrics.montoTotal)}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-600">
-                            {formatCurrency(metrics.ticketPromedio)}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-red-600">
-                            {metrics.comisionTotal > 0 ? `-${formatCurrency(metrics.comisionTotal)}` : '-'}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm">
-                            <span className={`font-medium ${
-                              metrics.margenPromedio >= 30 ? 'text-green-600' :
-                              metrics.margenPromedio >= 15 ? 'text-yellow-600' :
-                              'text-red-600'
-                            }`}>
-                              {metrics.margenPromedio > 0 ? `${metrics.margenPromedio.toFixed(1)}%` : '-'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Activity className="h-12 w-12 mx-auto text-slate-300 mb-3" />
-                <h4 className="text-lg font-medium text-slate-900 mb-2">
-                  Sin datos de rendimiento
-                </h4>
-                <p className="text-slate-500">
-                  No hay ventas o cotizaciones registradas para analizar
-                </p>
-              </div>
-            )}
+            {(() => {
+              const rendimientoData = Object.values(metricas)
+                .filter(m => m.totalVentas > 0 || m.totalCotizaciones > 0)
+                .sort((a, b) => b.montoTotal - a.montoTotal);
+              const colsRendimiento: DataTableColumn<CanalMetrics>[] = [
+                {
+                  key: 'nombre', header: 'Canal',
+                  render: m => (
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: m.color }} />
+                      <span className="text-sm font-medium text-slate-900">{m.nombre}</span>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'totalCotizaciones', header: 'Cotizaciones', align: 'right', hideOnMobile: true,
+                  render: m => <span className="text-slate-600">{m.totalCotizaciones}</span>,
+                },
+                {
+                  key: 'totalVentas', header: 'Ventas', align: 'right',
+                  render: m => <span className="font-medium">{m.totalVentas}</span>,
+                },
+                {
+                  key: 'tasaConversion', header: 'Tasa Conv.', align: 'right',
+                  render: m => (
+                    <span className={`font-medium ${m.tasaConversion >= 50 ? 'text-emerald-600' : m.tasaConversion >= 25 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      {m.tasaConversion.toFixed(1)}%
+                    </span>
+                  ),
+                },
+                {
+                  key: 'montoTotal', header: 'Facturación', align: 'right',
+                  render: m => <span className="font-semibold">{formatCurrency(m.montoTotal)}</span>,
+                },
+                {
+                  key: 'ticketPromedio', header: 'Ticket Prom.', align: 'right', hideOnMobile: true,
+                  render: m => <span className="text-slate-600">{formatCurrency(m.ticketPromedio)}</span>,
+                },
+                {
+                  key: 'comisionTotal', header: 'Comisión', align: 'right', hideOnMobile: true,
+                  render: m => (
+                    <span className="text-red-600">
+                      {m.comisionTotal > 0 ? `-${formatCurrency(m.comisionTotal)}` : '-'}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'margenPromedio', header: 'Margen', align: 'right', hideOnMobile: true,
+                  render: m => (
+                    <span className={`font-medium ${m.margenPromedio >= 30 ? 'text-emerald-600' : m.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      {m.margenPromedio > 0 ? `${m.margenPromedio.toFixed(1)}%` : '-'}
+                    </span>
+                  ),
+                },
+              ];
+              return rendimientoData.length > 0 ? (
+                <DataTable
+                  columns={colsRendimiento}
+                  data={rendimientoData}
+                  keyExtractor={m => m.canalId}
+                  emptyMessage="Sin datos de rendimiento"
+                />
+              ) : (
+                <div className="text-center py-12">
+                  <Activity className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+                  <h4 className="text-lg font-medium text-slate-900 mb-2">Sin datos de rendimiento</h4>
+                  <p className="text-slate-500">No hay ventas o cotizaciones registradas para analizar</p>
+                </div>
+              );
+            })()}
           </Card>
 
           {/* Top 3 canales por diferentes métricas */}
@@ -1182,7 +1147,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
             {/* Top por ventas */}
             <Card className="p-6">
               <h4 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-green-600" />
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
                 Top 3 por Ventas
               </h4>
               <div className="space-y-3">
@@ -1208,7 +1173,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
             {/* Top por facturación */}
             <Card className="p-6">
               <h4 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-green-600" />
+                <DollarSign className="h-4 w-4 text-emerald-600" />
                 Top 3 por Facturación
               </h4>
               <div className="space-y-3">
@@ -1236,7 +1201,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
             {/* Top por margen */}
             <Card className="p-6">
               <h4 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                <Percent className="h-4 w-4 text-blue-600" />
+                <Percent className="h-4 w-4 text-sky-600" />
                 Top 3 por Margen
               </h4>
               <div className="space-y-3">
@@ -1254,7 +1219,7 @@ export const CanalesVentaAnalytics: React.FC<CanalesVentaAnalyticsProps> = ({
                         />
                         <span className="text-sm font-medium text-slate-700">{m.nombre}</span>
                       </div>
-                      <span className="text-sm font-bold text-green-600">
+                      <span className="text-sm font-bold text-emerald-600">
                         {m.margenPromedio.toFixed(1)}%
                       </span>
                     </div>

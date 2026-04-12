@@ -141,7 +141,7 @@ export const PagosMasivos: React.FC = () => {
               onClick={() => setTipoLote('ingreso')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
                 tipoLote === 'ingreso'
-                  ? 'bg-green-50 border-green-300 text-green-800'
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >

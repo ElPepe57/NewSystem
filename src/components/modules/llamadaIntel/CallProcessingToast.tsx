@@ -31,7 +31,7 @@ export const CallProcessingToast: React.FC<CallProcessingToastProps> = ({ intelI
       <div className="fixed bottom-20 right-4 z-[55] animate-in slide-in-from-right">
         <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border ${
           isComplete
-            ? 'bg-green-50 border-green-200'
+            ? 'bg-emerald-50 border-emerald-200'
             : isError
             ? 'bg-red-50 border-red-200'
             : 'bg-white border-slate-200'
@@ -48,16 +48,16 @@ export const CallProcessingToast: React.FC<CallProcessingToastProps> = ({ intelI
 
           {isComplete && (
             <>
-              <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-green-800">Notas listas</p>
-                <p className="text-xs text-green-600">
+                <p className="text-sm font-medium text-emerald-800">Notas listas</p>
+                <p className="text-xs text-emerald-600">
                   {intel.analisis?.tareas?.length || 0} tareas extraídas
                 </p>
               </div>
               <button
                 onClick={() => setShowModal(true)}
-                className="ml-2 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1"
+                className="ml-2 px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-1"
               >
                 <FileText className="h-3 w-3" />
                 Ver

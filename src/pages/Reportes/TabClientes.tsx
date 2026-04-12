@@ -7,6 +7,110 @@ import { filtrarVentasReporte } from '../../utils/kpi.calculators';
 import { formatCurrencyPEN } from '../../utils/format';
 import type { Cliente } from '../../types/entidadesMaestras.types';
 import type { Venta } from '../../types/venta.types';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
+
+type ClienteConMetricas = Cliente & {
+  ventasTotal: number;
+  ventasCantidad: number;
+  utilidad: number;
+  margen: number;
+  diasDesdeUltima: number | null;
+  ticketPromedio: number;
+  esTop3: boolean;
+};
+
+const columns: DataTableColumn<ClienteConMetricas>[] = [
+  {
+    key: 'nombre',
+    header: 'Cliente',
+    align: 'left',
+    render: (c) => (
+      <div className="flex items-center gap-2">
+        {c.esTop3 && <Star className="h-3.5 w-3.5 text-amber-400 shrink-0" />}
+        <div>
+          <p className="font-medium text-slate-900 truncate max-w-[200px]">{c.nombre}</p>
+          {c.telefono && <p className="text-xs text-slate-400">{c.telefono}</p>}
+        </div>
+      </div>
+    ),
+  },
+  {
+    key: 'ventasCantidad',
+    header: 'Compras',
+    align: 'center',
+    hideOnMobile: true,
+    render: (c) => <span className="text-slate-600">{c.ventasCantidad}</span>,
+  },
+  {
+    key: 'ventasTotal',
+    header: 'Total',
+    align: 'right',
+    hideOnMobile: true,
+    render: (c) => <span className="text-slate-700">{formatCurrencyPEN(c.ventasTotal)}</span>,
+  },
+  {
+    key: 'utilidad',
+    header: 'Utilidad',
+    align: 'right',
+    render: (c) => <span className="font-medium text-emerald-700">{formatCurrencyPEN(c.utilidad)}</span>,
+  },
+  {
+    key: 'margen',
+    header: 'Margen',
+    align: 'center',
+    hideOnMobile: true,
+    render: (c) => (
+      <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+        c.margen >= 25 ? 'bg-emerald-100 text-emerald-700'
+          : c.margen >= 10 ? 'bg-amber-100 text-amber-700'
+          : 'bg-red-100 text-red-700'
+      }`}>
+        {c.margen.toFixed(0)}%
+      </span>
+    ),
+  },
+  {
+    key: 'ticketPromedio',
+    header: 'Ticket Prom.',
+    align: 'right',
+    hideOnMobile: true,
+    render: (c) => <span className="text-slate-600">{formatCurrencyPEN(c.ticketPromedio)}</span>,
+  },
+  {
+    key: 'diasDesdeUltima',
+    header: 'Ultima',
+    align: 'center',
+    hideOnMobile: true,
+    render: (c) =>
+      c.diasDesdeUltima != null ? (
+        <span className={`text-xs ${
+          c.diasDesdeUltima <= 30 ? 'text-emerald-600'
+            : c.diasDesdeUltima <= 90 ? 'text-slate-600'
+            : 'text-red-600'
+        }`}>
+          {c.diasDesdeUltima}d
+        </span>
+      ) : (
+        <span className="text-xs text-slate-400">-</span>
+      ),
+  },
+  {
+    key: 'clasificacionABC',
+    header: 'ABC',
+    align: 'center',
+    render: (c) =>
+      c.clasificacionABC ? (
+        <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+          c.clasificacionABC === 'A' ? 'bg-emerald-100 text-emerald-800'
+            : c.clasificacionABC === 'B' ? 'bg-sky-100 text-sky-800'
+            : 'bg-slate-100 text-slate-600'
+        }`}>
+          {c.clasificacionABC}
+        </span>
+      ) : null,
+  },
+];
 
 export const TabClientes: React.FC = () => {
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -39,7 +143,7 @@ export const TabClientes: React.FC = () => {
       ventasPorCliente.set(v.clienteId, prev);
     }
 
-    return clientes.map(c => {
+    const sorted = clientes.map(c => {
       const stats = ventasPorCliente.get(c.id) || { total: 0, cantidad: 0, ultimaFecha: null, utilidad: 0 };
       const diasDesdeUltima = stats.ultimaFecha
         ? Math.ceil((Date.now() - stats.ultimaFecha.getTime()) / 86400000)
@@ -54,9 +158,15 @@ export const TabClientes: React.FC = () => {
         margen,
         diasDesdeUltima,
         ticketPromedio: stats.cantidad > 0 ? stats.total / stats.cantidad : 0,
+        esTop3: false,
       };
     }).filter(c => c.ventasCantidad > 0)
-      .sort((a, b) => b.utilidad - a.utilidad); // Ordenar por RENTABILIDAD, no por monto
+      .sort((a, b) => b.utilidad - a.utilidad) // Ordenar por RENTABILIDAD, no por monto
+      .slice(0, 20);
+
+    // Marcar los primeros 3 como top después de ordenar
+    sorted.forEach((c, idx) => { c.esTop3 = idx < 3; });
+    return sorted;
   }, [clientes, ventas]);
 
   // KPIs
@@ -85,15 +195,15 @@ export const TabClientes: React.FC = () => {
       {/* KPIs */}
       {kpis && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-blue-50 rounded-xl p-4">
-            <p className="text-xs text-blue-600 font-medium">Clientes con compras</p>
-            <p className="text-2xl font-bold text-blue-900">{kpis.totalClientes}</p>
-            <p className="text-xs text-blue-500">{kpis.activos90d} activos (90d)</p>
+          <div className="bg-sky-50 rounded-xl p-4">
+            <p className="text-xs text-sky-600 font-medium">Clientes con compras</p>
+            <p className="text-2xl font-bold text-sky-900">{kpis.totalClientes}</p>
+            <p className="text-xs text-sky-500">{kpis.activos90d} activos (90d)</p>
           </div>
-          <div className="bg-green-50 rounded-xl p-4">
-            <p className="text-xs text-green-600 font-medium">Tasa recompra</p>
-            <p className="text-2xl font-bold text-green-900">{kpis.tasaRecompra.toFixed(0)}%</p>
-            <p className="text-xs text-green-500">clientes que vuelven</p>
+          <div className="bg-emerald-50 rounded-xl p-4">
+            <p className="text-xs text-emerald-600 font-medium">Tasa recompra</p>
+            <p className="text-2xl font-bold text-emerald-900">{kpis.tasaRecompra.toFixed(0)}%</p>
+            <p className="text-xs text-emerald-500">clientes que vuelven</p>
           </div>
           <div className="bg-purple-50 rounded-xl p-4">
             <p className="text-xs text-purple-600 font-medium">Ticket promedio</p>
@@ -113,66 +223,13 @@ export const TabClientes: React.FC = () => {
           <p className="text-xs text-slate-500">Ordenados por utilidad generada, no solo por monto de compra</p>
         </div>
 
-        {clientesConMetricas.length === 0 ? (
-          <p className="text-center text-slate-400 py-10">No hay clientes con compras</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr className="text-xs text-slate-500 border-b bg-slate-50">
-                  <th className="text-left py-2 px-4">Cliente</th>
-                  <th className="text-center py-2 px-3">Compras</th>
-                  <th className="text-right py-2 px-3">Total</th>
-                  <th className="text-right py-2 px-3">Utilidad</th>
-                  <th className="text-center py-2 px-3">Margen</th>
-                  <th className="text-right py-2 px-3">Ticket Prom.</th>
-                  <th className="text-center py-2 px-3">Ultima</th>
-                  <th className="text-center py-2 px-3">ABC</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {clientesConMetricas.slice(0, 20).map((c, idx) => (
-                  <tr key={c.id} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-4">
-                      <div className="flex items-center gap-2">
-                        {idx < 3 && <Star className="h-3.5 w-3.5 text-amber-400" />}
-                        <div>
-                          <p className="font-medium text-slate-900 truncate max-w-[200px]">{c.nombre}</p>
-                          {c.telefono && <p className="text-xs text-slate-400">{c.telefono}</p>}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-2.5 px-3 text-center text-slate-600">{c.ventasCantidad}</td>
-                    <td className="py-2.5 px-3 text-right text-slate-700">{formatCurrencyPEN(c.ventasTotal)}</td>
-                    <td className="py-2.5 px-3 text-right font-medium text-green-700">{formatCurrencyPEN(c.utilidad)}</td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                        c.margen >= 25 ? 'bg-green-100 text-green-700' : c.margen >= 10 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-                      }`}>{c.margen.toFixed(0)}%</span>
-                    </td>
-                    <td className="py-2.5 px-3 text-right text-slate-600">{formatCurrencyPEN(c.ticketPromedio)}</td>
-                    <td className="py-2.5 px-3 text-center text-xs text-slate-500">
-                      {c.diasDesdeUltima != null ? (
-                        <span className={c.diasDesdeUltima <= 30 ? 'text-green-600' : c.diasDesdeUltima <= 90 ? 'text-slate-600' : 'text-red-600'}>
-                          {c.diasDesdeUltima}d
-                        </span>
-                      ) : '-'}
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      {c.clasificacionABC && (
-                        <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-                          c.clasificacionABC === 'A' ? 'bg-green-100 text-green-800'
-                            : c.clasificacionABC === 'B' ? 'bg-blue-100 text-blue-800'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}>{c.clasificacionABC}</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={clientesConMetricas}
+          keyExtractor={(c) => c.id}
+          emptyMessage="No hay clientes con compras"
+          compact
+        />
       </div>
     </div>
   );

@@ -114,13 +114,13 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
       {/* Cotizaciones Pendientes */}
       <Card padding="none" className="overflow-hidden">
         <div
-          className="px-4 py-3 bg-blue-50 border-b border-blue-200 flex items-center justify-between cursor-pointer"
+          className="px-4 py-3 bg-sky-50 border-b border-sky-200 flex items-center justify-between cursor-pointer"
           onClick={() => onToggleSection('cotizaciones')}
         >
           <div className="flex items-center">
-            <ShoppingCart className="h-5 w-5 text-blue-500 mr-2" />
-            <span className="font-semibold text-blue-900">Cotizaciones con Faltante</span>
-            <span className="ml-2 bg-blue-200 text-blue-800 text-xs px-2 py-0.5 rounded-full">
+            <ShoppingCart className="h-5 w-5 text-sky-500 mr-2" />
+            <span className="font-semibold text-sky-900">Cotizaciones con Faltante</span>
+            <span className="ml-2 bg-sky-200 text-sky-800 text-xs px-2 py-0.5 rounded-full">
               {cotizacionesConfirmadas.length}
             </span>
           </div>
@@ -180,9 +180,9 @@ export const IntelligencePanel: React.FC<IntelligencePanelProps> = ({
 
       {/* Metricas de Precision */}
       <Card padding="none" className="overflow-hidden">
-        <div className="px-4 py-3 bg-green-50 border-b border-green-200 flex items-center">
-          <BarChart3 className="h-5 w-5 text-green-500 mr-2" />
-          <span className="font-semibold text-green-900">Metricas de Compras</span>
+        <div className="px-4 py-3 bg-emerald-50 border-b border-emerald-200 flex items-center">
+          <BarChart3 className="h-5 w-5 text-emerald-500 mr-2" />
+          <span className="font-semibold text-emerald-900">Metricas de Compras</span>
         </div>
         <div className="p-4 space-y-4">
           <div>

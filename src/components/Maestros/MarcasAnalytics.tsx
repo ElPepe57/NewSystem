@@ -7,6 +7,8 @@ import type { Marca } from '../../types/entidadesMaestras.types';
 import { MarcaDetailView } from './MarcaDetailView';
 import { MarcasComparador } from './MarcasComparador';
 import { Pagination, usePagination } from '../common';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 
 // Sub-tabs del módulo
 type SubTab = 'lista' | 'dashboard' | 'rentabilidad';
@@ -192,8 +194,8 @@ export function MarcasAnalytics({
 
   const getTipoColor = (tipo: string) => {
     const colors: Record<string, string> = {
-      farmaceutica: 'bg-blue-100 text-blue-800',
-      suplementos: 'bg-green-100 text-green-800',
+      farmaceutica: 'bg-sky-100 text-sky-800',
+      suplementos: 'bg-emerald-100 text-emerald-800',
       cosmetica: 'bg-pink-100 text-pink-800',
       tecnologia: 'bg-purple-100 text-purple-800',
       otro: 'bg-slate-100 text-slate-800'
@@ -203,7 +205,7 @@ export function MarcasAnalytics({
 
   const getEstadoColor = (estado: string) => {
     const colors: Record<string, string> = {
-      activa: 'bg-green-100 text-green-800',
+      activa: 'bg-emerald-100 text-emerald-800',
       inactiva: 'bg-yellow-100 text-yellow-800',
       descontinuada: 'bg-red-100 text-red-800'
     };
@@ -221,7 +223,7 @@ export function MarcasAnalytics({
             placeholder="Buscar por nombre, código o alias..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-sky-500"
           />
         </div>
 
@@ -275,7 +277,7 @@ export function MarcasAnalytics({
 
         <button
           onClick={() => onOpenMarcaModal()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -290,126 +292,114 @@ export function MarcasAnalytics({
       </div>
 
       {/* Tabla */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Marca
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Tipo
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Línea
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Productos
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Ventas
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Margen
-              </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {marcasPaginadas.map(marca => (
-              <tr key={marca.id} className="hover:bg-slate-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    {marca.logoUrl ? (
-                      <img
-                        src={marca.logoUrl}
-                        alt={marca.nombre}
-                        className="h-8 w-8 rounded-full object-cover mr-3"
-                      />
-                    ) : (
-                      <div
-                        className="h-8 w-8 rounded-full flex items-center justify-center mr-3 text-white font-semibold text-sm"
-                        style={{ backgroundColor: marca.colorPrimario || '#3B82F6' }}
-                      >
-                        {marca.nombre.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div>
-                      <div className="font-medium text-slate-900">{marca.nombre}</div>
-                      <div className="text-sm text-slate-500">{marca.codigo}</div>
+      <div className="bg-white rounded-lg shadow">
+        {(() => {
+          const marcasColumns: DataTableColumn<Marca>[] = [
+            {
+              key: 'marca',
+              header: 'Marca',
+              render: marca => (
+                <div className="flex items-center">
+                  {marca.logoUrl ? (
+                    <img src={marca.logoUrl} alt={marca.nombre} className="h-8 w-8 rounded-full object-cover mr-3" />
+                  ) : (
+                    <div
+                      className="h-8 w-8 rounded-full flex items-center justify-center mr-3 text-white font-semibold text-sm"
+                      style={{ backgroundColor: marca.colorPrimario || '#3B82F6' }}
+                    >
+                      {marca.nombre.charAt(0).toUpperCase()}
                     </div>
+                  )}
+                  <div>
+                    <div className="font-medium text-slate-900">{marca.nombre}</div>
+                    <div className="text-sm text-slate-500">{marca.codigo}</div>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTipoColor(marca.tipoMarca)}`}>
-                    {getTipoLabel(marca.tipoMarca)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <LineaNegocioBadges lineaIds={marca.lineaNegocioIds} />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getEstadoColor(marca.estado)}`}>
-                    {marca.estado.charAt(0).toUpperCase() + marca.estado.slice(1)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-900">
-                  {marca.metricas?.productosActivos || 0}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-900">
-                  {formatCurrency(marca.metricas?.ventasTotalPEN || 0)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                  <span className={marca.metricas?.margenPromedio >= 25 ? 'text-green-600' : marca.metricas?.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}>
-                    {formatPercent(marca.metricas?.margenPromedio || 0)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => setMarcaDetalle(marca)}
-                      className="text-blue-600 hover:text-blue-800"
-                      title="Ver detalle y analytics"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => onEditMarca ? onEditMarca(marca) : onOpenMarcaModal(marca)}
-                      className="text-slate-600 hover:text-slate-800"
-                      title="Editar"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => onDeleteMarca(marca.id)}
-                      className="text-red-600 hover:text-red-800"
-                      title="Eliminar"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {marcasFiltradas.length === 0 && (
-          <div className="text-center py-12 text-slate-500">
-            No se encontraron marcas con los filtros aplicados
-          </div>
-        )}
+                </div>
+              ),
+            },
+            {
+              key: 'tipo',
+              header: 'Tipo',
+              render: marca => (
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getTipoColor(marca.tipoMarca)}`}>
+                  {getTipoLabel(marca.tipoMarca)}
+                </span>
+              ),
+              hideOnMobile: true,
+            },
+            {
+              key: 'linea',
+              header: 'Línea',
+              render: marca => <LineaNegocioBadges lineaIds={marca.lineaNegocioIds} />,
+              hideOnMobile: true,
+            },
+            {
+              key: 'estado',
+              header: 'Estado',
+              render: marca => (
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getEstadoColor(marca.estado)}`}>
+                  {marca.estado.charAt(0).toUpperCase() + marca.estado.slice(1)}
+                </span>
+              ),
+            },
+            {
+              key: 'productos',
+              header: 'Productos',
+              align: 'right',
+              render: marca => <span>{marca.metricas?.productosActivos || 0}</span>,
+              hideOnMobile: true,
+            },
+            {
+              key: 'ventas',
+              header: 'Ventas',
+              align: 'right',
+              render: marca => <span>{formatCurrency(marca.metricas?.ventasTotalPEN || 0)}</span>,
+              hideOnMobile: true,
+            },
+            {
+              key: 'margen',
+              header: 'Margen',
+              align: 'right',
+              render: marca => (
+                <span className={marca.metricas?.margenPromedio >= 25 ? 'text-emerald-600' : marca.metricas?.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}>
+                  {formatPercent(marca.metricas?.margenPromedio || 0)}
+                </span>
+              ),
+            },
+            {
+              key: 'acciones',
+              header: 'Acciones',
+              align: 'center',
+              render: marca => (
+                <div className="flex justify-center gap-2">
+                  <button onClick={() => setMarcaDetalle(marca)} className="text-sky-600 hover:text-sky-800" title="Ver detalle y analytics">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </button>
+                  <button onClick={() => onEditMarca ? onEditMarca(marca) : onOpenMarcaModal(marca)} className="text-slate-600 hover:text-slate-800" title="Editar">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button onClick={() => onDeleteMarca(marca.id)} className="text-red-600 hover:text-red-800" title="Eliminar">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              ),
+            },
+          ];
+          return (
+            <DataTable
+              columns={marcasColumns}
+              data={marcasPaginadas}
+              keyExtractor={marca => marca.id}
+              emptyMessage="No se encontraron marcas con los filtros aplicados"
+            />
+          );
+        })()}
 
         {/* Paginación */}
         {marcasFiltradas.length > 0 && (
@@ -433,14 +423,14 @@ export function MarcasAnalytics({
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-slate-500 mb-1">Total Marcas</div>
           <div className="text-3xl font-bold text-slate-900">{metricas?.total || 0}</div>
-          <div className="text-sm text-green-600 mt-1">
+          <div className="text-sm text-emerald-600 mt-1">
             {metricas?.activas || 0} activas
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-slate-500 mb-1">Marcas con Productos</div>
-          <div className="text-3xl font-bold text-blue-600">{metricas?.conProductos || 0}</div>
+          <div className="text-3xl font-bold text-sky-600">{metricas?.conProductos || 0}</div>
           <div className="text-sm text-slate-500 mt-1">
             {metricas?.totalProductos || 0} productos totales
           </div>
@@ -448,7 +438,7 @@ export function MarcasAnalytics({
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-slate-500 mb-1">Ventas Totales</div>
-          <div className="text-3xl font-bold text-green-600">
+          <div className="text-3xl font-bold text-emerald-600">
             {formatCurrency(metricas?.totalVentas || 0)}
           </div>
           <div className="text-sm text-slate-500 mt-1">
@@ -458,7 +448,7 @@ export function MarcasAnalytics({
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-slate-500 mb-1">Margen Promedio</div>
-          <div className={`text-3xl font-bold ${(metricas?.margenPonderado || 0) >= 25 ? 'text-green-600' : (metricas?.margenPonderado || 0) >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
+          <div className={`text-3xl font-bold ${(metricas?.margenPonderado || 0) >= 25 ? 'text-emerald-600' : (metricas?.margenPonderado || 0) >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
             {formatPercent(metricas?.margenPonderado || 0)}
           </div>
           <div className="text-sm text-slate-500 mt-1">
@@ -483,7 +473,7 @@ export function MarcasAnalytics({
                     </span>
                     <div className="flex-1 bg-slate-200 rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-2 rounded-full"
+                        className="bg-sky-600 h-2 rounded-full"
                         style={{ width: `${porcentaje}%` }}
                       />
                     </div>
@@ -533,11 +523,11 @@ export function MarcasAnalytics({
             )}
 
             {(metricas?.sinVentasRecientes?.length || 0) === 0 && (metricas?.descontinuadasConProductos?.length || 0) === 0 && (
-              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg">
+                <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div className="font-medium text-green-800">
+                <div className="font-medium text-emerald-800">
                   Todo en orden con las marcas
                 </div>
               </div>
@@ -553,7 +543,7 @@ export function MarcasAnalytics({
           <div className="space-y-3">
             {metricas?.topVentas?.map((marca, idx) => (
               <div key={marca.id} className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-slate-400' : idx === 2 ? 'bg-amber-600' : 'bg-blue-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-slate-400' : idx === 2 ? 'bg-amber-600' : 'bg-sky-500'}`}>
                   {idx + 1}
                 </div>
                 <div className="flex-1">
@@ -563,7 +553,7 @@ export function MarcasAnalytics({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold text-green-600">
+                  <div className="font-semibold text-emerald-600">
                     {formatCurrency(marca.metricas?.ventasTotalPEN || 0)}
                   </div>
                 </div>
@@ -582,7 +572,7 @@ export function MarcasAnalytics({
           <div className="space-y-3">
             {metricas?.topMargen?.map((marca, idx) => (
               <div key={marca.id} className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${idx === 0 ? 'bg-green-500' : idx === 1 ? 'bg-green-400' : idx === 2 ? 'bg-green-300' : 'bg-blue-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${idx === 0 ? 'bg-emerald-500' : idx === 1 ? 'bg-emerald-400' : idx === 2 ? 'bg-emerald-300' : 'bg-sky-500'}`}>
                   {idx + 1}
                 </div>
                 <div className="flex-1">
@@ -592,7 +582,7 @@ export function MarcasAnalytics({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold text-green-600">
+                  <div className="font-semibold text-emerald-600">
                     {formatPercent(marca.metricas?.margenPromedio || 0)}
                   </div>
                 </div>
@@ -658,21 +648,21 @@ export function MarcasAnalytics({
 
           <div className="grid grid-cols-2 gap-4">
             {/* Estrellas */}
-            <div className="bg-green-50 rounded-lg p-4 border-2 border-green-200">
+            <div className="bg-emerald-50 rounded-lg p-4 border-2 border-emerald-200">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">⭐</span>
-                <h4 className="font-semibold text-green-800">Estrellas ({estrellas.length})</h4>
+                <h4 className="font-semibold text-emerald-800">Estrellas ({estrellas.length})</h4>
               </div>
-              <p className="text-sm text-green-700 mb-3">Alto volumen + Alto margen</p>
+              <p className="text-sm text-emerald-700 mb-3">Alto volumen + Alto margen</p>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {estrellas.slice(0, 5).map(m => (
                   <div key={m.id} className="flex justify-between text-sm">
-                    <span className="text-green-900">{m.nombre}</span>
-                    <span className="text-green-600">{formatPercent(m.metricas?.margenPromedio || 0)}</span>
+                    <span className="text-emerald-900">{m.nombre}</span>
+                    <span className="text-emerald-600">{formatPercent(m.metricas?.margenPromedio || 0)}</span>
                   </div>
                 ))}
                 {estrellas.length > 5 && (
-                  <div className="text-sm text-green-600">+{estrellas.length - 5} más...</div>
+                  <div className="text-sm text-emerald-600">+{estrellas.length - 5} más...</div>
                 )}
               </div>
             </div>
@@ -698,21 +688,21 @@ export function MarcasAnalytics({
             </div>
 
             {/* Vacas lecheras */}
-            <div className="bg-blue-50 rounded-lg p-4 border-2 border-blue-200">
+            <div className="bg-sky-50 rounded-lg p-4 border-2 border-sky-200">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-2xl">🐄</span>
-                <h4 className="font-semibold text-blue-800">Vacas Lecheras ({vacasLecheras.length})</h4>
+                <h4 className="font-semibold text-sky-800">Vacas Lecheras ({vacasLecheras.length})</h4>
               </div>
-              <p className="text-sm text-blue-700 mb-3">Alto volumen + Bajo margen</p>
+              <p className="text-sm text-sky-700 mb-3">Alto volumen + Bajo margen</p>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {vacasLecheras.slice(0, 5).map(m => (
                   <div key={m.id} className="flex justify-between text-sm">
-                    <span className="text-blue-900">{m.nombre}</span>
-                    <span className="text-blue-600">{formatCurrency(m.metricas?.ventasTotalPEN || 0)}</span>
+                    <span className="text-sky-900">{m.nombre}</span>
+                    <span className="text-sky-600">{formatCurrency(m.metricas?.ventasTotalPEN || 0)}</span>
                   </div>
                 ))}
                 {vacasLecheras.length > 5 && (
-                  <div className="text-sm text-blue-600">+{vacasLecheras.length - 5} más...</div>
+                  <div className="text-sm text-sky-600">+{vacasLecheras.length - 5} más...</div>
                 )}
               </div>
             </div>
@@ -743,9 +733,9 @@ export function MarcasAnalytics({
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Recomendaciones Estratégicas</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-green-50 rounded-lg">
-              <h4 className="font-medium text-green-800 mb-2">Invertir en Estrellas</h4>
-              <p className="text-sm text-green-700">
+            <div className="p-4 bg-emerald-50 rounded-lg">
+              <h4 className="font-medium text-emerald-800 mb-2">Invertir en Estrellas</h4>
+              <p className="text-sm text-emerald-700">
                 Mantener stock óptimo y considerar exclusividad con proveedores de estas marcas.
               </p>
             </div>
@@ -755,9 +745,9 @@ export function MarcasAnalytics({
                 Aumentar visibilidad y promoción. Alto potencial de margen.
               </p>
             </div>
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <h4 className="font-medium text-blue-800 mb-2">Optimizar Vacas Lecheras</h4>
-              <p className="text-sm text-blue-700">
+            <div className="p-4 bg-sky-50 rounded-lg">
+              <h4 className="font-medium text-sky-800 mb-2">Optimizar Vacas Lecheras</h4>
+              <p className="text-sm text-sky-700">
                 Negociar mejores precios con proveedores para mejorar márgenes.
               </p>
             </div>
@@ -777,7 +767,7 @@ export function MarcasAnalytics({
   if (loading && marcas.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
         <span className="ml-3 text-slate-600">Cargando marcas...</span>
       </div>
     );
@@ -792,7 +782,7 @@ export function MarcasAnalytics({
             onClick={() => setSubTab('lista')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               subTab === 'lista'
-                ? 'border-blue-500 text-blue-600'
+                ? 'border-sky-500 text-sky-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
@@ -802,7 +792,7 @@ export function MarcasAnalytics({
             onClick={() => setSubTab('dashboard')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               subTab === 'dashboard'
-                ? 'border-blue-500 text-blue-600'
+                ? 'border-sky-500 text-sky-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
@@ -812,7 +802,7 @@ export function MarcasAnalytics({
             onClick={() => setSubTab('rentabilidad')}
             className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
               subTab === 'rentabilidad'
-                ? 'border-blue-500 text-blue-600'
+                ? 'border-sky-500 text-sky-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >

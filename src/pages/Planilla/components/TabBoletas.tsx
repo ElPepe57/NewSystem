@@ -4,6 +4,8 @@
 import React, { useEffect, useState } from 'react';
 import { FileText, Plus, Check, CreditCard, XCircle, Download, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { Badge, Button, useConfirmDialog, ConfirmDialog } from '../../../components/common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { useToastStore } from '../../../store/toastStore';
 import { useAuthStore } from '../../../store/authStore';
 import { usePlanillaStore } from '../../../store/planillaStore';
@@ -113,6 +115,80 @@ export const TabBoletas: React.FC = () => {
   const totalBruto = boletas.reduce((s, b) => s + b.totalBruto, 0);
   const totalNeto = boletas.reduce((s, b) => s + b.totalNeto, 0);
 
+  const boletaColumns: DataTableColumn<Boleta>[] = [
+    {
+      key: 'id', header: 'Boleta',
+      render: b => <span className="font-mono text-xs">{b.id}</span>,
+    },
+    {
+      key: 'empleado', header: 'Empleado',
+      render: b => (
+        <div>
+          <div className="font-medium">{b.empleadoNombre}</div>
+          {b.empleadoCargo && <div className="text-xs text-slate-500">{b.empleadoCargo}</div>}
+        </div>
+      ),
+    },
+    {
+      key: 'sueldo', header: 'Sueldo', align: 'right', hideOnMobile: true,
+      render: b => <span className="font-mono">{formatCurrency(b.salarioBase, 'PEN')}</span>,
+    },
+    {
+      key: 'comisiones', header: 'Comisiones', align: 'right', hideOnMobile: true,
+      render: b => b.comisionesVentas > 0
+        ? <span className="font-mono text-emerald-600">{formatCurrency(b.comisionesVentas, 'PEN')}</span>
+        : <span className="text-slate-400">—</span>,
+    },
+    {
+      key: 'descuentos', header: 'Descuentos', align: 'right', hideOnMobile: true,
+      render: b => b.totalDescuentos > 0
+        ? <span className="font-mono text-red-600">-{formatCurrency(b.totalDescuentos, 'PEN')}</span>
+        : <span className="text-slate-400">—</span>,
+    },
+    {
+      key: 'neto', header: 'Neto', align: 'right',
+      render: b => <span className="font-mono font-semibold">{formatCurrency(b.totalNeto, 'PEN')}</span>,
+    },
+    {
+      key: 'estado', header: 'Estado', align: 'center',
+      render: b => (
+        <Badge variant={ESTADO_BADGE[b.estado] || 'default'}>
+          {ESTADO_BOLETA_LABELS[b.estado]}
+        </Badge>
+      ),
+    },
+    {
+      key: 'acciones', header: 'Acciones', align: 'center',
+      render: b => (
+        <div className="flex items-center justify-center gap-1" onClick={e => e.stopPropagation()}>
+          <Button variant="ghost" size="sm" onClick={() => setBoletaDetalle(b)} title="Ver detalle">
+            <FileText size={14} />
+          </Button>
+          {b.estado === 'borrador' && (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => handleAprobar(b)} title="Aprobar">
+                <Check size={14} className="text-emerald-600" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => handleEliminar(b)} title="Eliminar">
+                <Trash2 size={14} className="text-red-500" />
+              </Button>
+            </>
+          )}
+          {b.estado === 'aprobada' && (
+            <Button variant="ghost" size="sm" onClick={() => setBoletaDetalle(b)} title="Pagar">
+              <CreditCard size={14} className="text-teal-600" />
+            </Button>
+          )}
+          {(b.estado === 'borrador' || b.estado === 'aprobada') && (
+            <Button variant="ghost" size="sm" onClick={() => handleAnular(b)} title="Anular">
+              <XCircle size={14} className="text-orange-500" />
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Selector de periodo */}
@@ -160,75 +236,12 @@ export const TabBoletas: React.FC = () => {
       ) : (
         /* Tabla de boletas */
         <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Boleta</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Empleado</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Sueldo</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Comisiones</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Descuentos</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Neto</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Estado</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {boletas.map(b => (
-                <tr key={b.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-mono text-xs">{b.id}</td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium">{b.empleadoNombre}</div>
-                    {b.empleadoCargo && <div className="text-xs text-slate-500">{b.empleadoCargo}</div>}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">{formatCurrency(b.salarioBase, 'PEN')}</td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {b.comisionesVentas > 0 ? (
-                      <span className="text-green-600">{formatCurrency(b.comisionesVentas, 'PEN')}</span>
-                    ) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {b.totalDescuentos > 0 ? (
-                      <span className="text-red-600">-{formatCurrency(b.totalDescuentos, 'PEN')}</span>
-                    ) : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono font-semibold">{formatCurrency(b.totalNeto, 'PEN')}</td>
-                  <td className="px-4 py-3 text-center">
-                    <Badge variant={ESTADO_BADGE[b.estado] || 'default'}>
-                      {ESTADO_BOLETA_LABELS[b.estado]}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setBoletaDetalle(b)} title="Ver detalle">
-                        <FileText size={14} />
-                      </Button>
-                      {b.estado === 'borrador' && (
-                        <>
-                          <Button variant="ghost" size="sm" onClick={() => handleAprobar(b)} title="Aprobar">
-                            <Check size={14} className="text-green-600" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleEliminar(b)} title="Eliminar">
-                            <Trash2 size={14} className="text-red-500" />
-                          </Button>
-                        </>
-                      )}
-                      {b.estado === 'aprobada' && (
-                        <Button variant="ghost" size="sm" onClick={() => setBoletaDetalle(b)} title="Pagar">
-                          <CreditCard size={14} className="text-teal-600" />
-                        </Button>
-                      )}
-                      {(b.estado === 'borrador' || b.estado === 'aprobada') && (
-                        <Button variant="ghost" size="sm" onClick={() => handleAnular(b)} title="Anular">
-                          <XCircle size={14} className="text-orange-500" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable<Boleta>
+            columns={boletaColumns}
+            data={boletas}
+            keyExtractor={b => b.id}
+            onRowClick={b => setBoletaDetalle(b)}
+          />
         </div>
       )}
 

@@ -28,11 +28,11 @@ const SEVERITY_CONFIG = {
     titleColor: 'text-amber-900',
   },
   info: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-    titleColor: 'text-blue-900',
+    bg: 'bg-sky-50',
+    border: 'border-sky-200',
+    iconBg: 'bg-sky-100',
+    iconColor: 'text-sky-600',
+    titleColor: 'text-sky-900',
   },
   success: {
     bg: 'bg-emerald-50',

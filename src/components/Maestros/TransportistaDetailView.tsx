@@ -1,6 +1,8 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency as formatCurrencyImport, formatPercent } from '../../utils/format';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import {
   Truck, Phone, Mail, Calendar, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3,
@@ -66,7 +68,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
   const getTendenciaIcon = (tendencia?: string) => {
     switch (tendencia) {
       case 'mejorando':
-        return <TrendingUp className="w-4 h-4 text-green-500" />;
+        return <TrendingUp className="w-4 h-4 text-emerald-500" />;
       case 'empeorando':
         return <TrendingDown className="w-4 h-4 text-red-500" />;
       default:
@@ -78,16 +80,16 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
     switch (severidad) {
       case 'danger': return <AlertCircle className="w-4 h-4 text-red-500" />;
       case 'warning': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      default: return <AlertCircle className="w-4 h-4 text-blue-500" />;
+      default: return <AlertCircle className="w-4 h-4 text-sky-500" />;
     }
   };
 
   const getEstadoEntregaColor = (estado: string) => {
     switch (estado) {
-      case 'completada': return 'text-green-600 bg-green-100';
+      case 'completada': return 'text-emerald-600 bg-emerald-100';
       case 'fallida': return 'text-red-600 bg-red-100';
       case 'reprogramada': return 'text-yellow-600 bg-yellow-100';
-      case 'en_proceso': return 'text-blue-600 bg-blue-100';
+      case 'en_proceso': return 'text-sky-600 bg-sky-100';
       default: return 'text-slate-600 bg-slate-100';
     }
   };
@@ -103,8 +105,8 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
   };
 
   const getCalificacionColor = (calificacion: number) => {
-    if (calificacion >= 4.5) return 'text-green-600';
-    if (calificacion >= 4) return 'text-blue-600';
+    if (calificacion >= 4.5) return 'text-emerald-600';
+    if (calificacion >= 4) return 'text-sky-600';
     if (calificacion >= 3) return 'text-yellow-600';
     return 'text-red-600';
   };
@@ -116,7 +118,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-start gap-4">
           <div className={`w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold ${
-            transportista.tipo === 'interno' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
+            transportista.tipo === 'interno' ? 'bg-sky-100 text-sky-600' : 'bg-purple-100 text-purple-600'
           }`}>
             <Truck className="w-8 h-8" />
           </div>
@@ -125,8 +127,8 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               <h2 className="text-2xl font-bold text-slate-900">{transportista.nombre}</h2>
               {analytics && (
                 <span className={`px-2 py-1 text-sm font-bold rounded-full ${
-                  analytics.rendimiento.tasaExitoGlobal >= 90 ? 'bg-green-100 text-green-800' :
-                  analytics.rendimiento.tasaExitoGlobal >= 80 ? 'bg-blue-100 text-blue-800' :
+                  analytics.rendimiento.tasaExitoGlobal >= 90 ? 'bg-emerald-100 text-emerald-800' :
+                  analytics.rendimiento.tasaExitoGlobal >= 80 ? 'bg-sky-100 text-sky-800' :
                   analytics.rendimiento.tasaExitoGlobal >= 70 ? 'bg-yellow-100 text-yellow-800' :
                   'bg-red-100 text-red-800'
                 }`}>
@@ -159,12 +161,12 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
 
             <div className="flex gap-2 mt-3">
               <span className={`px-2 py-1 text-xs rounded-full ${
-                transportista.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                transportista.estado === 'activo' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
               }`}>
                 {transportista.estado}
               </span>
               <span className={`px-2 py-1 text-xs rounded-full ${
-                transportista.tipo === 'interno' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                transportista.tipo === 'interno' ? 'bg-sky-100 text-sky-800' : 'bg-purple-100 text-purple-800'
               }`}>
                 {transportista.tipo}
               </span>
@@ -211,7 +213,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               Tasa de Éxito
             </div>
             <div className={`text-2xl font-bold ${
-              analytics.rendimiento.tasaExitoGlobal >= 85 ? 'text-green-600' :
+              analytics.rendimiento.tasaExitoGlobal >= 85 ? 'text-emerald-600' :
               analytics.rendimiento.tasaExitoGlobal >= 70 ? 'text-yellow-600' : 'text-red-600'
             }`}>
               {formatPercent(analytics.rendimiento.tasaExitoGlobal)}
@@ -273,7 +275,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
             <div>
               <div className="text-sm text-slate-500">ROI</div>
               <div className={`text-xl font-bold ${
-                analytics.roi.retornoInversion > 0 ? 'text-green-600' : 'text-red-600'
+                analytics.roi.retornoInversion > 0 ? 'text-emerald-600' : 'text-red-600'
               }`}>
                 {formatPercent(analytics.roi.retornoInversion)}
               </div>
@@ -296,7 +298,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 className={`p-3 rounded-lg border ${
                   alerta.severidad === 'danger' ? 'bg-red-50 border-red-200' :
                   alerta.severidad === 'warning' ? 'bg-yellow-50 border-yellow-200' :
-                  'bg-blue-50 border-blue-200'
+                  'bg-sky-50 border-sky-200'
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -307,7 +309,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                       <div className="text-sm text-slate-600 mt-1">{alerta.detalle}</div>
                     )}
                     {alerta.accionRecomendada && (
-                      <div className="text-sm text-blue-600 mt-1">
+                      <div className="text-sm text-sky-600 mt-1">
                         → {alerta.accionRecomendada}
                       </div>
                     )}
@@ -333,7 +335,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Exitosas</div>
-            <div className="text-2xl font-bold text-green-600">{analytics.rendimiento.entregasExitosas}</div>
+            <div className="text-2xl font-bold text-emerald-600">{analytics.rendimiento.entregasExitosas}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Fallidas</div>
@@ -345,7 +347,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">En Proceso</div>
-            <div className="text-2xl font-bold text-blue-600">{analytics.rendimiento.entregasEnProceso}</div>
+            <div className="text-2xl font-bold text-sky-600">{analytics.rendimiento.entregasEnProceso}</div>
           </div>
         </div>
       )}
@@ -356,49 +358,41 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Historial de Entregas ({analytics.entregasHistorial.length})
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">Fecha</th>
-                  <th className="text-left py-2 px-2">Venta</th>
-                  <th className="text-left py-2 px-2">Cliente</th>
-                  <th className="text-left py-2 px-2">Zona</th>
-                  <th className="text-right py-2 px-2">Unid.</th>
-                  <th className="text-right py-2 px-2">Tiempo</th>
-                  <th className="text-right py-2 px-2">Costo</th>
-                  <th className="text-center py-2 px-2">Estado</th>
-                  <th className="text-center py-2 px-2">Calif.</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.entregasHistorial.slice(0, 20).map((entrega, idx) => (
-                  <tr key={idx} className="border-b hover:bg-slate-50">
-                    <td className="py-2 px-2 text-xs">{formatDate(entrega.fecha)}</td>
-                    <td className="py-2 px-2 font-mono text-xs">{entrega.numeroVenta || '-'}</td>
-                    <td className="py-2 px-2">{entrega.clienteNombre || '-'}</td>
-                    <td className="py-2 px-2 text-slate-500">{entrega.zona}</td>
-                    <td className="py-2 px-2 text-right font-medium">{entrega.unidades}</td>
-                    <td className="py-2 px-2 text-right">{entrega.tiempoEntrega > 0 ? `${entrega.tiempoEntrega}h` : '-'}</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(entrega.costoEntrega)}</td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${getEstadoEntregaColor(entrega.estado)}`}>
-                        {getEstadoEntregaIcon(entrega.estado)}
-                        {entrega.estado}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      {entrega.calificacionCliente ? (
-                        <span className={`font-medium ${getCalificacionColor(entrega.calificacionCliente)}`}>
-                          {entrega.calificacionCliente.toFixed(1)}
-                        </span>
-                      ) : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const entregasColumns: DataTableColumn<EntregaHistorial>[] = [
+              { key: 'fecha', header: 'Fecha', render: e => <span className="text-xs">{formatDate(e.fecha)}</span>, hideOnMobile: true },
+              { key: 'venta', header: 'Venta', render: e => <span className="font-mono text-xs">{e.numeroVenta || '-'}</span> },
+              { key: 'cliente', header: 'Cliente', render: e => <span>{e.clienteNombre || '-'}</span>, hideOnMobile: true },
+              { key: 'zona', header: 'Zona', render: e => <span className="text-slate-500">{e.zona}</span>, hideOnMobile: true },
+              { key: 'unidades', header: 'Unid.', align: 'right', render: e => <span className="font-medium">{e.unidades}</span> },
+              { key: 'tiempo', header: 'Tiempo', align: 'right', render: e => <span>{e.tiempoEntrega > 0 ? `${e.tiempoEntrega}h` : '-'}</span>, hideOnMobile: true },
+              { key: 'costo', header: 'Costo', align: 'right', render: e => <span>{formatCurrency(e.costoEntrega)}</span>, hideOnMobile: true },
+              {
+                key: 'estado', header: 'Estado', align: 'center',
+                render: e => (
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${getEstadoEntregaColor(e.estado)}`}>
+                    {getEstadoEntregaIcon(e.estado)}
+                    {e.estado}
+                  </span>
+                ),
+              },
+              {
+                key: 'calificacion', header: 'Calif.', align: 'center',
+                render: e => e.calificacionCliente
+                  ? <span className={`font-medium ${getCalificacionColor(e.calificacionCliente)}`}>{e.calificacionCliente.toFixed(1)}</span>
+                  : <span>-</span>,
+                hideOnMobile: true,
+              },
+            ];
+            return (
+              <DataTable
+                columns={entregasColumns}
+                data={analytics.entregasHistorial.slice(0, 20)}
+                keyExtractor={e => e.id}
+                compact
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -436,7 +430,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                   <div className="text-right">
                     <div className="text-xs text-slate-500">{formatDate(incidencia.fecha)}</div>
                     {incidencia.resuelta ? (
-                      <span className="text-xs text-green-600">Resuelta</span>
+                      <span className="text-xs text-emerald-600">Resuelta</span>
                     ) : (
                       <span className="text-xs text-red-600">Pendiente</span>
                     )}
@@ -462,7 +456,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Mejor Rendimiento</div>
-            <div className="text-2xl font-bold text-green-600">{analytics.zonasConMejorRendimiento.length}</div>
+            <div className="text-2xl font-bold text-emerald-600">{analytics.zonasConMejorRendimiento.length}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Problemáticas</div>
@@ -482,53 +476,43 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
             <MapPin className="w-5 h-5" />
             Rendimiento por Zona
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">Zona</th>
-                  <th className="text-right py-2 px-2">Entregas</th>
-                  <th className="text-right py-2 px-2">Exitosas</th>
-                  <th className="text-right py-2 px-2">Fallidas</th>
-                  <th className="text-right py-2 px-2">Tasa Éxito</th>
-                  <th className="text-right py-2 px-2">Tiempo Prom.</th>
-                  <th className="text-right py-2 px-2">Costo Prom.</th>
-                  <th className="text-center py-2 px-2">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.metricasPorZona.map((zona, idx) => (
-                  <tr key={idx} className={`border-b hover:bg-slate-50 ${zona.esZonaProblematica ? 'bg-red-50' : ''}`}>
-                    <td className="py-2 px-2 font-medium">{zona.zona}</td>
-                    <td className="py-2 px-2 text-right">{zona.totalEntregas}</td>
-                    <td className="py-2 px-2 text-right text-green-600">{zona.entregasExitosas}</td>
-                    <td className="py-2 px-2 text-right text-red-600">{zona.entregasFallidas}</td>
-                    <td className="py-2 px-2 text-right">
-                      <span className={`font-medium ${
-                        zona.tasaExito >= 90 ? 'text-green-600' :
-                        zona.tasaExito >= 80 ? 'text-blue-600' :
-                        zona.tasaExito >= 70 ? 'text-yellow-600' :
-                        'text-red-600'
-                      }`}>
-                        {formatPercent(zona.tasaExito)}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-right">{zona.tiempoPromedioHoras.toFixed(1)}h</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(zona.costoPromedio)}</td>
-                    <td className="py-2 px-2 text-center">
-                      {zona.esZonaProblematica ? (
-                        <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">Problemática</span>
-                      ) : zona.tasaExito >= 90 ? (
-                        <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">Excelente</span>
-                      ) : (
-                        <span className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-full">Normal</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const zonasColumns: DataTableColumn<MetricasZona>[] = [
+              { key: 'zona', header: 'Zona', render: z => <span className="font-medium">{z.zona}</span> },
+              { key: 'total', header: 'Entregas', align: 'right', render: z => <span>{z.totalEntregas}</span> },
+              { key: 'exitosas', header: 'Exitosas', align: 'right', render: z => <span className="text-emerald-600">{z.entregasExitosas}</span>, hideOnMobile: true },
+              { key: 'fallidas', header: 'Fallidas', align: 'right', render: z => <span className="text-red-600">{z.entregasFallidas}</span>, hideOnMobile: true },
+              {
+                key: 'tasaExito', header: 'Tasa Éxito', align: 'right',
+                render: z => (
+                  <span className={`font-medium ${
+                    z.tasaExito >= 90 ? 'text-emerald-600' :
+                    z.tasaExito >= 80 ? 'text-sky-600' :
+                    z.tasaExito >= 70 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>{formatPercent(z.tasaExito)}</span>
+                ),
+              },
+              { key: 'tiempo', header: 'Tiempo Prom.', align: 'right', render: z => <span>{z.tiempoPromedioHoras.toFixed(1)}h</span>, hideOnMobile: true },
+              { key: 'costo', header: 'Costo Prom.', align: 'right', render: z => <span>{formatCurrency(z.costoPromedio)}</span>, hideOnMobile: true },
+              {
+                key: 'estado', header: 'Estado', align: 'center',
+                render: z => z.esZonaProblematica
+                  ? <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">Problemática</span>
+                  : z.tasaExito >= 90
+                    ? <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">Excelente</span>
+                    : <span className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-full">Normal</span>,
+              },
+            ];
+            return (
+              <DataTable
+                columns={zonasColumns}
+                data={analytics.metricasPorZona}
+                keyExtractor={z => z.zona}
+                compact
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -546,7 +530,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 <div className="flex-1">
                   <div className="h-6 bg-slate-100 rounded-full overflow-hidden relative">
                     <div
-                      className="h-full bg-blue-500 rounded-full"
+                      className="h-full bg-sky-500 rounded-full"
                       style={{ width: `${(dia.entregas / Math.max(...analytics.distribucionPorDia.map(d => d.entregas))) * 100}%` }}
                     />
                     <span className="absolute inset-0 flex items-center justify-center text-xs font-medium">
@@ -555,7 +539,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                   </div>
                 </div>
                 <div className="w-20 text-right text-sm">
-                  <span className={dia.tasaExito >= 85 ? 'text-green-600' : dia.tasaExito >= 70 ? 'text-yellow-600' : 'text-red-600'}>
+                  <span className={dia.tasaExito >= 85 ? 'text-emerald-600' : dia.tasaExito >= 70 ? 'text-yellow-600' : 'text-red-600'}>
                     {formatPercent(dia.tasaExito)}
                   </span>
                 </div>
@@ -574,7 +558,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           </h3>
           <div className="flex flex-wrap gap-2">
             {analytics.predicciones.zonasRecomendadas.map((zona, idx) => (
-              <span key={idx} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+              <span key={idx} className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm">
                 {zona}
               </span>
             ))}
@@ -595,8 +579,8 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Análisis de Rendimiento</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="p-3 bg-green-50 rounded-lg text-center">
-              <div className="text-2xl font-bold text-green-600">{analytics.rendimiento.entregasExitosas}</div>
+            <div className="p-3 bg-emerald-50 rounded-lg text-center">
+              <div className="text-2xl font-bold text-emerald-600">{analytics.rendimiento.entregasExitosas}</div>
               <div className="text-sm text-slate-600">Exitosas</div>
             </div>
             <div className="p-3 bg-red-50 rounded-lg text-center">
@@ -607,8 +591,8 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               <div className="text-2xl font-bold text-yellow-600">{analytics.rendimiento.entregasReprogramadas}</div>
               <div className="text-sm text-slate-600">Reprogramadas</div>
             </div>
-            <div className="p-3 bg-blue-50 rounded-lg text-center">
-              <div className="text-2xl font-bold text-blue-600">{formatPercent(analytics.rendimiento.puntualidad)}</div>
+            <div className="p-3 bg-sky-50 rounded-lg text-center">
+              <div className="text-2xl font-bold text-sky-600">{formatPercent(analytics.rendimiento.puntualidad)}</div>
               <div className="text-sm text-slate-600">Puntualidad</div>
             </div>
           </div>
@@ -666,7 +650,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                   <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
-                        star >= 4 ? 'bg-green-500' : star >= 3 ? 'bg-yellow-500' : 'bg-red-500'
+                        star >= 4 ? 'bg-emerald-500' : star >= 3 ? 'bg-yellow-500' : 'bg-red-500'
                       }`}
                       style={{ width: `${percent}%` }}
                     />
@@ -697,7 +681,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
             </div>
             <div className="p-3 bg-slate-50 rounded-lg">
               <div className="text-sm text-slate-500">Margen Neto</div>
-              <div className={`text-xl font-bold ${analytics.roi.margenNeto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-xl font-bold ${analytics.roi.margenNeto >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {formatCurrency(analytics.roi.margenNeto)}
               </div>
             </div>
@@ -734,7 +718,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
               <div className={`text-xl font-bold ${
                 analytics.predicciones.riesgoRotacion > 20 ? 'text-red-600' :
                 analytics.predicciones.riesgoRotacion > 10 ? 'text-yellow-600' :
-                'text-green-600'
+                'text-emerald-600'
               }`}>
                 {formatPercent(analytics.predicciones.riesgoRotacion)}
               </div>
@@ -750,7 +734,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           <div className="space-y-3">
             {analytics.comentariosRecientes.map((comentario, idx) => (
               <div key={idx} className={`p-3 rounded-lg border ${
-                comentario.esPositivo ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                comentario.esPositivo ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'
               }`}>
                 <div className="flex items-start justify-between">
                   <div>
@@ -786,13 +770,13 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Ranking de Transportistas</h3>
           <div className="flex items-center gap-4 mb-6">
             <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600">#{analytics.rankingGeneral}</div>
+              <div className="text-4xl font-bold text-sky-600">#{analytics.rankingGeneral}</div>
               <div className="text-sm text-slate-500">de {analytics.totalTransportistas}</div>
             </div>
             <div className="flex-1">
               <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded-full"
+                  className="h-full bg-sky-500 rounded-full"
                   style={{ width: `${analytics.percentilRendimiento}%` }}
                 />
               </div>
@@ -808,79 +792,71 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
       {analytics && analytics.comparativaTransportistas.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Comparativa con Otros Transportistas</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">#</th>
-                  <th className="text-left py-2 px-2">Transportista</th>
-                  <th className="text-left py-2 px-2">Tipo</th>
-                  <th className="text-right py-2 px-2">Entregas</th>
-                  <th className="text-right py-2 px-2">Tasa Éxito</th>
-                  <th className="text-right py-2 px-2">Tiempo Prom.</th>
-                  <th className="text-right py-2 px-2">Costo Prom.</th>
-                  <th className="text-center py-2 px-2">Calif.</th>
-                  <th className="text-center py-2 px-2">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.comparativaTransportistas.slice(0, 10).map((comp, idx) => (
-                  <tr
-                    key={idx}
-                    className={`border-b ${comp.transportistaId === transportista.id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
-                  >
-                    <td className="py-2 px-2 font-bold">
-                      {comp.ranking <= 3 ? (
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
-                          comp.ranking === 1 ? 'bg-yellow-100 text-yellow-700' :
-                          comp.ranking === 2 ? 'bg-slate-100 text-slate-700' :
-                          'bg-orange-100 text-orange-700'
-                        }`}>
-                          {comp.ranking}
-                        </span>
-                      ) : comp.ranking}
-                    </td>
-                    <td className="py-2 px-2">
-                      <div className="font-medium">{comp.nombre}</div>
-                      <div className="text-xs text-slate-500">{comp.codigo}</div>
-                    </td>
-                    <td className="py-2 px-2">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        comp.tipo === 'interno' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                      }`}>
-                        {comp.tipo}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-right">{comp.entregas}</td>
-                    <td className="py-2 px-2 text-right">
-                      <span className={`font-medium ${
-                        comp.tasaExito >= 90 ? 'text-green-600' :
-                        comp.tasaExito >= 80 ? 'text-blue-600' :
-                        comp.tasaExito >= 70 ? 'text-yellow-600' :
-                        'text-red-600'
-                      }`}>
-                        {formatPercent(comp.tasaExito)}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-right">{comp.tiempoPromedio.toFixed(1)}h</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(comp.costoPromedio)}</td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={getCalificacionColor(comp.calificacion)}>
-                        {comp.calificacion.toFixed(1)}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      {comp.esRecomendado ? (
-                        <Award className="w-5 h-5 text-green-500 mx-auto" />
-                      ) : (
-                        <span className="text-slate-400">-</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const compTransColumns: DataTableColumn<ComparativaTransportistas>[] = [
+              {
+                key: 'ranking', header: '#',
+                render: c => c.ranking <= 3 ? (
+                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
+                    c.ranking === 1 ? 'bg-yellow-100 text-yellow-700' :
+                    c.ranking === 2 ? 'bg-slate-100 text-slate-700' :
+                    'bg-orange-100 text-orange-700'
+                  }`}>{c.ranking}</span>
+                ) : <span className="font-bold">{c.ranking}</span>,
+              },
+              {
+                key: 'nombre', header: 'Transportista',
+                render: c => (
+                  <div>
+                    <div className="font-medium">{c.nombre}</div>
+                    <div className="text-xs text-slate-500">{c.codigo}</div>
+                  </div>
+                ),
+              },
+              {
+                key: 'tipo', header: 'Tipo',
+                render: c => (
+                  <span className={`px-2 py-1 text-xs rounded-full ${c.tipo === 'interno' ? 'bg-sky-100 text-sky-700' : 'bg-purple-100 text-purple-700'}`}>
+                    {c.tipo}
+                  </span>
+                ),
+                hideOnMobile: true,
+              },
+              { key: 'entregas', header: 'Entregas', align: 'right', render: c => <span>{c.entregas}</span> },
+              {
+                key: 'tasaExito', header: 'Tasa Éxito', align: 'right',
+                render: c => (
+                  <span className={`font-medium ${
+                    c.tasaExito >= 90 ? 'text-emerald-600' :
+                    c.tasaExito >= 80 ? 'text-sky-600' :
+                    c.tasaExito >= 70 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>{formatPercent(c.tasaExito)}</span>
+                ),
+              },
+              { key: 'tiempo', header: 'Tiempo Prom.', align: 'right', render: c => <span>{c.tiempoPromedio.toFixed(1)}h</span>, hideOnMobile: true },
+              { key: 'costo', header: 'Costo Prom.', align: 'right', render: c => <span>{formatCurrency(c.costoPromedio)}</span>, hideOnMobile: true },
+              {
+                key: 'calificacion', header: 'Calif.', align: 'center',
+                render: c => <span className={getCalificacionColor(c.calificacion)}>{c.calificacion.toFixed(1)}</span>,
+                hideOnMobile: true,
+              },
+              {
+                key: 'estado', header: 'Estado', align: 'center',
+                render: c => c.esRecomendado
+                  ? <Award className="w-5 h-5 text-emerald-500 mx-auto" />
+                  : <span className="text-slate-400">-</span>,
+              },
+            ];
+            return (
+              <DataTable
+                columns={compTransColumns}
+                data={analytics.comparativaTransportistas.slice(0, 10)}
+                keyExtractor={c => c.transportistaId}
+                compact
+              />
+            );
+          })()}
         </div>
       )}
     </div>
@@ -900,7 +876,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
         {/* Header */}
         <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Truck className={`w-6 h-6 ${transportista.tipo === 'interno' ? 'text-blue-600' : 'text-purple-600'}`} />
+            <Truck className={`w-6 h-6 ${transportista.tipo === 'interno' ? 'text-sky-600' : 'text-purple-600'}`} />
             <div>
               <h2 className="text-xl font-bold text-slate-900">{transportista.nombre}</h2>
               <p className="text-sm text-slate-500">
@@ -923,7 +899,7 @@ export function TransportistaDetailView({ transportista, onClose, onEdit }: Tran
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-sky-500 text-sky-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >

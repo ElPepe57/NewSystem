@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, CreditCard, Plus } from 'lucide-react';
-import { Button, Modal, FormSection, AutocompleteInput } from '../../components/common';
+import { Button, FormSection, AutocompleteInput } from '../../components/common';
+import { FormModal, FormField } from '../../design-system';
 import type { CuentaCajaFormData, MonedaTesoreria } from '../../types/tesoreria.types';
 
 const METODOS_BANCO = [
@@ -95,28 +96,36 @@ export const BancoNuevoForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, is
   const ic = 'w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500';
 
   return (
-    <Modal isOpen={isOpen} onClose={() => { reset(); onClose(); }} title="Nuevo Banco" size="lg">
+    <FormModal
+      isOpen={isOpen}
+      onClose={() => { reset(); onClose(); }}
+      title="Nuevo Banco"
+      size="lg"
+      variant="create"
+      submitLabel="Crear Banco"
+      onSubmit={handleGuardar}
+      loading={isSubmitting}
+      disabled={!bancoAlias.trim() || !nombre || !titular.trim()}
+    >
       <div className="space-y-3">
         {/* Sección 1: Datos del Banco */}
         <FormSection title="Datos del Banco" icon={<Building2 className="h-4 w-4" />} defaultOpen>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Alias *</label>
+            <FormField label="Alias" required hint="Nombre corto para identificar">
               <input type="text" value={bancoAlias}
                 onChange={e => setBancoAlias(e.target.value)}
                 className={ic} placeholder="BCP, IBK, BBVA" />
-              <p className="text-xs text-slate-400 mt-0.5">Nombre corto para identificar</p>
-            </div>
+            </FormField>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-              <input type="text" value={bancoNombre}
-                onChange={e => setBancoNombre(e.target.value)}
-                className={ic} placeholder="Banco de Crédito del Perú (opcional)" />
+              <FormField label="Nombre Completo">
+                <input type="text" value={bancoNombre}
+                  onChange={e => setBancoNombre(e.target.value)}
+                  className={ic} placeholder="Banco de Crédito del Perú (opcional)" />
+              </FormField>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Métodos de pago</label>
+          <FormField label="Métodos de pago">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {METODOS_BANCO.map(m => (
                 <label key={m.id} className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
@@ -138,14 +147,14 @@ export const BancoNuevoForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, is
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-          </div>
+          </FormField>
         </FormSection>
 
         {/* Sección 2: Primera Cuenta */}
         <FormSection title="Primera Cuenta" icon={<CreditCard className="h-4 w-4" />} defaultOpen>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de la cuenta *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Nombre de la cuenta *</label>
               <input type="text" value={nombre} onChange={e => setNombre(e.target.value)}
                 className={ic} placeholder="Ej: Cuenta Ahorros PEN" />
             </div>
@@ -165,20 +174,20 @@ export const BancoNuevoForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, is
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Producto</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Producto</label>
               <select value={producto} onChange={e => setProducto(e.target.value)} className={ic}>
                 {PRODUCTOS_BANCO.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Moneda</label>
               <select value={moneda} onChange={e => setMoneda(e.target.value as MonedaTesoreria)} className={ic}>
                 <option value="PEN">PEN (Soles)</option>
                 <option value="USD">USD (Dólares)</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Titularidad</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Titularidad</label>
               <select value={titularidad} onChange={e => setTitularidad(e.target.value as any)} className={ic}>
                 <option value="empresa">Empresa</option>
                 <option value="personal">Personal</option>
@@ -188,13 +197,13 @@ export const BancoNuevoForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, is
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Número de cuenta</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Número de cuenta</label>
               <input type="text" value={numeroCuenta}
                 onChange={e => setNumeroCuenta(e.target.value)}
                 className={ic} placeholder="Ej: 191-12345678-0-01" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">CCI (opcional)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">CCI (opcional)</label>
               <input type="text" value={cci}
                 onChange={e => setCci(e.target.value)}
                 className={ic} placeholder="Código interbancario" />
@@ -203,7 +212,7 @@ export const BancoNuevoForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, is
 
           {/* Saldo inicial */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Saldo inicial</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Saldo inicial</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
               <input type="number" step="0.01" value={saldoInicial || ''}
@@ -248,14 +257,7 @@ export const BancoNuevoForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, is
           )}
         </FormSection>
 
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={() => { reset(); onClose(); }}>Cancelar</Button>
-          <Button variant="primary" onClick={handleGuardar}
-            disabled={isSubmitting || !bancoAlias.trim() || !nombre || !titular.trim()}>
-            {isSubmitting ? 'Creando...' : 'Crear Banco'}
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </FormModal>
   );
 };

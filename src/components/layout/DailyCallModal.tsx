@@ -373,7 +373,7 @@ export const DailyCallModal: React.FC = () => {
               <GripHorizontal className="h-3.5 w-3.5 text-slate-600 shrink-0" />
             )}
 
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shrink-0" />
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0" />
 
             <span className={`text-white font-medium truncate ${
               modo === 'mini' ? 'text-xs max-w-[120px]' : 'text-sm max-w-[180px]'
@@ -479,7 +479,7 @@ export const DailyCallModal: React.FC = () => {
           <div className={`relative bg-[#1a1a2e] ${modo === 'mini' ? 'h-0 overflow-hidden' : 'flex-1'}`}>
             {cargando && modo !== 'mini' && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#1a1a2e] z-10 gap-3">
-                <div className="w-10 h-10 border-3 border-green-500 border-t-transparent rounded-full animate-spin mb-1" />
+                <div className="w-10 h-10 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin mb-1" />
                 <p className="text-slate-400 text-sm">
                   {llamadaUsuario
                     ? `Conectando con ${llamadaUsuario.displayName}...`

@@ -15,11 +15,11 @@ interface Props {
 }
 
 const colorBg: Record<GroupColor, string> = {
-  blue: 'bg-blue-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
+  blue: 'bg-sky-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', purple: 'bg-purple-500',
   rose: 'bg-rose-500', cyan: 'bg-cyan-500', orange: 'bg-orange-500', indigo: 'bg-teal-500',
 };
 const colorLight: Record<GroupColor, string> = {
-  blue: 'bg-blue-50 text-blue-700 border-blue-200', emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  blue: 'bg-sky-50 text-sky-700 border-sky-200', emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   amber: 'bg-amber-50 text-amber-700 border-amber-200', purple: 'bg-purple-50 text-purple-700 border-purple-200',
   rose: 'bg-rose-50 text-rose-700 border-rose-200', cyan: 'bg-cyan-50 text-cyan-700 border-cyan-200',
   orange: 'bg-orange-50 text-orange-700 border-orange-200', indigo: 'bg-teal-50 text-teal-700 border-teal-200',
@@ -170,10 +170,10 @@ const GroupConfigForm: React.FC<{
       </div>
 
       {/* Modo de entrega */}
-      <div className="bg-blue-50 rounded-xl p-3 border border-blue-100 mb-3">
+      <div className="bg-sky-50 rounded-xl p-3 border border-sky-100 mb-3">
         <div className="flex items-center gap-1.5 mb-2">
-          <Truck className="h-3.5 w-3.5 text-blue-500" />
-          <span className="text-xs font-medium text-blue-700 uppercase tracking-wide">Forma de llegada a Perú</span>
+          <Truck className="h-3.5 w-3.5 text-sky-500" />
+          <span className="text-xs font-medium text-sky-700 uppercase tracking-wide">Forma de llegada a Perú</span>
         </div>
         <div className="flex gap-2">
           <button
@@ -181,7 +181,7 @@ const GroupConfigForm: React.FC<{
             onClick={() => dispatch({ type: 'SET_GROUP_MODO_ENTREGA', payload: { groupId: group.id, modoEntrega: 'viajero', fleteIncluidoEnPrecio: false } })}
             className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
               group.modoEntrega !== 'envio_directo'
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-sky-600 text-white border-sky-600'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -192,7 +192,7 @@ const GroupConfigForm: React.FC<{
             onClick={() => dispatch({ type: 'SET_GROUP_MODO_ENTREGA', payload: { groupId: group.id, modoEntrega: 'envio_directo', fleteIncluidoEnPrecio: true } })}
             className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
               group.modoEntrega === 'envio_directo'
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-sky-600 text-white border-sky-600'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -201,12 +201,12 @@ const GroupConfigForm: React.FC<{
         </div>
         {group.modoEntrega === 'envio_directo' && (
           <div className="mt-2 space-y-2">
-            <label className="flex items-center gap-2 text-xs text-blue-700">
+            <label className="flex items-center gap-2 text-xs text-sky-700">
               <input
                 type="checkbox"
                 checked={group.fleteIncluidoEnPrecio}
                 onChange={(e) => dispatch({ type: 'SET_GROUP_MODO_ENTREGA', payload: { groupId: group.id, modoEntrega: 'envio_directo', fleteIncluidoEnPrecio: e.target.checked } })}
-                className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-sky-300 text-sky-600 focus:ring-sky-500"
               />
               El proveedor cubre el envío internacional
             </label>
@@ -215,14 +215,14 @@ const GroupConfigForm: React.FC<{
               placeholder="Operador logístico (DHL, FedEx, EMS...)"
               value={group.operadorLogistico || ''}
               onChange={(e) => dispatch({ type: 'SET_GROUP_OPERADOR', payload: { groupId: group.id, operadorLogistico: e.target.value } })}
-              className="w-full px-2.5 py-1.5 bg-white border border-blue-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
+              className="w-full px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs focus:ring-2 focus:ring-sky-500"
             />
             <input
               type="text"
               placeholder="Número de tracking"
               value={group.numeroTracking || ''}
               onChange={(e) => dispatch({ type: 'SET_GROUP_TRACKING', payload: { groupId: group.id, numeroTracking: e.target.value } })}
-              className="w-full px-2.5 py-1.5 bg-white border border-blue-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
+              className="w-full px-2.5 py-1.5 bg-white border border-sky-200 rounded-lg text-xs focus:ring-2 focus:ring-sky-500"
             />
           </div>
         )}
@@ -331,7 +331,7 @@ const GroupConfigForm: React.FC<{
       </div>
 
       {/* Summary — modern card */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 text-white">
+      <div className="bg-slate-800 rounded-xl p-5 text-white">
         <div className="space-y-2 text-sm">
           <div className="flex justify-between text-slate-300">
             <span>Subtotal ({totals.cantidadUnidades} uds)</span>

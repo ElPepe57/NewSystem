@@ -37,10 +37,10 @@ const getEstadoBadge = (estado: EstadoRequerimiento) => {
   const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
     borrador: { color: 'bg-slate-100 text-slate-800', icon: <Clock className="h-3 w-3" /> },
     pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
-    aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
+    aprobado: { color: 'bg-sky-100 text-sky-800', icon: <Check className="h-3 w-3" /> },
     parcial: { color: 'bg-teal-100 text-teal-800', icon: <Link2 className="h-3 w-3" /> },
     en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
-    completado: { color: 'bg-green-100 text-green-800', icon: <Check className="h-3 w-3" /> },
+    completado: { color: 'bg-emerald-100 text-emerald-800', icon: <Check className="h-3 w-3" /> },
     cancelado: { color: 'bg-red-100 text-red-800', icon: <XCircle className="h-3 w-3" /> }
   };
 
@@ -71,9 +71,9 @@ const getPrioridadBadge = (prioridad: string) => {
 
 const getSolicitanteIcon = (tipo: TipoSolicitante) => {
   switch (tipo) {
-    case 'cliente': return <Users className="h-4 w-4 text-blue-500" />;
+    case 'cliente': return <Users className="h-4 w-4 text-sky-500" />;
     case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
-    case 'ventas': return <Target className="h-4 w-4 text-green-500" />;
+    case 'ventas': return <Target className="h-4 w-4 text-emerald-500" />;
     case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
     default: return null;
   }
@@ -153,41 +153,41 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
         </div>
 
         {/* Expectativa financiera */}
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-3 flex items-center">
+        <div className="bg-sky-50 p-4 rounded-lg">
+          <h4 className="font-medium text-sky-900 mb-3 flex items-center">
             <TrendingUp className="h-5 w-5 mr-2" />
             Expectativa Financiera
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
             <div>
-              <label className="text-blue-600">TC Investigacion</label>
-              <div className="font-bold text-blue-900">
+              <label className="text-sky-600">TC Investigacion</label>
+              <div className="font-bold text-sky-900">
                 S/ {req.expectativa?.tcInvestigacion?.toFixed(3) || '-'}
               </div>
             </div>
             <div>
-              <label className="text-blue-600">Costo Est. USD</label>
-              <div className="font-bold text-blue-900">
+              <label className="text-sky-600">Costo Est. USD</label>
+              <div className="font-bold text-sky-900">
                 {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}
               </div>
             </div>
             <div>
-              <label className="text-blue-600">Costo Est. PEN</label>
-              <div className="font-bold text-blue-900">
+              <label className="text-sky-600">Costo Est. PEN</label>
+              <div className="font-bold text-sky-900">
                 {formatCurrency(req.expectativa?.costoTotalEstimadoPEN || 0, 'PEN')}
               </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-3 text-sm">
             <div>
-              <label className="text-blue-600">Impuesto Est.</label>
-              <div className="font-medium text-blue-900">
+              <label className="text-sky-600">Impuesto Est.</label>
+              <div className="font-medium text-sky-900">
                 {formatCurrency(req.expectativa?.impuestoEstimadoUSD || 0)}
               </div>
             </div>
             <div>
-              <label className="text-blue-600">Flete Est.</label>
-              <div className="font-medium text-blue-900">
+              <label className="text-sky-600">Flete Est.</label>
+              <div className="font-medium text-sky-900">
                 {formatCurrency(req.expectativa?.fleteEstimadoUSD || 0)}
               </div>
             </div>
@@ -245,18 +245,18 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
 
         {/* Asignaciones de Responsables/Viajeros */}
         {(req as any).asignaciones && (req as any).asignaciones.length > 0 && (
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <h4 className="font-medium text-green-900 mb-3 flex items-center">
+          <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+            <h4 className="font-medium text-emerald-900 mb-3 flex items-center">
               <Truck className="h-5 w-5 mr-2" />
               Responsables Asignados ({(req as any).asignaciones.length})
             </h4>
             <div className="space-y-3">
               {(req as any).asignaciones.map((asig: AsignacionResponsable, idx: number) => (
-                <div key={asig.id || idx} className="bg-white rounded-lg p-3 border border-green-100">
+                <div key={asig.id || idx} className="bg-white rounded-lg p-3 border border-emerald-100">
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <UserCheck className="h-4 w-4 text-green-600" />
+                        <UserCheck className="h-4 w-4 text-emerald-600" />
                         <span className="font-semibold text-slate-900">
                           {asig.responsableNombre}
                         </span>
@@ -285,17 +285,17 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                   </div>
                   {/* Detalle de productos asignados */}
                   {asig.productos && asig.productos.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-green-100">
+                    <div className="mt-2 pt-2 border-t border-emerald-100">
                       <div className="text-xs text-slate-500 mb-1">Productos asignados:</div>
                       <div className="flex flex-wrap gap-2">
                         {asig.productos.map((prod, pIdx) => (
                           <span
                             key={pIdx}
-                            className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800"
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-emerald-100 text-emerald-800"
                           >
                             {prod.sku}: {prod.cantidadAsignada} ud
                             {prod.cantidadRecibida > 0 && (
-                              <span className="ml-1 text-green-600">
+                              <span className="ml-1 text-emerald-600">
                                 ({prod.cantidadRecibida} recibidas)
                               </span>
                             )}
@@ -378,7 +378,7 @@ export const RequerimientoDetailModal: React.FC<RequerimientoDetailModalProps> =
                         <span className="text-amber-600 font-medium">{pendiente} pend.</span>
                       )}
                       {pendiente <= 0 && (
-                        <Check className="h-3.5 w-3.5 text-green-500" />
+                        <Check className="h-3.5 w-3.5 text-emerald-500" />
                       )}
                     </div>
                   );

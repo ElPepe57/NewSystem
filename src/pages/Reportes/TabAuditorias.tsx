@@ -80,11 +80,11 @@ export const TabAuditorias: React.FC = () => {
       {/* KPIs */}
       {kpis && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-blue-50 rounded-xl p-4">
-            <p className="text-xs text-blue-600 font-medium">Auditorias realizadas</p>
-            <p className="text-2xl font-bold text-blue-900">{kpis.totalAuditorias}</p>
+          <div className="bg-sky-50 rounded-xl p-4">
+            <p className="text-xs text-sky-600 font-medium">Auditorias realizadas</p>
+            <p className="text-2xl font-bold text-sky-900">{kpis.totalAuditorias}</p>
           </div>
-          <div className={`rounded-xl p-4 ${kpis.precision >= 95 ? 'bg-green-50' : kpis.precision >= 80 ? 'bg-amber-50' : 'bg-red-50'}`}>
+          <div className={`rounded-xl p-4 ${kpis.precision >= 95 ? 'bg-emerald-50' : kpis.precision >= 80 ? 'bg-amber-50' : 'bg-red-50'}`}>
             <p className="text-xs font-medium" style={{ color: kpis.precision >= 95 ? '#166534' : kpis.precision >= 80 ? '#92400E' : '#991B1B' }}>Precision inventario</p>
             <p className="text-2xl font-bold text-slate-900">{kpis.precision.toFixed(1)}%</p>
           </div>
@@ -154,9 +154,9 @@ export const TabAuditorias: React.FC = () => {
                     className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50"
                   >
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
-                      todoOK ? 'bg-green-100' : r.faltantes > 0 ? 'bg-red-100' : 'bg-amber-100'
+                      todoOK ? 'bg-emerald-100' : r.faltantes > 0 ? 'bg-red-100' : 'bg-amber-100'
                     }`}>
-                      {todoOK ? <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      {todoOK ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                         : r.faltantes > 0 ? <XCircle className="h-4 w-4 text-red-600" />
                         : <AlertTriangle className="h-4 w-4 text-amber-600" />}
                     </div>
@@ -171,7 +171,7 @@ export const TabAuditorias: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-3 mt-0.5 text-xs">
                         <span className="text-slate-500">{r.totalProductos} prod.</span>
-                        {r.coincidencias > 0 && <span className="text-green-600">{r.coincidencias} OK</span>}
+                        {r.coincidencias > 0 && <span className="text-emerald-600">{r.coincidencias} OK</span>}
                         {r.sobrantes > 0 && <span className="text-amber-600">+{r.sobrantes}</span>}
                         {r.faltantes > 0 && <span className="text-red-600">{r.faltantes} falt.</span>}
                       </div>
@@ -182,7 +182,7 @@ export const TabAuditorias: React.FC = () => {
                     <div className="px-4 pb-4 bg-slate-50/50 space-y-3">
                       <div className="grid grid-cols-4 gap-1.5">
                         <div className="bg-white rounded p-2 text-center border"><p className="text-sm font-bold">{r.totalProductos}</p><p className="text-[9px] text-slate-500">Total</p></div>
-                        <div className="bg-green-50 rounded p-2 text-center border border-green-100"><p className="text-sm font-bold text-green-700">{r.coincidencias}</p><p className="text-[9px] text-green-600">OK</p></div>
+                        <div className="bg-emerald-50 rounded p-2 text-center border border-emerald-100"><p className="text-sm font-bold text-emerald-700">{r.coincidencias}</p><p className="text-[9px] text-emerald-600">OK</p></div>
                         <div className="bg-amber-50 rounded p-2 text-center border border-amber-100"><p className="text-sm font-bold text-amber-700">{r.sobrantes}</p><p className="text-[9px] text-amber-600">Sobr.</p></div>
                         <div className="bg-red-50 rounded p-2 text-center border border-red-100"><p className="text-sm font-bold text-red-700">{r.faltantes}</p><p className="text-[9px] text-red-600">Falt.</p></div>
                       </div>
@@ -200,7 +200,7 @@ export const TabAuditorias: React.FC = () => {
                               </div>
                               <div className="text-right shrink-0">
                                 <p className="text-slate-600"><span className="font-medium">{item.cantidadFisica}</span><span className="text-slate-400"> / {item.stockSistema}</span></p>
-                                {disc === 0 ? <span className="text-green-600">OK</span> : <span className={disc > 0 ? 'text-amber-600 font-medium' : 'text-red-600 font-medium'}>{disc > 0 ? '+' : ''}{disc}</span>}
+                                {disc === 0 ? <span className="text-emerald-600">OK</span> : <span className={disc > 0 ? 'text-amber-600 font-medium' : 'text-red-600 font-medium'}>{disc > 0 ? '+' : ''}{disc}</span>}
                               </div>
                             </div>
                           );

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
-import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, ChevronDown, ChevronUp, Package, DollarSign, Percent, Info, Truck, Zap, RotateCcw } from 'lucide-react';
+import { ShoppingCart, Eye, Trash2, TrendingUp, TrendingDown, Calculator, Lock, AlertTriangle, PieChart, Package, DollarSign, Percent, Info, Truck, Zap, RotateCcw } from 'lucide-react';
 import { Badge, Pagination, usePagination, LineaNegocioBadge } from '../../common';
 import type { Venta, EstadoVenta } from '../../../types/venta.types';
 import { useRentabilidadVentas, type RentabilidadVenta, type DatosRentabilidadGlobal } from '../../../hooks/useRentabilidadVentas';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 
 /** Estados de venta desde los cuales se puede solicitar una devolución */
 const ESTADOS_DEVOLVIBLES: EstadoVenta[] = ['entregada', 'devolucion_parcial'];
@@ -63,7 +65,7 @@ interface DesgloseVentaProps {
 
 const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, datosGlobales }) => {
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-5 border-t border-slate-200">
+    <div className="bg-slate-50 p-5 border-t border-slate-200">
       {/* Header del desglose */}
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-sm font-semibold text-slate-800 flex items-center">
@@ -84,12 +86,12 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
           </div>
           <div className="text-lg font-bold text-slate-900">S/ {venta.totalPEN.toFixed(2)}</div>
         </div>
-        <div className="bg-white rounded-lg p-3 border border-blue-200 bg-blue-50">
+        <div className="bg-white rounded-lg p-3 border border-sky-200 bg-sky-50">
           <div className="text-xs text-slate-500 flex items-center">
             <Package className="h-3 w-3 mr-1" />
             Costo Base
           </div>
-          <div className="text-lg font-bold text-blue-600">S/ {rentabilidad.costoBase.toFixed(2)}</div>
+          <div className="text-lg font-bold text-sky-600">S/ {rentabilidad.costoBase.toFixed(2)}</div>
           <div className="text-xs text-slate-400">Compra + Flete</div>
         </div>
         <div className="bg-white rounded-lg p-3 border border-purple-200 bg-purple-50">
@@ -116,12 +118,12 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
           <div className="text-lg font-bold text-orange-600">S/ {rentabilidad.costoGAGO.toFixed(2)}</div>
           <div className="text-xs text-slate-400">Admin/Operativo</div>
         </div>
-        <div className={`rounded-lg p-3 border ${rentabilidad.utilidadNeta >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+        <div className={`rounded-lg p-3 border ${rentabilidad.utilidadNeta >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
           <div className="text-xs text-slate-500 flex items-center">
             <Percent className="h-3 w-3 mr-1" />
             Utilidad Neta
           </div>
-          <div className={`text-lg font-bold ${rentabilidad.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div className={`text-lg font-bold ${rentabilidad.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             S/ {rentabilidad.utilidadNeta.toFixed(2)}
           </div>
           <div className="text-xs text-slate-400">
@@ -133,7 +135,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
       {/* Fórmula de cálculo - Actualizada con GV y GD separados */}
       <div className="bg-white rounded-lg p-4 border border-slate-200 mb-4">
         <div className="text-xs font-medium text-slate-600 mb-3 flex items-center">
-          <Info className="h-3 w-3 mr-1 text-blue-500" />
+          <Info className="h-3 w-3 mr-1 text-sky-500" />
           Cálculo paso a paso:
         </div>
         <div className="space-y-2 text-sm">
@@ -143,7 +145,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
           </div>
           <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
             <span className="text-slate-600">2. (-) Costo base (compra + flete):</span>
-            <span className="font-mono font-medium text-blue-600">- S/ {rentabilidad.costoBase.toFixed(2)}</span>
+            <span className="font-mono font-medium text-sky-600">- S/ {rentabilidad.costoBase.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200">
             <span className="text-slate-600">3. (-) GV (comisiones, pasarelas):</span>
@@ -155,7 +157,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
           </div>
           <div className="flex justify-between items-center py-1 border-b border-dashed border-slate-200 bg-yellow-50 -mx-2 px-2">
             <span className="text-slate-700 font-medium">(=) Utilidad Bruta:</span>
-            <span className={`font-mono font-semibold ${rentabilidad.utilidadBruta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`font-mono font-semibold ${rentabilidad.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               S/ {rentabilidad.utilidadBruta.toFixed(2)}
               <span className="text-xs text-slate-500 ml-1">({rentabilidad.margenBruto.toFixed(1)}%)</span>
             </span>
@@ -166,7 +168,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
           </div>
           <div className="flex justify-between items-center py-2 bg-slate-100 rounded px-2 mt-2">
             <span className="font-semibold text-slate-800">(=) Utilidad Neta:</span>
-            <span className={`font-mono font-bold text-lg ${rentabilidad.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`font-mono font-bold text-lg ${rentabilidad.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               S/ {rentabilidad.utilidadNeta.toFixed(2)}
               <span className="text-xs font-normal ml-1">({rentabilidad.margenNeto.toFixed(1)}%)</span>
             </span>
@@ -189,7 +191,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
                   <th className="px-3 py-2 text-left font-medium text-slate-500">Producto</th>
                   <th className="px-3 py-2 text-right font-medium text-slate-500">Cant.</th>
                   <th className="px-3 py-2 text-right font-medium text-slate-500">Precio Venta</th>
-                  <th className="px-3 py-2 text-right font-medium text-blue-600">Costo Base</th>
+                  <th className="px-3 py-2 text-right font-medium text-sky-600">Costo Base</th>
                   <th className="px-3 py-2 text-right font-medium text-teal-600" title="GV + GD prorrateado por % subtotal">GV+GD</th>
                   <th className="px-3 py-2 text-right font-medium text-orange-600" title="Prorrateado por % costo">GA/GO</th>
                   <th className="px-3 py-2 text-right font-medium text-slate-500">Costo Total</th>
@@ -211,7 +213,7 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
                       S/ {prod.precioVenta.toFixed(2)}
                       <div className="text-slate-400 text-[10px]">{prod.proporcionVenta.toFixed(1)}% venta</div>
                     </td>
-                    <td className="px-3 py-2 text-right font-mono text-blue-600">
+                    <td className="px-3 py-2 text-right font-mono text-sky-600">
                       S/ {prod.costoBase.toFixed(2)}
                       <div className="text-slate-400 text-[10px]">{prod.proporcionCosto.toFixed(1)}% costo</div>
                     </td>
@@ -224,12 +226,12 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
                     <td className="px-3 py-2 text-right font-mono font-medium">
                       S/ {prod.costoTotal.toFixed(2)}
                     </td>
-                    <td className={`px-3 py-2 text-right font-mono font-medium ${prod.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <td className={`px-3 py-2 text-right font-mono font-medium ${prod.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                       S/ {prod.utilidadNeta.toFixed(2)}
                     </td>
                     <td className="px-3 py-2 text-right">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        prod.margenNeto >= 25 ? 'bg-green-100 text-green-800' :
+                        prod.margenNeto >= 25 ? 'bg-emerald-100 text-emerald-800' :
                         prod.margenNeto >= 10 ? 'bg-yellow-100 text-yellow-800' :
                         prod.margenNeto >= 0 ? 'bg-orange-100 text-orange-800' :
                         'bg-red-100 text-red-800'
@@ -246,9 +248,9 @@ const DesgloseVenta: React.FC<DesgloseVentaProps> = ({ venta, rentabilidad, dato
       )}
 
       {/* Nota explicativa */}
-      <div className="mt-4 text-xs text-slate-500 bg-blue-50 rounded-lg p-3 border border-blue-100">
+      <div className="mt-4 text-xs text-slate-500 bg-sky-50 rounded-lg p-3 border border-sky-100">
         <div className="flex items-start">
-          <Info className="h-4 w-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+          <Info className="h-4 w-4 text-sky-500 mr-2 mt-0.5 flex-shrink-0" />
           <div className="space-y-1">
             <div>
               <strong className="text-purple-700">GV (Gastos de Venta):</strong> Comisiones, pasarelas de pago, fees de plataformas.
@@ -316,7 +318,7 @@ const VentaCard: React.FC<{
         <div className="text-right">
           <div className="font-bold text-slate-900">S/ {venta.totalPEN.toFixed(2)}</div>
           {venta.margenPromedio !== undefined && (
-            <div className={`text-xs flex items-center justify-end ${venta.margenPromedio > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-xs flex items-center justify-end ${venta.margenPromedio > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               {venta.margenPromedio > 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
               {venta.margenPromedio.toFixed(1)}%
             </div>
@@ -355,7 +357,7 @@ const VentaCard: React.FC<{
           {venta.estado === 'en_entrega' && onDespachar && (
             <button
               onClick={(e) => { e.stopPropagation(); onDespachar(venta); }}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
             >
               <Truck className="h-3 w-3" />
               Despachar
@@ -435,6 +437,281 @@ export const VentaTable: React.FC<VentaTableProps> = ({
     });
   };
 
+  // Definición de columnas para DataTable
+  const ventaColumns: DataTableColumn<Venta>[] = [
+    {
+      key: 'numero',
+      header: 'Número',
+      render: (venta) => (
+        <div>
+          <div className="flex items-center">
+            <ShoppingCart className="h-4 w-4 text-slate-400 mr-2" />
+            <span className="text-sm font-mono font-medium text-slate-900">{venta.numeroVenta}</span>
+          </div>
+          <LineaNegocioBadge lineaNegocioId={venta.lineaNegocioId} />
+        </div>
+      ),
+    },
+    {
+      key: 'cliente',
+      header: 'Cliente',
+      render: (venta) => (
+        <div>
+          <div className="text-sm text-slate-900 flex items-center gap-1.5">
+            {venta.nombreCliente}
+            {venta.esVentaSocio && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
+                SOCIO
+              </span>
+            )}
+          </div>
+          {venta.dniRuc && (
+            <div className="text-xs text-slate-500">{venta.dniRuc}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'canal',
+      header: 'Canal',
+      render: (venta) => (
+        <div className="flex flex-col gap-1">
+          <Badge variant="info" size="sm">
+            {getCanalLabel(venta)}
+          </Badge>
+          {venta.metodoEnvio === 'flex' && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 w-fit">
+              <Zap className="h-3 w-3" />
+              Flex
+            </span>
+          )}
+          {venta.metodoEnvio === 'urbano' && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700 w-fit">
+              <Truck className="h-3 w-3" />
+              Urbano
+            </span>
+          )}
+        </div>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'productos',
+      header: 'Productos',
+      render: (venta) => (
+        <div className="space-y-1.5 max-w-[340px]">
+          {venta.productos.slice(0, 3).map((p, idx) => {
+            const desc = getDescripcionProducto(p);
+            return (
+              <div key={idx} className="text-xs leading-tight">
+                <div className="font-semibold text-slate-900 truncate" title={`${p.marca} ${p.nombreComercial}`}>
+                  {p.marca} {p.nombreComercial}
+                </div>
+                <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-[10px] text-slate-500 mt-0.5">
+                  <span className="font-mono text-slate-400">{p.sku}</span>
+                  {desc && (
+                    <>
+                      <span className="text-slate-300">·</span>
+                      <span>{desc}</span>
+                    </>
+                  )}
+                  <span className="text-slate-300">·</span>
+                  <span className="font-medium text-slate-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
+                </div>
+              </div>
+            );
+          })}
+          {venta.productos.length > 3 && (
+            <div className="text-[10px] text-slate-400">
+              +{venta.productos.length - 3} producto{venta.productos.length - 3 > 1 ? 's' : ''} más
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      render: (venta) => (
+        <div>
+          <div className="text-sm font-semibold text-slate-900">
+            S/ {venta.totalPEN.toFixed(2)}
+          </div>
+          {venta.utilidadBrutaPEN !== undefined && (
+            <div className={`text-xs ${venta.utilidadBrutaPEN >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              Util: S/ {venta.utilidadBrutaPEN.toFixed(2)}
+            </div>
+          )}
+        </div>
+      ),
+      align: 'right',
+    },
+    {
+      key: 'margenBruto',
+      header: 'Margen Bruto',
+      render: (venta) => {
+        const rentabilidad = getRentabilidadVenta(venta.id);
+        const tieneRentabilidad = rentabilidad !== null;
+        const margenBrutoPositivo = tieneRentabilidad
+          ? rentabilidad.margenBruto > 0
+          : (venta.margenPromedio !== undefined && venta.margenPromedio > 0);
+
+        if (tieneRentabilidad) {
+          return (
+            <div>
+              <div className="flex items-center">
+                {margenBrutoPositivo
+                  ? <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
+                  : <TrendingDown className="h-4 w-4 text-red-500 mr-1" />}
+                <span className={`text-sm font-medium ${margenBrutoPositivo ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {rentabilidad.margenBruto.toFixed(1)}%
+                </span>
+              </div>
+              <div className={`text-xs ${rentabilidad.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                Bruto: S/ {rentabilidad.utilidadBruta.toFixed(2)}
+              </div>
+            </div>
+          );
+        }
+        if (loadingRentabilidad) return <span className="text-sm text-slate-400">...</span>;
+        if (venta.margenPromedio !== undefined) {
+          return (
+            <div className="flex items-center">
+              {margenBrutoPositivo
+                ? <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
+                : <TrendingDown className="h-4 w-4 text-red-500 mr-1" />}
+              <span className={`text-sm font-medium ${margenBrutoPositivo ? 'text-emerald-600' : 'text-red-600'}`}>
+                {venta.margenPromedio.toFixed(1)}%
+              </span>
+            </div>
+          );
+        }
+        return <span className="text-sm text-slate-400">-</span>;
+      },
+      align: 'right',
+      hideOnMobile: true,
+    },
+    {
+      key: 'margenNeto',
+      header: 'Margen Neto',
+      render: (venta) => {
+        const rentabilidad = getRentabilidadVenta(venta.id);
+        const tieneRentabilidad = rentabilidad !== null;
+        const margenNetoPositivo = tieneRentabilidad && rentabilidad.margenNeto > 0;
+
+        if (tieneRentabilidad) {
+          return (
+            <div title={`GA/GO: S/ ${rentabilidad.costoGAGO.toFixed(2)} (${((rentabilidad.costoBase / (datosRentabilidad?.baseCostoTotal || 1)) * 100).toFixed(1)}% proporcional)`}>
+              <div className="flex items-center">
+                {margenNetoPositivo
+                  ? <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
+                  : <TrendingDown className="h-4 w-4 text-red-500 mr-1" />}
+                <span className={`text-sm font-medium ${margenNetoPositivo ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {rentabilidad.margenNeto.toFixed(1)}%
+                </span>
+              </div>
+              <div className={`text-xs ${rentabilidad.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                Neto: S/ {rentabilidad.utilidadNeta.toFixed(2)}
+              </div>
+            </div>
+          );
+        }
+        if (loadingRentabilidad) return <span className="text-sm text-slate-400">...</span>;
+        return <span className="text-sm text-slate-400" title="Sin datos de rentabilidad">-</span>;
+      },
+      align: 'right',
+      hideOnMobile: true,
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: (venta) => {
+        const estadoInfo = estadoLabels[venta.estado];
+        return (
+          <div className="flex flex-col gap-1">
+            <Badge variant={estadoInfo.variant}>{estadoInfo.label}</Badge>
+            {venta.estado === 'reservada' && venta.stockReservado && (
+              <Badge
+                variant={venta.stockReservado.tipoReserva === 'fisica' ? 'success' : 'warning'}
+                size="sm"
+              >
+                {venta.stockReservado.tipoReserva === 'fisica' ? '✓ Física' : '⏳ Virtual'}
+              </Badge>
+            )}
+            {venta.estado === 'cotizacion' && venta.requiereStock && (
+              <span className="inline-flex items-center text-xs text-amber-600">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                Sin stock
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      render: (venta) => (
+        <div className="text-sm text-slate-900">{formatDate(venta.fechaCreacion)}</div>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      align: 'right',
+      render: (venta) => (
+        <div className="flex items-center justify-end space-x-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onView(venta); }}
+            className="text-teal-600 hover:text-teal-900"
+            title="Ver detalles"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+          {venta.estado === 'en_entrega' && onDespachar && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDespachar(venta); }}
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-sky-600 rounded hover:bg-sky-700 transition-colors"
+              title="Despachar — marcar En Camino"
+            >
+              <Truck className="h-3 w-3" />
+              Despachar
+            </button>
+          )}
+          {ESTADOS_DEVOLVIBLES.includes(venta.estado) && onDevolver && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDevolver(venta); }}
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 rounded hover:bg-orange-200 transition-colors"
+              title="Solicitar devolución"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Devolver
+            </button>
+          )}
+          {venta.estado === 'cotizacion' && onRegistrarAdelanto && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onRegistrarAdelanto(venta); }}
+              className="text-purple-600 hover:text-purple-900"
+              title="Registrar Adelanto y Reservar Stock"
+            >
+              <Lock className="h-4 w-4" />
+            </button>
+          )}
+          {venta.estado === 'cotizacion' && onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(venta); }}
+              className="text-red-600 hover:text-red-900"
+              title="Eliminar"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -480,349 +757,44 @@ export const VentaTable: React.FC<VentaTableProps> = ({
       </div>
 
       {/* Vista desktop - Tabla */}
-      <div className="hidden lg:block overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-slate-50">
-          <tr>
-            <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
-              <Calculator className="h-4 w-4 mx-auto text-purple-500" aria-label="Ver desglose" />
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Número
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Cliente
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Canal
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Productos
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Total
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Margen Bruto
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              <div className="flex items-center" title="Margen Neto con distribución proporcional de GA/GO">
-                <PieChart className="h-3 w-3 mr-1 text-orange-500" />
-                Margen Neto
-              </div>
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Estado
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Fecha
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-slate-200">
-          {ventasPaginadas.map((venta) => {
-            const estadoInfo = estadoLabels[venta.estado];
-            // Obtener rentabilidad con distribución proporcional
+      <div className="hidden lg:block">
+        <DataTable<Venta>
+          columns={ventaColumns}
+          data={ventasPaginadas}
+          keyExtractor={(v) => v.id}
+          compact
+          expandedRowRender={(venta) => {
             const rentabilidad = getRentabilidadVenta(venta.id);
-            const tieneRentabilidad = rentabilidad !== null;
-            const margenBrutoPositivo = tieneRentabilidad ? rentabilidad.margenBruto > 0 : (venta.margenPromedio !== undefined && venta.margenPromedio > 0);
-            const margenNetoPositivo = tieneRentabilidad && rentabilidad.margenNeto > 0;
-            const isExpanded = expandedRows.has(venta.id);
-
+            if (!rentabilidad) return null;
             return (
-              <React.Fragment key={venta.id}>
-              <tr className={`hover:bg-slate-50 ${isExpanded ? 'bg-purple-50' : ''}`}>
-                {/* Botón de expandir/colapsar desglose */}
-                <td className="px-3 py-4 whitespace-nowrap text-center">
-                  <button
-                    onClick={() => toggleRow(venta.id)}
-                    className={`p-1.5 rounded-lg transition-all duration-200 ${
-                      isExpanded
-                        ? 'bg-purple-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-500 hover:bg-purple-100 hover:text-purple-600'
-                    }`}
-                    title={isExpanded ? 'Ocultar desglose' : 'Ver desglose de rentabilidad'}
-                    disabled={!tieneRentabilidad && !loadingRentabilidad}
-                  >
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <ShoppingCart className="h-4 w-4 text-slate-400 mr-2" />
-                    <span className="text-sm font-mono font-medium text-slate-900">
-                      {venta.numeroVenta}
-                    </span>
-                  </div>
-                  <LineaNegocioBadge lineaNegocioId={venta.lineaNegocioId} />
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-slate-900 flex items-center gap-1.5">
-                    {venta.nombreCliente}
-                    {venta.esVentaSocio && (
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
-                        SOCIO
-                      </span>
-                    )}
-                  </div>
-                  {venta.dniRuc && (
-                    <div className="text-xs text-slate-500">{venta.dniRuc}</div>
-                  )}
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex flex-col gap-1">
-                    <Badge variant="info" size="sm">
-                      {getCanalLabel(venta)}
-                    </Badge>
-                    {venta.metodoEnvio === 'flex' && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-700 w-fit">
-                        <Zap className="h-3 w-3" />
-                        Flex
-                      </span>
-                    )}
-                    {venta.metodoEnvio === 'urbano' && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700 w-fit">
-                        <Truck className="h-3 w-3" />
-                        Urbano
-                      </span>
-                    )}
-                  </div>
-                </td>
-                
-                <td className="px-6 py-4">
-                  <div className="space-y-1.5 max-w-[340px]">
-                    {venta.productos.slice(0, 3).map((p, idx) => {
-                      const desc = getDescripcionProducto(p);
-
-                      return (
-                        <div key={idx} className="text-xs leading-tight">
-                          <div className="font-semibold text-slate-900 truncate" title={`${p.marca} ${p.nombreComercial}`}>
-                            {p.marca} {p.nombreComercial}
-                          </div>
-                          <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-[10px] text-slate-500 mt-0.5">
-                            <span className="font-mono text-slate-400">{p.sku}</span>
-                            {desc && (
-                              <>
-                                <span className="text-slate-300">·</span>
-                                <span>{desc}</span>
-                              </>
-                            )}
-                            <span className="text-slate-300">·</span>
-                            <span className="font-medium text-slate-600">{p.cantidad}u × S/{p.precioUnitario.toFixed(2)}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    {venta.productos.length > 3 && (
-                      <div className="text-[10px] text-slate-400">
-                        +{venta.productos.length - 3} producto{venta.productos.length - 3 > 1 ? 's' : ''} más
-                      </div>
-                    )}
-                  </div>
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-semibold text-slate-900">
-                    S/ {venta.totalPEN.toFixed(2)}
-                  </div>
-                  {venta.utilidadBrutaPEN !== undefined && (
-                    <div className={`text-xs ${venta.utilidadBrutaPEN >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                      Util: S/ {venta.utilidadBrutaPEN.toFixed(2)}
-                    </div>
-                  )}
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {tieneRentabilidad ? (
-                    <div>
-                      <div className="flex items-center">
-                        {margenBrutoPositivo ? (
-                          <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
-                        ) : (
-                          <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                        )}
-                        <span className={`text-sm font-medium ${
-                          margenBrutoPositivo ? 'text-emerald-600' : 'text-red-600'
-                        }`}>
-                          {rentabilidad.margenBruto.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className={`text-xs ${rentabilidad.utilidadBruta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                        Bruto: S/ {rentabilidad.utilidadBruta.toFixed(2)}
-                      </div>
-                    </div>
-                  ) : loadingRentabilidad ? (
-                    <span className="text-sm text-slate-400">...</span>
-                  ) : venta.margenPromedio !== undefined ? (
-                    <div className="flex items-center">
-                      {margenBrutoPositivo ? (
-                        <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
-                      ) : (
-                        <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                      )}
-                      <span className={`text-sm font-medium ${
-                        margenBrutoPositivo ? 'text-emerald-600' : 'text-red-600'
-                      }`}>
-                        {venta.margenPromedio.toFixed(1)}%
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-slate-400">-</span>
-                  )}
-                </td>
-
-                {/* Margen Neto con distribución proporcional de GA/GO */}
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {tieneRentabilidad ? (
-                    <div title={`GA/GO: S/ ${rentabilidad.costoGAGO.toFixed(2)} (${((rentabilidad.costoBase / (datosRentabilidad?.baseCostoTotal || 1)) * 100).toFixed(1)}% proporcional)`}>
-                      <div className="flex items-center">
-                        {margenNetoPositivo ? (
-                          <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
-                        ) : (
-                          <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                        )}
-                        <span className={`text-sm font-medium ${
-                          margenNetoPositivo ? 'text-emerald-600' : 'text-red-600'
-                        }`}>
-                          {rentabilidad.margenNeto.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className={`text-xs ${rentabilidad.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                        Neto: S/ {rentabilidad.utilidadNeta.toFixed(2)}
-                      </div>
-                    </div>
-                  ) : loadingRentabilidad ? (
-                    <span className="text-sm text-slate-400">...</span>
-                  ) : (
-                    <span className="text-sm text-slate-400" title="Sin datos de rentabilidad">-</span>
-                  )}
-                </td>
-
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex flex-col gap-1">
-                    <Badge variant={estadoInfo.variant}>
-                      {estadoInfo.label}
-                    </Badge>
-                    {/* Indicador de reserva */}
-                    {venta.estado === 'reservada' && venta.stockReservado && (
-                      <Badge
-                        variant={venta.stockReservado.tipoReserva === 'fisica' ? 'success' : 'warning'}
-                        size="sm"
-                      >
-                        {venta.stockReservado.tipoReserva === 'fisica' ? '✓ Física' : '⏳ Virtual'}
-                      </Badge>
-                    )}
-                    {/* Indicador de stock faltante en cotizaciones */}
-                    {venta.estado === 'cotizacion' && venta.requiereStock && (
-                      <span className="inline-flex items-center text-xs text-amber-600">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        Sin stock
-                      </span>
-                    )}
-                  </div>
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-slate-900">
-                    {formatDate(venta.fechaCreacion)}
-                  </div>
-                </td>
-                
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex items-center justify-end space-x-2">
-                    <button
-                      onClick={() => onView(venta)}
-                      className="text-teal-600 hover:text-teal-900"
-                      title="Ver detalles"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-
-                    {/* Botón de despachar - solo ventas en_entrega */}
-                    {venta.estado === 'en_entrega' && onDespachar && (
-                      <button
-                        onClick={() => onDespachar(venta)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
-                        title="Despachar — marcar En Camino"
-                      >
-                        <Truck className="h-3 w-3" />
-                        Despachar
-                      </button>
-                    )}
-
-                    {/* Botón de devolver - solo ventas entregadas o con devolución parcial */}
-                    {ESTADOS_DEVOLVIBLES.includes(venta.estado) && onDevolver && (
-                      <button
-                        onClick={() => onDevolver(venta)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 rounded hover:bg-orange-200 transition-colors"
-                        title="Solicitar devolución"
-                      >
-                        <RotateCcw className="h-3 w-3" />
-                        Devolver
-                      </button>
-                    )}
-
-                    {/* Botón de registrar adelanto - solo cotizaciones */}
-                    {venta.estado === 'cotizacion' && onRegistrarAdelanto && (
-                      <button
-                        onClick={() => onRegistrarAdelanto(venta)}
-                        className="text-purple-600 hover:text-purple-900"
-                        title="Registrar Adelanto y Reservar Stock"
-                      >
-                        <Lock className="h-4 w-4" />
-                      </button>
-                    )}
-
-                    {venta.estado === 'cotizacion' && onDelete && (
-                      <button
-                        onClick={() => onDelete(venta)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-
-              {/* Fila expandible con desglose de rentabilidad */}
-              {isExpanded && tieneRentabilidad && rentabilidad && (
-                <tr>
-                  <td colSpan={11} className="p-0">
-                    <DesgloseVenta
-                      venta={venta}
-                      rentabilidad={rentabilidad}
-                      datosGlobales={datosRentabilidad}
-                    />
-                  </td>
-                </tr>
-              )}
-              </React.Fragment>
+              <DesgloseVenta
+                venta={venta}
+                rentabilidad={rentabilidad}
+                datosGlobales={datosRentabilidad}
+              />
             );
-          })}
-        </tbody>
-      </table>
-
-      {/* Paginación */}
-      {ventas.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalItems={ventas.length}
-          pageSize={itemsPerPage}
-          onPageChange={setPage}
-          onPageSizeChange={setItemsPerPage}
+          }}
+          expandedKeys={expandedRows}
+          onToggleExpand={toggleRow}
+          emptyState={
+            <div className="text-center py-12">
+              <ShoppingCart className="mx-auto h-12 w-12 text-slate-400" />
+              <h3 className="mt-2 text-sm font-medium text-slate-900">No hay ventas</h3>
+              <p className="mt-1 text-sm text-slate-500">Comienza creando tu primera venta o cotización</p>
+            </div>
+          }
         />
-      )}
+
+        {/* Paginación */}
+        {ventas.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={ventas.length}
+            pageSize={itemsPerPage}
+            onPageChange={setPage}
+            onPageSizeChange={setItemsPerPage}
+          />
+        )}
       </div>
     </>
   );

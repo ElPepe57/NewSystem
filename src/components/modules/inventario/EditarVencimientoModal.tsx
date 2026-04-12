@@ -466,7 +466,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                             key={unidad.unidadId}
                             className={`flex items-center gap-2 py-1 px-1.5 rounded transition-colors ${
                               unidad.nuevaFecha
-                                ? 'bg-green-50'
+                                ? 'bg-emerald-50'
                                 : unidad.seleccionada
                                   ? 'bg-teal-50/50'
                                   : ''
@@ -474,7 +474,7 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                           >
                             {/* Checkbox o check icon */}
                             {unidad.nuevaFecha ? (
-                              <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                              <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                             ) : (
                               <input
                                 type="checkbox"
@@ -497,8 +497,8 @@ export const EditarVencimientoModal: React.FC<EditarVencimientoModalProps> = ({
                             {/* Flecha + nueva fecha */}
                             {unidad.nuevaFecha ? (
                               <>
-                                <span className="text-green-400 text-xs shrink-0">&rarr;</span>
-                                <span className="text-xs font-medium text-green-700">
+                                <span className="text-emerald-400 text-xs shrink-0">&rarr;</span>
+                                <span className="text-xs font-medium text-emerald-700">
                                   {formatFechaCorta(unidad.nuevaFecha)}
                                 </span>
                                 <button

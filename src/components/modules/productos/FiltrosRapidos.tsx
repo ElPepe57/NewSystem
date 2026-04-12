@@ -45,7 +45,7 @@ export const FiltrosRapidos: React.FC<FiltrosRapidosProps> = ({
       icon: Package,
       count: activos,
       color: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-      activeColor: 'bg-green-100 text-green-700 ring-1 ring-green-300',
+      activeColor: 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-300',
     },
     {
       id: 'stock_critico',

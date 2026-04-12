@@ -184,11 +184,11 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
           <div className="flex items-center space-x-3">
             <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
               transportista.tipo === 'interno'
-                ? 'bg-blue-100'
+                ? 'bg-sky-100'
                 : 'bg-purple-100'
             }`}>
               {transportista.tipo === 'interno' ? (
-                <User className="h-6 w-6 text-blue-600" />
+                <User className="h-6 w-6 text-sky-600" />
               ) : (
                 <Truck className="h-6 w-6 text-purple-600" />
               )}
@@ -219,7 +219,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
           <div className="bg-slate-50 rounded-lg p-2 text-center">
             <div className="text-xs text-slate-500 mb-1">Éxito</div>
             <div className={`text-lg font-bold ${
-              tasaExito >= 90 ? 'text-green-600' :
+              tasaExito >= 90 ? 'text-emerald-600' :
               tasaExito >= 70 ? 'text-amber-600' : 'text-red-600'
             }`}>
               {tasaExito.toFixed(0)}%
@@ -243,7 +243,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
             <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full ${
-                  tasaExito >= 90 ? 'bg-green-500' :
+                  tasaExito >= 90 ? 'bg-emerald-500' :
                   tasaExito >= 70 ? 'bg-amber-500' : 'bg-red-500'
                 }`}
                 style={{ width: `${tasaExito}%` }}
@@ -284,7 +284,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
             className={`text-sm font-medium ${
               transportista.estado === 'activo'
                 ? 'text-red-600 hover:text-red-700'
-                : 'text-green-600 hover:text-green-700'
+                : 'text-emerald-600 hover:text-emerald-700'
             }`}
           >
             {transportista.estado === 'activo' ? 'Desactivar' : 'Activar'}
@@ -325,14 +325,14 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
             <Package className="h-4 w-4 mr-1" />
             {transportista.totalEntregas} entregas
             <span className="mx-2">·</span>
-            <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+            <CheckCircle className="h-4 w-4 mr-1 text-emerald-500" />
             {transportista.entregasExitosas} exitosas
           </div>
         </div>
 
         <div className="text-right">
           <div className={`text-2xl font-bold ${
-            (transportista.tasaExito || 0) >= 90 ? 'text-green-600' :
+            (transportista.tasaExito || 0) >= 90 ? 'text-emerald-600' :
             (transportista.tasaExito || 0) >= 70 ? 'text-amber-600' : 'text-red-600'
           }`}>
             {(transportista.tasaExito || 0).toFixed(1)}%
@@ -408,7 +408,7 @@ export const TransportistasGestor: React.FC<TransportistasGestorProps> = ({
               onClick={() => setActiveTab('internos')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center ${
                 activeTab === 'internos'
-                  ? 'bg-white shadow text-blue-600'
+                  ? 'bg-white shadow text-sky-600'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >

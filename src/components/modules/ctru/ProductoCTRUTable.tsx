@@ -50,10 +50,10 @@ const MobileProductCard: React.FC<{
               <span className="text-[9px] bg-slate-800 text-white px-1.5 py-0.5 rounded-full">vendido</span>
             )}
             {p.estadoProducto === 'mixto' && (
-              <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">mixto</span>
+              <span className="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full">mixto</span>
             )}
             <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
-              p.unidadesActivas > 0 ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
+              p.unidadesActivas > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
             }`}>
               {p.unidadesActivas}/{p.totalUnidades}
             </span>
@@ -73,7 +73,7 @@ const MobileProductCard: React.FC<{
 
       {/* Composition bar */}
       <div className="flex w-full h-1.5 rounded-full overflow-hidden bg-slate-100 mb-2.5">
-        {p.pctCompra > 0 && <div className="bg-blue-500" style={{ width: `${p.pctCompra}%` }} />}
+        {p.pctCompra > 0 && <div className="bg-sky-500" style={{ width: `${p.pctCompra}%` }} />}
         {p.pctImpuesto > 0 && <div className="bg-red-400" style={{ width: `${p.pctImpuesto}%` }} />}
         {p.pctEnvio > 0 && <div className="bg-amber-500" style={{ width: `${p.pctEnvio}%` }} />}
         {p.pctOtros > 0 && <div className="bg-slate-400" style={{ width: `${p.pctOtros}%` }} />}
@@ -127,7 +127,7 @@ const MobileProductCard: React.FC<{
             <div>
               <div className="text-[9px] text-slate-400 uppercase tracking-wide">Margen</div>
               <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold ${
-                p.margenNetoProm >= 30 ? 'bg-green-100 text-green-700'
+                p.margenNetoProm >= 30 ? 'bg-emerald-100 text-emerald-700'
                 : p.margenNetoProm >= 20 ? 'bg-emerald-50 text-emerald-600'
                 : p.margenNetoProm >= 10 ? 'bg-amber-50 text-amber-600'
                 : 'bg-red-50 text-red-600'
@@ -138,7 +138,7 @@ const MobileProductCard: React.FC<{
             <div>
               <div className="text-[9px] text-slate-400 uppercase tracking-wide">Utilidad</div>
               <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold ${
-                utilidad > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+                utilidad > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
               }`}>
                 {formatCurrency(utilidad)}
               </span>
@@ -234,7 +234,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
             placeholder="Buscar..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50/50"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-sky-500 bg-slate-50/50"
           />
         </div>
         <div className="flex items-center gap-1">
@@ -248,7 +248,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
               onClick={() => setFiltroEstado(chip.id)}
               className={`px-2 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium transition-all ${
                 filtroEstado === chip.id
-                  ? 'bg-blue-600 text-white shadow-sm'
+                  ? 'bg-sky-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
               }`}
             >
@@ -286,7 +286,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
             <tr className="border-b border-slate-100">
               <th className="py-1.5 px-2" />
               <th colSpan={3} className="py-1.5 px-2 text-center">
-                <span className="text-[9px] uppercase tracking-widest text-blue-400 font-semibold">
+                <span className="text-[9px] uppercase tracking-widest text-sky-400 font-semibold">
                   Costos Adquisicion
                 </span>
               </th>
@@ -340,7 +340,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
               return (
                 <tr
                   key={p.productoId}
-                  className={`border-b border-slate-50 hover:bg-blue-50/40 cursor-pointer transition-all group ${
+                  className={`border-b border-slate-50 hover:bg-sky-50/40 cursor-pointer transition-all group ${
                     isEven ? 'bg-white' : 'bg-slate-50/30'
                   }`}
                   onClick={() => onSelectProducto(p)}
@@ -358,7 +358,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                             <span className="text-[9px] bg-slate-800 text-white px-1.5 py-0.5 rounded-full shrink-0">vendido</span>
                           )}
                           {p.estadoProducto === 'mixto' && (
-                            <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full shrink-0">mixto</span>
+                            <span className="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full shrink-0">mixto</span>
                           )}
                         </div>
                         {(p.marca || getDescripcionProducto(p)) && (
@@ -370,7 +370,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                           className="flex w-full h-1 mt-1 rounded-full overflow-hidden bg-slate-100"
                           title={`Compra ${p.pctCompra.toFixed(0)}% | Imp ${p.pctImpuesto.toFixed(0)}% | Env ${p.pctEnvio.toFixed(0)}% | Flete ${p.pctFleteIntl.toFixed(0)}% | GA/GO ${pctGAGOActivo.toFixed(0)}% | GV/GD ${p.pctGVGD.toFixed(0)}%`}
                         >
-                          {p.pctCompra > 0 && <div className="bg-blue-500" style={{ width: `${p.pctCompra}%` }} />}
+                          {p.pctCompra > 0 && <div className="bg-sky-500" style={{ width: `${p.pctCompra}%` }} />}
                           {p.pctImpuesto > 0 && <div className="bg-red-400" style={{ width: `${p.pctImpuesto}%` }} />}
                           {p.pctEnvio > 0 && <div className="bg-amber-500" style={{ width: `${p.pctEnvio}%` }} />}
                           {p.pctOtros > 0 && <div className="bg-slate-400" style={{ width: `${p.pctOtros}%` }} />}
@@ -446,7 +446,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                   <td className="py-2.5 px-2 text-right">
                     {p.ventasCount > 0 ? (
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold ${
-                        margenActivo >= 30 ? 'bg-green-100 text-green-700'
+                        margenActivo >= 30 ? 'bg-emerald-100 text-emerald-700'
                         : margenActivo >= 20 ? 'bg-emerald-50 text-emerald-600'
                         : margenActivo >= 10 ? 'bg-amber-50 text-amber-600'
                         : 'bg-red-50 text-red-600'
@@ -460,7 +460,7 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                   <td className="py-2.5 px-2 text-right">
                     {p.ventasCount > 0 ? (
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold ${
-                        utilidad > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+                        utilidad > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
                       }`}>
                         {formatCurrency(utilidad)}
                       </span>
@@ -472,13 +472,13 @@ export const ProductoCTRUTable: React.FC<ProductoCTRUTableProps> = ({ productos,
                   {/* STOCK */}
                   <td className="py-2.5 px-2 text-right border-l border-slate-50">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                      p.unidadesActivas > 0 ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-500'
+                      p.unidadesActivas > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
                     }`}>
                       {p.unidadesActivas}/{p.totalUnidades}
                     </span>
                   </td>
                   <td className="py-2.5 px-1 text-center">
-                    <Eye className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-500 mx-auto transition-colors" />
+                    <Eye className="w-3.5 h-3.5 text-slate-300 group-hover:text-sky-500 mx-auto transition-colors" />
                   </td>
                 </tr>
               );

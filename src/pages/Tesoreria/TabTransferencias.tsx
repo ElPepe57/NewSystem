@@ -10,7 +10,9 @@ import {
   CreditCard,
   AlertTriangle
 } from 'lucide-react';
-import { Button, Card, Modal } from '../../components/common';
+import { Button, Card } from '../../components/common';
+import { FormModal, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import type {
   CuentaCaja,
   TransferenciaEntreCuentasFormData,
@@ -67,10 +69,10 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
   };
 
   const getTipoIcon = (tipo: string, productoFinanciero?: string) => {
-    if (productoFinanciero === 'caja' || tipo === 'efectivo') return <Banknote className="w-3.5 h-3.5 text-green-500" />;
+    if (productoFinanciero === 'caja' || tipo === 'efectivo') return <Banknote className="w-3.5 h-3.5 text-emerald-500" />;
     if (productoFinanciero === 'billetera_digital' || tipo === 'digital') return <CreditCard className="w-3.5 h-3.5 text-purple-500" />;
     if (tipo === 'credito') return <CreditCard className="w-3.5 h-3.5 text-amber-500" />;
-    return <Building2 className="w-3.5 h-3.5 text-blue-500" />;
+    return <Building2 className="w-3.5 h-3.5 text-sky-500" />;
   };
 
   const getCuentaLabel = (c: CuentaCaja) => {
@@ -102,6 +104,47 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
     }
     return cuentaOrigen.saldoMinimo !== undefined && saldoOrigenPost < cuentaOrigen.saldoMinimo;
   })();
+
+  const transferenciaColumns: DataTableColumn<TransferenciaEntreCuentas>[] = [
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      render: (transf) => <span className="text-slate-500">{formatDate(transf.fecha)}</span>,
+    },
+    {
+      key: 'cuentaOrigen',
+      header: 'Cuenta Origen',
+      render: (transf) => <span className="font-medium text-slate-900">{transf.cuentaOrigenNombre}</span>,
+    },
+    {
+      key: 'arrow',
+      header: '→',
+      align: 'center',
+      width: '48px',
+      render: () => <ArrowLeftRight className="h-4 w-4 text-slate-400 inline" />,
+    },
+    {
+      key: 'cuentaDestino',
+      header: 'Cuenta Destino',
+      render: (transf) => <span className="font-medium text-slate-900">{transf.cuentaDestinoNombre}</span>,
+    },
+    {
+      key: 'monto',
+      header: 'Monto',
+      align: 'right',
+      render: (transf) => (
+        <span className="font-medium text-slate-900">
+          {transf.moneda === 'PEN' ? 'S/ ' : '$ '}
+          {transf.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+        </span>
+      ),
+    },
+    {
+      key: 'concepto',
+      header: 'Concepto',
+      render: (transf) => <span className="text-slate-500">{transf.concepto || '-'}</span>,
+    },
+  ];
 
   return (
     <>
@@ -157,57 +200,25 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
         </div>
 
         {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cuenta Origen</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">→</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cuenta Destino</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Monto</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Concepto</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {transferencias.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                    <ArrowLeftRight className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                    <p className="font-medium">No hay transferencias registradas</p>
-                    <p className="text-sm mt-1">Las transferencias entre cuentas se mostraran aqui</p>
-                  </td>
-                </tr>
-              ) : (
-                transferencias.map((transf) => (
-                  <tr key={transf.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{formatDate(transf.fecha)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-slate-900">{transf.cuentaOrigenNombre}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <ArrowLeftRight className="h-4 w-4 text-slate-400 inline" />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-slate-900">{transf.cuentaDestinoNombre}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                      {transf.moneda === 'PEN' ? 'S/ ' : '$ '}
-                      {transf.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                      {transf.concepto || '-'}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div className="hidden md:block">
+          <DataTable
+            columns={transferenciaColumns}
+            data={transferencias}
+            keyExtractor={(t) => t.id}
+            compact
+            emptyState={
+              <div className="py-8 text-center text-slate-500">
+                <ArrowLeftRight className="h-12 w-12 mx-auto mb-3 text-slate-300" />
+                <p className="font-medium">No hay transferencias registradas</p>
+                <p className="text-sm mt-1">Las transferencias entre cuentas se mostraran aqui</p>
+              </div>
+            }
+          />
         </div>
       </Card>
 
       {/* Modal Transferencia entre Cuentas */}
-      <Modal
+      <FormModal
         isOpen={isTransferenciaModalOpen}
         onClose={() => {
           setIsTransferenciaModalOpen(false);
@@ -215,6 +226,16 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
         }}
         title="Transferencia entre Cuentas"
         size="lg"
+        variant="create"
+        submitLabel={isSubmitting ? 'Procesando...' : 'Realizar Transferencia'}
+        onSubmit={handleCrearTransferencia}
+        loading={isSubmitting}
+        disabled={
+          isSubmitting ||
+          !transferenciaForm.monto ||
+          !transferenciaForm.cuentaOrigenId ||
+          !transferenciaForm.cuentaDestinoId
+        }
       >
         <div className="space-y-4">
           {/* Saldos de cuentas - resumen rapido */}
@@ -252,7 +273,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                     key={c.id}
                     className={`rounded-lg p-2 text-xs transition-all ${
                       isOrigen ? 'bg-red-50 border border-red-200 ring-1 ring-red-200' :
-                      isDestino ? 'bg-green-50 border border-green-200 ring-1 ring-green-200' :
+                      isDestino ? 'bg-emerald-50 border border-emerald-200 ring-1 ring-emerald-200' :
                       'bg-white border border-slate-100'
                     }`}
                   >
@@ -264,12 +285,12 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                     </div>
                     {c.titular && <div className="text-[9px] text-slate-400 truncate -mt-0.5">{c.titular}</div>}
                     <div className={`text-sm font-bold ${
-                      saldo < 0 ? 'text-red-600' : isOrigen ? 'text-red-700' : isDestino ? 'text-green-700' : 'text-slate-900'
+                      saldo < 0 ? 'text-red-600' : isOrigen ? 'text-red-700' : isDestino ? 'text-emerald-700' : 'text-slate-900'
                     }`}>
                       {simbolo} {saldo.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                     {isOrigen && <span className="text-[9px] text-red-400 font-medium">ORIGEN</span>}
-                    {isDestino && <span className="text-[9px] text-green-500 font-medium">DESTINO</span>}
+                    {isDestino && <span className="text-[9px] text-emerald-500 font-medium">DESTINO</span>}
                   </div>
                 );
               })}
@@ -333,7 +354,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                <ArrowDownCircle className="inline h-4 w-4 mr-1 text-green-500" />
+                <ArrowDownCircle className="inline h-4 w-4 mr-1 text-emerald-500" />
                 Cuenta Destino (Entra)
               </label>
               <select
@@ -359,7 +380,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                   {monto > 0 && (
                     <div className="flex justify-between mt-0.5">
                       <span className="text-slate-500">Saldo despues</span>
-                      <span className="font-bold text-green-600">{simbolo} {saldoDestinoPost.toFixed(2)}</span>
+                      <span className="font-bold text-emerald-600">{simbolo} {saldoDestinoPost.toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -399,7 +420,7 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
 
           {/* Preview visual */}
           {monto > 0 && cuentaOrigen && cuentaDestino && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl border border-purple-100">
+            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
               <div className="flex items-center justify-center gap-3 sm:gap-6">
                 <div className="text-center flex-1 min-w-0">
                   <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">Sale de</p>
@@ -417,29 +438,14 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
                   <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">Entra a</p>
                   <p className="text-xs font-semibold text-slate-900 truncate">{cuentaDestino.nombre}</p>
                   <p className="text-sm text-slate-400 line-through">{simbolo} {saldoDestino.toFixed(2)}</p>
-                  <p className="text-base font-bold text-green-600">{simbolo} {saldoDestinoPost.toFixed(2)}</p>
+                  <p className="text-base font-bold text-emerald-600">{simbolo} {saldoDestinoPost.toFixed(2)}</p>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 pt-2">
-            <Button variant="ghost" onClick={() => setIsTransferenciaModalOpen(false)}>Cancelar</Button>
-            <Button
-              variant="primary"
-              onClick={handleCrearTransferencia}
-              disabled={
-                isSubmitting ||
-                !transferenciaForm.monto ||
-                !transferenciaForm.cuentaOrigenId ||
-                !transferenciaForm.cuentaDestinoId
-              }
-            >
-              {isSubmitting ? 'Procesando...' : 'Realizar Transferencia'}
-            </Button>
-          </div>
         </div>
-      </Modal>
+      </FormModal>
     </>
   );
 };

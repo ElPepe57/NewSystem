@@ -36,7 +36,7 @@ import {
   Tabs
 } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection, StatCard as DSStatCard } from '../../design-system';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import type { Tab } from '../../components/common/Tabs';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
 import {
@@ -656,19 +656,19 @@ export const Inventario: React.FC = () => {
               label="Total Unidades"
               value={inventarioStats.total}
               icon={Package}
-             
+              variant="brand"
             />
             <DSStatCard
               label="Valor USD"
               value={formatCurrency(inventarioStats.valorTotalUSD)}
               icon={DollarSign}
-             
+              variant="brand"
             />
             <DSStatCard
               label="En Origen"
               value={inventarioStats.enOrigen}
               icon={Warehouse}
-             
+              variant="info"
               onClick={() => setFiltroEstado(filtroEstado === 'en_origen' ? null : 'en_origen')}
               active={filtroEstado === 'en_origen'}
             />
@@ -676,7 +676,7 @@ export const Inventario: React.FC = () => {
               label="En Tránsito"
               value={inventarioStats.enTransito}
               icon={Plane}
-              variant="amber"
+              variant="warning"
               onClick={() => setFiltroEstado('en_transito')}
               active={filtroEstado === 'en_transito'}
             />
@@ -684,7 +684,7 @@ export const Inventario: React.FC = () => {
               label="En Perú"
               value={inventarioStats.disponiblePeru}
               icon={CheckCircle}
-             
+              variant="success"
               onClick={() => setFiltroPais('Peru')}
               active={filtroPais === 'Peru'}
             />
@@ -692,7 +692,7 @@ export const Inventario: React.FC = () => {
               label="Reserv. Origen"
               value={inventarioStats.reservadaOrigen}
               icon={ShoppingBag}
-             
+              variant="info"
               onClick={() => setFiltroEstado('reservada')}
               active={filtroEstado === 'reservada'}
             />
@@ -700,7 +700,7 @@ export const Inventario: React.FC = () => {
               label="Reserv. Perú"
               value={inventarioStats.reservadaPeru}
               icon={ShoppingBag}
-             
+              variant="info"
               onClick={() => setFiltroEstado('reservada')}
               active={filtroEstado === 'reservada'}
             />
@@ -708,7 +708,7 @@ export const Inventario: React.FC = () => {
               label="Vendidas"
               value={inventarioStats.vendida}
               icon={TrendingUp}
-              variant="default"
+              variant="neutral"
               onClick={() => setFiltroEstado('vendida')}
               active={filtroEstado === 'vendida'}
             />
@@ -719,9 +719,9 @@ export const Inventario: React.FC = () => {
             <StatDistribution
               title="Distribución por Ubicación"
               data={[
-                { label: 'En Origen', value: inventarioStats.enOrigen, color: 'bg-blue-500' },
+                { label: 'En Origen', value: inventarioStats.enOrigen, color: 'bg-sky-500' },
                 { label: 'En Tránsito', value: inventarioStats.enTransito, color: 'bg-amber-500' },
-                { label: 'Perú', value: inventarioStats.disponiblePeru, color: 'bg-green-500' },
+                { label: 'Perú', value: inventarioStats.disponiblePeru, color: 'bg-emerald-500' },
                 { label: 'Reserv. Origen', value: inventarioStats.reservadaOrigen, color: 'bg-purple-500' },
                 { label: 'Reserv. Perú', value: inventarioStats.reservadaPeru, color: 'bg-purple-400' }
               ]}
@@ -729,8 +729,8 @@ export const Inventario: React.FC = () => {
             <StatDistribution
               title="Estado del Stock"
               data={[
-                { label: 'Disponible', value: inventarioStats.enOrigen + inventarioStats.disponiblePeru, color: 'bg-green-500' },
-                { label: 'En Movimiento', value: inventarioStats.enTransito, color: 'bg-blue-500' },
+                { label: 'Disponible', value: inventarioStats.enOrigen + inventarioStats.disponiblePeru, color: 'bg-emerald-500' },
+                { label: 'En Movimiento', value: inventarioStats.enTransito, color: 'bg-sky-500' },
                 { label: 'Reservado', value: inventarioStats.reservada, color: 'bg-purple-500' },
                 { label: 'Vendido', value: inventarioStats.vendida, color: 'bg-emerald-500' },
                 { label: 'Problemas', value: inventarioStats.problemas, color: 'bg-red-500' }
@@ -770,7 +770,6 @@ export const Inventario: React.FC = () => {
           )}
 
           {/* Filtro de línea de negocio */}
-          <LineaFilterInline />
 
           {/* Toolbar */}
           <Toolbar
@@ -946,11 +945,11 @@ export const Inventario: React.FC = () => {
                     </div>
                     <div className="text-xs text-teal-700">Actualizados</div>
                   </div>
-                  <div className="bg-blue-50 rounded-lg p-3 text-center">
-                    <div className="text-xl font-bold text-blue-600">
+                  <div className="bg-sky-50 rounded-lg p-3 text-center">
+                    <div className="text-xl font-bold text-sky-600">
                       {resultadoSync.ctruActualizados || 0}
                     </div>
-                    <div className="text-xs text-blue-700">CTRU Actualiz.</div>
+                    <div className="text-xs text-sky-700">CTRU Actualiz.</div>
                   </div>
                   <div className="bg-red-50 rounded-lg p-3 text-center">
                     <div className="text-xl font-bold text-red-600">

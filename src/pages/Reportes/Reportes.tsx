@@ -40,7 +40,7 @@ const TABS: { id: ReporteTab; label: string; icon: React.ReactNode }[] = [
 ];
 import { Card, Button, Badge } from '../../components/common';
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { TendenciaChart } from '../../components/modules/reporte/TendenciaChart';
 import { ProductosRentabilidadTable } from '../../components/modules/reporte/ProductosRentabilidadTable';
 import { InventarioValorizadoTable } from '../../components/modules/reporte/InventarioValorizadoTable';
@@ -396,9 +396,6 @@ export const Reportes: React.FC = () => {
         ) : undefined}
       />
 
-      {/* Filtro de linea de negocio */}
-      <LineaFilterInline />
-
       {/* Toolbar */}
       <Toolbar />
 
@@ -663,7 +660,7 @@ export const Reportes: React.FC = () => {
                   S/ {rentabilidadNeta.utilidadBruta.toFixed(2)} <span className="text-slate-400 font-normal">({rentabilidadNeta.margenBruto.toFixed(1)}%)</span>
                 </span>
               </div>
-              <div className="flex justify-between text-blue-600">
+              <div className="flex justify-between text-sky-600">
                 <span className="pl-3">− GV/GD</span>
                 <span>S/ {rentabilidadNeta.costoGVGD.toFixed(2)}</span>
               </div>
@@ -726,7 +723,7 @@ export const Reportes: React.FC = () => {
           <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4">
             <div className="flex items-center justify-between mb-1 sm:mb-2">
               <div className="text-[10px] sm:text-sm text-slate-600">M. Libre</div>
-              <PieChart className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-blue-500" />
+              <PieChart className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-sky-500" />
             </div>
             <div className="text-base sm:text-2xl font-bold text-slate-900">
               {ventasPorCanal.mercadoLibre.cantidad}
@@ -742,7 +739,7 @@ export const Reportes: React.FC = () => {
           <div className="bg-white border border-slate-200 rounded-xl p-2.5 sm:p-4">
             <div className="flex items-center justify-between mb-1 sm:mb-2">
               <div className="text-[10px] sm:text-sm text-slate-600">Directa</div>
-              <PieChart className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-green-500" />
+              <PieChart className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-emerald-500" />
             </div>
             <div className="text-base sm:text-2xl font-bold text-slate-900">
               {ventasPorCanal.directo.cantidad}
@@ -824,11 +821,11 @@ export const Reportes: React.FC = () => {
           {/* Leyenda de colores */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-[10px] sm:text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-green-500"></div>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-emerald-500"></div>
               <span className="text-slate-600">{'>'}40%</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-blue-500"></div>
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded bg-sky-500"></div>
               <span className="text-slate-600">25-40%</span>
             </div>
             <div className="flex items-center gap-1">

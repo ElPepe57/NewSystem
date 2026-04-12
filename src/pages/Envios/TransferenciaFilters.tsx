@@ -48,7 +48,7 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
             onClick={() => onTabChange('en_transito')}
             className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
               activeTab === 'en_transito'
-                ? 'border-blue-500 text-blue-600'
+                ? 'border-sky-500 text-sky-600'
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >

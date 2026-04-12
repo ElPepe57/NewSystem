@@ -34,9 +34,9 @@ const urgenciaConfig = {
     label: 'Media'
   },
   baja: {
-    bg: 'bg-blue-100',
-    text: 'text-blue-700',
-    border: 'border-blue-200',
+    bg: 'bg-sky-100',
+    text: 'text-sky-700',
+    border: 'border-sky-200',
     label: 'Baja'
   }
 };
@@ -88,7 +88,7 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
         </div>
         <div className="text-center">
           <p className="text-xs text-slate-500">Utilidad Proy.</p>
-          <p className="text-lg font-bold text-green-600">{formatCurrency(totalUtilidad)}</p>
+          <p className="text-lg font-bold text-emerald-600">{formatCurrency(totalUtilidad)}</p>
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export const SugerenciasReposicionCard: React.FC<SugerenciasReposicionCardProps>
                   </div>
                   <div>
                     <p className="text-xs text-slate-400">Utilidad</p>
-                    <p className="text-sm font-medium text-green-600">
+                    <p className="text-sm font-medium text-emerald-600">
                       {formatCurrency(sugerencia.utilidadProyectadaPEN)}
                     </p>
                   </div>

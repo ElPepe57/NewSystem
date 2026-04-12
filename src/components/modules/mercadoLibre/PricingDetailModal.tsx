@@ -28,8 +28,8 @@ interface PricingDetailModalProps {
 // ---- CASCADA DE COSTOS ----
 const CostWaterfall: React.FC<{ ctru: CTRUProductoDetalle }> = ({ ctru }) => {
   const layers = [
-    { label: 'Compra', value: ctru.costoCompraPENProm, pct: ctru.pctCompra, color: 'bg-blue-500' },
-    { label: 'Impuesto', value: ctru.costoImpuestoPENProm, pct: ctru.pctImpuesto, color: 'bg-blue-400' },
+    { label: 'Compra', value: ctru.costoCompraPENProm, pct: ctru.pctCompra, color: 'bg-sky-500' },
+    { label: 'Impuesto', value: ctru.costoImpuestoPENProm, pct: ctru.pctImpuesto, color: 'bg-sky-400' },
     { label: 'Envio OC', value: ctru.costoEnvioPENProm, pct: ctru.pctEnvio, color: 'bg-cyan-500' },
     { label: 'Otros OC', value: ctru.costoOtrosPENProm, pct: ctru.pctOtros, color: 'bg-cyan-400' },
     { label: 'Flete Intl', value: ctru.costoFleteIntlPENProm, pct: ctru.pctFleteIntl, color: 'bg-teal-500' },
@@ -198,7 +198,7 @@ const MarginSimulator: React.FC<{
         disabled={!changed || saving}
         className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
           saved
-            ? 'bg-green-500 text-white'
+            ? 'bg-emerald-500 text-white'
             : 'bg-amber-500 text-white hover:bg-amber-600'
         }`}
       >
@@ -240,7 +240,7 @@ const BuyBoxAnalysis: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
   };
 
   const statusColor: Record<string, string> = {
-    winning: 'text-green-700 bg-green-50 border-green-200',
+    winning: 'text-emerald-700 bg-emerald-50 border-emerald-200',
     competing: 'text-red-700 bg-red-50 border-red-200',
     sharing_first_place: 'text-yellow-700 bg-yellow-50 border-yellow-200',
     listed: 'text-slate-500 bg-slate-50 border-slate-200',
@@ -331,7 +331,7 @@ export const PricingDetailModal: React.FC<PricingDetailModalProps> = ({ isOpen, 
             <p className="text-sm font-medium text-slate-900 line-clamp-2">{row.mlTitle}</p>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               {row.hasCatalogo && (
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">Catálogo</span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-sky-50 text-sky-700">Catálogo</span>
               )}
               {row.hasClasica && (
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">Clásica</span>

@@ -110,7 +110,7 @@ export const DeepAnalyticsSection: React.FC<DeepAnalyticsSectionProps> = ({
           <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Top 5 Productos</h3>
           <Link
             to="/reportes"
-            className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 transition-colors"
           >
             Ver todos <ArrowRight className="h-3 w-3" />
           </Link>
@@ -210,7 +210,7 @@ export const DeepAnalyticsSection: React.FC<DeepAnalyticsSectionProps> = ({
         <div className="mt-4 pt-3 border-t">
           <Link
             to="/reportes"
-            className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-700 transition-colors"
           >
             Ver reportes completos
             <ArrowRight className="h-3 w-3" />

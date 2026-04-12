@@ -50,7 +50,7 @@ export const CollaborationButton: React.FC = () => {
       >
         <Users className="h-5 w-5" />
         {totalOnline > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-green-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
             {totalOnline}
           </span>
         )}
@@ -76,10 +76,10 @@ export const CollaborationButton: React.FC = () => {
 
       {/* Indicador de llamada activa */}
       {llamadaActiva && (
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-green-50 border border-green-200 rounded-lg">
-          <Phone className="h-3.5 w-3.5 text-green-600" />
-          <span className="text-xs font-medium text-green-700">En llamada</span>
-          <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <Phone className="h-3.5 w-3.5 text-emerald-600" />
+          <span className="text-xs font-medium text-emerald-700">En llamada</span>
+          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
         </div>
       )}
     </div>

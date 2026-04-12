@@ -20,6 +20,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { Card, Button } from '../../components/common';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { useDevolucionStore } from '../../store/devolucionStore';
 import { formatCurrencyPEN } from '../../utils/format';
 import { DevolucionDetailModal } from './DevolucionDetailModal';
@@ -41,9 +43,9 @@ const ESTADOS_OPCIONES: Array<{ value: EstadoDevolucion | ''; label: string }> =
 
 const BADGE_ESTADO: Record<EstadoDevolucion, string> = {
   solicitada: 'bg-yellow-100 text-yellow-800',
-  aprobada: 'bg-blue-100 text-blue-800',
+  aprobada: 'bg-sky-100 text-sky-800',
   ejecutada: 'bg-purple-100 text-purple-800',
-  completada: 'bg-green-100 text-green-800',
+  completada: 'bg-emerald-100 text-emerald-800',
   rechazada: 'bg-red-100 text-red-800',
   cancelada: 'bg-slate-100 text-slate-600',
 };
@@ -155,6 +157,81 @@ export const DevolucionesTab: React.FC = () => {
     fetchDevoluciones();
   };
 
+  const columns: DataTableColumn<Devolucion>[] = [
+    {
+      key: 'numeroDevolucion',
+      header: '# Devolución',
+      render: dev => (
+        <span className="font-mono text-xs font-semibold text-slate-700">
+          {dev.numeroDevolucion}
+        </span>
+      ),
+    },
+    {
+      key: 'ventaNumero',
+      header: '# Venta',
+      render: dev => (
+        <span className="font-mono text-xs text-slate-600">{dev.ventaNumero}</span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'clienteNombre',
+      header: 'Cliente',
+      render: dev => <span className="text-slate-800">{dev.clienteNombre}</span>,
+    },
+    {
+      key: 'motivo',
+      header: 'Motivo',
+      render: dev => (
+        <span className="text-slate-600">{LABEL_MOTIVO[dev.motivo] ?? dev.motivo}</span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'montoDevolucion',
+      header: 'Monto',
+      align: 'right',
+      render: dev => (
+        <span className="font-medium text-slate-900">
+          {formatCurrencyPEN(dev.montoDevolucion)}
+        </span>
+      ),
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      align: 'center',
+      render: dev => (
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            BADGE_ESTADO[dev.estado] ?? 'bg-slate-100 text-slate-600'
+          }`}
+        >
+          {LABEL_ESTADO[dev.estado] ?? dev.estado}
+        </span>
+      ),
+    },
+    {
+      key: 'fechaCreacion',
+      header: 'Fecha',
+      render: dev => (
+        <span className="text-slate-500 text-xs">{formatFecha(dev.fechaCreacion)}</span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      align: 'center',
+      render: dev => (
+        <Button variant="ghost" size="sm" onClick={() => handleVerDetalle(dev)}>
+          Ver detalle
+        </Button>
+      ),
+    },
+  ];
+
   // ----------------------------------------------------------------
   // RENDER
   // ----------------------------------------------------------------
@@ -187,8 +264,8 @@ export const DevolucionesTab: React.FC = () => {
                 {formatCurrencyPEN(kpis.montoDevuelto)}
               </p>
             </div>
-            <div className="p-2 bg-green-100 rounded-lg">
-              <DollarSign className="h-5 w-5 text-green-600" />
+            <div className="p-2 bg-emerald-100 rounded-lg">
+              <DollarSign className="h-5 w-5 text-emerald-600" />
             </div>
           </div>
         </Card>
@@ -279,100 +356,23 @@ export const DevolucionesTab: React.FC = () => {
           </div>
         )}
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
-          </div>
-        ) : devolucionesFiltradas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-            <Package className="h-12 w-12 mb-3 opacity-30" />
-            <p className="text-sm font-medium">No hay devoluciones</p>
-            <p className="text-xs mt-1">
-              {busqueda || filtroEstado
-                ? 'Intenta con otros filtros'
-                : 'Las devoluciones aparecerán aquí cuando se creen'}
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    # Devolución
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    # Venta
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    Cliente
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    Motivo
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    Monto
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    Estado
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    Fecha
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {devolucionesFiltradas.map(dev => (
-                  <tr key={dev.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-xs font-semibold text-slate-700">
-                        {dev.numeroDevolucion}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-xs text-slate-600">
-                        {dev.ventaNumero}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-800">
-                      {dev.clienteNombre}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {LABEL_MOTIVO[dev.motivo] ?? dev.motivo}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-slate-900">
-                      {formatCurrencyPEN(dev.montoDevolucion)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          BADGE_ESTADO[dev.estado] ?? 'bg-slate-100 text-slate-600'
-                        }`}
-                      >
-                        {LABEL_ESTADO[dev.estado] ?? dev.estado}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">
-                      {formatFecha(dev.fechaCreacion)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleVerDetalle(dev)}
-                      >
-                        Ver detalle
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={devolucionesFiltradas}
+          keyExtractor={dev => dev.id}
+          loading={loading}
+          emptyState={
+            <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+              <Package className="h-12 w-12 mb-3 opacity-30" />
+              <p className="text-sm font-medium">No hay devoluciones</p>
+              <p className="text-xs mt-1">
+                {busqueda || filtroEstado
+                  ? 'Intenta con otros filtros'
+                  : 'Las devoluciones aparecerán aquí cuando se creen'}
+              </p>
+            </div>
+          }
+        />
       </Card>
 
       {/* Modal de detalle */}

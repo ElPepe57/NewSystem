@@ -20,7 +20,7 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
   const status = getLeadTimeStatus(leadTime.tiempoPromedioTotal);
 
   const colorClasses = {
-    green: { bg: 'bg-green-100', text: 'text-green-700', border: 'border-green-200' },
+    green: { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' },
     yellow: { bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-200' },
     orange: { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
     red: { bg: 'bg-red-100', text: 'text-red-700', border: 'border-red-200' }
@@ -32,8 +32,8 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
     return (
       <div className="bg-white border border-slate-200 rounded-lg p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Truck className="h-5 w-5 text-blue-600" />
+          <div className="p-2 bg-sky-100 rounded-lg">
+            <Truck className="h-5 w-5 text-sky-600" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-900">Lead Time Promedio</h3>
@@ -54,8 +54,8 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Truck className="h-5 w-5 text-blue-600" />
+          <div className="p-2 bg-sky-100 rounded-lg">
+            <Truck className="h-5 w-5 text-sky-600" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-900">Lead Time Promedio</h3>
@@ -89,7 +89,7 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
         {/* Compra a envio */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-400"></div>
+            <div className="w-3 h-3 rounded-full bg-sky-400"></div>
             <span className="text-sm text-slate-600">Compra → Envio</span>
           </div>
           <span className="font-medium text-slate-900">{leadTime.tiempoPromedioCompraEnvio}d</span>
@@ -107,7 +107,7 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
         {/* USA a Peru */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-400"></div>
+            <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
             <span className="text-sm text-slate-600">USA → Peru</span>
           </div>
           <span className="font-medium text-slate-900">{leadTime.tiempoPromedioUSAPeru}d</span>
@@ -117,7 +117,7 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
       {/* Barra visual */}
       <div className="h-2 flex rounded-full overflow-hidden bg-slate-100 mb-4">
         <div
-          className="bg-blue-400"
+          className="bg-sky-400"
           style={{ width: `${(leadTime.tiempoPromedioCompraEnvio / leadTime.tiempoPromedioTotal) * 100}%` }}
         />
         <div
@@ -125,7 +125,7 @@ export const LeadTimeCard: React.FC<LeadTimeCardProps> = ({ leadTime }) => {
           style={{ width: `${(leadTime.tiempoPromedioTransitoUSA / leadTime.tiempoPromedioTotal) * 100}%` }}
         />
         <div
-          className="bg-green-400"
+          className="bg-emerald-400"
           style={{ width: `${(leadTime.tiempoPromedioUSAPeru / leadTime.tiempoPromedioTotal) * 100}%` }}
         />
       </div>

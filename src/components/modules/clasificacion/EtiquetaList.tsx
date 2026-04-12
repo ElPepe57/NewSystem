@@ -10,13 +10,13 @@ import { EtiquetaDetalle } from './EtiquetaDetalle';
 import type { Etiqueta, TipoEtiqueta } from '../../../types/etiqueta.types';
 
 const TIPO_LABELS: Record<TipoEtiqueta, { label: string; color: string }> = {
-  atributo: { label: 'Atributos', color: 'bg-green-100 text-green-700' },
+  atributo: { label: 'Atributos', color: 'bg-emerald-100 text-emerald-700' },
   certificacion: { label: 'Certificaciones', color: 'bg-teal-100 text-teal-700' },
   dieta: { label: 'Dieta', color: 'bg-emerald-100 text-emerald-700' },
   publico: { label: 'Público', color: 'bg-pink-100 text-pink-700' },
   marketing: { label: 'Marketing', color: 'bg-yellow-100 text-yellow-700' },
   calidad: { label: 'Calidad', color: 'bg-purple-100 text-purple-700' },
-  origen: { label: 'Origen', color: 'bg-blue-100 text-blue-700' },
+  origen: { label: 'Origen', color: 'bg-sky-100 text-sky-700' },
   presentacion: { label: 'Presentación', color: 'bg-cyan-100 text-cyan-700' },
   comercial: { label: 'Comercial', color: 'bg-amber-100 text-amber-700' },
   almacenamiento: { label: 'Almacenamiento', color: 'bg-red-100 text-red-700' },
@@ -224,7 +224,7 @@ export function EtiquetaList() {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => setViewingEtiqueta(etiqueta)}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                              className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                               title="Ver Analytics"
                             >
                               <BarChart3 className="h-4 w-4" />

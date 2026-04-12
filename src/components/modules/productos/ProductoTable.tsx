@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Eye, Pencil, Trash2, RefreshCw, Search, CheckCircle, XCircle, Clock, HelpCircle, DollarSign, Tag, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown, ChevronUp, Columns3 } from 'lucide-react';
 import { Badge } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { ProductoService } from '../../../services/producto.service';
 import type { Producto, TexturaSKC } from '../../../types/producto.types';
 import { TEXTURA_LABELS } from '../../../types/producto.types';
@@ -134,15 +136,15 @@ const ProductoCardResponsive: React.FC<{
           {/* Conexión de grupo */}
           {producto.esVariante && (
             <div className="flex items-center gap-1 mt-1">
-              <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+              <span className="text-[10px] text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
                 Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}
               </span>
             </div>
           )}
           {producto.tipoProducto && (
             <div className="flex items-center gap-1 mt-1">
-              <Tag className="h-3 w-3 text-blue-500" />
-              <span className="text-xs text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
+              <Tag className="h-3 w-3 text-sky-500" />
+              <span className="text-xs text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">
                 {typeof producto.tipoProducto === 'string' ? producto.tipoProducto : producto.tipoProducto.nombre}
               </span>
             </div>
@@ -150,7 +152,7 @@ const ProductoCardResponsive: React.FC<{
         </div>
         <div className="text-right flex-shrink-0">
           {invResumen.tieneInvestigacion && (
-            <div className={`text-xs flex items-center justify-end gap-1 mt-1 ${invResumen.estaVigente ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-xs flex items-center justify-end gap-1 mt-1 ${invResumen.estaVigente ? 'text-emerald-600' : 'text-red-600'}`}>
               <Clock className="h-3 w-3" />
               {invResumen.estaVigente ? `${invResumen.diasRestantes}d` : 'Vencida'}
             </div>
@@ -161,9 +163,9 @@ const ProductoCardResponsive: React.FC<{
       {/* Métricas compactas - siempre visibles si existen */}
       {tieneMetricas && (
         <div className="px-3 pb-2 grid grid-cols-4 gap-2 text-center">
-          <div className="bg-blue-50 rounded p-1.5">
+          <div className="bg-sky-50 rounded p-1.5">
             <div className="text-[10px] text-slate-500">Compra Sug.</div>
-            <div className="text-xs font-bold text-blue-700">S/{precioCompra.toFixed(0)}</div>
+            <div className="text-xs font-bold text-sky-700">S/{precioCompra.toFixed(0)}</div>
           </div>
           <div className="bg-purple-50 rounded p-1.5">
             <div className="text-[10px] text-slate-500">Venta Sug.</div>
@@ -171,13 +173,13 @@ const ProductoCardResponsive: React.FC<{
           </div>
           <div className="bg-slate-50 rounded p-1.5">
             <div className="text-[10px] text-slate-500">ROI</div>
-            <div className={`text-xs font-bold ${roi >= 50 ? 'text-green-600' : roi >= 25 ? 'text-yellow-600' : 'text-orange-600'}`}>
+            <div className={`text-xs font-bold ${roi >= 50 ? 'text-emerald-600' : roi >= 25 ? 'text-yellow-600' : 'text-orange-600'}`}>
               {roi.toFixed(0)}%
             </div>
           </div>
           <div className="bg-slate-50 rounded p-1.5">
             <div className="text-[10px] text-slate-500">Ganancia</div>
-            <div className="text-xs font-bold text-green-600">+S/{ganancia.toFixed(0)}</div>
+            <div className="text-xs font-bold text-emerald-600">+S/{ganancia.toFixed(0)}</div>
           </div>
         </div>
       )}
@@ -201,7 +203,7 @@ const ProductoCardResponsive: React.FC<{
             {tieneMetricas && (
               <div>
                 <span className="text-slate-500">Margen: </span>
-                <span className={`font-medium ${margen >= 30 ? 'text-green-600' : margen >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
+                <span className={`font-medium ${margen >= 30 ? 'text-emerald-600' : margen >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
                   {margen.toFixed(0)}%
                 </span>
               </div>
@@ -516,312 +518,377 @@ export const ProductoTable: React.FC<ProductoTableProps> = ({
           <ColumnToggle visibleColumns={activeColumns} onToggle={handleToggleColumn} />
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                {/* Columnas básicas - siempre visibles */}
-                {onSort ? (
-                  <>
-                    <SortableHeader label="SKU" sortKey="sku" sortConfigs={sortConfigs} onSort={handleSort} className="w-24" />
-                    <SortableHeader label="Producto" sortKey="marca" sortConfigs={sortConfigs} onSort={handleSort} className="min-w-[180px]" />
-                  </>
-                ) : (
-                  <>
-                    <th className="px-2 py-2 text-left text-[11px] font-medium text-slate-500 uppercase w-24">SKU</th>
-                    <th className="px-2 py-2 text-left text-[11px] font-medium text-slate-500 uppercase min-w-[180px]">Producto</th>
-                  </>
-                )}
+        {/* Build flat row list: group-header sentinels interleaved with product rows */}
+        {(() => {
+          // Union type for DataTable rows
+          type TableRow =
+            | { _kind: 'group-header'; id: string; marca: string; nombreComercial: string; varCount: number; groupId: string }
+            | { _kind: 'product'; producto: Producto };
 
-                {/* Clasificación */}
-                {showClasificacion && (
-                  <th className="px-2 py-2 text-left text-[11px] font-medium text-slate-500 uppercase min-w-[120px]">Tipo/Cat.</th>
-                )}
+          const tableRows: TableRow[] = [];
+          organizedProducts.forEach((item) => {
+            if (item.type === 'group-header') {
+              tableRows.push({
+                _kind: 'group-header',
+                id: `group-${item.producto.id}`,
+                marca: item.producto.marca,
+                nombreComercial: item.producto.nombreComercial,
+                varCount: item.variantes.length,
+                groupId: item.producto.id,
+              });
+              if (expandedGroups.has(item.producto.id)) {
+                item.variantes.forEach(v => tableRows.push({ _kind: 'product', producto: v }));
+              }
+            } else {
+              tableRows.push({ _kind: 'product', producto: item.producto });
+            }
+          });
 
-                {/* Precios */}
-                {showPrecios && (
-                  onSort ? (
-                    <SortableHeader label="CTRU" sortKey="ctruPromedio" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-20" />
-                  ) : (
-                    <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-20">PVP</th>
-                  )
-                )}
-
-                {/* Investigación */}
-                {showInvestigacion && (
-                  <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-20">Inv.</th>
-                )}
-
-                {/* Métricas de investigación */}
-                {showMetricas && (
-                  onSort ? (
-                    <>
-                      <SortableHeader label="Compra Sug." sortKey="precioCompra" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-24 bg-blue-50/50" />
-                      <SortableHeader label="Venta Sug." sortKey="precioVenta" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-24 bg-purple-50/50" />
-                      <SortableHeader label="ROI" sortKey="roi" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-16" />
-                      <SortableHeader label="Marg." sortKey="margen" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-16" />
-                      <SortableHeader label="Mult." sortKey="multiplicador" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-16" />
-                      <SortableHeader label="Gan./u" sortKey="gananciaUnidad" sortConfigs={sortConfigs} onSort={handleSort} align="center" className="w-20" />
-                    </>
-                  ) : (
-                    <>
-                      <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-24 bg-blue-50/50">Compra Sug.</th>
-                      <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-24 bg-purple-50/50">Venta Sug.</th>
-                      <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-16">ROI</th>
-                      <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-16">Marg.</th>
-                      <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-16">Mult.</th>
-                      <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-20">Gan./u</th>
-                    </>
-                  )
-                )}
-
-                {/* Estado y acciones - siempre visibles */}
-                {onSort ? (
-                  <SortableHeader label="Estado" sortKey="estado" sortConfigs={sortConfigs} onSort={handleSort} className="w-20" />
-                ) : (
-                  <th className="px-2 py-2 text-left text-[11px] font-medium text-slate-500 uppercase w-20">Estado</th>
-                )}
-                <th className="px-2 py-2 text-center text-[11px] font-medium text-slate-500 uppercase w-24">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {/* Group headers and variants */}
-              {organizedProducts.flatMap((item) => {
-                if (item.type === 'group-header') {
-                  const isExpanded = expandedGroups.has(item.producto.id);
-                  const varCount = item.variantes.length;
-                  const rows = [
-                    <tr key={`group-${item.producto.id}`} className="bg-slate-50 hover:bg-slate-100 cursor-pointer" onClick={() => toggleGroup(item.producto.id)}>
-                      <td colSpan={20} className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          {isExpanded ? <ChevronUp className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
-                          <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
-                            Grupo · {varCount}v
-                          </span>
-                          <span className="text-xs font-medium text-slate-700">{item.producto.marca} — {item.producto.nombreComercial}</span>
-                          {!isExpanded && <span className="text-[10px] text-slate-400 ml-auto">Click para expandir</span>}
-                        </div>
-                      </td>
-                    </tr>
-                  ];
-                  if (isExpanded) {
-                    item.variantes.forEach(v => rows.push(renderProductRow(v)));
-                  }
-                  return rows;
+          // Build columns conditionally based on active column groups.
+          // sort headers are handled externally via the SortableHeader toolbar above;
+          // DataTable columns are non-sortable here to avoid single-sort conflict with
+          // the multi-sort sortConfigs system already in place.
+          const columns: DataTableColumn<TableRow>[] = [
+            // --- SKU (always visible) ---
+            {
+              key: 'sku',
+              header: 'SKU',
+              width: 'w-24',
+              render: (row) => {
+                if (row._kind === 'group-header') {
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => toggleGroup(row.groupId)}
+                      className="w-full text-left flex items-center gap-2"
+                    >
+                      {expandedGroups.has(row.groupId)
+                        ? <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
+                        : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
+                        Grupo · {row.varCount}v
+                      </span>
+                      <span className="text-xs font-medium text-slate-700">{row.marca} — {row.nombreComercial}</span>
+                      {!expandedGroups.has(row.groupId) && (
+                        <span className="text-[10px] text-slate-400 ml-auto">Click para expandir</span>
+                      )}
+                    </button>
+                  );
                 }
-                return [renderProductRow(item.producto)];
-              })}
-            </tbody>
-            {/* Desktop product row renderer */}
-          </table>
-        </div>
+                const { producto } = row;
+                return (
+                  <div className="flex items-center gap-1 whitespace-nowrap">
+                    <span className="text-xs font-mono font-semibold text-teal-600">{producto.sku}</span>
+                    {producto.esPadre && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
+                        G·{variantCountMap.get(producto.grupoVarianteId || producto.id) || 0}v
+                      </span>
+                    )}
+                  </div>
+                );
+              },
+            },
+            // --- Producto (always visible) ---
+            {
+              key: 'producto',
+              header: 'Producto',
+              width: 'min-w-[180px]',
+              render: (row) => {
+                if (row._kind === 'group-header') return null;
+                const { producto } = row;
+                return (
+                  <>
+                    <div className="text-sm font-medium text-slate-900 truncate max-w-[180px]">{producto.marca}</div>
+                    <div className="text-xs text-slate-500 truncate max-w-[180px]">{producto.nombreComercial}</div>
+                    <div className="text-[10px] text-slate-400 truncate">
+                      {producto.atributosSkincare ? (
+                        <>
+                          {producto.atributosSkincare.volumen || producto.contenido}
+                          {producto.atributosSkincare.ingredienteClave && ` · ${producto.atributosSkincare.ingredienteClave}`}
+                          {producto.atributosSkincare.textura && ` · ${TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}`}
+                          {producto.atributosSkincare.spf && ` · SPF${producto.atributosSkincare.spf} ${producto.atributosSkincare.pa || ''}`}
+                        </>
+                      ) : (
+                        <>
+                          {producto.presentacion && `${producto.presentacion}`}
+                          {producto.dosaje && ` · ${producto.dosaje}`}
+                          {producto.contenido && ` · ${producto.contenido}`}
+                          {producto.sabor && ` · ${producto.sabor}`}
+                        </>
+                      )}
+                    </div>
+                    {producto.esVariante && (
+                      <span className="text-[9px] text-sky-600 bg-sky-50 px-1 py-0.5 rounded border border-sky-200">
+                        ↳ Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}
+                      </span>
+                    )}
+                  </>
+                );
+              },
+            },
+            // --- Clasificación (optional) ---
+            ...(showClasificacion ? [{
+              key: 'clasificacion',
+              header: 'Tipo/Cat.',
+              width: 'min-w-[120px]',
+              render: (row: TableRow) => {
+                if (row._kind === 'group-header') return null;
+                const { producto } = row;
+                return (
+                  <>
+                    {producto.tipoProducto && (
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <Tag className="h-3 w-3 text-sky-500 flex-shrink-0" />
+                        <span className="text-[10px] font-medium text-sky-700 bg-sky-50 px-1 py-0.5 rounded truncate max-w-[100px]">
+                          {typeof producto.tipoProducto === 'string' ? producto.tipoProducto : producto.tipoProducto.nombre}
+                        </span>
+                      </div>
+                    )}
+                    {producto.categorias && producto.categorias.length > 0 && (
+                      <div className="flex flex-wrap gap-0.5">
+                        {producto.categorias.slice(0, 2).map((cat: CategoriaSnapshot) => (
+                          <span key={cat.categoriaId} className="text-[10px] px-1 py-0.5 rounded bg-slate-100 text-slate-600 truncate max-w-[60px]">
+                            {cat.nombre}
+                          </span>
+                        ))}
+                        {producto.categorias.length > 2 && (
+                          <span className="text-[10px] text-slate-400">+{producto.categorias.length - 2}</span>
+                        )}
+                      </div>
+                    )}
+                  </>
+                );
+              },
+            } as DataTableColumn<TableRow>] : []),
+            // --- CTRU/Precios (optional) ---
+            ...(showPrecios ? [{
+              key: 'ctru',
+              header: 'CTRU',
+              width: 'w-20',
+              align: 'center' as const,
+              render: (row: TableRow) => {
+                if (row._kind === 'group-header') return null;
+                const { producto } = row;
+                return (producto.ctruPromedio || 0) > 0
+                  ? <span className="text-sm font-semibold text-slate-900">S/{(producto.ctruPromedio || 0).toFixed(0)}</span>
+                  : <span className="text-[10px] text-slate-400">-</span>;
+              },
+            } as DataTableColumn<TableRow>] : []),
+            // --- Investigación (optional) ---
+            ...(showInvestigacion ? [{
+              key: 'investigacion',
+              header: 'Inv.',
+              width: 'w-20',
+              align: 'center' as const,
+              render: (row: TableRow) => {
+                if (row._kind === 'group-header') return null;
+                const { producto } = row;
+                const invResumen = ProductoService.getResumenInvestigacion(producto);
+                const inv = producto.investigacion;
+                return invResumen.tieneInvestigacion ? (
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+                      inv?.recomendacion === 'importar' ? 'bg-emerald-100 text-emerald-800' :
+                      inv?.recomendacion === 'descartar' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {inv?.recomendacion === 'importar' && <CheckCircle className="h-2.5 w-2.5 mr-0.5" />}
+                      {inv?.recomendacion === 'descartar' && <XCircle className="h-2.5 w-2.5 mr-0.5" />}
+                      {inv?.recomendacion === 'investigar_mas' && <Search className="h-2.5 w-2.5 mr-0.5" />}
+                      {inv?.recomendacion === 'importar' ? 'Imp.' : inv?.recomendacion === 'descartar' ? 'Desc.' : 'Rev.'}
+                    </div>
+                    <div className={`text-[10px] flex items-center ${invResumen.estaVigente ? 'text-emerald-600' : 'text-red-600'}`}>
+                      <Clock className="h-2.5 w-2.5 mr-0.5" />
+                      {invResumen.estaVigente ? `${invResumen.diasRestantes}d` : 'Venc.'}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center text-slate-400">
+                    <HelpCircle className="h-4 w-4" />
+                    <span className="text-[10px]">Sin</span>
+                  </div>
+                );
+              },
+            } as DataTableColumn<TableRow>] : []),
+            // --- Métricas (optional, 6 columns) ---
+            ...(showMetricas ? [
+              {
+                key: 'precioCompra',
+                header: 'Compra Sug.',
+                width: 'w-24',
+                align: 'center' as const,
+                render: (row: TableRow) => {
+                  if (row._kind === 'group-header') return null;
+                  const { producto } = row;
+                  const inv = producto.investigacion;
+                  const precioCompra = inv?.ctruEstimado || 0;
+                  const precioUSAMin = inv?.precioUSAMin || 0;
+                  const logistica = inv?.logisticaEstimada || 0;
+                  const invResumen = ProductoService.getResumenInvestigacion(producto);
+                  const tieneData = invResumen.tieneInvestigacion && precioCompra > 0;
+                  return tieneData ? (
+                    <div className="bg-sky-50/20">
+                      <div className="text-xs font-bold text-sky-700">S/{precioCompra.toFixed(0)}</div>
+                      {precioUSAMin > 0 && (
+                        <div className="text-[9px] text-slate-500">${precioUSAMin.toFixed(0)}+${logistica.toFixed(0)}</div>
+                      )}
+                    </div>
+                  ) : <span className="text-[10px] text-slate-400">-</span>;
+                },
+              } as DataTableColumn<TableRow>,
+              {
+                key: 'precioVenta',
+                header: 'Venta Sug.',
+                width: 'w-24',
+                align: 'center' as const,
+                render: (row: TableRow) => {
+                  if (row._kind === 'group-header') return null;
+                  const { producto } = row;
+                  const inv = producto.investigacion;
+                  const precioCompra = inv?.ctruEstimado || 0;
+                  const precioVenta = inv?.precioEntrada || inv?.precioSugeridoCalculado || 0;
+                  const invResumen = ProductoService.getResumenInvestigacion(producto);
+                  const tieneData = invResumen.tieneInvestigacion && precioCompra > 0;
+                  return tieneData && precioVenta > 0
+                    ? <span className="text-xs font-bold text-purple-700 bg-purple-50/20 block">S/{precioVenta.toFixed(0)}</span>
+                    : <span className="text-[10px] text-slate-400">-</span>;
+                },
+              } as DataTableColumn<TableRow>,
+              {
+                key: 'roi',
+                header: 'ROI',
+                width: 'w-16',
+                align: 'center' as const,
+                render: (row: TableRow) => {
+                  if (row._kind === 'group-header') return null;
+                  const { producto } = row;
+                  const inv = producto.investigacion;
+                  const precioCompra = inv?.ctruEstimado || 0;
+                  const precioVenta = inv?.precioEntrada || inv?.precioSugeridoCalculado || 0;
+                  const ganancia = precioVenta > 0 && precioCompra > 0 ? precioVenta - precioCompra : 0;
+                  const roi = precioCompra > 0 && ganancia > 0 ? (ganancia / precioCompra) * 100 : 0;
+                  const invResumen = ProductoService.getResumenInvestigacion(producto);
+                  const tieneData = invResumen.tieneInvestigacion && precioCompra > 0;
+                  return tieneData && roi > 0
+                    ? <span className={`text-xs font-bold ${roi >= 50 ? 'text-emerald-600' : roi >= 25 ? 'text-yellow-600' : 'text-orange-600'}`}>{roi.toFixed(0)}%</span>
+                    : <span className="text-[10px] text-slate-400">-</span>;
+                },
+              } as DataTableColumn<TableRow>,
+              {
+                key: 'margen',
+                header: 'Marg.',
+                width: 'w-16',
+                align: 'center' as const,
+                render: (row: TableRow) => {
+                  if (row._kind === 'group-header') return null;
+                  const { producto } = row;
+                  const inv = producto.investigacion;
+                  const precioCompra = inv?.ctruEstimado || 0;
+                  const precioVenta = inv?.precioEntrada || inv?.precioSugeridoCalculado || 0;
+                  const ganancia = precioVenta > 0 && precioCompra > 0 ? precioVenta - precioCompra : 0;
+                  const margen = precioVenta > 0 && precioCompra > 0 ? (ganancia / precioVenta) * 100 : 0;
+                  const invResumen = ProductoService.getResumenInvestigacion(producto);
+                  const tieneData = invResumen.tieneInvestigacion && precioCompra > 0;
+                  return tieneData && margen > 0
+                    ? <span className={`text-xs font-bold ${margen >= 30 ? 'text-emerald-600' : margen >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>{margen.toFixed(0)}%</span>
+                    : <span className="text-[10px] text-slate-400">-</span>;
+                },
+              } as DataTableColumn<TableRow>,
+              {
+                key: 'multiplicador',
+                header: 'Mult.',
+                width: 'w-16',
+                align: 'center' as const,
+                render: (row: TableRow) => {
+                  if (row._kind === 'group-header') return null;
+                  const { producto } = row;
+                  const inv = producto.investigacion;
+                  const precioCompra = inv?.ctruEstimado || 0;
+                  const precioVenta = inv?.precioEntrada || inv?.precioSugeridoCalculado || 0;
+                  const multiplicador = precioCompra > 0 && precioVenta > 0 ? precioVenta / precioCompra : 0;
+                  const invResumen = ProductoService.getResumenInvestigacion(producto);
+                  const tieneData = invResumen.tieneInvestigacion && precioCompra > 0;
+                  return tieneData && multiplicador > 0
+                    ? <span className={`text-xs font-bold ${multiplicador >= 1.5 ? 'text-emerald-600' : multiplicador >= 1.25 ? 'text-yellow-600' : 'text-orange-600'}`}>x{multiplicador.toFixed(1)}</span>
+                    : <span className="text-[10px] text-slate-400">-</span>;
+                },
+              } as DataTableColumn<TableRow>,
+              {
+                key: 'ganancia',
+                header: 'Gan./u',
+                width: 'w-20',
+                align: 'center' as const,
+                render: (row: TableRow) => {
+                  if (row._kind === 'group-header') return null;
+                  const { producto } = row;
+                  const inv = producto.investigacion;
+                  const precioCompra = inv?.ctruEstimado || 0;
+                  const precioVenta = inv?.precioEntrada || inv?.precioSugeridoCalculado || 0;
+                  const ganancia = precioVenta > 0 && precioCompra > 0 ? precioVenta - precioCompra : 0;
+                  const invResumen = ProductoService.getResumenInvestigacion(producto);
+                  const tieneData = invResumen.tieneInvestigacion && precioCompra > 0;
+                  return tieneData && ganancia !== 0
+                    ? <span className={`text-xs font-bold ${ganancia > 0 ? 'text-emerald-600' : 'text-red-600'}`}>{ganancia > 0 ? '+' : ''}S/{ganancia.toFixed(0)}</span>
+                    : <span className="text-[10px] text-slate-400">-</span>;
+                },
+              } as DataTableColumn<TableRow>,
+            ] : []),
+            // --- Estado (always visible) ---
+            {
+              key: 'estado',
+              header: 'Estado',
+              width: 'w-20',
+              render: (row) => {
+                if (row._kind === 'group-header') return null;
+                const { producto } = row;
+                return (
+                  <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
+                    {producto.estado === 'activo' ? 'Act.' : 'Inact.'}
+                  </Badge>
+                );
+              },
+            },
+            // --- Acciones (always visible) ---
+            {
+              key: 'acciones',
+              header: 'Acciones',
+              width: 'w-24',
+              align: 'center' as const,
+              render: (row) => {
+                if (row._kind === 'group-header') return null;
+                const { producto } = row;
+                return (
+                  <div className="flex items-center justify-center gap-0.5">
+                    <button onClick={() => onView(producto)} className="p-1 text-teal-600 hover:bg-teal-50 rounded" title="Ver">
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => onEdit(producto)} className="p-1 text-amber-600 hover:bg-amber-50 rounded" title="Editar">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    {producto.estado === 'inactivo' && onReactivar ? (
+                      <button onClick={() => onReactivar(producto)} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded" title="Reactivar">
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button onClick={() => onDelete(producto)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Eliminar">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                );
+              },
+            },
+          ];
+
+          return (
+            <DataTable<TableRow>
+              columns={columns}
+              data={tableRows}
+              keyExtractor={(row) => row._kind === 'group-header' ? row.id : row.producto.id}
+              compact
+            />
+          );
+        })()}
       </div>
     </>
   );
-
-  function renderProductRow(producto: Producto) {
-                const invResumen = ProductoService.getResumenInvestigacion(producto);
-                const inv = producto.investigacion;
-                const precioCompra = inv?.ctruEstimado || 0;
-                const precioUSAMin = inv?.precioUSAMin || 0;
-                const logistica = inv?.logisticaEstimada || 0;
-                const precioVenta = inv?.precioEntrada || inv?.precioSugeridoCalculado || 0;
-                const ganancia = precioVenta > 0 && precioCompra > 0 ? precioVenta - precioCompra : 0;
-                const roi = precioCompra > 0 && ganancia > 0 ? (ganancia / precioCompra) * 100 : 0;
-                const margen = precioVenta > 0 && precioCompra > 0 ? (ganancia / precioVenta) * 100 : 0;
-                const multiplicador = precioCompra > 0 && precioVenta > 0 ? precioVenta / precioCompra : 0;
-                const tieneData = invResumen.tieneInvestigacion && precioCompra > 0;
-
-                return (
-                  <tr key={producto.id} className="hover:bg-slate-50">
-                    {/* SKU */}
-                    <td className="px-2 py-2 whitespace-nowrap">
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-mono font-semibold text-teal-600">{producto.sku}</span>
-                        {producto.esPadre && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>
-                            G·{variantCountMap.get(producto.grupoVarianteId || producto.id) || 0}v
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Producto */}
-                    <td className="px-2 py-2">
-                      <div className="text-sm font-medium text-slate-900 truncate max-w-[180px]">{producto.marca}</div>
-                      <div className="text-xs text-slate-500 truncate max-w-[180px]">{producto.nombreComercial}</div>
-                      <div className="text-[10px] text-slate-400 truncate">
-                        {producto.atributosSkincare ? (
-                          <>
-                            {producto.atributosSkincare.volumen || producto.contenido}
-                            {producto.atributosSkincare.ingredienteClave && ` · ${producto.atributosSkincare.ingredienteClave}`}
-                            {producto.atributosSkincare.textura && ` · ${TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}`}
-                            {producto.atributosSkincare.spf && ` · SPF${producto.atributosSkincare.spf} ${producto.atributosSkincare.pa || ''}`}
-                          </>
-                        ) : (
-                          <>
-                            {producto.presentacion && `${producto.presentacion}`}
-                            {producto.dosaje && ` · ${producto.dosaje}`}
-                            {producto.contenido && ` · ${producto.contenido}`}
-                            {producto.sabor && ` · ${producto.sabor}`}
-                          </>
-                        )}
-                      </div>
-                      {producto.esVariante && (
-                        <span className="text-[9px] text-blue-600 bg-blue-50 px-1 py-0.5 rounded border border-blue-200">
-                          ↳ Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Clasificación */}
-                    {showClasificacion && (
-                      <td className="px-2 py-2">
-                        {producto.tipoProducto && (
-                          <div className="flex items-center gap-1 mb-0.5">
-                            <Tag className="h-3 w-3 text-blue-500 flex-shrink-0" />
-                            <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0.5 rounded truncate max-w-[100px]">
-                              {typeof producto.tipoProducto === 'string' ? producto.tipoProducto : producto.tipoProducto.nombre}
-                            </span>
-                          </div>
-                        )}
-                        {producto.categorias && producto.categorias.length > 0 && (
-                          <div className="flex flex-wrap gap-0.5">
-                            {producto.categorias.slice(0, 2).map((cat: CategoriaSnapshot) => (
-                              <span key={cat.categoriaId} className="text-[10px] px-1 py-0.5 rounded bg-slate-100 text-slate-600 truncate max-w-[60px]">
-                                {cat.nombre}
-                              </span>
-                            ))}
-                            {producto.categorias.length > 2 && (
-                              <span className="text-[10px] text-slate-400">+{producto.categorias.length - 2}</span>
-                            )}
-                          </div>
-                        )}
-                      </td>
-                    )}
-
-                    {/* Precios */}
-                    {showPrecios && (
-                      <td className="px-2 py-2 text-center">
-                        {(producto.ctruPromedio || 0) > 0 ? (
-                          <span className="text-sm font-semibold text-slate-900">S/{(producto.ctruPromedio || 0).toFixed(0)}</span>
-                        ) : (
-                          <span className="text-[10px] text-slate-400">-</span>
-                        )}
-                      </td>
-                    )}
-
-                    {/* Investigación */}
-                    {showInvestigacion && (
-                      <td className="px-2 py-2 text-center">
-                        {invResumen.tieneInvestigacion ? (
-                          <div className="flex flex-col items-center gap-0.5">
-                            <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
-                              inv?.recomendacion === 'importar' ? 'bg-green-100 text-green-800' :
-                              inv?.recomendacion === 'descartar' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {inv?.recomendacion === 'importar' && <CheckCircle className="h-2.5 w-2.5 mr-0.5" />}
-                              {inv?.recomendacion === 'descartar' && <XCircle className="h-2.5 w-2.5 mr-0.5" />}
-                              {inv?.recomendacion === 'investigar_mas' && <Search className="h-2.5 w-2.5 mr-0.5" />}
-                              {inv?.recomendacion === 'importar' ? 'Imp.' : inv?.recomendacion === 'descartar' ? 'Desc.' : 'Rev.'}
-                            </div>
-                            <div className={`text-[10px] flex items-center ${invResumen.estaVigente ? 'text-green-600' : 'text-red-600'}`}>
-                              <Clock className="h-2.5 w-2.5 mr-0.5" />
-                              {invResumen.estaVigente ? `${invResumen.diasRestantes}d` : 'Venc.'}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center text-slate-400">
-                            <HelpCircle className="h-4 w-4" />
-                            <span className="text-[10px]">Sin</span>
-                          </div>
-                        )}
-                      </td>
-                    )}
-
-                    {/* Métricas */}
-                    {showMetricas && (
-                      <>
-                        {/* P. Compra */}
-                        <td className="px-2 py-2 text-center bg-blue-50/20">
-                          {tieneData ? (
-                            <div>
-                              <div className="text-xs font-bold text-blue-700">S/{precioCompra.toFixed(0)}</div>
-                              {precioUSAMin > 0 && (
-                                <div className="text-[9px] text-slate-500">${precioUSAMin.toFixed(0)}+${logistica.toFixed(0)}</div>
-                              )}
-                            </div>
-                          ) : <span className="text-[10px] text-slate-400">-</span>}
-                        </td>
-                        {/* P. Venta */}
-                        <td className="px-2 py-2 text-center bg-purple-50/20">
-                          {tieneData && precioVenta > 0 ? (
-                            <span className="text-xs font-bold text-purple-700">S/{precioVenta.toFixed(0)}</span>
-                          ) : <span className="text-[10px] text-slate-400">-</span>}
-                        </td>
-                        {/* ROI */}
-                        <td className="px-2 py-2 text-center">
-                          {tieneData && roi > 0 ? (
-                            <span className={`text-xs font-bold ${roi >= 50 ? 'text-green-600' : roi >= 25 ? 'text-yellow-600' : 'text-orange-600'}`}>
-                              {roi.toFixed(0)}%
-                            </span>
-                          ) : <span className="text-[10px] text-slate-400">-</span>}
-                        </td>
-                        {/* Margen */}
-                        <td className="px-2 py-2 text-center">
-                          {tieneData && margen > 0 ? (
-                            <span className={`text-xs font-bold ${margen >= 30 ? 'text-green-600' : margen >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
-                              {margen.toFixed(0)}%
-                            </span>
-                          ) : <span className="text-[10px] text-slate-400">-</span>}
-                        </td>
-                        {/* Mult. */}
-                        <td className="px-2 py-2 text-center">
-                          {tieneData && multiplicador > 0 ? (
-                            <span className={`text-xs font-bold ${multiplicador >= 1.5 ? 'text-green-600' : multiplicador >= 1.25 ? 'text-yellow-600' : 'text-orange-600'}`}>
-                              x{multiplicador.toFixed(1)}
-                            </span>
-                          ) : <span className="text-[10px] text-slate-400">-</span>}
-                        </td>
-                        {/* Ganancia/u */}
-                        <td className="px-2 py-2 text-center">
-                          {tieneData && ganancia !== 0 ? (
-                            <span className={`text-xs font-bold ${ganancia > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {ganancia > 0 ? '+' : ''}S/{ganancia.toFixed(0)}
-                            </span>
-                          ) : <span className="text-[10px] text-slate-400">-</span>}
-                        </td>
-                      </>
-                    )}
-
-                    {/* Estado */}
-                    <td className="px-2 py-2">
-                      <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
-                        {producto.estado === 'activo' ? 'Act.' : 'Inact.'}
-                      </Badge>
-                    </td>
-
-                    {/* Acciones */}
-                    <td className="px-2 py-2">
-                      <div className="flex items-center justify-center gap-0.5">
-                        <button onClick={() => onView(producto)} className="p-1 text-teal-600 hover:bg-teal-50 rounded" title="Ver">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => onEdit(producto)} className="p-1 text-amber-600 hover:bg-amber-50 rounded" title="Editar">
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        {producto.estado === 'inactivo' && onReactivar ? (
-                          <button onClick={() => onReactivar(producto)} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded" title="Reactivar">
-                            <RefreshCw className="h-4 w-4" />
-                          </button>
-                        ) : (
-                          <button onClick={() => onDelete(producto)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Eliminar">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-  }
 };

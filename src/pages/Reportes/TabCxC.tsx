@@ -73,7 +73,7 @@ export const TabCxC: React.FC = () => {
         </Card>
         <Card className="p-3 text-center">
           <div className="text-xs text-slate-500">Cobrado</div>
-          <div className="text-2xl font-bold text-green-600">{fmt(totalPagado)}</div>
+          <div className="text-2xl font-bold text-emerald-600">{fmt(totalPagado)}</div>
         </Card>
       </div>
 
@@ -91,7 +91,7 @@ export const TabCxC: React.FC = () => {
       {/* Lista de ventas pendientes */}
       {ventasPendientes.length === 0 ? (
         <div className="text-center py-8 text-slate-500">
-          <CheckCircle className="h-10 w-10 mx-auto mb-2 text-green-300" />
+          <CheckCircle className="h-10 w-10 mx-auto mb-2 text-emerald-300" />
           <p>Sin cuentas por cobrar pendientes</p>
         </div>
       ) : (
@@ -124,7 +124,7 @@ export const TabCxC: React.FC = () => {
 const AgingBucket: React.FC<{ label: string; monto: number; color: string }> = ({ label, monto, color }) => {
   const fmt = (n: number) => `S/${n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const colorMap: Record<string, string> = {
-    green: 'text-green-700 bg-green-50',
+    green: 'text-emerald-700 bg-emerald-50',
     amber: 'text-amber-700 bg-amber-50',
     orange: 'text-orange-700 bg-orange-50',
     red: 'text-red-700 bg-red-50',

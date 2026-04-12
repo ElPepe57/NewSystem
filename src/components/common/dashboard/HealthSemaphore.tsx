@@ -26,7 +26,7 @@ export const HealthSemaphore: React.FC<HealthSemaphoreProps> = ({ indicators }) 
           title={ind.detail}
         >
           <div className={`w-2.5 h-2.5 rounded-full shadow-lg ${colors[ind.status]}`} />
-          <span className="text-xs text-slate-300 whitespace-nowrap font-medium">
+          <span className="text-xs text-slate-600 whitespace-nowrap font-medium">
             {ind.label}
           </span>
         </div>

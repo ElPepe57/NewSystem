@@ -80,9 +80,9 @@ function getColorPrioridad(prioridad: PrioridadTarea): {
       };
     case 'media':
       return {
-        borde: 'border-l-4 border-blue-400',
-        fondo: 'bg-blue-50 hover:bg-blue-100',
-        icono: 'text-blue-500',
+        borde: 'border-l-4 border-sky-400',
+        fondo: 'bg-sky-50 hover:bg-sky-100',
+        icono: 'text-sky-500',
         badge: 'info',
         etiqueta: 'Media',
       };
@@ -250,7 +250,7 @@ export const TareasDelDia: React.FC = () => {
           {tareas.length === 0 ? (
             /* Estado vacio */
             <div className="flex flex-col items-center justify-center py-8 text-slate-400">
-              <CheckCircle2 className="h-10 w-10 mb-2 text-green-300" />
+              <CheckCircle2 className="h-10 w-10 mb-2 text-emerald-300" />
               <p className="text-sm font-medium text-slate-500">Todo al dia</p>
               <p className="text-xs text-slate-400 mt-1">No hay tareas urgentes pendientes</p>
             </div>

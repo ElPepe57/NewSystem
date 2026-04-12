@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
-import { Package, Eye, Pencil, Trash2, TrendingUp, ChevronDown, ChevronUp, DollarSign, CreditCard, Layers, Info, User, ClipboardCheck, MapPin, Search } from 'lucide-react';
+import { Package, Eye, Pencil, Trash2, TrendingUp, DollarSign, CreditCard, Layers, Info, User, ClipboardCheck, MapPin, Search } from 'lucide-react';
 import { Badge, Pagination, usePagination, LineaNegocioBadge, PaisOrigenBadge } from '../../common';
 import { useUserName } from '../../../hooks/useUserNames';
-import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, EstadoOrden, EstadoPagoOC, RecepcionParcial } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 
 interface OrdenCompraTableProps {
   ordenes: OrdenCompra[];
@@ -30,8 +32,6 @@ const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success'
 };
 
 // Componente para una fila de recepción
-import type { RecepcionParcial } from '../../../types/ordenCompra.types';
-
 const RecepcionRow: React.FC<{
   recepcion: RecepcionParcial;
   nombreAlmacenDestino?: string;
@@ -41,7 +41,7 @@ const RecepcionRow: React.FC<{
   return (
     <div className="px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-green-100 text-green-700 text-xs font-bold">
+        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
           #{recepcion.numero}
         </div>
         <div>
@@ -58,9 +58,9 @@ const RecepcionRow: React.FC<{
       </div>
       <div className="flex items-center gap-3">
         {nombreAlmacenDestino && (
-          <div className="flex items-center text-xs text-slate-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
-            <Package className="h-3 w-3 mr-1.5 text-blue-500" />
-            <span className="font-medium text-blue-700">{nombreAlmacenDestino}</span>
+          <div className="flex items-center text-xs text-slate-600 bg-sky-50 px-3 py-1.5 rounded-full border border-sky-100">
+            <Package className="h-3 w-3 mr-1.5 text-sky-500" />
+            <span className="font-medium text-sky-700">{nombreAlmacenDestino}</span>
           </div>
         )}
         <div className="flex items-center text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-full">
@@ -97,11 +97,11 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-5 border-t border-slate-200 sticky left-0 max-w-[100vw] overflow-hidden sm:static sm:max-w-none sm:overflow-visible">
+    <div className="bg-slate-50 p-5 border-t border-slate-200 sticky left-0 max-w-[100vw] overflow-hidden sm:static sm:max-w-none sm:overflow-visible">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
         <h4 className="text-sm font-semibold text-slate-800 flex items-center">
-          <Layers className="h-4 w-4 mr-2 text-blue-600" />
+          <Layers className="h-4 w-4 mr-2 text-sky-600" />
           Desglose de Orden - {orden.numeroOrden}
         </h4>
         <div className="flex items-center gap-4">
@@ -142,12 +142,12 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
           </div>
         )}
 
-        <div className="bg-white rounded-lg p-3 border border-blue-200 bg-blue-50">
+        <div className="bg-white rounded-lg p-3 border border-sky-200 bg-sky-50">
           <div className="text-xs text-slate-500 flex items-center">
             <DollarSign className="h-3 w-3 mr-1" />
             Total USD
           </div>
-          <div className="text-lg font-bold text-blue-600">${orden.totalUSD.toFixed(2)}</div>
+          <div className="text-lg font-bold text-sky-600">${orden.totalUSD.toFixed(2)}</div>
         </div>
 
         {(orden.tcCompra || orden.tcPago) && (
@@ -167,9 +167,9 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
         )}
 
         {orden.totalPEN && (
-          <div className="bg-white rounded-lg p-3 border border-green-200 bg-green-50">
+          <div className="bg-white rounded-lg p-3 border border-emerald-200 bg-emerald-50">
             <div className="text-xs text-slate-500">Total PEN</div>
-            <div className="text-lg font-bold text-green-600">S/ {orden.totalPEN.toFixed(2)}</div>
+            <div className="text-lg font-bold text-emerald-600">S/ {orden.totalPEN.toFixed(2)}</div>
           </div>
         )}
 
@@ -189,12 +189,12 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
         </div>
 
         {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0.01 && (
-          <div className={`bg-white rounded-lg p-3 border ${orden.diferenciaCambiaria > 0 ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
+          <div className={`bg-white rounded-lg p-3 border ${orden.diferenciaCambiaria > 0 ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
             <div className="text-xs text-slate-500 flex items-center">
               <TrendingUp className="h-3 w-3 mr-1" />
               Dif. Cambiaria
             </div>
-            <div className={`text-lg font-bold ${orden.diferenciaCambiaria > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            <div className={`text-lg font-bold ${orden.diferenciaCambiaria > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
               {orden.diferenciaCambiaria > 0 ? '+' : ''}S/ {orden.diferenciaCambiaria.toFixed(2)}
             </div>
           </div>
@@ -242,13 +242,13 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
                   </div>
                   {tieneRecepciones && (
                     <div className="flex items-center gap-2">
-                      <span className={`font-medium ${recibida >= prod.cantidad ? 'text-green-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                      <span className={`font-medium ${recibida >= prod.cantidad ? 'text-emerald-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
                         {recibida}/{prod.cantidad}
                       </span>
                       {recibida > 0 && (
                         <div className="w-12 h-1.5 bg-slate-200 rounded-full">
                           <div
-                            className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
+                            className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
                             style={{ width: `${Math.min(porcentaje, 100)}%` }}
                           />
                         </div>
@@ -266,29 +266,18 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
           </div>
         </div>
 
-        {/* Vista desktop: tabla */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="min-w-full text-xs">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium text-slate-500">Producto</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Cant.</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Costo Unit.</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Subtotal</th>
-                {tieneRecepciones && (
-                  <th className="px-3 py-2 text-right font-medium text-slate-500">Recibido</th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {orden.productos.map((prod, idx) => {
-                const recibida = prod.cantidadRecibida || 0;
-                const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
-                const desc = getDescripcionProducto(prod);
-
-                return (
-                  <tr key={idx} className="hover:bg-slate-50">
-                    <td className="px-3 py-2">
+        {/* Vista desktop: DataTable */}
+        <div className="hidden sm:block">
+          {(() => {
+            type ProductoOC = (typeof orden.productos)[number];
+            const productoCols: DataTableColumn<ProductoOC>[] = [
+              {
+                key: 'producto',
+                header: 'Producto',
+                render: (prod) => {
+                  const desc = getDescripcionProducto(prod);
+                  return (
+                    <div>
                       <div className="font-medium text-slate-900" title={`${prod.marca} ${prod.nombreComercial}`}>
                         {prod.marca} {prod.nombreComercial}
                       </div>
@@ -301,45 +290,79 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
                           </>
                         )}
                       </div>
-                    </td>
-                    <td className="px-3 py-2 text-right font-medium">{prod.cantidad}</td>
-                    <td className="px-3 py-2 text-right font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right font-mono font-medium">${(prod.subtotal ?? 0).toFixed(2)}</td>
-                    {tieneRecepciones && (
-                      <td className="px-3 py-2 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <span className={`font-medium ${recibida >= prod.cantidad ? 'text-green-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                    </div>
+                  );
+                },
+              },
+              {
+                key: 'cantidad',
+                header: 'Cant.',
+                align: 'right',
+                width: 'w-16',
+                render: (prod) => <span className="font-medium">{prod.cantidad}</span>,
+              },
+              {
+                key: 'costoUnitario',
+                header: 'Costo Unit.',
+                align: 'right',
+                width: 'w-28',
+                render: (prod) => <span className="font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</span>,
+              },
+              {
+                key: 'subtotal',
+                header: 'Subtotal',
+                align: 'right',
+                width: 'w-28',
+                render: (prod) => <span className="font-mono font-medium">${(prod.subtotal ?? 0).toFixed(2)}</span>,
+              },
+              ...(tieneRecepciones
+                ? [{
+                    key: 'recibido',
+                    header: 'Recibido',
+                    align: 'right' as const,
+                    width: 'w-28',
+                    render: (prod: ProductoOC) => {
+                      const recibida = prod.cantidadRecibida || 0;
+                      const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
+                      return (
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`font-medium ${recibida >= prod.cantidad ? 'text-emerald-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
                             {recibida}/{prod.cantidad}
                           </span>
+                          {recibida > 0 && (
+                            <div className="w-16 h-1.5 bg-slate-200 rounded-full">
+                              <div
+                                className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                style={{ width: `${Math.min(porcentaje, 100)}%` }}
+                              />
+                            </div>
+                          )}
                         </div>
-                        {recibida > 0 && (
-                          <div className="w-16 h-1.5 bg-slate-200 rounded-full mt-1 ml-auto">
-                            <div
-                              className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
-                              style={{ width: `${Math.min(porcentaje, 100)}%` }}
-                            />
-                          </div>
-                        )}
-                      </td>
-                    )}
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot className="bg-slate-50 border-t border-slate-200">
-              <tr>
-                <td className="px-3 py-2 text-right font-medium text-slate-600">Totales:</td>
-                <td className="px-3 py-2 text-right font-bold">{totalPedido}</td>
-                <td className="px-3 py-2"></td>
-                <td className="px-3 py-2 text-right font-mono font-bold">${orden.subtotalUSD.toFixed(2)}</td>
-                {tieneRecepciones && (
-                  <td className="px-3 py-2 text-right font-bold text-slate-600">
-                    {totalRecibido}/{totalPedido}
-                  </td>
-                )}
-              </tr>
-            </tfoot>
-          </table>
+                      );
+                    },
+                  }]
+                : []),
+            ];
+
+            return (
+              <DataTable<ProductoOC>
+                columns={productoCols}
+                data={orden.productos}
+                keyExtractor={(prod) => prod.sku}
+                compact
+              />
+            );
+          })()}
+          {/* Fila de totales */}
+          <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-t border-slate-200 text-xs font-bold text-slate-700">
+            <span>Totales: {totalPedido} unidades</span>
+            <div className="flex items-center gap-6">
+              {tieneRecepciones && (
+                <span className="text-slate-600">{totalRecibido}/{totalPedido} recibidas</span>
+              )}
+              <span className="font-mono">${orden.subtotalUSD.toFixed(2)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -348,12 +371,12 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden mt-4">
           <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <h5 className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center">
-              <ClipboardCheck className="h-3.5 w-3.5 mr-1.5 text-green-600" />
+              <ClipboardCheck className="h-3.5 w-3.5 mr-1.5 text-emerald-600" />
               Recepciones ({orden.recepcionesParciales.length})
             </h5>
             {orden.nombreAlmacenDestino && (
               <span className="text-xs text-slate-500">
-                Destino: <span className="font-medium text-blue-700">{orden.nombreAlmacenDestino}</span>
+                Destino: <span className="font-medium text-sky-700">{orden.nombreAlmacenDestino}</span>
               </span>
             )}
           </div>
@@ -373,9 +396,9 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
 
       {/* Observaciones */}
       {orden.observaciones && (
-        <div className="mt-4 text-xs text-slate-500 bg-blue-50 rounded-lg p-3 border border-blue-100">
+        <div className="mt-4 text-xs text-slate-500 bg-sky-50 rounded-lg p-3 border border-sky-100">
           <div className="flex items-start">
-            <Info className="h-4 w-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+            <Info className="h-4 w-4 text-sky-500 mr-2 mt-0.5 flex-shrink-0" />
             <div>
               <strong className="text-slate-700">Observaciones:</strong> {orden.observaciones}
             </div>
@@ -423,7 +446,6 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
   const {
     currentPage,
     itemsPerPage,
-    totalPages,
     setPage,
     setItemsPerPage,
     paginatedItems: ordenesPaginadas
@@ -493,200 +515,171 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
         )}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
-                <Layers className="h-4 w-4 mx-auto text-blue-500" aria-label="Ver desglose" />
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Número Orden
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Proveedor
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Productos
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Total
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Fecha Creación
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {ordenesPaginadas.map((orden) => {
-              const estadoInfo = estadoLabels[orden.estado] || estadoLabels.borrador;
-              const isExpanded = expandedRows.has(orden.id);
-
-              return (
-                <React.Fragment key={orden.id}>
-                <tr className={`hover:bg-slate-50 ${isExpanded ? 'bg-blue-50' : ''}`}>
-                  {/* Botón de expandir/colapsar */}
-                  <td className="px-3 py-4 whitespace-nowrap text-center">
-                    <button
-                      onClick={() => toggleRow(orden.id)}
-                      className={`p-1.5 rounded-lg transition-all duration-200 ${
-                        isExpanded
-                          ? 'bg-blue-600 text-white shadow-md'
-                          : 'bg-slate-100 text-slate-500 hover:bg-blue-100 hover:text-blue-600'
-                      }`}
-                      title={isExpanded ? 'Ocultar desglose' : 'Ver desglose de la orden'}
-                    >
-                      {isExpanded ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </button>
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Package className="h-4 w-4 text-slate-400 mr-2" />
-                      <span className="text-sm font-mono font-medium text-slate-900">
-                        {orden.numeroOrden}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                      <LineaNegocioBadge lineaNegocioId={orden.lineaNegocioId} />
-                      <PaisOrigenBadge paisOrigen={(orden as any).paisOrigen} />
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-slate-900">{orden.nombreProveedor}</div>
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <div className="space-y-1.5 max-w-[340px]">
-                      {orden.productos.slice(0, 3).map((p, idx) => {
-                        const desc = getDescripcionProducto(p);
-                        return (
-                          <div key={idx} className="text-xs leading-tight">
-                            <div className="font-semibold text-slate-900 truncate">{p.marca} {p.nombreComercial}</div>
-                            <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
-                              <span className="font-mono text-slate-400">{p.sku}</span>
-                              {desc && (
-                                <>
-                                  <span className="text-slate-300">·</span>
-                                  <span>{desc}</span>
-                                </>
-                              )}
-                              <span className="text-slate-300">·</span>
-                              <span className="font-medium text-slate-600">{p.cantidad}u × ${(p.costoUnitario ?? 0).toFixed(2)}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                      {orden.productos.length > 3 && (
-                        <div className="text-[10px] text-slate-400">
-                          +{orden.productos.length - 3} producto{orden.productos.length - 3 > 1 ? 's' : ''} más
-                        </div>
-                      )}
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-slate-900">
-                      ${orden.totalUSD.toFixed(2)}
-                    </div>
-                    {orden.totalPEN && (
-                      <div className="text-xs text-slate-500">
-                        S/ {orden.totalPEN.toFixed(2)}
+      {(() => {
+        const ocColumns: DataTableColumn<OrdenCompra>[] = [
+          {
+            key: 'numeroOrden',
+            header: 'Número Orden',
+            render: (orden) => (
+              <div>
+                <div className="flex items-center">
+                  <Package className="h-4 w-4 text-slate-400 mr-2 flex-shrink-0" />
+                  <span className="text-sm font-mono font-medium text-slate-900">
+                    {orden.numeroOrden}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                  <LineaNegocioBadge lineaNegocioId={orden.lineaNegocioId} />
+                  <PaisOrigenBadge paisOrigen={(orden as any).paisOrigen} />
+                </div>
+              </div>
+            ),
+          },
+          {
+            key: 'proveedor',
+            header: 'Proveedor',
+            render: (orden) => (
+              <div className="text-sm text-slate-900">{orden.nombreProveedor}</div>
+            ),
+          },
+          {
+            key: 'productos',
+            header: 'Productos',
+            hideOnMobile: true,
+            render: (orden) => (
+              <div className="space-y-1.5 max-w-[340px]">
+                {orden.productos.slice(0, 3).map((p, idx) => {
+                  const desc = getDescripcionProducto(p);
+                  return (
+                    <div key={idx} className="text-xs leading-tight">
+                      <div className="font-semibold text-slate-900 truncate">{p.marca} {p.nombreComercial}</div>
+                      <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
+                        <span className="font-mono text-slate-400">{p.sku}</span>
+                        {desc && (
+                          <>
+                            <span className="text-slate-300">·</span>
+                            <span>{desc}</span>
+                          </>
+                        )}
+                        <span className="text-slate-300">·</span>
+                        <span className="font-medium text-slate-600">{p.cantidad}u × ${(p.costoUnitario ?? 0).toFixed(2)}</span>
                       </div>
-                    )}
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-col gap-1">
-                      <Badge variant={estadoInfo.variant}>
-                        {estadoInfo.label}
-                      </Badge>
-                      {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
-                        <div className="flex items-center">
-                          <TrendingUp className="h-3 w-3 text-amber-500 mr-1" />
-                          <span className="text-xs text-amber-600">
-                            Dif. FX
-                          </span>
-                        </div>
-                      )}
-                      {orden.nombreAlmacenDestino && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded w-fit">
-                          <MapPin className="h-2.5 w-2.5" />
-                          {orden.nombreAlmacenDestino}
-                        </span>
-                      )}
-                      {orden.courier && (
-                        <span className="text-[10px] text-slate-500">
-                          📦 {orden.courier}
-                        </span>
-                      )}
                     </div>
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-slate-900">
-                      {formatDate(orden.fechaCreacion)}
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-2">
-                      <button
-                        onClick={() => onView(orden)}
-                        className="text-teal-600 hover:text-teal-900"
-                        title="Ver detalles"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-
-                      {orden.estado === 'borrador' && onEdit && (
-                        <button
-                          onClick={() => onEdit(orden)}
-                          className="text-slate-600 hover:text-slate-900"
-                          title="Editar"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                      )}
-
-                      {['borrador', 'enviada', 'en_transito', 'cancelada'].includes(orden.estado) && !orden.inventarioGenerado && onDelete && (
-                        <button
-                          onClick={() => onDelete(orden)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Fila expandible con desglose */}
-                {isExpanded && (
-                  <tr>
-                    <td colSpan={8} className="p-0">
-                      <DesgloseOrdenCompra orden={orden} />
-                    </td>
-                  </tr>
+                  );
+                })}
+                {orden.productos.length > 3 && (
+                  <div className="text-[10px] text-slate-400">
+                    +{orden.productos.length - 3} producto{orden.productos.length - 3 > 1 ? 's' : ''} más
+                  </div>
                 )}
-                </React.Fragment>
+              </div>
+            ),
+          },
+          {
+            key: 'total',
+            header: 'Total',
+            render: (orden) => (
+              <div>
+                <div className="text-sm font-semibold text-slate-900">
+                  ${orden.totalUSD.toFixed(2)}
+                </div>
+                {orden.totalPEN && (
+                  <div className="text-xs text-slate-500">
+                    S/ {orden.totalPEN.toFixed(2)}
+                  </div>
+                )}
+              </div>
+            ),
+          },
+          {
+            key: 'estado',
+            header: 'Estado',
+            render: (orden) => {
+              const estadoInfo = estadoLabels[orden.estado] || estadoLabels.borrador;
+              return (
+                <div className="flex flex-col gap-1">
+                  <Badge variant={estadoInfo.variant}>
+                    {estadoInfo.label}
+                  </Badge>
+                  {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
+                    <div className="flex items-center">
+                      <TrendingUp className="h-3 w-3 text-amber-500 mr-1" />
+                      <span className="text-xs text-amber-600">Dif. FX</span>
+                    </div>
+                  )}
+                  {orden.nombreAlmacenDestino && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded w-fit">
+                      <MapPin className="h-2.5 w-2.5" />
+                      {orden.nombreAlmacenDestino}
+                    </span>
+                  )}
+                  {orden.courier && (
+                    <span className="text-[10px] text-slate-500">
+                      📦 {orden.courier}
+                    </span>
+                  )}
+                </div>
               );
-            })}
-          </tbody>
-        </table>
-      </div>
+            },
+          },
+          {
+            key: 'fechaCreacion',
+            header: 'Fecha Creación',
+            hideOnMobile: true,
+            render: (orden) => (
+              <div className="text-sm text-slate-900">
+                {formatDate(orden.fechaCreacion)}
+              </div>
+            ),
+          },
+          {
+            key: 'acciones',
+            header: 'Acciones',
+            align: 'right',
+            render: (orden) => (
+              <div className="flex items-center justify-end space-x-2">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onView(orden); }}
+                  className="text-teal-600 hover:text-teal-900"
+                  title="Ver detalles"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+                {orden.estado === 'borrador' && onEdit && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onEdit(orden); }}
+                    className="text-slate-600 hover:text-slate-900"
+                    title="Editar"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                )}
+                {['borrador', 'enviada', 'en_transito', 'cancelada'].includes(orden.estado) && !orden.inventarioGenerado && onDelete && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(orden); }}
+                    className="text-red-600 hover:text-red-900"
+                    title="Eliminar"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ),
+          },
+        ];
+
+        return (
+          <DataTable<OrdenCompra>
+            columns={ocColumns}
+            data={ordenesPaginadas}
+            keyExtractor={(orden) => orden.id}
+            compact
+            expandedRowRender={(orden) => <DesgloseOrdenCompra orden={orden} />}
+            expandedKeys={expandedRows}
+            onToggleExpand={toggleRow}
+          />
+        );
+      })()}
 
       {/* Paginación */}
       {ordenesBuscadas.length > 0 && (

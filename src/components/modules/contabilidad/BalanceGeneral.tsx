@@ -127,7 +127,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+        <RefreshCw className="w-8 h-8 animate-spin text-sky-500" />
       </div>
     );
   }
@@ -145,7 +145,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
   return (
     <div className="space-y-6">
       {/* Header del Balance */}
-      <div className="bg-gradient-to-r from-teal-600 to-purple-600 text-white rounded-lg p-4 sm:p-6">
+      <div className="bg-teal-600 text-white rounded-lg p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold">BALANCE GENERAL</h2>
@@ -160,7 +160,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
           </div>
           <div className="sm:text-right">
             {balance.balanceCuadra ? (
-              <div className="flex items-center gap-2 text-green-300 text-sm sm:text-base">
+              <div className="flex items-center gap-2 text-emerald-300 text-sm sm:text-base">
                 <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Balance cuadrado</span>
               </div>
@@ -194,7 +194,7 @@ export default function BalanceGeneral({ mes, anio }: Props) {
         {/* ACTIVOS */}
         <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
           <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
-            <TrendingUp className="w-6 h-6 text-green-600" />
+            <TrendingUp className="w-6 h-6 text-emerald-600" />
             ACTIVOS
           </h3>
 
@@ -202,8 +202,8 @@ export default function BalanceGeneral({ mes, anio }: Props) {
           <SeccionBalance
             titulo="Activo Corriente"
             total={activos.corriente.total}
-            colorHeader="bg-green-50"
-            icon={<Wallet className="w-5 h-5 text-green-600" />}
+            colorHeader="bg-emerald-50"
+            icon={<Wallet className="w-5 h-5 text-emerald-600" />}
           >
             {/* Efectivo */}
             <div className="border-b">
@@ -349,9 +349,9 @@ export default function BalanceGeneral({ mes, anio }: Props) {
           )}
 
           {/* Total Activos */}
-          <div className="bg-green-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
-            <span className="font-bold text-green-800 text-sm sm:text-lg">TOTAL ACTIVOS</span>
-            <span className="font-mono font-bold text-green-800 text-base sm:text-xl">
+          <div className="bg-emerald-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
+            <span className="font-bold text-emerald-800 text-sm sm:text-lg">TOTAL ACTIVOS</span>
+            <span className="font-mono font-bold text-emerald-800 text-base sm:text-xl">
               {formatCurrency(activos.totalActivos)}
             </span>
           </div>
@@ -519,15 +519,15 @@ export default function BalanceGeneral({ mes, anio }: Props) {
           {/* PATRIMONIO */}
           <div className="bg-white rounded-lg border shadow-sm p-3 sm:p-6">
             <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 border-b pb-3">
-              <PiggyBank className="w-6 h-6 text-blue-600" />
+              <PiggyBank className="w-6 h-6 text-sky-600" />
               PATRIMONIO
             </h3>
 
             <SeccionBalance
               titulo="Capital y Resultados"
               total={patrimonio.totalPatrimonio}
-              colorHeader="bg-blue-50"
-              icon={<Users className="w-5 h-5 text-blue-600" />}
+              colorHeader="bg-sky-50"
+              icon={<Users className="w-5 h-5 text-sky-600" />}
             >
               <LineaBalance
                 label="Capital Social"
@@ -561,9 +561,9 @@ export default function BalanceGeneral({ mes, anio }: Props) {
             </SeccionBalance>
 
             {/* Total Patrimonio */}
-            <div className="bg-blue-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
-              <span className="font-bold text-blue-800 text-sm sm:text-lg">TOTAL PATRIMONIO</span>
-              <span className="font-mono font-bold text-blue-800 text-base sm:text-xl">
+            <div className="bg-sky-100 rounded-lg p-3 sm:p-4 flex justify-between items-center">
+              <span className="font-bold text-sky-800 text-sm sm:text-lg">TOTAL PATRIMONIO</span>
+              <span className="font-mono font-bold text-sky-800 text-base sm:text-xl">
                 {formatCurrency(patrimonio.totalPatrimonio)}
               </span>
             </div>
@@ -571,15 +571,15 @@ export default function BalanceGeneral({ mes, anio }: Props) {
 
           {/* VERIFICACIÓN */}
           <div className={`rounded-lg p-3 sm:p-4 flex justify-between items-center ${
-            balance.balanceCuadra ? 'bg-green-100' : 'bg-amber-100'
+            balance.balanceCuadra ? 'bg-emerald-100' : 'bg-amber-100'
           }`}>
             <span className={`font-bold text-sm sm:text-lg ${
-              balance.balanceCuadra ? 'text-green-800' : 'text-amber-800'
+              balance.balanceCuadra ? 'text-emerald-800' : 'text-amber-800'
             }`}>
               PASIVOS + PATRIMONIO
             </span>
             <span className={`font-mono font-bold text-base sm:text-xl ${
-              balance.balanceCuadra ? 'text-green-800' : 'text-amber-800'
+              balance.balanceCuadra ? 'text-emerald-800' : 'text-amber-800'
             }`}>
               {formatCurrency(balance.totalPasivosPatrimonio)}
             </span>
@@ -588,9 +588,9 @@ export default function BalanceGeneral({ mes, anio }: Props) {
       </div>
 
       {/* Nota contable */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-blue-800">
+      <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-sky-800">
         <strong>Notas:</strong>
-        <ul className="mt-2 space-y-1 text-blue-700">
+        <ul className="mt-2 space-y-1 text-sky-700">
           <li>• El inventario está valorizado usando el método CTRU (Costo Total Real Unitario)</li>
           <li>• Las cuentas en USD se convierten al tipo de cambio vigente: S/ {balance.tipoCambio.toFixed(2)}</li>
           <li>• La provisión para incobrables es el 5% de cartera mayor a 30 días</li>

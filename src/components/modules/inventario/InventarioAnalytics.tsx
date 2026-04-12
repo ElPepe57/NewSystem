@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { StatCard as DSStatCard } from '../../../design-system';
+import { StatCard as DSStatCard, DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { calcularDiasParaVencer } from '../../../utils/dateFormatters';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { formatCurrency } from '../../../utils/format';
@@ -20,9 +21,6 @@ import {
   Download,
   Lightbulb,
   Search,
-  ChevronUp,
-  ChevronDown,
-  ArrowUpDown,
   Shield,
   Globe,
   Hourglass,
@@ -429,7 +427,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
   // Distribución de antigüedad
   const distribucionAntiguedad = useMemo(() => {
     const buckets = [
-      { label: '0-15 días', min: 0, max: 15, count: 0, valor: 0, color: 'bg-green-500', textColor: 'text-green-700', tag: 'Fresco' },
+      { label: '0-15 días', min: 0, max: 15, count: 0, valor: 0, color: 'bg-emerald-500', textColor: 'text-emerald-700', tag: 'Fresco' },
       { label: '16-30 días', min: 16, max: 30, count: 0, valor: 0, color: 'bg-emerald-400', textColor: 'text-emerald-700', tag: 'Normal' },
       { label: '31-60 días', min: 31, max: 60, count: 0, valor: 0, color: 'bg-amber-400', textColor: 'text-amber-700', tag: 'Atención' },
       { label: '61-90 días', min: 61, max: 90, count: 0, valor: 0, color: 'bg-orange-500', textColor: 'text-orange-700', tag: 'Estancado' },
@@ -625,6 +623,149 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
     });
   };
 
+  // Columns for the full product table
+  const tablaColumns = useMemo((): DataTableColumn<ProductoAnalyticData>[] => {
+    const ctruMap = rentabilidadData?.ctruMap;
+    const baseColumns: DataTableColumn<ProductoAnalyticData>[] = [
+      {
+        key: 'sku',
+        header: 'Producto',
+        sortable: true,
+        render: (p) => {
+          const ref = getProductoRef(p);
+          return (
+            <>
+              <div className="font-mono text-sm font-semibold text-slate-900">{p.sku}</div>
+              <div className="text-xs text-slate-600 truncate max-w-[250px]">{p.marca} · {p.nombre}</div>
+              {ref && <div className="text-[10px] text-slate-400 truncate max-w-[250px]">{ref}</div>}
+            </>
+          );
+        },
+      },
+      {
+        key: 'cantidad',
+        header: 'Uds',
+        align: 'center',
+        sortable: true,
+        render: (p) => <span className="text-sm font-medium text-slate-900">{p.cantidadTotal}</span>,
+      },
+      {
+        key: 'valor',
+        header: 'Valor USD',
+        align: 'right',
+        sortable: true,
+        render: (p) => <span className="text-sm font-medium text-slate-900">{formatCurrency(p.valorTotal)}</span>,
+      },
+      {
+        key: 'clase',
+        header: 'Clase',
+        align: 'center',
+        sortable: true,
+        render: (p) => {
+          const claseColor = p.clasificacionABC === 'A' ? 'bg-emerald-100 text-emerald-800' : p.clasificacionABC === 'B' ? 'bg-yellow-100 text-yellow-800' : 'bg-slate-100 text-slate-800';
+          return <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${claseColor}`}>{p.clasificacionABC}</span>;
+        },
+      },
+      {
+        key: 'rotacion',
+        header: 'Rotación',
+        align: 'center',
+        sortable: true,
+        render: (p) => <span className="text-sm text-slate-700">{p.rotacion.toFixed(1)}x</span>,
+      },
+      {
+        key: 'dias',
+        header: 'Días',
+        align: 'center',
+        sortable: true,
+        render: (p) => <span className="text-sm text-slate-700">{p.diasEnInventario}d</span>,
+      },
+    ];
+
+    const financeColumns: DataTableColumn<ProductoAnalyticData>[] = rentabilidadData ? [
+      {
+        key: 'ctru',
+        header: 'CTRU',
+        align: 'right',
+        sortable: true,
+        render: (p) => {
+          const ctru = ctruMap?.get(p.productoId);
+          return ctru ? (
+            <span className="text-sm text-slate-700">{formatPEN(ctru.costoInventarioProm)}</span>
+          ) : (
+            <span className="text-slate-400">—</span>
+          );
+        },
+      },
+      {
+        key: 'precioVenta',
+        header: 'P. Venta',
+        align: 'right',
+        sortable: true,
+        render: (p) => {
+          const ctru = ctruMap?.get(p.productoId);
+          return ctru && ctru.precioVentaProm > 0 ? (
+            <span className="text-sm text-slate-700">{formatPEN(ctru.precioVentaProm)}</span>
+          ) : (
+            <span className="text-slate-400">—</span>
+          );
+        },
+      },
+      {
+        key: 'margen',
+        header: 'Margen',
+        align: 'center',
+        sortable: true,
+        render: (p) => {
+          const ctru = ctruMap?.get(p.productoId);
+          return ctru && ctru.ventasCount > 0 ? (
+            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${ctru.margenBrutoProm >= 20 ? 'bg-emerald-100 text-emerald-800' : ctru.margenBrutoProm >= 10 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+              {ctru.margenBrutoProm.toFixed(0)}%
+            </span>
+          ) : (
+            <span className="text-slate-400 text-xs">—</span>
+          );
+        },
+      },
+      {
+        key: 'roi',
+        header: 'ROI',
+        align: 'center',
+        sortable: true,
+        render: (p) => {
+          const ctru = ctruMap?.get(p.productoId);
+          const roi = ctru && ctru.costoInventarioProm > 0 && ctru.ventasCount > 0
+            ? ((ctru.precioVentaProm - ctru.costoTotalRealProm) / ctru.costoInventarioProm) * 100
+            : null;
+          return roi !== null ? (
+            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${roi >= 20 ? 'bg-emerald-100 text-emerald-800' : roi >= 0 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+              {roi.toFixed(0)}%
+            </span>
+          ) : (
+            <span className="text-slate-400 text-xs">—</span>
+          );
+        },
+      },
+    ] : [];
+
+    const estadoColumn: DataTableColumn<ProductoAnalyticData> = {
+      key: 'estado',
+      header: 'Estado',
+      align: 'center',
+      render: (p) => p.stockCritico ? (
+        <Badge variant="danger" size="sm">Crítico</Badge>
+      ) : p.diasEnInventario > 90 ? (
+        <Badge variant="warning" size="sm">Estancado</Badge>
+      ) : p.diasParaVencer !== null && p.diasParaVencer <= 30 ? (
+        <Badge variant="warning" size="sm">Vence</Badge>
+      ) : (
+        <Badge variant="success" size="sm">OK</Badge>
+      ),
+    };
+
+    return [...baseColumns, ...financeColumns, estadoColumn];
+  }, [rentabilidadData, formatPEN]);
+
   // Exportar analytics
   const handleExportarAnalytics = () => {
     const ctruMap = rentabilidadData?.ctruMap;
@@ -720,7 +861,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
 
       {/* KPIs Operativos */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <DSStatCard label="Valor Total" value={formatCurrency(kpis.valorTotalUSD)} icon={DollarSign} variant="green" />
+        <DSStatCard label="Valor Total" value={formatCurrency(kpis.valorTotalUSD)} icon={DollarSign} variant="success" />
         <DSStatCard label="Días Promedio" value={kpis.diasPromedioInventario} subtitle="en inventario" icon={Clock} variant={kpis.diasPromedioInventario > 60 ? 'amber' : 'blue'} />
         <DSStatCard label="Rotación" value={kpis.rotacionPromedio} subtitle="veces/año" icon={RotateCw} variant={parseFloat(kpis.rotacionPromedio) > 4 ? 'green' : 'amber'} />
         <DSStatCard label="Sin Movimiento" value={kpis.sinMovimiento} subtitle=">90 días" icon={Package} variant={kpis.sinMovimiento > 0 ? 'red' : 'default'} />
@@ -730,41 +871,41 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
 
       {/* ==================== DASHBOARD DE RENTABILIDAD ==================== */}
       {rentabilidadData ? (
-        <Card padding="md" className="border-2 border-green-200 bg-gradient-to-br from-green-50/50 to-emerald-50/30">
+        <Card padding="md" className="border-2 border-emerald-200 bg-emerald-50/30">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="h-5 w-5 text-green-600" />
+            <Activity className="h-5 w-5 text-emerald-600" />
             <h3 className="font-semibold text-slate-900">Dashboard de Rentabilidad</h3>
             <Badge variant="success" size="sm">{rentabilidadData.totalUdsVendidas} uds vendidas</Badge>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div className={`rounded-lg p-4 text-center border ${rentabilidadData.margenBrutoGlobal >= 20 ? 'bg-green-50 border-green-200' : rentabilidadData.margenBrutoGlobal >= 10 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
-              <div className={`text-2xl font-bold ${rentabilidadData.margenBrutoGlobal >= 20 ? 'text-green-700' : rentabilidadData.margenBrutoGlobal >= 10 ? 'text-amber-700' : 'text-red-700'}`}>
+            <div className={`rounded-lg p-4 text-center border ${rentabilidadData.margenBrutoGlobal >= 20 ? 'bg-emerald-50 border-emerald-200' : rentabilidadData.margenBrutoGlobal >= 10 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
+              <div className={`text-2xl font-bold ${rentabilidadData.margenBrutoGlobal >= 20 ? 'text-emerald-700' : rentabilidadData.margenBrutoGlobal >= 10 ? 'text-amber-700' : 'text-red-700'}`}>
                 {rentabilidadData.margenBrutoGlobal.toFixed(1)}%
               </div>
               <div className="text-xs text-slate-600 mt-1">Margen Bruto</div>
               <div className="text-[10px] text-slate-400">Venta - Inversión</div>
             </div>
-            <div className={`rounded-lg p-4 text-center border ${rentabilidadData.margenNetoGlobal >= 10 ? 'bg-green-50 border-green-200' : rentabilidadData.margenNetoGlobal >= 5 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
-              <div className={`text-2xl font-bold ${rentabilidadData.margenNetoGlobal >= 10 ? 'text-green-700' : rentabilidadData.margenNetoGlobal >= 5 ? 'text-amber-700' : 'text-red-700'}`}>
+            <div className={`rounded-lg p-4 text-center border ${rentabilidadData.margenNetoGlobal >= 10 ? 'bg-emerald-50 border-emerald-200' : rentabilidadData.margenNetoGlobal >= 5 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
+              <div className={`text-2xl font-bold ${rentabilidadData.margenNetoGlobal >= 10 ? 'text-emerald-700' : rentabilidadData.margenNetoGlobal >= 5 ? 'text-amber-700' : 'text-red-700'}`}>
                 {rentabilidadData.margenNetoGlobal.toFixed(1)}%
               </div>
               <div className="text-xs text-slate-600 mt-1">Margen Neto</div>
               <div className="text-[10px] text-slate-400">Venta - Costo Total</div>
             </div>
-            <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-              <div className="text-2xl font-bold text-blue-700">{rentabilidadData.roiGlobal.toFixed(1)}%</div>
+            <div className="bg-sky-50 rounded-lg p-4 text-center border border-sky-200">
+              <div className="text-2xl font-bold text-sky-700">{rentabilidadData.roiGlobal.toFixed(1)}%</div>
               <div className="text-xs text-slate-600 mt-1">ROI</div>
               <div className="text-[10px] text-slate-400">Retorno / Inversión</div>
             </div>
-            <div className={`rounded-lg p-4 text-center border ${rentabilidadData.utilidadNetaTotal >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-              <div className={`text-2xl font-bold ${rentabilidadData.utilidadNetaTotal >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+            <div className={`rounded-lg p-4 text-center border ${rentabilidadData.utilidadNetaTotal >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+              <div className={`text-2xl font-bold ${rentabilidadData.utilidadNetaTotal >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
                 {formatPEN(rentabilidadData.utilidadNetaTotal)}
               </div>
               <div className="text-xs text-slate-600 mt-1">Utilidad Neta</div>
               <div className="text-[10px] text-slate-400">Total acumulada</div>
             </div>
-            <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-              <div className="text-2xl font-bold text-blue-700">{formatPEN(rentabilidadData.totalRevenue)}</div>
+            <div className="bg-sky-50 rounded-lg p-4 text-center border border-sky-200">
+              <div className="text-2xl font-bold text-sky-700">{formatPEN(rentabilidadData.totalRevenue)}</div>
               <div className="text-xs text-slate-600 mt-1">Revenue Total</div>
               <div className="text-[10px] text-slate-400">Ventas acumuladas</div>
             </div>
@@ -774,9 +915,9 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               <div className="text-[10px] text-slate-400">Si vendes todo</div>
             </div>
           </div>
-          <div className="mt-4 p-3 bg-white/80 rounded-lg border border-green-100">
+          <div className="mt-4 p-3 bg-white/80 rounded-lg border border-emerald-100">
             <p className="text-sm text-slate-700">
-              <strong className="text-green-700">Resumen:</strong>{' '}
+              <strong className="text-emerald-700">Resumen:</strong>{' '}
               Tu portafolio genera un ROI del <strong>{rentabilidadData.roiGlobal.toFixed(1)}%</strong> con un margen neto del{' '}
               <strong>{rentabilidadData.margenNetoGlobal.toFixed(1)}%</strong>.
               {rentabilidadData.utilidadPotencial > 0 && (
@@ -802,19 +943,19 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
       {rentabilidadData && rentabilidadData.valorMercadoPotencial > 0 && (
         <Card padding="md">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
+            <TrendingUp className="h-5 w-5 text-sky-600" />
             <h3 className="font-semibold text-slate-900">Valor de Mercado vs Inversión</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-              <div className="text-2xl font-bold text-blue-700">{formatPEN(rentabilidadData.costoInversionPotencial)}</div>
-              <div className="text-sm text-blue-600">Inversión en Inventario</div>
-              <div className="text-[10px] text-blue-400">Costo + Flete (capas 1-5)</div>
+            <div className="bg-sky-50 rounded-lg p-4 text-center border border-sky-200">
+              <div className="text-2xl font-bold text-sky-700">{formatPEN(rentabilidadData.costoInversionPotencial)}</div>
+              <div className="text-sm text-sky-600">Inversión en Inventario</div>
+              <div className="text-[10px] text-sky-400">Costo + Flete (capas 1-5)</div>
             </div>
-            <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-              <div className="text-2xl font-bold text-green-700">{formatPEN(rentabilidadData.valorMercadoPotencial)}</div>
-              <div className="text-sm text-green-600">Valor de Mercado</div>
-              <div className="text-[10px] text-green-400">Si vendes todo al precio promedio</div>
+            <div className="bg-emerald-50 rounded-lg p-4 text-center border border-emerald-200">
+              <div className="text-2xl font-bold text-emerald-700">{formatPEN(rentabilidadData.valorMercadoPotencial)}</div>
+              <div className="text-sm text-emerald-600">Valor de Mercado</div>
+              <div className="text-[10px] text-emerald-400">Si vendes todo al precio promedio</div>
             </div>
             <div className={`rounded-lg p-4 text-center border ${rentabilidadData.utilidadPotencial >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
               <div className={`text-2xl font-bold ${rentabilidadData.utilidadPotencial >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
@@ -830,7 +971,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           <div className="relative">
             <div className="h-8 bg-slate-100 rounded-full overflow-hidden flex">
               <div
-                className="bg-blue-500 transition-all duration-500 flex items-center justify-center"
+                className="bg-sky-500 transition-all duration-500 flex items-center justify-center"
                 style={{ width: `${Math.min((rentabilidadData.costoInversionPotencial / (rentabilidadData.valorMercadoPotencial || 1)) * 100, 100)}%` }}
               >
                 <span className="text-[10px] font-bold text-white">Inversión</span>
@@ -854,17 +995,17 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           {/* Top 5 Mayor ROI */}
           <Card padding="md">
             <div className="flex items-center gap-2 mb-4">
-              <Star className="h-5 w-5 text-green-600" />
+              <Star className="h-5 w-5 text-emerald-600" />
               <h3 className="font-semibold text-slate-900">Top 5 — Mayor ROI</h3>
             </div>
             <div className="space-y-3">
               {rentabilidadData.productosConROI.slice(0, 5).map((p, i) => {
                 const maxROI = rentabilidadData.productosConROI[0].roi || 1;
                 return (
-                  <div key={p.productoId} className="p-3 bg-green-50 rounded-lg border border-green-100">
+                  <div key={p.productoId} className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
                     <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-200 flex items-center justify-center">
-                        <span className="text-sm font-bold text-green-800">#{i + 1}</span>
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center">
+                        <span className="text-sm font-bold text-emerald-800">#{i + 1}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -875,13 +1016,13 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
                         {getProductoRef(p) && <div className="text-[10px] text-slate-400 truncate">{getProductoRef(p)}</div>}
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <div className="text-sm font-bold text-green-700">{formatPEN(p.utilidadUnitaria)}</div>
+                        <div className="text-sm font-bold text-emerald-700">{formatPEN(p.utilidadUnitaria)}</div>
                         <div className="text-[10px] text-slate-500">util/ud · M.Neto {p.ctru!.margenNetoProm.toFixed(0)}%</div>
                         <div className="text-[10px] text-slate-400">{p.ctru!.ventasCount} ventas</div>
                       </div>
                     </div>
-                    <div className="mt-2 h-1.5 bg-green-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-green-500 rounded-full transition-all duration-500" style={{ width: `${(p.roi / maxROI) * 100}%` }} />
+                    <div className="mt-2 h-1.5 bg-emerald-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${(p.roi / maxROI) * 100}%` }} />
                     </div>
                   </div>
                 );
@@ -945,37 +1086,37 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Estrellas */}
-            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+            <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
               <div className="flex items-center gap-2 mb-2">
-                <Star className="h-4 w-4 text-green-600" />
-                <span className="font-bold text-green-800 text-sm">Estrellas</span>
+                <Star className="h-4 w-4 text-emerald-600" />
+                <span className="font-bold text-emerald-800 text-sm">Estrellas</span>
               </div>
-              <div className="text-2xl font-bold text-green-700">{rentabilidadData.matrizEstrategica.estrellas.length}</div>
-              <div className="text-[10px] text-green-600 mb-2">Alto margen + Alta rotación</div>
+              <div className="text-2xl font-bold text-emerald-700">{rentabilidadData.matrizEstrategica.estrellas.length}</div>
+              <div className="text-[10px] text-emerald-600 mb-2">Alto margen + Alta rotación</div>
               <div className="space-y-2 mt-1">
                 {rentabilidadData.matrizEstrategica.estrellas.slice(0, 3).map(p => (
                   <div key={p.productoId} className="bg-white/60 rounded p-1.5">
                     <div className="text-[11px] font-medium text-slate-800 leading-tight">{p.nombre}</div>
                     {getProductoRef(p) && <div className="text-[10px] text-slate-500 leading-tight">{getProductoRef(p)}</div>}
-                    <div className="text-[10px] text-green-700 font-medium mt-0.5">M:{p.ctru!.margenBrutoProm.toFixed(0)}% · R:{p.rotacion.toFixed(0)}x</div>
+                    <div className="text-[10px] text-emerald-700 font-medium mt-0.5">M:{p.ctru!.margenBrutoProm.toFixed(0)}% · R:{p.rotacion.toFixed(0)}x</div>
                   </div>
                 ))}
               </div>
             </div>
             {/* Vacas Lecheras */}
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <div className="bg-sky-50 rounded-lg p-4 border border-sky-200">
               <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="h-4 w-4 text-blue-600" />
-                <span className="font-bold text-blue-800 text-sm">Vacas Lecheras</span>
+                <DollarSign className="h-4 w-4 text-sky-600" />
+                <span className="font-bold text-sky-800 text-sm">Vacas Lecheras</span>
               </div>
-              <div className="text-2xl font-bold text-blue-700">{rentabilidadData.matrizEstrategica.vacasLecheras.length}</div>
-              <div className="text-[10px] text-blue-600 mb-2">Alto margen + Baja rotación</div>
+              <div className="text-2xl font-bold text-sky-700">{rentabilidadData.matrizEstrategica.vacasLecheras.length}</div>
+              <div className="text-[10px] text-sky-600 mb-2">Alto margen + Baja rotación</div>
               <div className="space-y-2 mt-1">
                 {rentabilidadData.matrizEstrategica.vacasLecheras.slice(0, 3).map(p => (
                   <div key={p.productoId} className="bg-white/60 rounded p-1.5">
                     <div className="text-[11px] font-medium text-slate-800 leading-tight">{p.nombre}</div>
                     {getProductoRef(p) && <div className="text-[10px] text-slate-500 leading-tight">{getProductoRef(p)}</div>}
-                    <div className="text-[10px] text-blue-700 font-medium mt-0.5">M:{p.ctru!.margenBrutoProm.toFixed(0)}% · R:{p.rotacion.toFixed(0)}x</div>
+                    <div className="text-[10px] text-sky-700 font-medium mt-0.5">M:{p.ctru!.margenBrutoProm.toFixed(0)}% · R:{p.rotacion.toFixed(0)}x</div>
                   </div>
                 ))}
               </div>
@@ -1042,7 +1183,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           {/* Barra apilada */}
           <div className="h-10 rounded-lg overflow-hidden flex mb-4">
             {[
-              { label: 'Compra', pct: rentabilidadData.pctCompra, color: 'bg-blue-500' },
+              { label: 'Compra', pct: rentabilidadData.pctCompra, color: 'bg-sky-500' },
               { label: 'Impuesto', pct: rentabilidadData.pctImpuesto, color: 'bg-slate-400' },
               { label: 'Envío OC', pct: rentabilidadData.pctEnvio, color: 'bg-cyan-500' },
               { label: 'Otros', pct: rentabilidadData.pctOtros, color: 'bg-slate-400' },
@@ -1063,7 +1204,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           {/* Leyenda */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
             {[
-              { label: 'Compra', pct: rentabilidadData.pctCompra, color: 'bg-blue-500', desc: 'Costo producto' },
+              { label: 'Compra', pct: rentabilidadData.pctCompra, color: 'bg-sky-500', desc: 'Costo producto' },
               { label: 'Impuesto', pct: rentabilidadData.pctImpuesto, color: 'bg-slate-400', desc: 'Sales Tax' },
               { label: 'Envío OC', pct: rentabilidadData.pctEnvio, color: 'bg-cyan-500', desc: 'Prov→USA' },
               { label: 'Otros OC', pct: rentabilidadData.pctOtros, color: 'bg-slate-400', desc: 'Gastos OC' },
@@ -1118,13 +1259,13 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               <div className="h-5 rounded-full overflow-hidden flex bg-slate-100">
                 {kpis.valorTotalUSD > 0 && (
                   <>
-                    <div className="bg-blue-500 transition-all duration-500 flex items-center justify-center" style={{ width: `${(kpis.valorA / kpis.valorTotalUSD) * 100}%` }}>
+                    <div className="bg-sky-500 transition-all duration-500 flex items-center justify-center" style={{ width: `${(kpis.valorA / kpis.valorTotalUSD) * 100}%` }}>
                       <span className="text-[9px] font-bold text-white">A {((kpis.valorA / kpis.valorTotalUSD) * 100).toFixed(0)}%</span>
                     </div>
-                    <div className="bg-blue-300 transition-all duration-500 flex items-center justify-center" style={{ width: `${(kpis.valorB / kpis.valorTotalUSD) * 100}%` }}>
+                    <div className="bg-sky-300 transition-all duration-500 flex items-center justify-center" style={{ width: `${(kpis.valorB / kpis.valorTotalUSD) * 100}%` }}>
                       <span className="text-[9px] font-bold text-white">B</span>
                     </div>
-                    <div className="bg-blue-200 transition-all duration-500" style={{ width: `${(kpis.valorC / kpis.valorTotalUSD) * 100}%` }} />
+                    <div className="bg-sky-200 transition-all duration-500" style={{ width: `${(kpis.valorC / kpis.valorTotalUSD) * 100}%` }} />
                   </>
                 )}
               </div>
@@ -1140,13 +1281,13 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
                 <div className="h-5 rounded-full overflow-hidden flex bg-slate-100">
                   {paretoEstrategico.totalUtilidad > 0 && (
                     <>
-                      <div className="bg-green-500 transition-all duration-500 flex items-center justify-center" style={{ width: `${(paretoEstrategico.valorUtilA / paretoEstrategico.totalUtilidad) * 100}%` }}>
+                      <div className="bg-emerald-500 transition-all duration-500 flex items-center justify-center" style={{ width: `${(paretoEstrategico.valorUtilA / paretoEstrategico.totalUtilidad) * 100}%` }}>
                         <span className="text-[9px] font-bold text-white">A {((paretoEstrategico.valorUtilA / paretoEstrategico.totalUtilidad) * 100).toFixed(0)}%</span>
                       </div>
-                      <div className="bg-green-300 transition-all duration-500 flex items-center justify-center" style={{ width: `${Math.max((paretoEstrategico.valorUtilB / paretoEstrategico.totalUtilidad) * 100, 0)}%` }}>
+                      <div className="bg-emerald-300 transition-all duration-500 flex items-center justify-center" style={{ width: `${Math.max((paretoEstrategico.valorUtilB / paretoEstrategico.totalUtilidad) * 100, 0)}%` }}>
                         <span className="text-[9px] font-bold text-white">B</span>
                       </div>
-                      <div className="bg-green-200 transition-all duration-500" style={{ width: `${Math.max((paretoEstrategico.valorUtilC / paretoEstrategico.totalUtilidad) * 100, 0)}%` }} />
+                      <div className="bg-emerald-200 transition-all duration-500" style={{ width: `${Math.max((paretoEstrategico.valorUtilC / paretoEstrategico.totalUtilidad) * 100, 0)}%` }} />
                     </>
                   )}
                 </div>
@@ -1164,18 +1305,18 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
             <div className="space-y-2">
               {/* Eficientes */}
               {paretoEstrategico.eficientes.length > 0 && (
-                <div className="p-2.5 bg-green-50 rounded-lg border border-green-200">
+                <div className="p-2.5 bg-emerald-50 rounded-lg border border-emerald-200">
                   <div className="flex items-center gap-2 mb-1">
-                    <Target className="h-3.5 w-3.5 text-green-600" />
-                    <span className="text-xs font-bold text-green-800">Capital Bien Invertido</span>
+                    <Target className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="text-xs font-bold text-emerald-800">Capital Bien Invertido</span>
                     <Badge variant="success" size="sm">{paretoEstrategico.eficientes.length}</Badge>
                   </div>
-                  <div className="text-[10px] text-green-700 mb-1">Clase A en capital Y utilidad — nunca dejes que se agoten</div>
+                  <div className="text-[10px] text-emerald-700 mb-1">Clase A en capital Y utilidad — nunca dejes que se agoten</div>
                   <div className="space-y-1">
                     {paretoEstrategico.eficientes.slice(0, 3).map(p => (
                       <div key={p.productoId} className="text-[11px] text-slate-700 flex items-center justify-between">
                         <span className="truncate flex-1">{p.nombre} {getProductoRef(p) ? `· ${getProductoRef(p)}` : ''}</span>
-                        <span className="ml-2 text-green-700 font-medium flex-shrink-0">{formatPEN(p.utilidadTotal)}</span>
+                        <span className="ml-2 text-emerald-700 font-medium flex-shrink-0">{formatPEN(p.utilidadTotal)}</span>
                       </div>
                     ))}
                   </div>
@@ -1229,7 +1370,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
                 </div>
               )}
               {/* Insight final */}
-              <div className="p-2 bg-blue-50 rounded text-[11px] text-blue-800">
+              <div className="p-2 bg-sky-50 rounded text-[11px] text-sky-800">
                 <strong>Interpretación:</strong>{' '}
                 {paretoEstrategico.trampasCapital.length > 0
                   ? `Tienes ${paretoEstrategico.trampasCapital.length} producto(s) que absorben capital Clase A pero generan utilidad Clase B/C. Reduce stock de estos y reinvierte en las ${paretoEstrategico.joyasOcultas.length > 0 ? `${paretoEstrategico.joyasOcultas.length} joyas ocultas` : 'estrellas'}.`
@@ -1240,10 +1381,10 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-green-50 rounded-lg p-3 text-center border border-green-200">
-                <div className="flex items-center justify-center gap-1 mb-1"><Target className="h-4 w-4 text-green-600" /><span className="font-bold text-green-700">Clase A</span></div>
-                <div className="text-xl font-bold text-green-800">{kpis.countA}</div>
-                <div className="text-xs text-green-600">productos · {formatCurrency(kpis.valorA)}</div>
+              <div className="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-200">
+                <div className="flex items-center justify-center gap-1 mb-1"><Target className="h-4 w-4 text-emerald-600" /><span className="font-bold text-emerald-700">Clase A</span></div>
+                <div className="text-xl font-bold text-emerald-800">{kpis.countA}</div>
+                <div className="text-xs text-emerald-600">productos · {formatCurrency(kpis.valorA)}</div>
               </div>
               <div className="bg-yellow-50 rounded-lg p-3 text-center border border-yellow-200">
                 <div className="flex items-center justify-center gap-1 mb-1"><Layers className="h-4 w-4 text-yellow-600" /><span className="font-bold text-yellow-700">Clase B</span></div>
@@ -1271,7 +1412,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               { label: 'Vencen en 7 días', value: unidadesActivas.filter(u => { const d = calcularDiasParaVencer(u.fechaVencimiento); return d !== null && d >= 0 && d <= 7; }).length, color: 'bg-red-500' },
               { label: 'Vencen en 8-30 días', value: unidadesActivas.filter(u => { const d = calcularDiasParaVencer(u.fechaVencimiento); return d !== null && d > 7 && d <= 30; }).length, color: 'bg-amber-500' },
               { label: 'Vencen en 31-60 días', value: unidadesActivas.filter(u => { const d = calcularDiasParaVencer(u.fechaVencimiento); return d !== null && d > 30 && d <= 60; }).length, color: 'bg-yellow-500' },
-              { label: '>60 días o sin fecha', value: unidadesActivas.filter(u => { const d = calcularDiasParaVencer(u.fechaVencimiento); return d === null || d > 60; }).length, color: 'bg-green-500' }
+              { label: '>60 días o sin fecha', value: unidadesActivas.filter(u => { const d = calcularDiasParaVencer(u.fechaVencimiento); return d === null || d > 60; }).length, color: 'bg-emerald-500' }
             ]}
           />
           {productosProximosVencer.length > 0 && (
@@ -1306,7 +1447,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
+              <TrendingUp className="h-5 w-5 text-emerald-600" />
               <h3 className="font-semibold text-slate-900">Top 5 — Mayor Capital Invertido</h3>
             </div>
           </div>
@@ -1314,8 +1455,8 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
             {topProductosValor.map((p, index) => (
               <div key={p.productoId} className="p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                    <span className="text-sm font-bold text-green-700">#{index + 1}</span>
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <span className="text-sm font-bold text-emerald-700">#{index + 1}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -1333,7 +1474,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
                 {/* Barra proporcional */}
                 <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-green-500 rounded-full transition-all duration-500"
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                     style={{ width: `${(p.valorTotal / maxValorTop) * 100}%` }}
                   />
                 </div>
@@ -1352,7 +1493,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               <Package className="h-5 w-5 text-slate-600" />
               <h3 className="font-semibold text-slate-900">Sin Movimiento</h3>
             </div>
-            <Badge variant="default" size="sm">&gt;90 días</Badge>
+            <Badge variant="neutral" size="sm">&gt;90 días</Badge>
           </div>
           <div className="space-y-3">
             {productosSinMovimiento.map(p => (
@@ -1374,8 +1515,8 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
             ))}
             {productosSinMovimiento.length === 0 && (
               <div className="text-center py-6">
-                <Package className="h-8 w-8 mx-auto mb-2 text-green-400" />
-                <div className="font-medium text-green-600">Excelente rotación</div>
+                <Package className="h-8 w-8 mx-auto mb-2 text-emerald-400" />
+                <div className="font-medium text-emerald-600">Excelente rotación</div>
                 <div className="text-sm text-slate-500 mt-1">
                   Todos tus productos rotaron en los últimos 90 días.
                   {productoMasAntiguo && (
@@ -1394,7 +1535,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-600" />
+              <Shield className="h-5 w-5 text-sky-600" />
               <h3 className="font-semibold text-slate-900">Concentración por Marca</h3>
             </div>
             {concentracionMarca.length > 0 && concentracionMarca[0].porcentaje > 30 && (
@@ -1408,7 +1549,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
                 <div className="flex-1">
                   <div className="h-5 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${m.porcentaje > 30 ? 'bg-amber-500' : 'bg-blue-500'}`}
+                      className={`h-full rounded-full transition-all duration-500 ${m.porcentaje > 30 ? 'bg-amber-500' : 'bg-sky-500'}`}
                       style={{ width: `${Math.max(m.porcentaje, 2)}%` }}
                     />
                   </div>
@@ -1480,7 +1621,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {eficienciaPais.map(p => (
-              <div key={p.pais} className={`rounded-lg p-4 border ${p.pais === 'USA' ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200'}`}>
+              <div key={p.pais} className={`rounded-lg p-4 border ${p.pais === 'USA' ? 'bg-sky-50 border-sky-200' : 'bg-emerald-50 border-emerald-200'}`}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xl">{p.pais === 'USA' ? '🇺🇸' : '🇵🇪'}</span>
                   <span className="font-bold text-slate-900">{p.pais === 'USA' ? 'Estados Unidos' : 'Perú'}</span>
@@ -1531,13 +1672,13 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           <h3 className="font-semibold text-slate-900">Métricas de Eficiencia</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-100">
-            <div className="text-2xl font-bold text-blue-700">{formatCurrency(kpis.valorTotalUSD)}</div>
-            <div className="text-sm text-blue-600">Capital en Inventario</div>
+          <div className="bg-sky-50 rounded-lg p-4 text-center border border-sky-100">
+            <div className="text-2xl font-bold text-sky-700">{formatCurrency(kpis.valorTotalUSD)}</div>
+            <div className="text-sm text-sky-600">Capital en Inventario</div>
           </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center border border-green-100">
-            <div className="text-2xl font-bold text-green-700">{kpis.coberturaStock} <span className="text-base font-normal">días</span></div>
-            <div className="text-sm text-green-600">Cobertura de Stock</div>
+          <div className="bg-emerald-50 rounded-lg p-4 text-center border border-emerald-100">
+            <div className="text-2xl font-bold text-emerald-700">{kpis.coberturaStock} <span className="text-base font-normal">días</span></div>
+            <div className="text-sm text-emerald-600">Cobertura de Stock</div>
           </div>
           <div className="bg-purple-50 rounded-lg p-4 text-center border border-purple-100">
             <div className="text-2xl font-bold text-purple-700">{kpis.indiceServicio.toFixed(0)}%</div>
@@ -1578,19 +1719,19 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
               <div className="text-sm text-slate-600">Recuperas con 30% off</div>
             </div>
             <div className="bg-white rounded-lg p-4 text-center border border-amber-200">
-              <div className="text-2xl font-bold text-green-600">{formatCurrency(costoOportunidad.potencialReinversion)}</div>
+              <div className="text-2xl font-bold text-emerald-600">{formatCurrency(costoOportunidad.potencialReinversion)}</div>
               <div className="text-sm text-slate-600">Potencial Reinversión</div>
             </div>
-            <div className="bg-white rounded-lg p-4 text-center border border-green-200 bg-green-50">
-              <div className="text-2xl font-bold text-green-700">{formatCurrency(costoOportunidad.gananciaOportunidad)}</div>
-              <div className="text-sm text-green-600">Ganancia Potencial</div>
+            <div className="bg-white rounded-lg p-4 text-center border border-emerald-200 bg-emerald-50">
+              <div className="text-2xl font-bold text-emerald-700">{formatCurrency(costoOportunidad.gananciaOportunidad)}</div>
+              <div className="text-sm text-emerald-600">Ganancia Potencial</div>
             </div>
           </div>
           <div className="p-3 bg-white rounded-lg border border-amber-200">
             <p className="text-sm text-slate-700">
               <strong className="text-amber-700">Recomendación:</strong> Tienes <strong>{formatCurrency(costoOportunidad.capitalInmovilizado)}</strong> en
               productos estancados. Si los vendes con <strong>30% de descuento</strong>, recuperas <strong>{formatCurrency(costoOportunidad.recuperacionCon30Descuento)}</strong>.
-              Reinvirtiendo con el ROI promedio (25%), generarías <strong className="text-green-600">{formatCurrency(costoOportunidad.gananciaOportunidad)}</strong> adicionales.
+              Reinvirtiendo con el ROI promedio (25%), generarías <strong className="text-emerald-600">{formatCurrency(costoOportunidad.gananciaOportunidad)}</strong> adicionales.
             </p>
           </div>
         </Card>
@@ -1687,110 +1828,17 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
         </div>
 
         <div className="border border-slate-200 rounded-lg overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase w-8">#</th>
-                {[
-                  { key: 'sku' as TablaSort, label: 'Producto', align: 'left' },
-                  { key: 'cantidad' as TablaSort, label: 'Uds', align: 'center' },
-                  { key: 'valor' as TablaSort, label: 'Valor USD', align: 'right' },
-                  { key: 'clase' as TablaSort, label: 'Clase', align: 'center' },
-                  { key: 'rotacion' as TablaSort, label: 'Rotación', align: 'center' },
-                  { key: 'dias' as TablaSort, label: 'Días', align: 'center' },
-                  ...(rentabilidadData ? [
-                    { key: 'ctru' as TablaSort, label: 'CTRU', align: 'right' },
-                    { key: 'precioVenta' as TablaSort, label: 'P. Venta', align: 'right' },
-                    { key: 'margen' as TablaSort, label: 'Margen', align: 'center' },
-                    { key: 'roi' as TablaSort, label: 'ROI', align: 'center' }
-                  ] : [])
-                ].map(col => (
-                  <th
-                    key={col.key}
-                    className={`px-3 py-2 text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100 transition-colors ${col.align === 'left' ? 'text-left' : col.align === 'right' ? 'text-right' : 'text-center'}`}
-                    onClick={() => handleTablaSort(col.key)}
-                  >
-                    <div className={`flex items-center gap-1 ${col.align === 'right' ? 'justify-end' : col.align === 'center' ? 'justify-center' : ''}`}>
-                      <span>{col.label}</span>
-                      {tablaSort?.key === col.key ? (
-                        tablaSort.dir === 'asc' ? <ChevronUp className="h-3 w-3 text-teal-600" /> : <ChevronDown className="h-3 w-3 text-teal-600" />
-                      ) : (
-                        <ArrowUpDown className="h-3 w-3 text-slate-400" />
-                      )}
-                    </div>
-                  </th>
-                ))}
-                <th className="px-3 py-2 text-center text-xs font-medium text-slate-500 uppercase">Estado</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {tablaProductos.map((p, i) => {
-                const ref = getProductoRef(p);
-                const claseColor = p.clasificacionABC === 'A' ? 'bg-green-100 text-green-800' : p.clasificacionABC === 'B' ? 'bg-yellow-100 text-yellow-800' : 'bg-slate-100 text-slate-800';
-                const ctru = rentabilidadData?.ctruMap?.get(p.productoId);
-                const roi = ctru && ctru.costoInventarioProm > 0 && ctru.ventasCount > 0
-                  ? ((ctru.precioVentaProm - ctru.costoTotalRealProm) / ctru.costoInventarioProm) * 100
-                  : null;
-
-                return (
-                  <tr key={p.productoId} className="hover:bg-slate-50">
-                    <td className="px-3 py-2 text-xs text-slate-400">{i + 1}</td>
-                    <td className="px-3 py-2">
-                      <div className="font-mono text-sm font-semibold text-slate-900">{p.sku}</div>
-                      <div className="text-xs text-slate-600 truncate max-w-[250px]">{p.marca} · {p.nombre}</div>
-                      {ref && <div className="text-[10px] text-slate-400 truncate max-w-[250px]">{ref}</div>}
-                    </td>
-                    <td className="px-3 py-2 text-center text-sm font-medium text-slate-900">{p.cantidadTotal}</td>
-                    <td className="px-3 py-2 text-right text-sm font-medium text-slate-900">{formatCurrency(p.valorTotal)}</td>
-                    <td className="px-3 py-2 text-center">
-                      <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${claseColor}`}>{p.clasificacionABC}</span>
-                    </td>
-                    <td className="px-3 py-2 text-center text-sm text-slate-700">{p.rotacion.toFixed(1)}x</td>
-                    <td className="px-3 py-2 text-center text-sm text-slate-700">{p.diasEnInventario}d</td>
-                    {rentabilidadData && (
-                      <>
-                        <td className="px-3 py-2 text-right text-sm text-slate-700">
-                          {ctru ? formatPEN(ctru.costoInventarioProm) : <span className="text-slate-400">—</span>}
-                        </td>
-                        <td className="px-3 py-2 text-right text-sm text-slate-700">
-                          {ctru && ctru.precioVentaProm > 0 ? formatPEN(ctru.precioVentaProm) : <span className="text-slate-400">—</span>}
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          {ctru && ctru.ventasCount > 0 ? (
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${ctru.margenBrutoProm >= 20 ? 'bg-green-100 text-green-800' : ctru.margenBrutoProm >= 10 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
-                              {ctru.margenBrutoProm.toFixed(0)}%
-                            </span>
-                          ) : <span className="text-slate-400 text-xs">—</span>}
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          {roi !== null ? (
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${roi >= 20 ? 'bg-green-100 text-green-800' : roi >= 0 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
-                              {roi.toFixed(0)}%
-                            </span>
-                          ) : <span className="text-slate-400 text-xs">—</span>}
-                        </td>
-                      </>
-                    )}
-                    <td className="px-3 py-2 text-center">
-                      {p.stockCritico ? (
-                        <Badge variant="danger" size="sm">Crítico</Badge>
-                      ) : p.diasEnInventario > 90 ? (
-                        <Badge variant="warning" size="sm">Estancado</Badge>
-                      ) : p.diasParaVencer !== null && p.diasParaVencer <= 30 ? (
-                        <Badge variant="warning" size="sm">Vence</Badge>
-                      ) : (
-                        <Badge variant="success" size="sm">OK</Badge>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <DataTable
+            columns={tablaColumns}
+            data={tablaProductos}
+            keyExtractor={(p) => p.productoId}
+            compact
+            sortBy={tablaSort?.key}
+            sortDirection={tablaSort?.dir}
+            onSort={(key) => handleTablaSort(key as TablaSort)}
+            emptyMessage="No hay productos que coincidan con los filtros."
+          />
         </div>
-        {tablaProductos.length === 0 && (
-          <div className="text-center py-6 text-slate-500">No hay productos que coincidan con los filtros.</div>
-        )}
       </Card>
     </div>
   );

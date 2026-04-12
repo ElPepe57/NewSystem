@@ -50,7 +50,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={`inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full ${
-              order.estado === 'procesada' ? 'text-green-600 bg-green-50' :
+              order.estado === 'procesada' ? 'text-emerald-600 bg-emerald-50' :
               order.estado === 'error' ? 'text-red-600 bg-red-50' :
               order.estado === 'ignorada' ? 'text-slate-600 bg-slate-50' :
               'text-amber-600 bg-amber-50'
@@ -62,7 +62,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
               {order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}
             </span>
             {order.origen === 'importacion_historica' && (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-600 font-medium">
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-sky-50 text-sky-600 font-medium">
                 <History className="w-3 h-3" />
                 Importado
               </span>
@@ -76,7 +76,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
           </div>
           <div className="text-right">
             {order.numeroVenta && (
-              <span className="text-sm font-medium text-green-600">{order.numeroVenta}</span>
+              <span className="text-sm font-medium text-emerald-600">{order.numeroVenta}</span>
             )}
             {order.fechaOrdenML && (
               <p className="text-xs text-slate-400">
@@ -158,7 +158,7 @@ const OrderDetailModal: React.FC<{ order: MLOrderSync; onClose: () => void }> = 
                       )}
                       <span className={`text-xs px-1.5 py-0.5 rounded ${
                         prod.vinculado
-                          ? 'bg-green-100 text-green-700'
+                          ? 'bg-emerald-100 text-emerald-700'
                           : 'bg-orange-100 text-orange-700'
                       }`}>
                         {prod.vinculado ? 'Vinculado' : 'Sin vincular'}
@@ -236,7 +236,7 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
 
   const estadoConfig = {
     pendiente: { icon: Clock, color: 'text-amber-600 bg-amber-50', label: 'Pendiente' },
-    procesada: { icon: CheckCircle2, color: 'text-green-600 bg-green-50', label: 'Procesada' },
+    procesada: { icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50', label: 'Procesada' },
     error: { icon: XCircle, color: 'text-red-600 bg-red-50', label: 'Error' },
     ignorada: { icon: XCircle, color: 'text-slate-600 bg-slate-50', label: 'Ignorada' },
   };
@@ -272,7 +272,7 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
         </span>
       )}
       {order.origen === 'importacion_historica' && (
-        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-500 font-medium leading-none">
+        <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-50 text-sky-500 font-medium leading-none">
           Importado
         </span>
       )}
@@ -328,7 +328,7 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
             {isPack ? `Pack-${order.packId}` : `ML-${order.mlOrderId}`}
           </span>
           {order.numeroVenta && (
-            <span className="text-xs font-semibold text-green-600">→ {order.numeroVenta}</span>
+            <span className="text-xs font-semibold text-emerald-600">→ {order.numeroVenta}</span>
           )}
         </div>
         {/* Row 3: Badges */}
@@ -385,7 +385,7 @@ export const OrderRow: React.FC<{ order: MLOrderSync; expanded?: boolean }> = ({
             <p className="text-sm font-medium text-slate-900 flex items-center gap-1.5 flex-wrap">
               {isPack ? `Pack-${order.packId}` : `ML-${order.mlOrderId}`}
               {order.numeroVenta && (
-                <span className="text-green-600">→ {order.numeroVenta}</span>
+                <span className="text-emerald-600">→ {order.numeroVenta}</span>
               )}
               {badges}
             </p>

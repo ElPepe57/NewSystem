@@ -228,7 +228,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
   return (
     <div className="space-y-4">
       {/* ============ HEADER ============ */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-lg p-4 sm:p-5 shadow-md">
+      <div className="bg-slate-800 rounded-lg p-4 sm:p-5 shadow-md">
         {/* Marca y nombre */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex-1 min-w-0">
@@ -302,9 +302,9 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
                 {TIPO_PRODUCTO_SKC_LABELS[producto.atributosSkincare.tipoProductoSKC] || producto.atributosSkincare.tipoProductoSKC}
               </span>
               {producto.atributosSkincare.volumen && <span className="bg-slate-600/50 text-slate-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.atributosSkincare.volumen}</span>}
-              {producto.atributosSkincare.ingredienteClave && <span className="bg-green-500/30 text-green-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.atributosSkincare.ingredienteClave}</span>}
+              {producto.atributosSkincare.ingredienteClave && <span className="bg-emerald-500/30 text-emerald-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{producto.atributosSkincare.ingredienteClave}</span>}
               {producto.atributosSkincare.spf && <span className="bg-amber-500/30 text-amber-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">SPF{producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>}
-              {producto.atributosSkincare.pasoRutina && <span className="bg-blue-500/30 text-blue-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{PASO_RUTINA_LABELS[producto.atributosSkincare.pasoRutina]}</span>}
+              {producto.atributosSkincare.pasoRutina && <span className="bg-sky-500/30 text-sky-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md">{PASO_RUTINA_LABELS[producto.atributosSkincare.pasoRutina]}</span>}
             </>
           ) : (
             <>
@@ -364,7 +364,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           </>
         )}
         {producto.varianteLabel && (
-          <span className="text-blue-600 font-medium">Variante: {producto.varianteLabel}</span>
+          <span className="text-sky-600 font-medium">Variante: {producto.varianteLabel}</span>
         )}
       </div>
 
@@ -401,7 +401,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
       {invResumen.tieneInvestigacion && inv ? (
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
           {/* Header de investigación */}
-          <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-3 sm:px-4 py-3">
+          <div className="bg-slate-800 px-3 sm:px-4 py-3">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <div className="p-1.5 sm:p-2 bg-teal-500 rounded-lg flex-shrink-0">
@@ -650,7 +650,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
             {/* Punto de Equilibrio - Solo si hay CTRU estimado */}
             {inv.ctruEstimado > 0 && (
-              <div className="bg-gradient-to-br from-teal-50 to-teal-100/50 rounded-lg p-4 border border-teal-200">
+              <div className="bg-teal-50/50 rounded-lg p-4 border border-teal-200">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-2 bg-teal-500 rounded-lg">
                     <Calculator className="h-4 w-4 text-white" />
@@ -978,9 +978,9 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
 
       {/* ============ VARIANTES ============ */}
       {producto.esVariante && producto.parentId && (
-        <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg text-xs">
-          <GitBranch className="h-3.5 w-3.5 text-blue-500" />
-          <span className="text-blue-700">Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}</span>
+        <div className="flex items-center gap-2 p-2 bg-sky-50 border border-sky-200 rounded-lg text-xs">
+          <GitBranch className="h-3.5 w-3.5 text-sky-500" />
+          <span className="text-sky-700">Variante{producto.varianteLabel ? `: ${producto.varianteLabel}` : ''}</span>
         </div>
       )}
 

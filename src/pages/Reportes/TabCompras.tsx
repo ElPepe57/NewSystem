@@ -3,6 +3,77 @@ import { ShoppingCart, Clock, CheckCircle, DollarSign, Loader2, TrendingUp, Aler
 import { OrdenCompraService } from '../../services/ordenCompra.service';
 import { formatCurrency } from '../../utils/format';
 import type { OrdenCompra } from '../../types/ordenCompra.types';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
+
+type ProveedorMetricas = {
+  nombre: string;
+  ordenes: number;
+  totalUSD: number;
+  recibidas: number;
+  pendientes: number;
+  diasPromedioRecepcion: number;
+  diasAcum: number;
+  ordenesConDias: number;
+};
+
+const columns: DataTableColumn<ProveedorMetricas>[] = [
+  {
+    key: 'nombre',
+    header: 'Proveedor',
+    align: 'left',
+    render: (p) => <span className="font-medium text-slate-900">{p.nombre}</span>,
+  },
+  {
+    key: 'ordenes',
+    header: 'OC',
+    align: 'center',
+    hideOnMobile: true,
+    render: (p) => <span className="text-slate-600">{p.ordenes}</span>,
+  },
+  {
+    key: 'totalUSD',
+    header: 'Inversion (USD)',
+    align: 'right',
+    render: (p) => <span className="text-slate-700">${p.totalUSD.toFixed(0)}</span>,
+  },
+  {
+    key: 'recibidas',
+    header: 'Recibidas',
+    align: 'center',
+    hideOnMobile: true,
+    render: (p) => <span className="text-emerald-600 font-medium">{p.recibidas}</span>,
+  },
+  {
+    key: 'pendientes',
+    header: 'Pendientes',
+    align: 'center',
+    hideOnMobile: true,
+    render: (p) =>
+      p.pendientes > 0 ? (
+        <span className="text-amber-600 font-medium">{p.pendientes}</span>
+      ) : (
+        <span className="text-slate-400">0</span>
+      ),
+  },
+  {
+    key: 'diasPromedioRecepcion',
+    header: 'Lead Time',
+    align: 'center',
+    render: (p) =>
+      p.diasPromedioRecepcion > 0 ? (
+        <span className={
+          p.diasPromedioRecepcion <= 14 ? 'text-emerald-600'
+            : p.diasPromedioRecepcion <= 21 ? 'text-amber-600'
+            : 'text-red-600'
+        }>
+          {p.diasPromedioRecepcion.toFixed(0)}d
+        </span>
+      ) : (
+        <span className="text-slate-400">-</span>
+      ),
+  },
+];
 
 export const TabCompras: React.FC = () => {
   const [ordenes, setOrdenes] = useState<OrdenCompra[]>([]);
@@ -98,13 +169,13 @@ export const TabCompras: React.FC = () => {
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-blue-50 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-1"><ShoppingCart className="h-5 w-5 text-blue-600" /><span className="text-xs font-medium text-blue-600">OC activas</span></div>
-          <p className="text-2xl font-bold text-blue-900">{kpis.activas}</p>
+        <div className="bg-sky-50 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-1"><ShoppingCart className="h-5 w-5 text-sky-600" /><span className="text-xs font-medium text-sky-600">OC activas</span></div>
+          <p className="text-2xl font-bold text-sky-900">{kpis.activas}</p>
         </div>
-        <div className="bg-green-50 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-1"><DollarSign className="h-5 w-5 text-green-600" /><span className="text-xs font-medium text-green-600">Inversion total</span></div>
-          <p className="text-2xl font-bold text-green-900">${kpis.inversionTotal.toFixed(0)}</p>
+        <div className="bg-emerald-50 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-1"><DollarSign className="h-5 w-5 text-emerald-600" /><span className="text-xs font-medium text-emerald-600">Inversion total</span></div>
+          <p className="text-2xl font-bold text-emerald-900">${kpis.inversionTotal.toFixed(0)}</p>
         </div>
         <div className="bg-purple-50 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-1"><Clock className="h-5 w-5 text-purple-600" /><span className="text-xs font-medium text-purple-600">Lead time prom.</span></div>
@@ -122,50 +193,13 @@ export const TabCompras: React.FC = () => {
           <h3 className="font-semibold text-slate-900">Rendimiento por Proveedor</h3>
         </div>
 
-        {proveedores.length === 0 ? (
-          <p className="text-center text-slate-400 py-10">No hay ordenes de compra</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr className="text-xs text-slate-500 border-b bg-slate-50">
-                  <th className="text-left py-2 px-4">Proveedor</th>
-                  <th className="text-center py-2 px-3">OC</th>
-                  <th className="text-right py-2 px-3">Inversion (USD)</th>
-                  <th className="text-center py-2 px-3">Recibidas</th>
-                  <th className="text-center py-2 px-3">Pendientes</th>
-                  <th className="text-center py-2 px-3">Lead Time</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {proveedores.map(p => (
-                  <tr key={p.nombre} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-4 font-medium text-slate-900">{p.nombre}</td>
-                    <td className="py-2.5 px-3 text-center text-slate-600">{p.ordenes}</td>
-                    <td className="py-2.5 px-3 text-right text-slate-700">${p.totalUSD.toFixed(0)}</td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span className="text-green-600 font-medium">{p.recibidas}</span>
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      {p.pendientes > 0 ? (
-                        <span className="text-amber-600 font-medium">{p.pendientes}</span>
-                      ) : (
-                        <span className="text-slate-400">0</span>
-                      )}
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      {p.diasPromedioRecepcion > 0 ? (
-                        <span className={p.diasPromedioRecepcion <= 14 ? 'text-green-600' : p.diasPromedioRecepcion <= 21 ? 'text-amber-600' : 'text-red-600'}>
-                          {p.diasPromedioRecepcion.toFixed(0)}d
-                        </span>
-                      ) : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={proveedores}
+          keyExtractor={(p) => p.nombre}
+          emptyMessage="No hay ordenes de compra"
+          compact
+        />
       </div>
     </div>
   );

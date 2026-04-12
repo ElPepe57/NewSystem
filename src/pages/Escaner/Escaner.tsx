@@ -87,15 +87,15 @@ export const Escaner: React.FC = () => {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
         {/* Banner de contexto cuando viene de Transferencias */}
         {transferenciaIdParam && (
-          <div className="mb-4 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
-            <div className="flex items-center gap-2 text-sm text-blue-800">
+          <div className="mb-4 flex items-center justify-between bg-sky-50 border border-sky-200 rounded-lg px-3 py-2.5">
+            <div className="flex items-center gap-2 text-sm text-sky-800">
               <ArrowLeft className="h-4 w-4 flex-shrink-0" />
               <span className="font-medium">Recepci\u00f3n de env\u00edo</span>
             </div>
             <button
               type="button"
               onClick={() => navigate(`/envios?transferenciaId=${transferenciaIdParam}`)}
-              className="text-xs font-medium text-blue-700 hover:text-blue-900 underline flex-shrink-0"
+              className="text-xs font-medium text-sky-700 hover:text-sky-900 underline flex-shrink-0"
             >
               Volver a Env\u00edos
             </button>

@@ -23,7 +23,7 @@ import {
   useConfirmDialog,
   ConfirmDialog
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, KPIBar as DSStatCard } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard } from '../../design-system';
 // Toolbar available for future use
 import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';
@@ -64,7 +64,7 @@ const KitsEmpaque = lazy(() => import('../../components/Maestros/KitsEmpaque').t
 
 const TabFallback = (
   <div className="flex justify-center items-center py-12">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500" />
   </div>
 );
 

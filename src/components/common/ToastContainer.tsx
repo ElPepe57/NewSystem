@@ -8,10 +8,10 @@ const getToastConfig = (type: ToastType) => {
       return {
         bg: 'bg-white',
         border: 'border-l-green-500',
-        iconBg: 'bg-green-100',
-        iconColor: 'text-green-600',
-        titleColor: 'text-green-800',
-        textColor: 'text-green-700',
+        iconBg: 'bg-emerald-100',
+        iconColor: 'text-emerald-600',
+        titleColor: 'text-emerald-800',
+        textColor: 'text-emerald-700',
         icon: <CheckCircle className="w-5 h-5" />
       };
     case 'error':
@@ -39,10 +39,10 @@ const getToastConfig = (type: ToastType) => {
       return {
         bg: 'bg-white',
         border: 'border-l-blue-500',
-        iconBg: 'bg-blue-100',
-        iconColor: 'text-blue-600',
-        titleColor: 'text-blue-800',
-        textColor: 'text-blue-700',
+        iconBg: 'bg-sky-100',
+        iconColor: 'text-sky-600',
+        titleColor: 'text-sky-800',
+        textColor: 'text-sky-700',
         icon: <Info className="w-5 h-5" />
       };
   }

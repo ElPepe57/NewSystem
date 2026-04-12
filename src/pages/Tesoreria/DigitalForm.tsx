@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Modal, AutocompleteInput } from '../../components/common';
+import { AutocompleteInput } from '../../components/common';
+import { FormModal, FormField } from '../../design-system';
 import type { CuentaCajaFormData, MonedaTesoreria } from '../../types/tesoreria.types';
 
 const PLATAFORMAS = [
@@ -58,84 +59,81 @@ export const DigitalForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSub
     setTitular(''); setMoneda('PEN'); setSaldoInicial(0);
   };
 
+  const nombreFinal = plataforma === 'otro' ? nombreCustom : nombre;
+
   return (
-    <Modal isOpen={isOpen} onClose={() => { reset(); onClose(); }} title="Nueva Billetera Digital" size="sm">
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Plataforma</label>
-          <div className="grid grid-cols-3 gap-2">
-            {PLATAFORMAS.map(p => (
-              <button key={p.id} type="button"
-                onClick={() => handlePlataformaChange(p.id)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  plataforma === p.id ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
-                }`}>
-                {p.label}
-              </button>
-            ))}
+    <FormModal
+      isOpen={isOpen}
+      onClose={() => { reset(); onClose(); }}
+      title="Nueva Billetera Digital"
+      size="sm"
+      variant="create"
+      submitLabel="Crear Billetera"
+      onSubmit={handleGuardar}
+      loading={isSubmitting}
+      disabled={!titular.trim() || !nombreFinal}
+    >
+      <FormField label="Plataforma">
+        <div className="grid grid-cols-3 gap-2">
+          {PLATAFORMAS.map(p => (
+            <button key={p.id} type="button"
+              onClick={() => handlePlataformaChange(p.id)}
+              className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                plataforma === p.id ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+              }`}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </FormField>
+
+      {plataforma === 'otro' && (
+        <FormField label="Nombre de la plataforma" required>
+          <input type="text" value={nombreCustom}
+            onChange={e => setNombreCustom(e.target.value)}
+            className="w-full rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
+            placeholder="Ej: Izipay, Tunki" />
+        </FormField>
+      )}
+
+      <FormField label="Nombre descriptivo" required>
+        <input type="text" value={nombreFinal}
+          onChange={e => plataforma === 'otro' ? setNombreCustom(e.target.value) : setNombre(e.target.value)}
+          className="w-full rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
+          placeholder="Ej: Yape Jose" />
+      </FormField>
+
+      <FormField>
+        <AutocompleteInput
+          label="Titular *"
+          value={titular}
+          onChange={setTitular}
+          suggestions={titularesExistentes}
+          allowCreate
+          createLabel="Usar nuevo titular"
+          placeholder="Buscar o crear titular"
+          required
+        />
+      </FormField>
+
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Moneda">
+          <select value={moneda} onChange={e => setMoneda(e.target.value as MonedaTesoreria)}
+            className="w-full rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500">
+            <option value="PEN">PEN</option>
+            <option value="USD">USD</option>
+          </select>
+        </FormField>
+        <FormField label="Saldo inicial">
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
+            <input type="number" step="0.01" value={saldoInicial || ''}
+              onChange={e => setSaldoInicial(parseFloat(e.target.value) || 0)}
+              className="w-full pl-8 rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
+              placeholder="0.00" />
           </div>
-        </div>
-
-        {plataforma === 'otro' && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nombre de la plataforma *</label>
-            <input type="text" value={nombreCustom}
-              onChange={e => setNombreCustom(e.target.value)}
-              className="w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
-              placeholder="Ej: Izipay, Tunki" />
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Nombre descriptivo *</label>
-          <input type="text" value={plataforma === 'otro' ? nombreCustom : nombre}
-            onChange={e => plataforma === 'otro' ? setNombreCustom(e.target.value) : setNombre(e.target.value)}
-            className="w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
-            placeholder="Ej: Yape Jose" />
-        </div>
-
-        <div>
-          <AutocompleteInput
-            label="Titular *"
-            value={titular}
-            onChange={setTitular}
-            suggestions={titularesExistentes}
-            allowCreate
-            createLabel="Usar nuevo titular"
-            placeholder="Buscar o crear titular"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
-            <select value={moneda} onChange={e => setMoneda(e.target.value as MonedaTesoreria)}
-              className="w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500">
-              <option value="PEN">PEN</option>
-              <option value="USD">USD</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Saldo inicial</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{moneda === 'USD' ? '$' : 'S/'}</span>
-              <input type="number" step="0.01" value={saldoInicial || ''}
-                onChange={e => setSaldoInicial(parseFloat(e.target.value) || 0)}
-                className="w-full pl-8 rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
-                placeholder="0.00" />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={() => { reset(); onClose(); }}>Cancelar</Button>
-          <Button variant="primary" onClick={handleGuardar}
-            disabled={isSubmitting || !titular.trim() || (plataforma === 'otro' ? !nombreCustom : !nombre)}>
-            {isSubmitting ? 'Creando...' : 'Crear Billetera'}
-          </Button>
-        </div>
+        </FormField>
       </div>
-    </Modal>
+    </FormModal>
   );
 };

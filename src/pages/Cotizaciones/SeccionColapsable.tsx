@@ -23,15 +23,15 @@ export const SeccionColapsable: React.FC<SeccionColapsableProps> = ({
 
   const variantStyles = {
     warning: 'border-amber-200 bg-amber-50',
-    info: 'border-blue-200 bg-blue-50',
-    success: 'border-green-200 bg-green-50',
+    info: 'border-sky-200 bg-sky-50',
+    success: 'border-emerald-200 bg-emerald-50',
     danger: 'border-red-200 bg-red-50'
   };
 
   const iconStyles = {
     warning: 'text-amber-600',
-    info: 'text-blue-600',
-    success: 'text-green-600',
+    info: 'text-sky-600',
+    success: 'text-emerald-600',
     danger: 'text-red-600'
   };
 

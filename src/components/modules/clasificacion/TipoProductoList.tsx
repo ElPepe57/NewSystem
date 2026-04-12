@@ -178,7 +178,7 @@ export function TipoProductoList() {
                 <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => setViewingTipo(tipo)}
-                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                    className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                     title="Ver Analytics"
                   >
                     <BarChart3 className="h-4 w-4" />

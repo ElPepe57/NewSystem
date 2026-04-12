@@ -77,10 +77,10 @@ function getSaldo(cuenta: CuentaCaja, moneda: 'PEN' | 'USD'): number {
 
 function getTipoIcon(cuenta: CuentaCaja) {
   const pf = cuenta.productoFinanciero;
-  if (pf === 'caja' || cuenta.tipo === 'efectivo') return <Banknote className="w-3.5 h-3.5 text-green-500" />;
+  if (pf === 'caja' || cuenta.tipo === 'efectivo') return <Banknote className="w-3.5 h-3.5 text-emerald-500" />;
   if (pf === 'billetera_digital' || cuenta.tipo === 'digital') return <Smartphone className="w-3.5 h-3.5 text-purple-500" />;
   if (cuenta.tipo === 'credito') return <CreditCard className="w-3.5 h-3.5 text-amber-500" />;
-  return <Building2 className="w-3.5 h-3.5 text-blue-500" />;
+  return <Building2 className="w-3.5 h-3.5 text-sky-500" />;
 }
 
 function agruparCuentas(cuentas: CuentaCaja[]) {
@@ -250,7 +250,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         <div className="pt-0.5">{getTipoIcon(c)}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            {c.banco && <span className="text-[10px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">{c.banco}</span>}
+            {c.banco && <span className="text-[10px] px-1 py-0.5 rounded bg-sky-100 text-sky-700 font-medium">{c.banco}</span>}
             <span className={`font-medium text-slate-800 truncate ${compacta ? 'text-xs' : 'text-sm'}`}>{c.nombre}</span>
           </div>
           <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
@@ -299,25 +299,25 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* HEADER */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+      <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-blue-600 font-medium">{titulo || `${esIngreso ? 'Cobro' : 'Pago'} ${origen}`}</div>
-            <div className="text-lg font-bold text-blue-900">
+            <div className="text-xs text-sky-600 font-medium">{titulo || `${esIngreso ? 'Cobro' : 'Pago'} ${origen}`}</div>
+            <div className="text-lg font-bold text-sky-900">
               {monedaOriginal === 'USD' ? '$' : 'S/'} {montoTotal.toFixed(2)}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-blue-500">Pendiente</div>
-            <div className={`text-lg font-bold ${montoPendiente <= 0 ? 'text-green-600' : 'text-blue-900'}`}>
+            <div className="text-xs text-sky-500">Pendiente</div>
+            <div className={`text-lg font-bold ${montoPendiente <= 0 ? 'text-emerald-600' : 'text-sky-900'}`}>
               {monedaOriginal === 'USD' ? '$' : 'S/'} {montoPendiente.toFixed(2)}
             </div>
           </div>
         </div>
         {pagosAnteriores.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-blue-200">
+          <div className="mt-2 pt-2 border-t border-sky-200">
             <button type="button" onClick={() => setShowHistorial(!showHistorial)}
-              className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800">
+              className="flex items-center gap-1 text-xs text-sky-600 hover:text-sky-800">
               <History className="w-3 h-3" />
               {pagosAnteriores.length} pago(s) anterior(es)
               {showHistorial ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -325,7 +325,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
             {showHistorial && (
               <div className="mt-2 space-y-1">
                 {pagosAnteriores.map(p => (
-                  <div key={p.id} className="flex items-center justify-between text-xs bg-white rounded-lg p-2 border border-blue-100">
+                  <div key={p.id} className="flex items-center justify-between text-xs bg-white rounded-lg p-2 border border-sky-100">
                     <div className="flex items-center gap-2">
                       <span className="text-slate-400">
                         {typeof p.fecha === 'string' ? p.fecha : p.fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
@@ -334,7 +334,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
                         {METODOS_PAGO_INFO[p.metodo as MetodoPagoUnificado]?.label ?? p.metodo}
                       </span>
                     </div>
-                    <span className="font-semibold text-blue-800">
+                    <span className="font-semibold text-sky-800">
                       {p.moneda === 'USD' ? '$' : 'S/'} {p.monto.toFixed(2)}
                     </span>
                   </div>

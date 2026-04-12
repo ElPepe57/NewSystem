@@ -249,7 +249,7 @@ export const HistorialVentasChart: React.FC<HistorialVentasChartProps> = ({
         </div>
         <div className="bg-slate-50 rounded-lg p-2 text-center">
           <p className="text-xs text-slate-500">Tendencia</p>
-          <p className={`font-bold ${tendencia > 0 ? 'text-green-600' : tendencia < 0 ? 'text-red-600' : 'text-slate-600'}`}>
+          <p className={`font-bold ${tendencia > 0 ? 'text-emerald-600' : tendencia < 0 ? 'text-red-600' : 'text-slate-600'}`}>
             {tendencia > 0 ? '+' : ''}{tendencia} uds
           </p>
         </div>

@@ -150,7 +150,7 @@ export const KitsEmpaque: React.FC = () => {
       ) : (
         <div className="space-y-3">
           {kits.map(kit => (
-            <Card key={kit.id} className="p-4 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(kit)}>
+            <Card key={kit.id} className="p-4 cursor-pointer hover:border-sky-300 transition-colors" onClick={() => openEdit(kit)}>
               <div className="flex items-start justify-between">
                 <div>
                   <div className="font-medium text-slate-900">{kit.nombre}</div>
@@ -227,7 +227,7 @@ export const KitsEmpaque: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAddComponente}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                className="text-xs text-sky-600 hover:text-sky-800 font-medium"
               >
                 + Agregar insumo
               </button>

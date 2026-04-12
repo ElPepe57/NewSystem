@@ -266,11 +266,11 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
 
         {/* Transfer summary */}
         {selectedTransferencia && (
-          <div className="mt-3 p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-xs space-y-1">
-            <p><span className="text-blue-600 font-medium">Origen:</span> {selectedTransferencia.almacenOrigenNombre}</p>
-            <p><span className="text-blue-600 font-medium">Destino:</span> {selectedTransferencia.almacenDestinoNombre}</p>
-            <p><span className="text-blue-600 font-medium">Tipo:</span> {getLabelTipoTransferencia(selectedTransferencia.tipo)}</p>
-            <p><span className="text-blue-600 font-medium">Unidades pendientes:</span> {totalPendiente} de {selectedTransferencia.totalUnidades}</p>
+          <div className="mt-3 p-2.5 bg-sky-50 border border-sky-200 rounded-lg text-xs space-y-1">
+            <p><span className="text-sky-600 font-medium">Origen:</span> {selectedTransferencia.almacenOrigenNombre}</p>
+            <p><span className="text-sky-600 font-medium">Destino:</span> {selectedTransferencia.almacenDestinoNombre}</p>
+            <p><span className="text-sky-600 font-medium">Tipo:</span> {getLabelTipoTransferencia(selectedTransferencia.tipo)}</p>
+            <p><span className="text-sky-600 font-medium">Unidades pendientes:</span> {totalPendiente} de {selectedTransferencia.totalUnidades}</p>
           </div>
         )}
       </div>
@@ -305,7 +305,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
             <div className="w-full bg-slate-200 rounded-full h-2.5">
               <div
                 className={`h-2.5 rounded-full transition-all ${
-                  progreso >= 100 ? 'bg-green-500' : progreso > 0 ? 'bg-teal-500' : 'bg-slate-300'
+                  progreso >= 100 ? 'bg-emerald-500' : progreso > 0 ? 'bg-teal-500' : 'bg-slate-300'
                 }`}
                 style={{ width: `${Math.min(progreso, 100)}%` }}
               />
@@ -324,7 +324,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                   key={prod.productoId}
                   className={`bg-white border rounded-lg p-3 transition-all ${
                     completo
-                      ? 'border-green-300 bg-green-50/30'
+                      ? 'border-emerald-300 bg-emerald-50/30'
                       : parcial
                         ? 'border-amber-300 bg-amber-50/20'
                         : 'border-slate-200'
@@ -334,7 +334,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         {completo ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                         ) : parcial ? (
                           <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
                         ) : (
@@ -365,7 +365,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
 
                         return (
                           <div className={`ml-0 mt-2 p-2 rounded-lg border ${
-                            hasFecha ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
+                            hasFecha ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'
                           }`}>
                             <label className="flex items-center gap-1.5 text-xs font-medium mb-1" style={{
                               color: hasFecha ? '#166534' : '#92400E'
@@ -409,7 +409,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                                 ? <p className="text-xs text-red-600 mt-1">Vencido</p>
                                 : dias < 90
                                 ? <p className="text-xs text-amber-600 mt-1">Vence en {dias} dias</p>
-                                : <p className="text-xs text-green-700 mt-1">Vence en {dias} dias</p>;
+                                : <p className="text-xs text-emerald-700 mt-1">Vence en {dias} dias</p>;
                             })()}
                           </div>
                         );
@@ -430,7 +430,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                       </button>
                       <div className="text-center min-w-[3rem]">
                         <span className={`text-sm font-bold tabular-nums ${
-                          completo ? 'text-green-600' : parcial ? 'text-amber-600' : 'text-slate-900'
+                          completo ? 'text-emerald-600' : parcial ? 'text-amber-600' : 'text-slate-900'
                         }`}>
                           {recibido}
                         </span>
@@ -472,7 +472,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
               type="button"
               onClick={handleConfirmarRecepcion}
               disabled={isSubmitting || totalARecibir === 0 || faltanFechasVencimiento}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
             >
               <CheckCircle2 className="h-4 w-4" />
               {isSubmitting
@@ -489,7 +489,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
       {/* Empty state when no transfer selected */}
       {selectedTransferencia && productosAgrupados.length === 0 && (
         <div className="text-center py-8">
-          <Package className="h-8 w-8 text-green-400 mx-auto mb-2" />
+          <Package className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
           <p className="text-sm text-slate-500">Todas las unidades ya fueron recibidas</p>
         </div>
       )}

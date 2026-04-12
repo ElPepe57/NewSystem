@@ -67,14 +67,14 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
 
   const getTendenciaIcon = () => {
     if (!stats) return null;
-    if (stats.tendencia === 'subiendo') return <TrendingUp className="h-4 w-4 text-green-500" />;
+    if (stats.tendencia === 'subiendo') return <TrendingUp className="h-4 w-4 text-emerald-500" />;
     if (stats.tendencia === 'bajando') return <TrendingDown className="h-4 w-4 text-red-500" />;
     return <Minus className="h-4 w-4 text-slate-500" />;
   };
 
   const getTendenciaColor = () => {
     if (!stats) return 'text-slate-600';
-    if (stats.tendencia === 'subiendo') return 'text-green-600';
+    if (stats.tendencia === 'subiendo') return 'text-emerald-600';
     if (stats.tendencia === 'bajando') return 'text-red-600';
     return 'text-slate-600';
   };
@@ -83,12 +83,12 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
     <div className="space-y-4">
       {/* Header con estadísticas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-blue-50 rounded-lg p-3">
-          <div className="flex items-center gap-1 text-xs text-blue-600 mb-1">
+        <div className="bg-sky-50 rounded-lg p-3">
+          <div className="flex items-center gap-1 text-xs text-sky-600 mb-1">
             <DollarSign className="h-3 w-3" />
             USA Actual
           </div>
-          <p className="text-lg font-bold text-blue-700">
+          <p className="text-lg font-bold text-sky-700">
             ${stats?.precioUSAActual?.toFixed(2) || '0.00'}
           </p>
         </div>
@@ -103,18 +103,18 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
           </p>
         </div>
 
-        <div className="bg-green-50 rounded-lg p-3">
-          <div className="flex items-center gap-1 text-xs text-green-600 mb-1">
+        <div className="bg-emerald-50 rounded-lg p-3">
+          <div className="flex items-center gap-1 text-xs text-emerald-600 mb-1">
             <Percent className="h-3 w-3" />
             Margen Actual
           </div>
-          <p className="text-lg font-bold text-green-700">
+          <p className="text-lg font-bold text-emerald-700">
             {stats?.ultimoMargen?.toFixed(1) || '0'}%
           </p>
         </div>
 
         <div className={`rounded-lg p-3 ${
-          stats?.tendencia === 'subiendo' ? 'bg-green-50' :
+          stats?.tendencia === 'subiendo' ? 'bg-emerald-50' :
           stats?.tendencia === 'bajando' ? 'bg-red-50' : 'bg-slate-50'
         }`}>
           <div className={`flex items-center gap-1 text-xs mb-1 ${getTendenciaColor()}`}>
@@ -152,10 +152,10 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
 
                 {/* Barra USA */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-blue-600 w-16">USA</span>
+                  <span className="text-xs text-sky-600 w-16">USA</span>
                   <div className="flex-1 bg-slate-200 rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-blue-500 h-full rounded-full transition-all"
+                      className="bg-sky-500 h-full rounded-full transition-all"
                       style={{ width: `${widthUSA}%` }}
                     />
                   </div>
@@ -199,7 +199,7 @@ export const HistorialPreciosChart: React.FC<HistorialPreciosChartProps> = ({
         </div>
         <div>
           <span className="text-slate-500">Promedio:</span>
-          <span className="ml-2 font-medium text-green-600">
+          <span className="ml-2 font-medium text-emerald-600">
             {stats?.promedioMargen?.toFixed(1)}%
           </span>
         </div>

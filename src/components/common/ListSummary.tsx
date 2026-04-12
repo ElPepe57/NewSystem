@@ -33,10 +33,10 @@ const iconMap: Record<SummaryIcon, React.ReactNode> = {
 
 const variantStyles: Record<string, string> = {
   default: 'text-slate-600',
-  success: 'text-green-600',
+  success: 'text-emerald-600',
   warning: 'text-amber-600',
   danger: 'text-red-600',
-  info: 'text-blue-600'
+  info: 'text-sky-600'
 };
 
 /**

@@ -140,12 +140,12 @@ export const TipoCambio: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-slate-600">TC Compra Hoy</div>
-              <div className="text-2xl font-bold text-green-600 mt-1">
+              <div className="text-2xl font-bold text-emerald-600 mt-1">
                 {tcDelDia ? `S/ ${tcDelDia.compra.toFixed(3)}` : "-"}
               </div>
             </div>
-            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-              <TrendingUp className="h-6 w-6 text-green-600" />
+            <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
+              <TrendingUp className="h-6 w-6 text-emerald-600" />
             </div>
           </div>
         </Card>

@@ -49,9 +49,9 @@ export const MarginErosionChart: React.FC<ResumenFinancieroProps> = ({ productos
       label: 'Costo Inventario Prom',
       sublabel: 'Capas 1-5: Compra + OC + Flete',
       value: formatCurrency(metricas.costoInventario),
-      icon: <Layers className="w-4 h-4 text-blue-500" />,
-      bg: 'bg-blue-50',
-      valueColor: 'text-blue-700'
+      icon: <Layers className="w-4 h-4 text-sky-500" />,
+      bg: 'bg-sky-50',
+      valueColor: 'text-sky-700'
     },
     {
       label: 'CTRU Promedio',
@@ -73,9 +73,9 @@ export const MarginErosionChart: React.FC<ResumenFinancieroProps> = ({ productos
       label: 'Utilidad Prom / Venta',
       sublabel: metricas.hasVentas ? 'Precio venta - costo total real' : 'Sin ventas registradas',
       value: metricas.hasVentas ? formatCurrency(metricas.utilidadProm) : '—',
-      icon: <TrendingUp className={`w-4 h-4 ${metricas.utilidadProm >= 0 ? 'text-green-500' : 'text-red-500'}`} />,
-      bg: metricas.utilidadProm >= 0 ? 'bg-green-50' : 'bg-red-50',
-      valueColor: metricas.utilidadProm >= 0 ? 'text-green-700' : 'text-red-700'
+      icon: <TrendingUp className={`w-4 h-4 ${metricas.utilidadProm >= 0 ? 'text-emerald-500' : 'text-red-500'}`} />,
+      bg: metricas.utilidadProm >= 0 ? 'bg-emerald-50' : 'bg-red-50',
+      valueColor: metricas.utilidadProm >= 0 ? 'text-emerald-700' : 'text-red-700'
     }
   ];
 

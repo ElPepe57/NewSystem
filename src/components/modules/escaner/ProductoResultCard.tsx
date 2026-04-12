@@ -42,22 +42,22 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
   ];
 
   return (
-    <div className="bg-white border border-green-200 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white border border-emerald-200 rounded-xl shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2.5 sm:px-4 sm:py-3 border-b border-green-200">
+      <div className="bg-emerald-50 px-3 py-2.5 sm:px-4 sm:py-3 border-b border-emerald-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1 sm:p-1.5 bg-green-100 rounded-lg">
-              <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600" />
+            <div className="p-1 sm:p-1.5 bg-emerald-100 rounded-lg">
+              <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
             </div>
             <div>
-              <span className="text-xs text-green-600 font-medium">Producto encontrado</span>
-              <div className="font-mono text-xs sm:text-sm text-green-800 font-bold">{producto.sku}</div>
+              <span className="text-xs text-emerald-600 font-medium">Producto encontrado</span>
+              <div className="font-mono text-xs sm:text-sm text-emerald-800 font-bold">{producto.sku}</div>
             </div>
           </div>
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
             producto.estado === 'activo'
-              ? 'bg-green-100 text-green-700'
+              ? 'bg-emerald-100 text-emerald-700'
               : 'bg-slate-100 text-slate-600'
           }`}>
             {producto.estado}
@@ -114,7 +114,7 @@ export const ProductoResultCard: React.FC<ProductoResultCardProps> = ({
             </div>
           )}
           {pesoGuardado && (
-            <p className="text-xs text-green-600 mt-0.5 flex items-center gap-1">
+            <p className="text-xs text-emerald-600 mt-0.5 flex items-center gap-1">
               <Check className="h-3 w-3" /> Peso registrado: {producto.pesoLibras} lb
             </p>
           )}

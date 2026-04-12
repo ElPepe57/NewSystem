@@ -31,23 +31,23 @@ export const FlujoCajaCard: React.FC<FlujoCajaCardProps> = ({ flujo }) => {
       {/* Flujo neto destacado */}
       <div className={`
         rounded-lg p-4 mb-4
-        ${isPositivo ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}
+        ${isPositivo ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}
       `}>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-600">Flujo Neto (30 dias)</p>
-            <p className={`text-2xl font-bold ${isPositivo ? 'text-green-700' : 'text-red-700'}`}>
+            <p className={`text-2xl font-bold ${isPositivo ? 'text-emerald-700' : 'text-red-700'}`}>
               {formatCurrency(flujoNeto)}
             </p>
           </div>
-          <div className={`p-3 rounded-full ${isPositivo ? 'bg-green-100' : 'bg-red-100'}`}>
+          <div className={`p-3 rounded-full ${isPositivo ? 'bg-emerald-100' : 'bg-red-100'}`}>
             {isPositivo
-              ? <TrendingUp className="h-6 w-6 text-green-600" />
+              ? <TrendingUp className="h-6 w-6 text-emerald-600" />
               : <TrendingDown className="h-6 w-6 text-red-600" />
             }
           </div>
         </div>
-        <p className={`text-xs mt-2 ${isPositivo ? 'text-green-600' : 'text-red-600'}`}>
+        <p className={`text-xs mt-2 ${isPositivo ? 'text-emerald-600' : 'text-red-600'}`}>
           {isPositivo
             ? 'Se proyecta flujo positivo de caja'
             : 'Atencion: Se proyecta deficit de caja'}
@@ -57,21 +57,21 @@ export const FlujoCajaCard: React.FC<FlujoCajaCardProps> = ({ flujo }) => {
       {/* Ingresos proyectados */}
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-2">
-          <TrendingUp className="h-4 w-4 text-green-500" />
+          <TrendingUp className="h-4 w-4 text-emerald-500" />
           <span className="text-sm font-medium text-slate-700">Ingresos Proyectados</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <div className="bg-green-50 rounded-lg p-2 text-center">
+          <div className="bg-emerald-50 rounded-lg p-2 text-center">
             <p className="text-xs text-slate-500">7 dias</p>
-            <p className="font-semibold text-green-700">{formatCurrency(flujo.ingresosProyectados7d)}</p>
+            <p className="font-semibold text-emerald-700">{formatCurrency(flujo.ingresosProyectados7d)}</p>
           </div>
-          <div className="bg-green-50 rounded-lg p-2 text-center">
+          <div className="bg-emerald-50 rounded-lg p-2 text-center">
             <p className="text-xs text-slate-500">15 dias</p>
-            <p className="font-semibold text-green-700">{formatCurrency(flujo.ingresosProyectados15d)}</p>
+            <p className="font-semibold text-emerald-700">{formatCurrency(flujo.ingresosProyectados15d)}</p>
           </div>
-          <div className="bg-green-50 rounded-lg p-2 text-center">
+          <div className="bg-emerald-50 rounded-lg p-2 text-center">
             <p className="text-xs text-slate-500">30 dias</p>
-            <p className="font-semibold text-green-700">{formatCurrency(flujo.ingresosProyectados30d)}</p>
+            <p className="font-semibold text-emerald-700">{formatCurrency(flujo.ingresosProyectados30d)}</p>
           </div>
         </div>
       </div>
@@ -81,10 +81,10 @@ export const FlujoCajaCard: React.FC<FlujoCajaCardProps> = ({ flujo }) => {
         {/* Caja confirmada */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-green-500" />
+            <CheckCircle className="h-4 w-4 text-emerald-500" />
             <span className="text-sm text-slate-600">Caja Confirmada</span>
           </div>
-          <span className="font-medium text-green-600">{formatCurrency(flujo.cajaConfirmada)}</span>
+          <span className="font-medium text-emerald-600">{formatCurrency(flujo.cajaConfirmada)}</span>
         </div>
 
         {/* Pendiente cobrar */}

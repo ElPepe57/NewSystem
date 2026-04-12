@@ -11,7 +11,7 @@ import {
   RefreshCw,
   Package,
 } from "lucide-react";
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
   Button,
   Card,
@@ -22,7 +22,7 @@ import {
   StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
-import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader } from '../../design-system';
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
 import { useTransferenciaStore } from '../../store/envioStore';
 import { useProductoStore } from "../../store/productoStore";
@@ -412,7 +412,6 @@ export const Transferencias: React.FC = () => {
       />
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
 
       {/* StatCards interactivos */}
       <DSKPIBar columns={6}>
@@ -431,14 +430,14 @@ export const Transferencias: React.FC = () => {
           data={[
             { label: 'Borrador', value: pipelineStages[0]?.count || 0, color: 'bg-slate-400' },
             { label: 'Preparando', value: pipelineStages[1]?.count || 0, color: 'bg-yellow-500' },
-            { label: 'En Transito', value: pipelineStages[2]?.count || 0, color: 'bg-blue-500' },
-            { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-green-500' },
+            { label: 'En Transito', value: pipelineStages[2]?.count || 0, color: 'bg-sky-500' },
+            { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-emerald-500' },
           ]}
         />
         <StatDistribution
           title="Tipo de Transferencias"
           data={[
-            { label: 'Internacional → Peru', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-blue-500' },
+            { label: 'Internacional → Peru', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-sky-500' },
             { label: 'Interna Origen', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-slate-500' },
           ]}
         />

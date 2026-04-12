@@ -19,6 +19,8 @@ import {
 import { useMercadoLibreStore } from '../../../store/mercadoLibreStore';
 import type { PricingIntelRow } from './pricingIntel.utils';
 import { calcMargin, calcMinPrice, fmtPEN, fmtPct, getMarginColor } from './pricingIntel.utils';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 
 type BulkStrategy = 'margen' | 'buybox' | 'porcentaje';
 
@@ -141,33 +143,54 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
               </p>
             </div>
           ) : (
-            <table className="w-full text-xs">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="text-left px-4 py-2 text-slate-500">Producto</th>
-                  <th className="text-right px-4 py-2 text-slate-500">Precio Actual</th>
-                  <th className="text-right px-4 py-2 text-slate-500">Nuevo Precio</th>
-                  <th className="text-right px-4 py-2 text-slate-500">Margen Actual</th>
-                  <th className="text-right px-4 py-2 text-slate-500">Nuevo Margen</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {previewRows.map((pr) => (
-                  <tr key={pr.row.groupKey}>
-                    <td className="px-4 py-2 truncate max-w-[200px]">
+            (() => {
+              const previewColumns: DataTableColumn<PreviewRow>[] = [
+                {
+                  key: 'producto',
+                  header: 'Producto',
+                  render: (pr) => (
+                    <span className="truncate max-w-[200px] block">
                       {pr.row.mlTitle}
                       {pr.row.listings.length > 1 && (
                         <span className="ml-1 text-slate-400">({pr.row.listings.length} pub.)</span>
                       )}
-                    </td>
-                    <td className="px-4 py-2 text-right text-slate-600">{fmtPEN(pr.row.mlPrice)}</td>
-                    <td className="px-4 py-2 text-right font-semibold">{fmtPEN(pr.newPrice)}</td>
-                    <td className={`px-4 py-2 text-right ${getMarginColor(pr.oldMargin)}`}>{fmtPct(pr.oldMargin)}</td>
-                    <td className={`px-4 py-2 text-right font-semibold ${getMarginColor(pr.newMargin)}`}>{fmtPct(pr.newMargin)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  ),
+                },
+                {
+                  key: 'precioActual',
+                  header: 'Precio Actual',
+                  align: 'right',
+                  render: (pr) => <span className="text-slate-600">{fmtPEN(pr.row.mlPrice)}</span>,
+                },
+                {
+                  key: 'nuevoPrecio',
+                  header: 'Nuevo Precio',
+                  align: 'right',
+                  render: (pr) => <span className="font-semibold">{fmtPEN(pr.newPrice)}</span>,
+                },
+                {
+                  key: 'margenActual',
+                  header: 'Margen Actual',
+                  align: 'right',
+                  render: (pr) => <span className={getMarginColor(pr.oldMargin)}>{fmtPct(pr.oldMargin)}</span>,
+                },
+                {
+                  key: 'nuevoMargen',
+                  header: 'Nuevo Margen',
+                  align: 'right',
+                  render: (pr) => <span className={`font-semibold ${getMarginColor(pr.newMargin)}`}>{fmtPct(pr.newMargin)}</span>,
+                },
+              ];
+              return (
+                <DataTable
+                  columns={previewColumns}
+                  data={previewRows}
+                  keyExtractor={(pr) => pr.row.groupKey}
+                  compact
+                />
+              );
+            })()
           )}
         </div>
       )}
@@ -262,7 +285,7 @@ export const BulkPriceEditor: React.FC<BulkPriceEditorProps> = ({
               disabled={applying || previewRows.length === 0}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
                 done
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-emerald-500 text-white'
                   : 'bg-amber-500 hover:bg-amber-400 text-white'
               }`}
             >

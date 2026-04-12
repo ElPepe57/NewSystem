@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Phone } from 'lucide-react';
-import { Button, Modal, AutocompleteInput } from '../../components/common';
+import { AutocompleteInput } from '../../components/common';
+import { FormModal } from '../../design-system';
 import type {
   CuentaCaja,
   CuentaCajaFormData,
@@ -127,10 +128,19 @@ export const CuentaBancoForm: React.FC<Props> = ({
   const ic = 'w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500';
 
   return (
-    <Modal isOpen={isOpen} onClose={() => { if (!esEdicion) reset(); onClose(); }}
-      title={esEdicion ? `Editar cuenta — ${bancoNombre}` : `Nueva cuenta — ${bancoNombre}`} size="md">
+    <FormModal
+      isOpen={isOpen}
+      onClose={() => { if (!esEdicion) reset(); onClose(); }}
+      title={esEdicion ? `Editar cuenta — ${bancoNombre}` : `Nueva cuenta — ${bancoNombre}`}
+      size="md"
+      variant={esEdicion ? 'edit' : 'create'}
+      submitLabel={esEdicion ? 'Guardar Cambios' : 'Crear Cuenta'}
+      onSubmit={handleGuardar}
+      loading={isSubmitting}
+      disabled={!nombre || !titular.trim()}
+    >
       <div className="space-y-4">
-        <div className="px-3 py-2 bg-blue-50 rounded-lg text-sm text-blue-800 font-medium">
+        <div className="px-3 py-2 bg-sky-50 rounded-lg text-sm text-sky-800 font-medium">
           Banco: {bancoNombre}
         </div>
 
@@ -302,7 +312,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
                 </div>
                 <div className="text-center">
                   <span className="text-xs text-slate-500">Disponible</span>
-                  <p className="text-sm font-bold text-green-600">
+                  <p className="text-sm font-bold text-emerald-600">
                     {moneda === 'USD' ? '$' : 'S/'} {(cuentaEditando.lineaCredito.disponible || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -319,14 +329,7 @@ export const CuentaBancoForm: React.FC<Props> = ({
             className="w-full px-3 py-2 rounded-md border-slate-300 text-sm" placeholder="0" />
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={() => { if (!esEdicion) reset(); onClose(); }}>Cancelar</Button>
-          <Button variant="primary" onClick={handleGuardar}
-            disabled={isSubmitting || !nombre || !titular.trim()}>
-            {isSubmitting ? 'Guardando...' : esEdicion ? 'Guardar Cambios' : 'Crear Cuenta'}
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </FormModal>
   );
 };

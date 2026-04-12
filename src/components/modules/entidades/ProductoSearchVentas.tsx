@@ -191,7 +191,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
   // Obtener color del margen
   const getMargenColor = (margen: number) => {
-    if (margen >= 25) return 'text-green-600 bg-green-50';
+    if (margen >= 25) return 'text-emerald-600 bg-emerald-50';
     if (margen >= 15) return 'text-emerald-600 bg-emerald-50';
     if (margen >= 10) return 'text-yellow-600 bg-yellow-50';
     return 'text-red-600 bg-red-50';
@@ -201,7 +201,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
   const getVencimientoColor = (dias: number) => {
     if (dias <= 30) return 'text-red-600 bg-red-50';
     if (dias <= 90) return 'text-amber-600 bg-amber-50';
-    return 'text-green-600 bg-green-50';
+    return 'text-emerald-600 bg-emerald-50';
   };
 
   return (
@@ -228,7 +228,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
               block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
               focus:ring-teal-500 focus:border-teal-500
               ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
-              ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
+              ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
             `}
           />
 
@@ -236,7 +236,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
             {value ? (
               <div className="flex items-center space-x-1">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-emerald-500" />
                 {!disabled && (
                   <button
                     type="button"
@@ -357,7 +357,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                           {producto.sku}
                         </span>
                         {producto.investigacion && (
-                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-blue-100 text-blue-700 flex items-center flex-shrink-0">
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-sky-100 text-sky-700 flex items-center flex-shrink-0">
                             <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
                             Inv
                           </span>
@@ -389,7 +389,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                       <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-50 rounded text-[10px] sm:text-xs">
                         <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-slate-400" />
                         <span className={`font-bold ${
-                          stockExt.libre > 5 ? 'text-green-600' :
+                          stockExt.libre > 5 ? 'text-emerald-600' :
                           stockExt.libre > 0 ? 'text-amber-600' : 'text-red-600'
                         }`}>
                           {stockExt.libre}
@@ -446,10 +446,10 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
 
       {/* Panel de info del producto seleccionado */}
       {value && (
-        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg">
+        <div className="mt-2 p-2 sm:p-3 bg-sky-50 border border-sky-200 rounded-lg">
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-medium text-blue-800">
+            <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-sky-800">
               Info del producto
             </span>
           </div>
@@ -461,7 +461,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                 <Boxes className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> Stock libre
               </p>
               <p className={`font-bold text-sm sm:text-lg ${
-                value.stockLibre > 5 ? 'text-green-600' :
+                value.stockLibre > 5 ? 'text-emerald-600' :
                 value.stockLibre > 0 ? 'text-amber-600' : 'text-red-600'
               }`}>
                 {value.stockLibre}
@@ -491,7 +491,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
               </p>
               <p className={`font-bold text-sm sm:text-lg ${
                 value.margenEstimado
-                  ? value.margenEstimado >= 20 ? 'text-green-600' :
+                  ? value.margenEstimado >= 20 ? 'text-emerald-600' :
                     value.margenEstimado >= 10 ? 'text-yellow-600' : 'text-red-600'
                   : 'text-slate-400'
               }`}>
@@ -507,7 +507,7 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
               <p className={`font-bold text-sm sm:text-lg ${
                 value.diasParaVencer
                   ? value.diasParaVencer <= 30 ? 'text-red-600' :
-                    value.diasParaVencer <= 90 ? 'text-amber-600' : 'text-green-600'
+                    value.diasParaVencer <= 90 ? 'text-amber-600' : 'text-emerald-600'
                   : 'text-slate-400'
               }`}>
                 {value.diasParaVencer ? `${value.diasParaVencer}d` : '-'}

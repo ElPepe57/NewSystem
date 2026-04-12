@@ -67,12 +67,12 @@ export const AlertasPrioritarias: React.FC<AlertasPrioritariasProps> = ({
 
   if (alertas.length === 0) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-3">
-          <Package className="h-6 w-6 text-green-600" />
+      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 text-center">
+        <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100 mb-3">
+          <Package className="h-6 w-6 text-emerald-600" />
         </div>
-        <h4 className="text-sm font-medium text-green-800">Todo en orden</h4>
-        <p className="text-xs text-green-600 mt-1">
+        <h4 className="text-sm font-medium text-emerald-800">Todo en orden</h4>
+        <p className="text-xs text-emerald-600 mt-1">
           No hay alertas prioritarias en este momento
         </p>
       </div>

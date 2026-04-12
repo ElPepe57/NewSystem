@@ -1,96 +1,57 @@
 import React from 'react';
 import { Badge } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import type { TipoCambio } from '../../../types/tipoCambio.types';
 
 interface TipoCambioTableProps {
   tiposCambio: TipoCambio[];
 }
 
-export const TipoCambioTable: React.FC<TipoCambioTableProps> = ({ tiposCambio }) => {
-  if (tiposCambio.length === 0) {
-    return (
-      <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
-        <p className="text-slate-500">No hay tipos de cambio registrados</p>
-      </div>
-    );
+const getFuenteBadge = (fuente: string) => {
+  switch (fuente) {
+    case 'sunat': return <Badge variant="success">SUNAT</Badge>;
+    case 'bcrp': return <Badge variant="info">BCRP</Badge>;
+    case 'paralelo': return <Badge variant="info">Paralelo</Badge>;
+    case 'exchangerate-api': return <Badge variant="warning">API Backup</Badge>;
+    case 'manual': return <Badge variant="default">Manual</Badge>;
+    default: return <Badge variant="default">{fuente}</Badge>;
   }
-
-  const getFuenteBadge = (fuente: string) => {
-    switch (fuente) {
-      case 'sunat':
-        return <Badge variant="success">SUNAT</Badge>;
-      case 'bcrp':
-        return <Badge variant="info">BCRP</Badge>;
-      case 'paralelo':
-        return <Badge variant="info">Paralelo</Badge>;
-      case 'exchangerate-api':
-        return <Badge variant="warning">API Backup</Badge>;
-      case 'manual':
-        return <Badge variant="default">Manual</Badge>;
-      default:
-        return <Badge variant="default">{fuente}</Badge>;
-    }
-  };
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-slate-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-              Fecha
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-              TC Compra
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-              TC Venta
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-              Promedio
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-              Fuente
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-slate-200">
-          {tiposCambio.map((tc) => {
-            const promedio = ((tc.compra + tc.venta) / 2).toFixed(3);
-            const fecha = tc.fecha?.toDate?.()?.toLocaleDateString('es-PE', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            }) || '-';
-
-            return (
-              <tr key={tc.id} className="hover:bg-slate-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-slate-900">{fecha}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="text-sm font-semibold text-slate-900">
-                    S/ {tc.compra.toFixed(3)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="text-sm font-semibold text-slate-900">
-                    S/ {tc.venta.toFixed(3)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <div className="text-sm font-semibold text-teal-600">
-                    S/ {promedio}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {getFuenteBadge(tc.fuente)}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
 };
+
+const columns: DataTableColumn<TipoCambio>[] = [
+  {
+    key: 'fecha', header: 'Fecha',
+    render: tc => {
+      const fecha = tc.fecha?.toDate?.()?.toLocaleDateString('es-PE', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      }) || '-';
+      return <span className="font-medium text-slate-900">{fecha}</span>;
+    },
+  },
+  {
+    key: 'compra', header: 'TC Compra', align: 'right',
+    render: tc => <span className="font-semibold text-slate-900">S/ {tc.compra.toFixed(3)}</span>,
+  },
+  {
+    key: 'venta', header: 'TC Venta', align: 'right',
+    render: tc => <span className="font-semibold text-slate-900">S/ {tc.venta.toFixed(3)}</span>,
+  },
+  {
+    key: 'promedio', header: 'Promedio', align: 'right',
+    render: tc => <span className="font-semibold text-teal-600">S/ {((tc.compra + tc.venta) / 2).toFixed(3)}</span>,
+  },
+  {
+    key: 'fuente', header: 'Fuente',
+    render: tc => getFuenteBadge(tc.fuente),
+  },
+];
+
+export const TipoCambioTable: React.FC<TipoCambioTableProps> = ({ tiposCambio }) => (
+  <DataTable<TipoCambio>
+    columns={columns}
+    data={tiposCambio}
+    keyExtractor={tc => tc.id}
+    emptyMessage="No hay tipos de cambio registrados"
+  />
+);

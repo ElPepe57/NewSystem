@@ -334,7 +334,7 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
                 <span className={`px-2 py-0.5 rounded-full font-medium ${
                   esTipoTransferenciaInternacional(tipoTransferencia)
                     ? 'bg-purple-100 text-purple-700'
-                    : 'bg-blue-100 text-blue-700'
+                    : 'bg-sky-100 text-sky-700'
                 }`}>
                   {getLabelTipoTransferencia(tipoTransferencia, almacenes.find(a => a.id === origenId)?.pais)}
                 </span>

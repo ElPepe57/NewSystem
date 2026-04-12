@@ -63,11 +63,11 @@ export const CashLiquidezSection: React.FC<CashLiquidezSectionProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
 
-      {/* Card 1: Cash Runway — dark */}
-      <div className="bg-slate-900 border border-slate-700 rounded-xl p-6">
+      {/* Card 1: Cash Runway */}
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
-          <Wallet className="h-4 w-4 text-emerald-400" />
-          <span className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Cash Runway</span>
+          <Wallet className="h-4 w-4 text-emerald-600" />
+          <span className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Cash Runway</span>
         </div>
 
         <div className="flex flex-col items-center">
@@ -81,34 +81,34 @@ export const CashLiquidezSection: React.FC<CashLiquidezSectionProps> = ({
           />
         </div>
 
-        <div className="mt-3 space-y-2 text-xs text-slate-400">
+        <div className="mt-3 space-y-2 text-xs text-slate-500">
           <div className="flex justify-between">
             <span>Saldo total</span>
-            <span className="text-slate-200 font-medium">{fmtC(saldoCajaTotal)}</span>
+            <span className="text-slate-900 font-medium">{fmtC(saldoCajaTotal)}</span>
           </div>
           <div className="flex justify-between">
             <span>Gasto mensual prom.</span>
-            <span className="text-slate-200 font-medium">{fmtC(gastoMensualPromedio)}</span>
+            <span className="text-slate-900 font-medium">{fmtC(gastoMensualPromedio)}</span>
           </div>
           {tcCompra && (
-            <div className="flex justify-between border-t border-slate-700/50 pt-2">
+            <div className="flex justify-between border-t border-slate-100 pt-2">
               <span>TC hoy</span>
-              <span className="text-slate-200 font-medium">S/ {tcCompra}{tcVenta ? ` / ${tcVenta}` : ''}</span>
+              <span className="text-slate-900 font-medium">S/ {tcCompra}{tcVenta ? ` / ${tcVenta}` : ''}</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Card 2: Working Capital — dark */}
-      <div className="bg-slate-900 border border-slate-700 rounded-xl p-6">
+      {/* Card 2: Working Capital */}
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Package className="h-4 w-4 text-blue-400" />
-          <span className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Working Capital</span>
+          <Package className="h-4 w-4 text-teal-600" />
+          <span className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Working Capital</span>
         </div>
 
         {/* Numero hero */}
         <div className="text-center mb-4">
-          <div className={`text-3xl font-bold ${workingCapital >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className={`text-3xl font-bold ${workingCapital >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {fmtC(workingCapital)}
           </div>
           <div className="text-xs text-slate-500 mt-1">Capital de trabajo neto</div>
@@ -118,35 +118,35 @@ export const CashLiquidezSection: React.FC<CashLiquidezSectionProps> = ({
         <div className="space-y-2.5">
           <div className="flex justify-between items-center text-sm">
             <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-violet-400 inline-block" />
-              <span className="text-slate-300">Inventario</span>
+              <span className="w-2 h-2 rounded-full bg-violet-500 inline-block" />
+              <span className="text-slate-600">Inventario</span>
             </span>
-            <span className="text-slate-200 font-medium">{fmtC(valorInventarioPEN)}</span>
+            <span className="text-slate-900 font-medium">{fmtC(valorInventarioPEN)}</span>
           </div>
 
           {cxcTotal > 0 && (
             <div className="flex justify-between items-center text-sm">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
-                <span className="text-slate-300">CxC por cobrar</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                <span className="text-slate-600">CxC por cobrar</span>
               </span>
-              <span className="text-emerald-400 font-medium">+{fmtC(cxcTotal)}</span>
+              <span className="text-emerald-600 font-medium">+{fmtC(cxcTotal)}</span>
             </div>
           )}
 
           {cxpTotal > 0 && (
             <div className="flex justify-between items-center text-sm">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-rose-400 inline-block" />
-                <span className="text-slate-300">CxP por pagar</span>
+                <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+                <span className="text-slate-600">CxP por pagar</span>
               </span>
-              <span className="text-rose-400 font-medium">-{fmtC(cxpTotal)}</span>
+              <span className="text-red-600 font-medium">-{fmtC(cxpTotal)}</span>
             </div>
           )}
 
-          <div className="border-t border-slate-700/50 pt-2 flex justify-between items-center text-sm">
-            <span className="text-slate-400">Neto</span>
-            <span className={`font-bold ${workingCapital >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+          <div className="border-t border-slate-100 pt-2 flex justify-between items-center text-sm">
+            <span className="text-slate-500">Neto</span>
+            <span className={`font-bold ${workingCapital >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               {fmt(workingCapital)}
             </span>
           </div>
@@ -156,7 +156,7 @@ export const CashLiquidezSection: React.FC<CashLiquidezSectionProps> = ({
       {/* Card 3: Tendencia 30d dual SUP/SKC — light */}
       <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
-          <TrendingUp className="h-4 w-4 text-blue-500" />
+          <TrendingUp className="h-4 w-4 text-teal-600" />
           <span className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
             {hayDualLinea ? 'Tendencia SUP vs SKC' : 'Ventas 30 dias'}
           </span>

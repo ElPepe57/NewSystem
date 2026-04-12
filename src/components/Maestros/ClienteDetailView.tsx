@@ -1,6 +1,8 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import {
   User, Phone, Mail, MapPin, Calendar, ShoppingCart, DollarSign,
   TrendingUp, TrendingDown, Package, Star, AlertTriangle, Clock,
@@ -67,8 +69,8 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
 
   const getClasificacionColor = (clasificacion?: string) => {
     switch (clasificacion) {
-      case 'A': return 'bg-green-100 text-green-800 border-green-300';
-      case 'B': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'A': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      case 'B': return 'bg-sky-100 text-sky-800 border-sky-300';
       case 'C': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       default: return 'bg-slate-100 text-slate-800 border-slate-300';
     }
@@ -78,7 +80,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
     switch (segmento) {
       case 'vip': return <Award className="w-4 h-4 text-yellow-500" />;
       case 'premium': return <Star className="w-4 h-4 text-purple-500" />;
-      case 'frecuente': return <RefreshCw className="w-4 h-4 text-blue-500" />;
+      case 'frecuente': return <RefreshCw className="w-4 h-4 text-sky-500" />;
       case 'en_riesgo': return <AlertTriangle className="w-4 h-4 text-orange-500" />;
       case 'perdido': return <TrendingDown className="w-4 h-4 text-red-500" />;
       default: return <User className="w-4 h-4 text-slate-500" />;
@@ -89,7 +91,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
     switch (tendencia) {
       case 'creciendo':
       case 'aumentando':
-        return <TrendingUp className="w-4 h-4 text-green-500" />;
+        return <TrendingUp className="w-4 h-4 text-emerald-500" />;
       case 'decreciendo':
       case 'disminuyendo':
         return <TrendingDown className="w-4 h-4 text-red-500" />;
@@ -105,8 +107,8 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-start gap-4">
           <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold ${
-            cliente.clasificacionABC === 'A' ? 'bg-green-100 text-green-600' :
-            cliente.clasificacionABC === 'B' ? 'bg-blue-100 text-blue-600' :
+            cliente.clasificacionABC === 'A' ? 'bg-emerald-100 text-emerald-600' :
+            cliente.clasificacionABC === 'B' ? 'bg-sky-100 text-sky-600' :
             'bg-slate-100 text-slate-600'
           }`}>
             {cliente.nombre.charAt(0).toUpperCase()}
@@ -151,7 +153,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                 </span>
               )}
               <span className={`px-2 py-1 text-xs rounded-full ${
-                cliente.estado === 'activo' ? 'bg-green-100 text-green-800' :
+                cliente.estado === 'activo' ? 'bg-emerald-100 text-emerald-800' :
                 cliente.estado === 'inactivo' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-slate-100 text-slate-800'
               }`}>
@@ -167,7 +169,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
             {cliente.telefono && onWhatsApp && (
               <button
                 onClick={() => onWhatsApp(cliente.telefono!)}
-                className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
                 title="WhatsApp"
               >
                 <MessageSquare className="w-5 h-5" />
@@ -204,10 +206,10 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               <DollarSign className="w-4 h-4" />
               Gasto Total
             </div>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(analytics.gastoTotalHistorico)}</div>
+            <div className="text-2xl font-bold text-emerald-600">{formatCurrency(analytics.gastoTotalHistorico)}</div>
             <div className="flex items-center gap-1 text-xs">
               {getTendenciaIcon(analytics.tendenciaGasto)}
-              <span className={analytics.tasaCrecimiento >= 0 ? 'text-green-600' : 'text-red-600'}>
+              <span className={analytics.tasaCrecimiento >= 0 ? 'text-emerald-600' : 'text-red-600'}>
                 {analytics.tasaCrecimiento >= 0 ? '+' : ''}{analytics.tasaCrecimiento.toFixed(0)}%
               </span>
             </div>
@@ -218,7 +220,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               <Target className="w-4 h-4" />
               Ticket Promedio
             </div>
-            <div className="text-2xl font-bold text-blue-600">{formatCurrency(analytics.ticketPromedio)}</div>
+            <div className="text-2xl font-bold text-sky-600">{formatCurrency(analytics.ticketPromedio)}</div>
             <div className="text-xs text-slate-500">
               Max: {formatCurrency(analytics.ticketMaximo)}
             </div>
@@ -266,7 +268,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                 <span className="text-slate-500">Dias sin comprar:</span>
                 <span className={`font-medium ${
                   analytics.diasDesdeUltimaCompra > 90 ? 'text-red-600' :
-                  analytics.diasDesdeUltimaCompra > 30 ? 'text-yellow-600' : 'text-green-600'
+                  analytics.diasDesdeUltimaCompra > 30 ? 'text-yellow-600' : 'text-emerald-600'
                 }`}>
                   {analytics.diasDesdeUltimaCompra} dias
                 </span>
@@ -274,7 +276,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               {analytics.predicciones.proximaCompraEstimada && (
                 <div className="flex justify-between pt-2 border-t">
                   <span className="text-slate-500">Proxima compra estimada:</span>
-                  <span className="font-medium text-blue-600">
+                  <span className="font-medium text-sky-600">
                     {formatDate(analytics.predicciones.proximaCompraEstimada)}
                   </span>
                 </div>
@@ -293,7 +295,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-500">Prob. recompra (30d):</span>
                   <span className={`font-medium ${
-                    analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'text-green-600' :
+                    analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'text-emerald-600' :
                     analytics.predicciones.probabilidadRecompra30Dias >= 30 ? 'text-yellow-600' : 'text-red-600'
                   }`}>
                     {analytics.predicciones.probabilidadRecompra30Dias}%
@@ -302,7 +304,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                 <div className="w-full bg-slate-200 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full ${
-                      analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'bg-green-500' :
+                      analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'bg-emerald-500' :
                       analytics.predicciones.probabilidadRecompra30Dias >= 30 ? 'bg-yellow-500' : 'bg-red-500'
                     }`}
                     style={{ width: `${analytics.predicciones.probabilidadRecompra30Dias}%` }}
@@ -314,7 +316,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-500">Riesgo de perdida:</span>
                   <span className={`font-medium ${
-                    analytics.predicciones.probabilidadChurn <= 20 ? 'text-green-600' :
+                    analytics.predicciones.probabilidadChurn <= 20 ? 'text-emerald-600' :
                     analytics.predicciones.probabilidadChurn <= 50 ? 'text-yellow-600' : 'text-red-600'
                   }`}>
                     {analytics.predicciones.probabilidadChurn}%
@@ -323,7 +325,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                 <div className="w-full bg-slate-200 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full ${
-                      analytics.predicciones.probabilidadChurn <= 20 ? 'bg-green-500' :
+                      analytics.predicciones.probabilidadChurn <= 20 ? 'bg-emerald-500' :
                       analytics.predicciones.probabilidadChurn <= 50 ? 'bg-yellow-500' : 'bg-red-500'
                     }`}
                     style={{ width: `${analytics.predicciones.probabilidadChurn}%` }}
@@ -334,7 +336,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               <div className="pt-2 border-t">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Valor de vida estimado:</span>
-                  <span className="font-bold text-green-600">
+                  <span className="font-bold text-emerald-600">
                     {formatCurrency(analytics.predicciones.valorVidaEstimado)}
                   </span>
                 </div>
@@ -357,7 +359,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               {analytics.productosFavoritos.slice(0, 5).map((prod, idx) => (
                 <div key={prod.productoId} className="flex items-center gap-3">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                    idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-slate-400' : 'bg-blue-400'
+                    idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-slate-400' : 'bg-sky-400'
                   }`}>
                     {idx + 1}
                   </div>
@@ -368,7 +370,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold text-green-600">{formatCurrency(prod.gastoTotal)}</div>
+                    <div className="font-semibold text-emerald-600">{formatCurrency(prod.gastoTotal)}</div>
                   </div>
                 </div>
               ))}
@@ -391,7 +393,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                   className={`p-3 rounded-lg ${
                     alerta.urgencia === 'alta' ? 'bg-red-50 border border-red-200' :
                     alerta.urgencia === 'media' ? 'bg-yellow-50 border border-yellow-200' :
-                    'bg-blue-50 border border-blue-200'
+                    'bg-sky-50 border border-sky-200'
                   }`}
                 >
                   <div className="font-medium text-slate-900">{alerta.nombre}</div>
@@ -454,9 +456,9 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-green-600">{formatCurrency(compra.totalPEN)}</div>
+                    <div className="font-bold text-emerald-600">{formatCurrency(compra.totalPEN)}</div>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      compra.estado === 'entregada' ? 'bg-green-100 text-green-800' :
+                      compra.estado === 'entregada' ? 'bg-emerald-100 text-emerald-800' :
                       compra.estado === 'cancelada' ? 'bg-red-100 text-red-800' :
                       'bg-yellow-100 text-yellow-800'
                     }`}>
@@ -496,11 +498,11 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
           {/* Estadísticas de productos */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white rounded-lg shadow p-4 text-center">
-              <div className="text-3xl font-bold text-blue-600">{analytics.totalProductosUnicos}</div>
+              <div className="text-3xl font-bold text-sky-600">{analytics.totalProductosUnicos}</div>
               <div className="text-sm text-slate-500">Productos diferentes</div>
             </div>
             <div className="bg-white rounded-lg shadow p-4 text-center">
-              <div className="text-3xl font-bold text-green-600">{analytics.totalUnidadesCompradas}</div>
+              <div className="text-3xl font-bold text-emerald-600">{analytics.totalUnidadesCompradas}</div>
               <div className="text-sm text-slate-500">Unidades totales</div>
             </div>
             <div className="bg-white rounded-lg shadow p-4 text-center">
@@ -514,43 +516,45 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
             <div className="p-4 border-b bg-slate-50">
               <h3 className="font-semibold text-slate-900">Productos Favoritos</h3>
             </div>
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr className="text-xs text-slate-500 uppercase">
-                  <th className="px-4 py-3 text-left">Producto</th>
-                  <th className="px-4 py-3 text-right">Compras</th>
-                  <th className="px-4 py-3 text-right">Unidades</th>
-                  <th className="px-4 py-3 text-right">Gasto</th>
-                  <th className="px-4 py-3 text-right">Frecuencia</th>
-                  <th className="px-4 py-3 text-right">Ultima</th>
-                  <th className="px-4 py-3 text-right">Proxima Est.</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {analytics.productosFavoritos.map(prod => (
-                  <tr key={prod.productoId} className="hover:bg-slate-50">
-                    <td className="px-4 py-3">
+            {(() => {
+              const colsProductosFav: DataTableColumn<ProductoFavorito>[] = [
+                {
+                  key: 'nombre', header: 'Producto',
+                  render: prod => (
+                    <div>
                       <div className="font-medium text-slate-900">{prod.nombre}</div>
                       <div className="text-xs text-slate-500">{prod.sku} - {prod.marca}</div>
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-900">{prod.vecesComprado}</td>
-                    <td className="px-4 py-3 text-right text-slate-900">{prod.unidadesTotales}</td>
-                    <td className="px-4 py-3 text-right font-medium text-green-600">
-                      {formatCurrency(prod.gastoTotal)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-600">
-                      {prod.frecuenciaPromedioDias > 0 ? `${prod.frecuenciaPromedioDias}d` : '-'}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-600">
-                      {formatDate(prod.ultimaCompra)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-blue-600">
-                      {prod.proximaCompraEstimada ? formatDate(prod.proximaCompraEstimada) : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  ),
+                },
+                { key: 'vecesComprado', header: 'Compras', align: 'right', render: prod => <span>{prod.vecesComprado}</span> },
+                { key: 'unidadesTotales', header: 'Unidades', align: 'right', render: prod => <span>{prod.unidadesTotales}</span> },
+                {
+                  key: 'gastoTotal', header: 'Gasto', align: 'right',
+                  render: prod => <span className="font-medium text-emerald-600">{formatCurrency(prod.gastoTotal)}</span>,
+                },
+                {
+                  key: 'frecuencia', header: 'Frecuencia', align: 'right', hideOnMobile: true,
+                  render: prod => <span className="text-slate-600">{prod.frecuenciaPromedioDias > 0 ? `${prod.frecuenciaPromedioDias}d` : '-'}</span>,
+                },
+                {
+                  key: 'ultimaCompra', header: 'Ultima', align: 'right', hideOnMobile: true,
+                  render: prod => <span className="text-slate-600">{formatDate(prod.ultimaCompra)}</span>,
+                },
+                {
+                  key: 'proximaCompra', header: 'Proxima Est.', align: 'right', hideOnMobile: true,
+                  render: prod => <span className="text-sky-600">{prod.proximaCompraEstimada ? formatDate(prod.proximaCompraEstimada) : '-'}</span>,
+                },
+              ];
+              return (
+                <DataTable
+                  columns={colsProductosFav}
+                  data={analytics.productosFavoritos}
+                  keyExtractor={prod => prod.productoId}
+                  emptyMessage="Sin compras registradas"
+                />
+              );
+            })()}
           </div>
 
           {/* Marcas preferidas */}
@@ -604,19 +608,19 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white rounded-lg shadow p-4">
               <div className="text-sm text-slate-500">Ultimos 30 dias</div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-600">
                 {formatCurrency(analytics.gastoUltimos30Dias)}
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
               <div className="text-sm text-slate-500">Ultimos 90 dias</div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-600">
                 {formatCurrency(analytics.gastoUltimos90Dias)}
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
               <div className="text-sm text-slate-500">Ultimos 365 dias</div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-600">
                 {formatCurrency(analytics.gastoUltimos365Dias)}
               </div>
             </div>
@@ -660,12 +664,12 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
             {analytics.patronesCompra.length > 0 ? (
               <div className="space-y-3">
                 {analytics.patronesCompra.map((patron, idx) => (
-                  <div key={idx} className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                  <div key={idx} className="p-4 bg-sky-50 rounded-lg border border-sky-100">
                     <div className="flex justify-between items-start">
                       <div>
                         <span className={`px-2 py-1 text-xs rounded-full ${
-                          patron.tipo === 'frecuencia' ? 'bg-blue-100 text-blue-800' :
-                          patron.tipo === 'monto' ? 'bg-green-100 text-green-800' :
+                          patron.tipo === 'frecuencia' ? 'bg-sky-100 text-sky-800' :
+                          patron.tipo === 'monto' ? 'bg-emerald-100 text-emerald-800' :
                           'bg-purple-100 text-purple-800'
                         }`}>
                           {patron.tipo}
@@ -674,7 +678,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                       </div>
                       <div className="text-right">
                         <div className="text-sm text-slate-500">Confianza</div>
-                        <div className="font-bold text-blue-600">{formatPercent(patron.confianza)}</div>
+                        <div className="font-bold text-sky-600">{formatPercent(patron.confianza)}</div>
                       </div>
                     </div>
                   </div>
@@ -709,7 +713,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                     </div>
                   </div>
                   <span className={`px-2 py-1 text-xs rounded-full ${
-                    comp.comparacion === 'superior' ? 'bg-green-100 text-green-800' :
+                    comp.comparacion === 'superior' ? 'bg-emerald-100 text-emerald-800' :
                     comp.comparacion === 'inferior' ? 'bg-red-100 text-red-800' :
                     'bg-slate-100 text-slate-800'
                   }`}>
@@ -735,7 +739,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               <h4 className="text-sm text-slate-500 mb-2">Probabilidad de Recompra (30 dias)</h4>
               <div className="flex items-center gap-4">
                 <div className={`text-4xl font-bold ${
-                  analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'text-green-600' :
+                  analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'text-emerald-600' :
                   analytics.predicciones.probabilidadRecompra30Dias >= 30 ? 'text-yellow-600' : 'text-red-600'
                 }`}>
                   {analytics.predicciones.probabilidadRecompra30Dias}%
@@ -744,7 +748,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                   <div className="w-full bg-slate-200 rounded-full h-4">
                     <div
                       className={`h-4 rounded-full ${
-                        analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'bg-green-500' :
+                        analytics.predicciones.probabilidadRecompra30Dias >= 60 ? 'bg-emerald-500' :
                         analytics.predicciones.probabilidadRecompra30Dias >= 30 ? 'bg-yellow-500' : 'bg-red-500'
                       }`}
                       style={{ width: `${analytics.predicciones.probabilidadRecompra30Dias}%` }}
@@ -758,7 +762,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               <h4 className="text-sm text-slate-500 mb-2">Riesgo de Perdida (Churn)</h4>
               <div className="flex items-center gap-4">
                 <div className={`text-4xl font-bold ${
-                  analytics.predicciones.probabilidadChurn <= 20 ? 'text-green-600' :
+                  analytics.predicciones.probabilidadChurn <= 20 ? 'text-emerald-600' :
                   analytics.predicciones.probabilidadChurn <= 50 ? 'text-yellow-600' : 'text-red-600'
                 }`}>
                   {analytics.predicciones.probabilidadChurn}%
@@ -767,7 +771,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                   <div className="w-full bg-slate-200 rounded-full h-4">
                     <div
                       className={`h-4 rounded-full ${
-                        analytics.predicciones.probabilidadChurn <= 20 ? 'bg-green-500' :
+                        analytics.predicciones.probabilidadChurn <= 20 ? 'bg-emerald-500' :
                         analytics.predicciones.probabilidadChurn <= 50 ? 'bg-yellow-500' : 'bg-red-500'
                       }`}
                       style={{ width: `${analytics.predicciones.probabilidadChurn}%` }}
@@ -796,7 +800,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
             <h3 className="font-semibold text-slate-900 mb-4">Productos Probables en Proxima Compra</h3>
             <div className="grid grid-cols-3 gap-4">
               {analytics.predicciones.productosProbables.map((prod, idx) => (
-                <div key={idx} className="p-4 bg-blue-50 rounded-lg text-center">
+                <div key={idx} className="p-4 bg-sky-50 rounded-lg text-center">
                   <div className="text-2xl mb-2">{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}</div>
                   <div className="font-medium text-slate-900">{prod}</div>
                 </div>
@@ -838,7 +842,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto"></div>
           <p className="mt-4 text-slate-600">Cargando analytics del cliente...</p>
         </div>
       </div>
@@ -852,8 +856,8 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
         <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
-              cliente.clasificacionABC === 'A' ? 'bg-green-100 text-green-600' :
-              cliente.clasificacionABC === 'B' ? 'bg-blue-100 text-blue-600' :
+              cliente.clasificacionABC === 'A' ? 'bg-emerald-100 text-emerald-600' :
+              cliente.clasificacionABC === 'B' ? 'bg-sky-100 text-sky-600' :
               'bg-slate-100 text-slate-600'
             }`}>
               {cliente.nombre.charAt(0).toUpperCase()}
@@ -888,7 +892,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                 onClick={() => setActiveTab(tab.id as DetailTab)}
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-sky-500 text-sky-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >

@@ -20,7 +20,9 @@ import {
 import { formatFecha } from '../../utils/dateFormatters';
 import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../utils/format';
 import { Modal, Badge, Button } from '../../components/common';
-import type { Cotizacion, MotivoRechazo } from '../../types/cotizacion.types';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
+import type { Cotizacion, ProductoCotizacion, MotivoRechazo } from '../../types/cotizacion.types';
 import type { MonedaTesoreria } from '../../types/tesoreria.types';
 
 const MOTIVOS_RECHAZO: { value: MotivoRechazo; label: string }[] = [
@@ -86,7 +88,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
     >
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         {/* Header: Estado y Total */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-teal-50 to-teal-100 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-teal-50 rounded-lg">
           <div className="flex items-center gap-4">
             <Badge
               variant={
@@ -167,47 +169,64 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
               Productos ({cotizacion.productos.length})
             </h4>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Producto</th>
-                  <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase">Stock</th>
-                  <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase">Cant.</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">P. Unit.</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
-                {cotizacion.productos.map((producto, idx) => {
-                  const sinStock = producto.requiereStock || (producto.stockDisponible !== undefined && producto.stockDisponible < producto.cantidad);
-                  return (
-                    <tr key={idx} className={sinStock ? 'bg-amber-50' : ''}>
-                      <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-slate-900">{producto.sku}</div>
-                        <div className="text-xs text-slate-500">{producto.marca} - {producto.nombreComercial}</div>
-                        {producto.presentacion && (
-                          <div className="text-xs text-slate-400">{producto.presentacion}</div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {producto.stockDisponible !== undefined ? (
-                          <Badge variant={sinStock ? 'warning' : 'success'} size="sm">
-                            {Math.max(0, producto.stockDisponible)}
-                          </Badge>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-center font-medium">{producto.cantidad}</td>
-                      <td className="px-4 py-3 text-right text-sm">{formatCurrency(producto.precioUnitario)}</td>
-                      <td className="px-4 py-3 text-right font-medium">{formatCurrency(producto.subtotal)}</td>
-                    </tr>
+          {(() => {
+            const columnasProductos: DataTableColumn<ProductoCotizacion>[] = [
+              {
+                key: 'producto',
+                header: 'Producto',
+                render: (p) => (
+                  <div>
+                    <div className="text-sm font-medium text-slate-900">{p.sku}</div>
+                    <div className="text-xs text-slate-500">{p.marca} - {p.nombreComercial}</div>
+                    {p.presentacion && (
+                      <div className="text-xs text-slate-400">{p.presentacion}</div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                key: 'stock',
+                header: 'Stock',
+                align: 'center',
+                render: (p) => {
+                  const sinStock = p.requiereStock || (p.stockDisponible !== undefined && p.stockDisponible < p.cantidad);
+                  return p.stockDisponible !== undefined ? (
+                    <Badge variant={sinStock ? 'warning' : 'success'} size="sm">
+                      {Math.max(0, p.stockDisponible)}
+                    </Badge>
+                  ) : (
+                    <span className="text-slate-400">-</span>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
+                },
+              },
+              {
+                key: 'cantidad',
+                header: 'Cant.',
+                align: 'center',
+                render: (p) => <span className="font-medium">{p.cantidad}</span>,
+              },
+              {
+                key: 'precioUnitario',
+                header: 'P. Unit.',
+                align: 'right',
+                render: (p) => <span className="text-sm">{formatCurrency(p.precioUnitario)}</span>,
+              },
+              {
+                key: 'subtotal',
+                header: 'Subtotal',
+                align: 'right',
+                render: (p) => <span className="font-medium">{formatCurrency(p.subtotal)}</span>,
+              },
+            ];
+            return (
+              <DataTable<ProductoCotizacion>
+                columns={columnasProductos}
+                data={cotizacion.productos}
+                keyExtractor={(p) => p.productoId}
+                compact
+              />
+            );
+          })()}
           {/* Totales */}
           <div className="bg-slate-50 px-4 py-3 border-t">
             <div className="flex flex-col items-end gap-1">
@@ -230,7 +249,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
               {cotizacion.incluyeEnvio && (
                 <div className="flex justify-between w-48">
                   <span className="text-sm text-slate-600">Envío:</span>
-                  <span className="font-medium text-green-600">GRATIS</span>
+                  <span className="font-medium text-emerald-600">GRATIS</span>
                 </div>
               )}
               <div className="flex justify-between w-48 pt-2 border-t mt-1">
@@ -263,7 +282,7 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
 
                 {cotizacion.fechaValidacion && (
                   <div className="flex items-start gap-3 relative">
-                    <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white z-10"></div>
+                    <div className="w-4 h-4 rounded-full bg-sky-500 border-2 border-white z-10"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-slate-900">Cliente validó interés</p>
                       <p className="text-xs text-slate-500">{formatFecha(cotizacion.fechaValidacion)}</p>
@@ -294,12 +313,12 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
 
                 {cotizacion.fechaConfirmacion && (
                   <div className="flex items-start gap-3 relative">
-                    <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-white z-10"></div>
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white z-10"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-slate-900">Confirmada como venta</p>
                       <p className="text-xs text-slate-500">{formatFecha(cotizacion.fechaConfirmacion)}</p>
                       {cotizacion.numeroVenta && (
-                        <p className="text-xs font-medium text-green-600">{cotizacion.numeroVenta}</p>
+                        <p className="text-xs font-medium text-emerald-600">{cotizacion.numeroVenta}</p>
                       )}
                     </div>
                   </div>
@@ -336,10 +355,10 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
         {/* Reserva de Stock */}
         {cotizacion.reservaStock && (
           <div className={`border rounded-lg overflow-hidden ${
-            cotizacion.reservaStock.tipoReserva === 'fisica' ? 'border-green-200' : 'border-purple-200'
+            cotizacion.reservaStock.tipoReserva === 'fisica' ? 'border-emerald-200' : 'border-purple-200'
           }`}>
             <div className={`px-4 py-2 border-b ${
-              cotizacion.reservaStock.tipoReserva === 'fisica' ? 'bg-green-50' : 'bg-purple-50'
+              cotizacion.reservaStock.tipoReserva === 'fisica' ? 'bg-emerald-50' : 'bg-purple-50'
             }`}>
               <h4 className="font-semibold text-slate-700 flex items-center gap-2">
                 <Lock className="h-4 w-4" />
@@ -437,12 +456,12 @@ export const CotizacionDetailModal: React.FC<CotizacionDetailModalProps> = ({
 
         {/* Venta Creada */}
         {cotizacion.estado === 'confirmada' && cotizacion.numeroVenta && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h4 className="font-semibold text-green-800 flex items-center gap-2">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+            <h4 className="font-semibold text-emerald-800 flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
               Venta Creada
             </h4>
-            <p className="text-lg font-bold text-green-700 mt-1">{cotizacion.numeroVenta}</p>
+            <p className="text-lg font-bold text-emerald-700 mt-1">{cotizacion.numeroVenta}</p>
           </div>
         )}
 

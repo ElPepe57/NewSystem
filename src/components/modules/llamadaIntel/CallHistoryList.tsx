@@ -106,7 +106,7 @@ export const CallHistoryList: React.FC = () => {
                 </div>
                 {intel.analisis?.tareas && intel.analisis.tareas.length > 0 && (
                   <div className="mt-1.5 flex items-center gap-1">
-                    <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-xs bg-sky-50 text-sky-600 px-2 py-0.5 rounded-full font-medium">
                       {intel.analisis.tareas.length} tarea{intel.analisis.tareas.length > 1 ? 's' : ''}
                     </span>
                   </div>

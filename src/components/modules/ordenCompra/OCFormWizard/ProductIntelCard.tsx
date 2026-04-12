@@ -41,18 +41,18 @@ interface ProductIntelCardProps {
 // ============================================
 
 const NIVEL_STYLES: Record<NivelPrecio, { bg: string; text: string; bar: string; label: string }> = {
-  excelente: { bg: 'bg-green-50', text: 'text-green-700', bar: 'bg-green-500', label: 'Excelente' },
-  bueno:     { bg: 'bg-blue-50',  text: 'text-blue-700',  bar: 'bg-blue-500',  label: 'Bueno' },
+  excelente: { bg: 'bg-emerald-50', text: 'text-emerald-700', bar: 'bg-emerald-500', label: 'Excelente' },
+  bueno:     { bg: 'bg-sky-50',  text: 'text-sky-700',  bar: 'bg-sky-500',  label: 'Bueno' },
   aceptable: { bg: 'bg-slate-50',  text: 'text-slate-700',  bar: 'bg-slate-500',  label: 'Aceptable' },
   alto:      { bg: 'bg-amber-50', text: 'text-amber-700', bar: 'bg-amber-500', label: 'Alto' },
   muy_alto:  { bg: 'bg-red-50',   text: 'text-red-700',   bar: 'bg-red-500',   label: 'Muy alto' },
 };
 
 const ALERTA_STYLES: Record<string, { bg: string; border: string; text: string; Icon: React.FC<any> }> = {
-  success: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', Icon: CheckCircle },
+  success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800', Icon: CheckCircle },
   warning: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-800', Icon: AlertTriangle },
   danger:  { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', Icon: XCircle },
-  info:    { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', Icon: Info },
+  info:    { bg: 'bg-sky-50', border: 'border-sky-200', text: 'text-sky-800', Icon: Info },
 };
 
 // ============================================
@@ -199,7 +199,7 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
             {/* Comparison chips */}
             <div className="flex flex-wrap gap-2 text-xs">
               <span className={`inline-flex items-center gap-1 ${
-                analysis.evaluacion.vsPromedioHistorico <= 0 ? 'text-green-700' : 'text-amber-700'
+                analysis.evaluacion.vsPromedioHistorico <= 0 ? 'text-emerald-700' : 'text-amber-700'
               }`}>
                 vs Promedio: {analysis.evaluacion.vsPromedioHistorico > 0 ? '+' : ''}
                 {analysis.evaluacion.vsPromedioHistorico.toFixed(1)}%
@@ -208,7 +208,7 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
                   : <AlertTriangle className="h-3.5 w-3.5" />}
               </span>
               <span className={`inline-flex items-center gap-1 ${
-                analysis.evaluacion.vsMejorHistorico <= 5 ? 'text-green-700' : 'text-amber-700'
+                analysis.evaluacion.vsMejorHistorico <= 5 ? 'text-emerald-700' : 'text-amber-700'
               }`}>
                 vs Mejor: {analysis.evaluacion.vsMejorHistorico > 0 ? '+' : ''}
                 {analysis.evaluacion.vsMejorHistorico.toFixed(1)}%
@@ -245,7 +245,7 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
                     <div className="h-1.5 w-16 bg-slate-200 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full ${
-                          analysis.proyeccionRentabilidad.margenEstimado >= 30 ? 'bg-green-500' :
+                          analysis.proyeccionRentabilidad.margenEstimado >= 30 ? 'bg-emerald-500' :
                           analysis.proyeccionRentabilidad.margenEstimado >= 15 ? 'bg-amber-500' :
                           'bg-red-500'
                         }`}
@@ -253,14 +253,14 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
                       />
                     </div>
                     <span className={`font-semibold ${
-                      analysis.proyeccionRentabilidad.margenEstimado >= 30 ? 'text-green-700' :
+                      analysis.proyeccionRentabilidad.margenEstimado >= 30 ? 'text-emerald-700' :
                       analysis.proyeccionRentabilidad.margenEstimado >= 15 ? 'text-amber-700' :
                       'text-red-700'
                     }`}>
                       {analysis.proyeccionRentabilidad.margenEstimado.toFixed(1)}%
                     </span>
                     {analysis.proyeccionRentabilidad.margenEstimado >= 30
-                      ? <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                      ? <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
                       : analysis.proyeccionRentabilidad.alertaMargenBajo
                         ? <XCircle className="h-3.5 w-3.5 text-red-500" />
                         : <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />}
@@ -302,7 +302,7 @@ export const ProductIntelCard: React.FC<ProductIntelCardProps> = ({
               {analysis.tieneInvestigacion && (
                 <div className="flex items-center gap-1.5">
                   <Lightbulb className="h-3.5 w-3.5 text-slate-400" />
-                  <span className={analysis.investigacionVigente ? 'text-green-600' : 'text-amber-600'}>
+                  <span className={analysis.investigacionVigente ? 'text-emerald-600' : 'text-amber-600'}>
                     Inv. {analysis.investigacionVigente
                       ? `vigente (${analysis.diasDesdeInvestigacion}d)`
                       : `desactualizada (${analysis.diasDesdeInvestigacion}d)`}

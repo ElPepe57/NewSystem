@@ -72,10 +72,10 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-            esTipoTransferenciaInternacional(transferencia.tipo) ? 'bg-blue-100' : 'bg-slate-100'
+            esTipoTransferenciaInternacional(transferencia.tipo) ? 'bg-sky-100' : 'bg-slate-100'
           }`}>
             {esTipoTransferenciaInternacional(transferencia.tipo)
-              ? <Plane className="h-6 w-6 text-blue-600" />
+              ? <Plane className="h-6 w-6 text-sky-600" />
               : <ArrowRightLeft className="h-6 w-6 text-slate-600" />
             }
           </div>
@@ -114,7 +114,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
             {(transferencia.productosSummary?.length ?? 0)} producto{(transferencia.productosSummary?.length ?? 0) !== 1 ? 's' : ''} · {transferencia.totalUnidades} unidades
           </span>
           {transferencia.costoFleteTotal != null && transferencia.costoFleteTotal > 0 ? (
-            <span className="text-xs font-medium text-green-600">Flete: ${transferencia.costoFleteTotal.toFixed(2)}</span>
+            <span className="text-xs font-medium text-emerald-600">Flete: ${transferencia.costoFleteTotal.toFixed(2)}</span>
           ) : esTipoTransferenciaInternacional(transferencia.tipo) ? (
             <span className="text-xs text-amber-500">Sin flete</span>
           ) : null}
@@ -135,7 +135,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
                   </div>
                   {pFull && (
                     <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                      {pFull.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                      {pFull.marca && <span className="text-[10px] font-medium text-sky-700 bg-sky-50 px-1 py-0 rounded">{pFull.marca}</span>}
                       {getDescripcionProducto(pFull) && <span className="text-[10px] text-slate-600 bg-slate-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
                     </div>
                   )}
@@ -150,7 +150,7 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
                     {fleteUnitario > 0 && (
                       <>
                         <span className="text-slate-300">·</span>
-                        <span className="text-green-600">Flete: ${fleteUnitario.toFixed(2)}/u</span>
+                        <span className="text-emerald-600">Flete: ${fleteUnitario.toFixed(2)}/u</span>
                       </>
                     )}
                   </div>
@@ -168,13 +168,13 @@ export const TransferenciaCard: React.FC<TransferenciaCardProps> = ({
 
       {/* Estado especifico */}
       {transferencia.estado === 'en_transito' && fechaSalida && (
-        <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg text-sm">
-          <div className="flex items-center text-blue-700">
+        <div className="flex items-center justify-between p-2 bg-sky-50 rounded-lg text-sm">
+          <div className="flex items-center text-sky-700">
             <Truck className="h-4 w-4 mr-2" />
             En camino desde {fechaSalida.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
           </div>
           {transferencia.diasEnTransito && (
-            <span className="text-blue-600 font-medium">{transferencia.diasEnTransito} dias</span>
+            <span className="text-sky-600 font-medium">{transferencia.diasEnTransito} dias</span>
           )}
         </div>
       )}

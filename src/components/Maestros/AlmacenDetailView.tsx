@@ -1,6 +1,8 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency, formatPercent } from '../../utils/format';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import {
   Warehouse, MapPin, Phone, Mail, Calendar, Package, DollarSign,
   TrendingUp, TrendingDown, AlertTriangle, Clock, BarChart3, Truck,
@@ -61,8 +63,8 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
 
   const getClasificacionColor = (clasificacion?: string) => {
     switch (clasificacion) {
-      case 'excelente': return 'bg-green-100 text-green-800 border-green-300';
-      case 'bueno': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'excelente': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      case 'bueno': return 'bg-sky-100 text-sky-800 border-sky-300';
       case 'regular': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'deficiente': return 'bg-red-100 text-red-800 border-red-300';
       default: return 'bg-slate-100 text-slate-800 border-slate-300';
@@ -73,7 +75,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
     switch (tendencia) {
       case 'creciendo':
       case 'mejorando':
-        return <TrendingUp className="w-4 h-4 text-green-500" />;
+        return <TrendingUp className="w-4 h-4 text-emerald-500" />;
       case 'decreciendo':
       case 'empeorando':
         return <TrendingDown className="w-4 h-4 text-red-500" />;
@@ -86,14 +88,14 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
     switch (severidad) {
       case 'danger': return <AlertCircle className="w-4 h-4 text-red-500" />;
       case 'warning': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      default: return <AlertCircle className="w-4 h-4 text-blue-500" />;
+      default: return <AlertCircle className="w-4 h-4 text-sky-500" />;
     }
   };
 
   const getRotacionColor = (rotacion: string) => {
     switch (rotacion) {
-      case 'alta': return 'text-green-600 bg-green-100';
-      case 'normal': return 'text-blue-600 bg-blue-100';
+      case 'alta': return 'text-emerald-600 bg-emerald-100';
+      case 'normal': return 'text-sky-600 bg-sky-100';
       case 'baja': return 'text-yellow-600 bg-yellow-100';
       case 'estancado': return 'text-red-600 bg-red-100';
       default: return 'text-slate-600 bg-slate-100';
@@ -107,7 +109,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-start gap-4">
           <div className={`w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold ${
-            almacen.esViajero ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'
+            almacen.esViajero ? 'bg-purple-100 text-purple-600' : 'bg-sky-100 text-sky-600'
           }`}>
             {almacen.esViajero ? <Plane className="w-8 h-8" /> : <Warehouse className="w-8 h-8" />}
           </div>
@@ -143,7 +145,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
 
             <div className="flex gap-2 mt-3">
               <span className={`px-2 py-1 text-xs rounded-full ${
-                almacen.estadoAlmacen === 'activo' ? 'bg-green-100 text-green-800' :
+                almacen.estadoAlmacen === 'activo' ? 'bg-emerald-100 text-emerald-800' :
                 almacen.estadoAlmacen === 'inactivo' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-red-100 text-red-800'
               }`}>
@@ -276,7 +278,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
                 className={`p-3 rounded-lg border ${
                   alerta.severidad === 'danger' ? 'bg-red-50 border-red-200' :
                   alerta.severidad === 'warning' ? 'bg-yellow-50 border-yellow-200' :
-                  'bg-blue-50 border-blue-200'
+                  'bg-sky-50 border-sky-200'
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -287,7 +289,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
                       <div className="text-sm text-slate-600 mt-1">{alerta.detalle}</div>
                     )}
                     {alerta.accionRecomendada && (
-                      <div className="text-sm text-blue-600 mt-1">
+                      <div className="text-sm text-sky-600 mt-1">
                         → {alerta.accionRecomendada}
                       </div>
                     )}
@@ -315,7 +317,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
                 <div className="flex-1">
                   <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-500 rounded-full"
+                      className="h-full bg-sky-500 rounded-full"
                       style={{ width: `${cat.porcentajeValor}%` }}
                     />
                   </div>
@@ -334,38 +336,30 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Productos en Inventario ({analytics.productosInventario.length})
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">SKU</th>
-                  <th className="text-left py-2 px-2">Producto</th>
-                  <th className="text-left py-2 px-2">Marca</th>
-                  <th className="text-right py-2 px-2">Cant.</th>
-                  <th className="text-right py-2 px-2">Valor USD</th>
-                  <th className="text-right py-2 px-2">Días</th>
-                  <th className="text-center py-2 px-2">Rotación</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.productosInventario.slice(0, 20).map((prod, idx) => (
-                  <tr key={idx} className="border-b hover:bg-slate-50">
-                    <td className="py-2 px-2 font-mono text-xs">{prod.sku}</td>
-                    <td className="py-2 px-2">{prod.nombre}</td>
-                    <td className="py-2 px-2 text-slate-500">{prod.marca}</td>
-                    <td className="py-2 px-2 text-right font-medium">{prod.cantidad}</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(prod.valorTotalUSD)}</td>
-                    <td className="py-2 px-2 text-right">{prod.diasEnAlmacen}</td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={`px-2 py-1 text-xs rounded-full ${getRotacionColor(prod.rotacion)}`}>
-                        {prod.rotacion}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const inventarioColumns: DataTableColumn<ProductoInventario>[] = [
+              { key: 'sku', header: 'SKU', render: p => <span className="font-mono text-xs">{p.sku}</span> },
+              { key: 'nombre', header: 'Producto', render: p => <span>{p.nombre}</span> },
+              { key: 'marca', header: 'Marca', render: p => <span className="text-slate-500">{p.marca}</span>, hideOnMobile: true },
+              { key: 'cantidad', header: 'Cant.', align: 'right', render: p => <span className="font-medium">{p.cantidad}</span> },
+              { key: 'valor', header: 'Valor USD', align: 'right', render: p => <span>{formatCurrency(p.valorTotalUSD)}</span>, hideOnMobile: true },
+              { key: 'dias', header: 'Días', align: 'right', render: p => <span>{p.diasEnAlmacen}</span>, hideOnMobile: true },
+              {
+                key: 'rotacion', header: 'Rotación', align: 'center',
+                render: p => (
+                  <span className={`px-2 py-1 text-xs rounded-full ${getRotacionColor(p.rotacion)}`}>{p.rotacion}</span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={inventarioColumns}
+                data={analytics.productosInventario.slice(0, 20)}
+                keyExtractor={p => p.productoId}
+                compact
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -417,7 +411,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Trans. Recibidas</div>
-            <div className="text-2xl font-bold text-green-600">{analytics.transferenciasRecibidas}</div>
+            <div className="text-2xl font-bold text-emerald-600">{analytics.transferenciasRecibidas}</div>
           </div>
         </div>
       )}
@@ -433,7 +427,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
               <div key={idx} className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                   mov.tipo === 'entrada' || mov.tipo === 'transferencia_entrada'
-                    ? 'bg-green-100 text-green-600'
+                    ? 'bg-emerald-100 text-emerald-600'
                     : 'bg-orange-100 text-orange-600'
                 }`}>
                   {mov.tipo === 'entrada' || mov.tipo === 'transferencia_entrada'
@@ -467,7 +461,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
               <div key={idx} className="flex items-center gap-4 p-3 border rounded-lg">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                   trans.tipoMovimiento === 'entrada'
-                    ? 'bg-green-100 text-green-600'
+                    ? 'bg-emerald-100 text-emerald-600'
                     : 'bg-orange-100 text-orange-600'
                 }`}>
                   <Truck className="w-5 h-5" />
@@ -501,12 +495,12 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Análisis de Rotación</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="p-3 bg-green-50 rounded-lg text-center">
-              <div className="text-2xl font-bold text-green-600">{analytics.productosAltaRotacion.length}</div>
+            <div className="p-3 bg-emerald-50 rounded-lg text-center">
+              <div className="text-2xl font-bold text-emerald-600">{analytics.productosAltaRotacion.length}</div>
               <div className="text-sm text-slate-600">Alta Rotación</div>
             </div>
-            <div className="p-3 bg-blue-50 rounded-lg text-center">
-              <div className="text-2xl font-bold text-blue-600">
+            <div className="p-3 bg-sky-50 rounded-lg text-center">
+              <div className="text-2xl font-bold text-sky-600">
                 {analytics.rotacionProductos.filter(p => p.tendencia === 'normal').length}
               </div>
               <div className="text-sm text-slate-600">Rotación Normal</div>
@@ -555,8 +549,8 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
               return (
                 <div key={idx} className="flex items-center gap-4 p-3 border rounded-lg">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-                    eval_.puntuacion >= 80 ? 'bg-green-100 text-green-600' :
-                    eval_.puntuacion >= 60 ? 'bg-blue-100 text-blue-600' :
+                    eval_.puntuacion >= 80 ? 'bg-emerald-100 text-emerald-600' :
+                    eval_.puntuacion >= 60 ? 'bg-sky-100 text-sky-600' :
                     eval_.puntuacion >= 40 ? 'bg-yellow-100 text-yellow-600' :
                     'bg-red-100 text-red-600'
                   }`}>
@@ -596,7 +590,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
               <div className={`text-xl font-bold ${
                 analytics.predicciones.riesgoSobrecapacidad > 50 ? 'text-red-600' :
                 analytics.predicciones.riesgoSobrecapacidad > 25 ? 'text-yellow-600' :
-                'text-green-600'
+                'text-emerald-600'
               }`}>
                 {formatPercent(analytics.predicciones.riesgoSobrecapacidad)}
               </div>
@@ -624,13 +618,13 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Ranking de Almacenes</h3>
           <div className="flex items-center gap-4 mb-6">
             <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600">#{analytics.rankingGeneral}</div>
+              <div className="text-4xl font-bold text-sky-600">#{analytics.rankingGeneral}</div>
               <div className="text-sm text-slate-500">de {analytics.totalAlmacenes}</div>
             </div>
             <div className="flex-1">
               <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded-full"
+                  className="h-full bg-sky-500 rounded-full"
                   style={{ width: `${analytics.percentilRendimiento}%` }}
                 />
               </div>
@@ -646,53 +640,48 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
       {analytics && analytics.comparativaAlmacenes.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Comparativa con Otros Almacenes</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">#</th>
-                  <th className="text-left py-2 px-2">Almacén</th>
-                  <th className="text-left py-2 px-2">Tipo</th>
-                  <th className="text-right py-2 px-2">Unidades</th>
-                  <th className="text-right py-2 px-2">Capacidad</th>
-                  <th className="text-right py-2 px-2">Evaluación</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.comparativaAlmacenes.slice(0, 10).map((comp, idx) => (
-                  <tr
-                    key={idx}
-                    className={`border-b ${comp.almacenId === almacen.id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
-                  >
-                    <td className="py-2 px-2 font-bold">{comp.ranking}</td>
-                    <td className="py-2 px-2">
-                      <div className="font-medium">{comp.nombreAlmacen}</div>
-                      <div className="text-xs text-slate-500">{comp.codigo}</div>
-                    </td>
-                    <td className="py-2 px-2">
-                      {comp.esViajero ? (
-                        <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full">Viajero</span>
-                      ) : (
-                        <span className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-full">{comp.pais}</span>
-                      )}
-                    </td>
-                    <td className="py-2 px-2 text-right">{comp.unidadesActuales}</td>
-                    <td className="py-2 px-2 text-right">{formatPercent(comp.capacidadUtilizada)}</td>
-                    <td className="py-2 px-2 text-right">
-                      <span className={`font-bold ${
-                        comp.evaluacion >= 80 ? 'text-green-600' :
-                        comp.evaluacion >= 60 ? 'text-blue-600' :
-                        comp.evaluacion >= 40 ? 'text-yellow-600' :
-                        'text-red-600'
-                      }`}>
-                        {comp.evaluacion}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const comparativaColumns: DataTableColumn<ComparativaAlmacen>[] = [
+              { key: 'ranking', header: '#', render: c => <span className="font-bold">{c.ranking}</span> },
+              {
+                key: 'almacen', header: 'Almacén',
+                render: c => (
+                  <div>
+                    <div className="font-medium">{c.nombreAlmacen}</div>
+                    <div className="text-xs text-slate-500">{c.codigo}</div>
+                  </div>
+                ),
+              },
+              {
+                key: 'tipo', header: 'Tipo',
+                render: c => c.esViajero
+                  ? <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full">Viajero</span>
+                  : <span className="px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-full">{c.pais}</span>,
+                hideOnMobile: true,
+              },
+              { key: 'unidades', header: 'Unidades', align: 'right', render: c => <span>{c.unidadesActuales}</span> },
+              { key: 'capacidad', header: 'Capacidad', align: 'right', render: c => <span>{formatPercent(c.capacidadUtilizada)}</span>, hideOnMobile: true },
+              {
+                key: 'evaluacion', header: 'Evaluación', align: 'right',
+                render: c => (
+                  <span className={`font-bold ${
+                    c.evaluacion >= 80 ? 'text-emerald-600' :
+                    c.evaluacion >= 60 ? 'text-sky-600' :
+                    c.evaluacion >= 40 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>{c.evaluacion}</span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={comparativaColumns}
+                data={analytics.comparativaAlmacenes.slice(0, 10)}
+                keyExtractor={c => c.almacenId}
+                compact
+              />
+            );
+          })()}
         </div>
       )}
     </div>
@@ -712,7 +701,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
         {/* Header */}
         <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {almacen.esViajero ? <Plane className="w-6 h-6 text-purple-600" /> : <Warehouse className="w-6 h-6 text-blue-600" />}
+            {almacen.esViajero ? <Plane className="w-6 h-6 text-purple-600" /> : <Warehouse className="w-6 h-6 text-sky-600" />}
             <div>
               <h2 className="text-xl font-bold text-slate-900">{almacen.nombre}</h2>
               <p className="text-sm text-slate-500">{almacen.codigo} - {almacen.ciudad}, {almacen.pais}</p>
@@ -732,7 +721,7 @@ export function AlmacenDetailView({ almacen, onClose, onEdit }: AlmacenDetailVie
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-sky-500 text-sky-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >

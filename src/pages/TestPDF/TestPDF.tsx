@@ -102,7 +102,7 @@ export const TestPDF: React.FC = () => {
         <button
           onClick={() => handleGenerar('pagado')}
           disabled={!!loading}
-          className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-colors disabled:opacity-50"
         >
           {loading === 'pagado' ? (
             <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />

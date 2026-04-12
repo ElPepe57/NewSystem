@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, KPIBar, StatCard } from '../../design-system';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { TesoreriaService } from '../../services/tesoreria.service';
 
 import { useAuthStore } from '../../store/authStore';
@@ -762,9 +762,6 @@ export const Tesoreria: React.FC = () => {
           </>
         }
       />
-
-      {/* Filtro de linea de negocio */}
-      <LineaFilterInline />
 
       {/* Pool USD Widget */}
       <PoolUSDWidget />

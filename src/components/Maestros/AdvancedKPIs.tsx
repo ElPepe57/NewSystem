@@ -36,8 +36,8 @@ export const HealthScore: React.FC<HealthScoreProps> = ({
   showLabel = true
 }) => {
   const getColor = (s: number) => {
-    if (s >= 80) return { stroke: 'stroke-green-500', text: 'text-green-600', bg: 'bg-green-50' };
-    if (s >= 60) return { stroke: 'stroke-blue-500', text: 'text-blue-600', bg: 'bg-blue-50' };
+    if (s >= 80) return { stroke: 'stroke-green-500', text: 'text-emerald-600', bg: 'bg-emerald-50' };
+    if (s >= 60) return { stroke: 'stroke-blue-500', text: 'text-sky-600', bg: 'bg-sky-50' };
     if (s >= 40) return { stroke: 'stroke-yellow-500', text: 'text-yellow-600', bg: 'bg-yellow-50' };
     if (s >= 20) return { stroke: 'stroke-orange-500', text: 'text-orange-600', bg: 'bg-orange-50' };
     return { stroke: 'stroke-red-500', text: 'text-red-600', bg: 'bg-red-50' };
@@ -117,10 +117,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   const variantColors = {
     default: 'bg-slate-500',
-    success: 'bg-green-500',
+    success: 'bg-emerald-500',
     warning: 'bg-yellow-500',
     danger: 'bg-red-500',
-    info: 'bg-blue-500'
+    info: 'bg-sky-500'
   };
 
   const autoVariant = () => {
@@ -219,11 +219,11 @@ export const InsightCard: React.FC<InsightCardProps> = ({
 }) => {
   const config = {
     positive: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
+      bg: 'bg-emerald-50',
+      border: 'border-emerald-200',
       icon: CheckCircle,
-      iconColor: 'text-green-600',
-      metricColor: 'text-green-700'
+      iconColor: 'text-emerald-600',
+      metricColor: 'text-emerald-700'
     },
     negative: {
       bg: 'bg-red-50',
@@ -240,11 +240,11 @@ export const InsightCard: React.FC<InsightCardProps> = ({
       metricColor: 'text-yellow-700'
     },
     neutral: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
+      bg: 'bg-sky-50',
+      border: 'border-sky-200',
       icon: Info,
-      iconColor: 'text-blue-600',
-      metricColor: 'text-blue-700'
+      iconColor: 'text-sky-600',
+      metricColor: 'text-sky-700'
     }
   };
 
@@ -315,9 +315,9 @@ export const MetricComparison: React.FC<MetricComparisonProps> = ({
   const getColor = () => {
     if (diff === 0) return 'text-slate-500';
     if (invertColors) {
-      return isPositive ? 'text-red-600' : 'text-green-600';
+      return isPositive ? 'text-red-600' : 'text-emerald-600';
     }
-    return isPositive ? 'text-green-600' : 'text-red-600';
+    return isPositive ? 'text-emerald-600' : 'text-red-600';
   };
 
   return (
@@ -362,16 +362,16 @@ export const StatTile: React.FC<StatTileProps> = ({
 }) => {
   const variantStyles = {
     default: 'bg-slate-50 border-slate-200',
-    primary: 'bg-blue-50 border-blue-200',
-    success: 'bg-green-50 border-green-200',
+    primary: 'bg-sky-50 border-sky-200',
+    success: 'bg-emerald-50 border-emerald-200',
     warning: 'bg-yellow-50 border-yellow-200',
     danger: 'bg-red-50 border-red-200'
   };
 
   const iconColors = {
     default: 'text-slate-500',
-    primary: 'text-blue-500',
-    success: 'text-green-500',
+    primary: 'text-sky-500',
+    success: 'text-emerald-500',
     warning: 'text-yellow-500',
     danger: 'text-red-500'
   };
@@ -388,7 +388,7 @@ export const StatTile: React.FC<StatTileProps> = ({
       <div className="flex items-end justify-between">
         <span className="text-lg font-bold text-slate-900">{value}</span>
         {trend !== undefined && (
-          <div className={`flex items-center text-xs ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div className={`flex items-center text-xs ${trend >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {trend >= 0 ? <TrendingUp className="h-3 w-3 mr-0.5" /> : <TrendingDown className="h-3 w-3 mr-0.5" />}
             {Math.abs(trend).toFixed(1)}%
             {trendLabel && <span className="text-slate-400 ml-1">{trendLabel}</span>}
@@ -512,10 +512,10 @@ export const QuickInsightBadge: React.FC<QuickInsightBadgeProps> = ({
 }) => {
   const variants = {
     default: 'bg-slate-100 text-slate-700',
-    success: 'bg-green-100 text-green-700',
+    success: 'bg-emerald-100 text-emerald-700',
     warning: 'bg-yellow-100 text-yellow-700',
     danger: 'bg-red-100 text-red-700',
-    info: 'bg-blue-100 text-blue-700'
+    info: 'bg-sky-100 text-sky-700'
   };
 
   return (

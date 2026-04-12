@@ -616,8 +616,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               <div className="flex items-center gap-2">
                 {historialCliente.clasificacionABC && (
                   <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                    historialCliente.clasificacionABC === 'A' ? 'bg-green-100 text-green-700' :
-                    historialCliente.clasificacionABC === 'B' ? 'bg-blue-100 text-blue-700' :
+                    historialCliente.clasificacionABC === 'A' ? 'bg-emerald-100 text-emerald-700' :
+                    historialCliente.clasificacionABC === 'B' ? 'bg-sky-100 text-sky-700' :
                     historialCliente.clasificacionABC === 'C' ? 'bg-slate-100 text-slate-700' :
                     'bg-yellow-100 text-yellow-700'
                   }`}>
@@ -650,10 +650,10 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
 
           {/* Historial del Cliente (si tiene compras) */}
           {clienteSeleccionado && historialCliente && historialCliente.totalCompras > 0 && (
-            <div className="p-3 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg">
+            <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <History className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">Historial del Cliente</span>
+                <History className="h-4 w-4 text-sky-600" />
+                <span className="text-sm font-medium text-sky-800">Historial del Cliente</span>
                 {historialCliente.totalCompras >= 5 && (
                   <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
                     <Star className="h-3 w-3" />
@@ -663,14 +663,14 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-center">
                 <div>
-                  <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold text-blue-700">
+                  <div className="flex items-center justify-center gap-1 text-base sm:text-lg font-bold text-sky-700">
                     <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
                     {historialCliente.totalCompras}
                   </div>
                   <p className="text-xs text-slate-600">Compras</p>
                 </div>
                 <div>
-                  <div className="text-base sm:text-lg font-bold text-green-600">
+                  <div className="text-base sm:text-lg font-bold text-emerald-600">
                     S/{historialCliente.montoTotal.toFixed(0)}
                   </div>
                   <p className="text-xs text-slate-600">Total</p>
@@ -822,14 +822,14 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                 {/* Stock por ubicación */}
                                 <div className="flex items-center gap-2 text-xs">
                                   <div className="flex items-center gap-1" title="Stock en Perú (inmediato)">
-                                    <MapPin className="h-3 w-3 text-green-600" />
-                                    <span className={linea.disponibilidadMultiAlmacen.stockPeru > 0 ? 'text-green-700 font-medium' : 'text-slate-400'}>
+                                    <MapPin className="h-3 w-3 text-emerald-600" />
+                                    <span className={linea.disponibilidadMultiAlmacen.stockPeru > 0 ? 'text-emerald-700 font-medium' : 'text-slate-400'}>
                                       PE: {linea.disponibilidadMultiAlmacen.stockPeru}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-1" title="Stock en USA (requiere importación)">
-                                    <Truck className="h-3 w-3 text-blue-600" />
-                                    <span className={linea.disponibilidadMultiAlmacen.stockUSA > 0 ? 'text-blue-700 font-medium' : 'text-slate-400'}>
+                                    <Truck className="h-3 w-3 text-sky-600" />
+                                    <span className={linea.disponibilidadMultiAlmacen.stockUSA > 0 ? 'text-sky-700 font-medium' : 'text-slate-400'}>
                                       US: {linea.disponibilidadMultiAlmacen.stockUSA}
                                     </span>
                                   </div>
@@ -838,14 +838,14 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                 {linea.cantidad > 0 && (
                                   <div className="text-xs space-y-0.5">
                                     {Math.min(linea.cantidad, linea.disponibilidadMultiAlmacen.stockPeru) > 0 && (
-                                      <div className="flex items-center gap-1 text-green-600">
-                                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                      <div className="flex items-center gap-1 text-emerald-600">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                                         {Math.min(linea.cantidad, linea.disponibilidadMultiAlmacen.stockPeru)} de Perú
                                       </div>
                                     )}
                                     {linea.cantidad > linea.disponibilidadMultiAlmacen.stockPeru && linea.disponibilidadMultiAlmacen.stockUSA > 0 && (
-                                      <div className="flex items-center gap-1 text-blue-600">
-                                        <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                      <div className="flex items-center gap-1 text-sky-600">
+                                        <span className="w-2 h-2 rounded-full bg-sky-500"></span>
                                         {Math.min(linea.cantidad - linea.disponibilidadMultiAlmacen.stockPeru, linea.disponibilidadMultiAlmacen.stockUSA)} de USA
                                         {linea.disponibilidadMultiAlmacen.tiempoEstimadoDias > 0 && (
                                           <span className="text-slate-400 ml-1">
@@ -900,8 +900,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                   title={`Entrada: S/${inv.precioEntrada.toFixed(2)}`}
                                   className={`px-1.5 py-0.5 text-xs rounded ${
                                     Math.abs(linea.precioUnitario - inv.precioEntrada) < 1
-                                      ? 'bg-blue-600 text-white'
-                                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                      ? 'bg-sky-600 text-white'
+                                      : 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                                   }`}
                                 >
                                   Ent
@@ -912,8 +912,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                   title={`Mínimo: S/${inv.precioPERUMin.toFixed(2)}`}
                                   className={`px-1.5 py-0.5 text-xs rounded ${
                                     Math.abs(linea.precioUnitario - inv.precioPERUMin) < 1
-                                      ? 'bg-blue-600 text-white'
-                                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                      ? 'bg-sky-600 text-white'
+                                      : 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                                   }`}
                                 >
                                   Min
@@ -924,8 +924,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                                   title={`Promedio: S/${inv.precioPERUPromedio.toFixed(2)}`}
                                   className={`px-1.5 py-0.5 text-xs rounded ${
                                     Math.abs(linea.precioUnitario - inv.precioPERUPromedio) < 1
-                                      ? 'bg-blue-600 text-white'
-                                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                      ? 'bg-sky-600 text-white'
+                                      : 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                                   }`}
                                 >
                                   Prom
@@ -944,7 +944,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                               const margen = ((linea.precioUnitario - ctru) / linea.precioUnitario * 100);
                               return (
                                 <div className={`text-xs ${
-                                  margen >= 20 ? 'text-green-600' : margen >= 10 ? 'text-yellow-600' : 'text-red-600'
+                                  margen >= 20 ? 'text-emerald-600' : margen >= 10 ? 'text-yellow-600' : 'text-red-600'
                                 }`}>
                                   {margen.toFixed(0)}% margen
                                 </div>
@@ -963,9 +963,9 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                         </tr>
                         {/* Fila de información de precios de mercado */}
                         {inv && inv.precioPERUMin > 0 && (
-                          <tr className="bg-blue-50 border-t-0">
+                          <tr className="bg-sky-50 border-t-0">
                             <td colSpan={6} className="px-4 py-1">
-                              <div className="flex items-center gap-4 text-xs text-blue-700">
+                              <div className="flex items-center gap-4 text-xs text-sky-700">
                                 <TrendingUp className="h-3 w-3" />
                                 <span>Mercado: S/{inv.precioPERUMin.toFixed(0)} - S/{inv.precioPERUMax.toFixed(0)}</span>
                                 <span>|</span>
@@ -1072,19 +1072,19 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
                   return (
                     <>
                       {totalDesdePeru > 0 && (
-                        <div className="flex items-center gap-2 text-sm bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                          <MapPin className="h-4 w-4 text-green-600" />
-                          <span className="text-green-800">
+                        <div className="flex items-center gap-2 text-sm bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                          <MapPin className="h-4 w-4 text-emerald-600" />
+                          <span className="text-emerald-800">
                             <strong>{totalDesdePeru}</strong> unidades de Perú (inmediato)
                           </span>
                         </div>
                       )}
                       {totalDesdeUSA > 0 && (
-                        <div className="flex items-center gap-2 text-sm bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                          <Truck className="h-4 w-4 text-blue-600" />
-                          <span className="text-blue-800">
+                        <div className="flex items-center gap-2 text-sm bg-sky-50 border border-sky-200 rounded-lg px-3 py-2">
+                          <Truck className="h-4 w-4 text-sky-600" />
+                          <span className="text-sky-800">
                             <strong>{totalDesdeUSA}</strong> unidades de USA
-                            {tiempoMaxUSA > 0 && <span className="text-blue-600 ml-1">(~{tiempoMaxUSA} días)</span>}
+                            {tiempoMaxUSA > 0 && <span className="text-sky-600 ml-1">(~{tiempoMaxUSA} días)</span>}
                           </span>
                         </div>
                       )}
@@ -1161,7 +1161,7 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t">
           <div className="text-sm text-slate-500 text-center sm:text-left">
             {clienteSeleccionado && historialCliente?.clasificacionABC === 'A' && (
-              <span className="inline-flex items-center gap-1 text-green-600">
+              <span className="inline-flex items-center gap-1 text-emerald-600">
                 <Star className="h-3 w-3" />
                 Cliente VIP - Prioridad alta
               </span>
@@ -1213,8 +1213,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
           <div className="space-y-6">
             {/* Información de la cotización creada */}
             <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <FileText className="h-8 w-8 text-green-600" />
+              <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                <FileText className="h-8 w-8 text-emerald-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-2">
                 {cotizacionCreada.numeroCotizacion}
@@ -1228,8 +1228,8 @@ export const CotizacionForm: React.FC<CotizacionFormProps> = ({ onClose, cotizac
             </div>
 
             {/* Próximos pasos */}
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800">
+            <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg">
+              <p className="text-sm text-sky-800">
                 <strong>Próximos pasos:</strong> Si el cliente acepta, valida la cotización en el Kanban.
                 Si requiere adelanto, usa "Comprometer Adelanto" y luego registra el pago cuando lo reciba.
               </p>

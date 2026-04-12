@@ -3,6 +3,8 @@ import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import { marcaAnalyticsService, type MarcaAnalytics, type ProductoMarcaMetrics } from '../../services/marca.analytics.service';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 
 type DetailTab = 'resumen' | 'productos' | 'analytics' | 'inventario' | 'comparar';
 
@@ -80,7 +82,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
   const getTendenciaIcon = (tendencia: string) => {
     switch (tendencia) {
       case 'subiendo':
-        return <span className="text-green-500">↑</span>;
+        return <span className="text-emerald-500">↑</span>;
       case 'bajando':
         return <span className="text-red-500">↓</span>;
       default:
@@ -110,13 +112,13 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
             {marca.descripcion && <p className="text-slate-600 mt-2">{marca.descripcion}</p>}
             <div className="flex gap-2 mt-3">
               <span className={`px-2 py-1 text-xs rounded-full ${
-                marca.estado === 'activa' ? 'bg-green-100 text-green-800' :
+                marca.estado === 'activa' ? 'bg-emerald-100 text-emerald-800' :
                 marca.estado === 'inactiva' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-red-100 text-red-800'
               }`}>
                 {marca.estado}
               </span>
-              <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+              <span className="px-2 py-1 text-xs rounded-full bg-sky-100 text-sky-800">
                 {marca.tipoMarca}
               </span>
               {marca.paisOrigen && (
@@ -150,10 +152,10 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
 
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Ventas (365d)</div>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(analytics.ventasUltimos365Dias)}</div>
+            <div className="text-2xl font-bold text-emerald-600">{formatCurrency(analytics.ventasUltimos365Dias)}</div>
             <div className="flex items-center gap-1 text-xs">
               {getTendenciaIcon(analytics.tendenciaVentas)}
-              <span className={analytics.tasaCrecimiento >= 0 ? 'text-green-600' : 'text-red-600'}>
+              <span className={analytics.tasaCrecimiento >= 0 ? 'text-emerald-600' : 'text-red-600'}>
                 {analytics.tasaCrecimiento >= 0 ? '+' : ''}{analytics.tasaCrecimiento.toFixed(1)}%
               </span>
             </div>
@@ -162,7 +164,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Margen Promedio</div>
             <div className={`text-2xl font-bold ${
-              analytics.margenPonderado >= 25 ? 'text-green-600' :
+              analytics.margenPonderado >= 25 ? 'text-emerald-600' :
               analytics.margenPonderado >= 15 ? 'text-yellow-600' : 'text-red-600'
             }`}>
               {formatPercent(analytics.margenPonderado)}
@@ -174,7 +176,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
 
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Stock Total</div>
-            <div className="text-2xl font-bold text-blue-600">{analytics.stockTotalUnidades}</div>
+            <div className="text-2xl font-bold text-sky-600">{analytics.stockTotalUnidades}</div>
             <div className="text-xs text-slate-500">
               {formatCurrency(analytics.valorInventarioTotalPEN)}
             </div>
@@ -197,7 +199,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                 <div className="grid grid-cols-2 gap-2 mt-3">
                   <div>
                     <div className="text-xs text-slate-500">Ventas</div>
-                    <div className="font-semibold text-green-600">
+                    <div className="font-semibold text-emerald-600">
                       {formatCurrency(analytics.productoEstrella.ventasTotalPEN)}
                     </div>
                   </div>
@@ -245,9 +247,9 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
               {analytics.productosEnStockCritico === 0 &&
                analytics.productosSobreStock === 0 &&
                analytics.productosBajoRendimiento.length === 0 && (
-                <div className="flex items-center gap-2 p-2 bg-green-50 rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-green-700 text-sm">Todo en orden</span>
+                <div className="flex items-center gap-2 p-2 bg-emerald-50 rounded-lg">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                  <span className="text-emerald-700 text-sm">Todo en orden</span>
                 </div>
               )}
             </div>
@@ -259,45 +261,48 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
       {analytics && analytics.categorias.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="font-semibold text-slate-900 mb-4">Rendimiento por Categoría</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead>
-                <tr className="text-xs text-slate-500 uppercase">
-                  <th className="px-3 py-2 text-left">Categoría</th>
-                  <th className="px-3 py-2 text-right">Productos</th>
-                  <th className="px-3 py-2 text-right">Ventas</th>
-                  <th className="px-3 py-2 text-right">Margen</th>
-                  <th className="px-3 py-2 text-left">Producto Estrella</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {analytics.categorias.map(cat => (
-                  <tr key={cat.categoria} className="hover:bg-slate-50">
-                    <td className="px-3 py-2">
-                      <div className="font-medium text-slate-900">{cat.categoria}</div>
-                      {cat.subcategorias.length > 0 && (
-                        <div className="text-xs text-slate-500">
-                          {cat.subcategorias.join(', ')}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-right text-slate-900">{cat.totalProductos}</td>
-                    <td className="px-3 py-2 text-right font-medium text-green-600">
-                      {formatCurrency(cat.ventasTotalPEN)}
-                    </td>
-                    <td className="px-3 py-2 text-right">
-                      <span className={cat.margenPromedio >= 25 ? 'text-green-600' : cat.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}>
-                        {formatPercent(cat.margenPromedio)}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-sm text-slate-600">
-                      {cat.productoEstrella?.nombre || '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            type CatItem = typeof analytics.categorias[number];
+            const colsCat: DataTableColumn<CatItem>[] = [
+              {
+                key: 'categoria', header: 'Categoría',
+                render: cat => (
+                  <div>
+                    <div className="font-medium text-slate-900">{cat.categoria}</div>
+                    {cat.subcategorias.length > 0 && (
+                      <div className="text-xs text-slate-500">{cat.subcategorias.join(', ')}</div>
+                    )}
+                  </div>
+                ),
+              },
+              { key: 'totalProductos', header: 'Productos', align: 'right', render: cat => <span>{cat.totalProductos}</span> },
+              {
+                key: 'ventasTotalPEN', header: 'Ventas', align: 'right',
+                render: cat => <span className="font-medium text-emerald-600">{formatCurrency(cat.ventasTotalPEN)}</span>,
+              },
+              {
+                key: 'margenPromedio', header: 'Margen', align: 'right',
+                render: cat => (
+                  <span className={cat.margenPromedio >= 25 ? 'text-emerald-600' : cat.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}>
+                    {formatPercent(cat.margenPromedio)}
+                  </span>
+                ),
+              },
+              {
+                key: 'productoEstrella', header: 'Producto Estrella', hideOnMobile: true,
+                render: cat => <span className="text-sm text-slate-600">{cat.productoEstrella?.nombre || '-'}</span>,
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsCat}
+                data={analytics.categorias}
+                keyExtractor={cat => cat.categoria}
+                compact
+                emptyMessage="Sin categorías"
+              />
+            );
+          })()}
         </div>
       )}
     </div>
@@ -333,68 +338,72 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
 
       {/* Lista de productos */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr className="text-xs text-slate-500 uppercase">
-              <th className="px-4 py-3 text-left">Producto</th>
-              <th className="px-4 py-3 text-left">Categoría</th>
-              <th className="px-4 py-3 text-right">Stock</th>
-              <th className="px-4 py-3 text-right">Unidades Vendidas</th>
-              <th className="px-4 py-3 text-right">Ventas</th>
-              <th className="px-4 py-3 text-right">Margen</th>
-              <th className="px-4 py-3 text-center">Tendencia</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {productosFiltrados.map((producto, idx) => (
-              <tr key={producto.id} className={`hover:bg-slate-50 ${idx < 3 ? 'bg-yellow-50' : ''}`}>
-                <td className="px-4 py-3">
+        {(() => {
+          const idxMap = new Map(productosFiltrados.map((p, i) => [p.id, i]));
+          const colsProductos: DataTableColumn<ProductoMarcaMetrics>[] = [
+            {
+              key: 'nombre', header: 'Producto',
+              render: (producto) => {
+                const idx = idxMap.get(producto.id) ?? -1;
+                return (
                   <div className="flex items-center gap-2">
-                    {idx < 3 && <span className="text-yellow-500 text-sm">#{idx + 1}</span>}
+                    {idx >= 0 && idx < 3 && <span className="text-yellow-500 text-sm">#{idx + 1}</span>}
                     <div>
                       <div className="font-medium text-slate-900">{producto.nombre}</div>
                       <div className="text-xs text-slate-500">{producto.sku}</div>
                     </div>
                   </div>
-                </td>
-                <td className="px-4 py-3">
+                );
+              },
+            },
+            {
+              key: 'grupo', header: 'Categoría', hideOnMobile: true,
+              render: producto => (
+                <div>
                   <div className="text-sm text-slate-900">{producto.grupo}</div>
-                  {producto.subgrupo && (
-                    <div className="text-xs text-slate-500">{producto.subgrupo}</div>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className={`font-medium ${producto.stockTotal <= 5 ? 'text-red-600' : 'text-slate-900'}`}>
-                    {producto.stockTotal}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    Origen: {producto.stockUSA} | Destino: {producto.stockPeru}
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-right text-slate-900">
-                  {producto.unidadesVendidas}
-                </td>
-                <td className="px-4 py-3 text-right font-medium text-green-600">
-                  {formatCurrency(producto.ventasTotalPEN)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <span className={producto.margenPromedio >= 25 ? 'text-green-600' : producto.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}>
-                    {formatPercent(producto.margenPromedio)}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-center text-lg">
-                  {getTendenciaIcon(producto.tendencia)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {productosFiltrados.length === 0 && (
-          <div className="text-center py-8 text-slate-500">
-            No se encontraron productos
-          </div>
-        )}
+                  {producto.subgrupo && <div className="text-xs text-slate-500">{producto.subgrupo}</div>}
+                </div>
+              ),
+            },
+            {
+              key: 'stockTotal', header: 'Stock', align: 'right',
+              render: producto => (
+                <div>
+                  <div className={`font-medium ${producto.stockTotal <= 5 ? 'text-red-600' : 'text-slate-900'}`}>{producto.stockTotal}</div>
+                  <div className="text-xs text-slate-500">Origen: {producto.stockUSA} | Destino: {producto.stockPeru}</div>
+                </div>
+              ),
+            },
+            {
+              key: 'unidadesVendidas', header: 'Unidades Vendidas', align: 'right', hideOnMobile: true,
+              render: producto => <span>{producto.unidadesVendidas}</span>,
+            },
+            {
+              key: 'ventasTotalPEN', header: 'Ventas', align: 'right',
+              render: producto => <span className="font-medium text-emerald-600">{formatCurrency(producto.ventasTotalPEN)}</span>,
+            },
+            {
+              key: 'margenPromedio', header: 'Margen', align: 'right',
+              render: producto => (
+                <span className={producto.margenPromedio >= 25 ? 'text-emerald-600' : producto.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}>
+                  {formatPercent(producto.margenPromedio)}
+                </span>
+              ),
+            },
+            {
+              key: 'tendencia', header: 'Tendencia', align: 'center', hideOnMobile: true,
+              render: producto => <span className="text-lg">{getTendenciaIcon(producto.tendencia)}</span>,
+            },
+          ];
+          return (
+            <DataTable
+              columns={colsProductos}
+              data={productosFiltrados}
+              keyExtractor={p => p.id}
+              emptyMessage="No se encontraron productos"
+            />
+          );
+        })()}
       </div>
     </div>
   );
@@ -408,19 +417,19 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg shadow p-6">
               <h4 className="text-sm text-slate-500 mb-2">Últimos 30 días</h4>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-600">
                 {formatCurrency(analytics.ventasUltimos30Dias)}
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
               <h4 className="text-sm text-slate-500 mb-2">Últimos 90 días</h4>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-600">
                 {formatCurrency(analytics.ventasUltimos90Dias)}
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
               <h4 className="text-sm text-slate-500 mb-2">Últimos 365 días</h4>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-600">
                 {formatCurrency(analytics.ventasUltimos365Dias)}
               </div>
             </div>
@@ -440,7 +449,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                       <div className="w-20 text-sm text-slate-500">{periodo.periodo}</div>
                       <div className="flex-1 bg-slate-200 rounded-full h-6 overflow-hidden">
                         <div
-                          className="bg-blue-500 h-full rounded-full flex items-center justify-end pr-2"
+                          className="bg-sky-500 h-full rounded-full flex items-center justify-end pr-2"
                           style={{ width: `${Math.max(porcentaje, 5)}%` }}
                         >
                           <span className="text-xs text-white font-medium">
@@ -467,11 +476,11 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
             <h3 className="font-semibold text-slate-900 mb-4">Métricas de Clientes</h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-slate-50 rounded-lg">
-                <div className="text-3xl font-bold text-blue-600">{analytics.clientesUnicos}</div>
+                <div className="text-3xl font-bold text-sky-600">{analytics.clientesUnicos}</div>
                 <div className="text-sm text-slate-500">Clientes Únicos</div>
               </div>
               <div className="text-center p-4 bg-slate-50 rounded-lg">
-                <div className="text-3xl font-bold text-green-600">{analytics.clientesRecurrentes}</div>
+                <div className="text-3xl font-bold text-emerald-600">{analytics.clientesRecurrentes}</div>
                 <div className="text-sm text-slate-500">Recurrentes</div>
               </div>
               <div className="text-center p-4 bg-slate-50 rounded-lg">
@@ -490,7 +499,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
                     idx === 0 ? 'bg-yellow-500' :
                     idx === 1 ? 'bg-slate-400' :
-                    idx === 2 ? 'bg-amber-600' : 'bg-blue-500'
+                    idx === 2 ? 'bg-amber-600' : 'bg-sky-500'
                   }`}>
                     {idx + 1}
                   </div>
@@ -499,7 +508,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                     <div className="text-sm text-slate-500">{producto.sku}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold text-green-600">{formatCurrency(producto.ventasTotalPEN)}</div>
+                    <div className="font-semibold text-emerald-600">{formatCurrency(producto.ventasTotalPEN)}</div>
                     <div className="text-xs text-slate-500">{producto.unidadesVendidas} unidades</div>
                   </div>
                 </div>
@@ -524,7 +533,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
             </div>
             <div className="bg-white rounded-lg shadow p-4">
               <div className="text-sm text-slate-500">Valor Inventario (PEN)</div>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-sky-600">
                 {formatCurrency(analytics.valorInventarioTotalPEN)}
               </div>
             </div>
@@ -536,7 +545,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
             </div>
             <div className="bg-white rounded-lg shadow p-4">
               <div className="text-sm text-slate-500">En Stock Crítico</div>
-              <div className={`text-2xl font-bold ${analytics.productosEnStockCritico > 0 ? 'text-red-600' : 'text-green-600'}`}>
+              <div className={`text-2xl font-bold ${analytics.productosEnStockCritico > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                 {analytics.productosEnStockCritico}
               </div>
             </div>
@@ -547,60 +556,61 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
             <div className="p-4 border-b">
               <h3 className="font-semibold text-slate-900">Detalle de Inventario</h3>
             </div>
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr className="text-xs text-slate-500 uppercase">
-                  <th className="px-4 py-3 text-left">Producto</th>
-                  <th className="px-4 py-3 text-right">Stock Origen</th>
-                  <th className="px-4 py-3 text-right">Stock Destino</th>
-                  <th className="px-4 py-3 text-right">Total</th>
-                  <th className="px-4 py-3 text-right">Valor (PEN)</th>
-                  <th className="px-4 py-3 text-right">Rotación</th>
-                  <th className="px-4 py-3 text-center">Estado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {analytics.productos
-                  .filter(p => p.stockTotal > 0)
-                  .sort((a, b) => b.stockTotal - a.stockTotal)
-                  .map(producto => {
+            {(() => {
+              const inventarioData = analytics.productos
+                .filter(p => p.stockTotal > 0)
+                .sort((a, b) => b.stockTotal - a.stockTotal);
+
+              const colsInventario: DataTableColumn<ProductoMarcaMetrics>[] = [
+                {
+                  key: 'nombre', header: 'Producto',
+                  render: producto => (
+                    <div>
+                      <div className="font-medium text-slate-900">{producto.nombre}</div>
+                      <div className="text-xs text-slate-500">{producto.sku}</div>
+                    </div>
+                  ),
+                },
+                { key: 'stockUSA', header: 'Stock Origen', align: 'right', hideOnMobile: true, render: p => <span>{p.stockUSA}</span> },
+                { key: 'stockPeru', header: 'Stock Destino', align: 'right', hideOnMobile: true, render: p => <span>{p.stockPeru}</span> },
+                { key: 'stockTotal', header: 'Total', align: 'right', render: p => <span className="font-medium">{p.stockTotal}</span> },
+                {
+                  key: 'valorInventarioPEN', header: 'Valor (PEN)', align: 'right', hideOnMobile: true,
+                  render: p => <span className="text-sky-600">{formatCurrency(p.valorInventarioPEN)}</span>,
+                },
+                {
+                  key: 'rotacionDias', header: 'Rotación', align: 'right', hideOnMobile: true,
+                  render: p => <span className="text-slate-600">{p.rotacionDias > 0 ? `${p.rotacionDias} días` : '-'}</span>,
+                },
+                {
+                  key: 'estado', header: 'Estado', align: 'center',
+                  render: producto => {
                     let estadoStock: 'critico' | 'bajo' | 'normal' | 'alto' = 'normal';
                     if (producto.stockTotal <= 2) estadoStock = 'critico';
                     else if (producto.stockTotal <= 5) estadoStock = 'bajo';
                     else if (producto.stockTotal >= 50) estadoStock = 'alto';
-
                     return (
-                      <tr key={producto.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-slate-900">{producto.nombre}</div>
-                          <div className="text-xs text-slate-500">{producto.sku}</div>
-                        </td>
-                        <td className="px-4 py-3 text-right text-slate-900">{producto.stockUSA}</td>
-                        <td className="px-4 py-3 text-right text-slate-900">{producto.stockPeru}</td>
-                        <td className="px-4 py-3 text-right font-medium text-slate-900">{producto.stockTotal}</td>
-                        <td className="px-4 py-3 text-right text-blue-600">
-                          {formatCurrency(producto.valorInventarioPEN)}
-                        </td>
-                        <td className="px-4 py-3 text-right text-slate-600">
-                          {producto.rotacionDias > 0 ? `${producto.rotacionDias} días` : '-'}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            estadoStock === 'critico' ? 'bg-red-100 text-red-800' :
-                            estadoStock === 'bajo' ? 'bg-yellow-100 text-yellow-800' :
-                            estadoStock === 'alto' ? 'bg-blue-100 text-blue-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {estadoStock === 'critico' ? 'Crítico' :
-                             estadoStock === 'bajo' ? 'Bajo' :
-                             estadoStock === 'alto' ? 'Alto' : 'Normal'}
-                          </span>
-                        </td>
-                      </tr>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        estadoStock === 'critico' ? 'bg-red-100 text-red-800' :
+                        estadoStock === 'bajo' ? 'bg-yellow-100 text-yellow-800' :
+                        estadoStock === 'alto' ? 'bg-sky-100 text-sky-800' :
+                        'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {estadoStock === 'critico' ? 'Crítico' : estadoStock === 'bajo' ? 'Bajo' : estadoStock === 'alto' ? 'Alto' : 'Normal'}
+                      </span>
                     );
-                  })}
-              </tbody>
-            </table>
+                  },
+                },
+              ];
+              return (
+                <DataTable
+                  columns={colsInventario}
+                  data={inventarioData}
+                  keyExtractor={p => p.id}
+                  emptyMessage="Sin productos en inventario"
+                />
+              );
+            })()}
           </div>
         </>
       )}
@@ -623,15 +633,15 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                 <h4 className="font-medium text-slate-900 mb-3">{cat.categoria}</h4>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-blue-600">{cat.totalProductos}</div>
+                    <div className="text-2xl font-bold text-sky-600">{cat.totalProductos}</div>
                     <div className="text-sm text-slate-500">Productos</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-green-600">{formatCurrency(cat.ventasTotalPEN)}</div>
+                    <div className="text-2xl font-bold text-emerald-600">{formatCurrency(cat.ventasTotalPEN)}</div>
                     <div className="text-sm text-slate-500">Ventas</div>
                   </div>
                   <div>
-                    <div className={`text-2xl font-bold ${cat.margenPromedio >= 25 ? 'text-green-600' : 'text-yellow-600'}`}>
+                    <div className={`text-2xl font-bold ${cat.margenPromedio >= 25 ? 'text-emerald-600' : 'text-yellow-600'}`}>
                       {formatPercent(cat.margenPromedio)}
                     </div>
                     <div className="text-sm text-slate-500">Margen</div>
@@ -658,7 +668,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto"></div>
           <p className="mt-4 text-slate-600">Cargando analytics...</p>
         </div>
       </div>
@@ -711,7 +721,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                 onClick={() => setActiveTab(tab.id as DetailTab)}
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-sky-500 text-sky-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >

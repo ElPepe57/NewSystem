@@ -7,6 +7,8 @@
 import React, { useMemo } from 'react';
 import { DollarSign, TrendingUp, Package, FileText, Receipt } from 'lucide-react';
 import { Input } from '../../../common/Input';
+import { DataTable } from '../../../../design-system';
+import type { DataTableColumn } from '../../../../design-system';
 import type { Producto } from '../../../../types/producto.types';
 import type { OCFormState, OCFormAction } from './ocFormTypes';
 import {
@@ -209,21 +211,21 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
           <span className="font-medium text-slate-900 text-sm">Impacto Financiero</span>
         </div>
         <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-            <DollarSign className="h-5 w-5 text-blue-600 shrink-0" />
+          <div className="flex items-center gap-2 p-3 bg-sky-50 rounded-lg">
+            <DollarSign className="h-5 w-5 text-sky-600 shrink-0" />
             <div>
-              <div className="text-xs text-blue-600 font-medium">Inversion</div>
-              <div className="text-sm font-semibold text-blue-800">
+              <div className="text-xs text-sky-600 font-medium">Inversion</div>
+              <div className="text-sm font-semibold text-sky-800">
                 S/ {totalPEN.toFixed(2)}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
-            <TrendingUp className="h-5 w-5 text-green-600 shrink-0" />
+          <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg">
+            <TrendingUp className="h-5 w-5 text-emerald-600 shrink-0" />
             <div>
-              <div className="text-xs text-green-600 font-medium">ROI proyectado</div>
-              <div className="text-sm font-semibold text-green-800">
+              <div className="text-xs text-emerald-600 font-medium">ROI proyectado</div>
+              <div className="text-sm font-semibold text-emerald-800">
                 {roi !== null ? `~${roi.toFixed(0)}%` : 'N/D'}
               </div>
             </div>
@@ -248,39 +250,63 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
             <Package className="h-4 w-4 text-slate-500" />
             <span className="font-medium text-slate-900 text-sm">Productos ({productosValidos.length})</span>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr className="border-b border-slate-100 text-slate-500 text-xs">
-                  <th className="text-left py-2 px-4 font-medium">#</th>
-                  <th className="text-left py-2 px-4 font-medium">Producto</th>
-                  <th className="text-right py-2 px-4 font-medium">Cant</th>
-                  <th className="text-right py-2 px-4 font-medium">Precio</th>
-                  <th className="text-right py-2 px-4 font-medium">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productosValidos.map((item, idx) => (
-                  <tr key={item.productoId + '-' + idx} className="border-b border-slate-50">
-                    <td className="py-2 px-4 text-slate-400">{idx + 1}</td>
-                    <td className="py-2 px-4">
-                      <div className="font-medium text-slate-800 truncate max-w-[200px]">
-                        {item.nombreComercial || item.sku || 'Producto'}
-                      </div>
-                      {item.marca && (
-                        <div className="text-xs text-slate-400">{item.marca}{item.presentacion ? ` - ${item.presentacion}` : ''}</div>
-                      )}
-                    </td>
-                    <td className="py-2 px-4 text-right text-slate-700">{item.cantidad}</td>
-                    <td className="py-2 px-4 text-right text-slate-700">${item.costoUnitario.toFixed(2)}</td>
-                    <td className="py-2 px-4 text-right font-medium text-slate-900">
-                      ${(item.cantidad * item.costoUnitario).toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const cols: DataTableColumn<(typeof productosValidos)[0]>[] = [
+              {
+                key: 'num',
+                header: '#',
+                render: (item) => {
+                  const idx = productosValidos.indexOf(item);
+                  return <span className="text-slate-400">{idx + 1}</span>;
+                },
+                width: 'w-10',
+              },
+              {
+                key: 'producto',
+                header: 'Producto',
+                render: (item) => (
+                  <>
+                    <div className="font-medium text-slate-800 truncate max-w-[200px]">
+                      {item.nombreComercial || item.sku || 'Producto'}
+                    </div>
+                    {item.marca && (
+                      <div className="text-xs text-slate-400">{item.marca}{item.presentacion ? ` - ${item.presentacion}` : ''}</div>
+                    )}
+                  </>
+                ),
+              },
+              {
+                key: 'cantidad',
+                header: 'Cant',
+                align: 'right',
+                render: (item) => <span className="text-slate-700">{item.cantidad}</span>,
+              },
+              {
+                key: 'precio',
+                header: 'Precio',
+                align: 'right',
+                render: (item) => <span className="text-slate-700">${item.costoUnitario.toFixed(2)}</span>,
+              },
+              {
+                key: 'subtotal',
+                header: 'Subtotal',
+                align: 'right',
+                render: (item) => (
+                  <span className="font-medium text-slate-900">
+                    ${(item.cantidad * item.costoUnitario).toFixed(2)}
+                  </span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={cols}
+                data={productosValidos}
+                keyExtractor={(item) => item.productoId}
+                compact
+              />
+            );
+          })()}
         </section>
       )}
 
@@ -290,7 +316,7 @@ const OCFormStep3: React.FC<OCFormStep3Props> = ({
           <FileText className="h-4 w-4 text-slate-500" />
           <span className="font-medium text-slate-900 text-sm">Tracking y Observaciones</span>
           {(state.numeroTracking || state.courier || state.observaciones) && (
-            <span className="w-2 h-2 bg-green-500 rounded-full" />
+            <span className="w-2 h-2 bg-emerald-500 rounded-full" />
           )}
         </div>
         <div className="p-4 space-y-3">

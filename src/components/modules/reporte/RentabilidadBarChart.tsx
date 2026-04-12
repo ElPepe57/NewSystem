@@ -30,11 +30,11 @@ const CustomTooltip = ({ active, payload }: any) => {
           </div>
           <div className="flex justify-between gap-3">
             <span className="text-slate-600">Utilidad:</span>
-            <span className="font-medium text-green-600">S/ {data.utilidadPEN.toLocaleString()}</span>
+            <span className="font-medium text-emerald-600">S/ {data.utilidadPEN.toLocaleString()}</span>
           </div>
           <div className="flex justify-between gap-3">
             <span className="text-slate-600">Margen:</span>
-            <span className="font-medium text-blue-600">{data.margenPromedio.toFixed(1)}%</span>
+            <span className="font-medium text-sky-600">{data.margenPromedio.toFixed(1)}%</span>
           </div>
           <div className="flex justify-between gap-3">
             <span className="text-slate-600">Uds:</span>

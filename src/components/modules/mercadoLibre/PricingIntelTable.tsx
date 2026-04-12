@@ -5,15 +5,15 @@
 
 import React, { useState } from 'react';
 import {
-  ChevronUp,
-  ChevronDown,
-  Edit3,
   Check,
   X,
   RefreshCw,
   ExternalLink,
   Eye,
+  Edit3,
 } from 'lucide-react';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { useMercadoLibreStore } from '../../../store/mercadoLibreStore';
 import type {
   PricingIntelRow,
@@ -38,33 +38,6 @@ interface PricingIntelTableProps {
   onOpenDetail: (row: PricingIntelRow) => void;
 }
 
-// ---- HEADER CON SORT ----
-const SortHeader: React.FC<{
-  label: string;
-  field: SortField;
-  currentField: SortField;
-  currentDir: SortDir;
-  onSort: (f: SortField) => void;
-  className?: string;
-}> = ({ label, field, currentField, currentDir, onSort, className = '' }) => {
-  const active = currentField === field;
-  return (
-    <th
-      className={`text-left text-xs font-medium text-slate-500 uppercase px-4 py-3 cursor-pointer hover:text-slate-700 select-none ${className}`}
-      onClick={() => onSort(field)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        {active ? (
-          currentDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-        ) : (
-          <span className="w-3 h-3" />
-        )}
-      </div>
-    </th>
-  );
-};
-
 // ---- BUY BOX MINI BADGE ----
 const BuyBoxMini: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
   if (!row.hasCatalogo || !row.buyBoxStatus) {
@@ -72,7 +45,7 @@ const BuyBoxMini: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
   }
 
   const cfg: Record<string, { label: string; bg: string; text: string }> = {
-    winning: { label: 'GANANDO', bg: 'bg-green-50', text: 'text-green-700' },
+    winning: { label: 'GANANDO', bg: 'bg-emerald-50', text: 'text-emerald-700' },
     competing: { label: 'PERDIENDO', bg: 'bg-red-50', text: 'text-red-700' },
     sharing_first_place: { label: 'COMPARTIDO', bg: 'bg-yellow-50', text: 'text-yellow-700' },
     listed: { label: 'SIN COMPETIR', bg: 'bg-slate-100', text: 'text-slate-500' },
@@ -96,7 +69,7 @@ const BuyBoxMini: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
 const ListingTypeBadges: React.FC<{ row: PricingIntelRow }> = ({ row }) => (
   <div className="flex items-center gap-1">
     {row.hasCatalogo && (
-      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">CAT</span>
+      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-sky-50 text-sky-700">CAT</span>
     )}
     {row.hasClasica && (
       <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">CLA</span>
@@ -119,7 +92,6 @@ const InlinePriceCell: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
     }
     setSaving(true);
     try {
-      // Update ALL listings in the group
       for (const listingId of row.listingIds) {
         await updatePrice(listingId, newPrice);
       }
@@ -152,7 +124,7 @@ const InlinePriceCell: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
           <RefreshCw className="w-3 h-3 text-amber-500 animate-spin" />
         ) : (
           <>
-            <button onClick={handleSave} className="p-0.5 text-green-600 hover:bg-green-50 rounded">
+            <button onClick={handleSave} className="p-0.5 text-emerald-600 hover:bg-emerald-50 rounded">
               <Check className="w-3 h-3" />
             </button>
             <button onClick={() => setEditing(false)} className="p-0.5 text-slate-400 hover:bg-slate-100 rounded">
@@ -176,6 +148,15 @@ const InlinePriceCell: React.FC<{ row: PricingIntelRow }> = ({ row }) => {
   );
 };
 
+// Mapa de SortField a key de columna para conectar con DataTable
+const SORT_FIELD_KEY: Record<SortField, string> = {
+  nombre: 'nombre',
+  precio: 'precio',
+  costo: 'costo',
+  margen: 'margen',
+  buybox: 'buybox',
+};
+
 // ---- TABLA PRINCIPAL ----
 export const PricingIntelTable: React.FC<PricingIntelTableProps> = ({
   rows,
@@ -187,116 +168,138 @@ export const PricingIntelTable: React.FC<PricingIntelTableProps> = ({
   onSelectAll,
   onOpenDetail,
 }) => {
-  const allSelected = rows.length > 0 && rows.every((r) => selectedIds.has(r.groupKey));
+  const columns: DataTableColumn<PricingIntelRow>[] = [
+    {
+      key: 'nombre',
+      header: 'Producto',
+      sortable: true,
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          {row.mlThumbnail && (
+            <img src={row.mlThumbnail} alt="" className="w-9 h-9 rounded-lg object-cover bg-slate-100 shrink-0" />
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-slate-900 truncate max-w-[200px]">{row.mlTitle}</p>
+            <p className="text-[10px] text-slate-400">
+              {row.productoSku || row.mlSku || row.listings[0]?.mlItemId}
+              {!row.vinculado && (
+                <span className="ml-1 text-orange-500 font-medium">Sin vincular</span>
+              )}
+              {row.listings.length > 1 && (
+                <span className="ml-1 text-slate-400">· {row.listings.length} pub.</span>
+              )}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'tipo',
+      header: 'Tipo',
+      render: (row) => <ListingTypeBadges row={row} />,
+    },
+    {
+      key: 'precio',
+      header: 'Precio ML',
+      sortable: true,
+      render: (row) => <InlinePriceCell row={row} />,
+    },
+    {
+      key: 'costo',
+      header: 'Costo CTRU',
+      sortable: true,
+      hideOnMobile: true,
+      render: (row) => (
+        row.costoTotal != null
+          ? <span className="text-xs text-slate-600">{fmtPEN(row.costoTotal)}</span>
+          : <span className="text-slate-300">—</span>
+      ),
+    },
+    {
+      key: 'margen',
+      header: 'Margen',
+      sortable: true,
+      render: (row) => (
+        <div className={getMarginBg(row.margenNeto)}>
+          <span className={`text-xs font-semibold ${getMarginColor(row.margenNeto)}`}>
+            {fmtPct(row.margenNeto)}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'buybox',
+      header: 'Buy Box',
+      sortable: true,
+      render: (row) => <BuyBoxMini row={row} />,
+    },
+    {
+      key: 'margenBB',
+      header: 'Margen @ BB',
+      hideOnMobile: true,
+      render: (row) => (
+        row.margenAtBuyBoxPrice != null ? (
+          <span className={`text-xs font-semibold ${getMarginColor(row.margenAtBuyBoxPrice)} ${getMarginBg(row.margenAtBuyBoxPrice)} px-1.5 py-0.5 rounded`}>
+            {fmtPct(row.margenAtBuyBoxPrice)}
+          </span>
+        ) : (
+          <span className="text-slate-300 text-xs">—</span>
+        )
+      ),
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      align: 'right',
+      width: 'w-20',
+      render: (row) => (
+        <div className="flex items-center justify-end gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); onOpenDetail(row); }}
+            className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+            title="Ver detalle de pricing"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <a
+            href={row.mlPermalink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+            title="Ver en ML"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+      ),
+    },
+  ];
+
+  // Traducir sortField a key de columna para el DataTable
+  const activeSortKey = SORT_FIELD_KEY[sortField];
+
+  // Traducir onSort del DataTable de vuelta al tipo SortField del padre
+  const handleSort = (key: string) => {
+    const field = Object.entries(SORT_FIELD_KEY).find(([, v]) => v === key)?.[0] as SortField | undefined;
+    if (field) onSort(field);
+  };
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-      <table className="w-full">
-        <thead className="bg-slate-50 border-b">
-          <tr>
-            <th className="w-10 px-3 py-3">
-              <input
-                type="checkbox"
-                checked={allSelected}
-                onChange={onSelectAll}
-                className="rounded border-slate-300 text-amber-500 focus:ring-amber-500"
-              />
-            </th>
-            <SortHeader label="Producto" field="nombre" currentField={sortField} currentDir={sortDir} onSort={onSort} />
-            <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Tipo</th>
-            <SortHeader label="Precio ML" field="precio" currentField={sortField} currentDir={sortDir} onSort={onSort} />
-            <SortHeader label="Costo CTRU" field="costo" currentField={sortField} currentDir={sortDir} onSort={onSort} />
-            <SortHeader label="Margen" field="margen" currentField={sortField} currentDir={sortDir} onSort={onSort} />
-            <SortHeader label="Buy Box" field="buybox" currentField={sortField} currentDir={sortDir} onSort={onSort} />
-            <th className="text-left text-xs font-medium text-slate-500 uppercase px-4 py-3">Margen @ BB</th>
-            <th className="text-right text-xs font-medium text-slate-500 uppercase px-4 py-3 w-20">Acciones</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {rows.map((row) => (
-            <tr key={row.groupKey} className="hover:bg-slate-50">
-              <td className="px-3 py-3">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(row.groupKey)}
-                  onChange={() => onToggleSelect(row.groupKey)}
-                  className="rounded border-slate-300 text-amber-500 focus:ring-amber-500"
-                />
-              </td>
-              <td className="px-4 py-3">
-                <div className="flex items-center gap-3">
-                  {row.mlThumbnail && (
-                    <img src={row.mlThumbnail} alt="" className="w-9 h-9 rounded-lg object-cover bg-slate-100 shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-900 truncate max-w-[200px]">{row.mlTitle}</p>
-                    <p className="text-[10px] text-slate-400">
-                      {row.productoSku || row.mlSku || row.listings[0]?.mlItemId}
-                      {!row.vinculado && (
-                        <span className="ml-1 text-orange-500 font-medium">Sin vincular</span>
-                      )}
-                      {row.listings.length > 1 && (
-                        <span className="ml-1 text-slate-400">· {row.listings.length} pub.</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </td>
-              <td className="px-4 py-3">
-                <ListingTypeBadges row={row} />
-              </td>
-              <td className="px-4 py-3">
-                <InlinePriceCell row={row} />
-              </td>
-              <td className="px-4 py-3 text-xs text-slate-600">
-                {row.costoTotal != null ? fmtPEN(row.costoTotal) : (
-                  <span className="text-slate-300">—</span>
-                )}
-              </td>
-              <td className={`px-4 py-3 ${getMarginBg(row.margenNeto)}`}>
-                <span className={`text-xs font-semibold ${getMarginColor(row.margenNeto)}`}>
-                  {fmtPct(row.margenNeto)}
-                </span>
-              </td>
-              <td className="px-4 py-3">
-                <BuyBoxMini row={row} />
-              </td>
-              <td className="px-4 py-3">
-                {row.margenAtBuyBoxPrice != null ? (
-                  <span className={`text-xs font-semibold ${getMarginColor(row.margenAtBuyBoxPrice)} ${getMarginBg(row.margenAtBuyBoxPrice)} px-1.5 py-0.5 rounded`}>
-                    {fmtPct(row.margenAtBuyBoxPrice)}
-                  </span>
-                ) : (
-                  <span className="text-slate-300 text-xs">—</span>
-                )}
-              </td>
-              <td className="px-4 py-3">
-                <div className="flex items-center justify-end gap-1">
-                  <button
-                    onClick={() => onOpenDetail(row)}
-                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                    title="Ver detalle de pricing"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <a
-                    href={row.mlPermalink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                    title="Ver en ML"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {rows.length === 0 && (
-        <p className="text-center text-slate-400 text-sm py-8">No se encontraron productos con los filtros seleccionados</p>
-      )}
+      <DataTable<PricingIntelRow>
+        columns={columns}
+        data={rows}
+        keyExtractor={(row) => row.groupKey}
+        sortBy={activeSortKey}
+        sortDirection={sortDir}
+        onSort={handleSort}
+        selectable
+        selectedKeys={selectedIds}
+        onToggleSelect={onToggleSelect}
+        onToggleSelectAll={onSelectAll}
+        emptyMessage="No se encontraron productos con los filtros seleccionados"
+      />
     </div>
   );
 };

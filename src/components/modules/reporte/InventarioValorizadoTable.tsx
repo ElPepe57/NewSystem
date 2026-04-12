@@ -1,5 +1,7 @@
 import React from 'react';
 import { Pagination, usePagination } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import type { InventarioValorizado } from '../../../types/reporte.types';
 
 interface InventarioValorizadoTableProps {
@@ -10,7 +12,6 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
   const {
     currentPage,
     itemsPerPage,
-    totalPages,
     setPage,
     setItemsPerPage,
     paginatedItems: inventarioPaginado
@@ -26,6 +27,104 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
       </div>
     );
   }
+
+  const UbicacionCell = ({ item }: { item: InventarioValorizado }) => {
+    if (item.unidadesPorPais) {
+      return (
+        <div className="flex items-center justify-center space-x-2 text-xs">
+          {Object.entries(item.unidadesPorPais)
+            .filter(([, v]) => v > 0)
+            .map(([pais, cantidad]) => (
+              <span
+                key={pais}
+                className={`px-2 py-1 rounded ${
+                  pais === 'Peru' ? 'bg-emerald-100 text-emerald-800' : 'bg-sky-100 text-sky-800'
+                }`}
+              >
+                {pais}: {cantidad}
+              </span>
+            ))}
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center justify-center space-x-2 text-xs">
+        {(item.unidadesMiami ?? 0) > 0 && (
+          <span className="px-2 py-1 bg-sky-100 text-sky-800 rounded">
+            Origen: {item.unidadesMiami}
+          </span>
+        )}
+        {(item.unidadesPeru ?? 0) > 0 && (
+          <span className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded">
+            Destino: {item.unidadesPeru}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  const columns: DataTableColumn<InventarioValorizado>[] = [
+    {
+      key: 'producto',
+      header: 'Producto',
+      render: (item) => (
+        <div>
+          <div className="text-sm font-medium text-slate-900">
+            {item.marca} {item.nombreComercial}
+          </div>
+          <div className="text-xs text-slate-500">{item.sku}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'disponibles',
+      header: 'Disponibles',
+      align: 'right',
+      render: (item) => (
+        <span className="text-sm font-semibold text-emerald-600">{item.unidadesDisponibles}</span>
+      ),
+    },
+    {
+      key: 'asignadas',
+      header: 'Asignadas',
+      align: 'right',
+      render: (item) => (
+        <span className="text-sm text-amber-600">{item.unidadesAsignadas}</span>
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      align: 'right',
+      render: (item) => (
+        <span className="text-sm font-semibold text-slate-900">{item.unidadesTotal}</span>
+      ),
+    },
+    {
+      key: 'costoProm',
+      header: 'Costo Prom.',
+      align: 'right',
+      hideOnMobile: true,
+      render: (item) => (
+        <span className="text-sm text-slate-600">S/ {item.costoPromedioUnidad.toFixed(2)}</span>
+      ),
+    },
+    {
+      key: 'valorTotal',
+      header: 'Valor Total',
+      align: 'right',
+      render: (item) => (
+        <span className="text-sm font-bold text-teal-600">S/ {item.valorTotalPEN.toFixed(2)}</span>
+      ),
+    },
+    {
+      key: 'ubicacion',
+      header: 'Ubicacion',
+      align: 'center',
+      hideOnMobile: true,
+      render: (item) => <UbicacionCell item={item} />,
+    },
+  ];
 
   return (
     <div>
@@ -45,7 +144,6 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {/* Unidades */}
               <div className="grid grid-cols-3 gap-1.5 flex-1 text-[10px]">
                 <div>
                   <span className="text-slate-400">Disp.</span>
@@ -60,12 +158,11 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
                   <div className="font-semibold text-slate-900">{item.unidadesTotal}</div>
                 </div>
               </div>
-              {/* Ubicación badges - genérico por país */}
               <div className="flex items-center gap-1 shrink-0">
                 {item.unidadesPorPais ? (
                   Object.entries(item.unidadesPorPais).filter(([, v]) => v > 0).map(([pais, cantidad]) => (
                     <span key={pais} className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
-                      pais === 'Peru' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                      pais === 'Peru' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'
                     }`}>
                       {pais === 'Peru' ? 'PE' : pais === 'USA' ? 'US' : pais.substring(0, 3).toUpperCase()}:{cantidad}
                     </span>
@@ -73,12 +170,12 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
                 ) : (
                   <>
                     {(item.unidadesMiami ?? 0) > 0 && (
-                      <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-medium">
+                      <span className="px-1.5 py-0.5 bg-sky-100 text-sky-700 rounded text-[9px] font-medium">
                         Origen:{item.unidadesMiami}
                       </span>
                     )}
                     {(item.unidadesPeru ?? 0) > 0 && (
-                      <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[9px] font-medium">
+                      <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[9px] font-medium">
                         Destino:{item.unidadesPeru}
                       </span>
                     )}
@@ -90,91 +187,16 @@ export const InventarioValorizadoTable: React.FC<InventarioValorizadoTableProps>
         ))}
       </div>
 
-      {/* Desktop: Table layout */}
-      <div className="hidden sm:block overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                Producto
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Disponibles
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Asignadas
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Total
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Costo Prom.
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Valor Total
-              </th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">
-                Ubicación
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {inventarioPaginado.map((item) => (
-              <tr key={item.productoId} className="hover:bg-slate-50">
-                <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-slate-900">
-                    {item.marca} {item.nombreComercial}
-                  </div>
-                  <div className="text-xs text-slate-500">{item.sku}</div>
-                </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-emerald-600">
-                  {item.unidadesDisponibles}
-                </td>
-                <td className="px-4 py-3 text-right text-sm text-amber-600">
-                  {item.unidadesAsignadas}
-                </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
-                  {item.unidadesTotal}
-                </td>
-                <td className="px-4 py-3 text-right text-sm text-slate-600">
-                  S/ {item.costoPromedioUnidad.toFixed(2)}
-                </td>
-                <td className="px-4 py-3 text-right text-sm font-bold text-teal-600">
-                  S/ {item.valorTotalPEN.toFixed(2)}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center justify-center space-x-2 text-xs">
-                    {item.unidadesPorPais ? (
-                      Object.entries(item.unidadesPorPais).filter(([, v]) => v > 0).map(([pais, cantidad]) => (
-                        <span key={pais} className={`px-2 py-1 rounded ${
-                          pais === 'Peru' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {pais}: {cantidad}
-                        </span>
-                      ))
-                    ) : (
-                      <>
-                        {(item.unidadesMiami ?? 0) > 0 && (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                            Origen: {item.unidadesMiami}
-                          </span>
-                        )}
-                        {(item.unidadesPeru ?? 0) > 0 && (
-                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded">
-                            Destino: {item.unidadesPeru}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Desktop: DataTable */}
+      <div className="hidden sm:block">
+        <DataTable<InventarioValorizado>
+          columns={columns}
+          data={inventarioPaginado}
+          keyExtractor={(item) => item.productoId}
+        />
       </div>
 
-      {/* Paginación */}
+      {/* Paginacion */}
       {inventario.length > 0 && (
         <Pagination
           currentPage={currentPage}

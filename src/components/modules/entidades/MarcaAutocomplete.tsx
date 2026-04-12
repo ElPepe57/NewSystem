@@ -156,8 +156,8 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
   // Obtener color por tipo
   const getColorByTipo = (tipo: string): string => {
     const colores: Record<string, string> = {
-      farmaceutica: 'bg-blue-100 text-blue-800',
-      suplementos: 'bg-green-100 text-green-800',
+      farmaceutica: 'bg-sky-100 text-sky-800',
+      suplementos: 'bg-emerald-100 text-emerald-800',
       skincare: 'bg-rose-100 text-rose-800',
       cosmetica: 'bg-pink-100 text-pink-800',
       tecnologia: 'bg-purple-100 text-purple-800',
@@ -191,7 +191,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
             block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
             focus:ring-teal-500 focus:border-teal-500
             ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
+            ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
           `}
         />
 
@@ -199,7 +199,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
           {value ? (
             <div className="flex items-center space-x-1">
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-emerald-500" />
               {!disabled && (
                 <button
                   type="button"
@@ -264,7 +264,7 @@ export const MarcaAutocomplete: React.FC<MarcaAutocompleteProps> = ({
                 <button
                   type="button"
                   onClick={handleShowCreate}
-                  className="w-full px-4 py-3 text-left hover:bg-blue-50 text-teal-600 flex items-center"
+                  className="w-full px-4 py-3 text-left hover:bg-sky-50 text-teal-600 flex items-center"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Crear nueva marca "{inputValue}"

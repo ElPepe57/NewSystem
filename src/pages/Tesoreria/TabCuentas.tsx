@@ -18,6 +18,8 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Button, Card, FormSection } from '../../components/common';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { BancoNuevoForm } from './BancoNuevoForm';
 import { CuentaBancoForm } from './CuentaBancoForm';
 import { EditarMetodosBancoModal } from './EditarMetodosBancoModal';
@@ -129,8 +131,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
     if (cuenta.esBiMoneda) {
       return (
         <div className="space-y-0.5 text-right">
-          <div className="text-sm font-bold text-green-600">S/ {(cuenta.saldoPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</div>
-          <div className="text-sm font-bold text-blue-600">$ {(cuenta.saldoUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          <div className="text-sm font-bold text-emerald-600">S/ {(cuenta.saldoPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</div>
+          <div className="text-sm font-bold text-sky-600">$ {(cuenta.saldoUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
         </div>
       );
     }
@@ -165,7 +167,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
       <div className="flex items-center gap-3 min-w-0">
         <div className={`w-1.5 self-stretch rounded-full flex-shrink-0 ${
           cuenta.tipo === 'credito' ? 'bg-amber-400' :
-          cuenta.moneda === 'USD' ? 'bg-blue-400' : 'bg-green-400'
+          cuenta.moneda === 'USD' ? 'bg-sky-400' : 'bg-emerald-400'
         }`} />
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -183,10 +185,10 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-600 flex-shrink-0">Personal</span>
             )}
             {cuenta.esBiMoneda && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gradient-to-r from-green-100 to-blue-100 text-slate-600 flex-shrink-0">Bi-Moneda</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-slate-600 flex-shrink-0">Bi-Moneda</span>
             )}
             {cuenta.moneda === 'USD' && !cuenta.esBiMoneda && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-600 flex-shrink-0">USD</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-600 flex-shrink-0">USD</span>
             )}
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
@@ -308,11 +310,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             ) : (
               <div className="space-y-3">
                 {[...bancos.entries()].map(([banco, cuentasBanco]) => (
-                  <div key={banco} className="rounded-xl border border-blue-200 bg-blue-50/30 overflow-hidden">
+                  <div key={banco} className="rounded-xl border border-sky-200 bg-sky-50/30 overflow-hidden">
                     {/* Header del banco */}
-                    <div className="px-4 py-3 bg-blue-50 flex items-center justify-between border-b border-blue-100">
+                    <div className="px-4 py-3 bg-sky-50 flex items-center justify-between border-b border-sky-100">
                       <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-blue-600" />
+                        <Building2 className="h-4 w-4 text-sky-600" />
                         <h4 className="font-semibold text-slate-900">{banco}</h4>
                         {cuentasBanco[0]?.bancoNombreCompleto && (
                           <span className="text-xs text-slate-500 hidden sm:inline">({cuentasBanco[0].bancoNombreCompleto})</span>
@@ -327,7 +329,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                               const esCanal = ['yape', 'plin'].includes(m);
                               return (
                                 <span key={m} className={`text-[10px] px-1.5 py-0.5 rounded ${
-                                  esCanal ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                                  esCanal ? 'bg-purple-100 text-purple-700' : 'bg-sky-100 text-sky-700'
                                 }`}>
                                   {m}{det?.identificador ? ` · ${det.identificador}` : ''}
                                 </span>
@@ -336,7 +338,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                           </div>
                         ) : null}
                         <button onClick={() => abrirMetodos(banco, cuentasBanco)}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-100 rounded-full transition-colors"
                           title="Editar métodos de pago">
                           <Settings2 className="h-3.5 w-3.5" />
                         </button>
@@ -344,12 +346,12 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                     </div>
 
                     {/* Cuentas del banco */}
-                    <div className="divide-y divide-blue-100">
+                    <div className="divide-y divide-sky-100">
                       {cuentasBanco.map(renderCuentaRow)}
                     </div>
 
                     {/* Agregar cuenta */}
-                    <div className="px-4 py-2 border-t border-blue-100 bg-blue-50/50">
+                    <div className="px-4 py-2 border-t border-sky-100 bg-sky-50/50">
                       <button onClick={() => abrirCuentaBanco(banco)}
                         className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium">
                         <Plus className="h-3.5 w-3.5" /> Agregar cuenta en {banco}
@@ -473,8 +475,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
                         <span className="text-slate-500">Entradas:</span>
-                        {entPEN > 0 && <span className="ml-1 font-semibold text-green-600">+S/ {entPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>}
-                        {entUSD > 0 && <span className="ml-1 font-semibold text-green-600">+$ {entUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>}
+                        {entPEN > 0 && <span className="ml-1 font-semibold text-emerald-600">+S/ {entPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>}
+                        {entUSD > 0 && <span className="ml-1 font-semibold text-emerald-600">+$ {entUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>}
                       </div>
                       <div className="text-right">
                         <span className="text-slate-500">Salidas:</span>
@@ -499,11 +501,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <span className="text-[10px] text-slate-400 flex-shrink-0">{formatDate(mov.fecha)}</span>
-                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${esIngreso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${esIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                                   {esIngreso ? 'Entrada' : 'Salida'}
                                 </span>
                               </div>
-                              <span className={`text-sm font-bold ${esIngreso ? 'text-green-600' : 'text-red-600'}`}>
+                              <span className={`text-sm font-bold ${esIngreso ? 'text-emerald-600' : 'text-red-600'}`}>
                                 {esIngreso ? '+' : '-'}{mov.moneda === 'USD' ? '$' : 'S/'} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                               </span>
                             </div>
@@ -521,60 +523,106 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                     </div>
 
                     {/* Desktop */}
-                    <div className="hidden md:block overflow-x-auto">
-                      <table className="min-w-full divide-y divide-slate-100 text-sm">
-                        <thead className="bg-slate-50">
-                          <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Doc.</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Concepto</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-green-700 uppercase">Entrada</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-red-700 uppercase">Salida</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">Saldo</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                          {movsDisplay.slice(0, movsLimit).map((mov) => {
+                    {(() => {
+                      const cuentaMovColumns: DataTableColumn<MovimientoTesoreria>[] = [
+                        {
+                          key: 'fecha',
+                          header: 'Fecha',
+                          render: (mov) => (
+                            <span className="text-slate-500 whitespace-nowrap">{formatDate(mov.fecha)}</span>
+                          ),
+                        },
+                        {
+                          key: 'tipo',
+                          header: 'Tipo',
+                          render: (mov) => {
                             const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
+                            return (
+                              <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${esIngreso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                {esIngreso ? <TrendingUp className="h-2.5 w-2.5 mr-0.5" /> : <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
+                                {getTipoLabel(mov.tipo)}
+                              </span>
+                            );
+                          },
+                        },
+                        {
+                          key: 'doc',
+                          header: 'Doc.',
+                          render: (mov) => (
+                            <>
+                              {mov.ordenCompraNumero && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-medium">{mov.ordenCompraNumero}</span>}
+                              {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
+                              {mov.gastoNumero && <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-medium">{mov.gastoNumero}</span>}
+                              {!mov.ordenCompraNumero && !mov.ventaNumero && !mov.gastoNumero && <span className="text-slate-300">-</span>}
+                            </>
+                          ),
+                        },
+                        {
+                          key: 'concepto',
+                          header: 'Concepto',
+                          render: (mov) => (
+                            <span className="text-slate-700 max-w-[240px] truncate block" title={mov.concepto}>{mov.concepto}</span>
+                          ),
+                        },
+                        {
+                          key: 'entrada',
+                          header: 'Entrada',
+                          align: 'right',
+                          render: (mov) => {
+                            const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
+                            const simbolo = mov.moneda === 'USD' ? '$' : 'S/';
+                            return esIngreso ? (
+                              <span className="font-medium text-emerald-600 whitespace-nowrap">
+                                {simbolo} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                              </span>
+                            ) : null;
+                          },
+                        },
+                        {
+                          key: 'salida',
+                          header: 'Salida',
+                          align: 'right',
+                          render: (mov) => {
+                            const esIngreso = mov.cuentaDestino === cuentaDetalle.id;
+                            const simbolo = mov.moneda === 'USD' ? '$' : 'S/';
+                            return !esIngreso ? (
+                              <span className="font-medium text-red-600 whitespace-nowrap">
+                                {simbolo} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                              </span>
+                            ) : null;
+                          },
+                        },
+                        {
+                          key: 'saldo',
+                          header: 'Saldo',
+                          align: 'right',
+                          render: (mov) => {
                             const saldos = saldosPorMov.get(mov.id);
                             const simbolo = mov.moneda === 'USD' ? '$' : 'S/';
-                            return (
-                              <tr key={mov.id} className={`hover:bg-slate-50 ${mov.estado === 'anulado' ? 'opacity-40' : ''}`}>
-                                <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{formatDate(mov.fecha)}</td>
-                                <td className="px-3 py-2 whitespace-nowrap">
-                                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium ${esIngreso ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                    {esIngreso ? <TrendingUp className="h-2.5 w-2.5 mr-0.5" /> : <TrendingDown className="h-2.5 w-2.5 mr-0.5" />}
-                                    {getTipoLabel(mov.tipo)}
-                                  </span>
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap">
-                                  {mov.ordenCompraNumero && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-medium">{mov.ordenCompraNumero}</span>}
-                                  {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
-                                  {mov.gastoNumero && <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-medium">{mov.gastoNumero}</span>}
-                                  {!mov.ordenCompraNumero && !mov.ventaNumero && !mov.gastoNumero && <span className="text-slate-300">-</span>}
-                                </td>
-                                <td className="px-3 py-2 text-slate-700 max-w-[240px] truncate" title={mov.concepto}>{mov.concepto}</td>
-                                <td className="px-3 py-2 text-right font-medium text-green-600 whitespace-nowrap">
-                                  {esIngreso ? `${simbolo} ${mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}` : ''}
-                                </td>
-                                <td className="px-3 py-2 text-right font-medium text-red-600 whitespace-nowrap">
-                                  {!esIngreso ? `${simbolo} ${mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}` : ''}
-                                </td>
-                                <td className="px-3 py-2 text-right text-slate-500 whitespace-nowrap">
-                                  {saldos && (
-                                    <span>{simbolo} {(cuentaDetalle.esBiMoneda
-                                      ? (mov.moneda === 'PEN' ? saldos.pen : saldos.usd)
-                                      : (cuentaDetalle.moneda === 'PEN' ? saldos.pen : saldos.usd)
-                                    ).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                            return saldos ? (
+                              <span className="text-slate-500 whitespace-nowrap">
+                                {simbolo} {(cuentaDetalle.esBiMoneda
+                                  ? (mov.moneda === 'PEN' ? saldos.pen : saldos.usd)
+                                  : (cuentaDetalle.moneda === 'PEN' ? saldos.pen : saldos.usd)
+                                ).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                              </span>
+                            ) : null;
+                          },
+                        },
+                      ];
+
+                      return (
+                        <div className="hidden md:block">
+                          <DataTable
+                            columns={cuentaMovColumns}
+                            data={movsDisplay.slice(0, movsLimit)}
+                            keyExtractor={(mov) => mov.id}
+                            compact
+                            emptyMessage="No hay movimientos para esta cuenta"
+                          />
+                        </div>
+                      );
+                    })()}
 
                     {movsDisplay.length > movsLimit && (
                       <div className="px-4 py-3 text-center border-t border-slate-100">

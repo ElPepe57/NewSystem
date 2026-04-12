@@ -89,9 +89,9 @@ export const TipoCambioChart: React.FC<TipoCambioChartProps> = ({ tiposCambio })
       </ResponsiveContainer>
 
       <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
-        <div className="bg-green-50 p-3 rounded">
+        <div className="bg-emerald-50 p-3 rounded">
           <div className="text-xs text-slate-600">TC Compra Actual</div>
-          <div className="text-lg font-bold text-green-600">
+          <div className="text-lg font-bold text-emerald-600">
             S/ {lastTC?.compra.toFixed(3)}
           </div>
         </div>
@@ -101,9 +101,9 @@ export const TipoCambioChart: React.FC<TipoCambioChartProps> = ({ tiposCambio })
             S/ {lastTC?.venta.toFixed(3)}
           </div>
         </div>
-        <div className="bg-blue-50 p-3 rounded">
+        <div className="bg-sky-50 p-3 rounded">
           <div className="text-xs text-slate-600">Promedio Actual</div>
-          <div className="text-lg font-bold text-blue-600">
+          <div className="text-lg font-bold text-sky-600">
             S/ {((lastTC?.compra + lastTC?.venta) / 2).toFixed(3)}
           </div>
         </div>

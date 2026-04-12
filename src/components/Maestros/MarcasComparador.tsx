@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { marcaAnalyticsService, type ComparacionMarcas } from '../../services/marca.analytics.service';
 import { formatCurrencyPEN, formatPercent } from '../../utils/format';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 
 type ModoComparacion = 'categoria' | 'tipo';
 
@@ -81,12 +83,12 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
     if (ranking === 1) return 'bg-yellow-500';
     if (ranking === 2) return 'bg-slate-400';
     if (ranking === 3) return 'bg-amber-600';
-    return 'bg-blue-500';
+    return 'bg-sky-500';
   };
 
   const getParticipacionColor = (participacion: number) => {
-    if (participacion >= 40) return 'bg-green-500';
-    if (participacion >= 20) return 'bg-blue-500';
+    if (participacion >= 40) return 'bg-emerald-500';
+    if (participacion >= 20) return 'bg-sky-500';
     if (participacion >= 10) return 'bg-yellow-500';
     return 'bg-slate-400';
   };
@@ -126,7 +128,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
                 onClick={() => handleModoChange('categoria')}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
                   modoComparacion === 'categoria'
-                    ? 'bg-white text-blue-600 shadow-sm'
+                    ? 'bg-white text-sky-600 shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -136,7 +138,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
                 onClick={() => handleModoChange('tipo')}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
                   modoComparacion === 'tipo'
-                    ? 'bg-white text-blue-600 shadow-sm'
+                    ? 'bg-white text-sky-600 shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -186,7 +188,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
             </div>
           ) : comparaciones.length === 0 ? (
             <div className="text-center py-12 text-slate-500">
@@ -196,7 +198,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
             <div className="space-y-6">
               {/* Resumen de categoría */}
               <div className="grid grid-cols-4 gap-4">
-                <div className="bg-blue-500 text-white rounded-lg p-4">
+                <div className="bg-sky-500 text-white rounded-lg p-4">
                   <div className="text-sm opacity-80">Total Marcas</div>
                   <div className="text-3xl font-bold">{comparaciones.length}</div>
                 </div>
@@ -238,7 +240,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
                           </div>
                         </div>
                       </div>
-                      <div className="w-28 text-right font-semibold text-green-600">
+                      <div className="w-28 text-right font-semibold text-emerald-600">
                         {formatCurrency(comp.ventas)}
                       </div>
                     </div>
@@ -251,83 +253,90 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
                 <div className="p-4 border-b bg-slate-50">
                   <h3 className="font-semibold text-slate-900">Detalle por Marca</h3>
                 </div>
-                <table className="min-w-full divide-y divide-slate-200">
-                  <thead className="bg-slate-50">
-                    <tr className="text-xs text-slate-500 uppercase">
-                      <th className="px-4 py-3 text-left">#</th>
-                      <th className="px-4 py-3 text-left">Marca</th>
-                      <th className="px-4 py-3 text-right">Productos</th>
-                      <th className="px-4 py-3 text-right">Ventas</th>
-                      <th className="px-4 py-3 text-right">Participación</th>
-                      <th className="px-4 py-3 text-right">Margen</th>
-                      <th className="px-4 py-3 text-center">Performance</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {comparaciones.map(comp => {
-                      // Calcular performance relativo
-                      const performance = totalVentas > 0
-                        ? (comp.ventas / (totalVentas / comparaciones.length)) * 100
-                        : 0;
-
-                      let performanceLabel = 'Promedio';
-                      let performanceColor = 'bg-slate-100 text-slate-800';
-
-                      if (performance >= 150) {
-                        performanceLabel = 'Excelente';
-                        performanceColor = 'bg-green-100 text-green-800';
-                      } else if (performance >= 100) {
-                        performanceLabel = 'Bueno';
-                        performanceColor = 'bg-blue-100 text-blue-800';
-                      } else if (performance < 50) {
-                        performanceLabel = 'Bajo';
-                        performanceColor = 'bg-red-100 text-red-800';
-                      }
-
-                      return (
-                        <tr key={comp.marcaId} className="hover:bg-slate-50">
-                          <td className="px-4 py-3">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold ${getRankingColor(comp.ranking)}`}>
-                              {comp.ranking}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="font-medium text-slate-900">{comp.nombreMarca}</div>
-                          </td>
-                          <td className="px-4 py-3 text-right text-slate-900">{comp.productos}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-green-600">
-                            {formatCurrency(comp.ventas)}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <div className="w-16 bg-slate-200 rounded-full h-2">
-                                <div
-                                  className={`${getParticipacionColor(comp.participacion)} h-2 rounded-full`}
-                                  style={{ width: `${comp.participacion}%` }}
-                                />
-                              </div>
-                              <span className="text-slate-900">{formatPercent(comp.participacion)}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <span className={comp.margen >= 25 ? 'text-green-600' : comp.margen >= 15 ? 'text-yellow-600' : 'text-red-600'}>
-                              {formatPercent(comp.margen)}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className={`px-2 py-1 text-xs rounded-full ${performanceColor}`}>
-                              {performanceLabel}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                {(() => {
+                  const comparadorColumns: DataTableColumn<ComparacionMarcas>[] = [
+                    {
+                      key: 'ranking',
+                      header: '#',
+                      render: comp => (
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold ${getRankingColor(comp.ranking)}`}>
+                          {comp.ranking}
+                        </div>
+                      ),
+                    },
+                    {
+                      key: 'marca',
+                      header: 'Marca',
+                      render: comp => <div className="font-medium text-slate-900">{comp.nombreMarca}</div>,
+                    },
+                    {
+                      key: 'productos',
+                      header: 'Productos',
+                      align: 'right',
+                      render: comp => <span>{comp.productos}</span>,
+                      hideOnMobile: true,
+                    },
+                    {
+                      key: 'ventas',
+                      header: 'Ventas',
+                      align: 'right',
+                      render: comp => <span className="font-semibold text-emerald-600">{formatCurrency(comp.ventas)}</span>,
+                    },
+                    {
+                      key: 'participacion',
+                      header: 'Participación',
+                      align: 'right',
+                      render: comp => (
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="w-16 bg-slate-200 rounded-full h-2">
+                            <div className={`${getParticipacionColor(comp.participacion)} h-2 rounded-full`} style={{ width: `${comp.participacion}%` }} />
+                          </div>
+                          <span className="text-slate-900">{formatPercent(comp.participacion)}</span>
+                        </div>
+                      ),
+                      hideOnMobile: true,
+                    },
+                    {
+                      key: 'margen',
+                      header: 'Margen',
+                      align: 'right',
+                      render: comp => (
+                        <span className={comp.margen >= 25 ? 'text-emerald-600' : comp.margen >= 15 ? 'text-yellow-600' : 'text-red-600'}>
+                          {formatPercent(comp.margen)}
+                        </span>
+                      ),
+                      hideOnMobile: true,
+                    },
+                    {
+                      key: 'performance',
+                      header: 'Performance',
+                      align: 'center',
+                      render: comp => {
+                        const performance = totalVentas > 0
+                          ? (comp.ventas / (totalVentas / comparaciones.length)) * 100
+                          : 0;
+                        let performanceLabel = 'Promedio';
+                        let performanceColor = 'bg-slate-100 text-slate-800';
+                        if (performance >= 150) { performanceLabel = 'Excelente'; performanceColor = 'bg-emerald-100 text-emerald-800'; }
+                        else if (performance >= 100) { performanceLabel = 'Bueno'; performanceColor = 'bg-sky-100 text-sky-800'; }
+                        else if (performance < 50) { performanceLabel = 'Bajo'; performanceColor = 'bg-red-100 text-red-800'; }
+                        return <span className={`px-2 py-1 text-xs rounded-full ${performanceColor}`}>{performanceLabel}</span>;
+                      },
+                    },
+                  ];
+                  return (
+                    <DataTable
+                      columns={comparadorColumns}
+                      data={comparaciones}
+                      keyExtractor={comp => comp.marcaId}
+                      emptyMessage="No hay marcas en esta categoría"
+                    />
+                  );
+                })()}
               </div>
 
               {/* Insights */}
-              <div className="bg-slate-50 rounded-lg p-6 border border-blue-100">
+              <div className="bg-slate-50 rounded-lg p-6 border border-sky-100">
                 <h3 className="font-semibold text-slate-900 mb-4">
                   Insights {modoComparacion === 'categoria' ? 'de la Categoría' : 'del Tipo de Producto'}: {seleccionActual}
                 </h3>
@@ -351,7 +360,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
                   {comparaciones.length > 0 && (
                     <div className="bg-white rounded-lg p-4 shadow-sm">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-green-500 text-lg">💰</span>
+                        <span className="text-emerald-500 text-lg">💰</span>
                         <span className="font-medium text-slate-900">Mayor Rentabilidad</span>
                       </div>
                       {(() => {
@@ -371,7 +380,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
                   {/* Concentración */}
                   <div className="bg-white rounded-lg p-4 shadow-sm">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-blue-500 text-lg">📊</span>
+                      <span className="text-sky-500 text-lg">📊</span>
                       <span className="font-medium text-slate-900">Concentración</span>
                     </div>
                     {(() => {

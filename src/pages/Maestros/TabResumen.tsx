@@ -24,7 +24,8 @@ import {
   AlertCard,
   StatDistribution
 } from '../../components/common';
-import { KPIBar as DSKPIBar, StatCard as DSStatCard } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import type { Cliente, Competidor } from '../../types/entidadesMaestras.types';
 import type { Marca } from '../../types/entidadesMaestras.types';
 import type { Proveedor } from '../../types/ordenCompra.types';
@@ -100,15 +101,15 @@ export const TabResumen: React.FC<TabResumenProps> = ({
         <StatDistribution
           title="Distribucion de Almacenes"
           data={[
-            { label: 'Viajeros USA', value: almacenes.filter(a => a.esViajero && a.pais === 'USA').length, color: 'bg-blue-500' },
-            { label: 'Fijos USA', value: almacenes.filter(a => !a.esViajero && a.pais === 'USA').length, color: 'bg-green-500' },
+            { label: 'Viajeros USA', value: almacenes.filter(a => a.esViajero && a.pais === 'USA').length, color: 'bg-sky-500' },
+            { label: 'Fijos USA', value: almacenes.filter(a => !a.esViajero && a.pais === 'USA').length, color: 'bg-emerald-500' },
             { label: 'Peru', value: almacenes.filter(a => a.pais === 'Peru').length, color: 'bg-amber-500' }
           ]}
         />
         <StatDistribution
           title="Competidores por Nivel de Amenaza"
           data={[
-            { label: 'Bajo', value: competidores.filter(c => c.nivelAmenaza === 'bajo').length, color: 'bg-green-500' },
+            { label: 'Bajo', value: competidores.filter(c => c.nivelAmenaza === 'bajo').length, color: 'bg-emerald-500' },
             { label: 'Medio', value: competidores.filter(c => c.nivelAmenaza === 'medio').length, color: 'bg-yellow-500' },
             { label: 'Alto', value: competidores.filter(c => c.nivelAmenaza === 'alto').length, color: 'bg-red-500' }
           ]}
@@ -116,14 +117,14 @@ export const TabResumen: React.FC<TabResumenProps> = ({
         <StatDistribution
           title="Transportistas por Tipo"
           data={[
-            { label: 'Internos', value: transportistas.filter((t: any) => t.tipo === 'interno').length, color: 'bg-blue-500' },
+            { label: 'Internos', value: transportistas.filter((t: any) => t.tipo === 'interno').length, color: 'bg-sky-500' },
             { label: 'Externos', value: transportistas.filter((t: any) => t.tipo === 'externo').length, color: 'bg-purple-500' }
           ]}
         />
         <StatDistribution
           title="Canales de Venta"
           data={[
-            { label: 'Activos', value: canales.filter((c: any) => c.estado === 'activo').length, color: 'bg-green-500' },
+            { label: 'Activos', value: canales.filter((c: any) => c.estado === 'activo').length, color: 'bg-emerald-500' },
             { label: 'Inactivos', value: canales.filter((c: any) => c.estado === 'inactivo').length, color: 'bg-slate-400' }
           ]}
         />
@@ -144,8 +145,8 @@ export const TabResumen: React.FC<TabResumenProps> = ({
             items={(almacenStats?.almacenesCapacidadCritica || []).map((a: any) => ({
               id: a.id,
               label: a.nombre,
-              value: `${a.capacidadUsada.toFixed(0)}%`,
-              sublabel: `${a.unidadesActuales} de ${a.capacidadTotal} unidades`
+              value: `${(a.capacidadUsada ?? 0).toFixed(0)}%`,
+              sublabel: `${a.unidadesActuales ?? 0} de ${a.capacidadTotal ?? 0} unidades`
             }))}
             maxItems={3}
             onItemClick={() => onSetTab('almacenes')}
@@ -196,7 +197,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
             items={(clienteStats?.topClientesPorMonto || []).slice(0, 4).map((c: any) => ({
               id: c.clienteId,
               label: c.nombre,
-              value: `S/ ${c.montoTotalPEN.toLocaleString()}`,
+              value: `S/ ${(c.montoTotalPEN ?? 0).toLocaleString()}`,
               sublabel: `${c.montoTotalPEN > 0 ? 'Cliente activo' : ''}`
             }))}
             maxItems={4}
@@ -210,7 +211,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
             items={(marcaStats?.topMarcasPorVentas || []).slice(0, 4).map((m: { marcaId: string; nombre: string; ventasTotalPEN: number }) => ({
               id: m.marcaId,
               label: m.nombre,
-              value: `S/ ${m.ventasTotalPEN.toLocaleString()}`,
+              value: `S/ ${(m.ventasTotalPEN ?? 0).toLocaleString()}`,
               sublabel: 'Por ventas'
             }))}
             maxItems={4}
@@ -259,7 +260,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
               onOpenMarcaModal();
             }}
           >
-            <Tag className="h-6 w-6 text-green-600" />
+            <Tag className="h-6 w-6 text-emerald-600" />
             <span className="text-xs">Nueva Marca</span>
           </Button>
           <Button
@@ -310,7 +311,7 @@ export const TabResumen: React.FC<TabResumenProps> = ({
             onClick={onRecalcularMetricas}
             disabled={isRecalculando}
           >
-            <Calculator className={`h-6 w-6 text-blue-600 ${isRecalculando ? 'animate-pulse' : ''}`} />
+            <Calculator className={`h-6 w-6 text-sky-600 ${isRecalculando ? 'animate-pulse' : ''}`} />
             <span className="text-xs">Recalcular Metricas</span>
           </Button>
         </div>
@@ -324,54 +325,77 @@ export const TabResumen: React.FC<TabResumenProps> = ({
             Estado de Inventario por Almacen
           </h3>
           <Card padding="md">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Almacen</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Unidades</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Valor USD</th>
-                    <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">Capacidad</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {almacenStats.inventarioPorAlmacen.slice(0, 8).map((a: any) => (
-                    <tr key={a.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-2 text-sm font-medium text-slate-900">{a.nombre}</td>
-                      <td className="px-4 py-2 text-sm text-slate-500">
-                        <Badge variant={a.esViajero ? 'info' : 'default'} size="sm">
-                          {a.esViajero ? 'Viajero' : 'Fijo'}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-slate-900 text-right">{a.unidadesActuales.toLocaleString()}</td>
-                      <td className="px-4 py-2 text-sm text-slate-900 text-right">${a.valorInventarioUSD.toLocaleString()}</td>
-                      <td className="px-4 py-2 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${
-                                a.capacidadUsada >= 90 ? 'bg-red-500' :
-                                a.capacidadUsada >= 70 ? 'bg-yellow-500' :
-                                'bg-green-500'
-                              }`}
-                              style={{ width: `${Math.min(a.capacidadUsada, 100)}%` }}
-                            />
-                          </div>
-                          <span className={`text-xs font-medium ${
-                            a.capacidadUsada >= 90 ? 'text-red-600' :
-                            a.capacidadUsada >= 70 ? 'text-yellow-600' :
-                            'text-green-600'
-                          }`}>
-                            {a.capacidadUsada.toFixed(0)}%
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {(() => {
+              type AlmacenResumen = { id: string; nombre: string; esViajero: boolean; unidadesActuales: number; valorInventarioUSD: number; capacidadUsada: number };
+              const inventarioColumns: DataTableColumn<AlmacenResumen>[] = [
+                {
+                  key: 'nombre',
+                  header: 'Almacen',
+                  render: a => <span className="font-medium text-slate-900">{a.nombre}</span>,
+                },
+                {
+                  key: 'tipo',
+                  header: 'Tipo',
+                  render: a => (
+                    <Badge variant={a.esViajero ? 'info' : 'default'} size="sm">
+                      {a.esViajero ? 'Viajero' : 'Fijo'}
+                    </Badge>
+                  ),
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'unidades',
+                  header: 'Unidades',
+                  align: 'right',
+                  render: a => <span>{(a.unidadesActuales ?? 0).toLocaleString()}</span>,
+                },
+                {
+                  key: 'valor',
+                  header: 'Valor USD',
+                  align: 'right',
+                  render: a => <span>${(a.valorInventarioUSD ?? 0).toLocaleString()}</span>,
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'capacidad',
+                  header: 'Capacidad',
+                  align: 'right',
+                  render: a => {
+                    const cap = a.capacidadUsada ?? 0;
+                    return (
+                    <div className="flex items-center justify-end gap-2">
+                      <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            cap >= 90 ? 'bg-red-500' :
+                            cap >= 70 ? 'bg-amber-500' :
+                            'bg-emerald-500'
+                          }`}
+                          style={{ width: `${Math.min(cap, 100)}%` }}
+                        />
+                      </div>
+                      <span className={`text-xs font-medium ${
+                        cap >= 90 ? 'text-red-600' :
+                        cap >= 70 ? 'text-amber-600' :
+                        'text-emerald-600'
+                      }`}>
+                        {cap.toFixed(0)}%
+                      </span>
+                    </div>
+                    );
+                  },
+                  hideOnMobile: true,
+                },
+              ];
+              return (
+                <DataTable
+                  columns={inventarioColumns}
+                  data={almacenStats.inventarioPorAlmacen.slice(0, 8) as AlmacenResumen[]}
+                  keyExtractor={a => a.id}
+                  compact
+                />
+              );
+            })()}
             {almacenStats.inventarioPorAlmacen.length > 8 && (
               <div className="mt-2 text-center">
                 <Button variant="ghost" size="sm" onClick={() => onSetTab('almacenes')}>

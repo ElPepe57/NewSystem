@@ -386,14 +386,14 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
           onClick={() => setMode('despachar')}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
             mode === 'despachar'
-              ? 'bg-white text-blue-700 shadow-sm'
+              ? 'bg-white text-sky-700 shadow-sm'
               : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           <Send className="h-4 w-4" />
           Despachar
           {entregasProgramadas.length > 0 && mode !== 'despachar' && (
-            <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-blue-100 text-blue-700 rounded-full">
+            <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-sky-100 text-sky-700 rounded-full">
               {entregasProgramadas.length}
             </span>
           )}
@@ -445,7 +445,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                 <div className="flex items-center justify-between">
                   <p><span className="text-yellow-700 font-medium">Comprador:</span> {selectedOrder.mlBuyerName || selectedOrder.mlBuyerNickname}</p>
                   {selectedOrder.numeroVenta && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+                    <span className="text-xs bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded font-medium">
                       {selectedOrder.numeroVenta}
                     </span>
                   )}
@@ -470,7 +470,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                     Validacion: {totalEscaneado}/{totalEsperado}
                   </span>
                   {isValidated && (
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                       <CheckCircle2 className="h-3 w-3" /> Completo
                     </span>
                   )}
@@ -478,7 +478,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                 <div className="w-full bg-slate-200 rounded-full h-2.5">
                   <div
                     className={`h-2.5 rounded-full transition-all ${
-                      progreso >= 100 ? 'bg-green-500' : progreso > 0 ? 'bg-yellow-500' : 'bg-slate-300'
+                      progreso >= 100 ? 'bg-emerald-500' : progreso > 0 ? 'bg-yellow-500' : 'bg-slate-300'
                     }`}
                     style={{ width: `${Math.min(progreso, 100)}%` }}
                   />
@@ -495,7 +495,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                       key={prod.productoId}
                       className={`bg-white border rounded-lg p-3 transition-all ${
                         completo
-                          ? 'border-green-300 bg-green-50/30'
+                          ? 'border-emerald-300 bg-emerald-50/30'
                           : parcial
                             ? 'border-amber-300 bg-amber-50/20'
                             : 'border-slate-200'
@@ -505,7 +505,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             {completo ? (
-                              <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                             ) : parcial ? (
                               <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
                             ) : (
@@ -519,7 +519,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                         </div>
                         <div className="text-center min-w-[3rem] shrink-0">
                           <span className={`text-sm font-bold tabular-nums ${
-                            completo ? 'text-green-600' : parcial ? 'text-amber-600' : 'text-slate-900'
+                            completo ? 'text-emerald-600' : parcial ? 'text-amber-600' : 'text-slate-900'
                           }`}>
                             {prod.escaneado}
                           </span>
@@ -533,15 +533,15 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
 
               {/* Validated — proceed to entrega form */}
               {isValidated && step === 'scan' && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-                  <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-green-700">Todos los productos validados</p>
-                  <p className="text-xs text-green-600 mt-1 mb-3">Continua para programar la entrega</p>
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-emerald-700">Todos los productos validados</p>
+                  <p className="text-xs text-emerald-600 mt-1 mb-3">Continua para programar la entrega</p>
                   <button
                     type="button"
                     onClick={handleProcederEntrega}
                     disabled={isDispatching}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
                   >
                     <Truck className="h-4 w-4" />
                     {isDispatching ? 'Cargando...' : 'Programar Entrega'}
@@ -553,7 +553,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
               {step === 'entrega_form' && ventaActual && (
                 <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 space-y-4">
                   <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-blue-600" />
+                    <Truck className="h-4 w-4 text-sky-600" />
                     Programar Entrega
                   </h3>
 
@@ -568,7 +568,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                       <select
                         value={transportistaId}
                         onChange={(e) => handleTransportistaChange(e.target.value)}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       >
                         <option value="">Selecciona transportista</option>
                         {transportistas.filter(t => t.tipo === 'interno').length > 0 && (
@@ -608,7 +608,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                         step={0.5}
                         value={costoTransportista || ''}
                         onChange={(e) => setCostoTransportista(parseFloat(e.target.value) || 0)}
-                        className="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                         placeholder="0.00"
                       />
                     </div>
@@ -616,9 +616,9 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
 
                   {/* Cobro pendiente */}
                   {ventaActual.estadoPago === 'pagado' ? (
-                    <div className="flex items-center gap-2 p-2.5 bg-green-50 border border-green-200 rounded-lg">
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      <span className="text-xs font-medium text-green-700">Venta pagada — sin cobro pendiente</span>
+                    <div className="flex items-center gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      <span className="text-xs font-medium text-emerald-700">Venta pagada — sin cobro pendiente</span>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -627,7 +627,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                           type="checkbox"
                           checked={cobroPendiente}
                           onChange={(e) => setCobroPendiente(e.target.checked)}
-                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
                         />
                         <span className="text-xs font-medium text-slate-700">
                           <CreditCard className="inline h-3.5 w-3.5 mr-1" />
@@ -645,7 +645,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                                 step={0.01}
                                 value={montoPorCobrar || ''}
                                 onChange={(e) => setMontoPorCobrar(parseFloat(e.target.value) || 0)}
-                                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500"
                                 placeholder="Monto"
                               />
                             </div>
@@ -653,7 +653,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                           <select
                             value={metodoPago}
                             onChange={(e) => setMetodoPago(e.target.value as MetodoPago)}
-                            className="px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
+                            className="px-2 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-sky-500"
                           >
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transfer.</option>
@@ -692,7 +692,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                       type="button"
                       onClick={handleConfirmarDespacho}
                       disabled={isDispatching || !transportistaId}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
                     >
                       <Truck className="h-4 w-4" />
                       {isDispatching ? 'Programando...' : 'Confirmar Entrega'}
@@ -716,7 +716,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
       {/* ============ MODO DESPACHAR ============ */}
       {mode === 'despachar' && (
         <>
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
+          <div className="bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs text-sky-700">
             <Send className="inline h-3.5 w-3.5 mr-1" />
             Escanea un producto o toca <strong>Despachar</strong> para marcar la entrega como En Camino
           </div>
@@ -727,7 +727,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
             </div>
           ) : entregasProgramadas.length === 0 ? (
             <div className="text-center py-8">
-              <CheckCircle2 className="h-8 w-8 text-green-400 mx-auto mb-2" />
+              <CheckCircle2 className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
               <p className="text-sm text-slate-500">No hay entregas pendientes de despacho</p>
               <p className="text-xs text-slate-400 mt-1">Programa entregas desde la tab Preparar</p>
             </div>
@@ -759,7 +759,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                       <button
                         onClick={() => handleDespacharEntrega(entrega)}
                         disabled={despachando === entrega.id}
-                        className="mt-1.5 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        className="mt-1.5 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
                       >
                         {despachando === entrega.id ? (
                           <Loader2 className="h-3 w-3 animate-spin" />

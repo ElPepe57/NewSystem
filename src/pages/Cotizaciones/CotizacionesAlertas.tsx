@@ -86,7 +86,7 @@ export const CotizacionesAlertas: React.FC<CotizacionesAlertasProps> = ({
         ) : (
           <div className="space-y-2 pt-2">
             {reservasVirtuales.map(r => (
-              <div key={r.id} className="flex items-center justify-between p-2 bg-blue-50 rounded">
+              <div key={r.id} className="flex items-center justify-between p-2 bg-sky-50 rounded">
                 <div>
                   <span className="font-medium text-sm">{r.numeroVenta}</span>
                   <span className="text-xs text-slate-500 ml-2">Esperando stock</span>

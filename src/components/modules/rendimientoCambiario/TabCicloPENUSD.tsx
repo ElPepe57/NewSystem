@@ -10,6 +10,8 @@ import {
   Info,
 } from 'lucide-react';
 import { Card } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import {
   BarChart,
   Bar,
@@ -108,10 +110,10 @@ function calcularSemaforo(ratio: number): SemaforoEstado {
 
 const SEMAFORO_STYLES: Record<SemaforoEstado, { bg: string; border: string; texto: string; icono: string; label: string }> = {
   verde: {
-    bg: 'bg-green-50',
-    border: 'border-green-300',
-    texto: 'text-green-800',
-    icono: 'text-green-500',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-300',
+    texto: 'text-emerald-800',
+    icono: 'text-emerald-500',
     label: 'Cobertura suficiente',
   },
   amarillo: {
@@ -172,7 +174,7 @@ const CardRatioCobertura: React.FC<{ cobertura: DatosCobertura }> = ({ cobertura
         <div className="w-full bg-white/70 rounded-full h-3 border border-slate-200">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${
-              semaforo === 'verde' ? 'bg-green-500' :
+              semaforo === 'verde' ? 'bg-emerald-500' :
               semaforo === 'amarillo' ? 'bg-amber-500' :
               'bg-red-500'
             }`}
@@ -189,7 +191,7 @@ const CardRatioCobertura: React.FC<{ cobertura: DatosCobertura }> = ({ cobertura
         </div>
         <div className="text-center">
           <p className="text-xs text-slate-500">TC Mercado</p>
-          <p className={`text-base font-bold ${cobertura.tcMercado > cobertura.tcpa ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-base font-bold ${cobertura.tcMercado > cobertura.tcpa ? 'text-emerald-600' : 'text-red-600'}`}>
             {fmt(cobertura.tcMercado, 4)}
           </p>
         </div>
@@ -218,7 +220,7 @@ const CardNecesidadVentas: React.FC<{ datos: NecesidadVentas }> = ({ datos }) =>
             {datos.descripcionMeta ?? 'Para auto-financiar compras en USD del próximo ciclo'}
           </p>
         </div>
-        <Target className="w-5 h-5 text-blue-500" />
+        <Target className="w-5 h-5 text-sky-500" />
       </div>
 
       {/* Progreso circular simplificado */}
@@ -252,7 +254,7 @@ const CardNecesidadVentas: React.FC<{ datos: NecesidadVentas }> = ({ datos }) =>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Meta del ciclo</span>
-            <span className="font-semibold text-blue-600">S/ {fmt(datos.metaPEN, 0)}</span>
+            <span className="font-semibold text-sky-600">S/ {fmt(datos.metaPEN, 0)}</span>
           </div>
           {!cumplida && (
             <div className="flex justify-between text-sm pt-1 border-t border-slate-100">
@@ -261,7 +263,7 @@ const CardNecesidadVentas: React.FC<{ datos: NecesidadVentas }> = ({ datos }) =>
             </div>
           )}
           {cumplida && (
-            <div className="flex items-center gap-1 text-sm text-green-600 font-medium pt-1">
+            <div className="flex items-center gap-1 text-sm text-emerald-600 font-medium pt-1">
               <CheckCircle className="w-3.5 h-3.5" />
               Meta alcanzada
             </div>
@@ -281,78 +283,92 @@ const TablaMargenesLinea: React.FC<{ datos: MargenLineaNegocio[] }> = ({ datos }
     return (
       <Card className="p-6 text-center text-slate-400">
         <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-30" />
-        <p className="text-sm">Sin datos de margen por línea</p>
+        <p className="text-sm">Sin datos de margen por linea</p>
       </Card>
     );
   }
 
+  const columns: DataTableColumn<MargenLineaNegocio>[] = [
+    {
+      key: 'linea',
+      header: 'Linea',
+      render: (row) => (
+        <span className="font-medium text-slate-800">{row.linea}</span>
+      ),
+    },
+    {
+      key: 'margenNominal',
+      header: 'Nominal %',
+      align: 'right',
+      hideOnMobile: true,
+      render: (row) => (
+        <span className="font-mono text-slate-600">{fmt(row.margenNominal, 1)}%</span>
+      ),
+    },
+    {
+      key: 'margenReal',
+      header: 'Real %',
+      align: 'right',
+      render: (row) => {
+        const critico = row.margenReal < 5;
+        const bajo = row.margenReal >= 5 && row.margenReal < 15;
+        return (
+          <span className={`font-mono font-semibold ${
+            critico ? 'text-red-600' :
+            bajo ? 'text-amber-600' :
+            'text-emerald-600'
+          }`}>
+            {fmt(row.margenReal, 1)}%
+          </span>
+        );
+      },
+    },
+    {
+      key: 'gap',
+      header: 'Gap',
+      align: 'right',
+      render: (row) => {
+        const gap = row.margenReal - row.margenNominal;
+        const positivo = gap >= 0;
+        return (
+          <span className={`inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded ${
+            positivo ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+          }`}>
+            {positivo
+              ? <TrendingUp className="w-3 h-3" />
+              : <TrendingDown className="w-3 h-3" />
+            }
+            {fmtPct(gap)}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'unidades',
+      header: 'Unidades',
+      align: 'right',
+      hideOnMobile: true,
+      render: (row) => (
+        <span className="font-mono text-slate-600">{row.unidades.toLocaleString('es-PE')}</span>
+      ),
+    },
+  ];
+
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-slate-700">Margen Real vs Nominal — Por Línea de Negocio</h3>
+        <h3 className="text-sm font-semibold text-slate-700">Margen Real vs Nominal — Por Linea de Negocio</h3>
         <div className="flex items-center gap-1 text-xs text-slate-400">
           <Info className="w-3.5 h-3.5" />
           <span>Real = Nominal ajustado por diferencial TCPA / TC cobro</span>
         </div>
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr className="border-b border-slate-100">
-              <th className="py-2 pr-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Línea</th>
-              <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Nominal %</th>
-              <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Real %</th>
-              <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Gap</th>
-              <th className="py-2 pl-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Unidades</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {datos.map((row) => {
-              const gap = row.margenReal - row.margenNominal;
-              const gapPositivo = gap >= 0;
-              const margenRealCritico = row.margenReal < 5;
-              const margenRealBajo = row.margenReal >= 5 && row.margenReal < 15;
-
-              return (
-                <tr key={row.linea} className="hover:bg-slate-50 transition-colors">
-                  <td className="py-2.5 pr-4">
-                    <span className="font-medium text-slate-800">{row.linea}</span>
-                  </td>
-                  <td className="py-2.5 px-2 text-right font-mono text-slate-600">
-                    {fmt(row.margenNominal, 1)}%
-                  </td>
-                  <td className="py-2.5 px-2 text-right">
-                    <span className={`inline-flex items-center justify-end font-mono font-semibold ${
-                      margenRealCritico ? 'text-red-600' :
-                      margenRealBajo ? 'text-amber-600' :
-                      'text-green-600'
-                    }`}>
-                      {fmt(row.margenReal, 1)}%
-                    </span>
-                  </td>
-                  <td className="py-2.5 px-2 text-right">
-                    <span className={`inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded ${
-                      gapPositivo
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-red-50 text-red-700'
-                    }`}>
-                      {gapPositivo
-                        ? <TrendingUp className="w-3 h-3" />
-                        : <TrendingDown className="w-3 h-3" />
-                      }
-                      {fmtPct(gap)}
-                    </span>
-                  </td>
-                  <td className="py-2.5 pl-2 text-right font-mono text-slate-600">
-                    {row.unidades.toLocaleString('es-PE')}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <DataTable<MargenLineaNegocio>
+        columns={columns}
+        data={datos}
+        keyExtractor={(row) => row.linea}
+        compact
+      />
     </Card>
   );
 };
@@ -420,7 +436,7 @@ const GraficoErosionMensual: React.FC<{ datos: ErosionMensual[] }> = ({ datos })
         </ResponsiveContainer>
       </div>
       <div className="flex items-center gap-4 mt-2 justify-center text-xs text-slate-400">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-500 inline-block" /> Neutro / Favorable</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-500 inline-block" /> Neutro / Favorable</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-500 inline-block" /> Leve (0-2pp)</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500 inline-block" /> Severo (&gt;2pp)</span>
       </div>
@@ -442,7 +458,7 @@ export const TabCicloPENUSD: React.FC<TabCicloPENUSDProps> = ({
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
+        <RefreshCw className="w-6 h-6 animate-spin text-sky-500" />
       </div>
     );
   }

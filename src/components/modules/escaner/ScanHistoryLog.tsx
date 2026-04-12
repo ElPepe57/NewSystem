@@ -27,7 +27,7 @@ export const ScanHistoryLog: React.FC<ScanHistoryLogProps> = ({
   const getStatusIcon = (status: ScanResult['status']) => {
     switch (status) {
       case 'found':
-        return <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />;
+        return <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />;
       case 'not_found':
         return <XCircle className="h-4 w-4 text-red-400 flex-shrink-0" />;
       case 'error':
@@ -47,7 +47,7 @@ export const ScanHistoryLog: React.FC<ScanHistoryLogProps> = ({
             </span>
           </div>
           <div className="flex gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
-            <span className="text-green-600 font-medium">{found} ok</span>
+            <span className="text-emerald-600 font-medium">{found} ok</span>
             <span className="text-slate-300">|</span>
             <span className="text-red-400 font-medium">{notFound} no</span>
           </div>

@@ -343,10 +343,10 @@ export const Configuracion: React.FC = () => {
                 {syncResult && (
                   <div className="mt-4 border rounded-lg overflow-hidden">
                     {/* Resumen */}
-                    <div className={`p-4 ${syncResult.exito ? 'bg-green-50' : 'bg-amber-50'}`}>
+                    <div className={`p-4 ${syncResult.exito ? 'bg-emerald-50' : 'bg-amber-50'}`}>
                       <div className="flex items-center gap-2">
                         {syncResult.exito ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <CheckCircle className="h-5 w-5 text-emerald-600" />
                         ) : (
                           <AlertCircle className="h-5 w-5 text-amber-600" />
                         )}
@@ -357,7 +357,7 @@ export const Configuracion: React.FC = () => {
                       <div className="mt-2 grid grid-cols-4 gap-4 text-sm">
                         <div>
                           <span className="text-slate-600">Actualizados:</span>
-                          <span className="ml-2 font-medium text-blue-600">{syncResult.resumen.totalActualizados}</span>
+                          <span className="ml-2 font-medium text-teal-600">{syncResult.resumen.totalActualizados}</span>
                         </div>
                         <div>
                           <span className="text-slate-600">Eliminados:</span>
@@ -380,7 +380,7 @@ export const Configuracion: React.FC = () => {
                         <div key={idx} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50">
                           <div className="flex items-center gap-2">
                             {resultado.errores.length === 0 ? (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
+                              <CheckCircle className="h-4 w-4 text-emerald-500" />
                             ) : (
                               <AlertCircle className="h-4 w-4 text-amber-500" />
                             )}
@@ -388,7 +388,7 @@ export const Configuracion: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-4 text-sm text-slate-600">
                             {resultado.registrosActualizados > 0 && (
-                              <span className="text-blue-600">{resultado.registrosActualizados} act.</span>
+                              <span className="text-teal-600">{resultado.registrosActualizados} act.</span>
                             )}
                             {resultado.registrosEliminados > 0 && (
                               <span className="text-red-600">{resultado.registrosEliminados} elim.</span>
@@ -413,7 +413,7 @@ export const Configuracion: React.FC = () => {
                 )}
 
                 {/* Información */}
-                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+                <div className="mt-4 bg-sky-50 border border-sky-200 rounded-lg p-4 text-sm text-sky-800">
                   <strong>¿Cuándo usar esta función?</strong>
                   <ul className="mt-2 list-disc list-inside space-y-1">
                     <li>Cuando has eliminado registros directamente desde Firebase Console</li>

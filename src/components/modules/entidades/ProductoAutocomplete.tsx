@@ -252,7 +252,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
       case 'subiendo':
         return { color: 'text-red-600', bg: 'bg-red-50', icon: TrendingUp };
       case 'bajando':
-        return { color: 'text-green-600', bg: 'bg-green-50', icon: TrendingDown };
+        return { color: 'text-emerald-600', bg: 'bg-emerald-50', icon: TrendingDown };
       default:
         return { color: 'text-slate-600', bg: 'bg-slate-50', icon: TrendingUp };
     }
@@ -289,7 +289,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
             block w-full pl-8 sm:pl-10 pr-10 py-2 text-sm sm:text-base border rounded-md shadow-sm
             focus:ring-teal-500 focus:border-teal-500
             ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
+            ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
           `}
         />
 
@@ -297,7 +297,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
           {value ? (
             <div className="flex items-center space-x-1">
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-emerald-500" />
               {!disabled && (
                 <button
                   type="button"
@@ -373,10 +373,10 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                       <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
                         <span className="font-mono text-xs sm:text-sm text-teal-600 flex-shrink-0">{producto.sku}</span>
                         {producto.varianteLabel && (
-                          <span className="px-1 py-0.5 text-[10px] rounded bg-blue-100 text-blue-700 flex-shrink-0">{producto.varianteLabel}</span>
+                          <span className="px-1 py-0.5 text-[10px] rounded bg-sky-100 text-sky-700 flex-shrink-0">{producto.varianteLabel}</span>
                         )}
                         {tieneInvestigacion && (
-                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-green-100 text-green-700 flex items-center flex-shrink-0">
+                          <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-emerald-100 text-emerald-700 flex items-center flex-shrink-0">
                             <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                             <span className="hidden sm:inline">Investigado</span>
                             <span className="sm:hidden">Invest.</span>
@@ -422,7 +422,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                         {/* Días desde última compra */}
                         {diasDesdeCompra !== null && (
                           <div className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold ${
-                            diasDesdeCompra > 90 ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                            diasDesdeCompra > 90 ? 'bg-amber-50 text-amber-600' : 'bg-sky-50 text-sky-600'
                           }`}>
                             {diasDesdeCompra}d
                           </div>
@@ -430,9 +430,9 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
 
                         {/* Precio sugerido si hay investigación */}
                         {mejorPrecio && (
-                          <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-50 rounded text-[10px] sm:text-xs">
+                          <div className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-emerald-50 rounded text-[10px] sm:text-xs">
                             <span className="text-slate-500">Sug:</span>
-                            <span className="font-bold text-green-600">${mejorPrecio.precioConImpuesto.toFixed(2)}</span>
+                            <span className="font-bold text-emerald-600">${mejorPrecio.precioConImpuesto.toFixed(2)}</span>
                             {mejorPrecio.impuesto && mejorPrecio.impuesto > 0 && (
                               <span className="text-amber-600">+{mejorPrecio.impuesto}%</span>
                             )}
@@ -471,7 +471,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
 
       {/* Panel de sugerencia de investigación */}
       {showInvestigacionSugerencia && investigacionInfo && investigacionInfo.mejorProveedor && (
-        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg">
+        <div className="mt-2 p-2 sm:p-3 bg-amber-50 border border-amber-200 rounded-lg">
           <div className="flex items-start justify-between gap-1">
             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
               <Lightbulb className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-600 flex-shrink-0" />
@@ -484,7 +484,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                 href={investigacionInfo.mejorProveedor.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] sm:text-xs text-blue-600 hover:text-blue-800 flex items-center flex-shrink-0"
+                className="text-[10px] sm:text-xs text-sky-600 hover:text-sky-800 flex items-center flex-shrink-0"
               >
                 <span className="hidden sm:inline">Ver en {investigacionInfo.mejorProveedor.nombreProveedor}</span>
                 <span className="sm:hidden">Ver</span>
@@ -502,7 +502,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
             </div>
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
               <p className="text-[10px] sm:text-xs text-slate-600">Precio USD</p>
-              <p className="font-bold text-green-600 text-xs sm:text-sm">
+              <p className="font-bold text-emerald-600 text-xs sm:text-sm">
                 ${investigacionInfo.mejorProveedor.precioConImpuesto.toFixed(2)}
               </p>
               {investigacionInfo.mejorProveedor.impuesto && investigacionInfo.mejorProveedor.impuesto > 0 && (
@@ -520,7 +520,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
             <div className="bg-white/60 rounded p-1.5 sm:p-2 text-center">
               <p className="text-[10px] sm:text-xs text-slate-600">Margen Est.</p>
               <p className={`font-bold text-xs sm:text-sm ${
-                (investigacionInfo.margenEstimado || 0) >= 20 ? 'text-green-600' : 'text-amber-600'
+                (investigacionInfo.margenEstimado || 0) >= 20 ? 'text-emerald-600' : 'text-amber-600'
               }`}>
                 {investigacionInfo.margenEstimado?.toFixed(1) || '-'}%
               </p>
@@ -540,7 +540,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
 
       {/* Panel de historial de compras */}
       {showHistorialCompra && historialInfo && (historialInfo.ultimoPrecioUSD || historialInfo.ultimaCompraFecha) && (
-        <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-purple-50 to-teal-50 border border-purple-200 rounded-lg">
+        <div className="mt-2 p-2 sm:p-3 bg-purple-50 border border-purple-200 rounded-lg">
           <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
             <History className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
             <span className="text-xs sm:text-sm font-medium text-purple-800">
@@ -563,7 +563,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
               {historialInfo.tendenciaPrecio && historialInfo.variacionPorcentaje && (
                 <p className={`text-[10px] sm:text-xs flex items-center justify-center ${
                   historialInfo.tendenciaPrecio === 'subiendo' ? 'text-red-600' :
-                  historialInfo.tendenciaPrecio === 'bajando' ? 'text-green-600' : 'text-slate-500'
+                  historialInfo.tendenciaPrecio === 'bajando' ? 'text-emerald-600' : 'text-slate-500'
                 }`}>
                   {historialInfo.tendenciaPrecio === 'subiendo' ? (
                     <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
@@ -621,7 +621,7 @@ export const ProductoAutocomplete: React.FC<ProductoAutocompleteProps> = ({
                 return (
                   <div className="flex items-center justify-between text-[10px] sm:text-xs gap-1">
                     <span className="text-slate-600">vs. sug. actual:</span>
-                    <span className={`font-medium ${diferencia > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    <span className={`font-medium ${diferencia > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                       {diferencia > 0 ? '+' : ''}{porcentaje.toFixed(1)}%
                       ({diferencia > 0 ? '+' : ''}${diferencia.toFixed(2)})
                     </span>

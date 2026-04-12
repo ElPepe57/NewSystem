@@ -133,8 +133,8 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
         status: 'excellent',
         label: 'Excelente',
         icon: CheckCircle,
-        color: 'text-green-600',
-        bg: 'bg-green-50'
+        color: 'text-emerald-600',
+        bg: 'bg-emerald-50'
       };
     }
     if (puntoEquilibrio.tiempoRecuperacionCapital <= 4) {
@@ -142,8 +142,8 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
         status: 'good',
         label: 'Bueno',
         icon: TrendingUp,
-        color: 'text-blue-600',
-        bg: 'bg-blue-50'
+        color: 'text-sky-600',
+        bg: 'bg-sky-50'
       };
     }
     if (puntoEquilibrio.tiempoRecuperacionCapital <= 6) {
@@ -248,7 +248,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
             <button
               type="button"
               onClick={handleReset}
-              className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              className="text-xs text-sky-600 hover:text-sky-800 flex items-center gap-1"
             >
               <RotateCcw className="h-3 w-3" />
               Restaurar sugeridos
@@ -345,45 +345,45 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
         </div>
 
         <div className={`rounded-lg p-3 ${
-          puntoEquilibrio.gananciaUnitaria > 0 ? 'bg-green-50' : 'bg-red-50'
+          puntoEquilibrio.gananciaUnitaria > 0 ? 'bg-emerald-50' : 'bg-red-50'
         }`}>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <TrendingUp className="h-3 w-3" />
             Ganancia por Unidad
           </div>
           <p className={`text-lg font-semibold ${
-            puntoEquilibrio.gananciaUnitaria > 0 ? 'text-green-700' : 'text-red-700'
+            puntoEquilibrio.gananciaUnitaria > 0 ? 'text-emerald-700' : 'text-red-700'
           }`}>
             {formatMoney(puntoEquilibrio.gananciaUnitaria)}
           </p>
         </div>
 
-        <div className="bg-blue-50 rounded-lg p-3">
+        <div className="bg-sky-50 rounded-lg p-3">
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Clock className="h-3 w-3" />
             Tiempo Recuperación Capital
           </div>
-          <p className="text-lg font-semibold text-blue-700">
+          <p className="text-lg font-semibold text-sky-700">
             {puntoEquilibrio.tiempoRecuperacionCapital === Infinity
               ? '∞'
               : `${puntoEquilibrio.tiempoRecuperacionCapital} meses`}
           </p>
-          <p className="text-xs text-blue-500">
+          <p className="text-xs text-sky-500">
             ({formatNumber(puntoEquilibrio.unidadesParaRecuperarCapital)} ventas)
           </p>
         </div>
 
         <div className={`rounded-lg p-3 ${
-          (puntoEquilibrio.rentabilidadMensual || 0) > 20 ? 'bg-green-50' :
-          (puntoEquilibrio.rentabilidadMensual || 0) > 10 ? 'bg-blue-50' : 'bg-yellow-50'
+          (puntoEquilibrio.rentabilidadMensual || 0) > 20 ? 'bg-emerald-50' :
+          (puntoEquilibrio.rentabilidadMensual || 0) > 10 ? 'bg-sky-50' : 'bg-yellow-50'
         }`}>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <TrendingUp className="h-3 w-3" />
             Rentabilidad Mensual
           </div>
           <p className={`text-lg font-semibold ${
-            (puntoEquilibrio.rentabilidadMensual || 0) > 20 ? 'text-green-700' :
-            (puntoEquilibrio.rentabilidadMensual || 0) > 10 ? 'text-blue-700' : 'text-yellow-700'
+            (puntoEquilibrio.rentabilidadMensual || 0) > 20 ? 'text-emerald-700' :
+            (puntoEquilibrio.rentabilidadMensual || 0) > 10 ? 'text-sky-700' : 'text-yellow-700'
           }`}>
             {puntoEquilibrio.rentabilidadMensual?.toFixed(1) || 0}%
           </p>
@@ -411,7 +411,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
 
             {/* Barra de progreso hasta recuperación de capital */}
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
+              className="h-full bg-teal-500 transition-all duration-500"
               style={{
                 width: `${Math.min(100, (puntoEquilibrio.tiempoRecuperacionCapital / 6) * 100)}%`
               }}
@@ -420,11 +420,11 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
             {/* Marcador de recuperación de capital */}
             {puntoEquilibrio.tiempoRecuperacionCapital <= 6 && (
               <div
-                className="absolute top-0 bottom-0 w-1 bg-green-600"
+                className="absolute top-0 bottom-0 w-1 bg-emerald-600"
                 style={{ left: `${(puntoEquilibrio.tiempoRecuperacionCapital / 6) * 100}%` }}
               >
                 <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                  <span className="text-xs font-medium text-green-600 bg-green-100 px-1.5 py-0.5 rounded">
+                  <span className="text-xs font-medium text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded">
                     Capital
                   </span>
                 </div>
@@ -455,7 +455,7 @@ export const PuntoEquilibrioCard: React.FC<PuntoEquilibrioCardProps> = ({
           <div className="mt-8 grid grid-cols-3 gap-1 sm:gap-2 text-center">
             <div>
               <p className="text-xs text-slate-500 truncate">Unidad #{puntoEquilibrio.unidadesParaRecuperarCapital}</p>
-              <p className="text-xs sm:text-sm font-medium text-green-600">Recuperas capital</p>
+              <p className="text-xs sm:text-sm font-medium text-emerald-600">Recuperas capital</p>
             </div>
             <div>
               <p className="text-xs text-slate-500 truncate">#{puntoEquilibrio.unidadesParaRecuperarCapital + 1}-{unidadesAComprar}</p>

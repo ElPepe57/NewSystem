@@ -1,6 +1,8 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency as formatCurrencyImport, formatPercent } from '../../utils/format';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import {
   ShoppingBag, DollarSign, TrendingUp, TrendingDown, AlertTriangle,
   BarChart3, RefreshCw, Users, Star, X, Activity, Target, Zap,
@@ -67,7 +69,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
   const getTendenciaIcon = (tendencia?: string) => {
     switch (tendencia) {
       case 'creciendo':
-        return <TrendingUp className="w-4 h-4 text-green-500" />;
+        return <TrendingUp className="w-4 h-4 text-emerald-500" />;
       case 'decreciendo':
         return <TrendingDown className="w-4 h-4 text-red-500" />;
       default:
@@ -79,7 +81,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
     switch (severidad) {
       case 'danger': return <AlertCircle className="w-4 h-4 text-red-500" />;
       case 'warning': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      default: return <AlertCircle className="w-4 h-4 text-blue-500" />;
+      default: return <AlertCircle className="w-4 h-4 text-sky-500" />;
     }
   };
 
@@ -96,8 +98,8 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
 
   const getEstadoCotizacionColor = (estado: string) => {
     switch (estado) {
-      case 'convertida': return 'text-green-600 bg-green-100';
-      case 'aprobada': return 'text-blue-600 bg-blue-100';
+      case 'convertida': return 'text-emerald-600 bg-emerald-100';
+      case 'aprobada': return 'text-sky-600 bg-sky-100';
       case 'pendiente': return 'text-yellow-600 bg-yellow-100';
       case 'rechazada': return 'text-red-600 bg-red-100';
       case 'vencida': return 'text-slate-600 bg-slate-100';
@@ -122,7 +124,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               <h2 className="text-2xl font-bold text-slate-900">{canal.nombre}</h2>
               {analytics && (
                 <span className={`px-2 py-1 text-sm font-bold rounded-full ${
-                  analytics.tendenciaVentas === 'creciendo' ? 'bg-green-100 text-green-800' :
+                  analytics.tendenciaVentas === 'creciendo' ? 'bg-emerald-100 text-emerald-800' :
                   analytics.tendenciaVentas === 'decreciendo' ? 'bg-red-100 text-red-800' :
                   'bg-slate-100 text-slate-800'
                 }`}>
@@ -138,7 +140,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
 
             <div className="flex gap-2 mt-3">
               <span className={`px-2 py-1 text-xs rounded-full ${
-                canal.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                canal.estado === 'activo' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
               }`}>
                 {canal.estado}
               </span>
@@ -148,7 +150,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
                 </span>
               )}
               {canal.requiereEnvio && (
-                <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                <span className="px-2 py-1 text-xs rounded-full bg-sky-100 text-sky-800">
                   Requiere envío
                 </span>
               )}
@@ -199,7 +201,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             </div>
             <div className="flex items-center gap-1 text-xs">
               {getTendenciaIcon(analytics.tendenciaVentas)}
-              <span className={analytics.tasaCrecimiento >= 0 ? 'text-green-600' : 'text-red-600'}>
+              <span className={analytics.tasaCrecimiento >= 0 ? 'text-emerald-600' : 'text-red-600'}>
                 {analytics.tasaCrecimiento >= 0 ? '+' : ''}{formatPercent(analytics.tasaCrecimiento)}
               </span>
             </div>
@@ -211,7 +213,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               Tasa Conversión
             </div>
             <div className={`text-2xl font-bold ${
-              analytics.metricasConversion.tasaConversion >= 30 ? 'text-green-600' :
+              analytics.metricasConversion.tasaConversion >= 30 ? 'text-emerald-600' :
               analytics.metricasConversion.tasaConversion >= 20 ? 'text-yellow-600' : 'text-red-600'
             }`}>
               {formatPercent(analytics.metricasConversion.tasaConversion)}
@@ -250,7 +252,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             </div>
             <div>
               <div className="text-sm text-slate-500">Margen Total</div>
-              <div className="text-xl font-bold text-green-600">{formatCurrency(analytics.metricasVenta.margenTotal)}</div>
+              <div className="text-xl font-bold text-emerald-600">{formatCurrency(analytics.metricasVenta.margenTotal)}</div>
             </div>
             <div>
               <div className="text-sm text-slate-500">Margen Promedio</div>
@@ -259,7 +261,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             <div>
               <div className="text-sm text-slate-500">ROI Canal</div>
               <div className={`text-xl font-bold ${
-                analytics.metricasROI.roiPorcentaje >= 0 ? 'text-green-600' : 'text-red-600'
+                analytics.metricasROI.roiPorcentaje >= 0 ? 'text-emerald-600' : 'text-red-600'
               }`}>
                 {formatPercent(analytics.metricasROI.roiPorcentaje)}
               </div>
@@ -279,7 +281,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             <div className="flex items-center gap-3">
               <div className="w-28 text-sm font-medium">Cotizaciones</div>
               <div className="flex-1">
-                <div className="h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white font-medium">
+                <div className="h-8 bg-sky-500 rounded-lg flex items-center justify-center text-white font-medium">
                   {analytics.funnelConversion.cotizaciones}
                 </div>
               </div>
@@ -299,7 +301,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               <div className="w-28 text-sm font-medium">Aprobadas</div>
               <div className="flex-1">
                 <div
-                  className="h-8 bg-blue-400 rounded-lg flex items-center justify-center text-white font-medium"
+                  className="h-8 bg-sky-400 rounded-lg flex items-center justify-center text-white font-medium"
                   style={{ width: `${(analytics.funnelConversion.aprobadas / analytics.funnelConversion.cotizaciones) * 100}%` }}
                 >
                   {analytics.funnelConversion.aprobadas}
@@ -310,7 +312,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               <div className="w-28 text-sm font-medium">Convertidas</div>
               <div className="flex-1">
                 <div
-                  className="h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-medium"
+                  className="h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-medium"
                   style={{ width: `${(analytics.funnelConversion.convertidas / analytics.funnelConversion.cotizaciones) * 100}%` }}
                 >
                   {analytics.funnelConversion.convertidas}
@@ -338,7 +340,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
                 className={`p-3 rounded-lg border ${
                   alerta.severidad === 'danger' ? 'bg-red-50 border-red-200' :
                   alerta.severidad === 'warning' ? 'bg-yellow-50 border-yellow-200' :
-                  'bg-blue-50 border-blue-200'
+                  'bg-sky-50 border-sky-200'
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -349,7 +351,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
                       <div className="text-sm text-slate-600 mt-1">{alerta.detalle}</div>
                     )}
                     {alerta.accionRecomendada && (
-                      <div className="text-sm text-blue-600 mt-1">
+                      <div className="text-sm text-sky-600 mt-1">
                         → {alerta.accionRecomendada}
                       </div>
                     )}
@@ -398,46 +400,51 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Historial de Ventas ({analytics.ventasHistorial.length})
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">Fecha</th>
-                  <th className="text-left py-2 px-2">Número</th>
-                  <th className="text-left py-2 px-2">Cliente</th>
-                  <th className="text-right py-2 px-2">Productos</th>
-                  <th className="text-right py-2 px-2">Unidades</th>
-                  <th className="text-right py-2 px-2">Total</th>
-                  <th className="text-right py-2 px-2">Margen</th>
-                  <th className="text-center py-2 px-2">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.ventasHistorial.slice(0, 20).map((venta, idx) => (
-                  <tr key={idx} className="border-b hover:bg-slate-50">
-                    <td className="py-2 px-2 text-xs">{formatDate(venta.fecha)}</td>
-                    <td className="py-2 px-2 font-mono text-xs">{venta.numeroVenta}</td>
-                    <td className="py-2 px-2">{venta.clienteNombre}</td>
-                    <td className="py-2 px-2 text-right">{venta.productos}</td>
-                    <td className="py-2 px-2 text-right">{venta.unidades}</td>
-                    <td className="py-2 px-2 text-right font-medium">{formatCurrency(venta.totalPEN)}</td>
-                    <td className="py-2 px-2 text-right">
-                      <span className="text-green-600">{formatPercent(venta.margenPorcentaje)}</span>
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        venta.estado === 'completada' ? 'bg-green-100 text-green-700' :
-                        venta.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-slate-100 text-slate-700'
-                      }`}>
-                        {venta.estado}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            type VentaItem = VentaCanal;
+            const colsVentas: DataTableColumn<VentaItem>[] = [
+              {
+                key: 'fecha', header: 'Fecha',
+                render: v => <span className="text-xs">{formatDate(v.fecha)}</span>,
+              },
+              {
+                key: 'numeroVenta', header: 'Número',
+                render: v => <span className="font-mono text-xs">{v.numeroVenta}</span>,
+              },
+              { key: 'clienteNombre', header: 'Cliente', render: v => <span>{v.clienteNombre}</span> },
+              { key: 'productos', header: 'Prods.', align: 'right', hideOnMobile: true, render: v => <span>{v.productos}</span> },
+              { key: 'unidades', header: 'Unidades', align: 'right', hideOnMobile: true, render: v => <span>{v.unidades}</span> },
+              {
+                key: 'totalPEN', header: 'Total', align: 'right',
+                render: v => <span className="font-medium">{formatCurrency(v.totalPEN)}</span>,
+              },
+              {
+                key: 'margenPorcentaje', header: 'Margen', align: 'right', hideOnMobile: true,
+                render: v => <span className="text-emerald-600">{formatPercent(v.margenPorcentaje)}</span>,
+              },
+              {
+                key: 'estado', header: 'Estado', align: 'center',
+                render: v => (
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    v.estado === 'completada' ? 'bg-emerald-100 text-emerald-700' :
+                    v.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-slate-100 text-slate-700'
+                  }`}>
+                    {v.estado}
+                  </span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsVentas}
+                data={analytics.ventasHistorial.slice(0, 20)}
+                keyExtractor={v => v.ventaId}
+                compact
+                emptyMessage="Sin ventas registradas"
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -448,42 +455,48 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             <Package className="w-5 h-5" />
             Productos Más Vendidos
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">SKU</th>
-                  <th className="text-left py-2 px-2">Producto</th>
-                  <th className="text-left py-2 px-2">Marca</th>
-                  <th className="text-right py-2 px-2">Unidades</th>
-                  <th className="text-right py-2 px-2">Ingresos</th>
-                  <th className="text-right py-2 px-2">Part. %</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.productosTop.slice(0, 10).map((prod, idx) => (
-                  <tr key={idx} className="border-b hover:bg-slate-50">
-                    <td className="py-2 px-2 font-mono text-xs">{prod.sku}</td>
-                    <td className="py-2 px-2">{prod.nombre}</td>
-                    <td className="py-2 px-2 text-slate-500">{prod.marca}</td>
-                    <td className="py-2 px-2 text-right font-medium">{prod.unidades}</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(prod.ingresos)}</td>
-                    <td className="py-2 px-2 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500 rounded-full"
-                            style={{ width: `${prod.participacion}%` }}
-                          />
-                        </div>
-                        <span className="text-xs">{formatPercent(prod.participacion)}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            type ProdTop = typeof analytics.productosTop[number];
+            const colsProductosTop: DataTableColumn<ProdTop>[] = [
+              {
+                key: 'sku', header: 'SKU',
+                render: prod => <span className="font-mono text-xs">{prod.sku}</span>,
+              },
+              { key: 'nombre', header: 'Producto', render: prod => <span>{prod.nombre}</span> },
+              {
+                key: 'marca', header: 'Marca', hideOnMobile: true,
+                render: prod => <span className="text-slate-500">{prod.marca}</span>,
+              },
+              {
+                key: 'unidades', header: 'Unidades', align: 'right',
+                render: prod => <span className="font-medium">{prod.unidades}</span>,
+              },
+              {
+                key: 'ingresos', header: 'Ingresos', align: 'right',
+                render: prod => <span>{formatCurrency(prod.ingresos)}</span>,
+              },
+              {
+                key: 'participacion', header: 'Part. %', align: 'right', hideOnMobile: true,
+                render: prod => (
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-sky-500 rounded-full" style={{ width: `${prod.participacion}%` }} />
+                    </div>
+                    <span className="text-xs">{formatPercent(prod.participacion)}</span>
+                  </div>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsProductosTop}
+                data={analytics.productosTop.slice(0, 10)}
+                keyExtractor={prod => prod.productoId}
+                compact
+                emptyMessage="Sin productos"
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -532,7 +545,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Convertidas</div>
-            <div className="text-2xl font-bold text-green-600">{analytics.metricasConversion.cotizacionesConvertidas}</div>
+            <div className="text-2xl font-bold text-emerald-600">{analytics.metricasConversion.cotizacionesConvertidas}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="text-sm text-slate-500">Rechazadas</div>
@@ -550,8 +563,8 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Tasas de Conversión</h3>
           <div className="grid grid-cols-3 gap-4">
-            <div className="p-4 bg-green-50 rounded-lg text-center">
-              <div className="text-3xl font-bold text-green-600">
+            <div className="p-4 bg-emerald-50 rounded-lg text-center">
+              <div className="text-3xl font-bold text-emerald-600">
                 {formatPercent(analytics.metricasConversion.tasaConversion)}
               </div>
               <div className="text-sm text-slate-600">Conversión</div>
@@ -637,34 +650,41 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Historial de Cotizaciones ({analytics.cotizacionesHistorial.length})
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">Fecha</th>
-                  <th className="text-left py-2 px-2">Número</th>
-                  <th className="text-left py-2 px-2">Cliente</th>
-                  <th className="text-right py-2 px-2">Monto</th>
-                  <th className="text-center py-2 px-2">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.cotizacionesHistorial.slice(0, 15).map((cotizacion, idx) => (
-                  <tr key={idx} className="border-b hover:bg-slate-50">
-                    <td className="py-2 px-2 text-xs">{formatDate(cotizacion.fecha)}</td>
-                    <td className="py-2 px-2 font-mono text-xs">{cotizacion.numero}</td>
-                    <td className="py-2 px-2">{cotizacion.clienteNombre}</td>
-                    <td className="py-2 px-2 text-right font-medium">{formatCurrency(cotizacion.montoPEN)}</td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={`px-2 py-1 text-xs rounded-full ${getEstadoCotizacionColor(cotizacion.estado)}`}>
-                        {cotizacion.estado}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            type CotizItem = CotizacionCanal;
+            const colsCotizaciones: DataTableColumn<CotizItem>[] = [
+              {
+                key: 'fecha', header: 'Fecha',
+                render: c => <span className="text-xs">{formatDate(c.fecha)}</span>,
+              },
+              {
+                key: 'numero', header: 'Número',
+                render: c => <span className="font-mono text-xs">{c.numero}</span>,
+              },
+              { key: 'clienteNombre', header: 'Cliente', render: c => <span>{c.clienteNombre}</span> },
+              {
+                key: 'montoPEN', header: 'Monto', align: 'right',
+                render: c => <span className="font-medium">{formatCurrency(c.montoPEN)}</span>,
+              },
+              {
+                key: 'estado', header: 'Estado', align: 'center',
+                render: c => (
+                  <span className={`px-2 py-1 text-xs rounded-full ${getEstadoCotizacionColor(c.estado)}`}>
+                    {c.estado}
+                  </span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsCotizaciones}
+                data={analytics.cotizacionesHistorial.slice(0, 15)}
+                keyExtractor={c => c.cotizacionId}
+                compact
+                emptyMessage="Sin cotizaciones"
+              />
+            );
+          })()}
         </div>
       )}
     </div>
@@ -678,12 +698,12 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Análisis de Clientes</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="p-3 bg-blue-50 rounded-lg text-center">
-              <div className="text-2xl font-bold text-blue-600">{analytics.metricasCliente.clientesUnicos}</div>
+            <div className="p-3 bg-sky-50 rounded-lg text-center">
+              <div className="text-2xl font-bold text-sky-600">{analytics.metricasCliente.clientesUnicos}</div>
               <div className="text-sm text-slate-600">Únicos</div>
             </div>
-            <div className="p-3 bg-green-50 rounded-lg text-center">
-              <div className="text-2xl font-bold text-green-600">{analytics.metricasCliente.clientesNuevos}</div>
+            <div className="p-3 bg-emerald-50 rounded-lg text-center">
+              <div className="text-2xl font-bold text-emerald-600">{analytics.metricasCliente.clientesNuevos}</div>
               <div className="text-sm text-slate-600">Nuevos</div>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg text-center">
@@ -704,7 +724,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               <div className="text-xs text-slate-500">VIP</div>
             </div>
             <div className="p-2 border rounded-lg text-center">
-              <div className="text-lg font-bold text-blue-600">{analytics.metricasCliente.segmentacionClientes.frecuentes}</div>
+              <div className="text-lg font-bold text-sky-600">{analytics.metricasCliente.segmentacionClientes.frecuentes}</div>
               <div className="text-xs text-slate-500">Frecuentes</div>
             </div>
             <div className="p-2 border rounded-lg text-center">
@@ -712,7 +732,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               <div className="text-xs text-slate-500">Ocasionales</div>
             </div>
             <div className="p-2 border rounded-lg text-center">
-              <div className="text-lg font-bold text-green-600">{analytics.metricasCliente.segmentacionClientes.nuevos}</div>
+              <div className="text-lg font-bold text-emerald-600">{analytics.metricasCliente.segmentacionClientes.nuevos}</div>
               <div className="text-xs text-slate-500">Nuevos</div>
             </div>
           </div>
@@ -737,11 +757,11 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             </div>
             <div className="p-3 bg-slate-50 rounded-lg">
               <div className="text-sm text-slate-500">Margen Bruto</div>
-              <div className="text-xl font-bold text-green-600">{formatCurrency(analytics.metricasROI.margenBruto)}</div>
+              <div className="text-xl font-bold text-emerald-600">{formatCurrency(analytics.metricasROI.margenBruto)}</div>
             </div>
             <div className="p-3 bg-slate-50 rounded-lg">
               <div className="text-sm text-slate-500">Rentabilidad Neta</div>
-              <div className={`text-xl font-bold ${analytics.metricasROI.rentabilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-xl font-bold ${analytics.metricasROI.rentabilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {formatCurrency(analytics.metricasROI.rentabilidadNeta)}
               </div>
             </div>
@@ -756,41 +776,46 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             <Calendar className="w-5 h-5" />
             Historial Mensual
           </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">Período</th>
-                  <th className="text-right py-2 px-2">Ventas</th>
-                  <th className="text-right py-2 px-2">Ingresos</th>
-                  <th className="text-right py-2 px-2">Margen</th>
-                  <th className="text-right py-2 px-2">Ticket Prom.</th>
-                  <th className="text-right py-2 px-2">Clientes</th>
-                  <th className="text-right py-2 px-2">Crec. %</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.historialMensual.slice(-6).reverse().map((mes, idx) => (
-                  <tr key={idx} className="border-b hover:bg-slate-50">
-                    <td className="py-2 px-2 font-medium">{mes.periodo}</td>
-                    <td className="py-2 px-2 text-right">{mes.ventas}</td>
-                    <td className="py-2 px-2 text-right font-medium">{formatCurrency(mes.ingresos)}</td>
-                    <td className="py-2 px-2 text-right text-green-600">{formatPercent(mes.margenPorcentaje)}</td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(mes.ticketPromedio)}</td>
-                    <td className="py-2 px-2 text-right">{mes.clientes}</td>
-                    <td className="py-2 px-2 text-right">
-                      <span className={`flex items-center justify-end gap-1 ${
-                        mes.crecimientoIngresos >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {mes.crecimientoIngresos >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                        {formatPercent(Math.abs(mes.crecimientoIngresos))}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const colsHistorial: DataTableColumn<HistorialPeriodo>[] = [
+              { key: 'periodo', header: 'Período', render: mes => <span className="font-medium">{mes.periodo}</span> },
+              { key: 'ventas', header: 'Ventas', align: 'right', render: mes => <span>{mes.ventas}</span> },
+              {
+                key: 'ingresos', header: 'Ingresos', align: 'right',
+                render: mes => <span className="font-medium">{formatCurrency(mes.ingresos)}</span>,
+              },
+              {
+                key: 'margenPorcentaje', header: 'Margen', align: 'right', hideOnMobile: true,
+                render: mes => <span className="text-emerald-600">{formatPercent(mes.margenPorcentaje)}</span>,
+              },
+              {
+                key: 'ticketPromedio', header: 'Ticket Prom.', align: 'right', hideOnMobile: true,
+                render: mes => <span>{formatCurrency(mes.ticketPromedio)}</span>,
+              },
+              {
+                key: 'clientes', header: 'Clientes', align: 'right', hideOnMobile: true,
+                render: mes => <span>{mes.clientes}</span>,
+              },
+              {
+                key: 'crecimientoIngresos', header: 'Crec. %', align: 'right',
+                render: mes => (
+                  <span className={`flex items-center justify-end gap-1 ${mes.crecimientoIngresos >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {mes.crecimientoIngresos >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    {formatPercent(Math.abs(mes.crecimientoIngresos))}
+                  </span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsHistorial}
+                data={analytics.historialMensual.slice(-6).reverse()}
+                keyExtractor={mes => mes.periodo}
+                compact
+                emptyMessage="Sin historial mensual"
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -815,7 +840,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               <div className={`text-xl font-bold ${
                 analytics.predicciones.riesgoDeclinacion > 30 ? 'text-red-600' :
                 analytics.predicciones.riesgoDeclinacion > 15 ? 'text-yellow-600' :
-                'text-green-600'
+                'text-emerald-600'
               }`}>
                 {formatPercent(analytics.predicciones.riesgoDeclinacion)}
               </div>
@@ -823,7 +848,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
             <div className="p-3 bg-slate-50 rounded-lg">
               <div className="text-sm text-slate-500">Oportunidad Crecimiento</div>
               <div className={`text-xl font-bold ${
-                analytics.predicciones.oportunidadCrecimiento > 40 ? 'text-green-600' :
+                analytics.predicciones.oportunidadCrecimiento > 40 ? 'text-emerald-600' :
                 analytics.predicciones.oportunidadCrecimiento > 20 ? 'text-yellow-600' :
                 'text-slate-600'
               }`}>
@@ -845,9 +870,9 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
               </div>
             )}
             {analytics.predicciones.factoresOportunidad.length > 0 && (
-              <div className="p-3 bg-green-50 rounded-lg">
-                <div className="text-sm font-medium text-green-800 mb-2">Factores de Oportunidad</div>
-                <ul className="text-sm text-green-600 space-y-1">
+              <div className="p-3 bg-emerald-50 rounded-lg">
+                <div className="text-sm font-medium text-emerald-800 mb-2">Factores de Oportunidad</div>
+                <ul className="text-sm text-emerald-600 space-y-1">
                   {analytics.predicciones.factoresOportunidad.map((factor, idx) => (
                     <li key={idx}>• {factor}</li>
                   ))}
@@ -869,13 +894,13 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Ranking de Canales</h3>
           <div className="flex items-center gap-4 mb-6">
             <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600">#{analytics.rankingGeneral}</div>
+              <div className="text-4xl font-bold text-sky-600">#{analytics.rankingGeneral}</div>
               <div className="text-sm text-slate-500">de {analytics.totalCanales}</div>
             </div>
             <div className="flex-1">
               <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded-full"
+                  className="h-full bg-sky-500 rounded-full"
                   style={{ width: `${analytics.participacionMercado}%` }}
                 />
               </div>
@@ -891,68 +916,72 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
       {analytics && analytics.comparativaCanales.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Comparativa con Otros Canales</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2">#</th>
-                  <th className="text-left py-2 px-2">Canal</th>
-                  <th className="text-right py-2 px-2">Ventas</th>
-                  <th className="text-right py-2 px-2">Ingresos</th>
-                  <th className="text-right py-2 px-2">Margen %</th>
-                  <th className="text-right py-2 px-2">Ticket Prom.</th>
-                  <th className="text-right py-2 px-2">Clientes</th>
-                  <th className="text-right py-2 px-2">Part. %</th>
-                  <th className="text-center py-2 px-2">Tendencia</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.comparativaCanales.slice(0, 10).map((comp, idx) => (
-                  <tr
-                    key={idx}
-                    className={`border-b ${comp.canalId === canal.id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
-                  >
-                    <td className="py-2 px-2 font-bold">
-                      {comp.ranking <= 3 ? (
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
-                          comp.ranking === 1 ? 'bg-yellow-100 text-yellow-700' :
-                          comp.ranking === 2 ? 'bg-slate-100 text-slate-700' :
-                          'bg-orange-100 text-orange-700'
-                        }`}>
-                          {comp.ranking}
-                        </span>
-                      ) : comp.ranking}
-                    </td>
-                    <td className="py-2 px-2">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-6 h-6 rounded flex items-center justify-center text-white text-xs"
-                          style={{ backgroundColor: canal.color || '#6b7280' }}
-                        >
-                          {comp.nombre.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="font-medium">{comp.nombre}</div>
-                          <div className="text-xs text-slate-500">{comp.codigo}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-2 px-2 text-right">{comp.ventas}</td>
-                    <td className="py-2 px-2 text-right font-medium">{formatCurrency(comp.ingresos)}</td>
-                    <td className="py-2 px-2 text-right">
-                      <span className="text-green-600">{formatPercent(comp.margenPorcentaje)}</span>
-                    </td>
-                    <td className="py-2 px-2 text-right">{formatCurrency(comp.ticketPromedio)}</td>
-                    <td className="py-2 px-2 text-right">{comp.clientes}</td>
-                    <td className="py-2 px-2 text-right font-medium">{formatPercent(comp.participacion)}</td>
-                    <td className="py-2 px-2 text-center">
-                      {getTendenciaIcon(comp.tendencia)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            type CompCanal = ComparativaCanales;
+            const colsComparativa: DataTableColumn<CompCanal>[] = [
+              {
+                key: 'ranking', header: '#',
+                render: comp => comp.ranking <= 3 ? (
+                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${
+                    comp.ranking === 1 ? 'bg-yellow-100 text-yellow-700' :
+                    comp.ranking === 2 ? 'bg-slate-100 text-slate-700' :
+                    'bg-orange-100 text-orange-700'
+                  }`}>
+                    {comp.ranking}
+                  </span>
+                ) : <span className="font-bold">{comp.ranking}</span>,
+              },
+              {
+                key: 'nombre', header: 'Canal',
+                render: comp => (
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded flex items-center justify-center text-white text-xs"
+                      style={{ backgroundColor: canal.color || '#6b7280' }}>
+                      {comp.nombre.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-medium">{comp.nombre}</div>
+                      <div className="text-xs text-slate-500">{comp.codigo}</div>
+                    </div>
+                  </div>
+                ),
+              },
+              { key: 'ventas', header: 'Ventas', align: 'right', render: comp => <span>{comp.ventas}</span> },
+              {
+                key: 'ingresos', header: 'Ingresos', align: 'right',
+                render: comp => <span className="font-medium">{formatCurrency(comp.ingresos)}</span>,
+              },
+              {
+                key: 'margenPorcentaje', header: 'Margen %', align: 'right', hideOnMobile: true,
+                render: comp => <span className="text-emerald-600">{formatPercent(comp.margenPorcentaje)}</span>,
+              },
+              {
+                key: 'ticketPromedio', header: 'Ticket Prom.', align: 'right', hideOnMobile: true,
+                render: comp => <span>{formatCurrency(comp.ticketPromedio)}</span>,
+              },
+              {
+                key: 'clientes', header: 'Clientes', align: 'right', hideOnMobile: true,
+                render: comp => <span>{comp.clientes}</span>,
+              },
+              {
+                key: 'participacion', header: 'Part. %', align: 'right',
+                render: comp => <span className="font-medium">{formatPercent(comp.participacion)}</span>,
+              },
+              {
+                key: 'tendencia', header: 'Tendencia', align: 'center', hideOnMobile: true,
+                render: comp => getTendenciaIcon(comp.tendencia),
+              },
+            ];
+            return (
+              <DataTable
+                columns={colsComparativa}
+                data={analytics.comparativaCanales.slice(0, 10)}
+                keyExtractor={comp => comp.canalId}
+                compact
+                emptyMessage="Sin comparativas disponibles"
+              />
+            );
+          })()}
         </div>
       )}
 
@@ -960,13 +989,13 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
       {analytics && (analytics.mejorMes || analytics.peorMes) && (
         <div className="grid grid-cols-2 gap-4">
           {analytics.mejorMes && (
-            <div className="bg-green-50 rounded-lg shadow p-6">
-              <h4 className="text-sm font-medium text-green-800 mb-2 flex items-center gap-2">
+            <div className="bg-emerald-50 rounded-lg shadow p-6">
+              <h4 className="text-sm font-medium text-emerald-800 mb-2 flex items-center gap-2">
                 <ArrowUpRight className="w-4 h-4" />
                 Mejor Mes
               </h4>
-              <div className="text-2xl font-bold text-green-600">{analytics.mejorMes.periodo}</div>
-              <div className="text-sm text-green-700 mt-1">
+              <div className="text-2xl font-bold text-emerald-600">{analytics.mejorMes.periodo}</div>
+              <div className="text-sm text-emerald-700 mt-1">
                 {analytics.mejorMes.ventas} ventas - {formatCurrency(analytics.mejorMes.ingresos)}
               </div>
             </div>
@@ -1030,7 +1059,7 @@ export function CanalVentaDetailView({ canal, onClose, onEdit }: CanalVentaDetai
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-sky-500 text-sky-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >

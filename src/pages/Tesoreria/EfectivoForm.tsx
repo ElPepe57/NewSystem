@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Modal, AutocompleteInput } from '../../components/common';
+import { AutocompleteInput } from '../../components/common';
+import { FormModal, FormField } from '../../design-system';
 import type { CuentaCajaFormData, MonedaTesoreria } from '../../types/tesoreria.types';
 
 interface Props {
@@ -46,95 +47,89 @@ export const EfectivoForm: React.FC<Props> = ({ isOpen, onClose, onGuardar, isSu
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => { reset(); onClose(); }} title="Nueva Caja de Efectivo" size="sm">
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Nombre *</label>
-          <input type="text" value={nombre}
-            onChange={e => setNombre(e.target.value)}
-            className="w-full rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
-            placeholder="Ej: Caja Principal, Caja Tienda" />
-        </div>
+    <FormModal
+      isOpen={isOpen}
+      onClose={() => { reset(); onClose(); }}
+      title="Nueva Caja de Efectivo"
+      size="sm"
+      variant="create"
+      submitLabel="Crear Caja"
+      onSubmit={handleGuardar}
+      loading={isSubmitting}
+      disabled={!nombre || !titular.trim()}
+    >
+      <FormField label="Nombre" required>
+        <input type="text" value={nombre}
+          onChange={e => setNombre(e.target.value)}
+          className="w-full rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500"
+          placeholder="Ej: Caja Principal, Caja Tienda" />
+      </FormField>
 
-        <div>
-          <AutocompleteInput
-            label="Responsable *"
-            value={titular}
-            onChange={setTitular}
-            suggestions={titularesExistentes}
-            allowCreate
-            createLabel="Usar nuevo responsable"
-            placeholder="Buscar o crear responsable"
-            required
-          />
-        </div>
+      <FormField>
+        <AutocompleteInput
+          label="Responsable *"
+          value={titular}
+          onChange={setTitular}
+          suggestions={titularesExistentes}
+          allowCreate
+          createLabel="Usar nuevo responsable"
+          placeholder="Buscar o crear responsable"
+          required
+        />
+      </FormField>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Moneda</label>
-          <div className="flex gap-2">
-            {([['pen', 'Solo PEN'], ['usd', 'Solo USD'], ['bi', 'Bi-moneda']] as const).map(([val, lab]) => (
-              <button key={val} type="button"
-                onClick={() => setTipoMoneda(val)}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  tipoMoneda === val ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
-                }`}>
-                {lab}
-              </button>
-            ))}
-          </div>
+      <FormField label="Moneda">
+        <div className="flex gap-2">
+          {([['pen', 'Solo PEN'], ['usd', 'Solo USD'], ['bi', 'Bi-moneda']] as const).map(([val, lab]) => (
+            <button key={val} type="button"
+              onClick={() => setTipoMoneda(val)}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                tipoMoneda === val ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
+              }`}>
+              {lab}
+            </button>
+          ))}
         </div>
+      </FormField>
 
-        {tipoMoneda === 'bi' ? (
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-slate-600 mb-1">Saldo inicial PEN</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">S/</span>
-                <input type="number" step="0.01" value={saldoInicialPEN || ''}
-                  onChange={e => setSaldoInicialPEN(parseFloat(e.target.value) || 0)}
-                  className="w-full pl-7 rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs text-slate-600 mb-1">Saldo inicial USD</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">$</span>
-                <input type="number" step="0.01" value={saldoInicialUSD || ''}
-                  onChange={e => setSaldoInicialUSD(parseFloat(e.target.value) || 0)}
-                  className="w-full pl-7 rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Saldo inicial</label>
+      {tipoMoneda === 'bi' ? (
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Saldo inicial PEN">
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{tipoMoneda === 'usd' ? '$' : 'S/'}</span>
-              <input type="number" step="0.01" value={saldoInicial || ''}
-                onChange={e => setSaldoInicial(parseFloat(e.target.value) || 0)}
-                className="w-full pl-8 rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">S/</span>
+              <input type="number" step="0.01" value={saldoInicialPEN || ''}
+                onChange={e => setSaldoInicialPEN(parseFloat(e.target.value) || 0)}
+                className="w-full pl-7 rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" />
             </div>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-xs text-slate-600 mb-1">Alerta saldo mínimo (opcional)</label>
+          </FormField>
+          <FormField label="Saldo inicial USD">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">$</span>
+              <input type="number" step="0.01" value={saldoInicialUSD || ''}
+                onChange={e => setSaldoInicialUSD(parseFloat(e.target.value) || 0)}
+                className="w-full pl-7 rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" />
+            </div>
+          </FormField>
+        </div>
+      ) : (
+        <FormField label="Saldo inicial">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">{tipoMoneda === 'usd' ? '$' : 'S/'}</span>
-            <input type="number" step="0.01" value={saldoMinimo || ''}
-              onChange={e => setSaldoMinimo(parseFloat(e.target.value) || undefined)}
-              className="w-full pl-7 rounded-md border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0" />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{tipoMoneda === 'usd' ? '$' : 'S/'}</span>
+            <input type="number" step="0.01" value={saldoInicial || ''}
+              onChange={e => setSaldoInicial(parseFloat(e.target.value) || 0)}
+              className="w-full pl-8 rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0.00" />
           </div>
-        </div>
+        </FormField>
+      )}
 
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={() => { reset(); onClose(); }}>Cancelar</Button>
-          <Button variant="primary" onClick={handleGuardar}
-            disabled={isSubmitting || !nombre || !titular.trim()}>
-            {isSubmitting ? 'Creando...' : 'Crear Caja'}
-          </Button>
+      <FormField label="Alerta saldo mínimo" hint="Opcional — recibirás alerta cuando el saldo baje de este monto">
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">{tipoMoneda === 'usd' ? '$' : 'S/'}</span>
+          <input type="number" step="0.01" value={saldoMinimo || ''}
+            onChange={e => setSaldoMinimo(parseFloat(e.target.value) || undefined)}
+            className="w-full pl-7 rounded-lg border-slate-300 text-sm focus:border-teal-500 focus:ring-teal-500" placeholder="0" />
         </div>
-      </div>
-    </Modal>
+      </FormField>
+    </FormModal>
   );
 };

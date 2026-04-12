@@ -121,7 +121,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
             <Link
               to={homeHref}
               className={`
-                flex items-center gap-1 text-slate-500 hover:text-blue-600
+                flex items-center gap-1 text-slate-500 hover:text-teal-600
                 transition-colors duration-200
                 ${itemClassName}
               `}
@@ -151,7 +151,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                 <Link
                   to={item.href}
                   className={`
-                    flex items-center gap-1 text-slate-500 hover:text-blue-600
+                    flex items-center gap-1 text-slate-500 hover:text-teal-600
                     transition-colors duration-200
                     ${itemClassName}
                   `}
@@ -209,7 +209,7 @@ export const SimpleBreadcrumbs: React.FC<SimpleBreadcrumbsProps> = ({
               {item.href && !isLast ? (
                 <Link
                   to={item.href}
-                  className="flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors"
+                  className="flex items-center gap-1 text-slate-500 hover:text-teal-600 transition-colors"
                 >
                   {item.icon}
                   <span>{item.label}</span>

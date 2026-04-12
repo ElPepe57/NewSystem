@@ -160,15 +160,15 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
     >
       <div className="space-y-6">
         {/* Info del requerimiento */}
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <div className="bg-sky-50 rounded-lg p-4 border border-sky-200">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm text-blue-600">Requerimiento</span>
-              <div className="font-bold text-blue-900">{requerimiento.numeroRequerimiento}</div>
+              <span className="text-sm text-sky-600">Requerimiento</span>
+              <div className="font-bold text-sky-900">{requerimiento.numeroRequerimiento}</div>
             </div>
             <div className="text-right">
-              <span className="text-sm text-blue-600">Productos pendientes</span>
-              <div className="font-bold text-blue-900">
+              <span className="text-sm text-sky-600">Productos pendientes</span>
+              <div className="font-bold text-sky-900">
                 {productosPendientes.reduce((s, p) => s + p.cantidadPendiente, 0)} unidades
               </div>
             </div>
@@ -230,7 +230,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
                   </div>
                 )}
                 {viajeroSeleccionado.proximoViaje && (
-                  <div className="text-sm text-blue-600">
+                  <div className="text-sm text-sky-600">
                     Próximo viaje: {viajeroSeleccionado.proximoViaje.toDate().toLocaleDateString('es-PE')}
                   </div>
                 )}

@@ -53,7 +53,7 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
         <div className="flex items-center justify-between">
           <div className="text-sm text-slate-500">
             {selectedProduct && !esMismoProducto ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-sky-100 text-sky-800 rounded-full text-xs font-medium">
                 <Package className="h-3 w-3" />
                 Producto seleccionado
               </span>
@@ -120,16 +120,16 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
 
         {/* Preview comparativo */}
         {selectedProduct && !esMismoProducto && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                <span className="text-xs font-mono text-green-600">{selectedProduct.sku}</span>
-                <p className="text-sm font-medium text-green-900">
+                <span className="text-xs font-mono text-emerald-600">{selectedProduct.sku}</span>
+                <p className="text-sm font-medium text-emerald-900">
                   {selectedProduct.marca} {selectedProduct.nombreComercial}
                 </p>
-                <p className="text-xs text-green-600">{selectedProduct.presentacion}</p>
+                <p className="text-xs text-emerald-600">{selectedProduct.presentacion}</p>
                 {selectedProduct.stockLibre > 0 ? (
-                  <span className="inline-flex items-center mt-1 px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
+                  <span className="inline-flex items-center mt-1 px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">
                     Stock: {selectedProduct.stockLibre} disponible{selectedProduct.stockLibre !== 1 ? 's' : ''}
                   </span>
                 ) : (
@@ -150,9 +150,9 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
         )}
 
         {/* Warning de cascada */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
-          <AlertTriangle className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-blue-700">
+        <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 text-sky-500 flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-sky-700">
             <p className="font-medium mb-1">Esta corrección actualizará:</p>
             <ul className="list-disc list-inside space-y-0.5">
               <li>La venta {venta.numeroVenta}</li>
@@ -161,7 +161,7 @@ export const CorregirProductoModal: React.FC<CorregirProductoModalProps> = ({
               )}
               <li>Requerimientos vinculados</li>
             </ul>
-            <p className="mt-1 text-blue-600">Se mantendrán la cantidad y precio actuales.</p>
+            <p className="mt-1 text-sky-600">Se mantendrán la cantidad y precio actuales.</p>
           </div>
         </div>
       </div>

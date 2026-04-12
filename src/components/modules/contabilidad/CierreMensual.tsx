@@ -17,10 +17,10 @@ import {
   Calendar,
   Clock,
   Eye,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import { Button, ConfirmDialog, Badge } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { cierreContableService } from '../../../services/cierreContable.service';
 import { useAuthStore } from '../../../store/authStore';
 import { formatCurrencyPEN, formatPercent } from '../../../utils/format';
@@ -137,18 +137,77 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
 
   // Helpers de render
   const getValidacionIcon = (v: ValidacionPreCierre) => {
-    if (v.resultado === 'aprobada') return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+    if (v.resultado === 'aprobada') return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
     if (v.resultado === 'rechazada') return <XCircle className="w-5 h-5 text-red-500" />;
     return <AlertTriangle className="w-5 h-5 text-amber-500" />;
   };
 
   const getValidacionBg = (v: ValidacionPreCierre) => {
-    if (v.resultado === 'aprobada') return 'bg-green-50 border-green-200';
+    if (v.resultado === 'aprobada') return 'bg-emerald-50 border-emerald-200';
     if (v.resultado === 'rechazada') return 'bg-red-50 border-red-200';
     return 'bg-amber-50 border-amber-200';
   };
 
   const periodoCerrado = cierreActual?.estado === 'cerrado';
+
+  const columnasCierre: DataTableColumn<CierreContable>[] = [
+    {
+      key: 'periodo',
+      header: 'Periodo',
+      render: c => (
+        <span className="font-medium text-slate-900">
+          {MESES[c.mes - 1]} {c.anio}
+        </span>
+      ),
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: c => (
+        <Badge variant={c.estado === 'cerrado' ? 'success' : 'warning'} size="sm">
+          {c.estado === 'cerrado' ? 'Cerrado' : 'Reabierto'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'fechaCierre',
+      header: 'Fecha Cierre',
+      render: c => (
+        <span className="text-sm text-slate-600">
+          {c.fechaCierre instanceof Date ? c.fechaCierre.toLocaleDateString('es-PE') : '-'}
+        </span>
+      ),
+    },
+    {
+      key: 'cerradoPor',
+      header: 'Cerrado por',
+      render: c => <span className="text-sm text-slate-600">{c.cerradoPor}</span>,
+    },
+    {
+      key: 'ventas',
+      header: 'Ventas',
+      align: 'right',
+      render: c => (
+        <span className="text-sm text-slate-700">
+          {c.snapshot ? formatCurrencyPEN(c.snapshot.totalVentas) : '-'}
+        </span>
+      ),
+    },
+    {
+      key: 'utilidadNeta',
+      header: 'Utilidad Neta',
+      align: 'right',
+      render: c => (
+        <span className={`text-sm font-medium ${
+          c.snapshot && c.snapshot.estadoResultados.utilidadNeta >= 0
+            ? 'text-emerald-600'
+            : 'text-red-600'
+        }`}>
+          {c.snapshot ? formatCurrencyPEN(c.snapshot.estadoResultados.utilidadNeta) : '-'}
+        </span>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
@@ -172,8 +231,8 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             {periodoCerrado ? (
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Lock className="w-6 h-6 text-green-600" />
+              <div className="p-2 bg-emerald-100 rounded-lg">
+                <Lock className="w-6 h-6 text-emerald-600" />
               </div>
             ) : (
               <div className="p-2 bg-amber-100 rounded-lg">
@@ -283,7 +342,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
               <div className="text-xs text-slate-500">Utilidad Neta</div>
               <div className={`text-lg font-bold ${
                 cierreActual.snapshot.estadoResultados.utilidadNeta >= 0
-                  ? 'text-green-600'
+                  ? 'text-emerald-600'
                   : 'text-red-600'
               }`}>
                 {formatCurrencyPEN(cierreActual.snapshot.estadoResultados.utilidadNeta)}
@@ -311,7 +370,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
             </div>
             <div className="bg-slate-50 rounded-lg p-3">
               <div className="text-xs text-slate-500">Total Activos</div>
-              <div className="text-lg font-bold text-blue-600">
+              <div className="text-lg font-bold text-sky-600">
                 {formatCurrencyPEN(cierreActual.snapshot.balanceGeneral.activos.totalActivos)}
               </div>
             </div>
@@ -428,7 +487,7 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
                       </div>
                       <div>
                         <span className="text-slate-500">U. Neta:</span>{' '}
-                        <span className={c.snapshot.estadoResultados.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        <span className={c.snapshot.estadoResultados.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}>
                           {formatCurrencyPEN(c.snapshot.estadoResultados.utilidadNeta)}
                         </span>
                       </div>
@@ -439,47 +498,13 @@ export default function CierreMensual({ mes, anio }: CierreMensualProps) {
             </div>
 
             {/* Desktop: Tabla */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Periodo</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Estado</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha Cierre</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Cerrado por</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ventas</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Utilidad Neta</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {historial.map((c) => (
-                    <tr key={c.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 font-medium text-slate-900">
-                        {MESES[c.mes - 1]} {c.anio}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant={c.estado === 'cerrado' ? 'success' : 'warning'} size="sm">
-                          {c.estado === 'cerrado' ? 'Cerrado' : 'Reabierto'}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">
-                        {c.fechaCierre instanceof Date ? c.fechaCierre.toLocaleDateString('es-PE') : '-'}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">{c.cerradoPor}</td>
-                      <td className="px-4 py-3 text-right text-sm text-slate-700">
-                        {c.snapshot ? formatCurrencyPEN(c.snapshot.totalVentas) : '-'}
-                      </td>
-                      <td className={`px-4 py-3 text-right text-sm font-medium ${
-                        c.snapshot && c.snapshot.estadoResultados.utilidadNeta >= 0
-                          ? 'text-green-600'
-                          : 'text-red-600'
-                      }`}>
-                        {c.snapshot ? formatCurrencyPEN(c.snapshot.estadoResultados.utilidadNeta) : '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="hidden md:block">
+              <DataTable
+                columns={columnasCierre}
+                data={historial}
+                keyExtractor={c => c.id ?? `${c.mes}-${c.anio}`}
+                compact
+              />
             </div>
           </>
         )}

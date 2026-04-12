@@ -399,7 +399,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                         <h4 className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || prod.nombreFallback}</h4>
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
                           {pFull?.marca && (
-                            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
+                            <span className="text-xs font-medium text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">{pFull.marca}</span>
                           )}
                           {pFull && getDescripcionProducto(pFull) && (
                             <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{getDescripcionProducto(pFull)}</span>
@@ -407,12 +407,12 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                         </div>
                         <div className="text-xs text-slate-500 mt-1">{prod.sku}</div>
                         {prod.costoFleteUnit > 0 && (
-                          <div className="text-xs text-green-600 font-medium mt-0.5">
+                          <div className="text-xs text-emerald-600 font-medium mt-0.5">
                             Flete: ${prod.costoFleteUnit.toFixed(2)}/u
                           </div>
                         )}
                         {prod.yaRecibido > 0 && (
-                          <div className="flex items-center gap-1 text-xs text-green-600 mt-0.5">
+                          <div className="flex items-center gap-1 text-xs text-emerald-600 mt-0.5">
                             <CheckCircle className="h-3 w-3" />
                             {prod.yaRecibido} ya recibidas
                           </div>
@@ -472,7 +472,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
 
                   {/* Sección de lotes con mes/año — visible cuando hay cantidad > 0 */}
                   {cant > 0 && (
-                    <div className={`mt-3 p-3 rounded-lg border ${lotesValidos ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                    <div className={`mt-3 p-3 rounded-lg border ${lotesValidos ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
                       <div className="flex items-center justify-between mb-2">
                         <label className="flex items-center gap-1.5 text-xs font-medium" style={{
                           color: lotesValidos ? '#166534' : '#92400E'
@@ -537,7 +537,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                               {/* Indicador de días */}
                               {dias !== null && (
                                 <span className={`text-[10px] whitespace-nowrap ${
-                                  dias < 0 ? 'text-red-600' : dias < 90 ? 'text-amber-600' : 'text-green-600'
+                                  dias < 0 ? 'text-red-600' : dias < 90 ? 'text-amber-600' : 'text-emerald-600'
                                 }`}>
                                   {dias < 0 ? 'Vencido' : `${dias}d`}
                                 </span>
@@ -570,7 +570,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                         }`}
                       >
                         <div className="flex items-center">
-                          <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-green-500' : 'bg-slate-300'}`} />
+                          <div className={`h-2 w-2 rounded-full mr-3 ${idx < cant ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                           <div>
                             <div className="flex items-center space-x-2">
                               <span className="text-xs bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">
@@ -587,7 +587,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                           </div>
                         </div>
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          idx < cant ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
+                          idx < cant ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
                         }`}>
                           {idx < cant ? 'Se recibira' : 'Pendiente'}
                         </span>

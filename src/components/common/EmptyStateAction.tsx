@@ -73,8 +73,8 @@ const variantStyles: Record<EmptyStateVariant, { iconBg: string; iconColor: stri
   'no-data': { iconBg: 'bg-slate-100', iconColor: 'text-slate-400' },
   'no-results': { iconBg: 'bg-amber-50', iconColor: 'text-amber-400' },
   'error': { iconBg: 'bg-red-50', iconColor: 'text-red-400' },
-  'success': { iconBg: 'bg-green-50', iconColor: 'text-green-400' },
-  'empty-folder': { iconBg: 'bg-blue-50', iconColor: 'text-blue-400' }
+  'success': { iconBg: 'bg-emerald-50', iconColor: 'text-emerald-400' },
+  'empty-folder': { iconBg: 'bg-sky-50', iconColor: 'text-sky-400' }
 };
 
 const sizeStyles = {

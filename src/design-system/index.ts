@@ -21,6 +21,7 @@ export { ContentArea } from './components/ContentArea';
 
 // Data Display
 export { DataTable } from './components/DataTable';
+export type { Column as DataTableColumn } from './components/DataTable';
 export { DataCard } from './components/DataCard';
 export { StatCard } from './components/StatCard';
 export { KPIBar } from './components/KPIBar';

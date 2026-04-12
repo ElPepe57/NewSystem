@@ -38,7 +38,7 @@ import { COLLECTIONS } from '../../config/collections';
 
 // ─── Constants ──────────────────────────────────────────────
 const SENTIMIENTO_CONFIG: Record<string, { label: string; color: string; icon: string }> = {
-  positivo: { label: 'Positivo', color: 'text-green-600 bg-green-50', icon: '😊' },
+  positivo: { label: 'Positivo', color: 'text-emerald-600 bg-emerald-50', icon: '😊' },
   neutral: { label: 'Neutral', color: 'text-slate-600 bg-slate-50', icon: '😐' },
   tenso: { label: 'Tenso', color: 'text-orange-600 bg-orange-50', icon: '😰' },
   urgente: { label: 'Urgente', color: 'text-red-600 bg-red-50', icon: '🚨' },
@@ -46,8 +46,8 @@ const SENTIMIENTO_CONFIG: Record<string, { label: string; color: string; icon: s
 
 const ESTADO_TAREA_CONFIG: Record<EstadoTarea, { label: string; color: string; bg: string; icon: React.FC<{ className?: string }> }> = {
   pendiente: { label: 'Pendiente', color: 'text-slate-600', bg: 'bg-slate-100', icon: Circle },
-  en_progreso: { label: 'En Progreso', color: 'text-blue-600', bg: 'bg-blue-100', icon: PlayCircle },
-  completada: { label: 'Completada', color: 'text-green-600', bg: 'bg-green-100', icon: CheckCircle2 },
+  en_progreso: { label: 'En Progreso', color: 'text-sky-600', bg: 'bg-sky-100', icon: PlayCircle },
+  completada: { label: 'Completada', color: 'text-emerald-600', bg: 'bg-emerald-100', icon: CheckCircle2 },
   cancelada: { label: 'Cancelada', color: 'text-red-600', bg: 'bg-red-100', icon: XCircle },
 };
 
@@ -343,7 +343,7 @@ const KPICard: React.FC<{
   const colorMap: Record<string, string> = {
     primary: 'bg-teal-50 text-teal-600',
     amber: 'bg-amber-50 text-amber-600',
-    green: 'bg-green-50 text-green-600',
+    green: 'bg-emerald-50 text-emerald-600',
     red: 'bg-red-50 text-red-600',
   };
   return (
@@ -436,7 +436,7 @@ const LlamadasList: React.FC<{
                     </span>
                     {tareasCount > 0 && (
                       <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full font-medium ${
-                        tareasPendientes > 0 ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'
+                        tareasPendientes > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
                       }`}>
                         <Target className="h-3 w-3" />
                         {tareasPendientes > 0 ? `${tareasPendientes} pendiente${tareasPendientes > 1 ? 's' : ''}` : 'Todas completadas'}
@@ -616,13 +616,13 @@ const TareaCard: React.FC<{
           {canReassign ? (
             <button
               onClick={() => setShowAsignar(!showAsignar)}
-              className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full hover:bg-blue-100 transition-colors"
+              className="flex items-center gap-1 text-xs text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full hover:bg-sky-100 transition-colors"
             >
               <User className="h-3 w-3" />
               {tarea.responsable}
             </button>
           ) : (
-            <span className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 text-xs text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">
               <User className="h-3 w-3" />
               {tarea.responsable}
             </span>
@@ -667,7 +667,7 @@ const TareaCard: React.FC<{
                   }}
                   className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
                     tarea.responsableUid === member.uid
-                      ? 'bg-blue-100 border-blue-300 text-blue-700'
+                      ? 'bg-sky-100 border-sky-300 text-sky-700'
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
@@ -692,10 +692,10 @@ const SeguimientoCard: React.FC<{
   const [showAsignar, setShowAsignar] = useState(false);
 
   return (
-    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-green-100">
+    <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-emerald-100">
       <button
         onClick={onToggleCompletado}
-        className={`mt-0.5 shrink-0 transition-colors ${seguimiento.completado ? 'text-green-500' : 'text-slate-300 hover:text-green-400'}`}
+        className={`mt-0.5 shrink-0 transition-colors ${seguimiento.completado ? 'text-emerald-500' : 'text-slate-300 hover:text-emerald-400'}`}
       >
         {seguimiento.completado ? (
           <CheckCircle2 className="h-5 w-5" />
@@ -710,7 +710,7 @@ const SeguimientoCard: React.FC<{
         <div className="flex items-center gap-2 mt-1 flex-wrap">
           <button
             onClick={() => setShowAsignar(!showAsignar)}
-            className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full hover:bg-green-100 transition-colors"
+            className="flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full hover:bg-emerald-100 transition-colors"
           >
             <User className="h-3 w-3" />
             {seguimiento.responsable}
@@ -736,7 +736,7 @@ const SeguimientoCard: React.FC<{
                   }}
                   className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
                     seguimiento.responsableUid === member.uid
-                      ? 'bg-green-100 border-green-300 text-green-700'
+                      ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >

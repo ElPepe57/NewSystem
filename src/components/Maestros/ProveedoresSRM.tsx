@@ -141,8 +141,8 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
   // Helpers de UI
   const getClasificacionConfig = (clasificacion?: ClasificacionProveedor) => {
     const configs: Record<ClasificacionProveedor, { color: string; icon: React.ReactNode; label: string }> = {
-      preferido: { color: 'bg-green-100 text-green-700', icon: <Star className="h-3 w-3" />, label: 'Preferido' },
-      aprobado: { color: 'bg-blue-100 text-blue-700', icon: <CheckCircle className="h-3 w-3" />, label: 'Aprobado' },
+      preferido: { color: 'bg-emerald-100 text-emerald-700', icon: <Star className="h-3 w-3" />, label: 'Preferido' },
+      aprobado: { color: 'bg-sky-100 text-sky-700', icon: <CheckCircle className="h-3 w-3" />, label: 'Aprobado' },
       condicional: { color: 'bg-amber-100 text-amber-700', icon: <AlertCircle className="h-3 w-3" />, label: 'Condicional' },
       suspendido: { color: 'bg-red-100 text-red-700', icon: <XCircle className="h-3 w-3" />, label: 'Suspendido' }
     };
@@ -154,7 +154,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
       mayorista: 'bg-purple-100 text-purple-700',
       fabricante: 'bg-teal-100 text-teal-700',
       distribuidor: 'bg-cyan-100 text-cyan-700',
-      minorista: 'bg-blue-100 text-blue-700'
+      minorista: 'bg-sky-100 text-sky-700'
     };
     return colores[tipo] || 'bg-slate-100 text-slate-700';
   };
@@ -269,8 +269,8 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                       <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${
-                            clasificacion === 'preferido' ? 'bg-green-500' :
-                            clasificacion === 'aprobado' ? 'bg-blue-500' :
+                            clasificacion === 'preferido' ? 'bg-emerald-500' :
+                            clasificacion === 'aprobado' ? 'bg-sky-500' :
                             clasificacion === 'condicional' ? 'bg-amber-500' : 'bg-red-500'
                           }`}
                           style={{ width: `${porcentaje}%` }}
@@ -498,7 +498,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por nombre, contacto, email..."
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-sky-500"
                 />
               </div>
 
@@ -627,7 +627,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                           <div className="text-sm font-medium text-slate-900">
                             {proveedor.metricas?.ordenesCompra || 0} OC
                           </div>
-                          <div className="text-sm text-green-600 font-medium">
+                          <div className="text-sm text-emerald-600 font-medium">
                             USD {(proveedor.metricas?.montoTotalUSD || 0).toLocaleString()}
                           </div>
                         </div>
@@ -638,7 +638,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                               href={proveedor.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                              className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                               label="Visitar sitio"
                             >
                               <ExternalLink className="h-4 w-4" />
@@ -653,7 +653,7 @@ export const ProveedoresSRM: React.FC<ProveedoresSRMProps> = ({
                           </button>
                           <button
                             onClick={() => onViewProveedor(proveedor)}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                             label="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />

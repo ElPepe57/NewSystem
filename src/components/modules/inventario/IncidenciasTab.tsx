@@ -103,7 +103,7 @@ export const IncidenciasTab: React.FC<IncidenciasTabProps> = ({
     return (
       <Card padding="lg">
         <div className="text-center py-12">
-          <Package className="h-12 w-12 mx-auto text-green-300 mb-3" />
+          <Package className="h-12 w-12 mx-auto text-emerald-300 mb-3" />
           <h3 className="text-lg font-medium text-slate-700">Sin incidencias pendientes</h3>
           <p className="text-sm text-slate-500 mt-1">No hay unidades dañadas ni vencidas por gestionar.</p>
         </div>

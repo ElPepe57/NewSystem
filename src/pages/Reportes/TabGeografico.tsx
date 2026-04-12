@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { MapPin, Download, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/common';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { mapaCalorService } from '../../services/mapaCalor.service';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { ExcelService } from '../../services/excel.service';
@@ -57,6 +59,77 @@ export function TabGeografico({ fechaInicio, fechaFin }: TabGeograficoProps) {
     ExcelService.exportToExcel(data, 'Reporte_Geografico', 'Zonas');
   };
 
+  const columnasZonas: DataTableColumn<ZonaResumen>[] = [
+    {
+      key: 'num',
+      header: '#',
+      render: (zona) => <span className="text-slate-400">{zonas.indexOf(zona) + 1}</span>,
+    },
+    {
+      key: 'distrito',
+      header: 'Distrito',
+      render: (zona) => <span className="font-medium text-slate-900">{zona.distrito}</span>,
+    },
+    {
+      key: 'provincia',
+      header: 'Provincia',
+      render: (zona) => <span className="text-slate-600">{zona.provincia}</span>,
+    },
+    {
+      key: 'totalVentas',
+      header: 'Ventas',
+      align: 'right',
+      render: (zona) => <span>{zona.totalVentas}</span>,
+    },
+    {
+      key: 'volumenPEN',
+      header: 'Volumen PEN',
+      align: 'right',
+      render: (zona) => (
+        <span className="font-medium text-emerald-600">
+          S/ {zona.volumenPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
+        </span>
+      ),
+    },
+    {
+      key: 'ticketPromedio',
+      header: 'Ticket Prom.',
+      align: 'right',
+      render: (zona) => <span>S/ {zona.ticketPromedio.toFixed(0)}</span>,
+    },
+    {
+      key: 'clientesUnicos',
+      header: 'Clientes',
+      align: 'right',
+      render: (zona) => <span>{zona.clientesUnicos}</span>,
+    },
+    {
+      key: 'topProducto',
+      header: 'Top Producto',
+      render: (zona) => (
+        <span className="text-slate-600 truncate max-w-[140px] block">
+          {zona.productosTop[0]?.nombre || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'lineas',
+      header: 'Líneas',
+      render: (zona) => (
+        <div className="flex gap-1">
+          {zona.distribucionLinea.map(d => (
+            <span
+              key={d.lineaNegocioId}
+              className="text-[10px] px-1.5 py-0.5 bg-slate-100 rounded-full text-slate-600"
+            >
+              {getLineaNombre(d.lineaNegocioId).substring(0, 3)} {d.porcentaje}%
+            </span>
+          ))}
+        </div>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -71,7 +144,7 @@ export function TabGeografico({ fechaInicio, fechaFin }: TabGeograficoProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <MapPin className="h-5 w-5 text-blue-600" />
+          <MapPin className="h-5 w-5 text-sky-600" />
           <h3 className="font-semibold text-slate-800">Desglose Geográfico</h3>
           <span className="text-sm text-slate-500">({zonas.length} zonas)</span>
         </div>
@@ -92,12 +165,12 @@ export function TabGeografico({ fechaInicio, fechaFin }: TabGeograficoProps) {
       {/* Resumen rápido */}
       {ventas.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-blue-700">{zonas.length}</p>
+          <div className="bg-sky-50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-sky-700">{zonas.length}</p>
             <p className="text-xs text-slate-500">Distritos</p>
           </div>
-          <div className="bg-green-50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-green-700">
+          <div className="bg-emerald-50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-emerald-700">
               S/ {ventas.reduce((s, v) => s + v.totalPEN, 0).toLocaleString('es-PE', { maximumFractionDigits: 0 })}
             </p>
             <p className="text-xs text-slate-500">Volumen</p>
@@ -118,50 +191,13 @@ export function TabGeografico({ fechaInicio, fechaFin }: TabGeograficoProps) {
       {/* Tabla */}
       {zonas.length > 0 ? (
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr className="bg-slate-50 text-slate-500 text-xs uppercase">
-                  <th className="px-3 py-2 text-left">#</th>
-                  <th className="px-3 py-2 text-left">Distrito</th>
-                  <th className="px-3 py-2 text-left">Provincia</th>
-                  <th className="px-3 py-2 text-right">Ventas</th>
-                  <th className="px-3 py-2 text-right">Volumen PEN</th>
-                  <th className="px-3 py-2 text-right">Ticket Prom.</th>
-                  <th className="px-3 py-2 text-right">Clientes</th>
-                  <th className="px-3 py-2 text-left">Top Producto</th>
-                  <th className="px-3 py-2 text-left">Líneas</th>
-                </tr>
-              </thead>
-              <tbody>
-                {zonas.map((zona, i) => (
-                  <tr key={zona.key} className="border-t border-slate-100 hover:bg-slate-50">
-                    <td className="px-3 py-2 text-slate-400">{i + 1}</td>
-                    <td className="px-3 py-2 font-medium text-slate-900">{zona.distrito}</td>
-                    <td className="px-3 py-2 text-slate-600">{zona.provincia}</td>
-                    <td className="px-3 py-2 text-right">{zona.totalVentas}</td>
-                    <td className="px-3 py-2 text-right font-medium text-green-600">
-                      S/ {zona.volumenPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
-                    </td>
-                    <td className="px-3 py-2 text-right">S/ {zona.ticketPromedio.toFixed(0)}</td>
-                    <td className="px-3 py-2 text-right">{zona.clientesUnicos}</td>
-                    <td className="px-3 py-2 text-slate-600 truncate max-w-[140px]">
-                      {zona.productosTop[0]?.nombre || '—'}
-                    </td>
-                    <td className="px-3 py-2">
-                      <div className="flex gap-1">
-                        {zona.distribucionLinea.map(d => (
-                          <span key={d.lineaNegocioId} className="text-[10px] px-1.5 py-0.5 bg-slate-100 rounded-full text-slate-600">
-                            {getLineaNombre(d.lineaNegocioId).substring(0, 3)} {d.porcentaje}%
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={columnasZonas}
+            data={zonas}
+            keyExtractor={zona => zona.key}
+            compact
+            emptyMessage="Sin datos geográficos"
+          />
         </div>
       ) : (
         <div className="text-center py-12 text-slate-500">

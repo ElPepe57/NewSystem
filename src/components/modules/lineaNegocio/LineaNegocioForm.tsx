@@ -258,7 +258,7 @@ export const LineaNegocioForm: React.FC<LineaNegocioFormProps> = ({
                 {codigo || 'COD'}
               </span>
               {activa ? (
-                <span className="text-green-600">Activa</span>
+                <span className="text-emerald-600">Activa</span>
               ) : (
                 <span className="text-slate-400">Inactiva</span>
               )}

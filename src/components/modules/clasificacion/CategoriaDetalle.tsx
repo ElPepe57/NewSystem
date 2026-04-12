@@ -13,8 +13,11 @@ import {
   Tag
 } from 'lucide-react';
 import { Button, Badge, Modal } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { clasificacionAnalyticsService, type ClasificacionAnalyticsResult } from '../../../services/clasificacion.analytics.service';
 import type { Categoria } from '../../../types/categoria.types';
+import type { ProductoEnClasificacion } from '../../../services/clasificacion.analytics.service';
 
 interface CategoriaDetalleProps {
   isOpen: boolean;
@@ -133,7 +136,7 @@ export function CategoriaDetalle({ isOpen, onClose, categoria }: CategoriaDetall
               )}
               <div className="flex items-center gap-2 mt-1">
                 {categoria.mostrarEnWeb && (
-                  <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                  <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
                     <Globe className="h-3 w-3" /> Visible en web
                   </span>
                 )}
@@ -168,7 +171,7 @@ export function CategoriaDetalle({ isOpen, onClose, categoria }: CategoriaDetall
           <>
             {/* KPIs principales */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-lg">
+              <div className="bg-teal-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 text-teal-600 mb-1">
                   <Package className="h-4 w-4" />
                   <span className="text-xs font-medium">Productos</span>
@@ -177,7 +180,7 @@ export function CategoriaDetalle({ isOpen, onClose, categoria }: CategoriaDetall
                 <p className="text-xs text-slate-500">{m.productosActivos} activos</p>
               </div>
 
-              <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg">
+              <div className="bg-emerald-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 text-emerald-600 mb-1">
                   <DollarSign className="h-4 w-4" />
                   <span className="text-xs font-medium">Ventas</span>
@@ -186,18 +189,18 @@ export function CategoriaDetalle({ isOpen, onClose, categoria }: CategoriaDetall
                 <p className="text-xs text-slate-500">{m.numeroVentas} transacciones</p>
               </div>
 
-              <div className="bg-gradient-to-br from-violet-50 to-violet-100 p-4 rounded-lg">
+              <div className="bg-violet-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 text-violet-600 mb-1">
                   <Percent className="h-4 w-4" />
                   <span className="text-xs font-medium">Margen</span>
                 </div>
-                <p className={`text-2xl font-bold ${m.margenPromedio >= 30 ? 'text-green-600' : m.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
+                <p className={`text-2xl font-bold ${m.margenPromedio >= 30 ? 'text-emerald-600' : m.margenPromedio >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
                   {m.margenPromedio.toFixed(1)}%
                 </p>
                 <p className="text-xs text-slate-500">Utilidad: S/ {m.utilidadBruta.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
               </div>
 
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg">
+              <div className="bg-orange-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 text-orange-600 mb-1">
                   <ShoppingCart className="h-4 w-4" />
                   <span className="text-xs font-medium">Unidades</span>
@@ -266,7 +269,7 @@ export function CategoriaDetalle({ isOpen, onClose, categoria }: CategoriaDetall
                   </div>
                   <div className="text-center p-2 bg-slate-50 rounded">
                     <p className="text-xs text-slate-500">Tránsito</p>
-                    <p className="text-lg font-bold text-blue-600">{m.stockTransito}</p>
+                    <p className="text-lg font-bold text-sky-600">{m.stockTransito}</p>
                   </div>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -312,54 +315,79 @@ export function CategoriaDetalle({ isOpen, onClose, categoria }: CategoriaDetall
             </div>
 
             {/* Tabla de productos */}
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
-              <div className="bg-slate-50 px-4 py-2 border-b">
-                <h3 className="text-sm font-semibold text-slate-700">
-                  Productos en esta categoría ({analytics.productos.length})
-                </h3>
-              </div>
-              <div className="max-h-64 overflow-y-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50 sticky top-0">
-                    <tr>
-                      <th className="text-left px-4 py-2 font-medium text-slate-600">Producto</th>
-                      <th className="text-right px-4 py-2 font-medium text-slate-600">Stock</th>
-                      <th className="text-right px-4 py-2 font-medium text-slate-600">Vendidos</th>
-                      <th className="text-right px-4 py-2 font-medium text-slate-600">Ventas</th>
-                      <th className="text-right px-4 py-2 font-medium text-slate-600">Margen</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {analytics.productos.map(prod => (
-                      <tr key={prod.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-slate-900">{prod.marca}</span>
-                            <span className="text-slate-500">{prod.nombreComercial}</span>
-                            {prod.estado !== 'activo' && (
-                              <Badge variant="default" className="text-xs">{prod.estado}</Badge>
-                            )}
-                          </div>
-                          <div className="text-xs text-slate-400">{prod.sku}</div>
-                        </td>
-                        <td className="text-right px-4 py-2">
-                          <span className={prod.stockPeru <= 0 ? 'text-red-600 font-medium' : ''}>
-                            {prod.stockPeru}
-                          </span>
-                        </td>
-                        <td className="text-right px-4 py-2">{prod.unidadesVendidas}</td>
-                        <td className="text-right px-4 py-2">S/ {prod.ventasPEN.toFixed(0)}</td>
-                        <td className="text-right px-4 py-2">
-                          <span className={`font-medium ${prod.margen >= 30 ? 'text-green-600' : prod.margen >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
-                            {prod.margen.toFixed(1)}%
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {(() => {
+              const columnasCat: DataTableColumn<ProductoEnClasificacion>[] = [
+                {
+                  key: 'producto',
+                  header: 'Producto',
+                  render: prod => (
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-slate-900">{prod.marca}</span>
+                        <span className="text-slate-500">{prod.nombreComercial}</span>
+                        {prod.estado !== 'activo' && (
+                          <Badge variant="default" className="text-xs">{prod.estado}</Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-slate-400">{prod.sku}</div>
+                    </div>
+                  )
+                },
+                {
+                  key: 'stockPeru',
+                  header: 'Stock',
+                  align: 'right',
+                  render: prod => (
+                    <span className={prod.stockPeru <= 0 ? 'text-red-600 font-medium' : ''}>
+                      {prod.stockPeru}
+                    </span>
+                  )
+                },
+                {
+                  key: 'unidadesVendidas',
+                  header: 'Vendidos',
+                  align: 'right',
+                  hideOnMobile: true,
+                  render: prod => <span>{prod.unidadesVendidas}</span>
+                },
+                {
+                  key: 'ventasPEN',
+                  header: 'Ventas',
+                  align: 'right',
+                  hideOnMobile: true,
+                  render: prod => <span>S/ {prod.ventasPEN.toFixed(0)}</span>
+                },
+                {
+                  key: 'margen',
+                  header: 'Margen',
+                  align: 'right',
+                  render: prod => (
+                    <span className={`font-medium ${prod.margen >= 30 ? 'text-emerald-600' : prod.margen >= 15 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      {prod.margen.toFixed(1)}%
+                    </span>
+                  )
+                }
+              ];
+              return (
+                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  <div className="bg-slate-50 px-4 py-2 border-b">
+                    <h3 className="text-sm font-semibold text-slate-700">
+                      Productos en esta categoría ({analytics.productos.length})
+                    </h3>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    <DataTable
+                      columns={columnasCat}
+                      data={analytics.productos}
+                      keyExtractor={prod => prod.id}
+                      compact
+                      stickyHeader
+                      emptyMessage="Sin productos en esta categoría"
+                    />
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Tendencia */}
             {analytics.tendenciaVentas.length > 0 && (

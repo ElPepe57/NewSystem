@@ -112,7 +112,7 @@ export const TabEmpleados: React.FC = () => {
                       </span>
                     )}
                     {p.esquemaComision && (
-                      <span className="text-sm text-green-600 flex items-center gap-1">
+                      <span className="text-sm text-emerald-600 flex items-center gap-1">
                         <TrendingUp size={14} />
                         {p.esquemaComision.tipo === 'porcentaje_venta'
                           ? `${p.esquemaComision.porcentaje}%`

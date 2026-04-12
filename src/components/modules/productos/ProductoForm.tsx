@@ -666,7 +666,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             {/* País de Origen */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
-                <Globe className="h-4 w-4 text-blue-600" />
+                <Globe className="h-4 w-4 text-sky-600" />
                 País de Origen
               </label>
               {paisesActivos.length > 4 && (
@@ -677,7 +677,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     value={busquedaPais}
                     onChange={(e) => setBusquedaPais(e.target.value)}
                     placeholder="Buscar país por nombre o código..."
-                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                   />
                 </div>
               )}
@@ -693,13 +693,13 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                       onClick={() => setFormData(prev => ({ ...prev, paisOrigen: pais.codigo }))}
                       className={`w-full flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
                         formData.paisOrigen === pais.codigo
-                          ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-200'
+                          ? 'border-sky-500 bg-sky-50 shadow-md ring-2 ring-sky-200'
                           : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm'
                       }`}
                     >
-                      <MapPin className={`h-5 w-5 ${formData.paisOrigen === pais.codigo ? 'text-blue-600' : 'text-slate-400'}`} />
+                      <MapPin className={`h-5 w-5 ${formData.paisOrigen === pais.codigo ? 'text-sky-600' : 'text-slate-400'}`} />
                       <div className="text-center">
-                        <p className={`text-sm font-medium ${formData.paisOrigen === pais.codigo ? 'text-blue-900' : 'text-slate-900'}`}>
+                        <p className={`text-sm font-medium ${formData.paisOrigen === pais.codigo ? 'text-sky-900' : 'text-slate-900'}`}>
                           {pais.nombre}
                         </p>
                         <p className="text-xs text-slate-500">{pais.codigo}</p>
@@ -716,7 +716,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                           setNuevoPaisCodigo(pais.codigo);
                           setMostrarNuevoPais(true);
                         }}
-                        className="p-1 rounded bg-white/80 hover:bg-blue-100 text-slate-400 hover:text-blue-600 transition-colors"
+                        className="p-1 rounded bg-white/80 hover:bg-sky-100 text-slate-400 hover:text-sky-600 transition-colors"
                         title="Editar país"
                       >
                         <Pencil className="h-3 w-3" />
@@ -746,7 +746,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     setNuevoPaisCodigo('');
                     setMostrarNuevoPais(!mostrarNuevoPais);
                   }}
-                  className="flex flex-col items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-slate-300 text-slate-400 hover:border-blue-400 hover:text-blue-500 transition-all"
+                  className="flex flex-col items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-slate-300 text-slate-400 hover:border-sky-400 hover:text-sky-500 transition-all"
                 >
                   <Plus className="h-5 w-5" />
                   <p className="text-xs font-medium">Nuevo país</p>
@@ -796,8 +796,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
               {/* Formulario inline para crear/editar país */}
               {mostrarNuevoPais && (
-                <div className={`${editandoPais ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'} border rounded-lg p-4 mt-3 space-y-3`}>
-                  <h5 className={`text-sm font-medium ${editandoPais ? 'text-amber-800' : 'text-blue-800'}`}>
+                <div className={`${editandoPais ? 'bg-amber-50 border-amber-200' : 'bg-sky-50 border-sky-200'} border rounded-lg p-4 mt-3 space-y-3`}>
+                  <h5 className={`text-sm font-medium ${editandoPais ? 'text-amber-800' : 'text-sky-800'}`}>
                     {editandoPais ? 'Editar país de origen' : 'Agregar nuevo país de origen'}
                   </h5>
                   <div className="grid grid-cols-2 gap-3">
@@ -808,7 +808,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         value={nuevoPaisNombre}
                         onChange={(e) => setNuevoPaisNombre(e.target.value)}
                         placeholder="ej: Japón"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       />
                     </div>
                     <div>
@@ -819,7 +819,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         onChange={(e) => setNuevoPaisCodigo(e.target.value.toUpperCase().slice(0, 3))}
                         placeholder="ej: JPN"
                         maxLength={3}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       />
                     </div>
                   </div>
@@ -861,7 +861,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                         }
                       }}
                       className={`px-4 py-2 text-white text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-                        editandoPais ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'
+                        editandoPais ? 'bg-amber-600 hover:bg-amber-700' : 'bg-sky-600 hover:bg-sky-700'
                       }`}
                     >
                       {creandoPais ? (editandoPais ? 'Guardando...' : 'Creando...') : (editandoPais ? 'Guardar cambios' : 'Crear país')}
@@ -902,15 +902,15 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
             {/* SKU Preview */}
             {!initialData && formData.lineaNegocioId && (
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-sm text-green-700 font-medium">SKU que se asignará:</span>
-                    <span className="ml-2 font-mono text-green-900 font-bold text-lg">
+                    <span className="text-sm text-emerald-700 font-medium">SKU que se asignará:</span>
+                    <span className="ml-2 font-mono text-emerald-900 font-bold text-lg">
                       {loadingSKU ? 'Generando...' : proximoSKU}
                     </span>
                   </div>
-                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Automático</span>
+                  <span className="text-xs text-emerald-600 bg-emerald-100 px-2 py-1 rounded">Automático</span>
                 </div>
               </div>
             )}
@@ -930,8 +930,8 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
 
             {/* Variante Label — solo si es variante */}
             {formData.parentId && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
-                <p className="text-xs text-blue-700 font-medium">Creando variante — solo modifica lo que cambia</p>
+              <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg space-y-2">
+                <p className="text-xs text-sky-700 font-medium">Creando variante — solo modifica lo que cambia</p>
                 <Input
                   label="¿Qué diferencia esta variante?"
                   name="varianteLabel"
@@ -963,7 +963,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               </div>
 
               {marcaSeleccionada && marcaMetricas && marcaMetricas.productosActivos > 0 && (
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-teal-50 border border-purple-200 rounded-lg">
+                <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-purple-800">
                       Estadisticas de {marcaSeleccionada.nombre}
@@ -975,11 +975,11 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                       <p className="text-xs text-slate-600">Productos</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-xl font-bold text-green-600">{marcaMetricas.unidadesVendidas}</div>
+                      <div className="text-xl font-bold text-emerald-600">{marcaMetricas.unidadesVendidas}</div>
                       <p className="text-xs text-slate-600">Vendidos</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-xl font-bold text-blue-600">{marcaMetricas.margenPromedio.toFixed(1)}%</div>
+                      <div className="text-xl font-bold text-sky-600">{marcaMetricas.margenPromedio.toFixed(1)}%</div>
                       <p className="text-xs text-slate-600">Margen prom.</p>
                     </div>
                   </div>
@@ -1113,19 +1113,19 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                     if (!mostrar) return null;
                     const ciclo = Math.round(contenidoNumero / (formData.servingsPerDay || 1));
                     return (
-                      <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                      <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Package className="h-5 w-5 text-green-600" />
-                            <span className="text-sm font-medium text-green-800">
+                            <Package className="h-5 w-5 text-emerald-600" />
+                            <span className="text-sm font-medium text-emerald-800">
                               Ciclo de Recompra Calculado
                             </span>
                           </div>
                           <div className="text-right">
-                            <span className="text-2xl font-bold text-green-700">
+                            <span className="text-2xl font-bold text-emerald-700">
                               {ciclo} dias
                             </span>
-                            <p className="text-xs text-green-600">
+                            <p className="text-xs text-emerald-600">
                               {contenidoNumero} porciones / {formData.servingsPerDay} al dia
                             </p>
                           </div>
@@ -1324,7 +1324,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             />
 
             {/* Vista previa completa */}
-            <div className="bg-gradient-to-r from-slate-50 to-slate-50 border border-slate-200 rounded-lg p-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
               <h4 className="text-sm font-medium text-slate-700 mb-3">Vista previa de clasificacion</h4>
 
               <div className="space-y-3">
@@ -1332,7 +1332,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-slate-500 w-24">Tipo:</span>
                   {tipoProductoSnapshot ? (
-                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm font-medium">
+                    <span className="bg-sky-100 text-sky-700 px-2 py-1 rounded text-sm font-medium">
                       {tipoProductoSnapshot.nombre}
                     </span>
                   ) : (
@@ -1413,12 +1413,12 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
           {/* TAB 3: INVENTARIO */}
           <TabPanel tabId="inventario" className="mt-6 space-y-4">
             {sugerenciasInteligentes && sugerenciasInteligentes.razonamientos.stock && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <Info className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">Sugerencia de stocks</span>
+                  <Info className="h-4 w-4 text-sky-600" />
+                  <span className="text-sm font-medium text-sky-800">Sugerencia de stocks</span>
                 </div>
-                <p className="text-sm text-blue-700">{sugerenciasInteligentes.razonamientos.stock}</p>
+                <p className="text-sm text-sky-700">{sugerenciasInteligentes.razonamientos.stock}</p>
                 <div className="flex gap-4 mt-2">
                   <span className="text-sm">
                     Min sugerido: <strong>{sugerenciasInteligentes.stockMinimo}</strong>
@@ -1503,12 +1503,12 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
           {modoVariantes && (
             <TabPanel tabId="variantes" className="mt-6">
               <div className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
                   <div className="flex items-center gap-2">
-                    <GitBranch className="h-4 w-4 text-blue-600" />
+                    <GitBranch className="h-4 w-4 text-sky-600" />
                     <div>
-                      <p className="text-sm font-medium text-blue-800">Producto con variantes</p>
-                      <p className="text-xs text-blue-600">
+                      <p className="text-sm font-medium text-sky-800">Producto con variantes</p>
+                      <p className="text-xs text-sky-600">
                         Los campos de los tabs anteriores (marca, nombre, categorías) se comparten entre todas las variantes.
                         Aquí defines lo que cambia en cada una.
                       </p>

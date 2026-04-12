@@ -136,7 +136,7 @@ export const ReporteDirectoIndirecto: React.FC<{ mes?: number; anio?: number }> 
       <div className="mb-4">
         <div className="flex h-6 rounded-full overflow-hidden">
           <div
-            className="bg-blue-500 flex items-center justify-center text-xs text-white font-medium"
+            className="bg-sky-500 flex items-center justify-center text-xs text-white font-medium"
             style={{ width: `${Math.max(pctDirecto, 5)}%` }}
           >
             {pctDirecto.toFixed(0)}%
@@ -158,7 +158,7 @@ export const ReporteDirectoIndirecto: React.FC<{ mes?: number; anio?: number }> 
       <div className="grid grid-cols-2 gap-4">
         {/* Directos */}
         <div className="space-y-2">
-          <div className="text-xs font-semibold text-blue-700 uppercase">Directos</div>
+          <div className="text-xs font-semibold text-sky-700 uppercase">Directos</div>
           <Linea label="Importaci\u00f3n" monto={data.costosImportacion} total={data.totalGeneral} color="blue" />
           <Linea label="Por Venta" monto={data.costosVenta} total={data.totalGeneral} color="blue" />
         </div>
@@ -192,7 +192,7 @@ const Linea: React.FC<{ label: string; monto: number; total: number; color: 'blu
   return (
     <div className="flex items-center justify-between text-xs">
       <span className="text-slate-600">{label}</span>
-      <span className={`font-medium ${color === 'blue' ? 'text-blue-700' : 'text-amber-700'}`}>
+      <span className={`font-medium ${color === 'blue' ? 'text-sky-700' : 'text-amber-700'}`}>
         {fmt} <span className="text-slate-400">({pct.toFixed(0)}%)</span>
       </span>
     </div>

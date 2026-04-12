@@ -23,7 +23,7 @@ interface CallNotesModalProps {
 }
 
 const SENTIMIENTO_CONFIG = {
-  positivo: { label: 'Positivo', color: 'text-green-600 bg-green-50', icon: '😊' },
+  positivo: { label: 'Positivo', color: 'text-emerald-600 bg-emerald-50', icon: '😊' },
   neutral: { label: 'Neutral', color: 'text-slate-600 bg-slate-50', icon: '😐' },
   tenso: { label: 'Tenso', color: 'text-orange-600 bg-orange-50', icon: '😰' },
   urgente: { label: 'Urgente', color: 'text-red-600 bg-red-50', icon: '🚨' },
@@ -207,7 +207,7 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
               {analisis.tareas.length > 0 && (
                 <CollapsibleSection
                   titulo="Tareas Asignadas"
-                  icon={<Target className="h-4 w-4 text-blue-500" />}
+                  icon={<Target className="h-4 w-4 text-sky-500" />}
                   count={analisis.tareas.length}
                   abierta={seccionesAbiertas.tareas}
                   onToggle={() => toggleSeccion('tareas')}
@@ -216,13 +216,13 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                     {analisis.tareas.map((tarea, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100"
+                        className="flex items-start gap-3 p-3 bg-sky-50/50 rounded-lg border border-sky-100"
                       >
-                        <CheckCircle2 className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-sky-400 mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-slate-800">{tarea.descripcion}</p>
                           <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
-                            <span className="font-medium text-blue-600">
+                            <span className="font-medium text-sky-600">
                               {tarea.responsable}
                             </span>
                             {tarea.deadline && (
@@ -279,7 +279,7 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
               {analisis.seguimientos.length > 0 && (
                 <CollapsibleSection
                   titulo="Seguimientos"
-                  icon={<ArrowRight className="h-4 w-4 text-green-500" />}
+                  icon={<ArrowRight className="h-4 w-4 text-emerald-500" />}
                   count={analisis.seguimientos.length}
                   abierta={seccionesAbiertas.seguimientos}
                   onToggle={() => toggleSeccion('seguimientos')}
@@ -288,12 +288,12 @@ export const CallNotesModal: React.FC<CallNotesModalProps> = ({ intelId, onClose
                     {analisis.seguimientos.map((seg, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-3 p-2.5 bg-green-50/50 rounded-lg border border-green-100"
+                        className="flex items-center gap-3 p-2.5 bg-emerald-50/50 rounded-lg border border-emerald-100"
                       >
-                        <ArrowRight className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                        <ArrowRight className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                         <div className="flex-1">
                           <p className="text-sm text-slate-800">{seg.accion}</p>
-                          <span className="text-xs text-green-600 font-medium">
+                          <span className="text-xs text-emerald-600 font-medium">
                             {seg.responsable}
                             {seg.plazo ? ` — ${seg.plazo}` : ''}
                           </span>

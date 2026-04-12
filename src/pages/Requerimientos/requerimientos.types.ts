@@ -53,8 +53,8 @@ export interface KanbanColumn {
 
 export const KANBAN_COLUMN_DEFS: KanbanColumn[] = [
   { id: 'pendiente', label: 'Pendientes', color: 'bg-yellow-500' },
-  { id: 'aprobado', label: 'Aprobados', color: 'bg-blue-500' },
+  { id: 'aprobado', label: 'Aprobados', color: 'bg-sky-500' },
   { id: 'parcial', label: 'OC Parcial', color: 'bg-teal-500' },
   { id: 'en_proceso', label: 'En Proceso', color: 'bg-purple-500' },
-  { id: 'completado', label: 'Completados', color: 'bg-green-500' }
+  { id: 'completado', label: 'Completados', color: 'bg-emerald-500' }
 ];

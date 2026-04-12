@@ -61,14 +61,14 @@ export const MigracionModal: React.FC<MigracionModalProps> = ({
       <div className="space-y-6">
         {estado === 'idle' && (
           <>
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-sky-500 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-blue-800 dark:text-blue-200">
+                  <h4 className="font-medium text-sky-800 dark:text-sky-200">
                     Importar 132 productos
                   </h4>
-                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                  <p className="text-sm text-sky-700 dark:text-sky-300 mt-1">
                     Esta acción importará los productos del archivo CSV del sistema antiguo.
                     Los productos duplicados (misma marca, nombre comercial, dosaje y contenido)
                     serán omitidos automáticamente.
@@ -119,16 +119,16 @@ export const MigracionModal: React.FC<MigracionModalProps> = ({
         {estado === 'completed' && resultado && (
           <>
             <div className="text-center py-4">
-              <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+              <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
                 Migración Completada
               </h3>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-green-600">{resultado.creados}</div>
-                <div className="text-sm text-green-700 dark:text-green-300">Creados</div>
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-emerald-600">{resultado.creados}</div>
+                <div className="text-sm text-emerald-700 dark:text-emerald-300">Creados</div>
               </div>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-yellow-600">{resultado.omitidos}</div>

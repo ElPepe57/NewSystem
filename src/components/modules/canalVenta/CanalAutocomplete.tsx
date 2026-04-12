@@ -455,7 +455,7 @@ export const CanalAutocomplete: React.FC<CanalAutocompleteProps> = ({
                         </span>
                       )}
                       {canal.esSistema && (
-                        <span className="text-xs text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                        <span className="text-xs text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded">
                           Sistema
                         </span>
                       )}

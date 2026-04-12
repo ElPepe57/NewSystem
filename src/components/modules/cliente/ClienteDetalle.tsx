@@ -134,8 +134,8 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
 
   const getClasificacionColor = (clasificacion?: string) => {
     switch (clasificacion) {
-      case 'A': return 'bg-green-100 text-green-700 border-green-300';
-      case 'B': return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'A': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+      case 'B': return 'bg-sky-100 text-sky-700 border-sky-300';
       case 'C': return 'bg-amber-100 text-amber-700 border-amber-300';
       default: return 'bg-slate-100 text-slate-700 border-slate-300';
     }
@@ -146,10 +146,10 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-sky-50">
           <div className="flex items-center space-x-4">
-            <div className="h-14 w-14 bg-blue-100 rounded-full flex items-center justify-center">
-              <User className="h-7 w-7 text-blue-600" />
+            <div className="h-14 w-14 bg-sky-100 rounded-full flex items-center justify-center">
+              <User className="h-7 w-7 text-sky-600" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-slate-900">{cliente.nombre}</h2>
@@ -183,7 +183,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
               onClick={() => setTabActiva('info')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'info'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-sky-500 text-sky-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
@@ -194,7 +194,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
               onClick={() => setTabActiva('ventas')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'ventas'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-sky-500 text-sky-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
@@ -210,7 +210,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
               onClick={() => setTabActiva('financiero')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 tabActiva === 'financiero'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-sky-500 text-sky-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
@@ -229,7 +229,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
             </div>
           ) : (
             <>
@@ -238,27 +238,27 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                 <div className="space-y-6">
                   {/* KPIs rapidos */}
                   <div className="grid grid-cols-4 gap-4">
-                    <Card padding="md" className="bg-blue-50">
+                    <Card padding="md" className="bg-sky-50">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-xs text-blue-600 font-medium">Total Compras</div>
-                          <div className="text-2xl font-bold text-blue-700">
+                          <div className="text-xs text-sky-600 font-medium">Total Compras</div>
+                          <div className="text-2xl font-bold text-sky-700">
                             {cliente.metricas?.totalCompras || 0}
                           </div>
                         </div>
-                        <ShoppingCart className="h-8 w-8 text-blue-400" />
+                        <ShoppingCart className="h-8 w-8 text-sky-400" />
                       </div>
                     </Card>
 
-                    <Card padding="md" className="bg-green-50">
+                    <Card padding="md" className="bg-emerald-50">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-xs text-green-600 font-medium">Monto Total</div>
-                          <div className="text-2xl font-bold text-green-700">
+                          <div className="text-xs text-emerald-600 font-medium">Monto Total</div>
+                          <div className="text-2xl font-bold text-emerald-700">
                             S/ {(cliente.metricas?.montoTotalPEN || 0).toLocaleString()}
                           </div>
                         </div>
-                        <DollarSign className="h-8 w-8 text-green-400" />
+                        <DollarSign className="h-8 w-8 text-emerald-400" />
                       </div>
                     </Card>
 
@@ -386,7 +386,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                         {cliente.direcciones.map((dir) => (
                           <div
                             key={dir.id}
-                            className={`p-3 rounded-lg border ${dir.esPrincipal ? 'border-blue-300 bg-blue-50' : 'border-slate-200'}`}
+                            className={`p-3 rounded-lg border ${dir.esPrincipal ? 'border-sky-300 bg-sky-50' : 'border-slate-200'}`}
                           >
                             <div className="flex items-center gap-2 mb-1">
                               <span className="font-medium text-sm">{dir.etiqueta}</span>
@@ -420,13 +420,13 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                 <div className="space-y-6">
                   {/* Resumen de ventas */}
                   <div className="grid grid-cols-3 gap-4">
-                    <Card padding="md" className="bg-green-50">
+                    <Card padding="md" className="bg-emerald-50">
                       <div className="text-center">
-                        <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-green-700">
+                        <CheckCircle className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
+                        <div className="text-2xl font-bold text-emerald-700">
                           {historial.resumen.ventasCompletadas}
                         </div>
-                        <div className="text-xs text-green-600">Completadas</div>
+                        <div className="text-xs text-emerald-600">Completadas</div>
                       </div>
                     </Card>
 
@@ -468,8 +468,8 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                             <Card key={v.id} padding="sm" className="hover:bg-slate-50">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
-                                  <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <FileText className="h-5 w-5 text-blue-600" />
+                                  <div className="h-10 w-10 bg-sky-100 rounded-lg flex items-center justify-center">
+                                    <FileText className="h-5 w-5 text-sky-600" />
                                   </div>
                                   <div>
                                     <div className="font-medium text-slate-900">{v.numeroVenta}</div>
@@ -488,7 +488,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                                   </div>
 
                                   <div className="text-center">
-                                    <div className="text-sm font-medium text-green-600">
+                                    <div className="text-sm font-medium text-emerald-600">
                                       S/ {v.totalPEN.toLocaleString()}
                                     </div>
                                     <div className="text-xs text-slate-500">Total</div>
@@ -514,13 +514,13 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                 <div className="space-y-6">
                   {/* KPIs financieros */}
                   <div className="grid grid-cols-4 gap-4">
-                    <Card padding="md" className="bg-green-50">
+                    <Card padding="md" className="bg-emerald-50">
                       <div className="text-center">
-                        <CheckCircle className="h-6 w-6 text-green-500 mx-auto mb-2" />
-                        <div className="text-xl font-bold text-green-700">
+                        <CheckCircle className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
+                        <div className="text-xl font-bold text-emerald-700">
                           S/ {historial.resumen.totalCobradoPEN.toLocaleString()}
                         </div>
-                        <div className="text-xs text-green-600">Total Cobrado</div>
+                        <div className="text-xs text-emerald-600">Total Cobrado</div>
                       </div>
                     </Card>
 
@@ -534,13 +534,13 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                       </div>
                     </Card>
 
-                    <Card padding="md" className="bg-blue-50">
+                    <Card padding="md" className="bg-sky-50">
                       <div className="text-center">
-                        <TrendingUp className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-                        <div className="text-xl font-bold text-blue-700">
+                        <TrendingUp className="h-6 w-6 text-sky-500 mx-auto mb-2" />
+                        <div className="text-xl font-bold text-sky-700">
                           S/ {historial.resumen.ticketPromedio.toFixed(0)}
                         </div>
-                        <div className="text-xs text-blue-600">Ticket Promedio</div>
+                        <div className="text-xs text-sky-600">Ticket Promedio</div>
                       </div>
                     </Card>
 
@@ -562,7 +562,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                       <div className="relative">
                         <div className="h-6 bg-slate-200 rounded-full overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-green-500 transition-all"
+                            className="h-full rounded-full bg-emerald-500 transition-all"
                             style={{
                               width: `${Math.min(
                                 (historial.resumen.totalCobradoPEN / historial.resumen.totalVendidoPEN) * 100,
@@ -626,12 +626,12 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                   {historial.cobradas.length > 0 && (
                     <div>
                       <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-                        <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
+                        <CheckCircle className="h-5 w-5 mr-2 text-emerald-500" />
                         Ventas Cobradas ({historial.cobradas.length})
                       </h3>
                       <div className="space-y-3">
                         {historial.cobradas.slice(0, 5).map((v) => (
-                          <Card key={v.id} padding="sm" className="border-l-4 border-l-green-400 bg-green-50">
+                          <Card key={v.id} padding="sm" className="border-l-4 border-l-emerald-400 bg-emerald-50">
                             <div className="flex items-center justify-between">
                               <div>
                                 <div className="font-medium text-slate-900">{v.numeroVenta}</div>
@@ -644,7 +644,7 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                               </div>
                               <div className="flex items-center space-x-4">
                                 <div className="text-right">
-                                  <div className="text-lg font-bold text-green-700">
+                                  <div className="text-lg font-bold text-emerald-700">
                                     S/ {v.totalPEN.toLocaleString()}
                                   </div>
                                 </div>

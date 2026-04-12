@@ -195,8 +195,8 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
   const getColorByTipo = (tipo: TipoProveedor): string => {
     const colores: Record<TipoProveedor, string> = {
       fabricante: 'bg-purple-100 text-purple-800',
-      distribuidor: 'bg-blue-100 text-blue-800',
-      mayorista: 'bg-green-100 text-green-800',
+      distribuidor: 'bg-sky-100 text-sky-800',
+      mayorista: 'bg-emerald-100 text-emerald-800',
       minorista: 'bg-slate-100 text-slate-800'
     };
     return colores[tipo] || colores.distribuidor;
@@ -227,7 +227,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
             block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm
             focus:ring-teal-500 focus:border-teal-500
             ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
-            ${value ? 'border-green-300 bg-green-50' : 'border-slate-300'}
+            ${value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
           `}
         />
 
@@ -235,7 +235,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
           {value ? (
             <div className="flex items-center space-x-1">
-              <Check className="h-4 w-4 text-green-500" />
+              <Check className="h-4 w-4 text-emerald-500" />
               {!disabled && (
                 <button
                   type="button"
@@ -295,7 +295,7 @@ export const ProveedorAutocomplete: React.FC<ProveedorAutocompleteProps> = ({
                 <button
                   type="button"
                   onClick={handleShowCreate}
-                  className="w-full px-4 py-3 text-left hover:bg-blue-50 text-teal-600 flex items-center"
+                  className="w-full px-4 py-3 text-left hover:bg-sky-50 text-teal-600 flex items-center"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Crear nuevo proveedor "{inputValue}"

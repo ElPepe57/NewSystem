@@ -37,8 +37,8 @@ interface OCFormStep2Props {
 const NIVEL_ORDER: NivelPrecio[] = ['excelente', 'bueno', 'aceptable', 'alto', 'muy_alto'];
 
 const NIVEL_SUMMARY: Record<NivelPrecio, { icon: React.FC<any>; color: string; label: string }> = {
-  excelente: { icon: CheckCircle, color: 'text-green-600', label: 'excelentes' },
-  bueno:     { icon: CheckCircle, color: 'text-blue-600',  label: 'buenos' },
+  excelente: { icon: CheckCircle, color: 'text-emerald-600', label: 'excelentes' },
+  bueno:     { icon: CheckCircle, color: 'text-sky-600',  label: 'buenos' },
   aceptable: { icon: TrendingUp,  color: 'text-slate-600',  label: 'aceptables' },
   alto:      { icon: AlertTriangle, color: 'text-amber-600', label: 'altos' },
   muy_alto:  { icon: XCircle,     color: 'text-red-600',    label: 'muy altos' },
@@ -187,7 +187,7 @@ export const OCFormStep2: React.FC<OCFormStep2Props> = ({ state, dispatch, produ
   return (
     <div className="space-y-4">
       {/* ── Summary bar ── */}
-      <div className="p-4 rounded-xl bg-gradient-to-r from-slate-50 to-white border border-slate-200">
+      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
         <div className="flex items-center gap-2 mb-2">
           <BarChart3 className="h-4 w-4 text-teal-600" />
           <h3 className="text-sm font-semibold text-slate-800">Resumen OC</h3>
@@ -205,7 +205,7 @@ export const OCFormStep2: React.FC<OCFormStep2Props> = ({ state, dispatch, produ
               <span className="text-slate-300">|</span>
               <span>
                 Margen prom: <span className={`font-medium ${
-                  summary.avgMargen >= 30 ? 'text-green-700' :
+                  summary.avgMargen >= 30 ? 'text-emerald-700' :
                   summary.avgMargen >= 15 ? 'text-amber-700' :
                   'text-red-700'
                 }`}>{summary.avgMargen.toFixed(0)}%</span>

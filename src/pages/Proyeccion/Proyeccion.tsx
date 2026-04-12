@@ -11,8 +11,9 @@ import {
   ReferenceLine, Cell, PieChart, Pie
 } from 'recharts';
 import { Card } from '../../components/common';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
+import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { useCTRUStore } from '../../store/ctruStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
@@ -52,7 +53,8 @@ export const Proyeccion: React.FC = () => {
   if (ctruLoading) {
     return (
       <PageShell>
-        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp} />
+        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp}
+        titleExtra={<LineaDropdown />} />
         <Toolbar />
         <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
         <div className="flex items-center justify-center h-64">
@@ -66,7 +68,8 @@ export const Proyeccion: React.FC = () => {
   if (!proy) {
     return (
       <PageShell>
-        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp} />
+        <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp}
+        titleExtra={<LineaDropdown />} />
         <Toolbar />
         <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
         <Card className="p-8 text-center text-slate-500">
@@ -87,10 +90,10 @@ export const Proyeccion: React.FC = () => {
 
   return (
     <PageShell>
-      <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp} />
+      <PageHeader title="Proyeccion 360" subtitle="Ventas · Costos · Margen · Inventario · Flujo de Caja" icon={TrendingUp}
+        titleExtra={<LineaDropdown />} />
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
       <Toolbar />
       <Hero horizonte={horizonte} setHorizonte={setHorizonte} />
 
@@ -140,7 +143,7 @@ export const Proyeccion: React.FC = () => {
       <div className="text-center text-xs text-slate-400 pb-2">
         Basado en {proy.mesesHistorial} meses de historial |
         Confianza: <span className={`font-medium ${
-          proy.confianza === 'alta' ? 'text-green-600' : proy.confianza === 'media' ? 'text-amber-600' : 'text-slate-500'
+          proy.confianza === 'alta' ? 'text-emerald-600' : proy.confianza === 'media' ? 'text-amber-600' : 'text-slate-500'
         }`}>{proy.confianza}</span> |
         Horizonte: {proy.horizonte} días |
         {proy.fechaGeneracion.toLocaleTimeString('es-PE')}
@@ -212,10 +215,10 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
             <div key={i} className={`flex items-start gap-3 p-2.5 rounded-lg text-sm ${
               a.severidad === 'danger' ? 'bg-red-50 border border-red-200' :
               a.severidad === 'warning' ? 'bg-amber-50 border border-amber-200' :
-              'bg-blue-50 border border-blue-200'
+              'bg-sky-50 border border-sky-200'
             }`}>
               <AlertCircle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                a.severidad === 'danger' ? 'text-red-500' : a.severidad === 'warning' ? 'text-amber-500' : 'text-blue-500'
+                a.severidad === 'danger' ? 'text-red-500' : a.severidad === 'warning' ? 'text-amber-500' : 'text-sky-500'
               }`} />
               <div>
                 <div className="font-medium">{a.mensaje}</div>
@@ -231,7 +234,7 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {proy.escenarios.map(e => (
         <Card key={e.nombre} className={`p-4 border-l-4 ${
-          e.nombre === 'optimista' ? 'border-green-500' : e.nombre === 'pesimista' ? 'border-red-500' : 'border-blue-500'
+          e.nombre === 'optimista' ? 'border-emerald-500' : e.nombre === 'pesimista' ? 'border-red-500' : 'border-sky-500'
         }`}>
           <div className="flex items-center justify-between mb-2">
             <span className="font-bold text-sm capitalize">{e.nombre}</span>
@@ -240,7 +243,7 @@ const TabEjecutiva: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
           <div className="text-lg font-bold mb-1">{fc(e.utilidad)}</div>
           <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-2">
             <div className={`h-full rounded-full ${
-              e.margen >= 20 ? 'bg-green-500' : e.margen >= 10 ? 'bg-amber-400' : 'bg-red-500'
+              e.margen >= 20 ? 'bg-emerald-500' : e.margen >= 10 ? 'bg-amber-400' : 'bg-red-500'
             }`} style={{ width: `${Math.max(0, Math.min(e.margen * 2.5, 100))}%` }} />
           </div>
           <div className="flex justify-between text-xs text-slate-500">
@@ -268,45 +271,75 @@ const TabVentas: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
     </div>
 
     {/* Tabla por producto */}
-    <Card className="p-4">
-      <h3 className="font-semibold text-sm mb-3">Ventas Proyectadas por Producto</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr className="border-b text-xs text-slate-500">
-              <th className="text-left py-2 px-2">Producto</th>
-              <th className="text-right py-2 px-2">Vel. venta/mes</th>
-              <th className="text-right py-2 px-2">Stock</th>
-              <th className="text-right py-2 px-2">Días stock</th>
-              <th className="text-right py-2 px-2">Uds. vendibles</th>
-              <th className="text-right py-2 px-2">Ingreso proy.</th>
-              <th className="text-center py-2 px-2">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {proy.ventas.productos.sort((a, b) => b.ingresosProyectados - a.ingresosProyectados).map(p => (
-              <tr key={p.productoId} className="border-b border-slate-50 hover:bg-slate-50">
-                <td className="py-2 px-2 font-medium">{p.nombre}</td>
-                <td className="py-2 px-2 text-right">{p.ventasMensuales.toFixed(1)}</td>
-                <td className="py-2 px-2 text-right">{Math.round(p.unidadesProyectadas + (p.limitadoPorStock ? 0 : 0))}</td>
-                <td className="py-2 px-2 text-right font-mono">
-                  <span className={p.diasHastaStockout < 30 ? 'text-red-600 font-bold' : ''}>{p.diasHastaStockout === Infinity ? '∞' : `${p.diasHastaStockout}d`}</span>
-                </td>
-                <td className="py-2 px-2 text-right">{p.unidadesProyectadas}</td>
-                <td className="py-2 px-2 text-right font-medium">{fc(p.ingresosProyectados)}</td>
-                <td className="py-2 px-2 text-center">
-                  {p.limitadoPorStock ? (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Stock limita</span>
-                  ) : (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">OK</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
+    {(() => {
+      type ProductoVenta = typeof proy.ventas.productos[number];
+      const colsVentas: DataTableColumn<ProductoVenta>[] = [
+        {
+          key: 'nombre',
+          header: 'Producto',
+          render: (p) => <span className="font-medium">{p.nombre}</span>,
+        },
+        {
+          key: 'ventasMensuales',
+          header: 'Vel. venta/mes',
+          align: 'right',
+          hideOnMobile: true,
+          render: (p) => p.ventasMensuales.toFixed(1),
+        },
+        {
+          key: 'stock',
+          header: 'Stock',
+          align: 'right',
+          hideOnMobile: true,
+          render: (p) => Math.round(p.unidadesProyectadas + (p.limitadoPorStock ? 0 : 0)),
+        },
+        {
+          key: 'diasHastaStockout',
+          header: 'Días stock',
+          align: 'right',
+          render: (p) => (
+            <span className={`font-mono ${p.diasHastaStockout < 30 ? 'text-red-600 font-bold' : ''}`}>
+              {p.diasHastaStockout === Infinity ? '∞' : `${p.diasHastaStockout}d`}
+            </span>
+          ),
+        },
+        {
+          key: 'unidadesProyectadas',
+          header: 'Uds. vendibles',
+          align: 'right',
+          hideOnMobile: true,
+          render: (p) => p.unidadesProyectadas,
+        },
+        {
+          key: 'ingresosProyectados',
+          header: 'Ingreso proy.',
+          align: 'right',
+          render: (p) => <span className="font-medium">{fc(p.ingresosProyectados)}</span>,
+        },
+        {
+          key: 'estado',
+          header: 'Estado',
+          align: 'center',
+          render: (p) => p.limitadoPorStock ? (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">Stock limita</span>
+          ) : (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">OK</span>
+          ),
+        },
+      ];
+      const sortedProducts = [...proy.ventas.productos].sort((a, b) => b.ingresosProyectados - a.ingresosProyectados);
+      return (
+        <Card className="p-4">
+          <h3 className="font-semibold text-sm mb-3">Ventas Proyectadas por Producto</h3>
+          <DataTable
+            data={sortedProducts}
+            columns={colsVentas}
+            keyExtractor={(p) => p.productoId}
+            compact
+          />
+        </Card>
+      );
+    })()}
   </div>
 );
 
@@ -335,13 +368,13 @@ const TabInventario: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-500">{p.disponibles} uds</span>
                 <span className={`text-xs font-bold ${
-                  p.estado === 'critico' ? 'text-red-600' : p.estado === 'atencion' ? 'text-amber-600' : 'text-green-600'
+                  p.estado === 'critico' ? 'text-red-600' : p.estado === 'atencion' ? 'text-amber-600' : 'text-emerald-600'
                 }`}>{p.diasStock === Infinity ? '∞' : `${p.diasStock}d`}</span>
               </div>
             </div>
             <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
               <div className={`h-full rounded-full transition-all ${
-                p.estado === 'critico' ? 'bg-red-500' : p.estado === 'atencion' ? 'bg-amber-400' : 'bg-green-500'
+                p.estado === 'critico' ? 'bg-red-500' : p.estado === 'atencion' ? 'bg-amber-400' : 'bg-emerald-500'
               }`} style={{ width: `${Math.min((p.diasStock / 90) * 100, 100)}%` }} />
             </div>
             {p.necesitaRecompra && (
@@ -515,36 +548,61 @@ const TabFlujoCaja: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
     </Card>
 
     {/* Tabla semanal */}
-    <Card className="p-4">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr className="border-b text-xs text-slate-500">
-              <th className="text-left py-2 px-2">Semana</th>
-              <th className="text-right py-2 px-2">Cobros</th>
-              <th className="text-right py-2 px-2">Gastos</th>
-              <th className="text-right py-2 px-2">Recompras</th>
-              <th className="text-right py-2 px-2">Flujo neto</th>
-              <th className="text-right py-2 px-2">Saldo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {proy.flujoCaja.semanas.map(s => (
-              <tr key={s.semana} className={`border-b border-slate-50 ${s.critico ? 'bg-red-50' : ''}`}>
-                <td className="py-2 px-2 font-medium">{s.label}</td>
-                <td className="py-2 px-2 text-right text-green-600">{fc(s.totalCobros)}</td>
-                <td className="py-2 px-2 text-right text-red-600">{fc(s.egresosGastos)}</td>
-                <td className="py-2 px-2 text-right">{s.egresosRecompras > 0 ? fc(s.egresosRecompras) : '-'}</td>
-                <td className="py-2 px-2 text-right font-medium">{fc(s.flujoNeto)}</td>
-                <td className={`py-2 px-2 text-right font-bold ${s.saldoAcumulado < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                  {fc(s.saldoAcumulado)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
+    {(() => {
+      type SemanaCaja = typeof proy.flujoCaja.semanas[number];
+      const colsSemanas: DataTableColumn<SemanaCaja>[] = [
+        {
+          key: 'label',
+          header: 'Semana',
+          render: (s) => <span className="font-medium">{s.label}</span>,
+        },
+        {
+          key: 'totalCobros',
+          header: 'Cobros',
+          align: 'right',
+          render: (s) => <span className="text-emerald-600">{fc(s.totalCobros)}</span>,
+        },
+        {
+          key: 'egresosGastos',
+          header: 'Gastos',
+          align: 'right',
+          render: (s) => <span className="text-red-600">{fc(s.egresosGastos)}</span>,
+        },
+        {
+          key: 'egresosRecompras',
+          header: 'Recompras',
+          align: 'right',
+          hideOnMobile: true,
+          render: (s) => s.egresosRecompras > 0 ? fc(s.egresosRecompras) : '-',
+        },
+        {
+          key: 'flujoNeto',
+          header: 'Flujo neto',
+          align: 'right',
+          render: (s) => <span className="font-medium">{fc(s.flujoNeto)}</span>,
+        },
+        {
+          key: 'saldoAcumulado',
+          header: 'Saldo',
+          align: 'right',
+          render: (s) => (
+            <span className={`font-bold ${s.saldoAcumulado < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+              {fc(s.saldoAcumulado)}
+            </span>
+          ),
+        },
+      ];
+      return (
+        <Card className="p-4">
+          <DataTable
+            data={proy.flujoCaja.semanas}
+            columns={colsSemanas}
+            keyExtractor={(s) => String(s.semana)}
+            compact
+          />
+        </Card>
+      );
+    })()}
   </div>
 );
 
@@ -555,7 +613,7 @@ const TabFlujoCaja: React.FC<{ proy: Proyeccion360 }> = ({ proy }) => (
 function fc(n: number): string { return formatCurrency(n); }
 
 const Hero: React.FC<{ horizonte: Horizonte360; setHorizonte: (h: Horizonte360) => void }> = ({ horizonte, setHorizonte }) => (
-  <div className="bg-gradient-to-r from-violet-600 to-teal-700 rounded-xl p-6 text-white mb-2">
+  <div className="bg-teal-700 rounded-xl p-6 text-white mb-2">
     <div className="flex items-center justify-between">
       <div>
         <div className="flex items-center gap-3 mb-1">
@@ -586,14 +644,14 @@ const KPI: React.FC<{
       <span className="text-[11px] text-slate-500">{label}</span>
     </div>
     <div className={`text-lg font-bold ${
-      color === 'green' ? 'text-green-600' : color === 'red' ? 'text-red-600' :
+      color === 'green' ? 'text-emerald-600' : color === 'red' ? 'text-red-600' :
       color === 'amber' ? 'text-amber-600' : 'text-slate-900'
     }`}>{valor}</div>
     {(sub || trend !== undefined) && (
       <div className="flex items-center gap-2 mt-0.5">
         {sub && <span className="text-[10px] text-slate-400">{sub}</span>}
         {trend !== undefined && (
-          <span className={`text-[10px] font-bold ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+          <span className={`text-[10px] font-bold ${trend >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
             {trend > 0 ? '+' : ''}{trend.toFixed(1)}%
           </span>
         )}
@@ -606,7 +664,7 @@ const MiniKPI: React.FC<{ label: string; valor: string; color?: 'green' | 'red' 
   <div className="bg-slate-50 rounded-lg p-3">
     <div className="text-[10px] text-slate-400 mb-0.5">{label}</div>
     <div className={`text-sm font-bold ${
-      color === 'green' ? 'text-green-600' : color === 'red' ? 'text-red-600' :
+      color === 'green' ? 'text-emerald-600' : color === 'red' ? 'text-red-600' :
       color === 'amber' ? 'text-amber-600' : 'text-slate-900'
     }`}>{valor}</div>
   </div>
@@ -624,7 +682,7 @@ const PYLRow: React.FC<{
       </span>
       {pct !== undefined && (
         <span className={`text-xs font-bold ${
-          color === 'green' ? 'text-green-600' : color === 'amber' ? 'text-amber-600' : 'text-red-600'
+          color === 'green' ? 'text-emerald-600' : color === 'amber' ? 'text-amber-600' : 'text-red-600'
         }`}>{pct.toFixed(1)}%</span>
       )}
     </div>

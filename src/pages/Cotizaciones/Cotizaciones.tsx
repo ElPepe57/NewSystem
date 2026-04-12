@@ -3,7 +3,7 @@ import { formatCurrencyPEN, formatCurrency as formatCurrencyUtil } from '../../u
 import { Plus, RefreshCw, FileText } from 'lucide-react';
 import { Button, ConfirmDialog, useConfirmDialog } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { CotizacionForm } from './CotizacionForm';
 import { CotizacionesMetricas } from './CotizacionesMetricas';
 import { CotizacionesAlertas } from './CotizacionesAlertas';
@@ -525,7 +525,6 @@ export const Cotizaciones: React.FC = () => {
       />
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
 
       {/* Toolbar */}
       <Toolbar

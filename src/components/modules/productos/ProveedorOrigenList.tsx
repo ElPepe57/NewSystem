@@ -102,20 +102,20 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
       {/* Header con estadísticas */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <div className="flex items-center gap-2">
-          <DollarSign className="h-5 w-5 text-blue-600" />
+          <DollarSign className="h-5 w-5 text-sky-600" />
           <h4 className="font-medium text-slate-900">{labelProveedor}</h4>
           <span className="text-sm text-slate-500">({proveedores.length})</span>
         </div>
         {proveedores.length > 0 && (
           <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
             <span className="text-slate-500">
-              Min: <span className="font-medium text-green-600">${min.toFixed(2)}</span>
+              Min: <span className="font-medium text-emerald-600">${min.toFixed(2)}</span>
             </span>
             <span className="text-slate-500">
               Max: <span className="font-medium text-red-600">${max.toFixed(2)}</span>
             </span>
             <span className="text-slate-500">
-              Prom: <span className="font-medium text-blue-600">${promedio.toFixed(2)}</span>
+              Prom: <span className="font-medium text-sky-600">${promedio.toFixed(2)}</span>
             </span>
           </div>
         )}
@@ -127,7 +127,7 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
           <div
             key={proveedor.id}
             className={`border rounded-lg transition-all ${
-              expandedId === proveedor.id ? 'border-blue-300 bg-blue-50/50' : 'border-slate-200 bg-white'
+              expandedId === proveedor.id ? 'border-sky-300 bg-sky-50/50' : 'border-slate-200 bg-white'
             }`}
           >
             {/* Fila compacta */}
@@ -148,13 +148,13 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-slate-400" />
                   <span className={`font-medium ${
-                    proveedor.precio === min && min > 0 ? 'text-green-600' :
+                    proveedor.precio === min && min > 0 ? 'text-emerald-600' :
                     proveedor.precio === max && max > 0 ? 'text-red-600' : 'text-slate-700'
                   }`}>
                     ${(proveedor.precio || 0).toFixed(2)}
                   </span>
                   {proveedor.precio === min && min > 0 && (
-                    <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Mejor</span>
+                    <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Mejor</span>
                   )}
                 </div>
 
@@ -174,13 +174,13 @@ export const ProveedorOrigenList: React.FC<ProveedorOrigenListProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-sky-600 hover:text-sky-800"
                     >
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   )}
                   <span className={`text-xs px-2 py-0.5 rounded ${
-                    proveedor.disponibilidad === 'en_stock' ? 'bg-green-100 text-green-700' :
+                    proveedor.disponibilidad === 'en_stock' ? 'bg-emerald-100 text-emerald-700' :
                     proveedor.disponibilidad === 'bajo_stock' ? 'bg-yellow-100 text-yellow-700' :
                     proveedor.disponibilidad === 'sin_stock' ? 'bg-red-100 text-red-700' :
                     'bg-slate-100 text-slate-600'
@@ -359,8 +359,8 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
   const getColorByTipo = (tipo: TipoProveedor): string => {
     const colores: Record<TipoProveedor, string> = {
       fabricante: 'bg-purple-100 text-purple-800',
-      distribuidor: 'bg-blue-100 text-blue-800',
-      mayorista: 'bg-green-100 text-green-800',
+      distribuidor: 'bg-sky-100 text-sky-800',
+      mayorista: 'bg-emerald-100 text-emerald-800',
       minorista: 'bg-slate-100 text-slate-800'
     };
     return colores[tipo] || colores.distribuidor;
@@ -394,12 +394,12 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                 block w-full pl-9 pr-8 py-2 border rounded-lg text-sm
                 focus:ring-2 focus:ring-teal-500 focus:border-teal-500
                 ${disabled ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'}
-                ${proveedor.nombre ? 'border-green-300 bg-green-50' : 'border-slate-300'}
+                ${proveedor.nombre ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300'}
               `}
             />
             {proveedor.nombre && (
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-emerald-500" />
               </div>
             )}
           </div>
@@ -447,7 +447,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
                     <button
                       type="button"
                       onClick={handleShowCreate}
-                      className="w-full px-3 py-2 text-left hover:bg-blue-50 text-teal-600 flex items-center border-t border-slate-200"
+                      className="w-full px-3 py-2 text-left hover:bg-sky-50 text-teal-600 flex items-center border-t border-slate-200"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Crear proveedor "{inputValue}"
@@ -636,7 +636,7 @@ const ProveedorExpandido: React.FC<ProveedorExpandidoProps> = ({
               e.stopPropagation();
               onClose();
             }}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
           >
             Listo
           </button>

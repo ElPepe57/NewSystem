@@ -185,9 +185,9 @@ export function EtiquetaForm({
           </div>
         )}
 
-        <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <Tag className="h-5 w-5 text-blue-600" />
-          <p className="text-sm text-blue-700">
+        <div className="flex items-center gap-2 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+          <Tag className="h-5 w-5 text-sky-600" />
+          <p className="text-sm text-sky-700">
             Las etiquetas permiten clasificar productos con atributos flexibles
           </p>
         </div>

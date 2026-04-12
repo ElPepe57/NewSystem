@@ -432,8 +432,8 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
               Calculando disponibilidad...
             </div>
           ) : todosEntregados ? (
-            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-sm text-green-800 flex items-center font-medium">
+            <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+              <p className="text-sm text-emerald-800 flex items-center font-medium">
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Todos los productos ya tienen entregas programadas o completadas.
               </p>
@@ -477,7 +477,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                           key={prod.productoId}
                           className={
                             yaEntregado ? 'bg-slate-50 opacity-60' :
-                            prod.seleccionado ? 'bg-green-50' : ''
+                            prod.seleccionado ? 'bg-emerald-50' : ''
                           }
                         >
                           <td className="px-4 py-2">
@@ -531,8 +531,8 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
 
               {/* Info de entregas previas */}
               {entregasPrevias.length > 0 && (
-                <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-800 flex items-center">
+                <div className="mt-2 p-3 bg-sky-50 rounded-lg border border-sky-200">
+                  <p className="text-sm text-sky-800 flex items-center">
                     <Info className="h-4 w-4 mr-2 flex-shrink-0" />
                     {entregasPrevias.length} entrega(s) previa(s) programada(s). Cantidades restantes mostradas.
                   </p>
@@ -553,9 +553,9 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
         <div className="bg-amber-50 p-4 rounded-lg">
           {/* ISSUE 4: Badges de estado de pago */}
           {venta.estadoPago === 'pagado' && (
-            <div className="flex items-center p-2 bg-green-100 rounded-lg border border-green-200 mb-3">
-              <CheckCircle className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" />
-              <span className="text-sm font-medium text-green-800">
+            <div className="flex items-center p-2 bg-emerald-100 rounded-lg border border-emerald-200 mb-3">
+              <CheckCircle className="h-4 w-4 text-emerald-600 mr-2 flex-shrink-0" />
+              <span className="text-sm font-medium text-emerald-800">
                 Pagado completo - no requiere cobro en destino
               </span>
             </div>
@@ -615,8 +615,8 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
 
           {/* Info de cobros ya programados en entregas previas */}
           {cobroYaProgramado > 0 && (
-            <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-xs text-blue-800 flex items-center">
+            <div className="mt-3 p-2 bg-sky-50 rounded-lg border border-sky-200">
+              <p className="text-xs text-sky-800 flex items-center">
                 <Info className="h-3 w-3 mr-1 flex-shrink-0" />
                 Ya hay cobros programados en entregas anteriores por S/ {cobroYaProgramado.toFixed(2)}
               </p>
@@ -633,9 +633,9 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
         </div>
 
         {/* Costo de distribucion */}
-        <div className="bg-blue-50 p-4 rounded-lg">
+        <div className="bg-sky-50 p-4 rounded-lg">
           <div className="flex items-center mb-3">
-            <DollarSign className="h-5 w-5 text-blue-600 mr-2" />
+            <DollarSign className="h-5 w-5 text-sky-600 mr-2" />
             <span className="font-medium text-slate-900">Gasto de Distribucion (GD)</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

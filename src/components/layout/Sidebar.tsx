@@ -201,43 +201,39 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
     items: filterItemsByPermiso(group.items)
   })).filter(group => group.items.length > 0);
 
-  // Color y gradiente del badge según rol
+  // Color del badge según rol — flat, sin gradientes
   const roleConfig: Record<string, { bg: string; text: string; label: string }> = {
-    admin: { bg: 'bg-gradient-to-r from-red-500 to-orange-500', text: 'text-white', label: 'Administrador' },
-    gerente: { bg: 'bg-gradient-to-r from-purple-500 to-violet-500', text: 'text-white', label: 'Gerente' },
-    vendedor: { bg: 'bg-gradient-to-r from-blue-500 to-cyan-500', text: 'text-white', label: 'Vendedor' },
-    comprador: { bg: 'bg-gradient-to-r from-amber-500 to-yellow-500', text: 'text-white', label: 'Comprador' },
-    almacenero: { bg: 'bg-gradient-to-r from-green-500 to-emerald-500', text: 'text-white', label: 'Almacenero' },
-    finanzas: { bg: 'bg-gradient-to-r from-teal-500 to-cyan-600', text: 'text-white', label: 'Finanzas' },
-    supervisor: { bg: 'bg-gradient-to-r from-teal-500 to-blue-600', text: 'text-white', label: 'Supervisor' },
-    invitado: { bg: 'bg-slate-600', text: 'text-slate-300', label: 'Invitado' }
+    admin: { bg: 'bg-red-50', text: 'text-red-700', label: 'Administrador' },
+    gerente: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Gerente' },
+    vendedor: { bg: 'bg-sky-50', text: 'text-sky-700', label: 'Vendedor' },
+    comprador: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Comprador' },
+    almacenero: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Almacenero' },
+    finanzas: { bg: 'bg-teal-50', text: 'text-teal-700', label: 'Finanzas' },
+    supervisor: { bg: 'bg-teal-50', text: 'text-teal-700', label: 'Supervisor' },
+    invitado: { bg: 'bg-slate-100', text: 'text-slate-500', label: 'Invitado' }
   };
 
   const currentRole = roleConfig[role || 'invitado'];
 
   return (
-    <div className="w-64 h-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 flex flex-col border-r border-slate-800/50 overflow-hidden">
+    <div className="w-64 h-full bg-white flex flex-col border-r border-slate-200 overflow-hidden">
       {/* Logo Vita Skin Peru */}
-      <div className="p-5 border-b border-slate-800/50">
+      <div className="p-5 border-b border-slate-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl shadow-lg shadow-teal-500/20 relative">
+            <div className="p-2 bg-teal-600 rounded-xl relative">
               <Droplets className="h-6 w-6 text-white" />
-              {/* Mini hoja decorativa */}
-              <svg className="absolute -top-1 -right-1 h-3 w-3 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8.17 20C12.04 20 15.54 17.5 17 14C18.45 10.5 17 8 17 8Z"/>
-              </svg>
             </div>
             <div>
-              <h1 className="text-base font-bold text-white tracking-tight leading-tight">Vita Skin</h1>
-              <p className="text-[10px] text-teal-400 font-semibold tracking-wider">PERU</p>
+              <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight">Vita Skin</h1>
+              <p className="text-[10px] text-teal-600 font-semibold tracking-wider">PERU</p>
             </div>
           </div>
           {/* Botón cerrar - solo visible en móvil */}
           {onClose && (
             <button
               onClick={onClose}
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-800 transition-colors text-slate-400 hover:text-white"
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
               aria-label="Cerrar menú"
             >
               <X className="h-5 w-5" />
@@ -246,23 +242,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Usuario actual con mejor diseño */}
+      {/* Usuario actual */}
       {profile && (
-        <div className="mx-3 mt-3 p-3 bg-slate-800/40 rounded-xl border border-slate-700/30">
+        <div className="mx-3 mt-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
           <div className="flex items-center space-x-3">
             {profile.photoURL ? (
               <img
                 src={profile.photoURL}
                 alt={displayName}
-                className="w-9 h-9 rounded-lg object-cover shadow-inner"
+                className="w-9 h-9 rounded-lg object-cover"
               />
             ) : (
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-semibold text-sm shadow-inner">
+              <div className="w-9 h-9 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700 font-semibold text-sm">
                 {displayName?.charAt(0).toUpperCase() || 'U'}
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-white font-medium truncate">{displayName}</p>
+              <p className="text-sm text-slate-900 font-medium truncate">{displayName}</p>
               <span className={`inline-block px-2 py-0.5 text-[10px] font-semibold rounded-md ${currentRole.bg} ${currentRole.text} mt-0.5`}>
                 {currentRole.label}
               </span>
@@ -281,8 +277,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           className={`
             flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all duration-200
             ${location.pathname === '/dashboard'
-              ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-lg shadow-teal-500/25'
-              : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
+              ? 'bg-teal-50 text-teal-700 font-semibold'
+              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             }
           `}
         >
@@ -292,7 +288,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       </div>
 
       {/* Grupos de Menú */}
-      <nav className="flex-1 min-h-0 px-3 py-2 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+      <nav className="flex-1 min-h-0 px-3 py-2 space-y-1 overflow-y-auto">
         {visibleGroups.map((group) => {
           const GroupIcon = group.icon;
           const isExpanded = expandedGroups.has(group.id);
@@ -306,8 +302,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 className={`
                   w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200
                   ${hasActiveItem
-                    ? 'text-teal-400 bg-teal-500/10'
-                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/40'
+                    ? 'text-teal-700'
+                    : 'text-slate-400 hover:text-slate-600'
                   }
                 `}
               >
@@ -329,7 +325,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                   ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
                 `}
               >
-                <div className="ml-2 mt-1 space-y-0.5 border-l border-slate-800 pl-2">
+                <div className="ml-2 mt-1 space-y-0.5 border-l border-slate-200 pl-2">
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path;
@@ -341,12 +337,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                         className={`
                           flex items-center space-x-2.5 px-3 py-2 rounded-lg transition-all duration-150
                           ${isActive
-                            ? 'bg-teal-600/90 text-white shadow-md shadow-teal-500/20'
-                            : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:translate-x-0.5'
+                            ? 'bg-teal-50 text-teal-700 font-semibold'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                           }
                         `}
                       >
-                        <Icon className={`h-4 w-4 ${isActive ? 'text-white' : ''}`} />
+                        <Icon className={`h-4 w-4 ${isActive ? 'text-teal-600' : ''}`} />
                         <span className="text-sm font-medium">{item.label}</span>
                       </Link>
                     );
@@ -358,11 +354,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         })}
       </nav>
 
-      {/* Logout Button con mejor diseño */}
-      <div className="p-3 border-t border-slate-800/50">
+      {/* Logout */}
+      <div className="p-3 border-t border-slate-100">
         <button
           onClick={handleLogout}
-          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full group"
+          className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-red-50 hover:text-red-600 transition-all duration-200 w-full group"
         >
           <LogOut className="h-5 w-5 group-hover:rotate-12 transition-transform" />
           <span className="font-medium">Cerrar Sesión</span>

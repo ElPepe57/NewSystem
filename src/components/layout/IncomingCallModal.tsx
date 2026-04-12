@@ -3,14 +3,14 @@ import { Phone, PhoneOff, Users } from 'lucide-react';
 import { useCollaborationStore } from '../../store/collaborationStore';
 
 const ROLE_COLORS: Record<string, string> = {
-  admin: 'from-red-500 to-orange-500',
-  gerente: 'from-purple-500 to-pink-500',
-  vendedor: 'from-blue-500 to-cyan-500',
-  comprador: 'from-amber-500 to-yellow-500',
-  almacenero: 'from-green-500 to-emerald-500',
-  finanzas: 'from-teal-500 to-cyan-500',
-  supervisor: 'from-teal-500 to-purple-500',
-  invitado: 'from-slate-400 to-slate-500',
+  admin: 'bg-red-500',
+  gerente: 'bg-purple-500',
+  vendedor: 'bg-sky-500',
+  comprador: 'bg-amber-500',
+  almacenero: 'bg-emerald-500',
+  finanzas: 'bg-teal-500',
+  supervisor: 'bg-teal-600',
+  invitado: 'bg-slate-400',
 };
 
 /**
@@ -144,7 +144,7 @@ export const IncomingCallModal: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[320px] overflow-hidden animate-in fade-in zoom-in duration-300">
 
           {/* Header con gradiente */}
-          <div className={`bg-gradient-to-br ${gradientClass} px-6 pt-8 pb-12 text-center relative`}>
+          <div className={`${gradientClass} px-6 pt-8 pb-12 text-center relative`}>
             {/* Ondas de ring animadas */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-32 h-32 rounded-full border-2 border-white/20 animate-ping" />
@@ -185,7 +185,7 @@ export const IncomingCallModal: React.FC = () => {
           <div className="px-6 py-6 text-center -mt-6 bg-white rounded-t-2xl relative">
             {/* Timer */}
             <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
               <span className="text-sm text-slate-500 tabular-nums font-medium">
                 Sonando {timerDisplay}
               </span>
@@ -212,7 +212,7 @@ export const IncomingCallModal: React.FC = () => {
               <div className="flex flex-col items-center gap-2">
                 <button
                   onClick={aceptarLlamada}
-                  className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 active:bg-green-700
+                  className="w-16 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700
                              flex items-center justify-center text-white
                              transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105
                              active:scale-95 animate-pulse"

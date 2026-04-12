@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, Modal } from '../../components/common';
 import { PageShell, PageHeader } from '../../design-system';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
   ResumenCajaCard,
   ProductoIntelCard,
@@ -126,11 +126,11 @@ export const ProductosIntel: React.FC = () => {
       <PageHeader
         title="Inteligencia de Productos"
         subtitle="Analisis de rotacion, liquidez y rentabilidad"
+        titleExtra={<LineaDropdown />}
        
       />
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
 
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
@@ -148,11 +148,11 @@ export const ProductosIntel: React.FC = () => {
                     className={`
                       flex-1 sm:flex-initial relative flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-1.5 rounded-md font-medium transition-colors
                       ${isActive
-                        ? 'bg-white text-blue-600 shadow-sm'
+                        ? 'bg-white text-sky-600 shadow-sm'
                         : 'text-slate-600 hover:text-slate-900'}
                     `}
                   >
-                    <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-blue-600' : ''}`} />
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-sky-600' : ''}`} />
                     <span className="text-[10px] leading-tight sm:hidden">{tab.shortLabel}</span>
                     <span className="hidden sm:inline text-sm">{tab.label}</span>
                     {tab.count !== undefined && (
@@ -160,14 +160,14 @@ export const ProductosIntel: React.FC = () => {
                         {/* Mobile: badge superpuesto */}
                         <span className={`
                           sm:hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-bold
-                          ${isActive ? 'bg-blue-600 text-white' : 'bg-slate-400 text-white'}
+                          ${isActive ? 'bg-sky-600 text-white' : 'bg-slate-400 text-white'}
                         `}>
                           {tab.count}
                         </span>
                         {/* Desktop: badge inline */}
                         <span className={`
                           hidden sm:inline px-1.5 py-0.5 rounded text-xs
-                          ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'}
+                          ${isActive ? 'bg-sky-100 text-sky-700' : 'bg-slate-200 text-slate-600'}
                         `}>
                           {tab.count}
                         </span>
@@ -232,13 +232,13 @@ export const ProductosIntel: React.FC = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
               {[
                 { label: 'Productos Activos', value: productosIntel.length, color: 'blue', icon: Package, valueColor: 'text-slate-900' },
-                { label: 'Alta Liquidez', value: productosIntel.filter(p => p.liquidez.clasificacion === 'alta').length, color: 'green', icon: TrendingUp, valueColor: 'text-green-600' },
+                { label: 'Alta Liquidez', value: productosIntel.filter(p => p.liquidez.clasificacion === 'alta').length, color: 'green', icon: TrendingUp, valueColor: 'text-emerald-600' },
                 { label: 'Caja Congelada', value: productosIntel.filter(p => p.liquidez.clasificacion === 'critica' || p.liquidez.clasificacion === 'baja').length, color: 'red', icon: AlertTriangle, valueColor: 'text-red-600' },
                 { label: 'Repos. Urgente', value: sugerenciasReposicion.filter(s => s.urgencia === 'critica' || s.urgencia === 'alta').length, color: 'purple', icon: Wallet, valueColor: 'text-purple-600' },
               ].map(kpi => {
                 const Icon = kpi.icon;
-                const bgMap: Record<string, string> = { blue: 'bg-blue-100', green: 'bg-green-100', red: 'bg-red-100', purple: 'bg-purple-100' };
-                const iconColorMap: Record<string, string> = { blue: 'text-blue-600', green: 'text-green-600', red: 'text-red-600', purple: 'text-purple-600' };
+                const bgMap: Record<string, string> = { blue: 'bg-sky-100', green: 'bg-emerald-100', red: 'bg-red-100', purple: 'bg-purple-100' };
+                const iconColorMap: Record<string, string> = { blue: 'text-sky-600', green: 'text-emerald-600', red: 'text-red-600', purple: 'text-purple-600' };
                 return (
                   <Card key={kpi.label} className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-1">
@@ -326,7 +326,7 @@ export const ProductosIntel: React.FC = () => {
                   placeholder="Buscar producto..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                 />
               </div>
 
@@ -334,7 +334,7 @@ export const ProductosIntel: React.FC = () => {
               <select
                 value={filtroLiquidez}
                 onChange={(e) => setFiltroLiquidez(e.target.value as any)}
-                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500"
               >
                 <option value="todos">Todas las categorías</option>
                 <optgroup label="Por Tipo de Caja">
@@ -355,7 +355,7 @@ export const ProductosIntel: React.FC = () => {
               <select
                 value={filtroRotacion}
                 onChange={(e) => setFiltroRotacion(e.target.value as any)}
-                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500"
               >
                 <option value="todos">Todas las rotaciones</option>
                 <option value="muy_alta">Muy alta (&lt;7d)</option>
@@ -370,7 +370,7 @@ export const ProductosIntel: React.FC = () => {
               <select
                 value={ordenarPor}
                 onChange={(e) => setOrdenarPor(e.target.value as any)}
-                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500"
               >
                 <option value="score">Ordenar por Score</option>
                 <option value="rotacion">Ordenar por Rotacion</option>
@@ -478,7 +478,7 @@ export const ProductosIntel: React.FC = () => {
                       flex items-start gap-2 p-3 rounded-lg
                       ${alerta.severidad === 'danger' ? 'bg-red-50 text-red-700' : ''}
                       ${alerta.severidad === 'warning' ? 'bg-yellow-50 text-yellow-700' : ''}
-                      ${alerta.severidad === 'info' ? 'bg-blue-50 text-blue-700' : ''}
+                      ${alerta.severidad === 'info' ? 'bg-sky-50 text-sky-700' : ''}
                     `}
                   >
                     <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
@@ -489,9 +489,9 @@ export const ProductosIntel: React.FC = () => {
             )}
 
             {/* Recomendacion */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium text-blue-700 mb-1">Recomendacion</h4>
-              <p className="text-sm text-blue-600">{productoSeleccionado.liquidez.recomendacion}</p>
+            <div className="bg-sky-50 border border-sky-200 rounded-lg p-4">
+              <h4 className="font-medium text-sky-700 mb-1">Recomendacion</h4>
+              <p className="text-sm text-sky-600">{productoSeleccionado.liquidez.recomendacion}</p>
             </div>
           </div>
         )}

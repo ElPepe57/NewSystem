@@ -19,7 +19,7 @@ interface StatusBadgeProps {
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
   children, variant = 'neutral', size = 'sm', dot, icon: Icon, className,
 }) => {
-  const colors = statusColors[variant];
+  const colors = statusColors[variant] || statusColors.neutral;
 
   return (
     <span className={cn(

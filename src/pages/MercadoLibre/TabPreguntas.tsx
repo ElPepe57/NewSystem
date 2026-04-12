@@ -93,7 +93,7 @@ export const TabPreguntas: React.FC<TabPreguntasProps> = ({ questions }) => {
                   <div key={q.id} className="bg-white rounded-xl border border-slate-200 p-4">
                     <p className="text-sm text-slate-800 mb-1">{q.text}</p>
                     {q.answer && (
-                      <p className="text-sm text-green-700 bg-green-50 rounded-lg p-2 mt-2">
+                      <p className="text-sm text-emerald-700 bg-emerald-50 rounded-lg p-2 mt-2">
                         {q.answer.text}
                       </p>
                     )}

@@ -72,11 +72,11 @@ export const VincularUPCModal: React.FC<VincularUPCModalProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title="Vincular Codigo de Barras" size="md">
       <div className="space-y-4">
         {/* Barcode info */}
-        <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <Link2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+        <div className="flex items-center gap-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+          <Link2 className="h-5 w-5 text-sky-600 flex-shrink-0" />
           <div>
-            <p className="text-sm font-medium text-blue-900">Codigo a vincular</p>
-            <p className="font-mono text-sm text-blue-700">{barcode}</p>
+            <p className="text-sm font-medium text-sky-900">Codigo a vincular</p>
+            <p className="font-mono text-sm text-sky-700">{barcode}</p>
           </div>
         </div>
 
@@ -131,14 +131,14 @@ export const VincularUPCModal: React.FC<VincularUPCModalProps> = ({
 
         {/* Selected product */}
         {selected && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-sm font-medium text-green-900">
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <p className="text-sm font-medium text-emerald-900">
               {selected.marca} {selected.nombreComercial}
             </p>
-            <p className="text-xs text-green-700">
+            <p className="text-xs text-emerald-700">
               {getDescripcionProducto(selected)}
             </p>
-            <p className="text-xs text-green-600">SKU: {selected.sku}</p>
+            <p className="text-xs text-emerald-600">SKU: {selected.sku}</p>
 
             {selected.codigoUPC && (
               <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded">

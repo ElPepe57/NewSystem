@@ -18,10 +18,10 @@ import type { MetodoPagoUnificado } from '../../../types/pago.types';
 
 function getIconoCuenta(tipo: string) {
   switch (tipo) {
-    case 'efectivo': return <Banknote size={16} className="text-green-600" />;
+    case 'efectivo': return <Banknote size={16} className="text-emerald-600" />;
     case 'digital': return <Smartphone size={16} className="text-purple-600" />;
     case 'credito': return <CreditCard size={16} className="text-amber-600" />;
-    default: return <Wallet size={16} className="text-blue-600" />;
+    default: return <Wallet size={16} className="text-sky-600" />;
   }
 }
 

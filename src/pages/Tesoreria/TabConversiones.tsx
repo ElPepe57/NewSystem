@@ -7,7 +7,9 @@ import {
   RefreshCw,
   Wallet
 } from 'lucide-react';
-import { Button, Card, Modal } from '../../components/common';
+import { Button, Card } from '../../components/common';
+import { FormModal, DataTable } from '../../design-system';
+import type { DataTableColumn as Column } from '../../design-system';
 import type {
   ConversionCambiaria,
   CuentaCaja,
@@ -37,6 +39,67 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
   isSubmitting,
   handleCrearConversion,
 }) => {
+  const conversionColumns: Column<ConversionCambiaria>[] = [
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      align: 'left',
+      render: (conv) => formatDate(conv.fecha),
+    },
+    {
+      key: 'origen',
+      header: 'Origen',
+      align: 'left',
+      render: (conv) => (
+        <div>
+          <div className="font-medium text-slate-900">
+            {conv.monedaOrigen === 'PEN' ? 'S/ ' : '$ '}
+            {conv.montoOrigen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+          </div>
+          <div className="text-xs text-slate-500">{conv.monedaOrigen}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'destino',
+      header: 'Destino',
+      align: 'left',
+      render: (conv) => (
+        <div>
+          <div className="font-medium text-slate-900">
+            {conv.monedaDestino === 'PEN' ? 'S/ ' : '$ '}
+            {conv.montoDestino.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+          </div>
+          <div className="text-xs text-slate-500">{conv.monedaDestino}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'tipoCambio',
+      header: 'TC Usado',
+      align: 'right',
+      render: (conv) => conv.tipoCambio.toFixed(3),
+    },
+    {
+      key: 'tipoCambioReferencia',
+      header: 'TC Ref.',
+      align: 'right',
+      render: (conv) => (
+        <span className="text-slate-500">{conv.tipoCambioReferencia.toFixed(3)}</span>
+      ),
+    },
+    {
+      key: 'spread',
+      header: 'Spread',
+      align: 'right',
+      render: (conv) => (
+        <span className={conv.spreadCambiario >= 0 ? 'text-emerald-600' : 'text-red-600'}>
+          {conv.spreadCambiario >= 0 ? '+' : ''}{conv.spreadCambiario.toFixed(2)}%
+        </span>
+      ),
+    },
+  ];
+
   return (
     <>
       <Card padding="none">
@@ -62,7 +125,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
               <div key={conv.id} className="px-4 py-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500">{formatDate(conv.fecha)}</span>
-                  <span className={`text-xs font-medium ${conv.spreadCambiario >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-xs font-medium ${conv.spreadCambiario >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     Spread: {conv.spreadCambiario >= 0 ? '+' : ''}{conv.spreadCambiario.toFixed(2)}%
                   </span>
                 </div>
@@ -77,7 +140,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                   <RefreshCw className="h-4 w-4 text-slate-300 flex-shrink-0" />
                   <div className="text-center flex-1">
                     <div className="text-[10px] text-slate-500 uppercase">Destino</div>
-                    <div className="text-sm font-bold text-green-600">
+                    <div className="text-sm font-bold text-emerald-600">
                       {conv.monedaDestino === 'PEN' ? 'S/ ' : '$ '}{conv.montoDestino.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </div>
                     <div className="text-[10px] text-slate-400">{conv.monedaDestino}</div>
@@ -93,68 +156,36 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
         </div>
 
         {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Origen</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Destino</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">TC Usado</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">TC Ref.</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Spread</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {conversiones.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                    No hay conversiones registradas
-                  </td>
-                </tr>
-              ) : (
-                conversiones.map((conv) => (
-                  <tr key={conv.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{formatDate(conv.fecha)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-slate-900">
-                        {conv.monedaOrigen === 'PEN' ? 'S/ ' : '$ '}
-                        {conv.montoOrigen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-slate-500 text-xs">{conv.monedaOrigen}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="font-medium text-slate-900">
-                        {conv.monedaDestino === 'PEN' ? 'S/ ' : '$ '}
-                        {conv.montoDestino.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-slate-500 text-xs">{conv.monedaDestino}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                      {conv.tipoCambio.toFixed(3)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-500">
-                      {conv.tipoCambioReferencia.toFixed(3)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                      <span className={conv.spreadCambiario >= 0 ? 'text-green-600' : 'text-red-600'}>
-                        {conv.spreadCambiario >= 0 ? '+' : ''}{conv.spreadCambiario.toFixed(2)}%
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div className="hidden md:block">
+          <DataTable
+            columns={conversionColumns}
+            data={conversiones}
+            keyExtractor={(conv) => conv.id}
+            compact
+            emptyMessage="No hay conversiones registradas"
+          />
         </div>
       </Card>
 
       {/* Modal Nueva Conversion */}
-      <Modal
+      <FormModal
         isOpen={isConversionModalOpen}
         onClose={() => setIsConversionModalOpen(false)}
         title="Nueva Conversion de Moneda"
         size="lg"
+        variant="create"
+        submitLabel={isSubmitting ? 'Guardando...' : 'Guardar'}
+        onSubmit={handleCrearConversion}
+        loading={isSubmitting}
+        disabled={!conversionForm.montoOrigen || !conversionForm.tipoCambio || (() => {
+          if (!conversionForm.cuentaOrigenId || !conversionForm.montoOrigen) return false;
+          const ctaOrigen = cuentas.find(c => c.id === conversionForm.cuentaOrigenId);
+          if (!ctaOrigen) return false;
+          const saldo = ctaOrigen.esBiMoneda
+            ? (conversionForm.monedaOrigen === 'USD' ? (ctaOrigen.saldoUSD || 0) : (ctaOrigen.saldoPEN || 0))
+            : (ctaOrigen.saldoActual || 0);
+          return saldo < (conversionForm.montoOrigen ?? 0);
+        })()}
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -252,7 +283,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  <ArrowDownCircle className="inline h-4 w-4 mr-1 text-green-500" />
+                  <ArrowDownCircle className="inline h-4 w-4 mr-1 text-emerald-500" />
                   Cuenta Destino ({conversionForm.monedaOrigen === 'USD' ? 'PEN' : 'USD'})
                 </label>
                 <select
@@ -283,7 +314,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
 
           {/* Preview de la conversion */}
           {conversionForm.montoOrigen && conversionForm.tipoCambio && (
-            <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg border border-blue-200">
+            <div className="bg-sky-50 p-4 rounded-lg border border-sky-200">
               <h4 className="text-sm font-medium text-slate-900 mb-2">Vista Previa de Conversion</h4>
               <div className="flex items-center justify-center space-x-4">
                 <div className="text-center">
@@ -300,7 +331,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 <RefreshCw className="h-6 w-6 text-slate-400" />
                 <div className="text-center">
                   <p className="text-xs text-slate-500">Entra</p>
-                  <p className="text-lg font-bold text-green-600">
+                  <p className="text-lg font-bold text-emerald-600">
                     {conversionForm.monedaOrigen === 'USD'
                       ? `S/${(conversionForm.montoOrigen * conversionForm.tipoCambio).toFixed(2)}`
                       : `$${(conversionForm.montoOrigen / conversionForm.tipoCambio).toFixed(2)}`
@@ -317,7 +348,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                 TC: {conversionForm.tipoCambio.toFixed(3)}
               </p>
               {(conversionForm.cuentaOrigenId || conversionForm.cuentaDestinoId) && (
-                <div className="mt-3 pt-3 border-t border-blue-200">
+                <div className="mt-3 pt-3 border-t border-sky-200">
                   <p className="text-xs font-medium text-slate-700 mb-1">Movimientos a generar:</p>
                   <ul className="text-xs text-slate-600 space-y-1">
                     {conversionForm.cuentaOrigenId && (
@@ -328,7 +359,7 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
                     )}
                     {conversionForm.cuentaDestinoId && (
                       <li className="flex items-center">
-                        <ArrowDownCircle className="h-3 w-3 text-green-500 mr-1" />
+                        <ArrowDownCircle className="h-3 w-3 text-emerald-500 mr-1" />
                         Ingreso: {conversionForm.monedaOrigen === 'USD'
                           ? `S/${(conversionForm.montoOrigen * conversionForm.tipoCambio).toFixed(2)}`
                           : `$${(conversionForm.montoOrigen / conversionForm.tipoCambio).toFixed(2)}`
@@ -369,26 +400,8 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
             return null;
           })()}
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button variant="ghost" onClick={() => setIsConversionModalOpen(false)}>Cancelar</Button>
-            <Button
-              variant="primary"
-              onClick={handleCrearConversion}
-              disabled={isSubmitting || !conversionForm.montoOrigen || !conversionForm.tipoCambio || (() => {
-                if (!conversionForm.cuentaOrigenId || !conversionForm.montoOrigen) return false;
-                const ctaOrigen = cuentas.find(c => c.id === conversionForm.cuentaOrigenId);
-                if (!ctaOrigen) return false;
-                const saldo = ctaOrigen.esBiMoneda
-                  ? (conversionForm.monedaOrigen === 'USD' ? (ctaOrigen.saldoUSD || 0) : (ctaOrigen.saldoPEN || 0))
-                  : (ctaOrigen.saldoActual || 0);
-                return saldo < conversionForm.montoOrigen;
-              })()}
-            >
-              {isSubmitting ? 'Guardando...' : 'Guardar'}
-            </Button>
-          </div>
         </div>
-      </Modal>
+      </FormModal>
     </>
   );
 };

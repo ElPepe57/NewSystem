@@ -74,18 +74,18 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
 
   const colorClasses = {
     green: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
-      text: 'text-green-700',
-      iconBg: 'bg-green-100',
-      barBg: 'bg-green-500'
+      bg: 'bg-emerald-50',
+      border: 'border-emerald-200',
+      text: 'text-emerald-700',
+      iconBg: 'bg-emerald-100',
+      barBg: 'bg-emerald-500'
     },
     blue: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      text: 'text-blue-700',
-      iconBg: 'bg-blue-100',
-      barBg: 'bg-blue-500'
+      bg: 'bg-sky-50',
+      border: 'border-sky-200',
+      text: 'text-sky-700',
+      iconBg: 'bg-sky-100',
+      barBg: 'bg-sky-500'
     },
     purple: {
       bg: 'bg-purple-50',
@@ -117,8 +117,8 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
-            <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+          <div className="p-1.5 sm:p-2 bg-sky-100 rounded-lg flex-shrink-0">
+            <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
           </div>
           <div className="min-w-0">
             <h3 className="text-sm sm:text-base font-semibold text-slate-900 truncate">Distribución de Caja</h3>
@@ -261,7 +261,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
                       <p className="text-sm font-semibold text-slate-900">
                         {formatCurrency(preventa.totalVenta)}
                       </p>
-                      <p className="text-[10px] text-green-600">
+                      <p className="text-[10px] text-emerald-600">
                         Adelanto: {formatCurrency(preventa.montoAdelanto)}
                       </p>
                     </div>
@@ -288,9 +288,9 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
 
           {/* Resumen de adelantos */}
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="bg-green-50 rounded-lg p-2">
+            <div className="bg-emerald-50 rounded-lg p-2">
               <p className="text-[10px] text-slate-500">Adelantos recibidos</p>
-              <p className="text-sm font-bold text-green-600">
+              <p className="text-sm font-bold text-emerald-600">
                 {formatCurrency(resumen.preventasVirtuales.adelantosRecibidosPEN)}
               </p>
             </div>
@@ -314,7 +314,7 @@ export const ResumenCajaCard: React.FC<ResumenCajaCardProps> = ({
         </div>
         <div>
           <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5 sm:mb-1">Utilidad Potencial</p>
-          <p className="text-base sm:text-lg font-bold text-green-600">
+          <p className="text-base sm:text-lg font-bold text-emerald-600">
             {formatCurrency(resumen.totalPotencialUtilidadPEN)}
           </p>
         </div>

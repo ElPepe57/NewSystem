@@ -8,6 +8,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { Card } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import {
   LineChart,
   Line,
@@ -102,7 +104,7 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
       {/* Valor actual */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-slate-700">Tipo de Cambio Simulado</span>
-        <span className="text-2xl font-bold text-blue-600">{fmt(value, 4)}</span>
+        <span className="text-2xl font-bold text-sky-600">{fmt(value, 4)}</span>
       </div>
 
       {/* Slider */}
@@ -114,7 +116,7 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
           step={TC_STEP}
           value={value}
           onChange={(e) => onChange(parseFloat(e.target.value))}
-          className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-blue-600"
+          className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-sky-600"
           style={{
             background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${pctValue}%, #e5e7eb ${pctValue}%, #e5e7eb 100%)`,
           }}
@@ -136,8 +138,8 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
           className="absolute top-0 flex flex-col items-center"
           style={{ left: `calc(${pctMercado}% - 1px)` }}
         >
-          <div className="w-0.5 h-4 bg-green-500" />
-          <span className="text-[10px] font-semibold text-green-600 whitespace-nowrap mt-0.5">
+          <div className="w-0.5 h-4 bg-emerald-500" />
+          <span className="text-[10px] font-semibold text-emerald-600 whitespace-nowrap mt-0.5">
             Mkt {fmt(tcMercado, 4)}
           </span>
         </div>
@@ -153,7 +155,7 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
         </button>
         <button
           onClick={() => onChange(tcMercado)}
-          className="px-2 py-1 rounded border border-green-300 text-green-700 bg-green-50 hover:bg-green-100 transition-colors"
+          className="px-2 py-1 rounded border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
         >
           Usar TC Mercado ({fmt(tcMercado, 4)})
         </button>
@@ -172,6 +174,16 @@ const SliderTC: React.FC<SliderTCProps> = ({ value, onChange, tcpa, tcMercado })
 // SUBCOMPONENTE: Tabla de resultados por producto
 // ============================================================
 
+// Tipo auxiliar para filas calculadas (evita recalcular en cada render)
+interface FilaCalculada extends ProductoSimulador {
+  margenTcpa: number;
+  margenSim: number;
+  variacion: number;
+  puntoQuiebre: number | null;
+  enZonaCritica: boolean;
+  enZonaQuiebre: boolean;
+}
+
 const TablaResultados: React.FC<{
   productos: ProductoSimulador[];
   tcSimulado: number;
@@ -186,90 +198,117 @@ const TablaResultados: React.FC<{
     );
   }
 
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
-        <thead className="bg-slate-50">
-          <tr className="border-b border-slate-100">
-            <th className="py-2 pr-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Producto</th>
-            <th className="py-2 px-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Línea</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Precio PEN</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Margen TCPA</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Margen TC Sim.</th>
-            <th className="py-2 px-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Variación</th>
-            <th className="py-2 pl-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Punto Quiebre</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-50">
-          {productos.map((p) => {
-            const margenTcpa = calcularMargen(p, tcpaActual);
-            const margenSim = calcularMargen(p, tcSimulado);
-            const variacion = margenSim - margenTcpa;
-            const puntoQuiebre = calcularPuntoQuiebre(p);
-            const enZonaCritica = margenSim < 5;
-            const enZonaQuiebre = margenSim <= 0;
+  // Pre-calcular métricas para evitar duplicar lógica en el render
+  const filas: FilaCalculada[] = productos.map((p) => {
+    const margenTcpa = calcularMargen(p, tcpaActual);
+    const margenSim = calcularMargen(p, tcSimulado);
+    return {
+      ...p,
+      margenTcpa,
+      margenSim,
+      variacion: margenSim - margenTcpa,
+      puntoQuiebre: calcularPuntoQuiebre(p),
+      enZonaCritica: margenSim < 5,
+      enZonaQuiebre: margenSim <= 0,
+    };
+  });
 
-            return (
-              <tr
-                key={p.productoId}
-                className={`hover:bg-slate-50 transition-colors ${enZonaQuiebre ? 'bg-red-50' : ''}`}
-              >
-                <td className="py-2.5 pr-3">
-                  <span className={`font-medium ${enZonaQuiebre ? 'text-red-700' : 'text-slate-800'}`}>
-                    {p.nombre}
-                  </span>
-                </td>
-                <td className="py-2.5 px-2">
-                  <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded">
-                    {p.lineaNegocio}
-                  </span>
-                </td>
-                <td className="py-2.5 px-2 text-right font-mono text-slate-600">
-                  S/ {fmt(p.precioVentaPEN)}
-                </td>
-                <td className="py-2.5 px-2 text-right font-mono text-slate-600">
-                  {fmt(margenTcpa, 1)}%
-                </td>
-                <td className="py-2.5 px-2 text-right">
-                  <span className={`font-semibold font-mono ${
-                    enZonaQuiebre ? 'text-red-600' :
-                    enZonaCritica ? 'text-amber-600' :
-                    'text-green-600'
-                  }`}>
-                    {fmt(margenSim, 1)}%
-                  </span>
-                </td>
-                <td className="py-2.5 px-2 text-right">
-                  <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${
-                    variacion >= 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {variacion >= 0
-                      ? <TrendingUp className="w-3 h-3" />
-                      : <TrendingDown className="w-3 h-3" />
-                    }
-                    {variacion >= 0 ? '+' : ''}{fmt(variacion, 1)} pp
-                  </span>
-                </td>
-                <td className="py-2.5 pl-2 text-right">
-                  {puntoQuiebre !== null ? (
-                    <span className={`font-mono text-xs font-semibold ${
-                      tcSimulado >= puntoQuiebre ? 'text-red-600' : 'text-slate-500'
-                    }`}>
-                      {fmt(puntoQuiebre, 4)}
-                      {tcSimulado >= puntoQuiebre && (
-                        <span className="ml-1 text-red-500">!</span>
-                      )}
-                    </span>
-                  ) : (
-                    <span className="text-slate-300 text-xs">N/A</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+  const columns: DataTableColumn<FilaCalculada>[] = [
+    {
+      key: 'nombre',
+      header: 'Producto',
+      render: (f) => (
+        <span className={`font-medium ${f.enZonaQuiebre ? 'text-red-700' : 'text-slate-800'}`}>
+          {f.nombre}
+        </span>
+      ),
+    },
+    {
+      key: 'linea',
+      header: 'Linea',
+      hideOnMobile: true,
+      render: (f) => (
+        <span className="text-xs px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded">
+          {f.lineaNegocio}
+        </span>
+      ),
+    },
+    {
+      key: 'precio',
+      header: 'Precio PEN',
+      align: 'right',
+      hideOnMobile: true,
+      render: (f) => (
+        <span className="font-mono text-slate-600">S/ {fmt(f.precioVentaPEN)}</span>
+      ),
+    },
+    {
+      key: 'margenTcpa',
+      header: 'Margen TCPA',
+      align: 'right',
+      hideOnMobile: true,
+      render: (f) => (
+        <span className="font-mono text-slate-600">{fmt(f.margenTcpa, 1)}%</span>
+      ),
+    },
+    {
+      key: 'margenSim',
+      header: 'Margen TC Sim.',
+      align: 'right',
+      render: (f) => (
+        <span className={`font-semibold font-mono ${
+          f.enZonaQuiebre ? 'text-red-600' :
+          f.enZonaCritica ? 'text-amber-600' :
+          'text-emerald-600'
+        }`}>
+          {fmt(f.margenSim, 1)}%
+        </span>
+      ),
+    },
+    {
+      key: 'variacion',
+      header: 'Variacion',
+      align: 'right',
+      render: (f) => (
+        <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${
+          f.variacion >= 0 ? 'text-emerald-600' : 'text-red-600'
+        }`}>
+          {f.variacion >= 0
+            ? <TrendingUp className="w-3 h-3" />
+            : <TrendingDown className="w-3 h-3" />
+          }
+          {f.variacion >= 0 ? '+' : ''}{fmt(f.variacion, 1)} pp
+        </span>
+      ),
+    },
+    {
+      key: 'puntoQuiebre',
+      header: 'Punto Quiebre',
+      align: 'right',
+      render: (f) => (
+        f.puntoQuiebre !== null ? (
+          <span className={`font-mono text-xs font-semibold ${
+            tcSimulado >= f.puntoQuiebre ? 'text-red-600' : 'text-slate-500'
+          }`}>
+            {fmt(f.puntoQuiebre, 4)}
+            {tcSimulado >= f.puntoQuiebre && (
+              <span className="ml-1 text-red-500">!</span>
+            )}
+          </span>
+        ) : (
+          <span className="text-slate-300 text-xs">N/A</span>
+        )
+      ),
+    },
+  ];
+
+  return (
+    <DataTable<FilaCalculada>
+      columns={columns}
+      data={filas}
+      keyExtractor={(f) => f.productoId}
+      compact
+    />
   );
 };
 
@@ -411,7 +450,7 @@ export const SimuladorTC: React.FC<SimuladorTCProps> = ({
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
+        <RefreshCw className="w-6 h-6 animate-spin text-sky-500" />
       </div>
     );
   }
@@ -420,9 +459,9 @@ export const SimuladorTC: React.FC<SimuladorTCProps> = ({
     <div className="space-y-5">
 
       {/* Header informativo */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2.5">
-        <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-blue-700">
+      <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start gap-2.5">
+        <Info className="w-4 h-4 text-sky-500 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-sky-700">
           Ajusta el tipo de cambio con el slider para ver cómo impacta los márgenes de cada producto.
           La columna "Punto Quiebre" indica el TC exacto en que ese producto deja de ser rentable.
         </p>
@@ -442,7 +481,7 @@ export const SimuladorTC: React.FC<SimuladorTCProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-4 text-center">
           <p className="text-xs text-slate-500 mb-1">Variación promedio margen</p>
-          <p className={`text-2xl font-bold ${variacionPromedioMargen >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-2xl font-bold ${variacionPromedioMargen >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {variacionPromedioMargen >= 0 ? '+' : ''}{fmt(variacionPromedioMargen, 1)} pp
           </p>
           <p className="text-xs text-slate-400 mt-0.5">vs. TCPA actual</p>
@@ -450,7 +489,7 @@ export const SimuladorTC: React.FC<SimuladorTCProps> = ({
 
         <Card className={`p-4 text-center ${productosEnQuiebre.length > 0 ? 'border-2 border-red-300 bg-red-50' : ''}`}>
           <p className="text-xs text-slate-500 mb-1">Productos en zona de pérdida</p>
-          <p className={`text-2xl font-bold ${productosEnQuiebre.length > 0 ? 'text-red-600' : 'text-green-600'}`}>
+          <p className={`text-2xl font-bold ${productosEnQuiebre.length > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
             {productosEnQuiebre.length}
           </p>
           <p className="text-xs text-slate-400 mt-0.5">de {productos.length} simulados</p>
@@ -458,9 +497,9 @@ export const SimuladorTC: React.FC<SimuladorTCProps> = ({
 
         <Card className="p-4 text-center">
           <p className="text-xs text-slate-500 mb-1">TC ingresado</p>
-          <p className="text-2xl font-bold text-blue-600">{fmt(tcSimulado, 4)}</p>
+          <p className="text-2xl font-bold text-sky-600">{fmt(tcSimulado, 4)}</p>
           <p className={`text-xs mt-0.5 font-medium ${
-            tcSimulado > tcpaActual ? 'text-red-500' : 'text-green-600'
+            tcSimulado > tcpaActual ? 'text-red-500' : 'text-emerald-600'
           }`}>
             {tcSimulado > tcpaActual
               ? `+${fmt(tcSimulado - tcpaActual, 4)} vs TCPA`

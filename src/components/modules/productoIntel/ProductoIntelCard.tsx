@@ -54,7 +54,7 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
           </span>
           {/* Badges de estado especial */}
           {rotacion.stockReservado > 0 && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-sky-100 text-sky-700 rounded text-[10px] font-medium">
               <Lock className="h-2.5 w-2.5" />
               {rotacion.stockReservado} res.
             </span>
@@ -153,7 +153,7 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
       {(rotacion.stockReservado > 0 || rotacion.stockTransito > 0) && (
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           {rotacion.stockReservado > 0 && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg text-xs font-medium">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 border border-sky-200 text-sky-700 rounded-lg text-xs font-medium">
               <Lock className="h-3 w-3" />
               {rotacion.stockReservado} reservadas
             </span>
@@ -198,7 +198,7 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
 
       <div className="flex items-center justify-between text-sm mb-3">
         <span className="text-slate-500">Potencial utilidad</span>
-        <span className="font-medium text-green-600">
+        <span className="font-medium text-emerald-600">
           {formatCurrency(liquidez.potencialUtilidadPEN)}
         </span>
       </div>
@@ -224,7 +224,7 @@ export const ProductoIntelCard: React.FC<ProductoIntelCardProps> = ({
       {/* Recomendacion */}
       <div className="mt-3 pt-3 border-t border-slate-100">
         <p className="text-xs text-slate-500">{liquidez.descripcion}</p>
-        <p className="text-xs font-medium text-blue-600 mt-1">{liquidez.recomendacion}</p>
+        <p className="text-xs font-medium text-sky-600 mt-1">{liquidez.recomendacion}</p>
       </div>
     </div>
   );

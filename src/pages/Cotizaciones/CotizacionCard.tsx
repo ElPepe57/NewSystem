@@ -19,6 +19,8 @@ import {
   Lock
 } from 'lucide-react';
 import { Button, Badge } from '../../components/common';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import type { Venta } from '../../types/venta.types';
 
 interface CotizacionCardProps {
@@ -221,54 +223,50 @@ export const CotizacionCard: React.FC<CotizacionCardProps> = ({
           Productos Cotizados
         </h3>
 
-        <div className="border rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-slate-500">
-                  Producto
-                </th>
-                <th className="px-4 py-2 text-center text-xs font-medium text-slate-500">
-                  Cantidad
-                </th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">
-                  Precio Unit.
-                </th>
-                <th className="px-4 py-2 text-right text-xs font-medium text-slate-500">
-                  Subtotal
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {cotizacion.productos.map((producto, index) => (
-                <tr key={index}>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-slate-400" />
-                      <div>
-                        <div className="text-sm font-medium text-slate-900">
-                          {producto.sku}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {producto.marca} - {producto.nombreComercial}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="text-sm font-medium">{producto.cantidad}</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm">{formatCurrency(producto.precioUnitario)}</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm font-medium">{formatCurrency(producto.subtotal)}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {(() => {
+          type ProductoCotizacion = typeof cotizacion.productos[number];
+          const productoColumns: DataTableColumn<ProductoCotizacion>[] = [
+            {
+              key: 'producto',
+              header: 'Producto',
+              render: (p) => (
+                <div className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-slate-400 flex-shrink-0" />
+                  <div>
+                    <div className="text-sm font-medium text-slate-900">{p.sku}</div>
+                    <div className="text-xs text-slate-500">{p.marca} - {p.nombreComercial}</div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: 'cantidad',
+              header: 'Cantidad',
+              align: 'center',
+              render: (p) => <span className="text-sm font-medium">{p.cantidad}</span>,
+            },
+            {
+              key: 'precioUnitario',
+              header: 'Precio Unit.',
+              align: 'right',
+              render: (p) => <span className="text-sm">{formatCurrency(p.precioUnitario)}</span>,
+            },
+            {
+              key: 'subtotal',
+              header: 'Subtotal',
+              align: 'right',
+              render: (p) => <span className="text-sm font-medium">{formatCurrency(p.subtotal)}</span>,
+            },
+          ];
+          return (
+            <DataTable
+              columns={productoColumns}
+              data={cotizacion.productos}
+              keyExtractor={(p) => p.productoId}
+              compact
+            />
+          );
+        })()}
 
         {/* Totales */}
         <div className="flex justify-end">

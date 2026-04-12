@@ -19,20 +19,20 @@ import {
   ComposedChart
 } from 'recharts';
 
-// Paleta de colores consistente
+// Paleta de colores alineada con design system (teal, emerald, amber, sky, red, slate)
 export const CHART_COLORS = {
-  primary: '#2563eb',
-  secondary: '#7c3aed',
-  success: '#16a34a',
-  warning: '#d97706',
-  danger: '#dc2626',
-  info: '#0891b2',
-  gray: '#6b7280'
+  primary: '#0d9488',   // teal-600
+  secondary: '#7c3aed', // violet-600
+  success: '#059669',   // emerald-600
+  warning: '#d97706',   // amber-600
+  danger: '#dc2626',    // red-600
+  info: '#0284c7',      // sky-600
+  gray: '#64748b'       // slate-500
 };
 
 export const CHART_COLOR_PALETTE = [
-  '#2563eb', '#7c3aed', '#16a34a', '#d97706', '#dc2626',
-  '#0891b2', '#db2777', '#84cc16', '#f59e0b', '#6366f1'
+  '#0d9488', '#7c3aed', '#059669', '#d97706', '#dc2626',
+  '#0284c7', '#db2777', '#84cc16', '#f59e0b', '#6366f1'
 ];
 
 // Formatters comunes — delegados a utilidad central (src/utils/format.ts)

@@ -283,7 +283,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                 onClick={() => setFormData({ ...formData, tipo: 'internacional_peru', almacenDestinoId: undefined })}
                 className={`p-4 rounded-lg border-2 text-center transition-all ${
                   esTipoTransferenciaInternacional(formData.tipo as TipoTransferencia)
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    ? 'border-sky-500 bg-sky-50 text-sky-700'
                     : 'border-slate-200 hover:border-slate-300 text-slate-600'
                 }`}
               >
@@ -486,7 +486,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
                               <span className="text-xs text-slate-500">{grupo.sku}</span>
                               <span className="text-xs text-slate-300">·</span>
-                              <span className="text-xs text-green-600 font-medium">
+                              <span className="text-xs text-emerald-600 font-medium">
                                 ${grupo.unidades[0]?.costoUnitarioUSD.toFixed(2)}/u
                               </span>
                               <span className="text-xs text-slate-300">·</span>
@@ -514,7 +514,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                               {grupo.unidades[0]?.ordenCompraNumero && (
                                 <>
                                   <span className="text-xs text-slate-300">·</span>
-                                  <span className="text-xs text-blue-600">{grupo.unidades[0].ordenCompraNumero}</span>
+                                  <span className="text-xs text-sky-600">{grupo.unidades[0].ordenCompraNumero}</span>
                                 </>
                               )}
                             </div>
@@ -624,7 +624,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                   </span>
                                   <span className="text-sm text-slate-900">Lote: {unidad.lote}</span>
                                   {unidad.ordenCompraNumero && (
-                                    <span className="text-xs text-blue-600">{unidad.ordenCompraNumero}</span>
+                                    <span className="text-xs text-sky-600">{unidad.ordenCompraNumero}</span>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -717,15 +717,15 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
               </label>
 
               {agregarFleteAhora && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-sky-50 border border-sky-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
-                      <Calculator className="h-5 w-5 text-blue-600 mr-2" />
-                      <h4 className="font-medium text-blue-900">Costo de Flete por Producto</h4>
+                      <Calculator className="h-5 w-5 text-sky-600 mr-2" />
+                      <h4 className="font-medium text-sky-900">Costo de Flete por Producto</h4>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-bold text-blue-700">${costoFleteTotal.toFixed(2)}</div>
-                      <div className="text-xs text-blue-600">Total Flete</div>
+                      <div className="text-lg font-bold text-sky-700">${costoFleteTotal.toFixed(2)}</div>
+                      <div className="text-xs text-sky-600">Total Flete</div>
                     </div>
                   </div>
 
@@ -733,12 +733,12 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                     {productosConUnidadesSeleccionadas.map((producto) => {
                       const pFull = productosMap.get(producto.productoId);
                       return (
-                        <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-blue-100">
+                        <div key={producto.productoId} className="bg-white rounded-lg p-3 border border-sky-100">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
                               <h5 className="font-medium text-slate-900 truncate">{pFull?.nombreComercial || producto.nombre}</h5>
                               <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                                {pFull?.marca && <span className="text-[10px] font-medium text-blue-700 bg-blue-50 px-1 py-0 rounded">{pFull.marca}</span>}
+                                {pFull?.marca && <span className="text-[10px] font-medium text-sky-700 bg-sky-50 px-1 py-0 rounded">{pFull.marca}</span>}
                                 {pFull && getDescripcionProducto(pFull) && <span className="text-[10px] text-slate-600 bg-slate-100 px-1 py-0 rounded">{getDescripcionProducto(pFull)}</span>}
                               </div>
                               <div className="flex items-center gap-3 mt-1 text-xs text-slate-600">
@@ -771,7 +771,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                                 />
                               </div>
                               {(costoFleteUnitarioPorProducto[producto.productoId] || 0) > 0 && (
-                                <div className="text-xs text-blue-600 mt-1 text-right">
+                                <div className="text-xs text-sky-600 mt-1 text-right">
                                   Total: ${costoFleteTotalPorProducto[producto.productoId]?.toFixed(2) || '0.00'}
                                 </div>
                               )}
@@ -783,7 +783,7 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                   </div>
 
                   {costoFleteTotal > 0 && (
-                    <div className="mt-4 pt-3 border-t border-blue-200">
+                    <div className="mt-4 pt-3 border-t border-sky-200">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-slate-600">Total mercancia:</span>
                         <span className="font-medium">${resumenSeleccion.costoTotal.toFixed(2)}</span>
@@ -792,9 +792,9 @@ export const CreateTransferenciaModal: React.FC<CreateTransferenciaModalProps> =
                         <span className="text-slate-600">Total flete:</span>
                         <span className="font-medium">${costoFleteTotal.toFixed(2)}</span>
                       </div>
-                      <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-blue-200">
+                      <div className="flex items-center justify-between text-base mt-2 pt-2 border-t border-sky-200">
                         <span className="font-medium text-slate-900">Costo total transferencia:</span>
-                        <span className="font-bold text-blue-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
+                        <span className="font-bold text-sky-700">${(resumenSeleccion.costoTotal + costoFleteTotal).toFixed(2)}</span>
                       </div>
                     </div>
                   )}

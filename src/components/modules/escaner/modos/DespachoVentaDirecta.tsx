@@ -168,7 +168,7 @@ export const DespachoVentaDirecta = forwardRef<DespachoVentaDirectaHandle>((_pro
         </label>
 
         {selectedCliente ? (
-          <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2.5">
+          <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-2.5">
             <div>
               <p className="text-sm font-medium text-slate-900">{selectedCliente.nombre}</p>
               <p className="text-xs text-slate-500">

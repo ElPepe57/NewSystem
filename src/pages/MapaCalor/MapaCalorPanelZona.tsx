@@ -25,7 +25,7 @@ export function MapaCalorPanelZona() {
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <span className="text-xs text-slate-500">Total</span>
-            <p className="font-bold text-green-600">S/ {ventaSeleccionada.totalPEN.toFixed(2)}</p>
+            <p className="font-bold text-emerald-600">S/ {ventaSeleccionada.totalPEN.toFixed(2)}</p>
           </div>
           <div>
             <span className="text-xs text-slate-500">Cliente</span>
@@ -66,7 +66,7 @@ export function MapaCalorPanelZona() {
     <div className="bg-white rounded-lg border border-slate-200 shadow-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-blue-500" />
+          <MapPin className="h-4 w-4 text-sky-500" />
           {zona.distrito}
         </h3>
         <button type="button" onClick={() => setZonaSeleccionada(null)} className="text-slate-400 hover:text-slate-600">
@@ -76,19 +76,19 @@ export function MapaCalorPanelZona() {
       <p className="text-xs text-slate-500">{zona.provincia}</p>
 
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-blue-50 rounded-lg p-2.5">
+        <div className="bg-sky-50 rounded-lg p-2.5">
           <div className="flex items-center gap-1 mb-0.5">
-            <ShoppingCart className="h-3 w-3 text-blue-600" />
-            <span className="text-[10px] text-blue-600">Ventas</span>
+            <ShoppingCart className="h-3 w-3 text-sky-600" />
+            <span className="text-[10px] text-sky-600">Ventas</span>
           </div>
-          <p className="text-lg font-bold text-blue-700">{zona.totalVentas}</p>
+          <p className="text-lg font-bold text-sky-700">{zona.totalVentas}</p>
         </div>
-        <div className="bg-green-50 rounded-lg p-2.5">
+        <div className="bg-emerald-50 rounded-lg p-2.5">
           <div className="flex items-center gap-1 mb-0.5">
-            <DollarSign className="h-3 w-3 text-green-600" />
-            <span className="text-[10px] text-green-600">Volumen</span>
+            <DollarSign className="h-3 w-3 text-emerald-600" />
+            <span className="text-[10px] text-emerald-600">Volumen</span>
           </div>
-          <p className="text-lg font-bold text-green-700">S/ {zona.volumenPEN.toFixed(0)}</p>
+          <p className="text-lg font-bold text-emerald-700">S/ {zona.volumenPEN.toFixed(0)}</p>
         </div>
         <div className="bg-orange-50 rounded-lg p-2.5">
           <div className="flex items-center gap-1 mb-0.5">

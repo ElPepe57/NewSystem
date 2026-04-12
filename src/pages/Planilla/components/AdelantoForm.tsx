@@ -2,7 +2,7 @@
  * AdelantoForm.tsx — Modal para registrar un nuevo adelanto de nómina.
  */
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from '../../../components/common';
+import { FormModal } from '../../../design-system';
 import { useToastStore } from '../../../store/toastStore';
 import { useAuthStore } from '../../../store/authStore';
 import { usePlanillaStore } from '../../../store/planillaStore';
@@ -68,96 +68,95 @@ export const AdelantoForm: React.FC<AdelantoFormProps> = ({ open, onClose }) => 
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} title="Nuevo adelanto" size="md">
-      <div className="space-y-4">
-        {/* Empleado */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Empleado</label>
-          <select
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
-          >
-            <option value="">Seleccionar empleado...</option>
-            {empleadosConPerfil.map(e => (
-              <option key={e.uid} value={e.uid}>{e.displayName}</option>
-            ))}
-          </select>
-        </div>
+    <FormModal
+      isOpen={open}
+      onClose={onClose}
+      title="Nuevo adelanto"
+      size="md"
+      onSubmit={handleSubmit}
+      submitLabel="Registrar adelanto"
+      loading={loading}
+      disabled={!userId || monto <= 0}
+    >
+      {/* Empleado */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Empleado</label>
+        <select
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+        >
+          <option value="">Seleccionar empleado...</option>
+          {empleadosConPerfil.map(e => (
+            <option key={e.uid} value={e.uid}>{e.displayName}</option>
+          ))}
+        </select>
+      </div>
 
-        {/* Tipo */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
-          <select
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value as TipoAdelanto)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
-          >
-            {(Object.entries(TIPO_ADELANTO_LABELS) as [TipoAdelanto, string][]).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
-            ))}
-          </select>
-        </div>
+      {/* Tipo */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
+        <select
+          value={tipo}
+          onChange={(e) => setTipo(e.target.value as TipoAdelanto)}
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+        >
+          {(Object.entries(TIPO_ADELANTO_LABELS) as [TipoAdelanto, string][]).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </select>
+      </div>
 
-        {/* Descripcion */}
+      {/* Descripcion */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Descripcion</label>
+        <input
+          type="text"
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          placeholder="Detalle del adelanto..."
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+        />
+      </div>
+
+      {/* Monto + Moneda */}
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Descripcion</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Monto</label>
           <input
-            type="text"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            placeholder="Detalle del adelanto..."
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+            type="number"
+            value={monto}
+            onChange={(e) => setMonto(parseFloat(e.target.value) || 0)}
+            className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
+            step="0.01"
+            min="0"
           />
         </div>
-
-        {/* Monto + Moneda */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Monto</label>
-            <input
-              type="number"
-              value={monto}
-              onChange={(e) => setMonto(parseFloat(e.target.value) || 0)}
-              className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
-              step="0.01"
-              min="0"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
-            <select
-              value={moneda}
-              onChange={(e) => setMoneda(e.target.value as 'PEN' | 'USD')}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="PEN">S/ Soles</option>
-              <option value="USD">$ Dolares</option>
-            </select>
-          </div>
-        </div>
-
-        {moneda === 'USD' && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de cambio</label>
-            <input
-              type="number"
-              value={tipoCambio}
-              onChange={(e) => setTipoCambio(parseFloat(e.target.value) || 0)}
-              className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
-              step="0.01"
-            />
-          </div>
-        )}
-
-        {/* Acciones */}
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={loading || !userId || monto <= 0}>
-            {loading ? 'Registrando...' : 'Registrar adelanto'}
-          </Button>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Moneda</label>
+          <select
+            value={moneda}
+            onChange={(e) => setMoneda(e.target.value as 'PEN' | 'USD')}
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+          >
+            <option value="PEN">S/ Soles</option>
+            <option value="USD">$ Dolares</option>
+          </select>
         </div>
       </div>
-    </Modal>
+
+      {moneda === 'USD' && (
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de cambio</label>
+          <input
+            type="number"
+            value={tipoCambio}
+            onChange={(e) => setTipoCambio(parseFloat(e.target.value) || 0)}
+            className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-teal-500"
+            step="0.01"
+          />
+        </div>
+      )}
+    </FormModal>
   );
 };

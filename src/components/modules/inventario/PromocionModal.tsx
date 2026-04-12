@@ -194,9 +194,9 @@ export const PromocionModal: React.FC<PromocionModalProps> = ({
               {formatCurrency(valorOriginal)}
             </div>
           </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-            <div className="text-sm text-green-600 mb-1">Valor con Descuento</div>
-            <div className="text-xl font-bold text-green-700">
+          <div className="bg-emerald-50 rounded-lg p-4 text-center border border-emerald-200">
+            <div className="text-sm text-emerald-600 mb-1">Valor con Descuento</div>
+            <div className="text-xl font-bold text-emerald-700">
               {formatCurrency(valorConDescuento)}
             </div>
           </div>

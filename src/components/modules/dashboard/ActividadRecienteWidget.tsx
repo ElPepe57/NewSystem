@@ -48,7 +48,7 @@ export const ActividadRecienteWidget: React.FC<ActividadRecienteWidgetProps> = (
       case 'venta_entregada':
         return <CheckCircle className="h-4 w-4 text-emerald-500" />;
       case 'orden_creada':
-        return <Package className="h-4 w-4 text-blue-500" />;
+        return <Package className="h-4 w-4 text-sky-500" />;
       case 'orden_recibida':
         return <CheckCircle className="h-4 w-4 text-emerald-500" />;
       case 'transferencia_enviada':

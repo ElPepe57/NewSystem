@@ -96,9 +96,9 @@ export const CollaborationPanel: React.FC = () => {
 
         {/* Banner de llamada activa */}
         {llamadaActiva && (
-          <div className="px-4 py-2 bg-green-50 border-b border-green-200 flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-xs font-medium text-green-700">Llamada en curso</span>
+          <div className="px-4 py-2 bg-emerald-50 border-b border-emerald-200 flex items-center gap-2">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-xs font-medium text-emerald-700">Llamada en curso</span>
           </div>
         )}
 

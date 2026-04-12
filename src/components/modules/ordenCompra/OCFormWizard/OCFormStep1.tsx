@@ -130,10 +130,10 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
     <div className="space-y-5">
       {/* Requerimiento banner */}
       {requerimientoIds && requerimientoIds.length > 0 ? (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
-            <ClipboardList className="h-5 w-5 text-blue-600" />
-            <p className="text-sm font-semibold text-blue-900">
+            <ClipboardList className="h-5 w-5 text-sky-600" />
+            <p className="text-sm font-semibold text-sky-900">
               OC Consolidada desde {requerimientoIds.length} requerimiento(s)
             </p>
           </div>
@@ -141,7 +141,7 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
             {clientesOrigen?.map((c, i) => (
               <span
                 key={i}
-                className="inline-flex items-center px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-medium"
+                className="inline-flex items-center px-2 py-0.5 bg-sky-100 text-sky-800 rounded text-xs font-medium"
               >
                 {c.requerimientoNumero} - {c.clienteNombre}
               </span>
@@ -183,8 +183,8 @@ export const OCFormStep1: React.FC<OCFormStep1Props> = ({
             {/* País badge - auto-inherited from proveedor */}
             {state.paisOrigenOC ? (
               <div className="flex-shrink-0 relative group">
-                <div className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm font-medium text-blue-800">
-                  <Globe className="h-3.5 w-3.5 text-blue-500" />
+                <div className="flex items-center gap-1.5 px-3 py-2 bg-sky-50 border border-sky-200 rounded-lg text-sm font-medium text-sky-800">
+                  <Globe className="h-3.5 w-3.5 text-sky-500" />
                   <span>{state.paisOrigenOC}</span>
                 </div>
                 {/* Tooltip */}

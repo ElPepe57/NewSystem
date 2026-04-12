@@ -78,7 +78,7 @@ export const ArchivoModal: React.FC<ArchivoModalProps> = ({
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por SKU, marca o nombre..."
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
           />
         )}
 
@@ -135,7 +135,7 @@ export const ArchivoModal: React.FC<ArchivoModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleReactivar(producto.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors"
                       title="Reactivar producto"
                       disabled={procesando === producto.id}
                     >

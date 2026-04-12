@@ -206,7 +206,7 @@ export const CanalesVentaGestor: React.FC<CanalesVentaGestorProps> = ({
           label="Comisión Promedio"
           value={`${comisionPromedio.toFixed(1)}%`}
           icon={DollarSign}
-          variant="default"
+          variant="neutral"
         />
       </DSKPIBar>
 

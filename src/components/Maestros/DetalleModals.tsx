@@ -86,7 +86,7 @@ const DetailModalBase: React.FC<DetailModalBaseProps> = ({
   subtitle,
   code,
   badge,
-  headerColor = 'from-slate-600 to-slate-800',
+  headerColor = 'bg-slate-700',
   children,
   actions
 }) => {
@@ -120,8 +120,8 @@ const DetailModalBase: React.FC<DetailModalBaseProps> = ({
           className="relative bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header con gradiente */}
-          <div className={`bg-gradient-to-r ${headerColor} px-6 py-5`}>
+          {/* Header */}
+          <div className={`${headerColor} px-6 py-5`}>
             <div className="flex items-start justify-between">
               <div className="text-white">
                 {code && (
@@ -133,10 +133,10 @@ const DetailModalBase: React.FC<DetailModalBaseProps> = ({
                   <h3 className="text-xl font-bold">{title}</h3>
                   {badge && (
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      badge.variant === 'success' ? 'bg-green-400/20 text-green-100' :
+                      badge.variant === 'success' ? 'bg-emerald-400/20 text-emerald-100' :
                       badge.variant === 'warning' ? 'bg-yellow-400/20 text-yellow-100' :
                       badge.variant === 'danger' ? 'bg-red-400/20 text-red-100' :
-                      badge.variant === 'info' ? 'bg-blue-400/20 text-blue-100' :
+                      badge.variant === 'info' ? 'bg-sky-400/20 text-sky-100' :
                       'bg-white/20 text-white'
                     }`}>
                       {badge.text}
@@ -293,7 +293,7 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
       title={cliente.nombre}
       code={cliente.codigo}
       subtitle={`Cliente desde ${formatFecha(cliente.fechaCreacion)}`}
-      headerColor="from-blue-600 to-teal-700"
+      headerColor="bg-teal-700"
       badge={{
         text: cliente.estado.toUpperCase(),
         variant: cliente.estado === 'activo' ? 'success' : cliente.estado === 'potencial' ? 'info' : 'default'
@@ -327,7 +327,7 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
             <div className="flex flex-col items-center justify-center lg:border-r lg:pr-6">
               <HealthScore score={score} label="Score Cliente" size="lg" />
               <span className={`text-xs font-medium mt-2 px-2 py-0.5 rounded-full ${
-                score >= 70 ? 'bg-green-100 text-green-700' :
+                score >= 70 ? 'bg-emerald-100 text-emerald-700' :
                 score >= 40 ? 'bg-yellow-100 text-yellow-700' :
                 'bg-red-100 text-red-700'
               }`}>
@@ -381,7 +381,7 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
               <SectionHeader
                 title="Información de Contacto"
                 icon={User}
-                iconColor="text-blue-500"
+                iconColor="text-sky-500"
               />
               <div className="space-y-3">
                 <div className="flex items-center gap-3 py-2 border-b border-slate-100">
@@ -474,18 +474,18 @@ export const ClienteDetalleModal: React.FC<ClienteDetalleModalProps> = ({
               title="Direcciones de Entrega"
               subtitle={`${cliente.direcciones.length} direcciones registradas`}
               icon={MapPin}
-              iconColor="text-green-500"
+              iconColor="text-emerald-500"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {cliente.direcciones.map((dir) => (
                 <div
                   key={dir.id}
-                  className={`p-3 rounded-lg border-2 ${dir.esPrincipal ? 'border-blue-300 bg-blue-50' : 'border-slate-200 bg-white'}`}
+                  className={`p-3 rounded-lg border-2 ${dir.esPrincipal ? 'border-sky-300 bg-sky-50' : 'border-slate-200 bg-white'}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium text-sm">{dir.etiqueta}</span>
                     {dir.esPrincipal && (
-                      <span className="px-1.5 py-0.5 bg-blue-500 text-white text-xs rounded">Principal</span>
+                      <span className="px-1.5 py-0.5 bg-sky-500 text-white text-xs rounded">Principal</span>
                     )}
                   </div>
                   <p className="text-sm text-slate-600">{dir.direccion}</p>
@@ -603,7 +603,7 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
       title={marca.nombre}
       code={marca.codigo}
       subtitle={`${marca.tipoMarca} · ${marca.paisOrigen || 'Origen no especificado'}`}
-      headerColor="from-green-600 to-emerald-700"
+      headerColor="bg-emerald-700"
       badge={{
         text: marca.estado.toUpperCase(),
         variant: marca.estado === 'activa' ? 'success' : marca.estado === 'inactiva' ? 'warning' : 'danger'
@@ -625,7 +625,7 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
             <div className="flex flex-col items-center justify-center lg:border-r lg:pr-6">
               <HealthScore score={score} label="Score Marca" size="lg" />
               <span className={`text-xs font-medium mt-2 px-2 py-0.5 rounded-full ${
-                score >= 70 ? 'bg-green-100 text-green-700' :
+                score >= 70 ? 'bg-emerald-100 text-emerald-700' :
                 score >= 40 ? 'bg-yellow-100 text-yellow-700' :
                 'bg-red-100 text-red-700'
               }`}>
@@ -679,7 +679,7 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
               <SectionHeader
                 title="Información de la Marca"
                 icon={Tag}
-                iconColor="text-green-500"
+                iconColor="text-emerald-500"
               />
               <div className="space-y-3">
                 <div className="flex justify-between py-2 border-b border-slate-100">
@@ -705,7 +705,7 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
                       href={marca.sitioWeb.startsWith('http') ? marca.sitioWeb : `https://${marca.sitioWeb}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                      className="text-sm text-sky-600 hover:underline flex items-center gap-1"
                     >
                       {marca.sitioWeb}
                       <ExternalLink className="h-3 w-3" />
@@ -744,7 +744,7 @@ export const MarcaDetalleModal: React.FC<MarcaDetalleModalProps> = ({
                     <div key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
                       <span className="text-sm font-medium">{prov.nombreProveedor}</span>
                       {prov.esPrincipal && (
-                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">
                           Principal
                         </span>
                       )}
@@ -888,7 +888,7 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
       title={proveedor.nombre}
       code={proveedor.codigo}
       subtitle={`${proveedor.tipo} · ${proveedor.pais}`}
-      headerColor="from-purple-600 to-violet-700"
+      headerColor="bg-purple-700"
       badge={{
         text: proveedor.activo ? 'ACTIVO' : 'INACTIVO',
         variant: proveedor.activo ? 'success' : 'default'
@@ -985,7 +985,7 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
                 {proveedor.email && (
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-sm text-slate-600">Email</span>
-                    <a href={`mailto:${proveedor.email}`} className="text-sm text-blue-600 hover:underline">
+                    <a href={`mailto:${proveedor.email}`} className="text-sm text-sky-600 hover:underline">
                       {proveedor.email}
                     </a>
                   </div>
@@ -1003,7 +1003,7 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
                       href={proveedor.url.startsWith('http') ? proveedor.url : `https://${proveedor.url}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                      className="text-sm text-sky-600 hover:underline flex items-center gap-1"
                     >
                       {proveedor.url}
                       <ExternalLink className="h-3 w-3" />
@@ -1018,7 +1018,7 @@ export const ProveedorDetalleModal: React.FC<ProveedorDetalleModalProps> = ({
               <SectionHeader
                 title="Desempeño en Compras"
                 icon={BarChart3}
-                iconColor="text-blue-500"
+                iconColor="text-sky-500"
               />
               <div className="space-y-3">
                 <MetricComparison
@@ -1283,7 +1283,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
       title={almacen.nombre}
       code={almacen.codigo}
       subtitle={`${almacen.esViajero ? 'Viajero' : 'Almacén'} · ${almacen.ciudad || ''} ${almacen.pais}`}
-      headerColor={almacen.esViajero ? 'from-violet-600 to-purple-700' : 'from-amber-600 to-orange-700'}
+      headerColor={almacen.esViajero ? 'bg-violet-700' : 'bg-amber-700'}
       badge={{
         text: almacen.estadoAlmacen.toUpperCase(),
         variant: almacen.estadoAlmacen === 'activo' ? 'success' : 'default'
@@ -1376,9 +1376,9 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
               <div className="h-8 bg-slate-200 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
-                    capacidadUsada >= 90 ? 'bg-gradient-to-r from-red-400 to-red-600' :
-                    capacidadUsada >= 70 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' :
-                    'bg-gradient-to-r from-green-400 to-green-600'
+                    capacidadUsada >= 90 ? 'bg-red-500' :
+                    capacidadUsada >= 70 ? 'bg-amber-500' :
+                    'bg-emerald-500'
                   }`}
                   style={{ width: `${Math.min(capacidadUsada, 100)}%` }}
                 />
@@ -1398,7 +1398,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
               <SectionHeader
                 title="Ubicación"
                 icon={MapPin}
-                iconColor="text-green-500"
+                iconColor="text-emerald-500"
               />
               <div className="space-y-2">
                 <p className="text-sm font-medium">{almacen.direccion}</p>
@@ -1434,7 +1434,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                   )}
                   {almacen.whatsapp && (
                     <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-green-500" />
+                      <Phone className="h-4 w-4 text-emerald-500" />
                       <span className="text-sm">WhatsApp: {almacen.whatsapp}</span>
                     </div>
                   )}
@@ -1455,12 +1455,12 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                     <p className="text-xs text-purple-600">Frecuencia de Viaje</p>
                     <p className="text-sm font-bold capitalize">{almacen.frecuenciaViaje || 'Variable'}</p>
                   </div>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-xs text-blue-600">Costo Flete/Unidad</p>
+                  <div className="bg-sky-50 p-3 rounded-lg">
+                    <p className="text-xs text-sky-600">Costo Flete/Unidad</p>
                     <p className="text-sm font-bold">${almacen.costoPromedioFlete?.toFixed(2) || '0.00'}</p>
                   </div>
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <p className="text-xs text-green-600">Total Recibidas</p>
+                  <div className="bg-emerald-50 p-3 rounded-lg">
+                    <p className="text-xs text-emerald-600">Total Recibidas</p>
                     <p className="text-sm font-bold">
                       {metricas.loading ? '...' : metricas.totalUnidadesRecibidas.toLocaleString()}
                     </p>
@@ -1500,7 +1500,7 @@ export const AlmacenDetalleModal: React.FC<AlmacenDetalleModalProps> = ({
                 <SectionHeader
                   title="Métricas Históricas"
                   icon={BarChart3}
-                  iconColor="text-blue-500"
+                  iconColor="text-sky-500"
                 />
                 <div className="space-y-3">
                   <div className="flex justify-between py-2 border-b border-slate-100">
@@ -1561,10 +1561,10 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
 
   const getNivelAmenazaConfig = (nivel: string) => {
     switch (nivel) {
-      case 'alto': return { color: 'from-red-600 to-rose-700', badge: 'danger', label: 'ALTO RIESGO', score: 85 };
-      case 'medio': return { color: 'from-yellow-600 to-amber-700', badge: 'warning', label: 'MEDIO', score: 50 };
-      case 'bajo': return { color: 'from-green-600 to-emerald-700', badge: 'success', label: 'BAJO', score: 25 };
-      default: return { color: 'from-slate-600 to-slate-700', badge: 'default', label: 'DESCONOCIDO', score: 50 };
+      case 'alto': return { color: 'bg-red-700', badge: 'danger', label: 'ALTO RIESGO', score: 85 };
+      case 'medio': return { color: 'bg-amber-700', badge: 'warning', label: 'MEDIO', score: 50 };
+      case 'bajo': return { color: 'bg-emerald-700', badge: 'success', label: 'BAJO', score: 25 };
+      default: return { color: 'bg-slate-700', badge: 'default', label: 'DESCONOCIDO', score: 50 };
     }
   };
 
@@ -1653,18 +1653,18 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
               <div className={`w-20 h-20 rounded-full flex items-center justify-center ${
                 competidor.nivelAmenaza === 'alto' ? 'bg-red-100' :
                 competidor.nivelAmenaza === 'medio' ? 'bg-yellow-100' :
-                'bg-green-100'
+                'bg-emerald-100'
               }`}>
                 <Shield className={`h-10 w-10 ${
                   competidor.nivelAmenaza === 'alto' ? 'text-red-600' :
                   competidor.nivelAmenaza === 'medio' ? 'text-yellow-600' :
-                  'text-green-600'
+                  'text-emerald-600'
                 }`} />
               </div>
               <span className={`text-xs font-bold mt-2 px-3 py-1 rounded-full ${
                 competidor.nivelAmenaza === 'alto' ? 'bg-red-100 text-red-700' :
                 competidor.nivelAmenaza === 'medio' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-green-100 text-green-700'
+                'bg-emerald-100 text-emerald-700'
               }`}>
                 {amenazaConfig.label}
               </span>
@@ -1764,7 +1764,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                       href={competidor.urlTienda}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline flex items-center gap-1 break-all"
+                      className="text-sm text-sky-600 hover:underline flex items-center gap-1 break-all"
                     >
                       {competidor.urlTienda.substring(0, 40)}...
                       <ExternalLink className="h-3 w-3 flex-shrink-0" />
@@ -1804,13 +1804,13 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                 <div className={`p-3 rounded-lg ${
                   competidor.nivelAmenaza === 'alto' ? 'bg-red-50' :
                   competidor.nivelAmenaza === 'medio' ? 'bg-yellow-50' :
-                  'bg-green-50'
+                  'bg-emerald-50'
                 }`}>
                   <p className="text-xs text-slate-600">Nivel Amenaza</p>
                   <p className="text-sm font-bold capitalize">{competidor.nivelAmenaza}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${
-                  competidor.reputacion === 'excelente' || competidor.reputacion === 'buena' ? 'bg-green-50' :
+                  competidor.reputacion === 'excelente' || competidor.reputacion === 'buena' ? 'bg-emerald-50' :
                   competidor.reputacion === 'regular' ? 'bg-yellow-50' :
                   competidor.reputacion === 'mala' ? 'bg-red-50' :
                   'bg-slate-50'
@@ -1818,7 +1818,7 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                   <p className="text-xs text-slate-600">Reputación</p>
                   <p className="text-sm font-bold capitalize">{competidor.reputacion}</p>
                 </div>
-                <div className="p-3 rounded-lg bg-blue-50">
+                <div className="p-3 rounded-lg bg-sky-50">
                   <p className="text-xs text-slate-600">Estrategia Precio</p>
                   <p className="text-sm font-bold capitalize">{competidor.estrategiaPrecio || 'N/A'}</p>
                 </div>
@@ -1834,10 +1834,10 @@ export const CompetidorDetalleModal: React.FC<CompetidorDetalleModalProps> = ({
                   {competidor.fortalezas && (
                     <div>
                       <div className="flex items-center gap-1 mb-1">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                        <p className="text-xs font-medium text-green-700">Fortalezas</p>
+                        <TrendingUp className="h-4 w-4 text-emerald-600" />
+                        <p className="text-xs font-medium text-emerald-700">Fortalezas</p>
                       </div>
-                      <p className="text-sm text-slate-700 bg-green-50 p-2 rounded">{competidor.fortalezas}</p>
+                      <p className="text-sm text-slate-700 bg-emerald-50 p-2 rounded">{competidor.fortalezas}</p>
                     </div>
                   )}
                   {competidor.debilidades && (

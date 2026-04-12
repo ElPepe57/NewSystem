@@ -11,9 +11,9 @@ interface ScoreLiquidezBadgeProps {
 
 const clasificacionConfig = {
   alta: {
-    bg: 'bg-green-100',
-    text: 'text-green-800',
-    border: 'border-green-200',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-800',
+    border: 'border-emerald-200',
     icon: Zap,
     label: 'Alta Liquidez'
   },
@@ -97,8 +97,8 @@ interface TendenciaBadgeProps {
 
 const tendenciaConfig = {
   creciendo: {
-    bg: 'bg-green-50',
-    text: 'text-green-700',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
     icon: TrendingUp,
     label: 'Creciendo'
   },
@@ -115,8 +115,8 @@ const tendenciaConfig = {
     label: 'Decreciendo'
   },
   nuevo: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
+    bg: 'bg-sky-50',
+    text: 'text-sky-700',
     icon: Zap,
     label: 'Nuevo'
   },
@@ -162,8 +162,8 @@ interface RotacionBadgeProps {
 }
 
 const rotacionConfig: Record<string, { bg: string; text: string; label: string }> = {
-  muy_alta: { bg: 'bg-green-100', text: 'text-green-800', label: 'Muy alta' },
-  alta: { bg: 'bg-green-50', text: 'text-green-700', label: 'Alta' },
+  muy_alta: { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Muy alta' },
+  alta: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Alta' },
   media: { bg: 'bg-yellow-50', text: 'text-yellow-700', label: 'Media' },
   baja: { bg: 'bg-orange-50', text: 'text-orange-700', label: 'Baja' },
   muy_baja: { bg: 'bg-red-50', text: 'text-red-700', label: 'Muy baja' },

@@ -75,7 +75,7 @@ export const EficienciaImportacionWidget: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-500">Ultimo envio vs promedio</span>
             <span className={`text-xs font-medium flex items-center gap-1 ${
-              tendencia <= 0 ? 'text-green-600' : 'text-red-600'
+              tendencia <= 0 ? 'text-emerald-600' : 'text-red-600'
             }`}>
               {tendencia <= 0 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
               {tendencia <= 0 ? '' : '+'}{tendencia.toFixed(1)}%

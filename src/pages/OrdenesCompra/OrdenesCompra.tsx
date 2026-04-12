@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { PageShell, PageHeader, Toolbar, KPIBar, StatCard } from '../../design-system';
 import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
@@ -700,9 +700,6 @@ export const OrdenesCompra: React.FC = () => {
         onStageClick={setFiltroEstado}
         title="Pipeline de Compras"
       />
-
-      {/* Filtro de linea de negocio */}
-      <LineaFilterInline />
 
       {/* Toolbar */}
       <Toolbar

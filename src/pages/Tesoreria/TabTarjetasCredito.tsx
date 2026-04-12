@@ -97,7 +97,7 @@ export const TabTarjetasCredito: React.FC = () => {
           </Card>
           <Card className="p-3 text-center">
             <div className="text-xs text-slate-500">Disponible total</div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-emerald-600">
               ${tarjetasActivas.reduce((s, t) => s + t.disponibleUSD, 0).toFixed(2)}
             </div>
           </Card>
@@ -116,7 +116,7 @@ export const TabTarjetasCredito: React.FC = () => {
           {tarjetas.map(tarjeta => {
             const uso = tarjeta.limiteUSD > 0 ? (tarjeta.saldoActualUSD / tarjeta.limiteUSD) * 100 : 0;
             return (
-              <Card key={tarjeta.id} className="p-4 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(tarjeta)}>
+              <Card key={tarjeta.id} className="p-4 cursor-pointer hover:border-sky-300 transition-colors" onClick={() => openEdit(tarjeta)}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-slate-100 rounded-lg">
@@ -138,7 +138,7 @@ export const TabTarjetasCredito: React.FC = () => {
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-2">
                     <div
-                      className={`h-2 rounded-full transition-all ${uso > 80 ? 'bg-red-500' : uso > 50 ? 'bg-amber-500' : 'bg-green-500'}`}
+                      className={`h-2 rounded-full transition-all ${uso > 80 ? 'bg-red-500' : uso > 50 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                       style={{ width: `${Math.min(uso, 100)}%` }}
                     />
                   </div>

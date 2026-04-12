@@ -61,7 +61,7 @@ export const LeafDecoration: React.FC = () => (
 
 // Wrapper de página de auth con fondo gradiente y decoraciones
 export const AuthPageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="min-h-screen bg-gradient-to-br from-teal-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4 relative overflow-hidden">
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
     <LeafDecoration />
     {children}
   </div>

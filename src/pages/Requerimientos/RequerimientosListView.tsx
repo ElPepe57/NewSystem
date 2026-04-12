@@ -13,9 +13,10 @@ import {
   Target,
   Lightbulb,
   AlertTriangle,
-  Loader2
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { formatFecha as formatDate } from '../../utils/dateFormatters';
 import { formatCurrency } from '../../utils/format';
 import type { Requerimiento, EstadoRequerimiento, TipoSolicitante } from '../../types/requerimiento.types';
@@ -29,76 +30,106 @@ interface RequerimientosListViewProps {
 }
 
 const getEstadoBadge = (estado: EstadoRequerimiento) => {
-  const config: Record<EstadoRequerimiento, { color: string; icon: React.ReactNode }> = {
-    borrador: { color: 'bg-slate-100 text-slate-800', icon: <Clock className="h-3 w-3" /> },
-    pendiente: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" /> },
-    pendiente_aprobacion: { color: 'bg-amber-100 text-amber-800 border border-amber-300', icon: <ShieldAlert className="h-3 w-3" /> },
-    aprobado: { color: 'bg-blue-100 text-blue-800', icon: <Check className="h-3 w-3" /> },
-    parcial: { color: 'bg-teal-100 text-teal-800', icon: <Link2 className="h-3 w-3" /> },
-    en_proceso: { color: 'bg-purple-100 text-purple-800', icon: <Link2 className="h-3 w-3" /> },
-    completado: { color: 'bg-green-100 text-green-800', icon: <Check className="h-3 w-3" /> },
-    cancelado: { color: 'bg-red-100 text-red-800', icon: <XCircle className="h-3 w-3" /> }
+  const config: Record<EstadoRequerimiento, { label: string; className: string; icon: React.ReactNode }> = {
+    pendiente: { label: 'Pendiente', className: 'bg-amber-100 text-amber-700 border-amber-200', icon: <Clock className="h-3 w-3" /> },
+    aprobado: { label: 'Aprobado', className: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: <Check className="h-3 w-3" /> },
+    vinculado_oc: { label: 'Con OC', className: 'bg-sky-100 text-sky-700 border-sky-200', icon: <Link2 className="h-3 w-3" /> },
+    completado: { label: 'Completado', className: 'bg-teal-100 text-teal-700 border-teal-200', icon: <Check className="h-3 w-3" /> },
+    cancelado: { label: 'Cancelado', className: 'bg-red-100 text-red-700 border-red-200', icon: <XCircle className="h-3 w-3" /> },
   };
-
-  const { color, icon } = config[estado];
-  const labels: Partial<Record<EstadoRequerimiento, string>> = {
-    pendiente_aprobacion: 'Firma Pendiente',
-  };
-  const label = labels[estado] || estado.replace(/_/g, ' ');
+  const c = config[estado] || config.pendiente;
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}>
-      {icon}
-      <span className="ml-1 capitalize">{label}</span>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full border ${c.className}`}>
+      {c.icon} {c.label}
     </span>
   );
 };
 
 const getPrioridadBadge = (prioridad: string) => {
-  const config: Record<string, string> = {
-    urgente: 'bg-red-200 text-red-900 border-red-300',
-    alta: 'bg-red-100 text-red-800 border-red-200',
-    media: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    normal: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    baja: 'bg-slate-100 text-slate-800 border-slate-200'
+  const config: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
+    urgente: { label: 'Urgente', className: 'bg-red-100 text-red-700', icon: <AlertTriangle className="h-3 w-3" /> },
+    alta: { label: 'Alta', className: 'bg-amber-100 text-amber-700', icon: <Target className="h-3 w-3" /> },
+    normal: { label: 'Normal', className: 'bg-sky-100 text-sky-700', icon: <Lightbulb className="h-3 w-3" /> },
+    baja: { label: 'Baja', className: 'bg-slate-100 text-slate-600', icon: <Clock className="h-3 w-3" /> },
   };
-
+  const c = config[prioridad] || config.normal;
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config[prioridad] || config.baja}`}>
-      {(prioridad === 'alta' || prioridad === 'urgente') && <AlertTriangle className="h-3 w-3 mr-1" />}
-      {prioridad}
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${c.className}`}>
+      {c.icon} {c.label}
     </span>
   );
 };
 
 const getSolicitanteIcon = (tipo: TipoSolicitante) => {
   switch (tipo) {
-    case 'cliente': return <Users className="h-4 w-4 text-blue-500" />;
-    case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
-    case 'ventas': return <Target className="h-4 w-4 text-green-500" />;
-    case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
-    default: return null;
+    case 'empresa': return <Building2 className="h-4 w-4 text-sky-500" />;
+    case 'equipo': return <Users className="h-4 w-4 text-purple-500" />;
+    case 'gerencia': return <ShieldAlert className="h-4 w-4 text-amber-500" />;
+    default: return <Users className="h-4 w-4 text-slate-400" />;
   }
 };
 
-const getSolicitanteLabel = (req: Requerimiento) => {
-  if (req.tipoSolicitante === 'cliente' && req.nombreClienteSolicitante) {
-    return req.nombreClienteSolicitante;
-  }
-  switch (req.tipoSolicitante) {
-    case 'administracion': return 'Administracion';
-    case 'ventas': return 'Ventas';
-    case 'investigacion': return 'Investigacion';
-    default: return req.origen?.replace('_', ' ') || '-';
-  }
-};
+const getSolicitanteLabel = (req: Requerimiento) => req.solicitanteNombre || req.tipoSolicitante;
 
 export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
-  requerimientos,
-  loading,
-  onOpenDetail,
-  onAprobar,
-  onRefresh
+  requerimientos, loading, onOpenDetail, onAprobar, onRefresh,
 }) => {
+  const columns: DataTableColumn<Requerimiento>[] = [
+    {
+      key: 'numero', header: 'N Req',
+      render: r => <span className="font-medium text-teal-600">{r.numeroRequerimiento}</span>,
+    },
+    {
+      key: 'fecha', header: 'Fecha', hideOnMobile: true,
+      render: r => <span className="text-slate-500">{formatDate(r.fechaCreacion)}</span>,
+    },
+    {
+      key: 'solicitante', header: 'Solicitante', hideOnMobile: true,
+      render: r => (
+        <div className="flex items-center">
+          {getSolicitanteIcon(r.tipoSolicitante)}
+          <span className="ml-2">{getSolicitanteLabel(r)}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'productos', header: 'Productos',
+      render: r => (
+        <div className="flex items-center">
+          <Package className="h-4 w-4 text-slate-400 mr-2" />
+          {r.productos.length} producto(s)
+        </div>
+      ),
+    },
+    {
+      key: 'costo', header: 'Costo Est. USD', align: 'right', hideOnMobile: true,
+      render: r => <span className="font-medium">{formatCurrency(r.expectativa?.costoTotalEstimadoUSD || 0)}</span>,
+    },
+    {
+      key: 'prioridad', header: 'Prioridad', align: 'center',
+      render: r => getPrioridadBadge(r.prioridad),
+    },
+    {
+      key: 'estado', header: 'Estado', align: 'center',
+      render: r => getEstadoBadge(r.estado),
+    },
+    {
+      key: 'acciones', header: 'Acciones', align: 'center',
+      render: r => (
+        <div className="flex items-center justify-center space-x-2" onClick={e => e.stopPropagation()}>
+          <Button variant="ghost" size="sm" onClick={() => onOpenDetail(r)}>
+            <Eye className="h-4 w-4" />
+          </Button>
+          {r.estado === 'pendiente' && (
+            <Button variant="ghost" size="sm" onClick={() => onAprobar(r)} className="text-emerald-600 hover:text-emerald-700">
+              <Check className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <Card padding="none">
       <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
@@ -109,88 +140,14 @@ export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
           <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">N Req</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Solicitante</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Productos</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Costo Est. USD</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Prioridad</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Estado</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {loading ? (
-              <tr>
-                <td colSpan={8} className="px-6 py-8 text-center text-slate-500">
-                  <Loader2 className="h-6 w-6 animate-spin text-teal-600 mx-auto" />
-                </td>
-              </tr>
-            ) : requerimientos.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-6 py-8 text-center text-slate-500">No hay requerimientos registrados</td>
-              </tr>
-            ) : (
-              requerimientos.map((req) => (
-                <tr key={req.id} className="hover:bg-slate-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-teal-600">{req.numeroRequerimiento}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                    {formatDate(req.fechaCreacion)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <div className="flex items-center">
-                      {getSolicitanteIcon(req.tipoSolicitante)}
-                      <span className="ml-2">{getSolicitanteLabel(req)}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-900">
-                    <div className="flex items-center">
-                      <Package className="h-4 w-4 text-slate-400 mr-2" />
-                      {req.productos.length} producto(s)
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                    {formatCurrency(req.expectativa?.costoTotalEstimadoUSD || 0)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {getPrioridadBadge(req.prioridad)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {getEstadoBadge(req.estado)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onOpenDetail(req)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {req.estado === 'pendiente' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onAprobar(req)}
-                          className="text-green-600 hover:text-green-700"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable<Requerimiento>
+        columns={columns}
+        data={requerimientos}
+        keyExtractor={r => r.id}
+        loading={loading}
+        onRowClick={onOpenDetail}
+        emptyMessage="No hay requerimientos registrados"
+      />
     </Card>
   );
 };

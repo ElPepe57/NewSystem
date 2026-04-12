@@ -17,7 +17,9 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { Button, Card, Modal } from '../../components/common';
+import { Button, Card } from '../../components/common';
+import { FormModal, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import type {
   MovimientoTesoreria,
   CuentaCaja,
@@ -132,6 +134,186 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
   const movsRender = movsFiltradosPorTitular;
   const totalesRender = totalesFiltrados;
 
+  const movimientoColumns: DataTableColumn<MovimientoTesoreria>[] = [
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      render: (mov) => (
+        <span className={`text-sm text-slate-500${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+          {formatDate(mov.fecha)}
+        </span>
+      ),
+    },
+    {
+      key: 'tipo',
+      header: 'Tipo',
+      render: (mov) => (
+        <div className={`flex flex-col gap-1${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+              mov.tipo === 'ingreso_anticipo'
+                ? 'bg-purple-100 text-purple-800'
+                : esIngresoMovimiento(mov)
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-red-100 text-red-800'
+            }`}
+          >
+            {esIngresoMovimiento(mov) && <TrendingUp className="h-3 w-3 mr-1" />}
+            {!esIngresoMovimiento(mov) && <TrendingDown className="h-3 w-3 mr-1" />}
+            {getTipoLabel(mov.tipo)}
+          </span>
+          {mov.estado === 'anulado' && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-600">
+              ANULADO
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'doc',
+      header: 'Doc.',
+      render: (mov) => (
+        <span className={mov.estado === 'anulado' ? 'opacity-50' : ''}>
+          {mov.ordenCompraNumero ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-medium">{mov.ordenCompraNumero}</span>
+          ) : mov.ventaNumero ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-xs font-medium">{mov.ventaNumero}</span>
+          ) : mov.cotizacionNumero ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-cyan-100 text-cyan-800 text-xs font-medium">{mov.cotizacionNumero}</span>
+          ) : mov.transferenciaNumero ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-teal-100 text-teal-800 text-xs font-medium">{mov.transferenciaNumero}</span>
+          ) : mov.gastoNumero ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-orange-100 text-orange-800 text-xs font-medium">{mov.gastoNumero}</span>
+          ) : mov.conversionId ? (
+            <span className="inline-flex items-center px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-medium">Conversion</span>
+          ) : (
+            <span className="text-slate-400">-</span>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'cuenta',
+      header: 'Cuenta',
+      render: (mov) => {
+        const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
+        const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
+        if (cuenta) {
+          const saldos = saldosCorridos.get(mov.id);
+          return (
+            <div className={`flex flex-col${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+              <span className="font-medium text-slate-900 truncate max-w-[120px]" title={cuenta.nombre}>
+                {cuenta.nombre}
+              </span>
+              {saldos && saldos.pen !== 0 && saldos.usd !== 0 ? (
+                <div className="flex gap-2 text-xs text-slate-500">
+                  <span className={mov.moneda === 'PEN' ? 'font-semibold text-slate-700' : ''}>
+                    S/{saldos.pen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-slate-300">|</span>
+                  <span className={mov.moneda === 'USD' ? 'font-semibold text-slate-700' : ''}>
+                    ${saldos.usd.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-xs text-slate-500">
+                  Saldo: {mov.moneda === 'USD' ? '$' : 'S/'}{(saldos ? (mov.moneda === 'USD' ? saldos.usd : saldos.pen) : 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                </span>
+              )}
+            </div>
+          );
+        }
+        return <span className={`text-slate-400${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>-</span>;
+      },
+    },
+    {
+      key: 'concepto',
+      header: 'Concepto',
+      render: (mov) => (
+        <span
+          className={`text-sm text-slate-900 block max-w-xs truncate${mov.estado === 'anulado' ? ' opacity-50' : ''}`}
+          title={mov.concepto}
+        >
+          {mov.concepto || '-'}
+        </span>
+      ),
+    },
+    {
+      key: 'soles',
+      header: 'Soles (S/)',
+      align: 'right',
+      render: (mov) => {
+        const esIngresoPEN = mov.moneda === 'PEN' && esIngresoMovimiento(mov);
+        return (
+          <span className={`text-sm font-medium${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+            {mov.moneda === 'PEN' ? (
+              <span className={esIngresoPEN ? 'text-emerald-600' : 'text-red-600'}>
+                {esIngresoPEN ? '+' : '-'} S/ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+              </span>
+            ) : (
+              <span className="text-slate-300">-</span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'dolares',
+      header: 'Dolares ($)',
+      align: 'right',
+      render: (mov) => {
+        const esIngresoUSD = mov.moneda === 'USD' && esIngresoMovimiento(mov);
+        return (
+          <span className={`text-sm font-medium${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+            {mov.moneda === 'USD' ? (
+              <span className={esIngresoUSD ? 'text-emerald-600' : 'text-red-600'}>
+                {esIngresoUSD ? '+' : '-'} $ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+              </span>
+            ) : (
+              <span className="text-slate-300">-</span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'tc',
+      header: 'TC',
+      align: 'right',
+      render: (mov) => (
+        <span className={`text-sm text-slate-500${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+          {mov.tipoCambio.toFixed(3)}
+        </span>
+      ),
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      align: 'center',
+      render: (mov) => (
+        mov.estado !== 'anulado' && isAdmin ? (
+          <div className="flex justify-center gap-1">
+            <button
+              onClick={() => handleEditarMovimiento(mov)}
+              className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-full transition-colors"
+              title="Editar movimiento"
+            >
+              <Edit2 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => handleAnularMovimiento(mov)}
+              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+              title="Anular movimiento"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ) : null
+      ),
+    },
+  ];
+
   return (
     <>
       <Card padding="none">
@@ -194,7 +376,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 return (
                   <div key={c.id} className="text-xs px-3 py-2 rounded-lg bg-white border border-teal-200 space-y-0.5">
                     <div className="flex items-center gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.moneda === 'USD' ? 'bg-blue-400' : 'bg-green-400'}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.moneda === 'USD' ? 'bg-sky-400' : 'bg-emerald-400'}`} />
                       <span className="font-medium text-slate-800">{c.nombre}</span>
                       {prodLabel && <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 text-slate-500">{prodLabel}</span>}
                       <span className="text-[9px] px-1 py-0.5 rounded bg-slate-100 text-slate-500">{c.moneda}</span>
@@ -205,7 +387,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                           const esCaja = c.productoFinanciero === 'caja' || c.tipo === 'efectivo';
                           const esDigital = c.productoFinanciero === 'billetera_digital' || c.tipo === 'digital';
                           const label = esCaja ? 'Efectivo' : esDigital ? 'Digital' : c.tipo === 'credito' ? 'Crédito' : 'Banca';
-                          const color = esCaja ? 'bg-green-50 text-green-600' : esDigital ? 'bg-purple-50 text-purple-600' : c.tipo === 'credito' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600';
+                          const color = esCaja ? 'bg-emerald-50 text-emerald-600' : esDigital ? 'bg-purple-50 text-purple-600' : c.tipo === 'credito' ? 'bg-amber-50 text-amber-600' : 'bg-sky-50 text-sky-600';
                           return <span className={`text-[9px] px-1 py-0.5 rounded mr-1 ${color}`}>{label}</span>;
                         })()}
                         {c.banco && <span>{c.banco}</span>}
@@ -226,7 +408,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
             {chartEvolucionSaldo.length > 1 && (
               <div>
                 <h4 className="text-sm font-semibold text-slate-600 mb-2 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <TrendingUp className="h-4 w-4 text-emerald-500" />
                   Evolución de Saldo (PEN)
                 </h4>
                 <div className="h-48 w-full">
@@ -252,7 +434,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
             {chartEvolucionSaldoUSD.length > 1 && (
               <div>
                 <h4 className="text-sm font-semibold text-slate-600 mb-2 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-blue-500" />
+                  <TrendingUp className="h-4 w-4 text-sky-500" />
                   Evolución de Saldo (USD)
                 </h4>
                 <div className="h-48 w-full">
@@ -285,10 +467,10 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               <div>
                 <span className="text-slate-500">Entradas:</span>
                 {totalesRender.entradasPEN > 0 && (
-                  <span className="ml-2 font-semibold text-green-600">+S/ {totalesRender.entradasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+                  <span className="ml-2 font-semibold text-emerald-600">+S/ {totalesRender.entradasPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
                 )}
                 {totalesRender.entradasUSD > 0 && (
-                  <span className="ml-2 font-semibold text-green-600">+$ {totalesRender.entradasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="ml-2 font-semibold text-emerald-600">+$ {totalesRender.entradasUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 )}
               </div>
               <div className="text-right">
@@ -305,12 +487,12 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               <span className="text-slate-500">Balance neto:</span>
               <div className="flex gap-3">
                 {(totalesRender.entradasPEN > 0 || totalesMovimientos.salidasPEN > 0) && (
-                  <span className={`font-bold ${(totalesRender.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`font-bold ${(totalesRender.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     {(totalesRender.entradasPEN - totalesMovimientos.salidasPEN) >= 0 ? '+' : ''}S/ {(totalesRender.entradasPEN - totalesMovimientos.salidasPEN).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </span>
                 )}
                 {(totalesRender.entradasUSD > 0 || totalesMovimientos.salidasUSD > 0) && (
-                  <span className={`font-bold ${(totalesRender.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`font-bold ${(totalesRender.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     {(totalesRender.entradasUSD - totalesMovimientos.salidasUSD) >= 0 ? '+' : ''}$ {(totalesRender.entradasUSD - totalesMovimientos.salidasUSD).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
                 )}
@@ -341,7 +523,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                           mov.tipo === 'ingreso_anticipo'
                             ? 'bg-purple-100 text-purple-800'
                             : esIng
-                              ? 'bg-green-100 text-green-800'
+                              ? 'bg-emerald-100 text-emerald-800'
                               : 'bg-red-100 text-red-800'
                         }`}
                       >
@@ -355,7 +537,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                       )}
                     </div>
                     <div className="text-right flex-shrink-0 ml-2">
-                      <div className={`text-sm font-bold ${esIng ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`text-sm font-bold ${esIng ? 'text-emerald-600' : 'text-red-600'}`}>
                         {esIng ? '+' : '-'} {mov.moneda === 'USD' ? '$' : 'S/'} {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       <div className="text-[10px] text-slate-400">TC: {mov.tipoCambio.toFixed(3)}</div>
@@ -363,7 +545,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                   </div>
                   <div className="flex items-center gap-2 flex-wrap text-xs">
                     {mov.ordenCompraNumero && <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-medium">{mov.ordenCompraNumero}</span>}
-                    {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
+                    {mov.ventaNumero && <span className="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px] font-medium">{mov.ventaNumero}</span>}
                     {mov.cotizacionNumero && <span className="px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 text-[10px] font-medium">{mov.cotizacionNumero}</span>}
                     {mov.transferenciaNumero && <span className="px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 text-[10px] font-medium">{mov.transferenciaNumero}</span>}
                     {mov.gastoNumero && <span className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 text-[10px] font-medium">{mov.gastoNumero}</span>}
@@ -390,181 +572,38 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
         </div>
 
         {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Fecha</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Doc.</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Cuenta</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">Concepto</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-green-700 uppercase bg-green-50">Soles (S/)</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-blue-700 uppercase bg-blue-50">Dolares ($)</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs font-medium text-slate-500 uppercase">TC</th>
-                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {movsRender.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-slate-500">
-                    {filtroTitular ? `No hay movimientos para ${filtroTitular}` : 'No hay movimientos registrados'}
-                  </td>
-                </tr>
-              ) : (
-                movsRender.map((mov) => {
-                  const esIngresoPEN = mov.moneda === 'PEN' && esIngresoMovimiento(mov);
-                  const esIngresoUSD = mov.moneda === 'USD' && esIngresoMovimiento(mov);
-
-                  return (
-                    <tr
-                      key={mov.id}
-                      className={`hover:bg-slate-50 ${mov.estado === 'anulado' ? 'opacity-50 bg-slate-100' : ''}`}
-                    >
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-slate-500">
-                        {formatDate(mov.fecha)}
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">
-                        <div className="flex flex-col gap-1">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                              mov.tipo === 'ingreso_anticipo'
-                                ? 'bg-purple-100 text-purple-800'
-                                : esIngresoMovimiento(mov)
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {esIngresoMovimiento(mov) && <TrendingUp className="h-3 w-3 mr-1" />}
-                            {!esIngresoMovimiento(mov) && <TrendingDown className="h-3 w-3 mr-1" />}
-                            {getTipoLabel(mov.tipo)}
-                          </span>
-                          {mov.estado === 'anulado' && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-600">
-                              ANULADO
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm">
-                        {mov.ordenCompraNumero ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-medium">{mov.ordenCompraNumero}</span>
-                        ) : mov.ventaNumero ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-medium">{mov.ventaNumero}</span>
-                        ) : mov.cotizacionNumero ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-cyan-100 text-cyan-800 text-xs font-medium">{mov.cotizacionNumero}</span>
-                        ) : mov.transferenciaNumero ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-teal-100 text-teal-800 text-xs font-medium">{mov.transferenciaNumero}</span>
-                        ) : mov.gastoNumero ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-orange-100 text-orange-800 text-xs font-medium">{mov.gastoNumero}</span>
-                        ) : mov.conversionId ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-medium">Conversion</span>
-                        ) : (
-                          <span className="text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm">
-                        {(() => {
-                          const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
-                          const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
-                          if (cuenta) {
-                            const saldos = saldosCorridos.get(mov.id);
-                            return (
-                              <div className="flex flex-col">
-                                <span className="font-medium text-slate-900 truncate max-w-[120px]" title={cuenta.nombre}>
-                                  {cuenta.nombre}
-                                </span>
-                                {saldos && saldos.pen !== 0 && saldos.usd !== 0 ? (
-                                  <div className="flex gap-2 text-xs text-slate-500">
-                                    <span className={mov.moneda === 'PEN' ? 'font-semibold text-slate-700' : ''}>
-                                      S/{saldos.pen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                                    </span>
-                                    <span className="text-slate-300">|</span>
-                                    <span className={mov.moneda === 'USD' ? 'font-semibold text-slate-700' : ''}>
-                                      ${saldos.usd.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-slate-500">
-                                    Saldo: {mov.moneda === 'USD' ? '$' : 'S/'}{(saldos ? (mov.moneda === 'USD' ? saldos.usd : saldos.pen) : 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          }
-                          return <span className="text-slate-400">-</span>;
-                        })()}
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-sm text-slate-900 max-w-xs truncate" title={mov.concepto}>
-                        {mov.concepto || '-'}
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right font-medium bg-green-50/30">
-                        {mov.moneda === 'PEN' ? (
-                          <span className={esIngresoPEN ? 'text-green-600' : 'text-red-600'}>
-                            {esIngresoPEN ? '+' : '-'} S/ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                          </span>
-                        ) : (
-                          <span className="text-slate-300">-</span>
-                        )}
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right font-medium bg-blue-50/30">
-                        {mov.moneda === 'USD' ? (
-                          <span className={esIngresoUSD ? 'text-green-600' : 'text-red-600'}>
-                            {esIngresoUSD ? '+' : '-'} $ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                          </span>
-                        ) : (
-                          <span className="text-slate-300">-</span>
-                        )}
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-sm text-right text-slate-500">
-                        {mov.tipoCambio.toFixed(3)}
-                      </td>
-                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap text-center">
-                        {mov.estado !== 'anulado' && isAdmin && (
-                          <div className="flex justify-center gap-1">
-                            <button
-                              onClick={() => handleEditarMovimiento(mov)}
-                              className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-full transition-colors"
-                              title="Editar movimiento"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleAnularMovimiento(mov)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                              title="Anular movimiento"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+        <div className="hidden md:block">
+          <DataTable
+            columns={movimientoColumns}
+            data={movsRender}
+            keyExtractor={(mov) => mov.id}
+            compact
+            emptyMessage={filtroTitular ? `No hay movimientos para ${filtroTitular}` : 'No hay movimientos registrados'}
+          />
         </div>
       </Card>
 
       {/* Modal Nuevo/Editar Movimiento */}
-      <Modal
+      <FormModal
         isOpen={isMovimientoModalOpen}
         onClose={handleCerrarModalMovimiento}
         title={movimientoEditando ? `Editar Movimiento ${movimientoEditando.numeroMovimiento}` : 'Nuevo Movimiento'}
         size="lg"
+        variant={movimientoEditando ? 'edit' : 'create'}
+        submitLabel={isSubmitting ? 'Guardando...' : movimientoEditando ? 'Guardar Cambios' : 'Guardar'}
+        onSubmit={handleGuardarMovimiento}
+        loading={isSubmitting}
+        disabled={isSubmitting || !movimientoForm.monto}
       >
         <div className="space-y-5">
           {/* Seccion 1: Tipo y Clasificacion */}
-          <div className={`rounded-lg p-4 border ${esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+          <div className={`rounded-lg p-4 border ${esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
             <div className="flex items-center gap-2 mb-3">
               {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria)
-                ? <ArrowUpCircle className="h-4 w-4 text-green-600" />
+                ? <ArrowUpCircle className="h-4 w-4 text-emerald-600" />
                 : <ArrowDownCircle className="h-4 w-4 text-red-600" />
               }
-              <h4 className={`text-sm font-semibold ${esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'text-green-800' : 'text-red-800'}`}>
+              <h4 className={`text-sm font-semibold ${esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'text-emerald-800' : 'text-red-800'}`}>
                 {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Ingreso' : 'Egreso'}
               </h4>
             </div>
@@ -678,10 +717,10 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
           </div>
 
           {/* Seccion 3: Cuenta y Metodo */}
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="bg-sky-50 rounded-lg p-4 border border-sky-200">
             <div className="flex items-center gap-2 mb-3">
-              <Building2 className="h-4 w-4 text-blue-600" />
-              <h4 className="text-sm font-semibold text-blue-800">Cuenta y Metodo de Pago</h4>
+              <Building2 className="h-4 w-4 text-sky-600" />
+              <h4 className="text-sm font-semibold text-sky-800">Cuenta y Metodo de Pago</h4>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -802,18 +841,8 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 pt-2 border-t border-slate-200">
-            <Button variant="ghost" onClick={handleCerrarModalMovimiento}>Cancelar</Button>
-            <Button
-              variant="primary"
-              onClick={handleGuardarMovimiento}
-              disabled={isSubmitting || !movimientoForm.monto}
-            >
-              {isSubmitting ? 'Guardando...' : movimientoEditando ? 'Guardar Cambios' : 'Guardar'}
-            </Button>
-          </div>
         </div>
-      </Modal>
+      </FormModal>
     </>
   );
 };

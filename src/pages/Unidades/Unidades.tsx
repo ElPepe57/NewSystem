@@ -18,7 +18,7 @@ import {
   List,
   Calendar
 } from 'lucide-react';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
   Card,
   Badge,
@@ -36,7 +36,8 @@ import {
   LineaNegocioBadge,
   PaisOrigenBadge
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection, DataTable, StatCard } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import type { PipelineStage } from '../../components/common/PipelineHeader';
 import { UnidadDetailsModal, UnidadCard, EditarVencimientoModal } from '../../components/modules/inventario';
 import { useUnidadStore } from '../../store/unidadStore';
@@ -353,6 +354,94 @@ export const Unidades: React.FC = () => {
 
   const hayFiltrosActivos = busqueda || filtros.productoId || filtros.almacenId || filtros.estado || filtros.pais || filtroEstadoPipeline;
 
+  const tablaColumns: DataTableColumn<Unidad>[] = [
+    {
+      key: 'producto',
+      header: 'Producto',
+      render: unidad => (
+        <div>
+          <div className="text-sm font-medium text-slate-900">{unidad.productoSKU || '-'}</div>
+          <div className="text-sm text-slate-500">{unidad.productoNombre || '-'}</div>
+          {(() => {
+            const pInfo = productosMap.get(unidad.productoId);
+            const desc = pInfo ? getDescripcionProducto(pInfo) : '';
+            return desc ? <div className="text-[10px] text-slate-400">{desc}</div> : null;
+          })()}
+          <div className="flex items-center gap-1 mt-0.5">
+            <LineaNegocioBadge lineaNegocioId={unidad.lineaNegocioId} />
+            <PaisOrigenBadge paisOrigen={unidad.paisOrigen} />
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'lote',
+      header: 'Lote',
+      hideOnMobile: true,
+      render: unidad => <div className="text-sm text-slate-900">{unidad.lote || '-'}</div>,
+    },
+    {
+      key: 'vencimiento',
+      header: 'Vencimiento',
+      hideOnMobile: true,
+      render: unidad => {
+        const diasVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 0;
+        return (
+          <div>
+            <div className="text-sm text-slate-900">{formatFecha(unidad.fechaVencimiento)}</div>
+            <div className={`text-xs font-medium ${getColorVencimiento(diasVencer)}`}>
+              {diasVencer < 0
+                ? `Vencido hace ${Math.abs(diasVencer)} días`
+                : `${diasVencer} días`}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'almacen',
+      header: 'Almacén',
+      render: unidad => (
+        <div className="text-sm text-slate-900">
+          {getPaisEmoji(unidad.pais)} {unidad.almacenNombre || '-'}
+        </div>
+      ),
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: unidad => {
+        const estadoBadge = getEstadoBadge(unidad.estado, unidad.paisOrigen || unidad.pais);
+        return <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>;
+      },
+    },
+    {
+      key: 'costoUSD',
+      header: 'Costo USD',
+      align: 'right',
+      render: unidad => (
+        <span className="text-sm text-slate-900">
+          {formatCurrency(unidad.costoUnitarioUSD || 0)}
+        </span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      align: 'center',
+      render: unidad => (
+        <button
+          onClick={() => setUnidadSeleccionada(unidad)}
+          className="p-1.5 text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition-colors"
+          title="Ver detalles"
+        >
+          <Eye className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header Profesional con Gradiente */}
@@ -390,7 +479,6 @@ export const Unidades: React.FC = () => {
       />
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
 
       {/* StatCards interactivos */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
@@ -443,17 +531,17 @@ export const Unidades: React.FC = () => {
         <StatDistribution
           title="Distribución por Ubicación"
           data={[
-            { label: 'En Origen', value: unidadesStats.enOrigen + unidadesStats.enTransitoOrigen, color: 'bg-blue-500' },
+            { label: 'En Origen', value: unidadesStats.enOrigen + unidadesStats.enTransitoOrigen, color: 'bg-sky-500' },
             { label: 'En Tránsito → Perú', value: unidadesStats.enTransitoPeru, color: 'bg-amber-500' },
-            { label: 'Perú', value: unidadesStats.disponiblePeru, color: 'bg-green-500' },
+            { label: 'Perú', value: unidadesStats.disponiblePeru, color: 'bg-emerald-500' },
             { label: 'Reservadas', value: unidadesStats.reservada, color: 'bg-purple-500' }
           ]}
         />
         <StatDistribution
           title="Estado de Unidades"
           data={[
-            { label: 'Disponibles', value: unidadesStats.enOrigen + unidadesStats.disponiblePeru, color: 'bg-green-500' },
-            { label: 'En Movimiento', value: unidadesStats.enTransitoOrigen + unidadesStats.enTransitoPeru, color: 'bg-blue-500' },
+            { label: 'Disponibles', value: unidadesStats.enOrigen + unidadesStats.disponiblePeru, color: 'bg-emerald-500' },
+            { label: 'En Movimiento', value: unidadesStats.enTransitoOrigen + unidadesStats.enTransitoPeru, color: 'bg-sky-500' },
             { label: 'Vendidas', value: unidadesStats.vendida, color: 'bg-slate-400' },
             { label: 'Problemas', value: unidadesStats.problemas, color: 'bg-red-500' }
           ]}
@@ -574,11 +662,7 @@ export const Unidades: React.FC = () => {
       ) : (
         /* Vista de Tabla */
         <Card padding="md">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
-            </div>
-          ) : unidadesFiltradas.length === 0 ? (
+          {unidadesFiltradas.length === 0 && !loading ? (
             <div className="text-center py-12">
               <Package className="mx-auto h-12 w-12 text-slate-400" />
               <h3 className="mt-2 text-sm font-medium text-slate-900">No hay unidades</h3>
@@ -587,98 +671,12 @@ export const Unidades: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Producto
-                    </th>
-                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Lote
-                    </th>
-                    <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Vencimiento
-                    </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Almacén
-                    </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Estado
-                    </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                      Costo USD
-                    </th>
-                    <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-slate-500 uppercase">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {unidadesPaginadas.map((unidad) => {
-                    if (!unidad || !unidad.estado) return null;
-
-                    const diasVencer = calcularDiasParaVencerUtil(unidad.fechaVencimiento) ?? 0;
-                    const estadoBadge = getEstadoBadge(unidad.estado, unidad.paisOrigen || unidad.pais);
-
-                    return (
-                      <tr key={unidad.id} className="hover:bg-slate-50">
-                        <td className="px-3 sm:px-6 py-3 sm:py-4">
-                          <div>
-                            <div className="text-sm font-medium text-slate-900">
-                              {unidad.productoSKU || '-'}
-                            </div>
-                            <div className="text-sm text-slate-500">{unidad.productoNombre || '-'}</div>
-                            {(() => {
-                              const pInfo = productosMap.get(unidad.productoId);
-                              const desc = pInfo ? getDescripcionProducto(pInfo) : '';
-                              return desc ? <div className="text-[10px] text-slate-400">{desc}</div> : null;
-                            })()}
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <LineaNegocioBadge lineaNegocioId={unidad.lineaNegocioId} />
-                              <PaisOrigenBadge paisOrigen={unidad.paisOrigen} />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="text-sm text-slate-900">{unidad.lote || '-'}</div>
-                        </td>
-                        <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="text-sm text-slate-900">
-                            {formatFecha(unidad.fechaVencimiento)}
-                          </div>
-                          <div className={`text-xs font-medium ${getColorVencimiento(diasVencer)}`}>
-                            {diasVencer < 0
-                              ? `Vencido hace ${Math.abs(diasVencer)} días`
-                              : `${diasVencer} días`}
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="text-sm text-slate-900">
-                            {getPaisEmoji(unidad.pais)} {unidad.almacenNombre || '-'}
-                          </div>
-                        </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
-                        </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm text-slate-900">
-                          {formatCurrency(unidad.costoUnitarioUSD || 0)}
-                        </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
-                          <button
-                            onClick={() => setUnidadSeleccionada(unidad)}
-                            className="p-1.5 text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition-colors"
-                            title="Ver detalles"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={tablaColumns}
+              data={unidadesPaginadas.filter(u => u && u.estado)}
+              keyExtractor={u => u.id}
+              loading={loading}
+            />
           )}
           {!loading && unidadesFiltradas.length > 0 && (
             <div className="px-4 py-3 border-t border-slate-200 space-y-4">

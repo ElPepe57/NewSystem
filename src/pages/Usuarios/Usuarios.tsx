@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Users, Shield, UserCheck, UserX, RefreshCw, Plus, Edit2, X, Save, Eye, EyeOff, Search, Filter, Trash2, Key, AlertTriangle, LogOut, Wifi, WifiOff, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { userService, PERMISOS_INFO } from '../../services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import type { UserProfile, UserRole } from '../../types/auth.types';
@@ -323,9 +324,9 @@ export const Usuarios: React.FC = () => {
   const roleBadgeColor: Record<UserRole, string> = {
     admin: 'bg-red-100 text-red-800',
     gerente: 'bg-purple-100 text-purple-800',
-    vendedor: 'bg-blue-100 text-blue-800',
+    vendedor: 'bg-sky-100 text-sky-800',
     comprador: 'bg-amber-100 text-amber-800',
-    almacenero: 'bg-green-100 text-green-800',
+    almacenero: 'bg-emerald-100 text-emerald-800',
     finanzas: 'bg-teal-100 text-teal-800',
     supervisor: 'bg-teal-100 text-teal-800',
     invitado: 'bg-slate-100 text-slate-800'
@@ -411,9 +412,9 @@ export const Usuarios: React.FC = () => {
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center">
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg flex justify-between items-center">
           {success}
-          <button onClick={() => setSuccess(null)} className="text-green-500 hover:text-green-700">
+          <button onClick={() => setSuccess(null)} className="text-emerald-500 hover:text-emerald-700">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -461,12 +462,12 @@ export const Usuarios: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <UserCheck className="h-5 w-5 text-green-600" />
+            <div className="p-2 bg-emerald-100 rounded-lg">
+              <UserCheck className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-sm text-slate-600">Activos</p>
-              <p className="text-xl font-bold text-green-600">{stats.activos}</p>
+              <p className="text-xl font-bold text-emerald-600">{stats.activos}</p>
             </div>
           </div>
         </div>
@@ -573,160 +574,80 @@ export const Usuarios: React.FC = () => {
 
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Usuario
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Rol
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Última Conexión
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {filteredUsuarios.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                  <Users className="h-12 w-12 mx-auto mb-4 text-slate-300" />
-                  <p className="text-lg font-medium">No se encontraron usuarios</p>
-                  <p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
-                </td>
-              </tr>
-            ) : filteredUsuarios.map((usuario) => (
-              <tr
-                key={usuario.uid}
-                className={usuario.uid === currentUser?.uid ? 'bg-teal-50' : 'hover:bg-slate-50'}
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center">
-                      {usuario.photoURL ? (
-                        <img
-                          src={usuario.photoURL}
-                          alt={usuario.displayName}
-                          className="h-10 w-10 rounded-full"
-                        />
-                      ) : (
-                        <span className="text-slate-600 font-medium">
-                          {usuario.displayName?.charAt(0).toUpperCase() || 'U'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-slate-900">
-                        {usuario.displayName}
-                        {usuario.uid === currentUser?.uid && (
-                          <span className="ml-2 text-xs text-teal-600">(Tú)</span>
-                        )}
-                      </div>
-                      {usuario.cargo && (
-                        <div className="text-xs text-slate-500">{usuario.cargo}</div>
-                      )}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                  {usuario.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`text-sm rounded-full px-3 py-1 font-medium ${roleBadgeColor[usuario.role]}`}>
-                    {ROLE_LABELS[usuario.role]}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => handleToggleActivo(usuario.uid, !usuario.activo)}
-                    disabled={usuario.uid === currentUser?.uid}
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                      usuario.activo
-                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                        : 'bg-red-100 text-red-800 hover:bg-red-200'
-                    } disabled:cursor-not-allowed disabled:opacity-50`}
-                  >
-                    {usuario.activo ? (
-                      <>
-                        <UserCheck className="h-3 w-3" /> Activo
-                      </>
+        <DataTable<UserProfile>
+          columns={[
+            {
+              key: 'usuario', header: 'Usuario',
+              render: u => (
+                <div className="flex items-center">
+                  <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                    {u.photoURL ? (
+                      <img src={u.photoURL} alt={u.displayName} className="h-10 w-10 rounded-full" />
                     ) : (
-                      <>
-                        <UserX className="h-3 w-3" /> Inactivo
-                      </>
+                      <span className="text-slate-600 font-medium">{u.displayName?.charAt(0).toUpperCase() || 'U'}</span>
                     )}
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                  {usuario.ultimaConexion
-                    ? new Date(usuario.ultimaConexion.toDate()).toLocaleDateString('es-PE', {
-                        day: '2-digit',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })
-                    : 'Nunca'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex justify-end gap-1">
-                    {/* Botón Aprobar (solo para pendientes) */}
-                    {!usuario.activo && usuario.role === 'invitado' && (
-                      <button
-                        onClick={() => handleOpenApprove(usuario)}
-                        className="flex items-center gap-1 px-2.5 py-1.5 text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg transition-colors"
-                        title="Aprobar usuario"
-                      >
-                        <CheckCircle className="h-3.5 w-3.5" />
-                        <span className="text-xs font-medium">Aprobar</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleOpenEditPermisos(usuario)}
-                      className="p-2 text-teal-600 hover:text-teal-900 hover:bg-teal-50 rounded-lg"
-                      title="Editar permisos"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenDisconnect(usuario)}
-                      disabled={usuario.uid === currentUser?.uid}
-                      className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Desconectar sesión"
-                    >
-                      <LogOut className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenResetPassword(usuario)}
-                      disabled={usuario.uid === currentUser?.uid}
-                      className="p-2 text-amber-600 hover:text-amber-900 hover:bg-amber-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Resetear contraseña"
-                    >
-                      <Key className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenDeleteConfirm(usuario)}
-                      disabled={usuario.uid === currentUser?.uid}
-                      className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Eliminar usuario"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-slate-900">
+                      {u.displayName}
+                      {u.uid === currentUser?.uid && <span className="ml-2 text-xs text-teal-600">(Tú)</span>}
+                    </div>
+                    {u.cargo && <div className="text-xs text-slate-500">{u.cargo}</div>}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: 'email', header: 'Email', hideOnMobile: true,
+              render: u => <span className="text-slate-500">{u.email}</span>,
+            },
+            {
+              key: 'rol', header: 'Rol',
+              render: u => <span className={`text-sm rounded-full px-3 py-1 font-medium ${roleBadgeColor[u.role]}`}>{ROLE_LABELS[u.role]}</span>,
+            },
+            {
+              key: 'estado', header: 'Estado',
+              render: u => (
+                <button
+                  onClick={() => handleToggleActivo(u.uid, !u.activo)}
+                  disabled={u.uid === currentUser?.uid}
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${u.activo ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-red-100 text-red-800 hover:bg-red-200'} disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  {u.activo ? <><UserCheck className="h-3 w-3" /> Activo</> : <><UserX className="h-3 w-3" /> Inactivo</>}
+                </button>
+              ),
+            },
+            {
+              key: 'ultima', header: 'Última Conexión', hideOnMobile: true,
+              render: u => <span className="text-slate-500">{u.ultimaConexion ? new Date(u.ultimaConexion.toDate()).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Nunca'}</span>,
+            },
+            {
+              key: 'acciones', header: 'Acciones', align: 'right',
+              render: u => (
+                <div className="flex justify-end gap-1" onClick={e => e.stopPropagation()}>
+                  {!u.activo && u.role === 'invitado' && (
+                    <button onClick={() => handleOpenApprove(u)} className="flex items-center gap-1 px-2.5 py-1.5 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors" title="Aprobar">
+                      <CheckCircle className="h-3.5 w-3.5" /><span className="text-xs font-medium">Aprobar</span>
+                    </button>
+                  )}
+                  <button onClick={() => handleOpenEditPermisos(u)} className="p-2 text-teal-600 hover:text-teal-900 hover:bg-teal-50 rounded-lg" title="Editar permisos"><Edit2 className="h-4 w-4" /></button>
+                  <button onClick={() => handleOpenDisconnect(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Desconectar"><LogOut className="h-4 w-4" /></button>
+                  <button onClick={() => handleOpenResetPassword(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-amber-600 hover:text-amber-900 hover:bg-amber-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Reset password"><Key className="h-4 w-4" /></button>
+                  <button onClick={() => handleOpenDeleteConfirm(u)} disabled={u.uid === currentUser?.uid} className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed" title="Eliminar"><Trash2 className="h-4 w-4" /></button>
+                </div>
+              ),
+            },
+          ]}
+          data={filteredUsuarios}
+          keyExtractor={u => u.uid}
+          emptyState={
+            <div className="px-6 py-12 text-center text-slate-500">
+              <Users className="h-12 w-12 mx-auto mb-4 text-slate-300" />
+              <p className="text-lg font-medium">No se encontraron usuarios</p>
+              <p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
+            </div>
+          }
+        />
       </div>
 
       {/* Modal Crear Usuario */}
@@ -825,7 +746,7 @@ export const Usuarios: React.FC = () => {
                   )}
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 text-sm text-sky-800">
                   <strong>Info:</strong> El usuario recibirá acceso con los permisos predeterminados del rol seleccionado.
                   Puedes personalizar los permisos después desde la opción "Editar permisos".
                 </div>
@@ -1191,8 +1112,8 @@ export const Usuarios: React.FC = () => {
         size="md"
       >
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-green-100 rounded-xl">
-                  <UserCheck className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-emerald-100 rounded-xl">
+                  <UserCheck className="h-6 w-6 text-emerald-600" />
                 </div>
               </div>
 
@@ -1245,11 +1166,11 @@ export const Usuarios: React.FC = () => {
                       </button>
                     ))}
                 </div>
-                <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-xs text-blue-800">
+                <div className="mt-3 bg-sky-50 border border-sky-200 rounded-lg p-3">
+                  <p className="text-xs text-sky-800">
                     <strong>{ROLE_LABELS[approveRole]}:</strong> {ROLE_DESCRIPTIONS[approveRole]}
                   </p>
-                  <p className="text-[10px] text-blue-600 mt-1">
+                  <p className="text-[10px] text-sky-600 mt-1">
                     {DEFAULT_PERMISOS[approveRole].length} permisos predeterminados
                   </p>
                 </div>
@@ -1266,7 +1187,7 @@ export const Usuarios: React.FC = () => {
                 <button
                   onClick={handleApproveUser}
                   disabled={saving}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 font-medium transition-colors"
                 >
                   {saving ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -1279,8 +1200,8 @@ export const Usuarios: React.FC = () => {
       </Modal>
 
       {/* Info sobre roles */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-medium text-blue-800 mb-3">Información sobre Roles</h3>
+      <div className="bg-sky-50 border border-sky-200 rounded-lg p-4">
+        <h3 className="font-medium text-sky-800 mb-3">Información sobre Roles</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
           {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([role, label]) => (
             <div key={role} className="bg-white/60 rounded-lg p-3">

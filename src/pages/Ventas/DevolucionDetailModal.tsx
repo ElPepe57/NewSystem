@@ -23,6 +23,8 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { Modal, Button, useConfirmDialog, ConfirmDialog } from '../../components/common';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { devolucionService } from '../../services/devolucion.service';
@@ -76,9 +78,9 @@ const METODOS_PAGO: Array<{ value: MetodoPago; label: string }> = [
 function BadgeEstado({ estado }: { estado: string }) {
   const clases: Record<string, string> = {
     solicitada: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
-    aprobada: 'bg-blue-100 text-blue-800 border border-blue-200',
+    aprobada: 'bg-sky-100 text-sky-800 border border-sky-200',
     ejecutada: 'bg-purple-100 text-purple-800 border border-purple-200',
-    completada: 'bg-green-100 text-green-800 border border-green-200',
+    completada: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
     rechazada: 'bg-red-100 text-red-800 border border-red-200',
     cancelada: 'bg-slate-100 text-slate-600 border border-slate-200',
   };
@@ -348,7 +350,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                 {formatCurrencyPEN(devolucion.montoDevolucion)}
               </p>
               {devolucion.montoDevuelto > 0 && (
-                <p className="text-sm text-green-600 font-medium">
+                <p className="text-sm text-emerald-600 font-medium">
                   Devuelto: {formatCurrencyPEN(devolucion.montoDevuelto)}
                 </p>
               )}
@@ -388,51 +390,74 @@ export const DevolucionDetailModal: React.FC<Props> = ({
               <Package className="h-4 w-4 text-slate-500" />
               Productos devueltos
             </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50">
-                  <tr className="border-b border-slate-200 text-left">
-                    <th className="pb-2 text-slate-500 font-medium">Producto</th>
-                    <th className="pb-2 text-slate-500 font-medium text-center">Cant.</th>
-                    <th className="pb-2 text-slate-500 font-medium text-right">P. Unit.</th>
-                    <th className="pb-2 text-slate-500 font-medium text-right">Subtotal</th>
-                    <th className="pb-2 text-slate-500 font-medium text-center">Condición</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {devolucion.productos.map(prod => (
-                    <tr key={prod.productoId} className="border-b border-slate-100">
-                      <td className="py-2">
-                        <p className="font-medium text-slate-900">{prod.nombreProducto}</p>
-                        <p className="text-xs text-slate-400">{prod.sku}</p>
-                      </td>
-                      <td className="py-2 text-center text-slate-700">{prod.cantidad}</td>
-                      <td className="py-2 text-right text-slate-700">
-                        {formatCurrencyPEN(prod.precioUnitarioOriginal)}
-                      </td>
-                      <td className="py-2 text-right font-medium text-slate-900">
-                        {formatCurrencyPEN(prod.subtotalDevolucion)}
-                      </td>
-                      <td className="py-2 text-center">
-                        {prod.condicion ? (
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                              prod.condicion === 'vendible'
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                            }`}
-                          >
-                            {prod.condicion === 'vendible' ? 'Vendible' : 'Danado'}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {(() => {
+              const prodColumns: DataTableColumn<typeof devolucion.productos[number]>[] = [
+                {
+                  key: 'nombreProducto',
+                  header: 'Producto',
+                  render: prod => (
+                    <div>
+                      <p className="font-medium text-slate-900">{prod.nombreProducto}</p>
+                      <p className="text-xs text-slate-400">{prod.sku}</p>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'cantidad',
+                  header: 'Cant.',
+                  align: 'center',
+                  render: prod => <span className="text-slate-700">{prod.cantidad}</span>,
+                },
+                {
+                  key: 'precioUnitarioOriginal',
+                  header: 'P. Unit.',
+                  align: 'right',
+                  render: prod => (
+                    <span className="text-slate-700">
+                      {formatCurrencyPEN(prod.precioUnitarioOriginal)}
+                    </span>
+                  ),
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'subtotalDevolucion',
+                  header: 'Subtotal',
+                  align: 'right',
+                  render: prod => (
+                    <span className="font-medium text-slate-900">
+                      {formatCurrencyPEN(prod.subtotalDevolucion)}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'condicion',
+                  header: 'Condición',
+                  align: 'center',
+                  render: prod =>
+                    prod.condicion ? (
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          prod.condicion === 'vendible'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}
+                      >
+                        {prod.condicion === 'vendible' ? 'Vendible' : 'Danado'}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    ),
+                },
+              ];
+              return (
+                <DataTable
+                  columns={prodColumns}
+                  data={devolucion.productos}
+                  keyExtractor={prod => prod.productoId}
+                  compact
+                />
+              );
+            })()}
           </div>
 
           {/* ---- HISTORIAL DEL FLUJO ---- */}
@@ -455,8 +480,8 @@ export const DevolucionDetailModal: React.FC<Props> = ({
               {/* Aprobación */}
               {devolucion.fechaAprobacion && (
                 <li className="pl-6">
-                  <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-blue-100 ring-2 ring-white">
-                    <span className="h-2 w-2 rounded-full bg-blue-400" />
+                  <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-sky-100 ring-2 ring-white">
+                    <span className="h-2 w-2 rounded-full bg-sky-400" />
                   </span>
                   <p className="text-sm font-medium text-slate-800">Aprobada</p>
                   <p className="text-xs text-slate-500">{formatFecha(devolucion.fechaAprobacion)}</p>
@@ -494,8 +519,8 @@ export const DevolucionDetailModal: React.FC<Props> = ({
               {/* Completada */}
               {devolucion.fechaCompletado && (
                 <li className="pl-6">
-                  <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-green-100 ring-2 ring-white">
-                    <span className="h-2 w-2 rounded-full bg-green-500" />
+                  <span className="absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 ring-2 ring-white">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
                   </span>
                   <p className="text-sm font-medium text-slate-800">Dinero devuelto</p>
                   <p className="text-xs text-slate-500">{formatFecha(devolucion.fechaCompletado)}</p>
@@ -668,7 +693,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                                 }
                                 className="text-purple-600 focus:ring-purple-500"
                               />
-                              <span className={`text-sm ${cond === 'vendible' ? 'text-green-700' : 'text-red-700'}`}>
+                              <span className={`text-sm ${cond === 'vendible' ? 'text-emerald-700' : 'text-red-700'}`}>
                                 {cond === 'vendible' ? 'Vendible' : 'Danado'}
                               </span>
                             </label>
@@ -715,8 +740,8 @@ export const DevolucionDetailModal: React.FC<Props> = ({
           {devolucion.estado === 'ejecutada' && (
             <div className="border-t border-slate-200 pt-4 space-y-4">
               {mostrarFormPago ? (
-                <div className="bg-green-50 rounded-lg p-4 space-y-4">
-                  <p className="text-sm font-semibold text-green-700">
+                <div className="bg-emerald-50 rounded-lg p-4 space-y-4">
+                  <p className="text-sm font-semibold text-emerald-700">
                     Registrar devolución de dinero
                   </p>
 
@@ -732,7 +757,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                         step={0.01}
                         value={montoPago}
                         onChange={e => setMontoPago(parseFloat(e.target.value) || 0)}
-                        className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
 
@@ -744,7 +769,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                       <select
                         value={metodoPago}
                         onChange={e => setMetodoPago(e.target.value as MetodoPago)}
-                        className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       >
                         {METODOS_PAGO.map(m => (
                           <option key={m.value} value={m.value}>
@@ -766,7 +791,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                       value={referenciaPago}
                       onChange={e => setReferenciaPago(e.target.value)}
                       placeholder="Ej: OP-123456"
-                      className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
 
@@ -780,7 +805,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
                       value={notasPago}
                       onChange={e => setNotasPago(e.target.value)}
                       rows={2}
-                      className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                      className="w-full text-sm border border-slate-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                     />
                   </div>
 
@@ -827,7 +852,7 @@ export const DevolucionDetailModal: React.FC<Props> = ({
           {/* COMPLETADA */}
           {devolucion.estado === 'completada' && (
             <div className="border-t border-slate-200 pt-4">
-              <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-lg px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 rounded-lg px-4 py-3">
                 <CheckCircle className="h-5 w-5 flex-shrink-0" />
                 <span className="font-medium">
                   Devolución completada. {formatCurrencyPEN(devolucion.montoDevuelto)} devueltos al cliente

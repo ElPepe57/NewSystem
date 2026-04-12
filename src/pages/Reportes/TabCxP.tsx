@@ -59,14 +59,14 @@ export const TabCxP: React.FC = () => {
         </Card>
         <Card className="p-3 text-center">
           <div className="text-xs text-slate-500">Ya pagado</div>
-          <div className="text-2xl font-bold text-green-600">{fmtUSD(totalPagado)}</div>
+          <div className="text-2xl font-bold text-emerald-600">{fmtUSD(totalPagado)}</div>
         </Card>
       </div>
 
       {/* Lista de OCs pendientes */}
       {ocPendientes.length === 0 ? (
         <div className="text-center py-8 text-slate-500">
-          <CheckCircle className="h-10 w-10 mx-auto mb-2 text-green-300" />
+          <CheckCircle className="h-10 w-10 mx-auto mb-2 text-emerald-300" />
           <p>Sin cuentas por pagar pendientes</p>
         </div>
       ) : (

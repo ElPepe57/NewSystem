@@ -47,9 +47,9 @@ const getPrioridadBadge = (prioridad: string) => {
 
 const getSolicitanteIcon = (tipo: TipoSolicitante) => {
   switch (tipo) {
-    case 'cliente': return <Users className="h-4 w-4 text-blue-500" />;
+    case 'cliente': return <Users className="h-4 w-4 text-sky-500" />;
     case 'administracion': return <Building2 className="h-4 w-4 text-slate-500" />;
-    case 'ventas': return <Target className="h-4 w-4 text-green-500" />;
+    case 'ventas': return <Target className="h-4 w-4 text-emerald-500" />;
     case 'investigacion': return <Lightbulb className="h-4 w-4 text-yellow-500" />;
     default: return null;
   }

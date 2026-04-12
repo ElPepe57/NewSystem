@@ -430,7 +430,7 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
           {/* Summary badges */}
           <div className="flex items-center gap-2 text-xs flex-shrink-0">
             {state.tcCompra > 0 && (
-              <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full whitespace-nowrap">
+              <span className="px-2 py-1 bg-sky-50 text-sky-700 rounded-full whitespace-nowrap">
                 TC {state.tcCompra.toFixed(3)}
               </span>
             )}

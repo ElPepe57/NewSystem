@@ -133,7 +133,7 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
             type="button"
             onClick={() => setTab('SUP')}
             className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-              tab === 'SUP' ? 'bg-blue-100 text-blue-800 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700'
+              tab === 'SUP' ? 'bg-sky-100 text-sky-800 border-b-2 border-sky-600' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             Suplementos ({productosSUP.length})
@@ -151,10 +151,10 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
 
         {/* KPIs */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-blue-50 rounded-lg p-3 text-center">
-            <Package className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-            <p className="text-xl font-bold text-blue-800">{activos.length}</p>
-            <p className="text-[10px] text-blue-600">Productos</p>
+          <div className="bg-sky-50 rounded-lg p-3 text-center">
+            <Package className="h-5 w-5 text-sky-600 mx-auto mb-1" />
+            <p className="text-xl font-bold text-sky-800">{activos.length}</p>
+            <p className="text-[10px] text-sky-600">Productos</p>
           </div>
           <div className="bg-purple-50 rounded-lg p-3 text-center">
             <Tag className="h-5 w-5 text-purple-600 mx-auto mb-1" />
@@ -163,12 +163,12 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
             </p>
             <p className="text-[10px] text-purple-600">Marcas</p>
           </div>
-          <div className="bg-green-50 rounded-lg p-3 text-center">
-            <TrendingUp className="h-5 w-5 text-green-600 mx-auto mb-1" />
-            <p className="text-xl font-bold text-green-800">
+          <div className="bg-emerald-50 rounded-lg p-3 text-center">
+            <TrendingUp className="h-5 w-5 text-emerald-600 mx-auto mb-1" />
+            <p className="text-xl font-bold text-emerald-800">
               {activos.filter(p => p.investigacion).length}
             </p>
-            <p className="text-[10px] text-green-600">Con investigación</p>
+            <p className="text-[10px] text-emerald-600">Con investigación</p>
           </div>
           <div className="bg-amber-50 rounded-lg p-3 text-center">
             <AlertTriangle className="h-5 w-5 text-amber-600 mx-auto mb-1" />
@@ -187,7 +187,7 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
                 <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Presentación
                 </h4>
-                <DistribucionChart data={supPorPresentacion} color="bg-blue-500" emptyMessage="Sin datos" />
+                <DistribucionChart data={supPorPresentacion} color="bg-sky-500" emptyMessage="Sin datos" />
               </div>
               <div>
                 <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
@@ -199,7 +199,7 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
                 <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Categoría
                 </h4>
-                <DistribucionChart data={supPorCategoria} color="bg-green-500" emptyMessage="Sin categorías asignadas" />
+                <DistribucionChart data={supPorCategoria} color="bg-emerald-500" emptyMessage="Sin categorías asignadas" />
               </div>
             </>
           ) : (
@@ -214,7 +214,7 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
                 <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Ingrediente
                 </h4>
-                <DistribucionChart data={skcPorIngrediente} color="bg-green-500" emptyMessage="Sin ingredientes" />
+                <DistribucionChart data={skcPorIngrediente} color="bg-emerald-500" emptyMessage="Sin ingredientes" />
               </div>
               <div>
                 <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
@@ -226,7 +226,7 @@ export const DashboardCatalogo: React.FC<DashboardCatalogoProps> = ({ isOpen, on
                 <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
                   <BarChart3 className="h-3.5 w-3.5" /> Por Línea Producto
                 </h4>
-                <DistribucionChart data={skcPorLineaProducto} color="bg-blue-500" emptyMessage="Sin líneas asignadas" />
+                <DistribucionChart data={skcPorLineaProducto} color="bg-sky-500" emptyMessage="Sin líneas asignadas" />
               </div>
             </>
           )}

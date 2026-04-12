@@ -11,7 +11,7 @@ export function MapaCalorKPIs({ kpis }: Props) {
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
       <div className="bg-white rounded-lg border border-slate-200 p-3">
         <div className="flex items-center gap-1.5 mb-1">
-          <MapPin className="h-3.5 w-3.5 text-blue-500" />
+          <MapPin className="h-3.5 w-3.5 text-sky-500" />
           <span className="text-[10px] sm:text-xs text-slate-500">Zonas Activas</span>
         </div>
         <p className="text-lg sm:text-xl font-bold text-slate-900">{kpis.zonasActivas}</p>
@@ -29,10 +29,10 @@ export function MapaCalorKPIs({ kpis }: Props) {
 
       <div className="bg-white rounded-lg border border-slate-200 p-3">
         <div className="flex items-center gap-1.5 mb-1">
-          <DollarSign className="h-3.5 w-3.5 text-green-500" />
+          <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
           <span className="text-[10px] sm:text-xs text-slate-500">Volumen</span>
         </div>
-        <p className="text-lg sm:text-xl font-bold text-green-600">
+        <p className="text-lg sm:text-xl font-bold text-emerald-600">
           S/ {kpis.volumenTotalPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
         </p>
         <p className="text-[10px] text-slate-400">del periodo</p>

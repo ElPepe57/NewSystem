@@ -292,7 +292,7 @@ export function getMarginColor(margin: number | null): string {
   if (margin < 0) return 'text-red-700';
   if (margin < 10) return 'text-red-600';
   if (margin < 20) return 'text-yellow-700';
-  return 'text-green-700';
+  return 'text-emerald-700';
 }
 
 export function getMarginBg(margin: number | null): string {
@@ -300,7 +300,7 @@ export function getMarginBg(margin: number | null): string {
   if (margin < 0) return 'bg-red-50';
   if (margin < 10) return 'bg-red-50';
   if (margin < 20) return 'bg-yellow-50';
-  return 'bg-green-50';
+  return 'bg-emerald-50';
 }
 
 /** Format currency S/ */

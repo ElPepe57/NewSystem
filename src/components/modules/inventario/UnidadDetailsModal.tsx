@@ -44,8 +44,8 @@ const getEstadoVariant = (estado: EstadoUnidad): 'success' | 'info' | 'warning' 
 };
 
 const tipoMovimientoLabels: Record<string, { label: string; color: string }> = {
-  recepcion: { label: 'Recepción', color: 'bg-green-500' },
-  transferencia: { label: 'Transferencia', color: 'bg-blue-500' },
+  recepcion: { label: 'Recepción', color: 'bg-emerald-500' },
+  transferencia: { label: 'Transferencia', color: 'bg-sky-500' },
   reserva: { label: 'Reserva', color: 'bg-purple-500' },
   venta: { label: 'Venta', color: 'bg-teal-500' },
   ajuste: { label: 'Ajuste', color: 'bg-slate-500' },
@@ -113,9 +113,9 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
         </div>
 
         {/* Ubicación */}
-        <div className="bg-blue-50 p-4 rounded-lg">
+        <div className="bg-sky-50 p-4 rounded-lg">
           <div className="flex items-center gap-2 mb-3">
-            <MapPin className="h-5 w-5 text-blue-600" />
+            <MapPin className="h-5 w-5 text-sky-600" />
             <h4 className="font-semibold text-slate-900">Ubicación Actual</h4>
           </div>
           <div className="flex items-center gap-2">
@@ -125,9 +125,9 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
         </div>
 
         {/* Costos */}
-        <div className="bg-green-50 p-4 rounded-lg">
+        <div className="bg-emerald-50 p-4 rounded-lg">
           <div className="flex items-center gap-2 mb-3">
-            <DollarSign className="h-5 w-5 text-green-600" />
+            <DollarSign className="h-5 w-5 text-emerald-600" />
             <h4 className="font-semibold text-slate-900">Información de Costos</h4>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -148,7 +148,7 @@ export const UnidadDetailsModal: React.FC<UnidadDetailsModalProps> = ({
             {unidad.ctruDinamico !== undefined && (
               <div>
                 <div className="text-xs text-slate-500">CTRU Dinámico</div>
-                <div className="text-lg font-bold text-green-600">
+                <div className="text-lg font-bold text-emerald-600">
                   {formatCurrency(unidad.ctruDinamico, 'PEN')}
                 </div>
               </div>

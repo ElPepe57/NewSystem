@@ -167,7 +167,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
     return (
       <Modal isOpen onClose={onClose} title="Unidades con Incidencia" size="md">
         <div className="text-center py-8 text-slate-500">
-          <CheckCircle className="h-12 w-12 mx-auto text-green-400 mb-3" />
+          <CheckCircle className="h-12 w-12 mx-auto text-emerald-400 mb-3" />
           <p className="font-medium">No hay incidencias pendientes</p>
           <p className="text-sm mt-1">Todas las unidades dañadas ya fueron procesadas.</p>
         </div>
@@ -215,7 +215,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
               <div
                 key={inc.id}
                 className={`border rounded-lg overflow-hidden transition-colors ${
-                  isDecided ? 'border-green-200 bg-green-50/30' : 'border-slate-200 bg-white'
+                  isDecided ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-200 bg-white'
                 }`}
               >
                 {/* Product info */}
@@ -235,7 +235,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
                         href={inc.evidenciaURL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 flex-shrink-0"
+                        className="flex items-center gap-1 text-xs text-sky-600 hover:text-sky-800 flex-shrink-0"
                       >
                         <Image className="h-3.5 w-3.5" />
                         Evidencia

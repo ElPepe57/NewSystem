@@ -223,7 +223,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
 
   // Distribución por estado
   const distribucionEstado = [
-    { label: 'Exitosas', value: entregasExitosas, color: 'bg-green-500' },
+    { label: 'Exitosas', value: entregasExitosas, color: 'bg-emerald-500' },
     { label: 'Fallidas', value: entregasFallidas, color: 'bg-red-500' },
     { label: 'Pendientes', value: entregasPendientes, color: 'bg-yellow-500' }
   ];
@@ -253,8 +253,8 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
 
-        {/* Header con gradiente verde/esmeralda */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6">
+        {/* Header */}
+        <div className="bg-teal-600 text-white p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
               <div className="bg-white/20 p-3 rounded-lg backdrop-blur-sm">
@@ -276,8 +276,8 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     {transportista.tipo === 'interno' ? 'Interno' : 'Externo'}
                   </Badge>
                 </div>
-                <p className="text-green-100 text-sm mb-3">{transportista.codigo}</p>
-                <div className="flex items-center gap-6 text-sm text-green-50">
+                <p className="text-emerald-100 text-sm mb-3">{transportista.codigo}</p>
+                <div className="flex items-center gap-6 text-sm text-emerald-50">
                   {transportista.telefono && (
                     <div className="flex items-center gap-1.5">
                       <Phone className="h-4 w-4" />
@@ -343,7 +343,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                       label="Total Entregas"
                       value={totalEntregas}
                       icon={Package}
-                      variant="default"
+                      variant="neutral"
                       subtitle="Últimos 30 días"
                     />
                     <DSStatCard
@@ -364,7 +364,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                       label="Costo Promedio"
                       value={formatCurrency(costoPromedio)}
                       icon={DollarSign}
-                      variant="default"
+                      variant="neutral"
                       subtitle="Por entrega"
                     />
                   </DSKPIBar>
@@ -463,7 +463,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {transportista.zonasAtendidas.map((zona) => (
-                        <Badge key={zona} variant="default">
+                        <Badge key={zona} variant="neutral">
                           {zona}
                         </Badge>
                       ))}
@@ -484,7 +484,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     <select
                       value={filtroEstado}
                       onChange={(e) => setFiltroEstado(e.target.value as any)}
-                      className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     >
                       <option value="todas">Todas</option>
                       <option value="exitosa">Exitosas</option>
@@ -508,11 +508,11 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                           <div className="flex items-center gap-4">
                             <div className={`
                               p-2 rounded-lg
-                              ${entrega.estado === 'exitosa' ? 'bg-green-100' : ''}
+                              ${entrega.estado === 'exitosa' ? 'bg-emerald-100' : ''}
                               ${entrega.estado === 'fallida' ? 'bg-red-100' : ''}
                               ${entrega.estado === 'pendiente' ? 'bg-yellow-100' : ''}
                             `}>
-                              {entrega.estado === 'exitosa' && <CheckCircle className="h-5 w-5 text-green-600" />}
+                              {entrega.estado === 'exitosa' && <CheckCircle className="h-5 w-5 text-emerald-600" />}
                               {entrega.estado === 'fallida' && <XCircle className="h-5 w-5 text-red-600" />}
                               {entrega.estado === 'pendiente' && <Clock className="h-5 w-5 text-yellow-600" />}
                             </div>
@@ -616,7 +616,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                         </div>
                         <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
-                            className={`h-full ${tasaExito >= 90 ? 'bg-green-500' : tasaExito >= 80 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                            className={`h-full ${tasaExito >= 90 ? 'bg-emerald-500' : tasaExito >= 80 ? 'bg-yellow-500' : 'bg-red-500'}`}
                             style={{ width: `${tasaExito}%` }}
                           />
                         </div>
@@ -632,7 +632,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                         </div>
                         <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
-                            className={`h-full ${tiempoPromedio <= 4 ? 'bg-green-500' : tiempoPromedio <= 6 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                            className={`h-full ${tiempoPromedio <= 4 ? 'bg-emerald-500' : tiempoPromedio <= 6 ? 'bg-yellow-500' : 'bg-red-500'}`}
                             style={{ width: `${Math.min(100, (tiempoPromedio / 12) * 100)}%` }}
                           />
                         </div>
@@ -648,7 +648,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                         </div>
                         <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-blue-500"
+                            className="h-full bg-sky-500"
                             style={{ width: `${Math.min(100, (totalEntregas / 200) * 100)}%` }}
                           />
                         </div>
@@ -691,7 +691,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     label="Tiempo Estimado"
                     value={`${(tiempoPromedio * 0.95).toFixed(1)}h`}
                     icon={Clock}
-                    variant="default"
+                    variant="neutral"
                     subtitle="Promedio optimizado"
                     trend={{
                       value: -5,
@@ -703,16 +703,16 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 {/* Insights */}
                 <Card className="p-6">
                   <h4 className="font-medium text-slate-900 mb-4 flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-blue-500" />
+                    <Activity className="h-5 w-5 text-sky-500" />
                     Insights Inteligentes
                   </h4>
                   <div className="space-y-3">
                     {tasaExito >= 95 && (
-                      <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                        <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-medium text-green-900">Excelente Rendimiento</p>
-                          <p className="text-sm text-green-700">
+                          <p className="text-sm font-medium text-emerald-900">Excelente Rendimiento</p>
+                          <p className="text-sm text-emerald-700">
                             Este transportista tiene una tasa de éxito superior al 95%. Es un candidato ideal para entregas prioritarias.
                           </p>
                         </div>
@@ -720,11 +720,11 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     )}
 
                     {tiempoPromedio <= 3 && (
-                      <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <Clock className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+                        <Clock className="h-5 w-5 text-sky-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-medium text-blue-900">Entregas Rápidas</p>
-                          <p className="text-sm text-blue-700">
+                          <p className="text-sm font-medium text-sky-900">Entregas Rápidas</p>
+                          <p className="text-sm text-sky-700">
                             Tiempo promedio de entrega bajo ({tiempoPromedio.toFixed(1)}h). Recomendado para envíos express.
                           </p>
                         </div>
@@ -772,18 +772,18 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                 {/* Recomendaciones */}
                 <Card className="p-6">
                   <h4 className="font-medium text-slate-900 mb-4 flex items-center gap-2">
-                    <Target className="h-5 w-5 text-green-500" />
+                    <Target className="h-5 w-5 text-emerald-500" />
                     Recomendaciones
                   </h4>
                   <div className="space-y-2">
                     <div className="flex items-start gap-2 text-sm">
-                      <div className="h-1.5 w-1.5 rounded-full bg-green-500 mt-1.5" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5" />
                       <p className="text-slate-700">
                         Asignar entregas en zonas donde ha demostrado mejor rendimiento: {distribucionZona[0]?.name || 'N/A'}
                       </p>
                     </div>
                     <div className="flex items-start gap-2 text-sm">
-                      <div className="h-1.5 w-1.5 rounded-full bg-green-500 mt-1.5" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1.5" />
                       <p className="text-slate-700">
                         Capacidad óptima estimada: {Math.round(totalEntregas / 30 * 1.1)} entregas por día
                       </p>
@@ -798,7 +798,7 @@ export const TransportistaDetalle: React.FC<TransportistaDetalleProps> = ({
                     )}
                     {tasaExito >= 95 && (
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-sky-500 mt-1.5" />
                         <p className="text-slate-700">
                           Candidato ideal para entregas de alto valor o clientes VIP
                         </p>

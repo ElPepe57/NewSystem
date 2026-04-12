@@ -1,6 +1,8 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { Pagination, usePagination } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import type { ProductoRentabilidad } from '../../../types/reporte.types';
 
 interface ProductosRentabilidadTableProps {
@@ -11,7 +13,6 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
   const {
     currentPage,
     itemsPerPage,
-    totalPages,
     setPage,
     setItemsPerPage,
     paginatedItems: productosPaginados
@@ -27,6 +28,79 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
       </div>
     );
   }
+
+  const columns: DataTableColumn<ProductoRentabilidad>[] = [
+    {
+      key: 'producto',
+      header: 'Producto',
+      render: (item) => (
+        <div>
+          <div className="text-sm font-medium text-slate-900">
+            {item.marca} {item.nombreComercial}
+          </div>
+          <div className="text-xs text-slate-500">{item.sku}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'unidades',
+      header: 'Unidades',
+      align: 'right',
+      render: (item) => (
+        <span className="text-sm text-slate-900">{item.unidadesVendidas}</span>
+      ),
+    },
+    {
+      key: 'ventas',
+      header: 'Ventas',
+      align: 'right',
+      render: (item) => (
+        <span className="text-sm font-semibold text-slate-900">
+          S/ {item.ventasTotalPEN.toFixed(2)}
+        </span>
+      ),
+    },
+    {
+      key: 'costo',
+      header: 'Costo',
+      align: 'right',
+      hideOnMobile: true,
+      render: (item) => (
+        <span className="text-sm text-slate-600">
+          S/ {item.costoTotalPEN.toFixed(2)}
+        </span>
+      ),
+    },
+    {
+      key: 'utilidad',
+      header: 'Utilidad',
+      align: 'right',
+      render: (item) => (
+        <span className="text-sm font-semibold text-emerald-600">
+          S/ {item.utilidadPEN.toFixed(2)}
+        </span>
+      ),
+    },
+    {
+      key: 'margen',
+      header: 'Margen',
+      align: 'right',
+      render: (item) => (
+        <div className="flex items-center justify-end">
+          {item.margenPromedio >= 0 ? (
+            <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+          )}
+          <span className={`text-sm font-medium ${
+            item.margenPromedio >= 0 ? 'text-emerald-600' : 'text-red-600'
+          }`}>
+            {item.margenPromedio.toFixed(1)}%
+          </span>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -72,70 +146,13 @@ export const ProductosRentabilidadTable: React.FC<ProductosRentabilidadTableProp
         ))}
       </div>
 
-      {/* Desktop: Table layout */}
-      <div className="hidden sm:block overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                Producto
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Unidades
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Ventas
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Costo
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Utilidad
-              </th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                Margen
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {productosPaginados.map((producto) => (
-              <tr key={producto.productoId} className="hover:bg-slate-50">
-                <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-slate-900">
-                    {producto.marca} {producto.nombreComercial}
-                  </div>
-                  <div className="text-xs text-slate-500">{producto.sku}</div>
-                </td>
-                <td className="px-4 py-3 text-right text-sm text-slate-900">
-                  {producto.unidadesVendidas}
-                </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-slate-900">
-                  S/ {producto.ventasTotalPEN.toFixed(2)}
-                </td>
-                <td className="px-4 py-3 text-right text-sm text-slate-600">
-                  S/ {producto.costoTotalPEN.toFixed(2)}
-                </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold text-emerald-600">
-                  S/ {producto.utilidadPEN.toFixed(2)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end">
-                    {producto.margenPromedio >= 0 ? (
-                      <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                    )}
-                    <span className={`text-sm font-medium ${
-                      producto.margenPromedio >= 0 ? 'text-emerald-600' : 'text-red-600'
-                    }`}>
-                      {producto.margenPromedio.toFixed(1)}%
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Desktop: DataTable */}
+      <div className="hidden sm:block">
+        <DataTable<ProductoRentabilidad>
+          columns={columns}
+          data={productosPaginados}
+          keyExtractor={(item) => item.productoId}
+        />
       </div>
 
       {/* Paginación */}

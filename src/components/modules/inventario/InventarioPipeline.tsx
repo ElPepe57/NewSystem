@@ -49,10 +49,10 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
       sublabel: 'Recibidas',
       icon: <Package className="h-5 w-5" />,
       count: stats.enOrigen,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
-      hoverColor: 'hover:bg-blue-100'
+      color: 'text-sky-600',
+      bgColor: 'bg-sky-50',
+      borderColor: 'border-sky-200',
+      hoverColor: 'hover:bg-sky-100'
     },
     {
       id: 'en_transito',
@@ -71,10 +71,10 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
       sublabel: 'Disponibles',
       icon: <MapPin className="h-5 w-5" />,
       count: stats.disponiblePeru,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
-      hoverColor: 'hover:bg-green-100'
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
+      borderColor: 'border-emerald-200',
+      hoverColor: 'hover:bg-emerald-100'
     },
     {
       id: 'reservada',
@@ -113,7 +113,7 @@ export const InventarioPipeline: React.FC<InventarioPipelineProps> = ({
         <div className="text-right">
           <div className="text-2xl font-bold text-slate-900">{stats.total}</div>
           <div className="text-sm text-slate-500">unidades totales</div>
-          <div className="text-sm font-medium text-green-600">
+          <div className="text-sm font-medium text-emerald-600">
             {formatCurrency(stats.valorTotalUSD)} USD
           </div>
         </div>

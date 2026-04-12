@@ -101,12 +101,12 @@ export const OCFormStepSubOrdenes: React.FC<Props> = ({ state, dispatch }) => {
   return (
     <div className="space-y-4">
       {/* Toggle */}
-      <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-3">
+      <div className="flex items-center justify-between bg-sky-50 border border-sky-200 rounded-lg p-3">
         <div className="flex items-center gap-2">
-          <SplitSquareVertical className="h-5 w-5 text-blue-600" />
+          <SplitSquareVertical className="h-5 w-5 text-sky-600" />
           <div>
-            <div className="text-sm font-medium text-blue-900">Dividir en Sub-\u00d3rdenes</div>
-            <div className="text-xs text-blue-700">
+            <div className="text-sm font-medium text-sky-900">Dividir en Sub-\u00d3rdenes</div>
+            <div className="text-xs text-sky-700">
               {tieneSubOrdenes
                 ? `${state.subOrdenes.length} sub-\u00f3rdenes configuradas`
                 : 'Cada sub-orden genera su propio env\u00edo'}
@@ -136,7 +136,7 @@ export const OCFormStepSubOrdenes: React.FC<Props> = ({ state, dispatch }) => {
             const totalSub = productosEnSub.reduce((s, p) => s + p.cantidad * p.costoUnitario, 0);
 
             return (
-              <Card key={sub.id} className="p-3 border-l-4 border-l-blue-500">
+              <Card key={sub.id} className="p-3 border-l-4 border-l-sky-500">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <Badge variant="info" className="text-xs">Sub-{subIdx + 1}</Badge>

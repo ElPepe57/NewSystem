@@ -67,7 +67,7 @@ export const Login: React.FC = () => {
           <div className="flex justify-center mb-4">
             <VitaSkinLogo className="h-20 w-20 drop-shadow-lg" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-700 to-teal-500 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-slate-900">
             Vita Skin Peru
           </h1>
           <p className="text-slate-500 mt-1 text-sm font-medium">

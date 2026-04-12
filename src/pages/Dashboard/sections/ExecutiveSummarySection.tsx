@@ -58,9 +58,9 @@ const TrendBadge: React.FC<TrendProps> = ({ value, unit = 'percent', positiveIsG
   const isNegative = value < -0.1;
 
   const colorClass = isPositive
-    ? (positiveIsGood ? 'text-emerald-400' : 'text-rose-400')
+    ? (positiveIsGood ? 'text-emerald-600' : 'text-red-600')
     : isNegative
-      ? (positiveIsGood ? 'text-rose-400' : 'text-emerald-400')
+      ? (positiveIsGood ? 'text-red-600' : 'text-emerald-600')
       : 'text-slate-400';
 
   const Icon = isPositive ? TrendingUp : isNegative ? TrendingDown : Minus;
@@ -109,27 +109,27 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
   const metaAlcanzada = totalVentasMes >= metaMensual;
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-6 lg:p-8 shadow-xl">
+    <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-slate-200">
 
       {/* Fila superior: semaforo de salud */}
       <div className="mb-5">
         <HealthSemaphore indicators={healthIndicators} />
       </div>
 
-      <div className="border-t border-slate-700/50 mb-5" />
+      <div className="border-t border-slate-100 mb-5" />
 
       {/* Narrativa con numeros destacados */}
       <div className="mb-6">
-        <p className="text-base lg:text-lg text-slate-200 leading-relaxed">
+        <p className="text-base lg:text-lg text-slate-700 leading-relaxed">
           {resumenTexto}
         </p>
         {(stockCritico > 0 || cxcVencidos > 0) && (
-          <p className="mt-2 text-sm text-amber-400 flex items-center gap-1.5 flex-wrap">
+          <p className="mt-2 text-sm text-amber-600 flex items-center gap-1.5 flex-wrap">
             <span>&#9888;</span>
             {stockCritico > 0 && (
               <span>{stockCritico} {stockCritico === 1 ? 'producto' : 'productos'} con stock critico</span>
             )}
-            {stockCritico > 0 && cxcVencidos > 0 && <span className="text-slate-500">·</span>}
+            {stockCritico > 0 && cxcVencidos > 0 && <span className="text-slate-300">·</span>}
             {cxcVencidos > 0 && (
               <span>{cxcVencidos} {cxcVencidos === 1 ? 'cobro vencido' : 'cobros vencidos'} +30 dias</span>
             )}
@@ -137,15 +137,15 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
         )}
       </div>
 
-      <div className="border-t border-slate-700 mb-6" />
+      <div className="border-t border-slate-100 mb-6" />
 
       {/* Grid 4 metricas con sparklines */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
 
         {/* Ventas del mes */}
-        <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Ventas del mes</div>
-          <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
+        <div className="min-w-0 bg-teal-50/60 rounded-xl p-4">
+          <div className="text-xs lg:text-sm text-slate-500 mb-1 uppercase tracking-wide font-medium">Ventas del mes</div>
+          <div className="text-xl lg:text-3xl font-bold text-slate-900 leading-tight truncate">
             <span className="hidden lg:inline">{fmt(totalVentasMes)}</span>
             <span className="lg:hidden">{fmtC(totalVentasMes)}</span>
           </div>
@@ -163,9 +163,9 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
         </div>
 
         {/* Utilidad */}
-        <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Utilidad</div>
-          <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
+        <div className="min-w-0 bg-teal-50/60 rounded-xl p-4">
+          <div className="text-xs lg:text-sm text-slate-500 mb-1 uppercase tracking-wide font-medium">Utilidad</div>
+          <div className="text-xl lg:text-3xl font-bold text-slate-900 leading-tight truncate">
             <span className="hidden lg:inline">{fmt(utilidadMes)}</span>
             <span className="lg:hidden">{fmtC(utilidadMes)}</span>
           </div>
@@ -178,9 +178,9 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
         </div>
 
         {/* Gastos del mes */}
-        <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Gastos del mes</div>
-          <div className="text-xl lg:text-3xl font-bold text-white leading-tight truncate">
+        <div className="min-w-0 bg-teal-50/60 rounded-xl p-4">
+          <div className="text-xs lg:text-sm text-slate-500 mb-1 uppercase tracking-wide font-medium">Gastos del mes</div>
+          <div className="text-xl lg:text-3xl font-bold text-slate-900 leading-tight truncate">
             <span className="hidden lg:inline">{fmt(gastosMes)}</span>
             <span className="lg:hidden">{fmtC(gastosMes)}</span>
           </div>
@@ -200,9 +200,9 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
         </div>
 
         {/* Margen */}
-        <div className="min-w-0">
-          <div className="text-xs lg:text-sm text-slate-400 mb-1 uppercase tracking-wide font-medium">Margen</div>
-          <div className="text-xl lg:text-3xl font-bold text-white leading-tight">
+        <div className="min-w-0 bg-teal-50/60 rounded-xl p-4">
+          <div className="text-xs lg:text-sm text-slate-500 mb-1 uppercase tracking-wide font-medium">Margen</div>
+          <div className="text-xl lg:text-3xl font-bold text-slate-900 leading-tight">
             {margenPromedioMes.toFixed(1)}%
           </div>
           <div className="mt-1.5 flex items-center justify-between gap-2">
@@ -214,16 +214,16 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
         </div>
       </div>
 
-      <div className="border-t border-slate-700 mb-5" />
+      <div className="border-t border-slate-100 mb-5" />
 
       {/* Bullet Chart: meta mensual con proyeccion */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-slate-400 flex-shrink-0" />
-            <span className="text-sm font-medium text-slate-300">Meta mensual</span>
+            <span className="text-sm font-medium text-slate-600">Meta mensual</span>
           </div>
-          <span className={`text-sm font-bold ${metaAlcanzada ? 'text-emerald-400' : 'text-slate-300'}`}>
+          <span className={`text-sm font-bold ${metaAlcanzada ? 'text-emerald-600' : 'text-slate-700'}`}>
             {progresoMeta.toFixed(0)}% · {fmtC(totalVentasMes)} / {fmtC(metaMensual)}
           </span>
         </div>
@@ -235,11 +235,11 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
           <div className="mt-2">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs text-slate-500">Proyeccion fin de mes</span>
-              <span className={`text-xs font-medium ${proyeccionVsMeta >= 100 ? 'text-emerald-400' : proyeccionVsMeta >= 80 ? 'text-amber-400' : 'text-rose-400'}`}>
+              <span className={`text-xs font-medium ${proyeccionVsMeta >= 100 ? 'text-emerald-600' : proyeccionVsMeta >= 80 ? 'text-amber-600' : 'text-red-600'}`}>
                 {fmtC(proyeccionVentasFinMes)} ({proyeccionVsMeta.toFixed(0)}% de meta)
               </span>
             </div>
-            <div className="w-full bg-slate-800/40 rounded-full h-1.5 overflow-hidden">
+            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
               <div
                 className="h-1.5 rounded-full transition-all duration-700 opacity-60"
                 style={{
@@ -254,12 +254,12 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
         {/* Subtexto bajo la barra */}
         <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
           {metaAlcanzada ? (
-            <span className="text-emerald-400 font-medium">Meta alcanzada este mes</span>
+            <span className="text-emerald-600 font-medium">Meta alcanzada este mes</span>
           ) : (
             <span>
               Faltan {fmtC(faltaMeta)}
               {diasRestantesMes > 0 && promedioDiarioNecesario > 0 && (
-                <> · Promedio diario necesario: <span className="text-slate-300 font-medium">{fmtC(promedioDiarioNecesario)}/dia</span></>
+                <> · Promedio diario necesario: <span className="text-slate-700 font-medium">{fmtC(promedioDiarioNecesario)}/dia</span></>
               )}
             </span>
           )}

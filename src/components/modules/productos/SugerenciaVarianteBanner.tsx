@@ -26,17 +26,17 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
   const tieneMultiples = candidatos.length > 1;
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg overflow-hidden">
+    <div className="bg-sky-50 border border-sky-200 rounded-lg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-blue-100/50">
-        <div className="flex items-center gap-2 text-sm font-medium text-blue-800">
+      <div className="flex items-center justify-between px-3 py-2 bg-sky-100/50">
+        <div className="flex items-center gap-2 text-sm font-medium text-sky-800">
           <GitBranch className="h-4 w-4" />
           Ya existe un grupo con este producto
         </div>
         <button
           type="button"
           onClick={onDescartar}
-          className="text-blue-400 hover:text-blue-600"
+          className="text-sky-400 hover:text-sky-600"
         >
           <X className="h-4 w-4" />
         </button>
@@ -44,16 +44,16 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
 
       {/* Content */}
       <div className="p-3 space-y-3">
-        <p className="text-xs text-blue-700">
+        <p className="text-xs text-sky-700">
           Encontramos {candidatos.length === 1 ? 'un producto' : `${candidatos.length} productos`} del mismo grupo. ¿Quieres agregar una nueva variante?
         </p>
 
         {/* Primary candidate */}
-        <div className="bg-white rounded-lg border border-blue-100 p-3">
+        <div className="bg-white rounded-lg border border-sky-100 p-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs text-blue-600">{principal.producto.sku}</span>
+                <span className="font-mono text-xs text-sky-600">{principal.producto.sku}</span>
                 {principal.producto.esPadre && (
                   <span className="px-1.5 py-0.5 text-[10px] rounded" style={{ backgroundColor: '#ecfccb', color: '#4d7c0f' }}>Grupo</span>
                 )}
@@ -72,7 +72,7 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
                 </p>
               )}
             </div>
-            <Package className="h-5 w-5 text-blue-300 flex-shrink-0" />
+            <Package className="h-5 w-5 text-sky-300 flex-shrink-0" />
           </div>
         </div>
 
@@ -81,7 +81,7 @@ export const SugerenciaVarianteBanner: React.FC<SugerenciaVarianteBannerProps> =
           <button
             type="button"
             onClick={() => setShowAll(!showAll)}
-            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            className="text-xs text-sky-600 hover:text-sky-800 flex items-center gap-1"
           >
             {showAll ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             Ver los {candidatos.length} productos similares

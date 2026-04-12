@@ -57,18 +57,18 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
     <div className="space-y-6">
       {/* KPIs de Balance */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <Card padding="md" className="border-l-4 border-l-green-500">
+        <Card padding="md" className="border-l-4 border-l-emerald-500">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs sm:text-sm text-slate-600">Por Cobrar (Ventas)</div>
-              <div className="text-lg sm:text-2xl font-bold text-green-600 mt-1">
+              <div className="text-lg sm:text-2xl font-bold text-emerald-600 mt-1">
                 S/ {dashboardPendientes.cuentasPorCobrar.totalEquivalentePEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </div>
               <div className="text-xs text-slate-500 mt-1">
                 {dashboardPendientes.cuentasPorCobrar.cantidadDocumentos} documento(s)
               </div>
             </div>
-            <ArrowDownCircle className="h-8 w-8 sm:h-10 sm:w-10 text-green-400" />
+            <ArrowDownCircle className="h-8 w-8 sm:h-10 sm:w-10 text-emerald-400" />
           </div>
         </Card>
 
@@ -92,18 +92,18 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
           </div>
         </Card>
 
-        <Card padding="md" className={`border-l-4 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'border-l-blue-500' : 'border-l-orange-500'}`}>
+        <Card padding="md" className={`border-l-4 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'border-l-sky-500' : 'border-l-orange-500'}`}>
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs sm:text-sm text-slate-600">Flujo Neto (CxC - CxP)</div>
-              <div className={`text-lg sm:text-2xl font-bold mt-1 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+              <div className={`text-lg sm:text-2xl font-bold mt-1 ${dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? 'text-sky-600' : 'text-orange-600'}`}>
                 {dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? '+' : ''}
                 S/ {dashboardPendientes.balanceNeto.flujoNetoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </div>
               <div className="text-xs text-slate-500 mt-1">TC: {dashboardPendientes.tipoCambioUsado.toFixed(3)}</div>
             </div>
             {dashboardPendientes.balanceNeto.flujoNetoPEN >= 0 ? (
-              <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-blue-400" />
+              <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-sky-400" />
             ) : (
               <AlertTriangle className="h-8 w-8 sm:h-10 sm:w-10 text-orange-400" />
             )}
@@ -134,11 +134,11 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
 
             <div className="bg-white rounded-lg p-2 sm:p-3 shadow-sm">
               <div className="text-[10px] sm:text-xs text-slate-500 uppercase"><span className="sm:hidden">Cobrado</span><span className="hidden sm:inline">Cobrado este Mes</span></div>
-              <div className="text-sm sm:text-lg font-bold text-green-600 mt-1">
+              <div className="text-sm sm:text-lg font-bold text-emerald-600 mt-1">
                 + S/ {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </div>
               {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesUSD > 0 && (
-                <div className="text-xs text-green-500">
+                <div className="text-xs text-emerald-500">
                   + $ {dashboardPendientes.flujoCajaProyectado.ingresosCobradosMesUSD.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                 </div>
               )}
@@ -156,12 +156,12 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
               )}
             </div>
 
-            <div className={`rounded-lg p-2 sm:p-3 shadow-sm ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'bg-blue-100' : 'bg-orange-100'}`}>
+            <div className={`rounded-lg p-2 sm:p-3 shadow-sm ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'bg-sky-100' : 'bg-orange-100'}`}>
               <div className="text-[10px] sm:text-xs text-slate-600 uppercase"><span className="sm:hidden">Proyeccion</span><span className="hidden sm:inline">Proyeccion Total</span></div>
-              <div className={`text-sm sm:text-lg font-bold mt-1 ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
+              <div className={`text-sm sm:text-lg font-bold mt-1 ${dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN >= 0 ? 'text-sky-700' : 'text-orange-700'}`}>
                 S/ {dashboardPendientes.flujoCajaProyectado.flujoNetoProyectadoPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
               </div>
-              <div className={`text-sm font-semibold mt-1 ${dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-sm font-semibold mt-1 ${dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada >= 0 ? '+' : ''}{dashboardPendientes.flujoCajaProyectado.rentabilidadProyectada.toFixed(1)}% s/inversion
               </div>
             </div>
@@ -191,15 +191,15 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
                     S/ {dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.expectativasActivas.toLocaleString('es-PE', { minimumFractionDigits: 0 })}
                   </div>
                 </div>
-                <div className="bg-green-50 rounded px-3 py-2 border border-green-200">
+                <div className="bg-emerald-50 rounded px-3 py-2 border border-emerald-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-green-700">Inventario por vender</span>
-                    <span className="text-xs text-green-600 font-medium">100%</span>
+                    <span className="text-emerald-700">Inventario por vender</span>
+                    <span className="text-xs text-emerald-600 font-medium">100%</span>
                   </div>
-                  <div className="font-bold text-green-700 mt-1">
+                  <div className="font-bold text-emerald-700 mt-1">
                     S/ {dashboardPendientes.flujoCajaProyectado.proyeccionIngresos.inventarioDisponibleValor.toLocaleString('es-PE', { minimumFractionDigits: 0 })}
                   </div>
-                  <div className="text-xs text-green-600 mt-1">(costo + flete) x TC x 1.3</div>
+                  <div className="text-xs text-emerald-600 mt-1">(costo + flete) x TC x 1.3</div>
                 </div>
               </div>
               <div className="mt-3 text-xs text-slate-500 bg-white/30 rounded p-2">
@@ -241,12 +241,12 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Cuentas por Cobrar */}
         <Card padding="none">
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-green-50">
-            <h3 className="text-base sm:text-lg font-semibold text-green-800 flex items-center">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-emerald-50">
+            <h3 className="text-base sm:text-lg font-semibold text-emerald-800 flex items-center">
               <ArrowDownCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Cuentas por Cobrar
             </h3>
-            <p className="text-xs sm:text-sm text-green-600">Ventas pendientes de pago</p>
+            <p className="text-xs sm:text-sm text-emerald-600">Ventas pendientes de pago</p>
           </div>
           <div className="px-4 sm:px-6 py-3 bg-slate-50 border-b border-slate-200">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
@@ -271,27 +271,27 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
           <div className="divide-y divide-slate-200 max-h-80 overflow-y-auto">
             {dashboardPendientes.cuentasPorCobrar.pendientes.length === 0 ? (
               <div className="px-4 sm:px-6 py-8 text-center text-slate-500">
-                <CheckCircle className="h-10 w-10 mx-auto text-green-300 mb-2" />
+                <CheckCircle className="h-10 w-10 mx-auto text-emerald-300 mb-2" />
                 No hay cuentas pendientes de cobro
               </div>
             ) : (
               dashboardPendientes.cuentasPorCobrar.pendientes.map((p) => (
                 <div
                   key={p.id}
-                  className="px-4 sm:px-6 py-3 hover:bg-green-50 cursor-pointer transition-colors group"
+                  className="px-4 sm:px-6 py-3 hover:bg-emerald-50 cursor-pointer transition-colors group"
                   onClick={() => handleNavigarPendiente(p)}
                   title="Clic para ir al registro de cobro"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <div className="font-medium text-slate-900 group-hover:text-green-700 flex items-center gap-2">
+                      <div className="font-medium text-slate-900 group-hover:text-emerald-700 flex items-center gap-2">
                         {p.numeroDocumento}
                         <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <div className="text-sm text-slate-500">{p.contraparteNombre}</div>
                       <div className="flex items-center gap-2 mt-1">
                         {p.canal && (
-                          <span className="px-2 py-0.5 text-xs rounded bg-blue-100 text-blue-800">{p.canal}</span>
+                          <span className="px-2 py-0.5 text-xs rounded bg-sky-100 text-sky-800">{p.canal}</span>
                         )}
                         <span className={`px-2 py-0.5 text-xs rounded ${
                           p.diasPendiente <= 7 ? 'bg-slate-100 text-slate-600' :
@@ -308,7 +308,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-green-600">
+                      <div className="font-bold text-emerald-600">
                         S/ {p.montoPendiente.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </div>
                       {p.esParcial && (
@@ -360,7 +360,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
                 <div key={tipo.tipo} className={`text-xs px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 ${
                   tipo.tipo === 'orden_compra_por_pagar' ? 'bg-purple-50 border-purple-200 text-purple-800' :
                   tipo.tipo === 'gasto_por_pagar' ? 'bg-orange-50 border-orange-200 text-orange-800' :
-                  'bg-blue-50 border-blue-200 text-blue-800'
+                  'bg-sky-50 border-sky-200 text-sky-800'
                 }`}>
                   {tipo.tipo === 'orden_compra_por_pagar' && <ShoppingCart className="h-3 w-3" />}
                   {tipo.tipo === 'gasto_por_pagar' && <Receipt className="h-3 w-3" />}
@@ -381,7 +381,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
           <div className="divide-y divide-slate-200 max-h-80 overflow-y-auto">
             {dashboardPendientes.cuentasPorPagar.pendientes.length === 0 ? (
               <div className="px-4 sm:px-6 py-8 text-center text-slate-500">
-                <CheckCircle className="h-10 w-10 mx-auto text-green-300 mb-2" />
+                <CheckCircle className="h-10 w-10 mx-auto text-emerald-300 mb-2" />
                 No hay cuentas pendientes de pago
               </div>
             ) : (
@@ -397,7 +397,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
                       <div className="font-medium text-slate-900 group-hover:text-red-700 flex items-center gap-2">
                         {p.tipo === 'orden_compra_por_pagar' && <ShoppingCart className="h-3.5 w-3.5 text-purple-500" />}
                         {p.tipo === 'gasto_por_pagar' && <Receipt className="h-3.5 w-3.5 text-orange-500" />}
-                        {p.tipo === 'viajero_por_pagar' && <Truck className="h-3.5 w-3.5 text-blue-500" />}
+                        {p.tipo === 'viajero_por_pagar' && <Truck className="h-3.5 w-3.5 text-sky-500" />}
                         {p.numeroDocumento}
                         <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
@@ -406,7 +406,7 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
                         <span className={`px-2 py-0.5 text-xs rounded inline-flex items-center gap-1 ${
                           p.tipo === 'orden_compra_por_pagar' ? 'bg-purple-100 text-purple-800' :
                           p.tipo === 'gasto_por_pagar' ? 'bg-orange-100 text-orange-800' :
-                          'bg-blue-100 text-blue-800'
+                          'bg-sky-100 text-sky-800'
                         }`}>
                           {p.tipo === 'orden_compra_por_pagar' ? 'OC' :
                            p.tipo === 'gasto_por_pagar' ? 'Gasto' : 'Flete'}

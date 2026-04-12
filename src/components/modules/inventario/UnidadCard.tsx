@@ -25,11 +25,11 @@ interface UnidadCardProps {
 
 const getEstadoConfig = (estado: EstadoUnidad, pais?: string): { variant: 'success' | 'info' | 'warning' | 'default' | 'danger'; label: string; bgColor: string } => {
   const label = getLabelEstadoUnidad(estado, pais);
-  if (esEstadoEnOrigen(estado)) return { variant: 'success', label, bgColor: 'bg-blue-50' };
+  if (esEstadoEnOrigen(estado)) return { variant: 'success', label, bgColor: 'bg-sky-50' };
   if (esEstadoEnTransitoOrigen(estado)) return { variant: 'info', label, bgColor: 'bg-amber-50' };
   switch (estado) {
     case 'en_transito_peru': return { variant: 'info', label, bgColor: 'bg-amber-50' };
-    case 'disponible_peru': return { variant: 'success', label, bgColor: 'bg-green-50' };
+    case 'disponible_peru': return { variant: 'success', label, bgColor: 'bg-emerald-50' };
     case 'reservada': return { variant: 'warning', label, bgColor: 'bg-purple-50' };
     case 'asignada_pedido': return { variant: 'warning', label, bgColor: 'bg-teal-50' };
     case 'vendida': return { variant: 'default', label, bgColor: 'bg-slate-50' };
@@ -115,9 +115,9 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
           {/* Ubicación */}
           <div className="flex items-center gap-2 text-sm">
             {unidad.pais === 'Peru' ? (
-              <MapPin className="h-4 w-4 text-green-500" />
+              <MapPin className="h-4 w-4 text-emerald-500" />
             ) : (
-              <Warehouse className="h-4 w-4 text-blue-500" />
+              <Warehouse className="h-4 w-4 text-sky-500" />
             )}
             <span className="text-slate-500">Almacén:</span>
             <span className="font-medium text-slate-900">
@@ -144,7 +144,7 @@ export const UnidadCard: React.FC<UnidadCardProps> = ({
           <div className="flex items-center gap-2 text-sm">
             <DollarSign className="h-4 w-4 text-slate-400" />
             <span className="text-slate-500">Costo:</span>
-            <span className="font-medium text-green-600">
+            <span className="font-medium text-emerald-600">
               {formatCurrency(unidad.costoUnitarioUSD || 0)}
             </span>
           </div>

@@ -12,6 +12,9 @@ import { PagoUnificadoForm } from '../../../components/modules/pagos/PagoUnifica
 import { formatCurrency } from '../../../utils/format';
 import { ESTADO_BOLETA_LABELS } from '../../../types/planilla.types';
 import type { Boleta } from '../../../types/planilla.types';
+import type { DetalleComision } from '../../../types/planilla.types';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 
 const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -81,7 +84,7 @@ export const BoletaDetalle: React.FC<BoletaDetalleProps> = ({ boleta, open, onCl
 
         {/* Ingresos */}
         <div className="border rounded-lg overflow-hidden">
-          <div className="bg-green-50 px-4 py-2 text-sm font-semibold text-green-800">Ingresos</div>
+          <div className="bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800">Ingresos</div>
           <div className="divide-y">
             <div className="flex justify-between px-4 py-2 text-sm">
               <span>Salario base</span>
@@ -90,7 +93,7 @@ export const BoletaDetalle: React.FC<BoletaDetalleProps> = ({ boleta, open, onCl
             {boleta.comisionesVentas > 0 && (
               <div className="flex justify-between px-4 py-2 text-sm">
                 <span>Comisiones ({boleta.detalleComisiones.length} ventas)</span>
-                <span className="font-mono text-green-600">{formatCurrency(boleta.comisionesVentas, 'PEN')}</span>
+                <span className="font-mono text-emerald-600">{formatCurrency(boleta.comisionesVentas, 'PEN')}</span>
               </div>
             )}
             {boleta.bonificaciones > 0 && (
@@ -105,7 +108,7 @@ export const BoletaDetalle: React.FC<BoletaDetalleProps> = ({ boleta, open, onCl
                 <span className="font-mono">{formatCurrency(boleta.otrosIngresos, 'PEN')}</span>
               </div>
             )}
-            <div className="flex justify-between px-4 py-2 text-sm font-semibold bg-green-50">
+            <div className="flex justify-between px-4 py-2 text-sm font-semibold bg-emerald-50">
               <span>Total bruto</span>
               <span className="font-mono">{formatCurrency(boleta.totalBruto, 'PEN')}</span>
             </div>
@@ -144,35 +147,52 @@ export const BoletaDetalle: React.FC<BoletaDetalleProps> = ({ boleta, open, onCl
         </div>
 
         {/* Detalle comisiones */}
-        {boleta.detalleComisiones.length > 0 && (
-          <details className="border rounded-lg">
-            <summary className="px-4 py-2 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
-              Detalle de comisiones ({boleta.detalleComisiones.length} ventas)
-            </summary>
-            <div className="border-t max-h-[200px] overflow-y-auto">
-              <table className="w-full text-xs">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-3 py-1.5 text-left">Venta</th>
-                    <th className="px-3 py-1.5 text-right">Monto</th>
-                    <th className="px-3 py-1.5 text-right">%</th>
-                    <th className="px-3 py-1.5 text-right">Comision</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {boleta.detalleComisiones.map((d, i) => (
-                    <tr key={i}>
-                      <td className="px-3 py-1.5 font-mono">{d.ventaNumero}</td>
-                      <td className="px-3 py-1.5 text-right font-mono">{formatCurrency(d.montoVenta, 'PEN')}</td>
-                      <td className="px-3 py-1.5 text-right">{d.porcentaje}%</td>
-                      <td className="px-3 py-1.5 text-right font-mono text-green-600">{formatCurrency(d.montoComision, 'PEN')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </details>
-        )}
+        {boleta.detalleComisiones.length > 0 && (() => {
+          const comisionColumns: DataTableColumn<DetalleComision & { _idx: number }>[] = [
+            {
+              key: 'ventaNumero',
+              header: 'Venta',
+              render: (d) => <span className="font-mono text-xs">{d.ventaNumero}</span>,
+            },
+            {
+              key: 'montoVenta',
+              header: 'Monto',
+              align: 'right',
+              render: (d) => <span className="font-mono text-xs">{formatCurrency(d.montoVenta, 'PEN')}</span>,
+            },
+            {
+              key: 'porcentaje',
+              header: '%',
+              align: 'right',
+              render: (d) => <span className="text-xs">{d.porcentaje}%</span>,
+            },
+            {
+              key: 'montoComision',
+              header: 'Comision',
+              align: 'right',
+              render: (d) => (
+                <span className="font-mono text-xs text-emerald-600">{formatCurrency(d.montoComision, 'PEN')}</span>
+              ),
+            },
+          ];
+          const filas = boleta.detalleComisiones.map((d, i) => ({ ...d, _idx: i }));
+
+          return (
+            <details className="border rounded-lg">
+              <summary className="px-4 py-2 text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50">
+                Detalle de comisiones ({boleta.detalleComisiones.length} ventas)
+              </summary>
+              <div className="border-t max-h-[200px] overflow-y-auto">
+                <DataTable<DetalleComision & { _idx: number }>
+                  columns={comisionColumns}
+                  data={filas}
+                  keyExtractor={(d) => String(d._idx)}
+                  compact
+                />
+              </div>
+            </details>
+          );
+        })()}
 
         {/* Acciones */}
         <div className="flex justify-between items-center pt-2 border-t">

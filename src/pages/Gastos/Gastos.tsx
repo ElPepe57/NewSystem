@@ -2,9 +2,10 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { formatFecha } from '../../utils/dateFormatters';
 import { formatCurrencyPEN } from '../../utils/format';
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Plus, Filter, Download, PieChart, CreditCard, Wallet, ChevronLeft, ChevronRight, Calendar, List, Pencil, Trash2, Receipt } from 'lucide-react';
-import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, TableRowSkeleton, GastosSkeleton, GastoLineaBadge } from '../../components/common';
-import { LineaFilterInline } from '../../components/common/LineaFilterInline';
-import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
+import { Card, Badge, Button, Select, SearchInput, useConfirmDialog, ConfirmDialog, ListSummary, EmptyStateAction, GastosSkeleton, GastoLineaBadge } from '../../components/common';
+import { LineaDropdown } from '../../components/common/LineaDropdown';
+import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import { useGastoStore } from '../../store/gastoStore';
 import { useAuthStore } from '../../store/authStore';
@@ -204,9 +205,9 @@ export const Gastos: React.FC = () => {
     if (!cat) return 'bg-slate-100 text-slate-700';
     const colors: Record<CategoriaGasto, string> = {
       GV: 'bg-purple-100 text-purple-700',
-      GD: 'bg-blue-100 text-blue-700',
+      GD: 'bg-sky-100 text-sky-700',
       GA: 'bg-amber-100 text-amber-700',
-      GO: 'bg-green-100 text-green-700'
+      GO: 'bg-emerald-100 text-emerald-700'
     };
     return colors[cat] || 'bg-slate-100 text-slate-700';
   };
@@ -282,7 +283,7 @@ export const Gastos: React.FC = () => {
     if (clase === 'GVD') {
       return { label: 'GVD', color: 'bg-purple-100 text-purple-700' };
     }
-    return { label: 'GAO', color: 'bg-blue-100 text-blue-700' };
+    return { label: 'GAO', color: 'bg-sky-100 text-sky-700' };
   };
 
   // Label dinámico para métricas
@@ -291,6 +292,182 @@ export const Gastos: React.FC = () => {
     if (viewMode === 'pending') return 'Total Pendiente';
     return `Total ${MONTH_NAMES[selectedMonth - 1]}`;
   };
+
+  // Columnas del DataTable (desktop)
+  const gastosColumns: DataTableColumn<Gasto>[] = [
+    {
+      key: 'numero',
+      header: 'Número',
+      render: (gasto) => {
+        const claseBadge = getClaseBadge(gasto.claseGasto);
+        return (
+          <div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${claseBadge.color}`}>
+                {claseBadge.label}
+              </span>
+              <span className="text-sm font-medium text-slate-900">
+                {gasto.numeroGasto}
+              </span>
+            </div>
+            {gasto.ventaId && (
+              <div className="text-xs text-purple-600 mt-0.5">
+                → Venta vinculada
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'descripcion',
+      header: 'Descripción',
+      render: (gasto) => (
+        <div>
+          <div className="text-sm text-slate-900">{gasto.descripcion}</div>
+          {gasto.proveedor && (
+            <div className="text-xs text-slate-500">{gasto.proveedor}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'tipo',
+      header: 'Tipo / Categoría',
+      render: (gasto) => (
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-slate-900">{gasto.tipo}</div>
+          <div className="flex items-center gap-1">
+            <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
+              {gasto.categoria}
+            </span>
+            <span className="text-xs text-slate-500">
+              {CATEGORIAS_GASTO[gasto.categoria]?.nombre || gasto.categoria}
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'monto',
+      header: 'Monto',
+      align: 'right',
+      render: (gasto) => (
+        <div>
+          <div className="text-sm font-medium text-slate-900">
+            {formatCurrency(gasto.montoPEN)}
+          </div>
+          {gasto.moneda === 'USD' && (
+            <div className="text-xs text-slate-500">
+              ${gasto.montoOriginal.toFixed(2)} USD
+            </div>
+          )}
+          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
+            <div className="mt-1">
+              <div className="w-full bg-slate-200 rounded-full h-1.5">
+                <div
+                  className="bg-teal-500 h-1.5 rounded-full transition-all"
+                  style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
+                />
+              </div>
+              <div className="text-xs text-teal-600 mt-0.5">
+                {((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado
+              </div>
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      align: 'center',
+      render: (gasto) => (
+        <div className="text-sm text-slate-900">
+          {formatFecha(gasto.fecha)}
+        </div>
+      ),
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      align: 'center',
+      render: (gasto) => {
+        const estadoBadge = getEstadoBadge(gasto.estado);
+        return (
+          <div className="flex flex-col items-center gap-1">
+            <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
+            <GastoLineaBadge lineaNegocioId={gasto.lineaNegocioId} />
+          </div>
+        );
+      },
+    },
+    {
+      key: 'ctru',
+      header: 'CTRU',
+      align: 'center',
+      render: (gasto) =>
+        gasto.esProrrateable ? (
+          <Badge variant={gasto.ctruRecalculado ? 'success' : 'warning'}>
+            {gasto.ctruRecalculado ? 'Aplicado' : 'Pendiente'}
+          </Badge>
+        ) : (
+          <span className="text-xs text-slate-400">N/A</span>
+        ),
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      align: 'center',
+      render: (gasto) => (
+        <div>
+          <div className="flex items-center justify-center gap-1">
+            {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
+              <button
+                onClick={() => {
+                  setGastoParaPago(gasto);
+                  setShowPagoModal(true);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors"
+                title={gasto.estado === 'pendiente' ? 'Registrar pago' : 'Registrar pago parcial'}
+              >
+                <CreditCard className="h-3.5 w-3.5" />
+                Pagar
+              </button>
+            )}
+            <button
+              onClick={() => handleEditarGasto(gasto)}
+              className="inline-flex items-center p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+              title="Editar gasto"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+            {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
+              <button
+                onClick={() => handleEliminarGasto(gasto)}
+                className="inline-flex items-center p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Eliminar gasto"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
+            <div className="text-xs text-slate-500 mt-1">
+              {formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}
+            </div>
+          )}
+          {gasto.estado === 'pagado' && (
+            <div className="text-xs text-slate-400 mt-1">
+              {gasto.pagos && gasto.pagos.length > 1
+                ? `${gasto.pagos.length} pagos`
+                : gasto.metodoPago || '-'}
+            </div>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   // Mostrar skeleton durante carga inicial
   if (loading && gastos.length === 0) {
@@ -490,7 +667,7 @@ export const Gastos: React.FC = () => {
       <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 overflow-x-auto scrollbar-hide">
         {[
           { id: 'negocio', label: 'Gastos del Negocio', shortLabel: 'Negocio', color: 'text-slate-900', filter: (g: Gasto) => !['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'].includes(g.tipo) && !['merma_transferencia', 'merma_vencimiento', 'desmedro'].includes(g.tipo) },
-          { id: 'importacion', label: 'Costos de Importación', shortLabel: 'Importación', color: 'text-blue-700', filter: (g: Gasto) => ['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'].includes(g.tipo) },
+          { id: 'importacion', label: 'Costos de Importación', shortLabel: 'Importación', color: 'text-sky-700', filter: (g: Gasto) => ['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'].includes(g.tipo) },
           { id: 'perdidas', label: 'Pérdidas de Inventario', shortLabel: 'Pérdidas', color: 'text-red-700', filter: (g: Gasto) => ['merma_transferencia', 'merma_vencimiento', 'desmedro'].includes(g.tipo) },
         ].map(tab => {
           const count = gastosFiltrados.filter(tab.filter).length;
@@ -587,7 +764,6 @@ export const Gastos: React.FC = () => {
       )}
 
       {/* Filtro de línea de negocio */}
-      <LineaFilterInline />
 
       {/* Toolbar */}
       <Toolbar
@@ -640,22 +816,15 @@ export const Gastos: React.FC = () => {
               ))}
             </div>
             {/* Desktop skeleton */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Número</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Descripción</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Monto</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Estado</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <TableRowSkeleton columns={6} rows={8} />
-                </tbody>
-              </table>
+            <div className="hidden md:block">
+              <DataTable
+                columns={gastosColumns}
+                data={[]}
+                keyExtractor={(g) => g.id}
+                loading={true}
+                loadingRows={8}
+                compact
+              />
             </div>
           </>
         ) : gastosVisibles.length === 0 ? (
@@ -703,7 +872,7 @@ export const Gastos: React.FC = () => {
                           </span>
                           <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
                           {gasto.esProrrateable && (
-                            <span className={`text-[10px] px-1 py-0.5 rounded font-medium ${gasto.ctruRecalculado ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                            <span className={`text-[10px] px-1 py-0.5 rounded font-medium ${gasto.ctruRecalculado ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                               CTRU {gasto.ctruRecalculado ? '✓' : '⏳'}
                             </span>
                           )}
@@ -764,7 +933,7 @@ export const Gastos: React.FC = () => {
                             setGastoParaPago(gasto);
                             setShowPagoModal(true);
                           }}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-md transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-md transition-colors"
                         >
                           <CreditCard className="h-3 w-3" />
                           Pagar
@@ -772,7 +941,7 @@ export const Gastos: React.FC = () => {
                       )}
                       <button
                         onClick={() => handleEditarGasto(gasto)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded-md transition-colors"
                       >
                         <Pencil className="h-3 w-3" />
                         Editar
@@ -799,170 +968,13 @@ export const Gastos: React.FC = () => {
             </div>
 
             {/* Desktop table layout */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Número
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Descripción
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">
-                      Tipo / Categoría
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">
-                      Monto
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">
-                      Fecha
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">
-                      Estado
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">
-                      CTRU
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {gastosVisibles.map((gasto) => {
-                    const estadoBadge = getEstadoBadge(gasto.estado);
-                    const claseBadge = getClaseBadge(gasto.claseGasto);
-
-                    return (
-                      <tr key={gasto.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${claseBadge.color}`}>
-                              {claseBadge.label}
-                            </span>
-                            <span className="text-sm font-medium text-slate-900">
-                              {gasto.numeroGasto}
-                            </span>
-                          </div>
-                          {gasto.ventaId && (
-                            <div className="text-xs text-purple-600 mt-0.5">
-                              → Venta vinculada
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="text-sm text-slate-900">{gasto.descripcion}</div>
-                          {gasto.proveedor && (
-                            <div className="text-xs text-slate-500">{gasto.proveedor}</div>
-                          )}
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="space-y-1">
-                            <div className="text-sm font-medium text-slate-900">{gasto.tipo}</div>
-                            <div className="flex items-center gap-1">
-                              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
-                                {gasto.categoria}
-                              </span>
-                              <span className="text-xs text-slate-500">
-                                {CATEGORIAS_GASTO[gasto.categoria]?.nombre || gasto.categoria}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-right">
-                          <div className="text-sm font-medium text-slate-900">
-                            {formatCurrency(gasto.montoPEN)}
-                          </div>
-                          {gasto.moneda === 'USD' && (
-                            <div className="text-xs text-slate-500">
-                              ${gasto.montoOriginal.toFixed(2)} USD
-                            </div>
-                          )}
-                          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
-                            <div className="mt-1">
-                              <div className="w-full bg-slate-200 rounded-full h-1.5">
-                                <div
-                                  className="bg-teal-500 h-1.5 rounded-full transition-all"
-                                  style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
-                                />
-                              </div>
-                              <div className="text-xs text-teal-600 mt-0.5">
-                                {((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado
-                              </div>
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-slate-900">
-                            {formatFecha(gasto.fecha)}
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <div className="flex flex-col items-center gap-1">
-                            <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
-                            <GastoLineaBadge lineaNegocioId={gasto.lineaNegocioId} />
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-center">
-                          {gasto.esProrrateable ? (
-                            <Badge variant={gasto.ctruRecalculado ? 'success' : 'warning'}>
-                              {gasto.ctruRecalculado ? 'Aplicado' : 'Pendiente'}
-                            </Badge>
-                          ) : (
-                            <span className="text-xs text-slate-400">N/A</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
-                              <button
-                                onClick={() => {
-                                  setGastoParaPago(gasto);
-                                  setShowPagoModal(true);
-                                }}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
-                                title={gasto.estado === 'pendiente' ? 'Registrar pago' : 'Registrar pago parcial'}
-                              >
-                                <CreditCard className="h-3.5 w-3.5" />
-                                Pagar
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleEditarGasto(gasto)}
-                              className="inline-flex items-center p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              title="Editar gasto"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-                            {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
-                              <button
-                                onClick={() => handleEliminarGasto(gasto)}
-                                className="inline-flex items-center p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Eliminar gasto"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            )}
-                          </div>
-                          {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
-                            <div className="text-xs text-slate-500 mt-1">
-                              {formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}
-                            </div>
-                          )}
-                          {gasto.estado === 'pagado' && (
-                            <div className="text-xs text-slate-400 mt-1">
-                              {gasto.pagos && gasto.pagos.length > 1
-                                ? `${gasto.pagos.length} pagos`
-                                : gasto.metodoPago || '-'}
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="hidden md:block">
+              <DataTable
+                columns={gastosColumns}
+                data={gastosVisibles}
+                keyExtractor={(g) => g.id}
+                compact
+              />
             </div>
           </>
         )}

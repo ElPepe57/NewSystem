@@ -89,7 +89,7 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
     switch (nivel) {
       case 'alto': return 'text-red-600 bg-red-100';
       case 'medio': return 'text-yellow-600 bg-yellow-100';
-      case 'bajo': return 'text-green-600 bg-green-100';
+      case 'bajo': return 'text-emerald-600 bg-emerald-100';
       default: return 'text-slate-600 bg-slate-100';
     }
   };
@@ -112,7 +112,7 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
             <>
               <Shield className={`h-4 w-4 flex-shrink-0 ${
                 selectedCompetidor.nivelAmenaza === 'alto' ? 'text-red-500' :
-                selectedCompetidor.nivelAmenaza === 'medio' ? 'text-yellow-500' : 'text-green-500'
+                selectedCompetidor.nivelAmenaza === 'medio' ? 'text-yellow-500' : 'text-emerald-500'
               }`} />
               <span className="font-medium truncate">{selectedCompetidor.nombre}</span>
               <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-mono">
@@ -164,7 +164,7 @@ const CompetidorAutocomplete: React.FC<CompetidorAutocompleteProps> = ({
                 >
                   <Shield className={`h-4 w-4 flex-shrink-0 ${
                     competidor.nivelAmenaza === 'alto' ? 'text-red-500' :
-                    competidor.nivelAmenaza === 'medio' ? 'text-yellow-500' : 'text-green-500'
+                    competidor.nivelAmenaza === 'medio' ? 'text-yellow-500' : 'text-emerald-500'
                   }`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
         {competidores.length > 0 && (
           <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
             <span className="text-slate-500">
-              Min: <span className="font-medium text-green-600">S/{min.toFixed(2)}</span>
+              Min: <span className="font-medium text-emerald-600">S/{min.toFixed(2)}</span>
             </span>
             <span className="text-slate-500">
               Max: <span className="font-medium text-red-600">S/{max.toFixed(2)}</span>
@@ -395,8 +395,8 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                 <div className="flex items-center gap-2">
                   <span className={`text-xs px-2 py-0.5 rounded ${
                     competidor.plataforma === 'mercado_libre' ? 'bg-yellow-100 text-yellow-700' :
-                    competidor.plataforma === 'inkafarma' ? 'bg-green-100 text-green-700' :
-                    competidor.plataforma === 'mifarma' ? 'bg-blue-100 text-blue-700' :
+                    competidor.plataforma === 'inkafarma' ? 'bg-emerald-100 text-emerald-700' :
+                    competidor.plataforma === 'mifarma' ? 'bg-sky-100 text-sky-700' :
                     'bg-slate-100 text-slate-600'
                   }`}>
                     {getPlataformaLabel(competidor.plataforma)}
@@ -405,13 +405,13 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
 
                 <div className="flex items-center gap-2">
                   <span className={`font-medium ${
-                    competidor.precio === min && min > 0 ? 'text-green-600' :
+                    competidor.precio === min && min > 0 ? 'text-emerald-600' :
                     competidor.precio === max && max > 0 ? 'text-red-600' : 'text-slate-700'
                   }`}>
                     S/{(competidor.precio || 0).toFixed(2)}
                   </span>
                   {competidor.precio === min && min > 0 && (
-                    <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Más bajo</span>
+                    <span className="text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">Más bajo</span>
                   )}
                 </div>
 
@@ -429,7 +429,7 @@ export const CompetidorPeruList: React.FC<CompetidorPeruListProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-sky-600 hover:text-sky-800"
                     >
                       <ExternalLink className="h-4 w-4" />
                     </a>

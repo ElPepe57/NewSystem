@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { MapPin, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/common';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell, PageHeader, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 // Toolbar available for future use
 import { useMapaCalorStore } from '../../store/mapaCalorStore';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import type { ZonaResumen } from '../../types/mapaCalor.types';
 import { MapaCalorMapa } from './MapaCalorMapa';
 import { MapaCalorFiltros } from './MapaCalorFiltros';
 import { MapaCalorKPIs } from './MapaCalorKPIs';
@@ -97,51 +99,82 @@ export function MapaCalor() {
       </div>
 
       {/* Tabla de zonas (siempre visible si hay datos) */}
-      {ventasGeo.length > 0 && (
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
-            <h3 className="font-semibold text-slate-800 text-sm">Ranking de Zonas</h3>
+      {ventasGeo.length > 0 && (() => {
+        const zonasTop = useMapaCalorStore.getState().zonas.slice(0, 20);
+        const zonaColumns: DataTableColumn<ZonaResumen & { rank: number }>[] = [
+          {
+            key: 'rank',
+            header: '#',
+            render: z => <span className="text-slate-400">{z.rank}</span>,
+          },
+          {
+            key: 'distrito',
+            header: 'Distrito',
+            render: z => <span className="font-medium text-slate-900">{z.distrito}</span>,
+          },
+          {
+            key: 'provincia',
+            header: 'Provincia',
+            render: z => <span className="text-slate-600">{z.provincia}</span>,
+            hideOnMobile: true,
+          },
+          {
+            key: 'totalVentas',
+            header: 'Ventas',
+            align: 'right',
+            render: z => <span>{z.totalVentas}</span>,
+          },
+          {
+            key: 'volumenPEN',
+            header: 'Volumen',
+            align: 'right',
+            render: z => (
+              <span className="font-medium text-emerald-600">
+                S/ {z.volumenPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
+              </span>
+            ),
+          },
+          {
+            key: 'ticketPromedio',
+            header: 'Ticket Prom.',
+            align: 'right',
+            render: z => <span>S/ {z.ticketPromedio.toFixed(0)}</span>,
+            hideOnMobile: true,
+          },
+          {
+            key: 'clientesUnicos',
+            header: 'Clientes',
+            align: 'right',
+            render: z => <span>{z.clientesUnicos}</span>,
+            hideOnMobile: true,
+          },
+          {
+            key: 'topProducto',
+            header: 'Top Producto',
+            render: z => (
+              <span className="text-slate-600 truncate block max-w-[150px]">
+                {z.productosTop[0]?.nombre || '—'}
+              </span>
+            ),
+            hideOnMobile: true,
+          },
+        ];
+        const zonasConRank = zonasTop.map((z, i) => ({ ...z, rank: i + 1 }));
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
+              <h3 className="font-semibold text-slate-800 text-sm">Ranking de Zonas</h3>
+            </div>
+            <DataTable
+              columns={zonaColumns}
+              data={zonasConRank}
+              keyExtractor={z => z.key}
+              onRowClick={z => useMapaCalorStore.getState().setZonaSeleccionada(z)}
+              compact
+            />
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr className="bg-slate-50 text-slate-500 text-xs uppercase">
-                  <th className="px-4 py-2 text-left">#</th>
-                  <th className="px-4 py-2 text-left">Distrito</th>
-                  <th className="px-4 py-2 text-left">Provincia</th>
-                  <th className="px-4 py-2 text-right">Ventas</th>
-                  <th className="px-4 py-2 text-right">Volumen</th>
-                  <th className="px-4 py-2 text-right">Ticket Prom.</th>
-                  <th className="px-4 py-2 text-right">Clientes</th>
-                  <th className="px-4 py-2 text-left">Top Producto</th>
-                </tr>
-              </thead>
-              <tbody>
-                {useMapaCalorStore.getState().zonas.slice(0, 20).map((zona, i) => (
-                  <tr
-                    key={zona.key}
-                    className="border-t border-slate-100 hover:bg-blue-50/50 cursor-pointer transition-colors"
-                    onClick={() => useMapaCalorStore.getState().setZonaSeleccionada(zona)}
-                  >
-                    <td className="px-4 py-2 text-slate-400">{i + 1}</td>
-                    <td className="px-4 py-2 font-medium text-slate-900">{zona.distrito}</td>
-                    <td className="px-4 py-2 text-slate-600">{zona.provincia}</td>
-                    <td className="px-4 py-2 text-right">{zona.totalVentas}</td>
-                    <td className="px-4 py-2 text-right font-medium text-green-600">
-                      S/ {zona.volumenPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}
-                    </td>
-                    <td className="px-4 py-2 text-right">S/ {zona.ticketPromedio.toFixed(0)}</td>
-                    <td className="px-4 py-2 text-right">{zona.clientesUnicos}</td>
-                    <td className="px-4 py-2 text-slate-600 truncate max-w-[150px]">
-                      {zona.productosTop[0]?.nombre || '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        );
+      })()}
     </PageShell>
   );
 }

@@ -742,12 +742,12 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                         <div className="text-center">
                           {margenActual !== null ? (
                             <div className={`px-3 py-2 rounded-lg ${
-                              margenActual >= 20 ? 'bg-green-100' :
+                              margenActual >= 20 ? 'bg-emerald-100' :
                               margenActual >= 10 ? 'bg-yellow-100' : 'bg-red-100'
                             }`}>
                               <div className="text-xs text-slate-600">Margen</div>
                               <div className={`text-lg font-bold ${
-                                margenActual >= 20 ? 'text-green-600' :
+                                margenActual >= 20 ? 'text-emerald-600' :
                                 margenActual >= 10 ? 'text-yellow-600' : 'text-red-600'
                               }`}>
                                 {margenActual.toFixed(1)}%
@@ -804,8 +804,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                             onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioEntrada.toFixed(2))}
                             className={`px-2 py-1 text-xs rounded-full transition-colors ${
                               Math.abs(item.precioUnitario - tieneInvestigacion.precioEntrada) < 1
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                ? 'bg-sky-600 text-white'
+                                : 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                             }`}
                           >
                             Entrada S/{tieneInvestigacion.precioEntrada.toFixed(0)}
@@ -815,8 +815,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                             onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUMin.toFixed(2))}
                             className={`px-2 py-1 text-xs rounded-full transition-colors ${
                               Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUMin) < 1
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                ? 'bg-sky-600 text-white'
+                                : 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                             }`}
                           >
                             Mín. S/{tieneInvestigacion.precioPERUMin.toFixed(0)}
@@ -826,8 +826,8 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                             onClick={() => handleProductoChange(index, 'precioUnitario', tieneInvestigacion.precioPERUPromedio.toFixed(2))}
                             className={`px-2 py-1 text-xs rounded-full transition-colors ${
                               Math.abs(item.precioUnitario - tieneInvestigacion.precioPERUPromedio) < 1
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                ? 'bg-sky-600 text-white'
+                                : 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                             }`}
                           >
                             Prom. S/{tieneInvestigacion.precioPERUPromedio.toFixed(0)}
@@ -921,10 +921,10 @@ export const VentaForm: React.FC<VentaFormProps> = ({
 
           {/* Historial del Cliente (si está seleccionado y tiene historial) */}
           {clienteSeleccionado && historialCliente && historialCliente.totalCompras > 0 && (
-            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-lg">
+            <div className="mb-4 p-4 bg-sky-50 border border-sky-200 rounded-lg">
               <div className="flex items-center gap-2 mb-3">
-                <History className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-blue-800">Historial del Cliente</span>
+                <History className="h-5 w-5 text-sky-600" />
+                <span className="font-medium text-sky-800">Historial del Cliente</span>
                 {historialCliente.totalCompras >= 5 && (
                   <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
                     <Star className="h-3 w-3" />
@@ -934,14 +934,14 @@ export const VentaForm: React.FC<VentaFormProps> = ({
               </div>
               <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-lg sm:text-2xl font-bold text-blue-700">
+                  <div className="flex items-center justify-center gap-1 text-lg sm:text-2xl font-bold text-sky-700">
                     <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                     {historialCliente.totalCompras}
                   </div>
                   <p className="text-xs text-slate-600">Compras</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg sm:text-2xl font-bold text-green-600">
+                  <div className="text-lg sm:text-2xl font-bold text-emerald-600">
                     S/{historialCliente.montoTotal.toFixed(0)}
                   </div>
                   <p className="text-xs text-slate-600">Total</p>
@@ -959,7 +959,7 @@ export const VentaForm: React.FC<VentaFormProps> = ({
                 </p>
               )}
               {historialCliente.productosFavoritos.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-blue-200">
+                <div className="mt-3 pt-3 border-t border-sky-200">
                   <p className="text-xs text-slate-600 mb-1">Productos frecuentes:</p>
                   <div className="flex flex-wrap gap-1">
                     {historialCliente.productosFavoritos.slice(0, 3).map((prod, idx) => (

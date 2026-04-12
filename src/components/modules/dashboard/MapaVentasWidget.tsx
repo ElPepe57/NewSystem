@@ -62,12 +62,12 @@ export function MapaVentasWidget() {
   return (
     <Link
       to="/mapa-ventas"
-      className="block bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl border border-blue-200 p-4 hover:shadow-md transition-shadow"
+      className="block bg-sky-50 rounded-xl border border-sky-200 p-4 hover:shadow-md transition-shadow"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-blue-100 rounded-lg">
-            <MapPin className="h-4 w-4 text-blue-600" />
+          <div className="p-1.5 bg-sky-100 rounded-lg">
+            <MapPin className="h-4 w-4 text-sky-600" />
           </div>
           <h3 className="font-semibold text-slate-800 text-sm">Mapa de Ventas</h3>
         </div>
@@ -76,13 +76,13 @@ export function MapaVentasWidget() {
 
       {loading ? (
         <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-blue-100 rounded w-2/3" />
-          <div className="h-4 bg-blue-100 rounded w-1/2" />
+          <div className="h-4 bg-sky-100 rounded w-2/3" />
+          <div className="h-4 bg-sky-100 rounded w-1/2" />
         </div>
       ) : stats && stats.ventasGeo > 0 ? (
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <p className="text-xl font-bold text-blue-700">{stats.distritosActivos}</p>
+            <p className="text-xl font-bold text-sky-700">{stats.distritosActivos}</p>
             <p className="text-[10px] text-slate-500">distritos activos</p>
           </div>
           <div>

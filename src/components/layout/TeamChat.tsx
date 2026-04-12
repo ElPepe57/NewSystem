@@ -118,7 +118,7 @@ export const TeamChat: React.FC = () => {
             {dmUserPhoto ? (
               <img src={dmUserPhoto} alt={canalUsuario.displayName} className="w-6 h-6 rounded-full object-cover" />
             ) : (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-white text-[10px] font-bold">
+              <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center text-white text-[10px] font-bold">
                 {canalUsuario.displayName?.charAt(0).toUpperCase() || '?'}
               </div>
             )}
@@ -128,8 +128,8 @@ export const TeamChat: React.FC = () => {
               disabled={llamadaActiva}
               className={`p-1.5 rounded-lg transition-colors ${
                 llamadaActiva
-                  ? 'text-green-500 cursor-not-allowed'
-                  : 'text-slate-400 hover:text-green-600 hover:bg-green-50'
+                  ? 'text-emerald-500 cursor-not-allowed'
+                  : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'
               }`}
               title={llamadaActiva ? 'Llamada en curso' : `Llamar a ${canalUsuario.displayName}`}
             >
@@ -187,8 +187,8 @@ export const TeamChat: React.FC = () => {
               disabled={llamadaActiva}
               className={`p-2 rounded-lg transition-colors ${
                 llamadaActiva
-                  ? 'bg-green-100 text-green-600 cursor-not-allowed'
-                  : 'hover:bg-green-50 text-slate-500 hover:text-green-600'
+                  ? 'bg-emerald-100 text-emerald-600 cursor-not-allowed'
+                  : 'hover:bg-emerald-50 text-slate-500 hover:text-emerald-600'
               }`}
               title={llamadaActiva ? 'Llamada en curso' : 'Iniciar llamada de equipo'}
             >
@@ -227,7 +227,7 @@ const MessageBubble: React.FC<{ mensaje: ChatMensaje; isOwn: boolean; hideName?:
         mensaje.photoURL ? (
           <img src={mensaje.photoURL} alt={mensaje.displayName} className="w-6 h-6 rounded-full flex-shrink-0 object-cover" />
         ) : (
-          <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold bg-gradient-to-br ${ROLE_COLORS.admin}`}>
+          <div className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold ${ROLE_COLORS.admin}`}>
             {mensaje.displayName?.charAt(0).toUpperCase() || '?'}
           </div>
         )

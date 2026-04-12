@@ -125,7 +125,7 @@ export const InsumosEmpaque: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {insumos.map(insumo => (
-            <Card key={insumo.id} className="p-3 cursor-pointer hover:border-blue-300 transition-colors" onClick={() => openEdit(insumo)}>
+            <Card key={insumo.id} className="p-3 cursor-pointer hover:border-sky-300 transition-colors" onClick={() => openEdit(insumo)}>
               <div className="flex items-start justify-between">
                 <div>
                   <div className="font-medium text-slate-900 text-sm">{insumo.nombre}</div>

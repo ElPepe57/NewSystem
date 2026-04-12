@@ -34,9 +34,9 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
       case 'admin':
         return <Shield className="h-4 w-4 text-purple-500" />;
       case 'vendedor':
-        return <ShoppingBag className="h-4 w-4 text-blue-500" />;
+        return <ShoppingBag className="h-4 w-4 text-sky-500" />;
       case 'almacenero':
-        return <Warehouse className="h-4 w-4 text-green-500" />;
+        return <Warehouse className="h-4 w-4 text-emerald-500" />;
       default:
         return <User className="h-4 w-4 text-slate-500" />;
     }
@@ -119,12 +119,12 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
           <div className="text-2xl font-bold text-slate-900">{stats.total}</div>
           <div className="text-xs text-slate-500">Total</div>
         </div>
-        <div className="p-3 bg-green-50 rounded-lg text-center">
-          <div className="text-2xl font-bold text-green-600">{stats.activos}</div>
+        <div className="p-3 bg-emerald-50 rounded-lg text-center">
+          <div className="text-2xl font-bold text-emerald-600">{stats.activos}</div>
           <div className="text-xs text-slate-500">Activos</div>
         </div>
-        <div className="p-3 bg-blue-50 rounded-lg text-center">
-          <div className="text-2xl font-bold text-blue-600">{usuariosRecientes.length}</div>
+        <div className="p-3 bg-sky-50 rounded-lg text-center">
+          <div className="text-2xl font-bold text-sky-600">{usuariosRecientes.length}</div>
           <div className="text-xs text-slate-500">Hoy</div>
         </div>
         <div className="p-3 bg-red-50 rounded-lg text-center">
@@ -144,14 +144,14 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
             </div>
           )}
           {stats.porRol.vendedor > 0 && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-full text-xs">
-              <ShoppingBag className="h-3 w-3 text-blue-500" />
+            <div className="flex items-center gap-1 px-2 py-1 bg-sky-50 rounded-full text-xs">
+              <ShoppingBag className="h-3 w-3 text-sky-500" />
               <span>{stats.porRol.vendedor} Vendedores</span>
             </div>
           )}
           {stats.porRol.almacenero > 0 && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-full text-xs">
-              <Warehouse className="h-3 w-3 text-green-500" />
+            <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded-full text-xs">
+              <Warehouse className="h-3 w-3 text-emerald-500" />
               <span>{stats.porRol.almacenero} Almaceneros</span>
             </div>
           )}
@@ -198,7 +198,7 @@ export const UsuariosActivosWidget: React.FC<UsuariosActivosWidgetProps> = ({
                     </div>
                     <div className="flex items-center gap-1">
                       {usuario.activo ? (
-                        <UserCheck className="h-3 w-3 text-green-500" />
+                        <UserCheck className="h-3 w-3 text-emerald-500" />
                       ) : (
                         <UserX className="h-3 w-3 text-red-500" />
                       )}

@@ -95,8 +95,8 @@ export const BuscadorGrupoProducto: React.FC<BuscadorGrupoProductoProps> = ({
                   </div>
                   {variantesExistentes.length > 0 ? (
                     <div className="flex items-center gap-1 mt-1.5">
-                      <GitBranch className="h-3 w-3 text-green-500 flex-shrink-0" />
-                      <span className="text-xs text-green-600">
+                      <GitBranch className="h-3 w-3 text-emerald-500 flex-shrink-0" />
+                      <span className="text-xs text-emerald-600">
                         Variantes: {variantesExistentes.join(' · ')}
                       </span>
                     </div>

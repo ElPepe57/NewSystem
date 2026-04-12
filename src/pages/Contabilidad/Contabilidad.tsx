@@ -39,7 +39,8 @@ import {
   StatDistribution,
   Button,
 } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar, StatCard as DSStatCard, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { EstadoResultados, BalanceGeneral, CierreMensual } from '../../components/modules/contabilidad';
 import { ReporteDirectoIndirecto } from '../../components/modules/contabilidad/ReporteDirectoIndirecto';
 import { contabilidadService } from '../../services/contabilidad.service';
@@ -64,8 +65,8 @@ const formatCurrency = formatCurrencyPEN;
 // Color según estado del análisis
 const getEstadoColor = (estado: AnalisisFinanciero['estado']) => {
   switch (estado) {
-    case 'excelente': return 'bg-green-100 text-green-800 border-green-300';
-    case 'bueno': return 'bg-blue-100 text-blue-800 border-blue-300';
+    case 'excelente': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+    case 'bueno': return 'bg-sky-100 text-sky-800 border-sky-300';
     case 'regular': return 'bg-amber-100 text-amber-800 border-amber-300';
     case 'malo': return 'bg-orange-100 text-orange-800 border-orange-300';
     case 'critico': return 'bg-red-100 text-red-800 border-red-300';
@@ -77,7 +78,7 @@ const getEstadoIcon = (estado: AnalisisFinanciero['estado']) => {
   switch (estado) {
     case 'excelente':
     case 'bueno':
-      return <CheckCircle2 className="w-5 h-5 text-green-600" />;
+      return <CheckCircle2 className="w-5 h-5 text-emerald-600" />;
     case 'regular':
       return <AlertCircle className="w-5 h-5 text-amber-600" />;
     case 'malo':
@@ -310,8 +311,8 @@ export function Contabilidad() {
               title="Composición de Activos"
               valueFormat="currency"
               data={[
-                { label: 'Efectivo', value: balance.activos.corriente.efectivo.total, color: 'bg-green-500' },
-                { label: 'CxC', value: balance.activos.corriente.cuentasPorCobrar.neto, color: 'bg-blue-500' },
+                { label: 'Efectivo', value: balance.activos.corriente.efectivo.total, color: 'bg-emerald-500' },
+                { label: 'CxC', value: balance.activos.corriente.cuentasPorCobrar.neto, color: 'bg-sky-500' },
                 { label: 'Inventario', value: balance.activos.corriente.inventarios.totalValorPEN, color: 'bg-purple-500' },
               ]}
             />
@@ -320,7 +321,7 @@ export function Contabilidad() {
               valueFormat="currency"
               data={[
                 { label: 'Pasivos', value: balance.pasivos.totalPasivos, color: 'bg-red-500' },
-                { label: 'Patrimonio', value: balance.patrimonio.totalPatrimonio, color: 'bg-blue-500' },
+                { label: 'Patrimonio', value: balance.patrimonio.totalPatrimonio, color: 'bg-sky-500' },
               ]}
             />
             <StatDistribution
@@ -336,8 +337,8 @@ export function Contabilidad() {
               title="Inventario por País"
               valueFormat="currency"
               data={[
-                { label: 'USA', value: balance.activos.corriente.inventarios.inventarioUSA.valorPEN, color: 'bg-blue-500' },
-                { label: 'Perú', value: balance.activos.corriente.inventarios.inventarioPeru.valorPEN, color: 'bg-green-500' },
+                { label: 'USA', value: balance.activos.corriente.inventarios.inventarioUSA.valorPEN, color: 'bg-sky-500' },
+                { label: 'Perú', value: balance.activos.corriente.inventarios.inventarioPeru.valorPEN, color: 'bg-emerald-500' },
               ]}
             />
           </div>
@@ -354,21 +355,21 @@ export function Contabilidad() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-50 rounded-lg p-3">
                     <div className="text-sm text-slate-500">Razón Corriente</div>
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-sky-600">
                       {indicadores.liquidez.razonCorriente.toFixed(2)}
                     </div>
                     <div className="text-xs text-slate-400">Act. Corr. / Pas. Corr.</div>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-3">
                     <div className="text-sm text-slate-500">ROE</div>
-                    <div className={`text-2xl font-bold ${indicadores.rentabilidad.roe >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`text-2xl font-bold ${indicadores.rentabilidad.roe >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                       {formatPercent(indicadores.rentabilidad.roe)}
                     </div>
                     <div className="text-xs text-slate-400">Util. Neta / Patrimonio</div>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-3">
                     <div className="text-sm text-slate-500">Endeudamiento</div>
-                    <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoTotal <= 50 ? 'text-green-600' : 'text-amber-600'}`}>
+                    <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoTotal <= 50 ? 'text-emerald-600' : 'text-amber-600'}`}>
                       {formatPercent(indicadores.solvencia.endeudamientoTotal)}
                     </div>
                     <div className="text-xs text-slate-400">Pasivos / Activos</div>
@@ -428,13 +429,13 @@ export function Contabilidad() {
                 </div>
                 <div>
                   <div className="text-xs sm:text-sm text-teal-600">Utilidad Acumulada</div>
-                  <div className={`text-lg sm:text-2xl font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`text-lg sm:text-2xl font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     {formatCurrency(acumuladoUtilidadNeta)}
                   </div>
                 </div>
                 <div>
                   <div className="text-xs sm:text-sm text-teal-600">Promedio Mensual</div>
-                  <div className={`text-lg sm:text-2xl font-bold ${promedioMensual >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`text-lg sm:text-2xl font-bold ${promedioMensual >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     {formatCurrency(promedioMensual)}
                   </div>
                 </div>
@@ -464,7 +465,7 @@ export function Contabilidad() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Liquidez */}
             <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-blue-800 mb-3 sm:mb-4 flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-sky-800 mb-3 sm:mb-4 flex items-center gap-2">
                 <Wallet className="w-5 h-5" />
                 Ratios de Liquidez
               </h3>
@@ -475,7 +476,7 @@ export function Contabilidad() {
                     <div className="font-medium">Razón Corriente</div>
                     <div className="text-xs text-slate-500">Activo Corriente / Pasivo Corriente</div>
                   </div>
-                  <div className={`text-xl sm:text-2xl font-bold ${indicadores.liquidez.razonCorriente >= 1.5 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-xl sm:text-2xl font-bold ${indicadores.liquidez.razonCorriente >= 1.5 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {indicadores.liquidez.razonCorriente.toFixed(2)}
                   </div>
                 </div>
@@ -484,7 +485,7 @@ export function Contabilidad() {
                     <div className="font-medium">Prueba Ácida</div>
                     <div className="text-xs text-slate-500">(Act. Corr. - Inventarios) / Pas. Corr.</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.liquidez.pruebaAcida >= 1 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.liquidez.pruebaAcida >= 1 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {indicadores.liquidez.pruebaAcida.toFixed(2)}
                   </div>
                 </div>
@@ -493,7 +494,7 @@ export function Contabilidad() {
                     <div className="font-medium">Capital de Trabajo</div>
                     <div className="text-xs text-slate-500">Activo Corriente - Pasivo Corriente</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.liquidez.capitalTrabajo >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.liquidez.capitalTrabajo >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     {formatCurrency(indicadores.liquidez.capitalTrabajo)}
                   </div>
                 </div>
@@ -502,7 +503,7 @@ export function Contabilidad() {
                     <div className="font-medium">Razón de Efectivo</div>
                     <div className="text-xs text-slate-500">Efectivo / Pasivo Corriente</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.liquidez.razonEfectivo >= 0.3 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.liquidez.razonEfectivo >= 0.3 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {indicadores.liquidez.razonEfectivo.toFixed(2)}
                   </div>
                 </div>
@@ -522,7 +523,7 @@ export function Contabilidad() {
                     <div className="font-medium">Endeudamiento Total</div>
                     <div className="text-xs text-slate-500">Pasivos / Activos</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoTotal <= 50 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoTotal <= 50 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.solvencia.endeudamientoTotal)}
                   </div>
                 </div>
@@ -531,7 +532,7 @@ export function Contabilidad() {
                     <div className="font-medium">Endeudamiento Patrimonio</div>
                     <div className="text-xs text-slate-500">Pasivos / Patrimonio</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoPatrimonio <= 100 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.solvencia.endeudamientoPatrimonio <= 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.solvencia.endeudamientoPatrimonio)}
                   </div>
                 </div>
@@ -540,7 +541,7 @@ export function Contabilidad() {
                     <div className="font-medium">Autonomía</div>
                     <div className="text-xs text-slate-500">Patrimonio / Activos</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.solvencia.autonomia >= 50 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.solvencia.autonomia >= 50 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.solvencia.autonomia)}
                   </div>
                 </div>
@@ -558,7 +559,7 @@ export function Contabilidad() {
 
             {/* Rentabilidad */}
             <div className="bg-white rounded-lg border p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold text-green-800 mb-3 sm:mb-4 flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-emerald-800 mb-3 sm:mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" />
                 Ratios de Rentabilidad
               </h3>
@@ -569,7 +570,7 @@ export function Contabilidad() {
                     <div className="font-medium">ROA (Return on Assets)</div>
                     <div className="text-xs text-slate-500">Utilidad Neta / Activos</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.roa >= 5 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.roa >= 5 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.roa)}
                   </div>
                 </div>
@@ -578,7 +579,7 @@ export function Contabilidad() {
                     <div className="font-medium">ROE (Return on Equity)</div>
                     <div className="text-xs text-slate-500">Utilidad Neta / Patrimonio</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.roe >= 10 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.roe >= 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.roe)}
                   </div>
                 </div>
@@ -587,7 +588,7 @@ export function Contabilidad() {
                     <div className="font-medium">Margen Bruto</div>
                     <div className="text-xs text-slate-500">Utilidad Bruta / Ventas</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenBruto >= 30 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenBruto >= 30 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.margenBruto)}
                   </div>
                 </div>
@@ -596,7 +597,7 @@ export function Contabilidad() {
                     <div className="font-medium">Margen Neto</div>
                     <div className="text-xs text-slate-500">Utilidad Neta / Ventas</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenNeto >= 10 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.rentabilidad.margenNeto >= 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {formatPercent(indicadores.rentabilidad.margenNeto)}
                   </div>
                 </div>
@@ -625,7 +626,7 @@ export function Contabilidad() {
                     <div className="font-medium">Días de Inventario</div>
                     <div className="text-xs text-slate-500">365 / Rotación</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.actividad.diasInventario <= 60 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.actividad.diasInventario <= 60 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {indicadores.actividad.diasInventario.toFixed(0)} días
                   </div>
                 </div>
@@ -634,7 +635,7 @@ export function Contabilidad() {
                     <div className="font-medium">Días de Cobro</div>
                     <div className="text-xs text-slate-500">CxC / (Ventas/365)</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.actividad.diasCobro <= 30 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.actividad.diasCobro <= 30 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {indicadores.actividad.diasCobro.toFixed(0)} días
                   </div>
                 </div>
@@ -643,7 +644,7 @@ export function Contabilidad() {
                     <div className="font-medium">Días de Pago</div>
                     <div className="text-xs text-slate-500">CxP / (Compras/365)</div>
                   </div>
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold text-sky-600">
                     {indicadores.actividad.diasPago.toFixed(0)} días
                   </div>
                 </div>
@@ -652,7 +653,7 @@ export function Contabilidad() {
                     <div className="font-medium text-purple-800">Ciclo de Conversión</div>
                     <div className="text-xs text-purple-600">Días Inv + Cobro - Pago</div>
                   </div>
-                  <div className={`text-2xl font-bold ${indicadores.actividad.cicloConversionEfectivo <= 45 ? 'text-green-600' : 'text-amber-600'}`}>
+                  <div className={`text-2xl font-bold ${indicadores.actividad.cicloConversionEfectivo <= 45 ? 'text-emerald-600' : 'text-amber-600'}`}>
                     {indicadores.actividad.cicloConversionEfectivo.toFixed(0)} días
                   </div>
                 </div>
@@ -697,13 +698,13 @@ export function Contabilidad() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <div className="bg-white rounded-lg border p-4 sm:p-6">
               <div className="flex items-center gap-3 mb-2 sm:mb-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+                <div className="p-2 bg-emerald-100 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div className="text-sm text-slate-500">Mejor Mes</div>
               </div>
               <div className="text-xl sm:text-2xl font-bold text-slate-900">{mejorMes?.nombreMes || '-'}</div>
-              <div className="text-green-600 font-medium text-sm sm:text-base">
+              <div className="text-emerald-600 font-medium text-sm sm:text-base">
                 {mejorMes ? formatCurrency(mejorMes.utilidadNeta) : '-'}
               </div>
             </div>
@@ -716,22 +717,22 @@ export function Contabilidad() {
                 <div className="text-sm text-slate-500">Peor Mes</div>
               </div>
               <div className="text-xl sm:text-2xl font-bold text-slate-900">{peorMes?.nombreMes || '-'}</div>
-              <div className={`font-medium text-sm sm:text-base ${(peorMes?.utilidadNeta || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`font-medium text-sm sm:text-base ${(peorMes?.utilidadNeta || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {peorMes ? formatCurrency(peorMes.utilidadNeta) : '-'}
               </div>
             </div>
 
             <div className="bg-white rounded-lg border p-4 sm:p-6">
               <div className="flex items-center gap-3 mb-2 sm:mb-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <BarChart3 className="w-5 h-5 text-blue-600" />
+                <div className="p-2 bg-sky-100 rounded-lg">
+                  <BarChart3 className="w-5 h-5 text-sky-600" />
                 </div>
                 <div className="text-sm text-slate-500">Promedio Mensual</div>
               </div>
               <div className="text-xl sm:text-2xl font-bold text-slate-900">
                 {formatCurrency(promedioMensual)}
               </div>
-              <div className="text-blue-600 font-medium text-sm sm:text-base">
+              <div className="text-sky-600 font-medium text-sm sm:text-base">
                 {tendencia.length} meses
               </div>
             </div>
@@ -756,7 +757,7 @@ export function Contabilidad() {
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-semibold text-slate-900">{m.nombreMes}</span>
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        m.utilidadNeta >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                        m.utilidadNeta >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
                       }`}>
                         {m.utilidadNeta >= 0 ? '+' : ''}{margenNeto.toFixed(1)}% neto
                       </span>
@@ -778,7 +779,7 @@ export function Contabilidad() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">U. Bruta</span>
-                        <span className={`font-medium ${m.utilidadBruta >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                        <span className={`font-medium ${m.utilidadBruta >= 0 ? 'text-sky-600' : 'text-red-600'}`}>
                           {formatCurrency(m.utilidadBruta)}
                         </span>
                       </div>
@@ -792,7 +793,7 @@ export function Contabilidad() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">U. Neta</span>
-                        <span className={`font-bold ${m.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <span className={`font-bold ${m.utilidadNeta >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                           {formatCurrency(m.utilidadNeta)}
                         </span>
                       </div>
@@ -806,7 +807,7 @@ export function Contabilidad() {
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-bold text-slate-900">ACUMULADO {anio}</span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    acumuladoUtilidadNeta >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                    acumuladoUtilidadNeta >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
                   }`}>
                     {acumuladoUtilidadNeta >= 0 ? '+' : ''}{acumuladoVentas > 0 ? ((acumuladoUtilidadNeta / acumuladoVentas) * 100).toFixed(1) : '0.0'}% neto
                   </span>
@@ -822,11 +823,11 @@ export function Contabilidad() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">U. Bruta</span>
-                    <span className="font-bold text-blue-700">{formatCurrency(tendencia.reduce((s, m) => s + m.utilidadBruta, 0))}</span>
+                    <span className="font-bold text-sky-700">{formatCurrency(tendencia.reduce((s, m) => s + m.utilidadBruta, 0))}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">U. Neta</span>
-                    <span className={`font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    <span className={`font-bold ${acumuladoUtilidadNeta >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
                       {formatCurrency(acumuladoUtilidadNeta)}
                     </span>
                   </div>
@@ -835,53 +836,106 @@ export function Contabilidad() {
             </div>
 
             {/* Desktop: Tabla */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Mes</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Ventas</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Compras</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">U. Bruta</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Gastos Op.</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">EBIT</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">U. Neta</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {tendencia.map((m, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 font-medium text-slate-900">{m.nombreMes}</td>
-                      <td className="px-4 py-3 text-right text-slate-700">{formatCurrency(m.ventasNetas)}</td>
-                      <td className="px-4 py-3 text-right text-orange-600">{formatCurrency(m.compras)}</td>
-                      <td className="px-4 py-3 text-right text-blue-600">{formatCurrency(m.utilidadBruta)}</td>
-                      <td className="px-4 py-3 text-right text-slate-600">{formatCurrency(m.gastosOperativos)}</td>
-                      <td className="px-4 py-3 text-right text-purple-600">{formatCurrency(m.utilidadOperativa)}</td>
-                      <td className={`px-4 py-3 text-right font-semibold ${m.utilidadNeta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(m.utilidadNeta)}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr className="bg-slate-100 font-semibold">
-                    <td className="px-4 py-3 text-slate-900">TOTAL</td>
-                    <td className="px-4 py-3 text-right text-slate-900">{formatCurrency(acumuladoVentas)}</td>
-                    <td className="px-4 py-3 text-right text-orange-700">{formatCurrency(acumuladoCompras)}</td>
-                    <td className="px-4 py-3 text-right text-blue-700">
-                      {formatCurrency(tendencia.reduce((s, m) => s + m.utilidadBruta, 0))}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-700">
-                      {formatCurrency(tendencia.reduce((s, m) => s + m.gastosOperativos, 0))}
-                    </td>
-                    <td className="px-4 py-3 text-right text-purple-700">
-                      {formatCurrency(tendencia.reduce((s, m) => s + m.utilidadOperativa, 0))}
-                    </td>
-                    <td className={`px-4 py-3 text-right ${acumuladoUtilidadNeta >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                      {formatCurrency(acumuladoUtilidadNeta)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            {(() => {
+              type FilaTendencia = TendenciaMensual & { _esTotal?: boolean };
+              const acumUtilidadBruta = tendencia.reduce((s, m) => s + m.utilidadBruta, 0);
+              const acumGastosOperativos = tendencia.reduce((s, m) => s + m.gastosOperativos, 0);
+              const acumUtilidadOperativa = tendencia.reduce((s, m) => s + m.utilidadOperativa, 0);
+              const filaTotal: FilaTendencia = {
+                mes: 0,
+                anio,
+                nombreMes: 'TOTAL',
+                ventasNetas: acumuladoVentas,
+                compras: acumuladoCompras,
+                utilidadBruta: acumUtilidadBruta,
+                gastosOperativos: acumGastosOperativos,
+                utilidadOperativa: acumUtilidadOperativa,
+                utilidadNeta: acumuladoUtilidadNeta,
+                _esTotal: true,
+              };
+              const filas: FilaTendencia[] = [...tendencia, filaTotal];
+              const columnasTendencia: DataTableColumn<FilaTendencia>[] = [
+                {
+                  key: 'nombreMes',
+                  header: 'Mes',
+                  render: (m) => (
+                    <span className={m._esTotal ? 'font-semibold text-slate-900' : 'font-medium text-slate-900'}>
+                      {m.nombreMes}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'ventasNetas',
+                  header: 'Ventas',
+                  align: 'right',
+                  render: (m) => (
+                    <span className={m._esTotal ? 'font-semibold text-slate-900' : 'text-slate-700'}>
+                      {formatCurrency(m.ventasNetas)}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'compras',
+                  header: 'Compras',
+                  align: 'right',
+                  render: (m) => (
+                    <span className={m._esTotal ? 'font-semibold text-orange-700' : 'text-orange-600'}>
+                      {formatCurrency(m.compras)}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'utilidadBruta',
+                  header: 'U. Bruta',
+                  align: 'right',
+                  render: (m) => (
+                    <span className={m._esTotal ? 'font-semibold text-sky-700' : 'text-sky-600'}>
+                      {formatCurrency(m.utilidadBruta)}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'gastosOperativos',
+                  header: 'Gastos Op.',
+                  align: 'right',
+                  render: (m) => (
+                    <span className={m._esTotal ? 'font-semibold text-slate-700' : 'text-slate-600'}>
+                      {formatCurrency(m.gastosOperativos)}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'utilidadOperativa',
+                  header: 'EBIT',
+                  align: 'right',
+                  render: (m) => (
+                    <span className={m._esTotal ? 'font-semibold text-purple-700' : 'text-purple-600'}>
+                      {formatCurrency(m.utilidadOperativa)}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'utilidadNeta',
+                  header: 'U. Neta',
+                  align: 'right',
+                  render: (m) => (
+                    <span className={`font-semibold ${m.utilidadNeta >= 0 ? (m._esTotal ? 'text-emerald-700' : 'text-emerald-600') : (m._esTotal ? 'text-red-700' : 'text-red-600')}`}>
+                      {formatCurrency(m.utilidadNeta)}
+                    </span>
+                  ),
+                },
+              ];
+              return (
+                <div className="hidden md:block">
+                  <DataTable
+                    data={filas}
+                    columns={columnasTendencia}
+                    keyExtractor={(m) => m._esTotal ? '__total__' : m.nombreMes}
+                    compact
+                  />
+                </div>
+              );
+            })()}
           </div>
 
           {/* Gráfico visual — Utilidad Neta por Mes */}
@@ -898,11 +952,11 @@ export function Contabilidad() {
                     <div className="w-12 sm:w-20 text-xs sm:text-sm text-slate-600 shrink-0">{m.nombreMes.slice(0, 3)}</div>
                     <div className="flex-1 h-5 sm:h-6 bg-slate-100 rounded-full overflow-hidden relative">
                       <div
-                        className={`h-full rounded-full transition-all ${isPositive ? 'bg-green-500' : 'bg-red-500'}`}
+                        className={`h-full rounded-full transition-all ${isPositive ? 'bg-emerald-500' : 'bg-red-500'}`}
                         style={{ width: `${width}%` }}
                       />
                     </div>
-                    <div className={`w-20 sm:w-28 text-right text-xs sm:text-sm font-medium shrink-0 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`w-20 sm:w-28 text-right text-xs sm:text-sm font-medium shrink-0 ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
                       {formatCurrency(m.utilidadNeta)}
                     </div>
                   </div>

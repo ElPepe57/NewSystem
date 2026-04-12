@@ -253,9 +253,9 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
             <p className="text-lg font-bold text-slate-900 tabular-nums">{resumen.totalProductos}</p>
             <p className="text-[10px] sm:text-xs text-slate-500">Productos</p>
           </div>
-          <div className="bg-green-50 border border-green-200 rounded-lg p-2.5 text-center">
-            <p className="text-lg font-bold text-green-700 tabular-nums">{resumen.coincidencias}</p>
-            <p className="text-[10px] sm:text-xs text-green-600">Coinciden</p>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-center">
+            <p className="text-lg font-bold text-emerald-700 tabular-nums">{resumen.coincidencias}</p>
+            <p className="text-[10px] sm:text-xs text-emerald-600">Coinciden</p>
           </div>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-center">
             <p className="text-lg font-bold text-amber-700 tabular-nums">{resumen.sobrantes}</p>
@@ -310,7 +310,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                   Sistema: <span className="font-medium text-slate-700">{item.modeData.stockSistema}</span>
                 </span>
                 {disc === 0 ? (
-                  <span className="inline-flex items-center gap-0.5 text-green-600">
+                  <span className="inline-flex items-center gap-0.5 text-emerald-600">
                     <CheckCircle2 className="h-3 w-3" /> Coincide
                   </span>
                 ) : disc > 0 ? (
@@ -409,13 +409,13 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                     {/* Indicador de estado */}
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
                       r.faltantes === 0 && r.sobrantes === 0
-                        ? 'bg-green-100'
+                        ? 'bg-emerald-100'
                         : r.faltantes > 0
                           ? 'bg-red-100'
                           : 'bg-amber-100'
                     }`}>
                       {r.faltantes === 0 && r.sobrantes === 0
-                        ? <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        ? <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                         : r.faltantes > 0
                           ? <XCircle className="h-4 w-4 text-red-600" />
                           : <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -429,7 +429,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                       <div className="flex items-center gap-3 mt-1 text-xs">
                         <span className="text-slate-500">{r.totalProductos} prod.</span>
                         {r.coincidencias > 0 && (
-                          <span className="text-green-600">{r.coincidencias} OK</span>
+                          <span className="text-emerald-600">{r.coincidencias} OK</span>
                         )}
                         {r.sobrantes > 0 && (
                           <span className="text-amber-600">+{r.sobrantes} sobr.</span>
@@ -454,9 +454,9 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                           <p className="text-sm font-bold text-slate-900 tabular-nums">{r.totalProductos}</p>
                           <p className="text-[9px] text-slate-500">Total</p>
                         </div>
-                        <div className="bg-green-50 rounded p-1.5 text-center border border-green-100">
-                          <p className="text-sm font-bold text-green-700 tabular-nums">{r.coincidencias}</p>
-                          <p className="text-[9px] text-green-600">Coinciden</p>
+                        <div className="bg-emerald-50 rounded p-1.5 text-center border border-emerald-100">
+                          <p className="text-sm font-bold text-emerald-700 tabular-nums">{r.coincidencias}</p>
+                          <p className="text-[9px] text-emerald-600">Coinciden</p>
                         </div>
                         <div className="bg-amber-50 rounded p-1.5 text-center border border-amber-100">
                           <p className="text-sm font-bold text-amber-700 tabular-nums">{r.sobrantes}</p>
@@ -493,7 +493,7 @@ export const ModoAuditoria = forwardRef<ModoAuditoriaHandle>((_props, ref) => {
                                   <span className="text-slate-400"> / {item.stockSistema}</span>
                                 </p>
                                 {disc === 0 ? (
-                                  <span className="text-green-600 flex items-center gap-0.5 justify-end">
+                                  <span className="text-emerald-600 flex items-center gap-0.5 justify-end">
                                     <CheckCircle2 className="h-3 w-3" /> OK
                                   </span>
                                 ) : disc > 0 ? (

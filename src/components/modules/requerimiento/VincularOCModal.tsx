@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';
 import { Link2, Package, User, CheckCircle2, AlertTriangle, Search } from 'lucide-react';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { OrdenCompraService } from '../../../services/ordenCompra.service';
 import { requerimientoService } from '../../../services/requerimiento.service';
 import type { OrdenCompra } from '../../../types/ordenCompra.types';
@@ -147,21 +149,21 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
     >
       <div className="space-y-5">
         {/* Info del cliente y productos faltantes */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-sky-50 border border-sky-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">
-            <User className="h-4 w-4 text-blue-600" />
-            <span className="font-semibold text-blue-900">{venta.nombreCliente}</span>
-            <span className="text-sm text-blue-600">({venta.numeroVenta})</span>
+            <User className="h-4 w-4 text-sky-600" />
+            <span className="font-semibold text-sky-900">{venta.nombreCliente}</span>
+            <span className="text-sm text-sky-600">({venta.numeroVenta})</span>
           </div>
-          <div className="text-sm text-blue-800 mb-2">Productos con faltante de stock:</div>
+          <div className="text-sm text-sky-800 mb-2">Productos con faltante de stock:</div>
           <div className="space-y-1">
             {productosVenta.map(p => {
               const faltante = productosFaltantes.find(f => f.nombre.includes(p.nombreComercial));
               const cant = faltante ? faltante.solicitados - faltante.disponibles : p.cantidad;
               return (
                 <div key={p.productoId} className="flex justify-between text-sm">
-                  <span className="text-blue-700">{p.nombreComercial}</span>
-                  <span className="font-medium text-blue-900">{cant} unidades</span>
+                  <span className="text-sky-700">{p.nombreComercial}</span>
+                  <span className="font-medium text-sky-900">{cant} unidades</span>
                 </div>
               );
             })}
@@ -170,12 +172,12 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
 
         {/* Resultado exitoso */}
         {resultado?.success && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <span className="font-semibold text-green-900">Vinculado exitosamente</span>
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <span className="font-semibold text-emerald-900">Vinculado exitosamente</span>
             </div>
-            <div className="text-sm text-green-800 space-y-1">
+            <div className="text-sm text-emerald-800 space-y-1">
               <p>Requerimiento creado: <strong>{resultado.requerimientoNumero}</strong></p>
               <p>Unidades reservadas: <strong>{resultado.unidadesReservadas}</strong></p>
               {resultado.detalles?.some(d => d.faltantes > 0) && (
@@ -240,39 +242,55 @@ export const VincularOCModal: React.FC<VincularOCModalProps> = ({
                     Preview de vinculación con {selectedOC.numeroOrden}
                   </span>
                 </div>
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-slate-600">Producto</th>
-                      <th className="px-4 py-2 text-center text-slate-600">Necesita</th>
-                      <th className="px-4 py-2 text-center text-slate-600">En OC</th>
-                      <th className="px-4 py-2 text-center text-slate-600">Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {preview.map(p => (
-                      <tr key={p.productoId}>
-                        <td className="px-4 py-2">
+                {(() => {
+                  type PreviewItem = (typeof preview)[0];
+                  const cols: DataTableColumn<PreviewItem>[] = [
+                    {
+                      key: 'producto',
+                      header: 'Producto',
+                      render: (p) => (
+                        <>
                           <div className="font-medium text-slate-900">{p.nombre}</div>
                           <div className="text-xs text-slate-500">{p.marca}</div>
-                        </td>
-                        <td className="px-4 py-2 text-center">{p.cantidadNecesaria}</td>
-                        <td className="px-4 py-2 text-center">{p.cantidadEnOC}</td>
-                        <td className="px-4 py-2 text-center">
-                          {p.disponible ? (
-                            p.cantidadEnOC >= p.cantidadNecesaria ? (
-                              <span className="text-green-600 font-medium">Suficiente</span>
-                            ) : (
-                              <span className="text-amber-600 font-medium">Parcial</span>
-                            )
-                          ) : (
-                            <span className="text-red-500 font-medium">No encontrado</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'necesita',
+                      header: 'Necesita',
+                      align: 'center',
+                      render: (p) => p.cantidadNecesaria,
+                    },
+                    {
+                      key: 'en_oc',
+                      header: 'En OC',
+                      align: 'center',
+                      render: (p) => p.cantidadEnOC,
+                    },
+                    {
+                      key: 'estado',
+                      header: 'Estado',
+                      align: 'center',
+                      render: (p) => p.disponible ? (
+                        p.cantidadEnOC >= p.cantidadNecesaria ? (
+                          <span className="text-emerald-600 font-medium">Suficiente</span>
+                        ) : (
+                          <span className="text-amber-600 font-medium">Parcial</span>
+                        )
+                      ) : (
+                        <span className="text-red-500 font-medium">No encontrado</span>
+                      ),
+                    },
+                  ];
+                  return (
+                    <DataTable
+                      columns={cols}
+                      data={preview}
+                      keyExtractor={(p) => p.productoId}
+                      compact
+                    />
+                  );
+                })()}
 
                 {productosCoincidentes.length === 0 && (
                   <div className="p-4 text-center text-amber-600 bg-amber-50">

@@ -66,11 +66,11 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
       case 'info':
       default:
         return {
-          bg: 'bg-blue-50',
-          border: 'border-blue-200',
-          icon: 'text-blue-500',
-          text: 'text-blue-800',
-          badge: 'bg-blue-100 text-blue-700'
+          bg: 'bg-sky-50',
+          border: 'border-sky-200',
+          icon: 'text-sky-500',
+          text: 'text-sky-800',
+          badge: 'bg-sky-100 text-sky-700'
         };
     }
   };
@@ -137,7 +137,7 @@ export const AlertasInvestigacion: React.FC<AlertasInvestigacionProps> = ({
             <button
               type="button"
               onClick={onMarcarTodasLeidas}
-              className="text-xs text-blue-600 hover:text-blue-800"
+              className="text-xs text-sky-600 hover:text-sky-800"
             >
               Marcar todas como leídas
             </button>

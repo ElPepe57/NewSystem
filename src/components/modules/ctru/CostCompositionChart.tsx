@@ -47,7 +47,7 @@ export const CostCompositionChart: React.FC<CostCompositionChartProps> = ({ prod
   const pct = (v: number) => costoTotal > 0 ? (v / costoTotal) * 100 : 0;
 
   const segments = [
-    { label: 'Compra', value: compraProm, pct: pct(compraProm), color: 'bg-blue-500', dotColor: 'bg-blue-500', textColor: 'text-blue-700' },
+    { label: 'Compra', value: compraProm, pct: pct(compraProm), color: 'bg-sky-500', dotColor: 'bg-sky-500', textColor: 'text-sky-700' },
     { label: 'Adic. OC', value: adicOCProm, pct: pct(adicOCProm), color: 'bg-amber-400', dotColor: 'bg-amber-400', textColor: 'text-amber-700' },
     { label: 'Flete Intl', value: fleteIntlProm, pct: pct(fleteIntlProm), color: 'bg-orange-500', dotColor: 'bg-orange-500', textColor: 'text-orange-700' },
     { label: 'Gastos Fijos', value: gagoProm, pct: pct(gagoProm), color: 'bg-purple-500', dotColor: 'bg-purple-500', textColor: 'text-purple-700' },
@@ -103,7 +103,7 @@ export const CostCompositionChart: React.FC<CostCompositionChartProps> = ({ prod
             </div>
             <div>
               <span className="text-xs text-slate-400">Margen</span>
-              <div className={`text-base font-bold ${margenPct >= 20 ? 'text-green-600' : margenPct >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
+              <div className={`text-base font-bold ${margenPct >= 20 ? 'text-emerald-600' : margenPct >= 10 ? 'text-amber-600' : 'text-red-600'}`}>
                 {formatCurrency(margen)} ({margenPct.toFixed(1)}%)
               </div>
             </div>

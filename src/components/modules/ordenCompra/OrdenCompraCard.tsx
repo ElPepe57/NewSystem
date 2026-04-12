@@ -290,7 +290,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             {orden.tcReferencial && orden.tcPago && orden.tcReferencial !== orden.tcPago && (
               <div className="flex justify-between items-center text-xs bg-slate-50 rounded px-2 py-1">
                 <span className="text-slate-500">TC Ref: {orden.tcReferencial.toFixed(3)} → Pago: {orden.tcPago.toFixed(3)}</span>
-                <span className={`font-medium ${orden.tcPago > orden.tcReferencial ? 'text-red-600' : 'text-green-600'}`}>
+                <span className={`font-medium ${orden.tcPago > orden.tcReferencial ? 'text-red-600' : 'text-emerald-600'}`}>
                   {orden.tcPago > orden.tcReferencial ? '+' : ''}{((orden.tcPago - orden.tcReferencial) / orden.tcReferencial * 100).toFixed(2)}% FX
                 </span>
               </div>
@@ -396,7 +396,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                               <div className="text-amber-600">+${impuestoPorUnidad.toFixed(2)} <span className="text-[9px] text-amber-500">tax</span></div>
                             )}
                             {hasEnvio && (
-                              <div className="text-blue-600">+${envioPorUd.toFixed(2)} <span className="text-[9px] text-blue-400">envío</span></div>
+                              <div className="text-sky-600">+${envioPorUd.toFixed(2)} <span className="text-[9px] text-sky-400">envío</span></div>
                             )}
                             {hasOtros && (
                               <div className="text-slate-500">+${otrosPorUd.toFixed(2)} <span className="text-[9px] text-slate-400">otros</span></div>
@@ -425,7 +425,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     <td className="px-2 py-2 text-right">
                       <div className="space-y-0.5 text-[11px]">
                         {hasImpuesto && <div className="text-amber-700 font-medium">+${impuestoTotal.toFixed(2)} <span className="text-[9px]">tax</span></div>}
-                        {hasEnvio && <div className="text-blue-700 font-medium">+${envioTotal.toFixed(2)} <span className="text-[9px]">envío</span></div>}
+                        {hasEnvio && <div className="text-sky-700 font-medium">+${envioTotal.toFixed(2)} <span className="text-[9px]">envío</span></div>}
                         {hasOtros && <div className="text-slate-600 font-medium">+${otrosTotal.toFixed(2)} <span className="text-[9px]">otros</span></div>}
                         {hasDescuento && <div className="text-emerald-700 font-medium">-${descuentoTotal.toFixed(2)} <span className="text-[9px]">desc.</span></div>}
                       </div>
@@ -439,13 +439,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               </table>
 
               {/* Leyenda explicativa */}
-              <div className="px-3 py-2 bg-blue-50 border-t border-blue-200">
+              <div className="px-3 py-2 bg-sky-50 border-t border-sky-200">
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                  <span className="text-blue-700">
+                  <span className="text-sky-700">
                     <strong>TC:</strong> S/ {tc.toFixed(2)}
                   </span>
                 </div>
-                <div className="mt-1 text-[10px] text-blue-600">
+                <div className="mt-1 text-[10px] text-sky-600">
                   * Tax uniforme por unidad · Envío, otros y descuento prorrateados por costo base
                 </div>
               </div>
@@ -511,7 +511,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </div>
           <div className="w-full bg-slate-200 rounded-full h-2">
             <div
-              className={`h-2 rounded-full transition-all ${totalRecibido >= totalOrdenado ? 'bg-green-500' : 'bg-amber-500'}`}
+              className={`h-2 rounded-full transition-all ${totalRecibido >= totalOrdenado ? 'bg-emerald-500' : 'bg-amber-500'}`}
               style={{ width: `${totalOrdenado > 0 ? (totalRecibido / totalOrdenado) * 100 : 0}%` }}
             />
           </div>
@@ -524,12 +524,12 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   <div className="w-40 truncate text-slate-700" title={p.nombreComercial}>{p.nombreComercial}</div>
                   <div className="flex-1 bg-slate-200 rounded-full h-1.5">
                     <div
-                      className={`h-1.5 rounded-full ${pct >= 100 ? 'bg-green-500' : 'bg-amber-500'}`}
+                      className={`h-1.5 rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
                       style={{ width: `${Math.min(pct, 100)}%` }}
                     />
                   </div>
                   <div className="w-24 text-right text-slate-600">
-                    <span className={recibido >= p.cantidad ? 'text-green-600 font-medium' : ''}>
+                    <span className={recibido >= p.cantidad ? 'text-emerald-600 font-medium' : ''}>
                       {recibido}/{p.cantidad}
                     </span>
                   </div>

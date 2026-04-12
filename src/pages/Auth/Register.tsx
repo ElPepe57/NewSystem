@@ -102,7 +102,7 @@ export const Register: React.FC = () => {
           <div className="flex justify-center mb-3">
             <VitaSkinLogo className="h-16 w-16 drop-shadow-lg" />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-700 to-teal-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-slate-900">
             Crear Cuenta
           </h1>
           <p className="text-slate-500 mt-1 text-sm">

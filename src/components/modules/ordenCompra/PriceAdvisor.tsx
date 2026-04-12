@@ -121,11 +121,11 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
     switch (color) {
       case 'green':
         return {
-          bg: 'bg-green-50',
-          border: 'border-green-200',
-          text: 'text-green-700',
-          icon: 'text-green-500',
-          progress: 'bg-green-500'
+          bg: 'bg-emerald-50',
+          border: 'border-emerald-200',
+          text: 'text-emerald-700',
+          icon: 'text-emerald-500',
+          progress: 'bg-emerald-500'
         };
       case 'yellow':
         return {
@@ -168,7 +168,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
       case 'subiendo':
         return <TrendingUp className="h-4 w-4 text-red-500" />;
       case 'bajando':
-        return <TrendingDown className="h-4 w-4 text-green-500" />;
+        return <TrendingDown className="h-4 w-4 text-emerald-500" />;
       default:
         return <Minus className="h-4 w-4 text-slate-500" />;
     }
@@ -292,7 +292,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
               <div className="text-xs text-slate-500 mb-1">vs Promedio</div>
               <div className={`text-sm font-semibold ${
                 analysis.evaluacion.vsPromedioHistorico > 5 ? 'text-red-600' :
-                analysis.evaluacion.vsPromedioHistorico < -5 ? 'text-green-600' : 'text-slate-700'
+                analysis.evaluacion.vsPromedioHistorico < -5 ? 'text-emerald-600' : 'text-slate-700'
               }`}>
                 {analysis.evaluacion.vsPromedioHistorico > 0 ? '+' : ''}
                 {analysis.evaluacion.vsPromedioHistorico.toFixed(1)}%
@@ -305,7 +305,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
               <div className="text-xs text-slate-500 mb-1">vs Investigación</div>
               <div className={`text-sm font-semibold ${
                 analysis.evaluacion.vsInvestigacion > 5 ? 'text-red-600' :
-                analysis.evaluacion.vsInvestigacion < -5 ? 'text-green-600' : 'text-slate-700'
+                analysis.evaluacion.vsInvestigacion < -5 ? 'text-emerald-600' : 'text-slate-700'
               }`}>
                 {analysis.evaluacion.vsInvestigacion > 0 ? '+' : ''}
                 {analysis.evaluacion.vsInvestigacion.toFixed(1)}%
@@ -317,7 +317,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             <div className="text-xs text-slate-500 mb-1">Margen Est.</div>
             <div className={`text-sm font-semibold ${
               analysis.proyeccionRentabilidad.margenEstimado < 15 ? 'text-red-600' :
-              analysis.proyeccionRentabilidad.margenEstimado < 25 ? 'text-yellow-600' : 'text-green-600'
+              analysis.proyeccionRentabilidad.margenEstimado < 25 ? 'text-yellow-600' : 'text-emerald-600'
             }`}>
               {analysis.proyeccionRentabilidad.margenEstimado.toFixed(1)}%
             </div>
@@ -358,22 +358,22 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
               <div
                 key={index}
                 className={`p-3 rounded-lg flex items-start gap-3 ${
-                  alerta.tipo === 'success' ? 'bg-green-50 border border-green-200' :
+                  alerta.tipo === 'success' ? 'bg-emerald-50 border border-emerald-200' :
                   alerta.tipo === 'warning' ? 'bg-yellow-50 border border-yellow-200' :
                   alerta.tipo === 'danger' ? 'bg-red-50 border border-red-200' :
-                  'bg-blue-50 border border-blue-200'
+                  'bg-sky-50 border border-sky-200'
                 }`}
               >
-                {alerta.tipo === 'success' && <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />}
+                {alerta.tipo === 'success' && <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />}
                 {alerta.tipo === 'warning' && <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
                 {alerta.tipo === 'danger' && <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />}
-                {alerta.tipo === 'info' && <Info className="h-5 w-5 text-blue-500 flex-shrink-0" />}
+                {alerta.tipo === 'info' && <Info className="h-5 w-5 text-sky-500 flex-shrink-0" />}
                 <div className="flex-1">
                   <p className={`text-sm font-medium ${
-                    alerta.tipo === 'success' ? 'text-green-800' :
+                    alerta.tipo === 'success' ? 'text-emerald-800' :
                     alerta.tipo === 'warning' ? 'text-yellow-800' :
                     alerta.tipo === 'danger' ? 'text-red-800' :
-                    'text-blue-800'
+                    'text-sky-800'
                   }`}>
                     {alerta.titulo}
                   </p>
@@ -387,14 +387,14 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
 
             {/* Ahorro potencial */}
             {analysis.analisisAhorro && (
-              <div className="p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
+              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <span className="text-sm font-semibold text-green-800">
+                  <DollarSign className="h-5 w-5 text-emerald-600" />
+                  <span className="text-sm font-semibold text-emerald-800">
                     Oportunidad de ahorro
                   </span>
                 </div>
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-emerald-700">
                   {analysis.analisisAhorro.mensaje}
                 </p>
                 {onUsarPrecioSugerido && (
@@ -406,7 +406,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                         onUsarPrecioSugerido(mejorProveedor.precioConImpuesto);
                       }
                     }}
-                    className="mt-2 text-xs font-medium text-green-700 hover:text-green-800 underline"
+                    className="mt-2 text-xs font-medium text-emerald-700 hover:text-emerald-800 underline"
                   >
                     Usar precio sugerido
                   </button>
@@ -425,7 +425,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   <div className="text-center p-2 bg-slate-50 rounded-lg">
                     <div className="text-xs text-slate-500">Mínimo</div>
-                    <div className="text-sm font-semibold text-green-600">
+                    <div className="text-sm font-semibold text-emerald-600">
                       ${analysis.estadisticasHistorico.minimo.toFixed(2)}
                     </div>
                   </div>
@@ -486,27 +486,27 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                     key={index}
                     className={`p-3 rounded-lg border ${
                       prov.esRecomendado
-                        ? 'bg-green-50 border-green-200'
+                        ? 'bg-emerald-50 border-emerald-200'
                         : prov.esActual
-                        ? 'bg-blue-50 border-blue-200'
+                        ? 'bg-sky-50 border-sky-200'
                         : 'bg-slate-50 border-slate-200'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className={`font-medium ${
-                          prov.esRecomendado ? 'text-green-700' :
-                          prov.esActual ? 'text-blue-700' : 'text-slate-700'
+                          prov.esRecomendado ? 'text-emerald-700' :
+                          prov.esActual ? 'text-sky-700' : 'text-slate-700'
                         }`}>
                           {prov.nombre}
                         </span>
                         {prov.esRecomendado && (
-                          <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
+                          <span className="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-700 rounded-full">
                             Recomendado
                           </span>
                         )}
                         {prov.esActual && (
-                          <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full">
+                          <span className="px-2 py-0.5 text-xs bg-sky-100 text-sky-700 rounded-full">
                             Actual
                           </span>
                         )}
@@ -527,7 +527,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                       {prov.impuesto > 0 && <span>Tax: {prov.impuesto}%</span>}
                       {prov.envioEstimado > 0 && <span>Envío: ${prov.envioEstimado.toFixed(2)}</span>}
                       <span className={`px-1.5 py-0.5 rounded ${
-                        prov.disponibilidad === 'en_stock' ? 'bg-green-100 text-green-700' :
+                        prov.disponibilidad === 'en_stock' ? 'bg-emerald-100 text-emerald-700' :
                         prov.disponibilidad === 'bajo_stock' ? 'bg-yellow-100 text-yellow-700' :
                         prov.disponibilidad === 'sin_stock' ? 'bg-red-100 text-red-700' :
                         'bg-slate-100 text-slate-600'
@@ -561,7 +561,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             {/* Info de investigación */}
             {analysis.tieneInvestigacion && (
               <div className={`mt-3 p-2 rounded text-xs ${
-                analysis.investigacionVigente ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
+                analysis.investigacionVigente ? 'bg-emerald-50 text-emerald-700' : 'bg-yellow-50 text-yellow-700'
               }`}>
                 {analysis.investigacionVigente
                   ? `Investigación vigente (${analysis.diasDesdeInvestigacion} días)`
@@ -601,8 +601,8 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             </div>
 
             {/* Proyección de venta */}
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <h5 className="text-sm font-medium text-blue-700 mb-3 flex items-center gap-2">
+            <div className="p-3 bg-sky-50 rounded-lg">
+              <h5 className="text-sm font-medium text-sky-700 mb-3 flex items-center gap-2">
                 <Target className="h-4 w-4" />
                 Proyección de Venta
               </h5>
@@ -614,7 +614,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                 <div className="flex justify-between">
                   <span className="text-slate-600">Ganancia por unidad:</span>
                   <span className={`font-medium ${
-                    (analysis.proyeccionRentabilidad?.gananciaPorUnidad || 0) > 0 ? 'text-green-600' : 'text-red-600'
+                    (analysis.proyeccionRentabilidad?.gananciaPorUnidad || 0) > 0 ? 'text-emerald-600' : 'text-red-600'
                   }`}>
                     S/ {(analysis.proyeccionRentabilidad?.gananciaPorUnidad || 0).toFixed(2)}
                   </span>
@@ -622,7 +622,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                 <div className="flex justify-between">
                   <span className="text-slate-600">Margen estimado:</span>
                   <span className={`font-semibold ${
-                    (analysis.proyeccionRentabilidad?.margenEstimado || 0) >= 25 ? 'text-green-600' :
+                    (analysis.proyeccionRentabilidad?.margenEstimado || 0) >= 25 ? 'text-emerald-600' :
                     (analysis.proyeccionRentabilidad?.margenEstimado || 0) >= 15 ? 'text-yellow-600' : 'text-red-600'
                   }`}>
                     {(analysis.proyeccionRentabilidad?.margenEstimado || 0).toFixed(1)}%
@@ -635,7 +635,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
             {analysis.proyeccionRentabilidad?.vsCompetenciaPeru && (
               <div className={`p-3 rounded-lg ${
                 analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_barato'
-                  ? 'bg-green-50'
+                  ? 'bg-emerald-50'
                   : analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_caro'
                   ? 'bg-red-50'
                   : 'bg-slate-50'
@@ -648,7 +648,7 @@ export const PriceAdvisor: React.FC<PriceAdvisorProps> = ({
                     Promedio competencia: S/ {(analysis.proyeccionRentabilidad.vsCompetenciaPeru.precioPromedio || 0).toFixed(2)}
                   </span>
                   <span className={`text-sm font-medium ${
-                    analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_barato' ? 'text-green-600' :
+                    analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_barato' ? 'text-emerald-600' :
                     analysis.proyeccionRentabilidad.vsCompetenciaPeru.posicion === 'mas_caro' ? 'text-red-600' : 'text-slate-600'
                   }`}>
                     {(analysis.proyeccionRentabilidad.vsCompetenciaPeru.porcentaje || 0) > 0 ? '+' : ''}

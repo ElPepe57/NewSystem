@@ -2,20 +2,17 @@ import React, { useState, useMemo } from 'react';
 import { formatCurrency } from '../../../utils/format';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import {
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
   Package,
   AlertTriangle,
   Clock,
-  DollarSign,
-  TrendingUp,
   Search,
-  ArrowUpDown
+  ArrowUpDown,
 } from 'lucide-react';
 import { Badge, LineaNegocioBadge } from '../../common';
+import { DataTable } from '../../../design-system';
+import type { DataTableColumn } from '../../../design-system';
 import { UnidadesDesglose } from './UnidadesDesglose';
-import type { Unidad, EstadoUnidad } from '../../../types/unidad.types';
+import type { Unidad } from '../../../types/unidad.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen } from '../../../utils/multiOrigen.helpers';
 
 // Interfaz para producto con sus unidades agrupadas
@@ -59,7 +56,7 @@ interface ProductoInventarioTableProps {
   filtroEstado?: string | null;
 }
 
-// Configuración de ordenamiento
+// Configuracion de ordenamiento
 type SortKey = 'sku' | 'nombre' | 'origen' | 'transito' | 'peru' | 'resOrigen' | 'resPeru' | 'vendidas' | 'total' | 'valor' | 'vencer';
 type SortDirection = 'asc' | 'desc';
 
@@ -67,6 +64,20 @@ interface SortConfig {
   key: SortKey;
   direction: SortDirection;
 }
+
+const SORT_KEY_LABELS: Record<SortKey, string> = {
+  sku: 'SKU',
+  nombre: 'Nombre',
+  origen: 'Origen',
+  transito: 'Transito',
+  peru: 'Peru',
+  resOrigen: 'Res. Origen',
+  resPeru: 'Res. Peru',
+  vendidas: 'Vendidas',
+  total: 'Total',
+  valor: 'Valor',
+  vencer: 'Por Vencer',
+};
 
 export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = ({
   productos,
@@ -78,7 +89,6 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
   const [busqueda, setBusqueda] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
 
-  // Función para obtener el valor de ordenamiento
   const getSortValue = (producto: ProductoConUnidades, key: SortKey): number | string => {
     switch (key) {
       case 'sku': return producto.sku.toLowerCase();
@@ -96,11 +106,9 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
     }
   };
 
-  // Filtrar y ordenar productos
   const productosFiltrados = useMemo(() => {
     let resultado = Array.isArray(productos) ? productos : [];
 
-    // Filtrar por búsqueda (con validación segura)
     if (busqueda) {
       const term = busqueda.toLowerCase();
       resultado = resultado.filter(p => {
@@ -112,12 +120,10 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
       });
     }
 
-    // Ordenar
     if (sortConfig) {
       resultado = [...resultado].sort((a, b) => {
         const aValue = getSortValue(a, sortConfig.key);
         const bValue = getSortValue(b, sortConfig.key);
-
         if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
         if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
         return 0;
@@ -127,52 +133,18 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
     return resultado;
   }, [productos, busqueda, sortConfig]);
 
-  // Handler para cambiar ordenamiento
   const handleSort = (key: SortKey) => {
     setSortConfig(current => {
       if (current?.key === key) {
-        // Si ya está ordenado por esta columna, cambiar dirección o quitar
-        if (current.direction === 'asc') {
-          return { key, direction: 'desc' };
-        } else {
-          return null; // Quitar ordenamiento
-        }
+        return current.direction === 'asc' ? { key, direction: 'desc' } : null;
       }
-      // Nueva columna, ordenar ascendente
       return { key, direction: 'asc' };
     });
   };
 
-  // Componente para header ordenable
-  const SortableHeader: React.FC<{
-    sortKey: SortKey;
-    children: React.ReactNode;
-    className?: string;
-  }> = ({ sortKey, children, className = '' }) => {
-    const isActive = sortConfig?.key === sortKey;
-    const direction = isActive ? sortConfig.direction : null;
-
-    return (
-      <th
-        className={`px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none ${className}`}
-        onClick={() => handleSort(sortKey)}
-      >
-        <div className="flex items-center justify-center gap-1">
-          <span>{children}</span>
-          <span className="w-4 h-4 flex items-center justify-center">
-            {isActive ? (
-              direction === 'asc' ? (
-                <ChevronUp className="h-3.5 w-3.5 text-teal-600" />
-              ) : (
-                <ChevronDown className="h-3.5 w-3.5 text-teal-600" />
-              )
-            ) : (
-              <ArrowUpDown className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-100" />
-            )}
-          </span>
-        </div>
-      </th>
-    );
+  // Handler de sort del DataTable — recibe key como string
+  const handleDataTableSort = (key: string) => {
+    handleSort(key as SortKey);
   };
 
   const toggleRow = (productoId: string) => {
@@ -187,36 +159,20 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
     });
   };
 
-  const expandAll = () => {
-    setExpandedRows(new Set(productosFiltrados.map(p => p.productoId)));
-  };
+  const expandAll = () => setExpandedRows(new Set(productosFiltrados.map(p => p.productoId)));
+  const collapseAll = () => setExpandedRows(new Set());
 
-  const collapseAll = () => {
-    setExpandedRows(new Set());
-  };
-
-  // formatCurrency importado de utils/format (USD por defecto)
-
-  // Obtener unidades filtradas por estado si hay filtro activo
   const getUnidadesFiltradas = (producto: ProductoConUnidades): Unidad[] => {
     if (!filtroEstado) return producto.unidades;
-
     return producto.unidades.filter(u => {
       switch (filtroEstado) {
-        case 'en_origen':
-          return esEstadoEnOrigen(u.estado);
-        case 'en_transito':
-          return esEstadoEnTransitoOrigen(u.estado) || u.estado === 'en_transito_peru';
-        case 'disponible_peru':
-          return u.estado === 'disponible_peru';
-        case 'reservada':
-          return u.estado === 'reservada';
-        case 'vendida':
-          return u.estado === 'vendida';
-        case 'problemas':
-          return u.estado === 'vencida' || u.estado === 'danada';
-        default:
-          return true;
+        case 'en_origen': return esEstadoEnOrigen(u.estado);
+        case 'en_transito': return esEstadoEnTransitoOrigen(u.estado) || u.estado === 'en_transito_peru';
+        case 'disponible_peru': return u.estado === 'disponible_peru';
+        case 'reservada': return u.estado === 'reservada';
+        case 'vendida': return u.estado === 'vendida';
+        case 'problemas': return u.estado === 'vencida' || u.estado === 'danada';
+        default: return true;
       }
     });
   };
@@ -235,15 +191,148 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
         <Package className="mx-auto h-12 w-12 text-slate-400" />
         <h3 className="mt-2 text-sm font-medium text-slate-900">No hay productos en inventario</h3>
         <p className="mt-1 text-sm text-slate-500">
-          Las unidades se crean automáticamente al recibir órdenes de compra
+          Las unidades se crean automaticamente al recibir ordenes de compra
         </p>
       </div>
     );
   }
 
+  const columns: DataTableColumn<ProductoConUnidades>[] = [
+    {
+      key: 'sku',
+      header: 'Producto',
+      sortable: true,
+      render: (producto) => (
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+            <Package className="h-5 w-5 text-slate-400" />
+          </div>
+          <div className="min-w-0">
+            <div className="font-medium text-slate-900 truncate">{producto.sku}</div>
+            <div className="text-sm text-slate-500 truncate">{producto.marca} · {producto.nombre}</div>
+            <div className="text-xs text-slate-400">{getDescripcionProducto(producto) || producto.grupo}</div>
+            <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'origen',
+      header: 'Origen',
+      align: 'center',
+      sortable: true,
+      hideOnMobile: true,
+      render: (producto) => (
+        <span className="text-sm font-medium text-sky-600">{producto.enOrigen}</span>
+      ),
+    },
+    {
+      key: 'transito',
+      header: 'Transito',
+      align: 'center',
+      sortable: true,
+      hideOnMobile: true,
+      render: (producto) => (
+        <span className="text-sm font-medium text-amber-600">
+          {producto.enTransitoOrigen + producto.enTransitoPeru}
+        </span>
+      ),
+    },
+    {
+      key: 'peru',
+      header: 'Peru',
+      align: 'center',
+      sortable: true,
+      render: (producto) => (
+        <span className="text-sm font-medium text-emerald-600">{producto.disponiblePeru}</span>
+      ),
+    },
+    {
+      key: 'resOrigen',
+      header: 'Res. Origen',
+      align: 'center',
+      sortable: true,
+      hideOnMobile: true,
+      render: (producto) => (
+        <span className="text-sm font-medium text-purple-600">{producto.reservadaOrigen}</span>
+      ),
+    },
+    {
+      key: 'resPeru',
+      header: 'Res. Peru',
+      align: 'center',
+      sortable: true,
+      hideOnMobile: true,
+      render: (producto) => (
+        <span className="text-sm font-medium text-purple-500">{producto.reservadaPeru}</span>
+      ),
+    },
+    {
+      key: 'vendidas',
+      header: 'Vendidas',
+      align: 'center',
+      sortable: true,
+      hideOnMobile: true,
+      render: (producto) => (
+        <span className="text-sm font-medium text-emerald-600">{producto.vendida}</span>
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      align: 'center',
+      sortable: true,
+      render: (producto) => (
+        <span className="text-sm font-bold text-slate-900">{producto.totalUnidades}</span>
+      ),
+    },
+    {
+      key: 'valor',
+      header: 'Valor USD',
+      align: 'right',
+      sortable: true,
+      render: (producto) => (
+        <div>
+          <div className="text-sm font-medium text-slate-900">{formatCurrency(producto.valorTotalUSD)}</div>
+          <div className="text-xs text-slate-500">Prom: {formatCurrency(producto.costoPromedioUSD)}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'vencer',
+      header: 'Estado',
+      align: 'center',
+      sortable: true,
+      render: (producto) => (
+        <div className="flex flex-col items-center gap-1">
+          {producto.stockCritico && (
+            <Badge variant="danger" size="sm">
+              <AlertTriangle className="h-3 w-3 mr-1" />
+              Critico
+            </Badge>
+          )}
+          {producto.proximasAVencer30Dias > 0 && (
+            <Badge variant="warning" size="sm">
+              <Clock className="h-3 w-3 mr-1" />
+              {producto.proximasAVencer30Dias} por vencer
+            </Badge>
+          )}
+          {producto.problemas > 0 && (
+            <Badge variant="danger" size="sm">
+              {producto.problemas} problemas
+            </Badge>
+          )}
+          {!producto.stockCritico && producto.proximasAVencer30Dias === 0 && producto.problemas === 0 && (
+            <Badge variant="success" size="sm">OK</Badge>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
-      {/* Barra de búsqueda y acciones */}
+      {/* Barra de busqueda y acciones */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -282,7 +371,7 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
         <div className="flex items-center gap-2 text-sm text-slate-600 bg-teal-50 px-3 py-2 rounded-lg">
           <ArrowUpDown className="h-4 w-4 text-teal-600" />
           <span>
-            Ordenado por <strong>{sortConfig.key === 'sku' ? 'SKU' : sortConfig.key === 'nombre' ? 'Nombre' : sortConfig.key === 'origen' ? 'Origen' : sortConfig.key === 'transito' ? 'Tránsito' : sortConfig.key === 'peru' ? 'Perú' : sortConfig.key === 'resOrigen' ? 'Res. Origen' : sortConfig.key === 'resPeru' ? 'Res. Perú' : sortConfig.key === 'vendidas' ? 'Vendidas' : sortConfig.key === 'total' ? 'Total' : sortConfig.key === 'valor' ? 'Valor' : 'Por Vencer'}</strong>
+            Ordenado por <strong>{SORT_KEY_LABELS[sortConfig.key]}</strong>
             {' '}({sortConfig.direction === 'asc' ? 'ascendente' : 'descendente'})
           </span>
           <button
@@ -296,211 +385,29 @@ export const ProductoInventarioTable: React.FC<ProductoInventarioTableProps> = (
 
       {/* Tabla */}
       <div className="border border-slate-200 rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr className="group">
-              <th className="w-10 px-4 py-3"></th>
-              <th
-                className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                onClick={() => handleSort('sku')}
-              >
-                <div className="flex items-center gap-1">
-                  <span>Producto</span>
-                  {sortConfig?.key === 'sku' ? (
-                    sortConfig.direction === 'asc' ? (
-                      <ChevronUp className="h-3.5 w-3.5 text-teal-600" />
-                    ) : (
-                      <ChevronDown className="h-3.5 w-3.5 text-teal-600" />
-                    )
-                  ) : (
-                    <ArrowUpDown className="h-3 w-3 text-slate-400" />
-                  )}
-                </div>
-              </th>
-              <SortableHeader sortKey="origen">Origen</SortableHeader>
-              <SortableHeader sortKey="transito">Tránsito</SortableHeader>
-              <SortableHeader sortKey="peru">Perú</SortableHeader>
-              <SortableHeader sortKey="resOrigen">Res. Origen</SortableHeader>
-              <SortableHeader sortKey="resPeru">Res. Perú</SortableHeader>
-              <SortableHeader sortKey="vendidas">Vendidas</SortableHeader>
-              <SortableHeader sortKey="total">Total</SortableHeader>
-              <th
-                className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                onClick={() => handleSort('valor')}
-              >
-                <div className="flex items-center justify-end gap-1">
-                  <span>Valor USD</span>
-                  {sortConfig?.key === 'valor' ? (
-                    sortConfig.direction === 'asc' ? (
-                      <ChevronUp className="h-3.5 w-3.5 text-teal-600" />
-                    ) : (
-                      <ChevronDown className="h-3.5 w-3.5 text-teal-600" />
-                    )
-                  ) : (
-                    <ArrowUpDown className="h-3 w-3 text-slate-400" />
-                  )}
-                </div>
-              </th>
-              <SortableHeader sortKey="vencer">Estado</SortableHeader>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {productosFiltrados.map((producto) => {
-              const isExpanded = expandedRows.has(producto.productoId);
-              const unidadesFiltradas = getUnidadesFiltradas(producto);
-
-              return (
-                <React.Fragment key={producto.productoId}>
-                  {/* Fila principal del producto */}
-                  <tr
-                    className={`hover:bg-slate-50 cursor-pointer transition-colors ${
-                      isExpanded ? 'bg-teal-50' : ''
-                    }`}
-                    onClick={() => toggleRow(producto.productoId)}
-                  >
-                    {/* Toggle */}
-                    <td className="px-4 py-4">
-                      <button
-                        className="p-1 rounded hover:bg-slate-200 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleRow(producto.productoId);
-                        }}
-                      >
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-slate-500" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-slate-500" />
-                        )}
-                      </button>
-                    </td>
-
-                    {/* Producto Info */}
-                    <td className="px-4 py-4">
-                      <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                          <Package className="h-5 w-5 text-slate-400" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-slate-900 truncate">
-                            {producto.sku}
-                          </div>
-                          <div className="text-sm text-slate-500 truncate">
-                            {producto.marca} · {producto.nombre}
-                          </div>
-                          <div className="text-xs text-slate-400">
-                            {getDescripcionProducto(producto) || producto.grupo}
-                          </div>
-                          <LineaNegocioBadge lineaNegocioId={producto.lineaNegocioId} />
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Stock Origen */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-medium text-blue-600">
-                        {producto.enOrigen}
-                      </div>
-                    </td>
-
-                    {/* En Tránsito */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-medium text-amber-600">
-                        {producto.enTransitoOrigen + producto.enTransitoPeru}
-                      </div>
-                    </td>
-
-                    {/* Stock Perú */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-medium text-green-600">
-                        {producto.disponiblePeru}
-                      </div>
-                    </td>
-
-                    {/* Reservadas Origen */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-medium text-purple-600">
-                        {producto.reservadaOrigen}
-                      </div>
-                    </td>
-
-                    {/* Reservadas Perú */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-medium text-purple-500">
-                        {producto.reservadaPeru}
-                      </div>
-                    </td>
-
-                    {/* Vendidas */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-medium text-emerald-600">
-                        {producto.vendida}
-                      </div>
-                    </td>
-
-                    {/* Total */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="text-sm font-bold text-slate-900">
-                        {producto.totalUnidades}
-                      </div>
-                    </td>
-
-                    {/* Valor */}
-                    <td className="px-4 py-4 text-right">
-                      <div className="text-sm font-medium text-slate-900">
-                        {formatCurrency(producto.valorTotalUSD)}
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        Prom: {formatCurrency(producto.costoPromedioUSD)}
-                      </div>
-                    </td>
-
-                    {/* Estado/Alertas */}
-                    <td className="px-4 py-4 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        {producto.stockCritico && (
-                          <Badge variant="danger" size="sm">
-                            <AlertTriangle className="h-3 w-3 mr-1" />
-                            Crítico
-                          </Badge>
-                        )}
-                        {producto.proximasAVencer30Dias > 0 && (
-                          <Badge variant="warning" size="sm">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {producto.proximasAVencer30Dias} por vencer
-                          </Badge>
-                        )}
-                        {producto.problemas > 0 && (
-                          <Badge variant="danger" size="sm">
-                            {producto.problemas} problemas
-                          </Badge>
-                        )}
-                        {!producto.stockCritico && producto.proximasAVencer30Dias === 0 && producto.problemas === 0 && (
-                          <Badge variant="success" size="sm">OK</Badge>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-
-                  {/* Fila expandida con desglose de unidades */}
-                  {isExpanded && (
-                    <tr>
-                      <td colSpan={12} className="px-0 py-0">
-                        <div className="bg-slate-50 border-t border-b border-slate-200">
-                          <UnidadesDesglose
-                            unidades={unidadesFiltradas}
-                            productoNombre={producto.nombre}
-                            onUnidadClick={onUnidadClick}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+        <DataTable<ProductoConUnidades>
+          columns={columns}
+          data={productosFiltrados}
+          keyExtractor={(item) => item.productoId}
+          sortBy={sortConfig?.key}
+          sortDirection={sortConfig?.direction}
+          onSort={handleDataTableSort}
+          expandedRowRender={(producto) => {
+            const unidadesFiltradas = getUnidadesFiltradas(producto);
+            return (
+              <div className="bg-slate-50 border-t border-b border-slate-200">
+                <UnidadesDesglose
+                  unidades={unidadesFiltradas}
+                  productoNombre={producto.nombre}
+                  onUnidadClick={onUnidadClick}
+                />
+              </div>
+            );
+          }}
+          expandedKeys={expandedRows}
+          onToggleExpand={toggleRow}
+          emptyMessage="No hay productos que coincidan con la busqueda"
+        />
       </div>
     </div>
   );

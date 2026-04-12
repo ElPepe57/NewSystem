@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import {
   Warehouse,
   MapPin,
@@ -133,7 +135,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
 
   // Mapa de colores por país (extensible con nuevos países)
   const PAISES_COLORES: Record<string, { badge: string }> = {
-    USA:        { badge: 'bg-blue-100 text-blue-700 border-blue-300' },
+    USA:        { badge: 'bg-sky-100 text-sky-700 border-sky-300' },
     China:      { badge: 'bg-rose-100 text-rose-700 border-rose-200' },
     Corea:      { badge: 'bg-sky-100 text-sky-700 border-sky-300' },
     Peru:       { badge: 'bg-amber-100 text-amber-700 border-amber-300' },
@@ -150,7 +152,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
     switch (tipo) {
       case 'viajero': return 'bg-purple-100 text-purple-700 border-purple-300';
       case 'courier': return 'bg-orange-100 text-orange-700 border-orange-300';
-      case 'almacen_origen': return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'almacen_origen': return 'bg-sky-100 text-sky-700 border-sky-300';
       case 'almacen_peru': return 'bg-teal-100 text-teal-700 border-teal-300';
       default: return 'bg-slate-100 text-slate-700 border-slate-300';
     }
@@ -167,14 +169,14 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
   const getCapacidadColor = (porcentaje: number) => {
     if (porcentaje >= 80) return 'bg-red-500';
     if (porcentaje >= 60) return 'bg-amber-500';
-    if (porcentaje >= 40) return 'bg-blue-500';
-    return 'bg-green-500';
+    if (porcentaje >= 40) return 'bg-sky-500';
+    return 'bg-emerald-500';
   };
 
   const getClasificacionColor = (clasificacion?: string) => {
     switch (clasificacion) {
-      case 'excelente': return 'bg-green-100 text-green-800 border-green-300';
-      case 'bueno': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'excelente': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      case 'bueno': return 'bg-sky-100 text-sky-800 border-sky-300';
       case 'regular': return 'bg-amber-100 text-amber-800 border-amber-300';
       case 'deficiente': return 'bg-red-100 text-red-800 border-red-300';
       default: return 'bg-slate-100 text-slate-700 border-slate-300';
@@ -352,7 +354,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               value={`${metricas.almacenesOrigen} / ${metricas.almacenesPeru}`}
               subtitle="distribución"
               icon={Globe}
-              variant="default"
+              variant="neutral"
               size="sm"
             />
             <DSStatCard
@@ -403,7 +405,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                       </div>
                       <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${pais === 'USA' ? 'bg-blue-500' : pais === 'China' ? 'bg-red-500' : pais === 'Corea' ? 'bg-sky-500' : 'bg-amber-500'}`}
+                          className={`h-full rounded-full ${pais === 'USA' ? 'bg-sky-500' : pais === 'China' ? 'bg-red-500' : pais === 'Corea' ? 'bg-sky-500' : 'bg-amber-500'}`}
                           style={{ width: `${porcentaje}%` }}
                         />
                       </div>
@@ -422,7 +424,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               <div className="space-y-4">
                 {([
                   { key: 'viajero' as const, label: 'Viajero', color: 'bg-purple-500' },
-                  { key: 'almacen_origen' as const, label: 'Almacén Origen', color: 'bg-blue-500' },
+                  { key: 'almacen_origen' as const, label: 'Almacén Origen', color: 'bg-sky-500' },
                   { key: 'courier' as const, label: 'Courier', color: 'bg-orange-500' },
                   { key: 'almacen_peru' as const, label: 'Almacén Perú', color: 'bg-teal-500' },
                 ] as const).map(({ key, label, color }) => (
@@ -456,7 +458,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                 {Object.entries(metricas.porEstado).map(([estado, cantidad]) => (
                   <div key={estado} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {estado === 'activo' && <CheckCircle className="h-4 w-4 text-green-600" />}
+                      {estado === 'activo' && <CheckCircle className="h-4 w-4 text-emerald-600" />}
                       {estado === 'inactivo' && <XCircle className="h-4 w-4 text-slate-400" />}
                       {estado === 'suspendido' && <AlertCircle className="h-4 w-4 text-red-600" />}
                       <span className="text-sm capitalize">{estado}</span>
@@ -478,7 +480,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                    <div className="h-3 w-3 rounded-full bg-emerald-500"></div>
                     <span className="text-sm">Baja (&lt;40%)</span>
                   </div>
                   <span className="text-sm font-medium">{metricas.capacidadUsada.low}</span>
@@ -568,78 +570,84 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               <PieChart className="h-5 w-5 text-teal-600" />
               Distribución de Inventario
             </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Almacén</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">País</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Unidades</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Valor USD</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Capacidad</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {almacenes
-                    .filter(a => (a.unidadesActuales || 0) > 0)
-                    .sort((a, b) => (b.valorInventarioUSD || 0) - (a.valorInventarioUSD || 0))
-                    .map(almacen => {
-                      const capacidadUsada = calcularCapacidadUsada(almacen);
-                      return (
-                        <tr key={almacen.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              {almacen.esViajero ? (
-                                <Plane className="h-4 w-4 text-purple-600" />
-                              ) : (
-                                <Warehouse className="h-4 w-4 text-teal-600" />
-                              )}
-                              <div>
-                                <div className="text-sm font-medium text-slate-900">{almacen.nombre}</div>
-                                <div className="text-xs text-slate-500">{almacen.codigo}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded border ${getPaisColor(almacen.pais)}`}>
-                              {almacen.pais}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded border ${getTipoColor(almacen.tipo)}`}>
-                              {almacen.tipo === 'viajero' ? 'Viajero' : almacen.tipo === 'courier' ? 'Courier' : almacen.tipo === 'almacen_origen' ? 'Almacén Origen' : 'Almacén'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-slate-900">
-                            {almacen.unidadesActuales || 0}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-green-600">
-                            ${(almacen.valorInventarioUSD || 0).toLocaleString()}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {almacen.capacidadUnidades ? (
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden w-24">
-                                  <div
-                                    className={`h-full rounded-full transition-all ${getCapacidadColor(capacidadUsada)}`}
-                                    style={{ width: `${Math.min(capacidadUsada, 100)}%` }}
-                                  />
-                                </div>
-                                <span className="text-xs text-slate-600 w-10 text-right">
-                                  {capacidadUsada.toFixed(0)}%
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-slate-400">-</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
+            {(() => {
+              const inventarioData = almacenes
+                .filter(a => (a.unidadesActuales || 0) > 0)
+                .sort((a, b) => (b.valorInventarioUSD || 0) - (a.valorInventarioUSD || 0));
+              const colsInventario: DataTableColumn<Almacen>[] = [
+                {
+                  key: 'nombre', header: 'Almacén',
+                  render: almacen => (
+                    <div className="flex items-center gap-2">
+                      {almacen.esViajero ? (
+                        <Plane className="h-4 w-4 text-purple-600" />
+                      ) : (
+                        <Warehouse className="h-4 w-4 text-teal-600" />
+                      )}
+                      <div>
+                        <div className="text-sm font-medium text-slate-900">{almacen.nombre}</div>
+                        <div className="text-xs text-slate-500">{almacen.codigo}</div>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'pais', header: 'País', hideOnMobile: true,
+                  render: almacen => (
+                    <span className={`px-2 py-1 text-xs font-medium rounded border ${getPaisColor(almacen.pais)}`}>
+                      {almacen.pais}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'tipo', header: 'Tipo', hideOnMobile: true,
+                  render: almacen => (
+                    <span className={`px-2 py-1 text-xs font-medium rounded border ${getTipoColor(almacen.tipo)}`}>
+                      {almacen.tipo === 'viajero' ? 'Viajero' : almacen.tipo === 'courier' ? 'Courier' : almacen.tipo === 'almacen_origen' ? 'Almacén Origen' : 'Almacén'}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'unidadesActuales', header: 'Unidades', align: 'right',
+                  render: almacen => <span>{almacen.unidadesActuales || 0}</span>,
+                },
+                {
+                  key: 'valorInventarioUSD', header: 'Valor USD', align: 'right',
+                  render: almacen => (
+                    <span className="font-medium text-emerald-600">
+                      ${(almacen.valorInventarioUSD || 0).toLocaleString()}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'capacidad', header: 'Capacidad', hideOnMobile: true,
+                  render: almacen => {
+                    const cap = calcularCapacidadUsada(almacen);
+                    return almacen.capacidadUnidades ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden w-24">
+                          <div
+                            className={`h-full rounded-full transition-all ${getCapacidadColor(cap)}`}
+                            style={{ width: `${Math.min(cap, 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-slate-600 w-10 text-right">{cap.toFixed(0)}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">-</span>
+                    );
+                  },
+                },
+              ];
+              return (
+                <DataTable
+                  columns={colsInventario}
+                  data={inventarioData}
+                  keyExtractor={a => a.id}
+                  emptyMessage="Sin almacenes con inventario"
+                />
+              );
+            })()}
           </Card>
         </div>
       )}
@@ -707,8 +715,8 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                     <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full ${
-                          clasificacion === 'excelente' ? 'bg-green-500' :
-                          clasificacion === 'bueno' ? 'bg-blue-500' :
+                          clasificacion === 'excelente' ? 'bg-emerald-500' :
+                          clasificacion === 'bueno' ? 'bg-sky-500' :
                           clasificacion === 'regular' ? 'bg-amber-500' : 'bg-red-500'
                         }`}
                         style={{ width: `${porcentaje}%` }}
@@ -738,14 +746,14 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                   {datosEvaluacion.topPerformers.map((almacen, idx) => (
                     <div
                       key={almacen.id}
-                      className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-100 hover:bg-green-100 cursor-pointer transition-colors"
+                      className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-100 hover:bg-emerald-100 cursor-pointer transition-colors"
                       onClick={() => setAlmacenDetalle(almacen)}
                     >
                       <div className="flex items-center gap-3">
                         <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-bold ${
                           idx === 0 ? 'bg-yellow-500' :
                           idx === 1 ? 'bg-slate-400' :
-                          idx === 2 ? 'bg-amber-600' : 'bg-green-500'
+                          idx === 2 ? 'bg-amber-600' : 'bg-emerald-500'
                         }`}>
                           {idx + 1}
                         </div>
@@ -755,7 +763,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-green-700">
+                        <p className="font-bold text-emerald-700">
                           {almacen.evaluacion?.puntuacion.toFixed(1)} pts
                         </p>
                         <p className={`text-xs px-2 py-0.5 rounded border capitalize ${getClasificacionColor(almacen.evaluacion?.clasificacion)}`}>
@@ -814,71 +822,76 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
               <BarChart3 className="h-5 w-5 text-teal-600" />
               Ranking Completo
             </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">#</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Almacén/Viajero</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Puntuación</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Clasificación</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Conservación</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">T. Respuesta</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Cumplimiento</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Comunicación</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {datosEvaluacion.ranking.map((almacen, idx) => (
-                    <tr key={almacen.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => setAlmacenDetalle(almacen)}>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-700">
-                        {idx + 1}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          {almacen.esViajero ? (
-                            <Plane className="h-4 w-4 text-purple-600" />
-                          ) : (
-                            <Warehouse className="h-4 w-4 text-teal-600" />
-                          )}
-                          <div>
-                            <div className="text-sm font-medium text-slate-900">{almacen.nombre}</div>
-                            <div className="text-xs text-slate-500">{almacen.codigo}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <span className="text-sm font-bold text-slate-900">
-                          {almacen.evaluacion?.puntuacion.toFixed(1)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <span className={`px-2 py-1 text-xs font-medium rounded border capitalize ${getClasificacionColor(almacen.evaluacion?.clasificacion)}`}>
-                          {almacen.evaluacion?.clasificacion}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-slate-600">
-                        {almacen.evaluacion?.factores.conservacionProductos.toFixed(1)}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-slate-600">
-                        {almacen.evaluacion?.factores.tiempoRespuesta.toFixed(1)}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-slate-600">
-                        {almacen.evaluacion?.factores.cumplimientoFechas.toFixed(1)}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-slate-600">
-                        {almacen.evaluacion?.factores.comunicacion.toFixed(1)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {datosEvaluacion.ranking.length === 0 && (
-              <div className="text-center py-12 text-slate-500">
-                No hay almacenes con evaluación aún
-              </div>
-            )}
+            {(() => {
+              const rankingIdxMap = new Map(datosEvaluacion.ranking.map((a, i) => [a.id, i]));
+              const colsRanking: DataTableColumn<Almacen>[] = [
+                {
+                  key: 'rank', header: '#',
+                  render: almacen => (
+                    <span className="text-sm font-medium text-slate-700">
+                      {(rankingIdxMap.get(almacen.id) ?? 0) + 1}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'nombre', header: 'Almacén/Viajero',
+                  render: almacen => (
+                    <div className="flex items-center gap-2">
+                      {almacen.esViajero ? (
+                        <Plane className="h-4 w-4 text-purple-600" />
+                      ) : (
+                        <Warehouse className="h-4 w-4 text-teal-600" />
+                      )}
+                      <div>
+                        <div className="text-sm font-medium text-slate-900">{almacen.nombre}</div>
+                        <div className="text-xs text-slate-500">{almacen.codigo}</div>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'puntuacion', header: 'Puntuación', align: 'center',
+                  render: almacen => (
+                    <span className="text-sm font-bold text-slate-900">
+                      {almacen.evaluacion?.puntuacion.toFixed(1)}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'clasificacion', header: 'Clasificación', align: 'center',
+                  render: almacen => (
+                    <span className={`px-2 py-1 text-xs font-medium rounded border capitalize ${getClasificacionColor(almacen.evaluacion?.clasificacion)}`}>
+                      {almacen.evaluacion?.clasificacion}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'conservacion', header: 'Conservación', align: 'center', hideOnMobile: true,
+                  render: almacen => <span className="text-sm text-slate-600">{almacen.evaluacion?.factores.conservacionProductos.toFixed(1)}</span>,
+                },
+                {
+                  key: 'tiempoRespuesta', header: 'T. Respuesta', align: 'center', hideOnMobile: true,
+                  render: almacen => <span className="text-sm text-slate-600">{almacen.evaluacion?.factores.tiempoRespuesta.toFixed(1)}</span>,
+                },
+                {
+                  key: 'cumplimiento', header: 'Cumplimiento', align: 'center', hideOnMobile: true,
+                  render: almacen => <span className="text-sm text-slate-600">{almacen.evaluacion?.factores.cumplimientoFechas.toFixed(1)}</span>,
+                },
+                {
+                  key: 'comunicacion', header: 'Comunicación', align: 'center', hideOnMobile: true,
+                  render: almacen => <span className="text-sm text-slate-600">{almacen.evaluacion?.factores.comunicacion.toFixed(1)}</span>,
+                },
+              ];
+              return (
+                <DataTable
+                  columns={colsRanking}
+                  data={datosEvaluacion.ranking}
+                  keyExtractor={a => a.id}
+                  onRowClick={almacen => setAlmacenDetalle(almacen)}
+                  emptyMessage="No hay almacenes con evaluación aún"
+                />
+              );
+            })()}
           </Card>
         </div>
       )}
@@ -932,7 +945,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por nombre, código, ciudad..."
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-sky-500"
                 />
               </div>
 
@@ -1014,12 +1027,12 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                     >
                       <div className="flex items-center space-x-4">
                         <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
-                          almacen.pais === 'USA' ? 'bg-blue-100' : 'bg-amber-100'
+                          almacen.pais === 'USA' ? 'bg-sky-100' : 'bg-amber-100'
                         }`}>
                           {almacen.esViajero ? (
-                            <Plane className={`h-6 w-6 ${almacen.pais === 'USA' ? 'text-blue-600' : 'text-amber-600'}`} />
+                            <Plane className={`h-6 w-6 ${almacen.pais === 'USA' ? 'text-sky-600' : 'text-amber-600'}`} />
                           ) : (
-                            <Warehouse className={`h-6 w-6 ${almacen.pais === 'USA' ? 'text-blue-600' : 'text-amber-600'}`} />
+                            <Warehouse className={`h-6 w-6 ${almacen.pais === 'USA' ? 'text-sky-600' : 'text-amber-600'}`} />
                           )}
                         </div>
                         <div>
@@ -1070,7 +1083,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                           <div className="text-sm font-medium text-slate-900">
                             {almacen.unidadesActuales || 0} unidades
                           </div>
-                          <div className="text-sm text-green-600 font-medium">
+                          <div className="text-sm text-emerald-600 font-medium">
                             ${(almacen.valorInventarioUSD || 0).toLocaleString()} USD
                           </div>
                           {almacen.capacidadUnidades && (
@@ -1093,7 +1106,7 @@ export const AlmacenesLogistica: React.FC<AlmacenesLogisticaProps> = ({
                         <div className="flex space-x-1">
                           <button
                             onClick={() => setAlmacenDetalle(almacen)}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                             label="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />

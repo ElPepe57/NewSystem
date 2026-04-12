@@ -19,7 +19,8 @@ import {
   Calculator,
 } from 'lucide-react';
 import { Button, Card, Modal } from '../../components/common';
-import { PageShell, PageHeader, Toolbar } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { usePoolUSDStore } from '../../store/poolUSDStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -287,7 +288,7 @@ export const RendimientoCambiario: React.FC = () => {
               onClick={() => setTabActiva(tab.id)}
               className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 tabActiva === tab.id
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-sky-500 text-sky-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
@@ -301,7 +302,7 @@ export const RendimientoCambiario: React.FC = () => {
       {/* Tab Content */}
       {loading ? (
         <div className="flex justify-center py-12">
-          <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
+          <RefreshCw className="w-6 h-6 animate-spin text-sky-500" />
         </div>
       ) : (
         <>
@@ -409,10 +410,10 @@ export const RendimientoCambiario: React.FC = () => {
           title="Registrar Saldo Inicial del Pool"
         >
           <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
               <div className="flex items-start gap-2">
-                <Info className="w-4 h-4 text-blue-500 mt-0.5" />
-                <p className="text-sm text-blue-700">
+                <Info className="w-4 h-4 text-sky-500 mt-0.5" />
+                <p className="text-sm text-sky-700">
                   Registre el saldo en USD que tenía el negocio al inicio del período a rastrear.
                   El TCPA es el tipo de cambio promedio al que se adquirió ese saldo.
                 </p>
@@ -494,7 +495,7 @@ export const RendimientoCambiario: React.FC = () => {
               <div className="space-y-2">
                 <div className="w-full bg-slate-200 rounded-full h-2.5">
                   <div
-                    className="bg-blue-600 h-2.5 rounded-full transition-all"
+                    className="bg-sky-600 h-2.5 rounded-full transition-all"
                     style={{ width: `${retroPct}%` }}
                   />
                 </div>
@@ -584,7 +585,7 @@ const TabResumen: React.FC<{
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Saldo Pool USD</span>
-            <DollarSign className="w-5 h-5 text-green-500" />
+            <DollarSign className="w-5 h-5 text-emerald-500" />
           </div>
           <p className="text-2xl font-bold mt-1">$ {formatMonto(resumen.saldoUSD)}</p>
           <p className="text-xs text-slate-500 mt-1">TCPA: {formatTC(resumen.tcpa)}</p>
@@ -593,7 +594,7 @@ const TabResumen: React.FC<{
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Valor según TCPA</span>
-            <Calculator className="w-5 h-5 text-blue-500" />
+            <Calculator className="w-5 h-5 text-sky-500" />
           </div>
           <p className="text-2xl font-bold mt-1">S/ {formatMonto(resumen.valorPEN_tcpa)}</p>
           <p className="text-xs text-slate-500 mt-1">$ {formatMonto(resumen.saldoUSD)} × {formatTC(resumen.tcpa)}</p>
@@ -612,11 +613,11 @@ const TabResumen: React.FC<{
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Ganancia No Realizada</span>
             {resumen.diferenciaNoRealizada >= 0
-              ? <TrendingUp className="w-5 h-5 text-green-500" />
+              ? <TrendingUp className="w-5 h-5 text-emerald-500" />
               : <TrendingDown className="w-5 h-5 text-red-500" />
             }
           </div>
-          <p className={`text-2xl font-bold mt-1 ${resumen.diferenciaNoRealizada >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-2xl font-bold mt-1 ${resumen.diferenciaNoRealizada >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             S/ {resumen.diferenciaNoRealizada >= 0 ? '+' : ''}{formatMonto(resumen.diferenciaNoRealizada)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Diferencia mercado vs pool</p>
@@ -630,10 +631,10 @@ const TabResumen: React.FC<{
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <ArrowUpCircle className="w-4 h-4 text-green-500" />
+                <ArrowUpCircle className="w-4 h-4 text-emerald-500" />
                 <span className="text-sm text-slate-600">Entradas USD</span>
               </div>
-              <span className="font-medium text-green-600">$ {formatMonto(resumen.entradasUSD)}</span>
+              <span className="font-medium text-emerald-600">$ {formatMonto(resumen.entradasUSD)}</span>
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
@@ -654,13 +655,13 @@ const TabResumen: React.FC<{
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm text-slate-600">Ganancia Realizada (vs SUNAT)</span>
-              <span className={`font-medium ${resumen.gananciaRealizadaPEN >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <span className={`font-medium ${resumen.gananciaRealizadaPEN >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 S/ {resumen.gananciaRealizadaPEN >= 0 ? '+' : ''}{formatMonto(resumen.gananciaRealizadaPEN)}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-slate-600">Impacto Operativo (real)</span>
-              <span className={`font-medium ${resumen.gananciaOperativaPEN >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <span className={`font-medium ${resumen.gananciaOperativaPEN >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 S/ {resumen.gananciaOperativaPEN >= 0 ? '+' : ''}{formatMonto(resumen.gananciaOperativaPEN)}
               </span>
             </div>
@@ -684,7 +685,7 @@ const TabResumen: React.FC<{
           <h3 className="text-sm font-semibold text-slate-700">Meta Mensual de Ventas PEN</h3>
           {!editingMeta ? (
             <button
-              className="text-xs text-blue-600 hover:underline"
+              className="text-xs text-sky-600 hover:underline"
               onClick={() => { setMetaInput(String(poolConfig?.metaPEN || '')); setEditingMeta(true); }}
             >
               {poolConfig?.metaPEN ? 'Editar meta' : 'Configurar meta'}
@@ -699,7 +700,7 @@ const TabResumen: React.FC<{
                 onChange={e => setMetaInput(e.target.value)}
               />
               <button
-                className="text-xs text-green-600 font-medium hover:underline"
+                className="text-xs text-emerald-600 font-medium hover:underline"
                 onClick={async () => {
                   const val = parseFloat(metaInput) || 0;
                   await onSaveMetaPEN(val);
@@ -719,7 +720,7 @@ const TabResumen: React.FC<{
             const ventasPEN = resumen.valorPEN_tcpa;
             const meta = poolConfig.metaPEN;
             const pct = Math.min((ventasPEN / meta) * 100, 100);
-            const color = pct >= 100 ? 'bg-green-500' : pct >= 70 ? 'bg-blue-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500';
+            const color = pct >= 100 ? 'bg-emerald-500' : pct >= 70 ? 'bg-sky-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500';
             return (
               <div>
                 <div className="flex justify-between text-sm mb-1">
@@ -758,57 +759,84 @@ const TabOperaciones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movimi
     );
   }
 
+  const operacionesColumns: DataTableColumn<PoolUSDMovimiento>[] = [
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      render: (mov) => <span className="whitespace-nowrap">{formatFecha(mov.fecha)}</span>,
+    },
+    {
+      key: 'tipo',
+      header: 'Tipo',
+      render: (mov) => (
+        <div className="flex items-center gap-1.5">
+          {mov.direccion === 'entrada'
+            ? <ArrowUpCircle className="w-3.5 h-3.5 text-emerald-500" />
+            : <ArrowDownCircle className="w-3.5 h-3.5 text-red-500" />
+          }
+          <span className="text-xs">{TIPO_LABELS[mov.tipo] || mov.tipo}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'montoUSD',
+      header: 'Monto USD',
+      align: 'right',
+      render: (mov) => (
+        <span className={`font-mono ${mov.direccion === 'entrada' ? 'text-emerald-600' : 'text-red-600'}`}>
+          {mov.direccion === 'entrada' ? '+' : '-'}${formatMonto(mov.montoUSD)}
+        </span>
+      ),
+    },
+    {
+      key: 'tcOp',
+      header: 'TC Op.',
+      align: 'right',
+      render: (mov) => <span className="font-mono">{formatTC(mov.tcOperacion)}</span>,
+    },
+    {
+      key: 'tcpa',
+      header: 'TCPA',
+      align: 'right',
+      render: (mov) => <span className="font-mono">{formatTC(mov.tcpaDespues)}</span>,
+    },
+    {
+      key: 'poolUSD',
+      header: 'Pool USD',
+      align: 'right',
+      render: (mov) => <span className="font-mono">${formatMonto(mov.poolUSDDespues)}</span>,
+    },
+    {
+      key: 'impacto',
+      header: 'Impacto',
+      align: 'right',
+      render: (mov) =>
+        mov.impactoCambiario != null ? (
+          <span className={`font-mono ${mov.impactoCambiario >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            S/ {mov.impactoCambiario >= 0 ? '+' : ''}{formatMonto(mov.impactoCambiario)}
+          </span>
+        ) : (
+          <span className="text-slate-300">-</span>
+        ),
+    },
+    {
+      key: 'ref',
+      header: 'Ref.',
+      render: (mov) => (
+        <span className="text-xs text-slate-500 max-w-[150px] truncate block">
+          {mov.documentoOrigenNumero || mov.notas || '-'}
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
-        <thead className="bg-slate-50">
-          <tr>
-            <th className="px-3 py-2 text-left font-medium text-slate-500">Fecha</th>
-            <th className="px-3 py-2 text-left font-medium text-slate-500">Tipo</th>
-            <th className="px-3 py-2 text-right font-medium text-slate-500">Monto USD</th>
-            <th className="px-3 py-2 text-right font-medium text-slate-500">TC Op.</th>
-            <th className="px-3 py-2 text-right font-medium text-slate-500">TCPA</th>
-            <th className="px-3 py-2 text-right font-medium text-slate-500">Pool USD</th>
-            <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto</th>
-            <th className="px-3 py-2 text-left font-medium text-slate-500">Ref.</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {sorted.map(mov => (
-            <tr key={mov.id} className="hover:bg-slate-50">
-              <td className="px-3 py-2 whitespace-nowrap">{formatFecha(mov.fecha)}</td>
-              <td className="px-3 py-2">
-                <div className="flex items-center gap-1.5">
-                  {mov.direccion === 'entrada'
-                    ? <ArrowUpCircle className="w-3.5 h-3.5 text-green-500" />
-                    : <ArrowDownCircle className="w-3.5 h-3.5 text-red-500" />
-                  }
-                  <span className="text-xs">{TIPO_LABELS[mov.tipo] || mov.tipo}</span>
-                </div>
-              </td>
-              <td className={`px-3 py-2 text-right font-mono ${mov.direccion === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
-                {mov.direccion === 'entrada' ? '+' : '-'}${formatMonto(mov.montoUSD)}
-              </td>
-              <td className="px-3 py-2 text-right font-mono">{formatTC(mov.tcOperacion)}</td>
-              <td className="px-3 py-2 text-right font-mono">{formatTC(mov.tcpaDespues)}</td>
-              <td className="px-3 py-2 text-right font-mono">${formatMonto(mov.poolUSDDespues)}</td>
-              <td className="px-3 py-2 text-right font-mono">
-                {mov.impactoCambiario != null ? (
-                  <span className={mov.impactoCambiario >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    S/ {mov.impactoCambiario >= 0 ? '+' : ''}{formatMonto(mov.impactoCambiario)}
-                  </span>
-                ) : (
-                  <span className="text-slate-300">-</span>
-                )}
-              </td>
-              <td className="px-3 py-2 text-xs text-slate-500 max-w-[150px] truncate">
-                {mov.documentoOrigenNumero || mov.notas || '-'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      columns={operacionesColumns}
+      data={sorted}
+      keyExtractor={(mov) => mov.id}
+      compact
+    />
   );
 };
 
@@ -840,7 +868,7 @@ const TabConversiones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movim
       <div className="grid grid-cols-3 gap-3">
         <Card className="p-3 text-center">
           <p className="text-xs text-slate-500">Compras USD (via conversión)</p>
-          <p className="text-lg font-bold text-green-600">$ {formatMonto(totalComprasUSD)}</p>
+          <p className="text-lg font-bold text-emerald-600">$ {formatMonto(totalComprasUSD)}</p>
         </Card>
         <Card className="p-3 text-center">
           <p className="text-xs text-slate-500">Ventas USD (via conversión)</p>
@@ -848,55 +876,77 @@ const TabConversiones: React.FC<{ movimientos: PoolUSDMovimiento[] }> = ({ movim
         </Card>
         <Card className="p-3 text-center">
           <p className="text-xs text-slate-500">Impacto Cambiario Total</p>
-          <p className={`text-lg font-bold ${totalImpacto >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-lg font-bold ${totalImpacto >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             S/ {totalImpacto >= 0 ? '+' : ''}{formatMonto(totalImpacto)}
           </p>
         </Card>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium text-slate-500">Fecha</th>
-              <th className="px-3 py-2 text-left font-medium text-slate-500">Conversión</th>
-              <th className="px-3 py-2 text-left font-medium text-slate-500">Dirección</th>
-              <th className="px-3 py-2 text-right font-medium text-slate-500">Monto USD</th>
-              <th className="px-3 py-2 text-right font-medium text-slate-500">TC Real</th>
-              <th className="px-3 py-2 text-right font-medium text-slate-500">TCPA</th>
-              <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {sorted.map(mov => (
-              <tr key={mov.id} className="hover:bg-slate-50">
-                <td className="px-3 py-2">{formatFecha(mov.fecha)}</td>
-                <td className="px-3 py-2 font-mono text-xs">{mov.documentoOrigenNumero || '-'}</td>
-                <td className="px-3 py-2">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
-                    mov.direccion === 'entrada'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {mov.direccion === 'entrada' ? 'Compra USD' : 'Venta USD'}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-right font-mono">${formatMonto(mov.montoUSD)}</td>
-                <td className="px-3 py-2 text-right font-mono">{formatTC(mov.tcOperacion)}</td>
-                <td className="px-3 py-2 text-right font-mono">{formatTC(mov.tcpaDespues)}</td>
-                <td className="px-3 py-2 text-right font-mono">
-                  {mov.impactoCambiario != null ? (
-                    <span className={mov.impactoCambiario >= 0 ? 'text-green-600' : 'text-red-600'}>
-                      S/ {mov.impactoCambiario >= 0 ? '+' : ''}{formatMonto(mov.impactoCambiario)}
-                    </span>
-                  ) : '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {(() => {
+        const conversionesColumns: DataTableColumn<PoolUSDMovimiento>[] = [
+          {
+            key: 'fecha',
+            header: 'Fecha',
+            render: (mov) => <span>{formatFecha(mov.fecha)}</span>,
+          },
+          {
+            key: 'conversion',
+            header: 'Conversión',
+            render: (mov) => <span className="font-mono text-xs">{mov.documentoOrigenNumero || '-'}</span>,
+          },
+          {
+            key: 'direccion',
+            header: 'Dirección',
+            render: (mov) => (
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
+                mov.direccion === 'entrada'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-red-100 text-red-700'
+              }`}>
+                {mov.direccion === 'entrada' ? 'Compra USD' : 'Venta USD'}
+              </span>
+            ),
+          },
+          {
+            key: 'montoUSD',
+            header: 'Monto USD',
+            align: 'right',
+            render: (mov) => <span className="font-mono">${formatMonto(mov.montoUSD)}</span>,
+          },
+          {
+            key: 'tcReal',
+            header: 'TC Real',
+            align: 'right',
+            render: (mov) => <span className="font-mono">{formatTC(mov.tcOperacion)}</span>,
+          },
+          {
+            key: 'tcpa',
+            header: 'TCPA',
+            align: 'right',
+            render: (mov) => <span className="font-mono">{formatTC(mov.tcpaDespues)}</span>,
+          },
+          {
+            key: 'impacto',
+            header: 'Impacto',
+            align: 'right',
+            render: (mov) =>
+              mov.impactoCambiario != null ? (
+                <span className={`font-mono ${mov.impactoCambiario >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  S/ {mov.impactoCambiario >= 0 ? '+' : ''}{formatMonto(mov.impactoCambiario)}
+                </span>
+              ) : <span>-</span>,
+          },
+        ];
+        return (
+          <DataTable
+            columns={conversionesColumns}
+            data={sorted}
+            keyExtractor={(mov) => mov.id}
+            compact
+          />
+        );
+      })()}
     </div>
   );
 };
@@ -1156,7 +1206,7 @@ const TabCicloPENUSD: React.FC<{
   if (loadingVentas) {
     return (
       <div className="flex justify-center py-12">
-        <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
+        <RefreshCw className="w-6 h-6 animate-spin text-sky-500" />
       </div>
     );
   }
@@ -1179,11 +1229,11 @@ const TabCicloPENUSD: React.FC<{
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Ratio Cobertura</span>
             {(ratioCobertura ?? 0) >= 1
-              ? <CheckCircle className="w-5 h-5 text-green-500" />
+              ? <CheckCircle className="w-5 h-5 text-emerald-500" />
               : <AlertTriangle className="w-5 h-5 text-amber-500" />
             }
           </div>
-          <p className={`text-2xl font-bold mt-1 ${(ratioCobertura ?? 0) >= 1 ? 'text-green-600' : 'text-amber-600'}`}>
+          <p className={`text-2xl font-bold mt-1 ${(ratioCobertura ?? 0) >= 1 ? 'text-emerald-600' : 'text-amber-600'}`}>
             {(ratioCobertura ?? 0).toFixed(2)}x
           </p>
           <p className="text-xs text-slate-500 mt-1">
@@ -1194,7 +1244,7 @@ const TabCicloPENUSD: React.FC<{
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Ventas PEN (30d)</span>
-            <DollarSign className="w-5 h-5 text-blue-500" />
+            <DollarSign className="w-5 h-5 text-sky-500" />
           </div>
           <p className="text-2xl font-bold mt-1">S/ {formatMonto(ventasData?.totalVentasPEN ?? 0)}</p>
           <p className="text-xs text-slate-500 mt-1">Pipeline: S/ {formatMonto(ventasData?.pipelinePEN ?? 0)}</p>
@@ -1215,11 +1265,11 @@ const TabCicloPENUSD: React.FC<{
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Cobertura Pipeline</span>
             {cobertura && cobertura.coberturaPipeline >= 1
-              ? <CheckCircle className="w-5 h-5 text-green-500" />
+              ? <CheckCircle className="w-5 h-5 text-emerald-500" />
               : <AlertTriangle className="w-5 h-5 text-red-500" />
             }
           </div>
-          <p className={`text-2xl font-bold mt-1 ${cobertura && cobertura.coberturaPipeline >= 1 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-2xl font-bold mt-1 ${cobertura && cobertura.coberturaPipeline >= 1 ? 'text-emerald-600' : 'text-red-600'}`}>
             {cobertura ? `${(cobertura.coberturaPipeline * 100).toFixed(0)}%` : '-'}
           </p>
           {cobertura && cobertura.brechaPEN > 0 && (
@@ -1240,36 +1290,63 @@ const TabCicloPENUSD: React.FC<{
             Diferencia entre el margen usando TC histórico (nominal) vs TCPA del pool (real).
             Un gap negativo indica que el margen real es menor al que aparenta.
           </p>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium text-slate-500">Producto</th>
-                  <th className="px-3 py-2 text-right font-medium text-slate-500">Precio</th>
-                  <th className="px-3 py-2 text-right font-medium text-slate-500">CTRU Nominal</th>
-                  <th className="px-3 py-2 text-right font-medium text-slate-500">CTRU Real</th>
-                  <th className="px-3 py-2 text-right font-medium text-slate-500">Margen Nom.</th>
-                  <th className="px-3 py-2 text-right font-medium text-slate-500">Margen Real</th>
-                  <th className="px-3 py-2 text-right font-medium text-slate-500">Gap</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {topGap.map(m => (
-                  <tr key={m.productoId} className="hover:bg-slate-50">
-                    <td className="px-3 py-2 max-w-[200px] truncate">{m.nombreProducto}</td>
-                    <td className="px-3 py-2 text-right font-mono">S/ {formatMonto(m.precioVenta)}</td>
-                    <td className="px-3 py-2 text-right font-mono">S/ {formatMonto(m.ctruNominal)}</td>
-                    <td className="px-3 py-2 text-right font-mono">S/ {formatMonto(m.ctruReal)}</td>
-                    <td className="px-3 py-2 text-right font-mono">{m.margenNominalPct.toFixed(1)}%</td>
-                    <td className="px-3 py-2 text-right font-mono">{m.margenRealPct.toFixed(1)}%</td>
-                    <td className={`px-3 py-2 text-right font-mono font-semibold ${m.gapCambiario >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      S/ {m.gapCambiario >= 0 ? '+' : ''}{formatMonto(m.gapCambiario)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const gapColumns: DataTableColumn<MargenRealVsNominal>[] = [
+              {
+                key: 'producto',
+                header: 'Producto',
+                render: (m) => <span className="max-w-[200px] truncate block">{m.nombreProducto}</span>,
+              },
+              {
+                key: 'precio',
+                header: 'Precio',
+                align: 'right',
+                render: (m) => <span className="font-mono">S/ {formatMonto(m.precioVenta)}</span>,
+              },
+              {
+                key: 'ctruNominal',
+                header: 'CTRU Nominal',
+                align: 'right',
+                render: (m) => <span className="font-mono">S/ {formatMonto(m.ctruNominal)}</span>,
+              },
+              {
+                key: 'ctruReal',
+                header: 'CTRU Real',
+                align: 'right',
+                render: (m) => <span className="font-mono">S/ {formatMonto(m.ctruReal)}</span>,
+              },
+              {
+                key: 'margenNom',
+                header: 'Margen Nom.',
+                align: 'right',
+                render: (m) => <span className="font-mono">{m.margenNominalPct.toFixed(1)}%</span>,
+              },
+              {
+                key: 'margenReal',
+                header: 'Margen Real',
+                align: 'right',
+                render: (m) => <span className="font-mono">{m.margenRealPct.toFixed(1)}%</span>,
+              },
+              {
+                key: 'gap',
+                header: 'Gap',
+                align: 'right',
+                render: (m) => (
+                  <span className={`font-mono font-semibold ${m.gapCambiario >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    S/ {m.gapCambiario >= 0 ? '+' : ''}{formatMonto(m.gapCambiario)}
+                  </span>
+                ),
+              },
+            ];
+            return (
+              <DataTable
+                columns={gapColumns}
+                data={topGap}
+                keyExtractor={(m) => m.productoId}
+                compact
+              />
+            );
+          })()}
         </Card>
       )}
 
@@ -1376,12 +1453,12 @@ const TabSimuladorTC: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header info */}
-      <Card className="p-4 bg-blue-50/50 border-blue-200">
+      <Card className="p-4 bg-sky-50/50 border-sky-200">
         <div className="flex items-start gap-2">
-          <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+          <Info className="w-5 h-5 text-sky-500 mt-0.5 flex-shrink-0" />
           <div>
-            <h3 className="text-sm font-semibold text-blue-800">Simulador de Escenarios de Tipo de Cambio</h3>
-            <p className="text-xs text-blue-600 mt-1">
+            <h3 className="text-sm font-semibold text-sky-800">Simulador de Escenarios de Tipo de Cambio</h3>
+            <p className="text-xs text-sky-600 mt-1">
               ¿Qué pasa si el TC sube o baja? Este simulador muestra el impacto en tu pool USD, costos de reposición y márgenes.
               TC actual: <strong>{formatTC(tcMercado)}</strong> | TCPA del pool: <strong>{formatTC(tcpa)}</strong> | Pool: <strong>${formatMonto(saldoPoolUSD)}</strong>
             </p>
@@ -1408,19 +1485,19 @@ const TabSimuladorTC: React.FC<{
             <div className="flex gap-4 text-sm pb-2">
               <div className="text-center">
                 <p className="text-xs text-slate-500">Variación</p>
-                <p className={`font-bold ${escenarioCustom.variacionPct >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                <p className={`font-bold ${escenarioCustom.variacionPct >= 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                   {escenarioCustom.variacionPct >= 0 ? '+' : ''}{escenarioCustom.variacionPct.toFixed(1)}%
                 </p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-slate-500">Pool PEN</p>
-                <p className={`font-bold ${escenarioCustom.impactoPoolPEN >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`font-bold ${escenarioCustom.impactoPoolPEN >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {escenarioCustom.impactoPoolPEN >= 0 ? '+' : ''}S/ {formatMonto(escenarioCustom.impactoPoolPEN)}
                 </p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-slate-500">Margen</p>
-                <p className={`font-bold ${escenarioCustom.impactoMargenPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`font-bold ${escenarioCustom.impactoMargenPct >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {escenarioCustom.impactoMargenPct >= 0 ? '+' : ''}{escenarioCustom.impactoMargenPct.toFixed(1)}%
                 </p>
               </div>
@@ -1432,49 +1509,98 @@ const TabSimuladorTC: React.FC<{
       {/* Tabla de escenarios predefinidos */}
       <Card className="p-4">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Escenarios Predefinidos</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium text-slate-500">Escenario</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">TC</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Variación</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto Pool</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto CTRU</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Impacto Margen</th>
-                <th className="px-3 py-2 text-right font-medium text-slate-500">Nec. Ventas PEN</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {escenarios.map((esc, i) => {
+        {(() => {
+          const escenariosColumns: DataTableColumn<EscenarioTC>[] = [
+            {
+              key: 'escenario',
+              header: 'Escenario',
+              render: (esc) => (
+                <span className={`font-medium ${esc.variacionPct === 0 ? 'text-sky-700' : ''}`}>
+                  {esc.nombre}
+                </span>
+              ),
+            },
+            {
+              key: 'tc',
+              header: 'TC',
+              align: 'right',
+              render: (esc) => <span className="font-mono">{formatTC(esc.tcSimulado)}</span>,
+            },
+            {
+              key: 'variacion',
+              header: 'Variación',
+              align: 'right',
+              render: (esc) => {
                 const isBase = esc.variacionPct === 0;
                 return (
-                  <tr key={i} className={isBase ? 'bg-blue-50' : 'hover:bg-slate-50'}>
-                    <td className={`px-3 py-2 font-medium ${isBase ? 'text-blue-700' : ''}`}>
-                      {esc.nombre}
-                    </td>
-                    <td className="px-3 py-2 text-right font-mono">{formatTC(esc.tcSimulado)}</td>
-                    <td className={`px-3 py-2 text-right font-mono ${esc.variacionPct > 0 ? 'text-red-600' : esc.variacionPct < 0 ? 'text-green-600' : ''}`}>
-                      {esc.variacionPct === 0 ? '-' : `${esc.variacionPct > 0 ? '+' : ''}${esc.variacionPct}%`}
-                    </td>
-                    <td className={`px-3 py-2 text-right font-mono ${esc.impactoPoolPEN >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {isBase ? '-' : `${esc.impactoPoolPEN >= 0 ? '+' : ''}S/ ${formatMonto(esc.impactoPoolPEN)}`}
-                    </td>
-                    <td className={`px-3 py-2 text-right font-mono ${esc.impactoCTRURealPEN > 0 ? 'text-red-600' : esc.impactoCTRURealPEN < 0 ? 'text-green-600' : ''}`}>
-                      {isBase ? '-' : `${esc.impactoCTRURealPEN >= 0 ? '+' : ''}S/ ${formatMonto(esc.impactoCTRURealPEN)}`}
-                    </td>
-                    <td className={`px-3 py-2 text-right font-mono ${esc.impactoMargenPct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {isBase ? '-' : `${esc.impactoMargenPct >= 0 ? '+' : ''}${esc.impactoMargenPct.toFixed(1)}%`}
-                    </td>
-                    <td className={`px-3 py-2 text-right font-mono ${esc.impactoNecesidadPEN > 0 ? 'text-red-600' : esc.impactoNecesidadPEN < 0 ? 'text-green-600' : ''}`}>
-                      {isBase ? '-' : `${esc.impactoNecesidadPEN >= 0 ? '+' : ''}S/ ${formatMonto(esc.impactoNecesidadPEN)}`}
-                    </td>
-                  </tr>
+                  <span className={`font-mono ${esc.variacionPct > 0 ? 'text-red-600' : esc.variacionPct < 0 ? 'text-emerald-600' : ''}`}>
+                    {isBase ? '-' : `${esc.variacionPct > 0 ? '+' : ''}${esc.variacionPct}%`}
+                  </span>
                 );
-              })}
-            </tbody>
-          </table>
-        </div>
+              },
+            },
+            {
+              key: 'impactoPool',
+              header: 'Impacto Pool',
+              align: 'right',
+              render: (esc) => {
+                const isBase = esc.variacionPct === 0;
+                return (
+                  <span className={`font-mono ${esc.impactoPoolPEN >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {isBase ? '-' : `${esc.impactoPoolPEN >= 0 ? '+' : ''}S/ ${formatMonto(esc.impactoPoolPEN)}`}
+                  </span>
+                );
+              },
+            },
+            {
+              key: 'impactoCTRU',
+              header: 'Impacto CTRU',
+              align: 'right',
+              render: (esc) => {
+                const isBase = esc.variacionPct === 0;
+                return (
+                  <span className={`font-mono ${esc.impactoCTRURealPEN > 0 ? 'text-red-600' : esc.impactoCTRURealPEN < 0 ? 'text-emerald-600' : ''}`}>
+                    {isBase ? '-' : `${esc.impactoCTRURealPEN >= 0 ? '+' : ''}S/ ${formatMonto(esc.impactoCTRURealPEN)}`}
+                  </span>
+                );
+              },
+            },
+            {
+              key: 'impactoMargen',
+              header: 'Impacto Margen',
+              align: 'right',
+              render: (esc) => {
+                const isBase = esc.variacionPct === 0;
+                return (
+                  <span className={`font-mono ${esc.impactoMargenPct >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {isBase ? '-' : `${esc.impactoMargenPct >= 0 ? '+' : ''}${esc.impactoMargenPct.toFixed(1)}%`}
+                  </span>
+                );
+              },
+            },
+            {
+              key: 'necVentasPEN',
+              header: 'Nec. Ventas PEN',
+              align: 'right',
+              render: (esc) => {
+                const isBase = esc.variacionPct === 0;
+                return (
+                  <span className={`font-mono ${esc.impactoNecesidadPEN > 0 ? 'text-red-600' : esc.impactoNecesidadPEN < 0 ? 'text-emerald-600' : ''}`}>
+                    {isBase ? '-' : `${esc.impactoNecesidadPEN >= 0 ? '+' : ''}S/ ${formatMonto(esc.impactoNecesidadPEN)}`}
+                  </span>
+                );
+              },
+            },
+          ];
+          return (
+            <DataTable
+              columns={escenariosColumns}
+              data={escenarios}
+              keyExtractor={(esc) => esc.nombre}
+              compact
+            />
+          );
+        })()}
       </Card>
 
       {/* Gráfico visual de impacto */}

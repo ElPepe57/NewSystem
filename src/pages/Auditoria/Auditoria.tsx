@@ -128,11 +128,11 @@ export const Auditoria: React.FC = () => {
 
   const getNivelIcon = (nivel: NivelAuditoria) => {
     switch (nivel) {
-      case 'info': return <Info className="h-4 w-4 text-blue-500" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'info': return <Info className="h-4 w-4 text-sky-500" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-amber-500" />;
       case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
       case 'critical': return <XCircle className="h-4 w-4 text-red-700" />;
-      default: return <CheckCircle className="h-4 w-4 text-green-500" />;
+      default: return <CheckCircle className="h-4 w-4 text-emerald-500" />;
     }
   };
 
@@ -392,7 +392,7 @@ export const Auditoria: React.FC = () => {
                               <span className="font-medium text-slate-600">{cambio.campo}:</span>
                               <span className="text-red-500 line-through">{String(cambio.valorAnterior)}</span>
                               <span className="text-slate-400">→</span>
-                              <span className="text-green-600">{String(cambio.valorNuevo)}</span>
+                              <span className="text-emerald-600">{String(cambio.valorNuevo)}</span>
                             </div>
                           ))}
                         </div>
