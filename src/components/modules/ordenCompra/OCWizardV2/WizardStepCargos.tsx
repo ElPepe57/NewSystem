@@ -191,14 +191,85 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
           title="Impuestos del proveedor"
           icon={Receipt}
           color="text-sky-600"
-          onAdd={() => onAddImpuesto({ id: generateId(), concepto: '', montoUSD: 0 })}
+          onAdd={() => onAddImpuesto({ id: generateId(), concepto: '', modo: 'porcentaje', porcentaje: 0, montoUSD: 0 })}
           addLabel="Agregar impuesto"
         >
           {impuestos.length === 0 ? (
-            <p className="text-xs text-slate-400 py-2">Sin impuestos (ej: Sales Tax CA)</p>
+            <p className="text-xs text-slate-400 py-2">Sin impuestos (ej: Sales Tax CA 9.5%)</p>
           ) : (
             impuestos.map(i => (
-              <LineItem key={i.id} item={i} onUpdate={onUpdateImpuesto} onRemove={onRemoveImpuesto} color="text-sky-700" datalistId="dl-impuestos" sugerencias={SUGERENCIAS_IMPUESTOS} />
+              <div key={i.id} className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <input
+                  type="text"
+                  list="dl-impuestos"
+                  value={i.concepto}
+                  onChange={e => onUpdateImpuesto({ ...i, concepto: e.target.value })}
+                  placeholder="Concepto..."
+                  className="flex-1 min-w-0 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                />
+                <datalist id="dl-impuestos">
+                  {SUGERENCIAS_IMPUESTOS.map(s => <option key={s} value={s} />)}
+                </datalist>
+                {/* Toggle % / $ */}
+                <div className="flex rounded-lg border border-slate-200 overflow-hidden flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const pct = i.porcentaje || 0;
+                      onUpdateImpuesto({ ...i, modo: 'porcentaje', montoUSD: Math.round((subtotalProductos * pct / 100) * 100) / 100 });
+                    }}
+                    className={cn('px-2 py-1.5 text-xs font-medium transition-colors', i.modo === 'porcentaje' ? 'bg-sky-100 text-sky-700' : 'text-slate-400 hover:text-slate-600')}
+                  >%</button>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateImpuesto({ ...i, modo: 'fijo' })}
+                    className={cn('px-2 py-1.5 text-xs font-medium transition-colors', i.modo === 'fijo' ? 'bg-sky-100 text-sky-700' : 'text-slate-400 hover:text-slate-600')}
+                  >$</button>
+                </div>
+                {i.modo === 'porcentaje' ? (
+                  <>
+                    <div className="relative w-20 flex-shrink-0">
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="100"
+                        value={i.porcentaje || ''}
+                        onChange={e => {
+                          const pct = parseFloat(e.target.value) || 0;
+                          const monto = Math.round((subtotalProductos * pct / 100) * 100) / 100;
+                          onUpdateImpuesto({ ...i, porcentaje: pct, montoUSD: monto });
+                        }}
+                        placeholder="0.0"
+                        className="w-full pr-6 pl-2 py-2 text-sm rounded-lg border border-slate-200 text-right font-medium focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-sky-700"
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">%</span>
+                    </div>
+                    <span className="text-xs text-slate-500 w-16 text-right flex-shrink-0">
+                      = ${i.montoUSD.toFixed(2)}
+                    </span>
+                  </>
+                ) : (
+                  <div className="relative w-28 flex-shrink-0">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={i.montoUSD || ''}
+                      onChange={e => onUpdateImpuesto({ ...i, montoUSD: parseFloat(e.target.value) || 0 })}
+                      placeholder="0.00"
+                      className="w-full pl-7 pr-3 py-2 text-sm rounded-lg border border-slate-200 text-right font-medium focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-sky-700"
+                    />
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => onRemoveImpuesto(i.id)}
+                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             ))
           )}
         </Section>

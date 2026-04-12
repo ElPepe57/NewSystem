@@ -528,5 +528,7 @@ export type QuienPagaFlete =
 export interface ImpuestoOC {
   id: string;
   concepto: string;     // "Sales Tax CA", "VAT", etc.
-  montoUSD: number;
+  modo: 'porcentaje' | 'fijo';  // Dual: el usuario elige
+  porcentaje?: number;  // Ej: 9.5 para 9.5% (cuando modo='porcentaje')
+  montoUSD: number;     // Calculado si %, directo si fijo
 }
