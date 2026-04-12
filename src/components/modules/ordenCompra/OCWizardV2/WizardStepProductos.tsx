@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { Globe, Package, Plus, Trash2 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Globe, Package, Plus, Trash2, RefreshCw } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import { useProductoStore } from '../../../../store/productoStore';
 import { useTipoCambioStore } from '../../../../store/tipoCambioStore';
@@ -46,6 +46,8 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
 }) => {
   const { productos: catalogoProductos, fetchProductos, loading: loadingProductos } = useProductoStore();
   const { getTCDelDia } = useTipoCambioStore();
+  const [tcAutoLoaded, setTcAutoLoaded] = useState(false);
+  const [loadingTC, setLoadingTC] = useState(false);
 
   // Load productos catalog on mount
   useEffect(() => {
@@ -57,11 +59,25 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
   // Auto-populate TC if not set
   useEffect(() => {
     if (tcCompra === 0) {
+      setLoadingTC(true);
       getTCDelDia().then((tc) => {
-        if (tc?.venta) onSetTC(tc.venta);
-      });
+        if (tc?.venta) {
+          onSetTC(tc.venta);
+          setTcAutoLoaded(true);
+        }
+      }).finally(() => setLoadingTC(false));
     }
   }, []);
+
+  const handleRefreshTC = async () => {
+    setLoadingTC(true);
+    const tc = await getTCDelDia();
+    if (tc?.venta) {
+      onSetTC(tc.venta);
+      setTcAutoLoaded(true);
+    }
+    setLoadingTC(false);
+  };
 
   const subtotal = useMemo(
     () => productos.reduce((sum, p) => sum + (p.costoUnitario || 0) * (p.cantidad || 0), 0),
@@ -183,11 +199,22 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
                   min="0"
                   step="0.001"
                   value={tcCompra || ''}
-                  onChange={(e) => onSetTC(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => { onSetTC(parseFloat(e.target.value) || 0); setTcAutoLoaded(false); }}
                   placeholder="3.750"
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900"
+                  className="w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900"
                 />
+                <button
+                  type="button"
+                  onClick={handleRefreshTC}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-teal-600 rounded transition-colors"
+                  title="Obtener TC del día"
+                >
+                  <RefreshCw className={cn('w-3.5 h-3.5', loadingTC && 'animate-spin')} />
+                </button>
               </div>
+              {tcAutoLoaded && tcCompra > 0 && (
+                <p className="text-[10px] text-teal-600 mt-0.5">TC del día (auto)</p>
+              )}
             </div>
           </div>
         </div>

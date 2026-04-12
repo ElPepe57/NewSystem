@@ -23,28 +23,43 @@ function generateId() {
   return Math.random().toString(36).substring(2, 9);
 }
 
+// Sugerencias de conceptos comunes por tipo
+const SUGERENCIAS_CARGOS = ['Shipping & Handling', 'Freight', 'Insurance', 'Handling Fee', 'Packaging Fee', 'Cargo adicional proveedor'];
+const SUGERENCIAS_DESCUENTOS = ['Subscribe & Save', 'Bulk Discount', 'Coupon', 'Loyalty Discount', 'Promotional Discount'];
+const SUGERENCIAS_IMPUESTOS = ['Sales Tax', 'VAT', 'Import Tax', 'State Tax', 'GST'];
+
 function LineItem<T extends { id: string; concepto: string; montoUSD: number }>({
   item,
   onUpdate,
   onRemove,
   color,
   showProrrateo,
+  datalistId,
+  sugerencias,
 }: {
   item: T;
   onUpdate: (updated: T) => void;
   onRemove: (id: string) => void;
   color: string;
   showProrrateo?: boolean;
+  datalistId?: string;
+  sugerencias?: string[];
 }) {
   return (
     <div className="flex items-center gap-2">
       <input
         type="text"
+        list={datalistId}
         value={item.concepto}
         onChange={e => onUpdate({ ...item, concepto: e.target.value })}
         placeholder="Concepto..."
         className="flex-1 min-w-0 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
       />
+      {datalistId && sugerencias && (
+        <datalist id={datalistId}>
+          {sugerencias.map(s => <option key={s} value={s} />)}
+        </datalist>
+      )}
       <div className="relative w-32 flex-shrink-0">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
         <input
@@ -149,7 +164,7 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
             <p className="text-xs text-slate-400 py-2">Sin cargos adicionales (ej: Shipping &amp; Handling)</p>
           ) : (
             cargos.map(c => (
-              <LineItem key={c.id} item={c} onUpdate={onUpdateCargo} onRemove={onRemoveCargo} color="text-amber-700" showProrrateo />
+              <LineItem key={c.id} item={c} onUpdate={onUpdateCargo} onRemove={onRemoveCargo} color="text-amber-700" showProrrateo datalistId="dl-cargos" sugerencias={SUGERENCIAS_CARGOS} />
             ))
           )}
         </Section>
@@ -166,7 +181,7 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
             <p className="text-xs text-slate-400 py-2">Sin descuentos (ej: Subscribe &amp; Save)</p>
           ) : (
             descuentos.map(d => (
-              <LineItem key={d.id} item={d} onUpdate={onUpdateDescuento} onRemove={onRemoveDescuento} color="text-emerald-700" />
+              <LineItem key={d.id} item={d} onUpdate={onUpdateDescuento} onRemove={onRemoveDescuento} color="text-emerald-700" datalistId="dl-descuentos" sugerencias={SUGERENCIAS_DESCUENTOS} />
             ))
           )}
         </Section>
@@ -183,7 +198,7 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
             <p className="text-xs text-slate-400 py-2">Sin impuestos (ej: Sales Tax CA)</p>
           ) : (
             impuestos.map(i => (
-              <LineItem key={i.id} item={i} onUpdate={onUpdateImpuesto} onRemove={onRemoveImpuesto} color="text-sky-700" />
+              <LineItem key={i.id} item={i} onUpdate={onUpdateImpuesto} onRemove={onRemoveImpuesto} color="text-sky-700" datalistId="dl-impuestos" sugerencias={SUGERENCIAS_IMPUESTOS} />
             ))
           )}
         </Section>

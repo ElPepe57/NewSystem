@@ -420,7 +420,9 @@ export const OrdenesCompra: React.FC = () => {
   };
 
   // Helper: obtener orden fresca del store (evita stale closure)
-  const refreshSelectedOrden = (ordenId: string) => {
+  const refreshSelectedOrden = async (ordenId: string) => {
+    // Re-fetch to ensure fresh data from Firestore
+    await fetchOrdenes();
     const freshOrdenes = useOrdenCompraStore.getState().ordenes;
     const ordenActualizada = freshOrdenes.find(o => o.id === ordenId);
     if (ordenActualizada) setSelectedOrdenLocal(ordenActualizada);
