@@ -103,11 +103,11 @@ export interface OCWizardState {
 export const initialWizardState: OCWizardState = {
   currentStep: 0,
   configLogistica: {
-    quienEnvia: null,
-    destinoEntrega: null,
-    quienTransporta: null,
-    quienPagaFlete: null,
-    entregaDomicilio: null,
+    salidaProveedor: null,
+    fleteProveedorIncluido: null,
+    llegadaPeru: null,
+    colaboradorNombre: '',
+    ultimaMilla: null,
   },
   modoEntregaDetallado: null,
   quienPagaFlete: null,
