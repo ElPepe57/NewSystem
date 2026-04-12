@@ -196,19 +196,19 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
             <div className="space-y-6">
               {/* Resumen de categoría */}
               <div className="grid grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-4">
+                <div className="bg-blue-500 text-white rounded-lg p-4">
                   <div className="text-sm opacity-80">Total Marcas</div>
                   <div className="text-3xl font-bold">{comparaciones.length}</div>
                 </div>
-                <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-4">
+                <div className="bg-emerald-500 text-white rounded-lg p-4">
                   <div className="text-sm opacity-80">Ventas Totales</div>
                   <div className="text-2xl font-bold">{formatCurrency(totalVentas)}</div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg p-4">
+                <div className="bg-purple-500 text-white rounded-lg p-4">
                   <div className="text-sm opacity-80">Productos</div>
                   <div className="text-3xl font-bold">{totalProductos}</div>
                 </div>
-                <div className="bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-lg p-4">
+                <div className="bg-amber-500 text-white rounded-lg p-4">
                   <div className="text-sm opacity-80">Margen Promedio</div>
                   <div className="text-3xl font-bold">{formatPercent(margenPromedio || 0)}</div>
                 </div>
@@ -327,7 +327,7 @@ export function MarcasComparador({ onClose }: MarcasComparadorProps) {
               </div>
 
               {/* Insights */}
-              <div className="bg-gradient-to-r from-blue-50 to-teal-50 rounded-lg p-6 border border-blue-100">
+              <div className="bg-slate-50 rounded-lg p-6 border border-blue-100">
                 <h3 className="font-semibold text-slate-900 mb-4">
                   Insights {modoComparacion === 'categoria' ? 'de la Categoría' : 'del Tipo de Producto'}: {seleccionActual}
                 </h3>

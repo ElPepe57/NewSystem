@@ -162,7 +162,7 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-teal-50 to-purple-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-teal-50">
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 bg-teal-100 rounded-xl flex items-center justify-center">
               <Truck className="h-7 w-7 text-teal-600" />

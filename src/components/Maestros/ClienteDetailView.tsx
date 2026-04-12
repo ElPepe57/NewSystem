@@ -412,7 +412,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
 
       {/* Ranking */}
       {analytics && analytics.rankingGeneral > 0 && (
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 border border-purple-100">
+        <div className="bg-slate-50 rounded-lg p-6 border border-purple-100">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-slate-900">Ranking General</h3>
@@ -563,7 +563,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                   <div className="flex-1">
                     <div className="bg-slate-200 rounded-full h-4 overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full"
+                        className="bg-teal-500 h-full rounded-full"
                         style={{ width: `${marca.porcentajeGasto}%` }}
                       />
                     </div>
@@ -635,7 +635,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
                     <div className="w-20 text-sm text-slate-500">{mes.periodo}</div>
                     <div className="flex-1 bg-slate-200 rounded-full h-6 overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-green-500 to-green-600 h-full rounded-full flex items-center justify-end pr-2"
+                        className="bg-emerald-500 h-full rounded-full flex items-center justify-end pr-2"
                         style={{ width: `${Math.max(porcentaje, 5)}%` }}
                       >
                         {porcentaje > 20 && (
@@ -779,7 +779,7 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
           </div>
 
           {/* Valor de vida */}
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-6">
+          <div className="bg-emerald-500 text-white rounded-lg p-6">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-lg opacity-90">Valor de Vida Estimado (CLV)</h3>

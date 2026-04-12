@@ -440,7 +440,7 @@ export function MarcaDetailView({ marca, onClose, onEdit }: MarcaDetailViewProps
                       <div className="w-20 text-sm text-slate-500">{periodo.periodo}</div>
                       <div className="flex-1 bg-slate-200 rounded-full h-6 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full flex items-center justify-end pr-2"
+                          className="bg-blue-500 h-full rounded-full flex items-center justify-end pr-2"
                           style={{ width: `${Math.max(porcentaje, 5)}%` }}
                         >
                           <span className="text-xs text-white font-medium">
