@@ -16,13 +16,19 @@ interface OrdenCompraTableProps {
   loading?: boolean;
 }
 
-const estadoLabels: Record<EstadoOrden, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
+const estadoLabels: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
+  // Estados nuevos (reingeniería)
   borrador: { label: 'Borrador', variant: 'default' },
-  enviada: { label: 'Enviada', variant: 'info' },
-  en_transito: { label: 'En Tránsito', variant: 'warning' },
-  recibida_parcial: { label: 'Parcial', variant: 'warning' },
-  recibida: { label: 'Recibida', variant: 'success' },
-  cancelada: { label: 'Cancelada', variant: 'danger' }
+  confirmada: { label: 'Confirmada', variant: 'info' },
+  en_proceso: { label: 'En Proceso', variant: 'warning' },
+  despachada: { label: 'Despachada', variant: 'warning' },
+  completada: { label: 'Completada', variant: 'success' },
+  cancelada: { label: 'Cancelada', variant: 'danger' },
+  // Estados legacy (backward compat)
+  enviada: { label: 'Confirmada', variant: 'info' },
+  en_transito: { label: 'En Proceso', variant: 'warning' },
+  recibida_parcial: { label: 'Despachada', variant: 'warning' },
+  recibida: { label: 'Completada', variant: 'success' },
 };
 
 const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {

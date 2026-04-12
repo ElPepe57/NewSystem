@@ -157,29 +157,32 @@ export const OrdenesCompra: React.FC = () => {
 
   // Pipeline stages para filtrado visual
   const pipelineStages: PipelineStage[] = useMemo(() => {
-    const counts = {
-      borrador: ordenesLN.filter(o => o.estado === 'borrador').length,
-      enviada: ordenesLN.filter(o => o.estado === 'enviada').length,
-      en_transito: ordenesLN.filter(o => o.estado === 'en_transito').length,
-      recibida_parcial: ordenesLN.filter(o => o.estado === 'recibida_parcial').length,
-      recibida: ordenesLN.filter(o => o.estado === 'recibida').length,
-      cancelada: ordenesLN.filter(o => o.estado === 'cancelada').length
-    };
+    // Contar estados nuevos (reingeniería) + legacy mapeados
+    const countEstado = (estados: string[]) => ordenesLN.filter(o => estados.includes(o.estado)).length;
 
     return [
-      { id: 'borrador', label: 'Borrador', count: counts.borrador, color: 'gray', icon: <FileText className="h-4 w-4" /> },
-      { id: 'enviada', label: 'Enviada', count: counts.enviada, color: 'blue', icon: <Send className="h-4 w-4" /> },
-      { id: 'en_transito', label: 'En Tránsito', count: counts.en_transito, color: 'yellow', icon: <Truck className="h-4 w-4" /> },
-      { id: 'recibida_parcial', label: 'Parcial', count: counts.recibida_parcial, color: 'orange', icon: <PackageCheck className="h-4 w-4" /> },
-      { id: 'recibida', label: 'Recibida', count: counts.recibida, color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
-      { id: 'cancelada', label: 'Cancelada', count: counts.cancelada, color: 'red', icon: <XCircle className="h-4 w-4" /> }
+      { id: 'borrador', label: 'Borrador', count: countEstado(['borrador']), color: 'gray', icon: <FileText className="h-4 w-4" /> },
+      { id: 'confirmada', label: 'Confirmada', count: countEstado(['confirmada', 'enviada']), color: 'blue', icon: <Send className="h-4 w-4" /> },
+      { id: 'en_proceso', label: 'En Proceso', count: countEstado(['en_proceso', 'en_transito']), color: 'yellow', icon: <Truck className="h-4 w-4" /> },
+      { id: 'despachada', label: 'Despachada', count: countEstado(['despachada', 'recibida_parcial']), color: 'orange', icon: <PackageCheck className="h-4 w-4" /> },
+      { id: 'completada', label: 'Completada', count: countEstado(['completada', 'recibida']), color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
     ];
   }, [ordenesLN]);
+
+  // Mapeo de estados legacy a nuevos para filtros del pipeline
+  const estadoFilterMap: Record<string, string[]> = {
+    borrador: ['borrador'],
+    confirmada: ['confirmada', 'enviada'],
+    en_proceso: ['en_proceso', 'en_transito'],
+    despachada: ['despachada', 'recibida_parcial'],
+    completada: ['completada', 'recibida'],
+  };
 
   // Órdenes filtradas
   const ordenesFiltradas = useMemo(() => {
     if (!filtroEstado) return ordenesLN;
-    return ordenesLN.filter(o => o.estado === filtroEstado);
+    const estadosValidos = estadoFilterMap[filtroEstado] || [filtroEstado];
+    return ordenesLN.filter(o => estadosValidos.includes(o.estado));
   }, [ordenesLN, filtroEstado]);
 
   // Cargar datos al montar
@@ -642,18 +645,36 @@ export const OrdenesCompra: React.FC = () => {
 
   const getEstadoLabel = (estado: EstadoOrden): string => {
     const labels: Record<string, string> = {
-      borrador: 'Borrador', confirmada: 'Confirmada', enviada: 'Enviada',
-      pagada: 'Pagada', en_transito: 'En Tránsito', recibida_parcial: 'Parcial',
-      recibida: 'Recibida', cancelada: 'Cancelada',
+      borrador: 'Borrador',
+      confirmada: 'Confirmada',
+      en_proceso: 'En Proceso',
+      despachada: 'Despachada',
+      completada: 'Completada',
+      cancelada: 'Cancelada',
+      // Legacy (backward compat)
+      enviada: 'Confirmada',
+      en_transito: 'En Proceso',
+      recibida_parcial: 'Despachada',
+      recibida: 'Completada',
+      pagada: 'Pagada',
     };
     return labels[estado] || estado;
   };
 
   const getEstadoVariant = (estado: EstadoOrden): StatusVariant => {
     const map: Record<string, StatusVariant> = {
-      borrador: 'neutral', confirmada: 'info', enviada: 'info',
-      pagada: 'brand', en_transito: 'warning', recibida_parcial: 'warning',
-      recibida: 'success', cancelada: 'danger',
+      borrador: 'neutral',
+      confirmada: 'info',
+      en_proceso: 'warning',
+      despachada: 'warning',
+      completada: 'success',
+      cancelada: 'danger',
+      // Legacy
+      enviada: 'info',
+      en_transito: 'warning',
+      recibida_parcial: 'warning',
+      recibida: 'success',
+      pagada: 'brand',
     };
     return map[estado] ?? 'neutral';
   };
