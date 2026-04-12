@@ -148,7 +148,14 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                 <div className="min-w-0">
                   <span className="font-mono text-[10px] text-slate-400 block">{prod.sku}</span>
                   <h4 className="font-medium text-slate-900 text-sm leading-snug">{prod.nombreComercial}</h4>
-                  <span className="text-xs text-slate-500">{prod.marca} · {prod.presentacion}</span>
+                  <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
+                    <span className="text-xs text-slate-500">{prod.marca}</span>
+                    {prod.presentacion && <span className="text-xs text-slate-400">· {prod.presentacion}</span>}
+                    {prod.contenido && <span className="text-xs text-slate-400">· {prod.contenido}</span>}
+                    {prod.dosaje && <span className="text-xs text-slate-400">· {prod.dosaje}</span>}
+                    {prod.sabor && <span className="text-xs text-slate-400">· {prod.sabor}</span>}
+                    {prod.pesoLibras && <span className="text-xs text-slate-400">· {prod.pesoLibras} lb</span>}
+                  </div>
                 </div>
                 {priceEval && !loading && (
                   <div className="flex-shrink-0">

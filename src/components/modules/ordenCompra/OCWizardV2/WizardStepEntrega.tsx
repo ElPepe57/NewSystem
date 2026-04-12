@@ -338,12 +338,18 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
 
   const handleSelectProducto = (snapshot: ProductoSnapshot | null) => {
     if (!snapshot) return;
+    // Enrich from catalog to get contenido, dosaje, sabor, pesoLibras
+    const catalogItem = catalogoProductos.find(p => p.id === snapshot.productoId);
     const nuevo: ProductoOrden = {
       productoId: snapshot.productoId,
       sku: snapshot.sku,
       marca: snapshot.marca,
       nombreComercial: snapshot.nombreComercial,
       presentacion: snapshot.presentacion,
+      contenido: catalogItem?.contenido || undefined,
+      dosaje: catalogItem?.dosaje || undefined,
+      sabor: catalogItem?.sabor || undefined,
+      pesoLibras: catalogItem?.pesoLibras || undefined,
       cantidad: 1,
       costoUnitario: 0,
       subtotal: 0,
