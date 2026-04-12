@@ -55,7 +55,6 @@ export type { DropdownProps, DropdownItem, DropdownSelectProps } from './Dropdow
 // Professional UI Components (legacy — migrar a design-system)
 export {
   TabNavigation,
-  QuickStatRow,
   SectionHeader,
   EmptyState,
   HighlightBox,
