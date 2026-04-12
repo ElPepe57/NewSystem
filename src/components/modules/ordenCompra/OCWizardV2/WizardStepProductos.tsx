@@ -476,33 +476,63 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
                   {productos.map((prod, idx) => (
                     <div
                       key={`assign-${prod.productoId}-${idx}`}
-                      className="flex items-center justify-between gap-3 py-1.5 px-3 bg-slate-50 rounded-lg"
+                      className="py-2 px-3 bg-slate-50 rounded-lg space-y-2"
                     >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-[10px] font-medium text-teal-700 flex-shrink-0">
-                          {idx + 1}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-[10px] font-medium text-teal-700 flex-shrink-0">
+                            {idx + 1}
+                          </div>
+                          <span className="text-sm text-slate-700 truncate">{prod.nombreComercial}</span>
+                          <span className="text-xs text-slate-400 flex-shrink-0">{prod.sku}</span>
                         </div>
-                        <span className="text-sm text-slate-700 truncate">{prod.nombreComercial}</span>
-                        <span className="text-xs text-slate-400 flex-shrink-0">x{prod.cantidad}</span>
+                        <select
+                          value={subOrdenAssignment[idx] || ''}
+                          onChange={(e) => handleAssignmentChange(idx, e.target.value)}
+                          className={cn(
+                            'text-xs border rounded-lg px-2 py-1 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white flex-shrink-0',
+                            !subOrdenAssignment[idx]
+                              ? 'border-amber-300 text-amber-700'
+                              : 'border-slate-300 text-slate-900',
+                          )}
+                        >
+                          <option value="">Sin asignar</option>
+                          {subOrdenes.map((sub, sIdx) => (
+                            <option key={sub.id} value={sub.id}>
+                              Sub-orden {sIdx + 1}
+                              {sub.referenciaProveedor ? ` — ${sub.referenciaProveedor}` : ''}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                      <select
-                        value={subOrdenAssignment[idx] || ''}
-                        onChange={(e) => handleAssignmentChange(idx, e.target.value)}
-                        className={cn(
-                          'text-xs border rounded-lg px-2 py-1 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white flex-shrink-0',
-                          !subOrdenAssignment[idx]
-                            ? 'border-amber-300 text-amber-700'
-                            : 'border-slate-300 text-slate-900',
-                        )}
-                      >
-                        <option value="">Sin asignar</option>
-                        {subOrdenes.map((sub, sIdx) => (
-                          <option key={sub.id} value={sub.id}>
-                            Sub-orden {sIdx + 1}
-                            {sub.referenciaProveedor ? ` — ${sub.referenciaProveedor}` : ''}
-                          </option>
-                        ))}
-                      </select>
+                      {/* Editable quantity + price */}
+                      <div className="flex items-center gap-2 pl-7">
+                        <div className="flex items-center gap-1">
+                          <label className="text-[10px] text-slate-500">Cant:</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={prod.cantidad}
+                            onChange={(e) => handleFieldChange(idx, 'cantidad', e.target.value)}
+                            className="w-14 px-1.5 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-center"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <label className="text-[10px] text-slate-500">$:</label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={prod.costoUnitario || ''}
+                            onChange={(e) => handleFieldChange(idx, 'costoUnitario', e.target.value)}
+                            placeholder="0.00"
+                            className="w-20 px-1.5 py-1 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-right"
+                          />
+                        </div>
+                        <span className="text-xs font-medium text-slate-700 ml-auto">
+                          ${((prod.cantidad || 0) * (prod.costoUnitario || 0)).toFixed(2)}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
