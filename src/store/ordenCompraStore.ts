@@ -6,7 +6,8 @@ import type {
   OrdenCompraStats,
   Proveedor,
   ProveedorFormData,
-  PagoOrdenCompra
+  PagoOrdenCompra,
+  SubOrdenCompra
 } from '../types/ordenCompra.types';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { OrdenCompraService } from '../services/ordenCompra.service';
@@ -32,7 +33,7 @@ interface OrdenCompraState {
   createOrden: (data: OrdenCompraFormData, userId: string) => Promise<void>;
   updateOrden: (id: string, data: Partial<OrdenCompraFormData>, userId: string) => Promise<void>;
   cambiarEstadoOrden: (id: string, nuevoEstado: EstadoOrden, userId: string, datos?: any) => Promise<void>;
-  confirmarOC: (id: string, destinoCasillaId: string, userId: string, colaboradorId?: string) => Promise<{ unidadesCreadas: number; envioId: string }>;
+  confirmarOC: (id: string, destinoCasillaId: string, userId: string, colaboradorId?: string, subOrdenes?: SubOrdenCompra[]) => Promise<{ unidadesCreadas: number; envioId: string }>;
   registrarPago: (id: string, datos: {
     fechaPago: Date;
     monedaPago: 'USD' | 'PEN';
@@ -219,11 +220,11 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
     }
   },
 
-  confirmarOC: async (id: string, destinoCasillaId: string, userId: string, colaboradorId?: string) => {
+  confirmarOC: async (id: string, destinoCasillaId: string, userId: string, colaboradorId?: string, subOrdenes?: SubOrdenCompra[]) => {
     set({ loading: true, error: null });
     try {
       const { confirmarOC } = await import('../services/ordenCompra.crud.service');
-      const result = await confirmarOC(id, destinoCasillaId, userId, colaboradorId);
+      const result = await confirmarOC(id, destinoCasillaId, userId, colaboradorId, subOrdenes);
 
       // Optimistic update: reflejar el cambio de estado inmediatamente en la tabla
       const currentOrdenes = get().ordenes;

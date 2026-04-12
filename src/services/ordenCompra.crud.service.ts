@@ -559,13 +559,19 @@ export async function confirmarOC(
   ocId: string,
   destinoCasillaId: string,
   userId: string,
-  colaboradorId?: string
+  colaboradorId?: string,
+  subOrdenes?: import('../types/ordenCompra.types').SubOrdenCompra[]
 ): Promise<{ unidadesCreadas: number; envioId: string }> {
   const { writeBatch: createBatch } = await import('firebase/firestore');
   const { envioCrudService } = await import('./envio.crud.service');
 
   const orden = await getById(ocId);
   if (!orden) throw new Error('Orden no encontrada');
+
+  // Si se pasaron sub-órdenes desde el modal de confirmación, usarlas
+  if (subOrdenes && subOrdenes.length > 0) {
+    orden.subOrdenes = subOrdenes;
+  }
 
   if (orden.estado !== 'borrador') {
     throw new Error('Solo se pueden confirmar ordenes en estado borrador');
@@ -620,13 +626,18 @@ export async function confirmarOC(
 
   // 2. Actualizar OC a 'confirmada'
   const ocRef = doc(db, ORDENES_COLLECTION, ocId);
-  batch.update(ocRef, {
+  const ocUpdate: Record<string, unknown> = {
     estado: 'confirmada',
     inventarioGenerado: true,
     unidadesGeneradas: unidadIds,
     ultimaEdicion: now,
     editadoPor: userId,
-  });
+  };
+  // Persistir sub-órdenes si se configuraron en el modal de confirmación
+  if (orden.subOrdenes && orden.subOrdenes.length > 0) {
+    ocUpdate.subOrdenes = orden.subOrdenes;
+  }
+  batch.update(ocRef, ocUpdate);
 
   await batch.commit();
 

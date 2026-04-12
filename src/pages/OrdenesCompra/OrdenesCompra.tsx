@@ -543,16 +543,9 @@ export const OrdenesCompra: React.FC = () => {
     if (!user || !selectedOrden) return;
     try {
       setIsSubmitting(true);
-
-      // Guardar sub-órdenes en Firestore antes de confirmar (si las hay)
-      if (subOrdenes && subOrdenes.length > 0) {
-        const { updateDoc, doc } = await import('firebase/firestore');
-        const { db } = await import('../../lib/firebase');
-        await updateDoc(doc(db, 'ordenesCompra', selectedOrden.id), { subOrdenes });
-      }
-
       const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
-      const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid);
+      // Sub-órdenes se pasan a confirmarOC que las persiste en el batch
+      const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid, undefined, subOrdenes);
       await refreshSelectedOrden(selectedOrden.id);
       setIsConfirmarModalOpen(false);
       toast.success(
