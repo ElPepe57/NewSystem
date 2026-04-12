@@ -1,7 +1,71 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Plus, Trash2, DollarSign, Tag, Receipt } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { CargoOC, DescuentoOC, ImpuestoOC } from '../../../../types/ordenCompra.types';
+
+/** Inline autocomplete input with filtered suggestions dropdown */
+function AutocompleteInput({
+  value,
+  onChange,
+  placeholder,
+  suggestions,
+  className,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  suggestions: string[];
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const filtered = value.trim()
+    ? suggestions.filter(s => s.toLowerCase().includes(value.toLowerCase()))
+    : suggestions;
+
+  const showDropdown = focused && filtered.length > 0 && value !== filtered[0];
+
+  // Close on click outside
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <input
+        type="text"
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => { setFocused(true); setOpen(true); }}
+        onBlur={() => setTimeout(() => { setFocused(false); setOpen(false); }, 150)}
+        placeholder={placeholder}
+        className={className}
+      />
+      {open && showDropdown && (
+        <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+          {filtered.map(s => (
+            <button
+              key={s}
+              type="button"
+              onMouseDown={e => e.preventDefault()}
+              onClick={() => { onChange(s); setOpen(false); }}
+              className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface WizardStepCargosProps {
   cargos: CargoOC[];
@@ -47,32 +111,14 @@ function LineItem<T extends { id: string; concepto: string; montoUSD: number }>(
 }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 min-w-0 relative">
-        <input
-          type="text"
+      <div className="flex-1 min-w-0">
+        <AutocompleteInput
           value={item.concepto}
-          onChange={e => onUpdate({ ...item, concepto: e.target.value })}
+          onChange={val => onUpdate({ ...item, concepto: val })}
           placeholder="Concepto..."
-          className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-8 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+          suggestions={sugerencias || []}
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
         />
-        {sugerencias && sugerencias.length > 0 && (
-          <select
-            value=""
-            onChange={e => {
-              if (e.target.value) onUpdate({ ...item, concepto: e.target.value });
-              e.target.value = '';
-            }}
-            className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 opacity-0 cursor-pointer"
-            title="Seleccionar sugerencia"
-            aria-label="Sugerencias"
-          >
-            <option value="">▼</option>
-            {sugerencias.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        )}
-        {sugerencias && sugerencias.length > 0 && (
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs">▾</span>
-        )}
       </div>
       <div className="relative w-32 flex-shrink-0">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
@@ -225,27 +271,14 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
           ) : (
             impuestos.map(i => (
               <div key={i.id} className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                <div className="flex-1 min-w-0 relative">
-                  <input
-                    type="text"
+                <div className="flex-1 min-w-0">
+                  <AutocompleteInput
                     value={i.concepto}
-                    onChange={e => onUpdateImpuesto({ ...i, concepto: e.target.value })}
+                    onChange={val => onUpdateImpuesto({ ...i, concepto: val })}
                     placeholder="Concepto..."
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-8 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                    suggestions={SUGERENCIAS_IMPUESTOS}
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   />
-                  <select
-                    value=""
-                    onChange={e => {
-                      if (e.target.value) onUpdateImpuesto({ ...i, concepto: e.target.value });
-                      e.target.value = '';
-                    }}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 opacity-0 cursor-pointer"
-                    aria-label="Sugerencias"
-                  >
-                    <option value="">▼</option>
-                    {SUGERENCIAS_IMPUESTOS.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs">▾</span>
                 </div>
                 {/* Toggle % / $ */}
                 <div className="flex rounded-lg border border-slate-200 overflow-hidden flex-shrink-0">
