@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus, Trash2, DollarSign, Tag, Receipt } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { CargoOC, DescuentoOC, ImpuestoOC } from '../../../../types/ordenCompra.types';
@@ -139,6 +139,18 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
   onAddDescuento, onRemoveDescuento, onUpdateDescuento,
   onAddImpuesto, onRemoveImpuesto, onUpdateImpuesto,
 }) => {
+  // Recalculate percentage-based taxes when subtotal changes
+  useEffect(() => {
+    impuestos.forEach(i => {
+      if (i.modo === 'porcentaje' && i.porcentaje) {
+        const newMonto = Math.round((subtotalProductos * i.porcentaje / 100) * 100) / 100;
+        if (newMonto !== i.montoUSD) {
+          onUpdateImpuesto({ ...i, montoUSD: newMonto });
+        }
+      }
+    });
+  }, [subtotalProductos]);
+
   const totalCargos = cargos.reduce((s, c) => s + (c.montoUSD || 0), 0);
   const totalDescuentos = descuentos.reduce((s, d) => s + (d.montoUSD || 0), 0);
   const totalImpuestos = impuestos.reduce((s, i) => s + (i.montoUSD || 0), 0);
