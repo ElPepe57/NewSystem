@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck } from 'lucide-react';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2 } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
-import { PageShell, PageHeader, Toolbar, KPIBar, StatCard } from '../../design-system';
+import { PageShell, PageHeader, Toolbar, KPIBar, StatCard, DataCard } from '../../design-system';
+import type { StatusVariant } from '../../design-system';
 import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
@@ -20,6 +21,7 @@ import { useAuthStore } from '../../store/authStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
+import { formatFecha } from '../../utils/dateFormatters';
 
 // Interface para datos de requerimiento que viene del navigation state
 interface RequerimientoData {
@@ -104,6 +106,7 @@ export const OrdenesCompra: React.FC = () => {
   // Filtrar órdenes por línea de negocio global
   const ordenesLN = useLineaFilter(ordenes, o => o.lineaNegocioId);
 
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
@@ -628,6 +631,24 @@ export const OrdenesCompra: React.FC = () => {
     }
   };
 
+  const getEstadoLabel = (estado: EstadoOrden): string => {
+    const labels: Record<string, string> = {
+      borrador: 'Borrador', confirmada: 'Confirmada', enviada: 'Enviada',
+      pagada: 'Pagada', en_transito: 'En Tránsito', recibida_parcial: 'Parcial',
+      recibida: 'Recibida', cancelada: 'Cancelada',
+    };
+    return labels[estado] || estado;
+  };
+
+  const getEstadoVariant = (estado: EstadoOrden): StatusVariant => {
+    const map: Record<string, StatusVariant> = {
+      borrador: 'neutral', confirmada: 'info', enviada: 'info',
+      pagada: 'brand', en_transito: 'warning', recibida_parcial: 'warning',
+      recibida: 'success', cancelada: 'danger',
+    };
+    return map[estado] ?? 'neutral';
+  };
+
   return (
     <PageShell>
       {/* Header */}
@@ -704,18 +725,55 @@ export const OrdenesCompra: React.FC = () => {
       {/* Toolbar */}
       <Toolbar
         resultCount={ordenesFiltradas.length}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
-      {/* Tabla de Ordenes */}
-      <Card padding="none">
-        <OrdenCompraTable
-          ordenes={ordenesFiltradas}
-          onView={handleViewDetails}
-          onEdit={handleEditOrden}
-          onDelete={handleDelete}
-          loading={loading}
-        />
-      </Card>
+      {/* Lista de Ordenes */}
+      {viewMode === 'table' ? (
+        <Card padding="none">
+          <OrdenCompraTable
+            ordenes={ordenesFiltradas}
+            onView={handleViewDetails}
+            onEdit={handleEditOrden}
+            onDelete={handleDelete}
+            loading={loading}
+          />
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {ordenesFiltradas.length === 0 ? (
+            <div className="col-span-full bg-white border border-slate-200 rounded-lg py-16 text-center">
+              <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-sm font-medium text-slate-700">Sin resultados</p>
+              <p className="text-xs text-slate-500 mt-1">No se encontraron órdenes de compra.</p>
+            </div>
+          ) : (
+            ordenesFiltradas.map(orden => (
+              <DataCard
+                key={orden.id}
+                code={orden.numeroOrden}
+                title={orden.nombreProveedor || 'Sin proveedor'}
+                subtitle={`${orden.items?.length || 0} productos`}
+                status={{
+                  label: getEstadoLabel(orden.estado),
+                  variant: getEstadoVariant(orden.estado),
+                }}
+                stats={[
+                  { label: 'Total USD', value: `$${(orden.totalUSD || 0).toFixed(2)}` },
+                  { label: 'Total PEN', value: `S/${(orden.totalPEN || 0).toFixed(0)}` },
+                ]}
+                meta={[
+                  { icon: Calendar, text: formatFecha(orden.fechaCreacion) },
+                  { icon: Building2, text: orden.nombreProveedor || '-' },
+                ]}
+                onClick={() => handleViewDetails(orden)}
+                accentVariant={getEstadoVariant(orden.estado)}
+              />
+            ))
+          )}
+        </div>
+      )}
 
       {/* Modal Nueva Orden */}
       {isOrdenModalOpen && (

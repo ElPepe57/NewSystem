@@ -22,7 +22,8 @@ import {
   StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
-import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader, DataTable, StatusBadge } from '../../design-system';
+import type { DataTableColumn } from '../../design-system';
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
 import { useTransferenciaStore } from '../../store/envioStore';
 import { useProductoStore } from "../../store/productoStore";
@@ -113,6 +114,9 @@ export const Transferencias: React.FC = () => {
   const [selectedTransferencia, setSelectedTransferencia] = useState<Transferencia | null>(null);
   const [showEditFleteModal, setShowEditFleteModal] = useState(false);
   const [transferenciaParaFlete, setTransferenciaParaFlete] = useState<Transferencia | null>(null);
+
+  // Estado de vista
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
 
   // Estado de filtros
   const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes'>('todas');
@@ -376,6 +380,133 @@ export const Transferencias: React.FC = () => {
     }
   }, [user, transferenciaParaFlete, actualizarFlete]);
 
+  // Mapeo de estado → variante visual
+  const estadoVariant = (estado: EstadoTransferencia) => {
+    const map: Record<EstadoTransferencia, 'neutral' | 'info' | 'warning' | 'success' | 'danger'> = {
+      borrador: 'neutral',
+      preparando: 'info',
+      en_transito: 'warning',
+      recibida_parcial: 'warning',
+      recibida_completa: 'success',
+      cancelada: 'danger',
+    };
+    return map[estado] ?? 'neutral';
+  };
+
+  const estadoLabel = (estado: EstadoTransferencia): string => {
+    const map: Record<EstadoTransferencia, string> = {
+      borrador: 'Borrador',
+      preparando: 'Preparando',
+      en_transito: 'En Tránsito',
+      recibida_parcial: 'Parcial',
+      recibida_completa: 'Completa',
+      cancelada: 'Cancelada',
+    };
+    return map[estado] ?? estado;
+  };
+
+  // Columnas de la tabla
+  const envioColumns: DataTableColumn<Transferencia>[] = [
+    {
+      key: 'numero',
+      header: 'Número',
+      render: (t) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="font-mono text-sm font-medium text-slate-900">{t.numeroTransferencia}</span>
+          <span className="text-xs text-slate-500 capitalize">{esTipoTransferenciaInternacional(t.tipo) ? 'Internacional' : 'Interna'}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'ruta',
+      header: 'Ruta',
+      render: (t) => (
+        <div className="flex items-center gap-1 text-sm text-slate-700">
+          <span className="truncate max-w-[90px]" title={t.almacenOrigenNombre}>{t.almacenOrigenNombre}</span>
+          <ArrowRightLeft className="h-3 w-3 text-slate-400 shrink-0" />
+          <span className="truncate max-w-[90px]" title={t.almacenDestinoNombre}>{t.almacenDestinoNombre}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: (t) => (
+        <StatusBadge variant={estadoVariant(t.estado)} dot>
+          {estadoLabel(t.estado)}
+        </StatusBadge>
+      ),
+    },
+    {
+      key: 'unidades',
+      header: 'Unidades',
+      align: 'right',
+      render: (t) => (
+        <span className="text-sm text-slate-700">{t.totalUnidades ?? t.unidades?.length ?? 0}</span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'flete',
+      header: 'Flete',
+      align: 'right',
+      render: (t) => (
+        <span className="text-sm text-slate-700">
+          {t.costoFleteTotal != null
+            ? `$${t.costoFleteTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+            : '—'}
+        </span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      align: 'right',
+      render: (t) => (
+        <span className="text-sm text-slate-500">
+          {t.fechaCreacion?.toDate
+            ? t.fechaCreacion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' })
+            : '—'}
+        </span>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'acciones',
+      header: '',
+      align: 'right',
+      render: (t) => (
+        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+          {t.estado === 'borrador' && (
+            <button
+              onClick={() => handleConfirmar(t.id)}
+              className="text-xs px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors"
+            >
+              Confirmar
+            </button>
+          )}
+          {t.estado === 'preparando' && (
+            <button
+              onClick={() => handleEnviar(t.id)}
+              className="text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
+            >
+              Enviar
+            </button>
+          )}
+          {(t.estado === 'en_transito' || t.estado === 'recibida_parcial') && (
+            <button
+              onClick={() => handleIniciarRecepcion(t)}
+              className="text-xs px-2 py-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+            >
+              Recibir
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <PageShell>
       <PageHeader
@@ -457,6 +588,8 @@ export const Transferencias: React.FC = () => {
         filterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
         onFilterToggle={() => setShowFilters(true)}
         resultCount={transferenciasFiltradas.length}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       {/* FilterDrawer */}
@@ -520,7 +653,7 @@ export const Transferencias: React.FC = () => {
             )}
           </div>
         </Card>
-      ) : (
+      ) : viewMode === 'card' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {transferenciasFiltradas.map(transferencia => (
             <TransferenciaCard
@@ -535,6 +668,17 @@ export const Transferencias: React.FC = () => {
             />
           ))}
         </div>
+      ) : (
+        <Card padding="none">
+          <DataTable
+            columns={envioColumns}
+            data={transferenciasFiltradas}
+            keyExtractor={(t) => t.id}
+            onRowClick={(t) => setSelectedTransferencia(t)}
+            compact
+            emptyMessage="No hay envios con los filtros actuales"
+          />
+        </Card>
       )}
 
       {/* Modal: Crear transferencia */}
