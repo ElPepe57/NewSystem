@@ -109,9 +109,9 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
   };
 
   const handleAddSubOrden = () => {
-    const nextNum = subOrdenes.length + 1;
+    const uniqueId = `SUB-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const newSub: SubOrdenCompra = {
-      id: `SUB-${nextNum}`,
+      id: uniqueId,
       referenciaProveedor: '',
       productos: [],
       totalUSD: 0,
@@ -578,6 +578,7 @@ export const WizardStepProductos: React.FC<WizardStepProductosProps> = ({
                           Referencia proveedor (ej. "Amazon Order #111-222")
                         </label>
                         <input
+                          key={`ref-${sub.id}`}
                           type="text"
                           value={sub.referenciaProveedor}
                           onChange={(e) => handleSubOrdenRefChange(sub.id, e.target.value)}
