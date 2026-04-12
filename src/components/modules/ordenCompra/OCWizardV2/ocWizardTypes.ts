@@ -30,6 +30,7 @@ export function deriveDeliveryConfig(
 
   if (!modo) return defaults;
 
+  // Paso de flete siempre se skipea — quienPaga se auto-deriva de la opción
   switch (modo) {
     case 'ddp_directo':
       return {
@@ -43,16 +44,18 @@ export function deriveDeliveryConfig(
         modoEntrega: 'viajero',
         needsColaboradorSelector: true,
         colaboradorTipoFilter: 'viajero',
-        fleteIncluidoEnPrecio: quienPaga === 'proveedor',
-        showCostoEnvioField: quienPaga !== 'proveedor',
+        fleteIncluidoEnPrecio: false,
+        showCostoEnvioField: true,
+        skipStepFlete: true,
       };
     case 'via_courier':
       return {
         ...defaults,
         needsColaboradorSelector: true,
         colaboradorTipoFilter: 'courier_externo',
-        fleteIncluidoEnPrecio: quienPaga === 'proveedor',
-        showCostoEnvioField: quienPaga !== 'proveedor',
+        fleteIncluidoEnPrecio: false,
+        showCostoEnvioField: true,
+        skipStepFlete: true,
       };
     case 'recojo_propio':
       return {

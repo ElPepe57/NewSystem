@@ -37,15 +37,22 @@ export function ocWizardReducer(state: OCWizardState, action: OCWizardAction): O
     case 'SET_STEP':
       return { ...state, currentStep: action.step };
 
-    case 'SET_MODO_ENTREGA':
+    case 'SET_MODO_ENTREGA': {
+      // Auto-derive quienPagaFlete from mode (step flete is always skipped now)
+      const autoFlete = {
+        ddp_directo: 'proveedor' as const,
+        via_viajero: 'viajero' as const,
+        via_courier: 'comprador' as const,
+        recojo_propio: 'comprador' as const,
+      };
       return {
         ...state,
         modoEntregaDetallado: action.modo,
-        // Reset flete when changing mode
-        quienPagaFlete: null,
+        quienPagaFlete: autoFlete[action.modo] || null,
         colaboradorId: '',
         colaboradorNombre: '',
       };
+    }
 
     case 'SET_QUIEN_PAGA':
       return { ...state, quienPagaFlete: action.quien };
