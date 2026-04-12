@@ -56,12 +56,7 @@ export type { DropdownProps, DropdownItem, DropdownSelectProps } from './Dropdow
 export { TabNavigation } from './TabNavigation';
 
 // Professional UI Components (legacy)
-export {
-  SectionHeader,
-  EmptyState,
-  HighlightBox,
-  EntityAvatar,
-} from './ProfessionalUI';
+export { SectionHeader, EmptyState } from './ProfessionalUI';
 
 // Virtual List
 export { VirtualList, useVirtualTable } from './VirtualList';
