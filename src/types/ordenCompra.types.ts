@@ -386,6 +386,14 @@ export interface OrdenCompraFormData {
   tcCompra: number;
   modoEntrega?: 'viajero' | 'envio_directo';
   fleteIncluidoEnPrecio?: boolean;
+  // Wizard V2 (Acuerdos 40-41)
+  modoEntregaDetallado?: ModoEntregaDetallado;
+  quienPagaFlete?: QuienPagaFlete;
+  colaboradorTransporteId?: string;
+  colaboradorTransporteNombre?: string;
+  cargosOC?: CargoOC[];
+  descuentosOC?: DescuentoOC[];
+  impuestosOC?: ImpuestoOC[];
   almacenDestino: string;
   // Origen y línea de negocio (auto-heredados de productos)
   paisOrigen?: string;

@@ -181,6 +181,16 @@ export async function create(
     if (otrosGastos > 0) nuevaOrden.otrosGastosCompraUSD = otrosGastos;
     if (data.modoEntrega) nuevaOrden.modoEntrega = data.modoEntrega;
     if (data.fleteIncluidoEnPrecio) nuevaOrden.fleteIncluidoEnPrecio = data.fleteIncluidoEnPrecio;
+    // Wizard V2 fields (Acuerdos 40-41)
+    if (data.modoEntregaDetallado) nuevaOrden.modoEntregaDetallado = data.modoEntregaDetallado;
+    if (data.quienPagaFlete) nuevaOrden.quienPagaFlete = data.quienPagaFlete;
+    if (data.colaboradorTransporteId) {
+      nuevaOrden.colaboradorTransporteId = data.colaboradorTransporteId;
+      if (data.colaboradorTransporteNombre) nuevaOrden.colaboradorTransporteNombre = data.colaboradorTransporteNombre;
+    }
+    if (data.cargosOC && data.cargosOC.length > 0) nuevaOrden.cargosOC = data.cargosOC;
+    if (data.descuentosOC && data.descuentosOC.length > 0) nuevaOrden.descuentosOC = data.descuentosOC;
+    if (data.impuestosOC && data.impuestosOC.length > 0) nuevaOrden.impuestosOC = data.impuestosOC;
     if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
     if (data.tcCompra) {
       nuevaOrden.tcCompra = data.tcCompra;
@@ -613,14 +623,39 @@ export async function confirmarOC(
   await batch.commit();
 
   // 3. Crear Envio T1 automatico en 'borrador'
+  // Usar colaborador del wizard V2 si existe, sino el parámetro directo
+  const transporteColaboradorId = orden.colaboradorTransporteId || colaboradorId;
+
   const envioId = await envioCrudService.crear({
     origenTipo: 'proveedor',
     origenProveedorId: orden.proveedorId,
     destinoCasillaId,
-    colaboradorId,
+    colaboradorId: transporteColaboradorId,
     ordenCompraId: ocId,
     unidadesIds: unidadIds,
   }, userId);
+
+  // 4. Heredar cargosOC como costosLanded iniciales del Envio T1 (Acuerdo 25)
+  if (orden.cargosOC && orden.cargosOC.length > 0) {
+    for (const cargo of orden.cargosOC) {
+      const metodoProrrateoMap: Record<string, string> = {
+        por_valor: 'total_por_valor',
+        por_peso: 'total_por_peso',
+        por_cantidad: 'fijo_por_unidad',
+      };
+      await envioCrudService.agregarCostoLanded(envioId, {
+        categoriaCostoId: `cargo-oc-${cargo.id}`,
+        categoriaCostoNombre: cargo.concepto || 'Cargo OC',
+        monto: cargo.montoUSD,
+        moneda: 'USD',
+        montoPEN: cargo.montoUSD * (orden.tcReferencial || orden.tcCompra || 1),
+        tipoCambio: orden.tcReferencial || orden.tcCompra,
+        metodoProrrateo: (metodoProrrateoMap[cargo.metodoProrrateo] || 'total_por_valor') as any,
+        pagado: false,
+      }, userId);
+    }
+    logger.info(`${orden.cargosOC.length} cargos OC heredados al Envio T1 como costosLanded`);
+  }
 
   logger.success(`OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + Envio T1 creado`);
 
