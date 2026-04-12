@@ -47,19 +47,33 @@ function LineItem<T extends { id: string; concepto: string; montoUSD: number }>(
 }) {
   return (
     <div className="flex items-center gap-2">
-      <input
-        type="text"
-        list={datalistId}
-        value={item.concepto}
-        onChange={e => onUpdate({ ...item, concepto: e.target.value })}
-        placeholder="Concepto..."
-        className="flex-1 min-w-0 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-      />
-      {datalistId && sugerencias && (
-        <datalist id={datalistId}>
-          {sugerencias.map(s => <option key={s} value={s} />)}
-        </datalist>
-      )}
+      <div className="flex-1 min-w-0 relative">
+        <input
+          type="text"
+          value={item.concepto}
+          onChange={e => onUpdate({ ...item, concepto: e.target.value })}
+          placeholder="Concepto..."
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-8 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+        />
+        {sugerencias && sugerencias.length > 0 && (
+          <select
+            value=""
+            onChange={e => {
+              if (e.target.value) onUpdate({ ...item, concepto: e.target.value });
+              e.target.value = '';
+            }}
+            className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 opacity-0 cursor-pointer"
+            title="Seleccionar sugerencia"
+            aria-label="Sugerencias"
+          >
+            <option value="">▼</option>
+            {sugerencias.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        )}
+        {sugerencias && sugerencias.length > 0 && (
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs">▾</span>
+        )}
+      </div>
       <div className="relative w-32 flex-shrink-0">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
         <input
@@ -211,17 +225,28 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
           ) : (
             impuestos.map(i => (
               <div key={i.id} className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                <input
-                  type="text"
-                  list="dl-impuestos"
-                  value={i.concepto}
-                  onChange={e => onUpdateImpuesto({ ...i, concepto: e.target.value })}
-                  placeholder="Concepto..."
-                  className="flex-1 min-w-0 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                />
-                <datalist id="dl-impuestos">
-                  {SUGERENCIAS_IMPUESTOS.map(s => <option key={s} value={s} />)}
-                </datalist>
+                <div className="flex-1 min-w-0 relative">
+                  <input
+                    type="text"
+                    value={i.concepto}
+                    onChange={e => onUpdateImpuesto({ ...i, concepto: e.target.value })}
+                    placeholder="Concepto..."
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-8 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                  />
+                  <select
+                    value=""
+                    onChange={e => {
+                      if (e.target.value) onUpdateImpuesto({ ...i, concepto: e.target.value });
+                      e.target.value = '';
+                    }}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 opacity-0 cursor-pointer"
+                    aria-label="Sugerencias"
+                  >
+                    <option value="">▼</option>
+                    {SUGERENCIAS_IMPUESTOS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs">▾</span>
+                </div>
                 {/* Toggle % / $ */}
                 <div className="flex rounded-lg border border-slate-200 overflow-hidden flex-shrink-0">
                   <button
