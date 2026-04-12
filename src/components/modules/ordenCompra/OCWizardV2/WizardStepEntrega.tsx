@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   Truck, UserCheck, Send, ShoppingBag, Package, MapPin,
   DollarSign, Home, Building2, AlertCircle, Zap, ChevronRight,
@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { QuienPagaFlete } from '../../../../types/ordenCompra.types';
+import { useColaboradorStore } from '../../../../store/colaboradorStore';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -21,23 +22,30 @@ export type UltimaMilla = 'entrega_domicilio' | 'yo_recojo';
 export interface ConfigLogistica {
   // Tramo 1: Salida del proveedor
   salidaProveedor: SalidaProveedor | null;
-  fleteProveedorIncluido: boolean | null; // ¿El shipping del proveedor está incluido?
+  fleteProveedorIncluido: boolean | null;
+  costoShippingProveedor: number | null;
+  tipoShipping: 'local' | 'internacional' | null;
 
   // Tramo 2: Llegada a Perú
   llegadaPeru: LlegadaPeru | null;
-  // Si viajero o courier: quién es
+  colaboradorId: string;
   colaboradorNombre: string;
 
   // Tramo 3: Última milla
   ultimaMilla: UltimaMilla | null;
+  requiereRecojo: boolean;
 }
 
 export const emptyConfig: ConfigLogistica = {
   salidaProveedor: null,
   fleteProveedorIncluido: null,
+  costoShippingProveedor: null,
+  tipoShipping: null,
   llegadaPeru: null,
+  colaboradorId: '',
   colaboradorNombre: '',
   ultimaMilla: null,
+  requiereRecojo: false,
 };
 
 interface WizardStepEntregaProps {
@@ -80,7 +88,15 @@ export function getConsequences(config: ConfigLogistica): string[] {
     if (config.fleteProveedorIncluido === true) {
       items.push('Shipping del proveedor incluido en el precio');
     } else if (config.fleteProveedorIncluido === false) {
-      items.push('El proveedor cobra shipping — registrar como cargo de la OC');
+      const costoStr = config.costoShippingProveedor
+        ? ` (USD ${config.costoShippingProveedor.toFixed(2)})`
+        : '';
+      const tipoStr = config.tipoShipping === 'local'
+        ? ' local'
+        : config.tipoShipping === 'internacional'
+        ? ' internacional'
+        : '';
+      items.push(`El proveedor cobra shipping${tipoStr}${costoStr} — se registrará como cargo de la OC`);
     }
   } else if (config.salidaProveedor === 'recojo_en_origen') {
     items.push('Alguien recoge en el almacén del proveedor');
@@ -95,7 +111,8 @@ export function getConsequences(config: ConfigLogistica): string[] {
     items.push('Al confirmar: se crea envío automático (Proveedor → Viajero)');
     items.push('Costo del viajero se registra al recibir el envío');
   } else if (config.llegadaPeru === 'courier_internacional') {
-    items.push('Courier internacional trae a Perú — tú pagas el flete');
+    const courierStr = config.colaboradorNombre ? ` (${config.colaboradorNombre})` : '';
+    items.push(`Courier internacional${courierStr} trae a Perú — tú pagas el flete`);
     items.push('Al confirmar: se crea envío automático con el courier');
   } else if (config.llegadaPeru === 'ya_en_peru') {
     items.push('Proveedor local o mercadería ya en Perú');
@@ -104,7 +121,7 @@ export function getConsequences(config: ConfigLogistica): string[] {
 
   // Tramo 3
   if (config.ultimaMilla === 'yo_recojo') {
-    items.push('Al recibir: se exigirá registrar costo de recojo local');
+    items.push('Al recibir el envío se exigirá registrar el costo de recojo');
   } else if (config.ultimaMilla === 'entrega_domicilio') {
     items.push('Entrega directa en almacén — sin costo de recojo');
   }
@@ -182,126 +199,351 @@ const Question: React.FC<QuestionProps> = ({ number, title, subtitle, children, 
   );
 };
 
+// ─── Shared select/input styles ───────────────────────────────────
+
+const selectCls =
+  'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none';
+
+const inputCls =
+  'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none';
+
 // ─── Main Component ───────────────────────────────────────────────
 
 export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, onChange }) => {
+  const { colaboradores, fetchColaboradores, getByTipo } = useColaboradorStore();
+
+  useEffect(() => {
+    if (colaboradores.length === 0) fetchColaboradores();
+  }, []);
+
+  const viajeros = getByTipo('viajero');
+  const couriers = getByTipo('courier_externo');
+
   const consequences = useMemo(() => getConsequences(config), [config]);
 
   // Visibility logic
   const show = {
     salidaProveedor: true,
     fleteProveedor: config.salidaProveedor === 'proveedor_envia',
-    llegadaPeru: config.salidaProveedor !== null && (config.salidaProveedor !== 'proveedor_envia' || config.fleteProveedorIncluido !== null),
+    shippingCost: config.salidaProveedor === 'proveedor_envia' && config.fleteProveedorIncluido === false,
+    llegadaPeru:
+      config.salidaProveedor !== null &&
+      (config.salidaProveedor !== 'proveedor_envia' || config.fleteProveedorIncluido !== null),
+    colaboradorSelector:
+      config.llegadaPeru === 'viajero' || config.llegadaPeru === 'courier_internacional',
     ultimaMilla: config.llegadaPeru !== null && config.llegadaPeru !== 'ddp_directo',
   };
 
   const update = (partial: Partial<ConfigLogistica>) => {
     const next = { ...config, ...partial };
+
     // Reset downstream when upstream changes
     if ('salidaProveedor' in partial) {
       next.fleteProveedorIncluido = null;
+      next.costoShippingProveedor = null;
+      next.tipoShipping = null;
       next.llegadaPeru = null;
+      next.colaboradorId = '';
       next.colaboradorNombre = '';
       next.ultimaMilla = null;
+      next.requiereRecojo = false;
     }
     if ('fleteProveedorIncluido' in partial) {
+      next.costoShippingProveedor = null;
+      next.tipoShipping = null;
       next.llegadaPeru = null;
+      next.colaboradorId = '';
       next.colaboradorNombre = '';
       next.ultimaMilla = null;
+      next.requiereRecojo = false;
     }
     if ('llegadaPeru' in partial) {
+      next.colaboradorId = '';
       next.colaboradorNombre = '';
       next.ultimaMilla = null;
+      next.requiereRecojo = false;
       // DDP = entrega a domicilio implícita
       if (partial.llegadaPeru === 'ddp_directo') {
         next.ultimaMilla = 'entrega_domicilio';
+        next.requiereRecojo = false;
       }
     }
+    if ('ultimaMilla' in partial) {
+      next.requiereRecojo = partial.ultimaMilla === 'yo_recojo';
+    }
+
     onChange(next);
   };
 
-  // Count answered for step label
-  const questionsAnswered = [
-    config.salidaProveedor,
-    config.llegadaPeru,
-    config.ultimaMilla,
-  ].filter(Boolean).length;
+  // Dynamic question numbering
+  const qNum = {
+    salida: 1,
+    flete: 2,
+    llegada: show.fleteProveedor ? 3 : 2,
+    ultimaMilla: show.fleteProveedor ? 4 : 3,
+  };
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl font-semibold text-slate-900">Ruta de la mercadería</h2>
-        <p className="text-sm text-slate-500 mt-1">Define cómo llega el pedido desde el proveedor hasta tu almacén</p>
+        <p className="text-sm text-slate-500 mt-1">
+          Define cómo llega el pedido desde el proveedor hasta tu almacén
+        </p>
       </div>
 
       <div className="max-w-2xl mx-auto space-y-6">
 
         {/* TRAMO 1: Salida del proveedor */}
         <Question
-          number={1}
+          number={qNum.salida}
           title="¿Cómo sale del proveedor?"
           subtitle="Tramo 1: Del almacén del proveedor al punto de salida"
           visible={show.salidaProveedor}
           answered={!!config.salidaProveedor}
         >
-          <Option icon={Truck} label="El proveedor lo envía" hint="El proveedor despacha desde su almacén (Amazon, Asian Beauty, etc.)" selected={config.salidaProveedor === 'proveedor_envia'} onClick={() => update({ salidaProveedor: 'proveedor_envia' })} />
-          <Option icon={MapPin} label="Alguien lo recoge en origen" hint="Un viajero, agente o yo recogemos en el almacén/fábrica del proveedor" selected={config.salidaProveedor === 'recojo_en_origen'} onClick={() => update({ salidaProveedor: 'recojo_en_origen' })} />
+          <Option
+            icon={Truck}
+            label="El proveedor lo envía"
+            hint="El proveedor despacha desde su almacén (Amazon, Asian Beauty, etc.)"
+            selected={config.salidaProveedor === 'proveedor_envia'}
+            onClick={() => update({ salidaProveedor: 'proveedor_envia' })}
+          />
+          <Option
+            icon={MapPin}
+            label="Alguien lo recoge en origen"
+            hint="Un viajero, agente o yo recogemos en el almacén/fábrica del proveedor"
+            selected={config.salidaProveedor === 'recojo_en_origen'}
+            onClick={() => update({ salidaProveedor: 'recojo_en_origen' })}
+          />
         </Question>
 
         {/* TRAMO 1.5: ¿El shipping del proveedor está incluido? */}
         {show.fleteProveedor && (
           <Question
-            number={2}
+            number={qNum.flete}
             title="¿El shipping del proveedor está incluido?"
             subtitle="Ej: Amazon cobra Shipping & Handling, pero con Subscribe & Save es gratis"
             visible={show.fleteProveedor}
             answered={config.fleteProveedorIncluido !== null}
           >
-            <Option icon={DollarSign} label="Sí, el shipping está incluido" hint="No hay cargo adicional por el envío del proveedor (ej: Subscribe & Save)" selected={config.fleteProveedorIncluido === true} onClick={() => update({ fleteProveedorIncluido: true })} />
-            <Option icon={AlertCircle} label="No, el proveedor cobra shipping" hint="Hay un cargo de shipping que se debe registrar (ej: Amazon Shipping $15)" selected={config.fleteProveedorIncluido === false} onClick={() => update({ fleteProveedorIncluido: false })} />
+            <Option
+              icon={DollarSign}
+              label="Sí, el shipping está incluido"
+              hint="No hay cargo adicional por el envío del proveedor (ej: Subscribe & Save)"
+              selected={config.fleteProveedorIncluido === true}
+              onClick={() => update({ fleteProveedorIncluido: true })}
+            />
+            <Option
+              icon={AlertCircle}
+              label="No, el proveedor cobra shipping"
+              hint="Hay un cargo de shipping que se debe registrar (ej: Amazon Shipping $15)"
+              selected={config.fleteProveedorIncluido === false}
+              onClick={() => update({ fleteProveedorIncluido: false })}
+            />
+
+            {/* Shipping cost detail */}
+            {show.shippingCost && (
+              <div className="pl-0 mt-1 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Tipo de shipping
+                    </label>
+                    <select
+                      value={config.tipoShipping || ''}
+                      onChange={(e) =>
+                        onChange({
+                          ...config,
+                          tipoShipping: (e.target.value as 'local' | 'internacional') || null,
+                        })
+                      }
+                      className={selectCls}
+                    >
+                      <option value="">Seleccionar...</option>
+                      <option value="local">Shipping local (dentro del país del proveedor)</option>
+                      <option value="internacional">Shipping internacional</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">
+                      Costo USD
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">
+                        $
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={config.costoShippingProveedor ?? ''}
+                        onChange={(e) =>
+                          onChange({
+                            ...config,
+                            costoShippingProveedor: e.target.value === '' ? null : Number(e.target.value),
+                          })
+                        }
+                        placeholder="0.00"
+                        className={cn(inputCls, 'pl-7')}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-400">
+                  Este costo se registrará como cargo en la OC
+                </p>
+              </div>
+            )}
           </Question>
         )}
 
         {/* TRAMO 2: ¿Cómo llega a Perú? */}
         <Question
-          number={show.fleteProveedor ? 3 : 2}
+          number={qNum.llegada}
           title="¿Cómo llega a Perú?"
           subtitle="Tramo 2: Transporte internacional"
           visible={show.llegadaPeru}
           answered={!!config.llegadaPeru}
         >
-          <Option icon={Truck} label="El proveedor envía directo a Perú (DDP)" hint="El proveedor incluye el flete internacional. Llega a tu puerta sin costo extra." selected={config.llegadaPeru === 'ddp_directo'} onClick={() => update({ llegadaPeru: 'ddp_directo' })} />
-          <Option icon={UserCheck} label="Un viajero lo trae" hint="Una persona que viaja lo trae en su equipaje o carga" selected={config.llegadaPeru === 'viajero'} onClick={() => update({ llegadaPeru: 'viajero' })} />
-          <Option icon={Plane} label="Courier internacional (yo contrato)" hint="Yo contrato DHL, FedEx, etc. para traerlo a Perú" selected={config.llegadaPeru === 'courier_internacional'} onClick={() => update({ llegadaPeru: 'courier_internacional' })} />
-          <Option icon={Building2} label="Ya está en Perú" hint="Proveedor local o la mercadería ya se encuentra en el país" selected={config.llegadaPeru === 'ya_en_peru'} onClick={() => update({ llegadaPeru: 'ya_en_peru' })} />
+          <Option
+            icon={Truck}
+            label="El proveedor envía directo a Perú (DDP)"
+            hint="El proveedor incluye el flete internacional. Llega a tu puerta sin costo extra."
+            selected={config.llegadaPeru === 'ddp_directo'}
+            onClick={() => update({ llegadaPeru: 'ddp_directo' })}
+          />
+          <Option
+            icon={UserCheck}
+            label="Un viajero lo trae"
+            hint="Una persona que viaja lo trae en su equipaje o carga"
+            selected={config.llegadaPeru === 'viajero'}
+            onClick={() => update({ llegadaPeru: 'viajero' })}
+          />
+          <Option
+            icon={Plane}
+            label="Courier internacional (yo contrato)"
+            hint="Yo contrato DHL, FedEx, etc. para traerlo a Perú"
+            selected={config.llegadaPeru === 'courier_internacional'}
+            onClick={() => update({ llegadaPeru: 'courier_internacional' })}
+          />
+          <Option
+            icon={Building2}
+            label="Ya está en Perú"
+            hint="Proveedor local o la mercadería ya se encuentra en el país"
+            selected={config.llegadaPeru === 'ya_en_peru'}
+            onClick={() => update({ llegadaPeru: 'ya_en_peru' })}
+          />
         </Question>
 
-        {/* Viajero/Courier name input */}
-        {(config.llegadaPeru === 'viajero' || config.llegadaPeru === 'courier_internacional') && (
+        {/* Viajero selector */}
+        {config.llegadaPeru === 'viajero' && (
           <div className="pl-8">
             <label className="block text-xs font-medium text-slate-600 mb-1">
-              {config.llegadaPeru === 'viajero' ? '¿Quién es el viajero?' : '¿Qué courier?'}
+              ¿Quién es el viajero?
             </label>
-            <input
-              type="text"
-              value={config.colaboradorNombre}
-              onChange={(e) => onChange({ ...config, colaboradorNombre: e.target.value })}
-              placeholder={config.llegadaPeru === 'viajero' ? 'Ej: Angie Price' : 'Ej: DHL, FedEx'}
-              className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            />
+            {viajeros.length > 0 ? (
+              <select
+                value={config.colaboradorId}
+                onChange={(e) => {
+                  const selected = viajeros.find((v) => v.id === e.target.value);
+                  onChange({
+                    ...config,
+                    colaboradorId: e.target.value,
+                    colaboradorNombre: selected?.nombre ?? '',
+                  });
+                }}
+                className={selectCls}
+              >
+                <option value="">Seleccionar viajero...</option>
+                {viajeros.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.nombre}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={config.colaboradorNombre}
+                onChange={(e) => onChange({ ...config, colaboradorNombre: e.target.value })}
+                placeholder="Ej: Angie Price"
+                className={inputCls}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Courier selector */}
+        {config.llegadaPeru === 'courier_internacional' && (
+          <div className="pl-8">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
+              ¿Qué courier?
+            </label>
+            {couriers.length > 0 ? (
+              <select
+                value={config.colaboradorId}
+                onChange={(e) => {
+                  const selected = couriers.find((c) => c.id === e.target.value);
+                  onChange({
+                    ...config,
+                    colaboradorId: e.target.value,
+                    colaboradorNombre: selected?.nombre ?? '',
+                  });
+                }}
+                className={selectCls}
+              >
+                <option value="">Seleccionar courier...</option>
+                {couriers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nombre}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={config.colaboradorNombre}
+                onChange={(e) => onChange({ ...config, colaboradorNombre: e.target.value })}
+                placeholder="Ej: DHL, FedEx"
+                className={inputCls}
+              />
+            )}
           </div>
         )}
 
         {/* TRAMO 3: Última milla */}
         <Question
-          number={show.fleteProveedor ? 4 : 3}
+          number={qNum.ultimaMilla}
           title="¿Cómo llega a tu almacén?"
           subtitle="Tramo 3: Última milla en Perú"
           visible={show.ultimaMilla}
           answered={!!config.ultimaMilla}
         >
-          <Option icon={Home} label="Me lo entregan en mi almacén" hint="El transportista/viajero entrega en la puerta de mi almacén" selected={config.ultimaMilla === 'entrega_domicilio'} onClick={() => update({ ultimaMilla: 'entrega_domicilio' })} />
-          <Option icon={Car} label="Yo lo recojo" hint="Voy a recoger al aeropuerto, terminal, casilla del viajero, etc." selected={config.ultimaMilla === 'yo_recojo'} onClick={() => update({ ultimaMilla: 'yo_recojo' })} />
+          <Option
+            icon={Home}
+            label="Me lo entregan en mi almacén"
+            hint="El transportista/viajero entrega en la puerta de mi almacén"
+            selected={config.ultimaMilla === 'entrega_domicilio'}
+            onClick={() => update({ ultimaMilla: 'entrega_domicilio' })}
+          />
+          <Option
+            icon={Car}
+            label="Yo lo recojo"
+            hint="Voy a recoger al aeropuerto, terminal, casilla del viajero, etc."
+            selected={config.ultimaMilla === 'yo_recojo'}
+            onClick={() => update({ ultimaMilla: 'yo_recojo' })}
+          />
+
+          {/* Recojo warning */}
+          {config.ultimaMilla === 'yo_recojo' && (
+            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-1">
+              <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-amber-700">
+                Al recibir el envío se exigirá registrar el costo de recojo
+              </p>
+            </div>
+          )}
         </Question>
 
         {/* Consequences panel */}
@@ -309,7 +551,9 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({ config, on
           <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 space-y-2">
             <div className="flex items-center gap-2 mb-1">
               <Zap className="w-4 h-4 text-teal-600" />
-              <span className="text-xs font-semibold text-teal-800 uppercase tracking-wide">Lo que va a pasar</span>
+              <span className="text-xs font-semibold text-teal-800 uppercase tracking-wide">
+                Lo que va a pasar
+              </span>
             </div>
             {consequences.map((c, i) => (
               <div key={i} className="flex items-start gap-2">
