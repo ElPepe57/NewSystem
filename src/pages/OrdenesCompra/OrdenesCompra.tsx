@@ -476,7 +476,8 @@ export const OrdenesCompra: React.FC = () => {
         // Usar el almacen destino de la OC como casilla destino
         const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
         const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid);
-        refreshSelectedOrden(selectedOrden.id);
+        await refreshSelectedOrden(selectedOrden.id);
+        setIsDetailsModalOpen(false);
         toast.success(`OC confirmada: ${result.unidadesCreadas} unidades pedidas creadas`);
       } catch (error: any) {
         toast.error(error.message, 'Error al confirmar OC');
@@ -519,7 +520,8 @@ export const OrdenesCompra: React.FC = () => {
           numeroTracking: result.numeroTracking as string || undefined,
           courier: result.courier as string || undefined
         });
-        refreshSelectedOrden(selectedOrden.id);
+        await refreshSelectedOrden(selectedOrden.id);
+        setIsDetailsModalOpen(false);
         toast.success('Orden marcada en tránsito');
       } catch (error: any) {
         toast.error(error.message, 'Error');
@@ -529,7 +531,8 @@ export const OrdenesCompra: React.FC = () => {
     else {
       try {
         await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid);
-        refreshSelectedOrden(selectedOrden.id);
+        await refreshSelectedOrden(selectedOrden.id);
+        setIsDetailsModalOpen(false);
         toast.success(`Estado actualizado a: ${nuevoEstado}`);
       } catch (error: any) {
         toast.error(error.message, 'Error');
