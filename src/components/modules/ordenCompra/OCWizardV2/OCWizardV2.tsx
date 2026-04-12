@@ -1,4 +1,4 @@
-import React, { useReducer, useMemo } from 'react';
+import React, { useReducer, useMemo, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import type { OrdenCompraFormData } from '../../../../types/ordenCompra.types';
@@ -82,6 +82,7 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
   requerimientoNumeros,
 }) => {
   const [state, dispatch] = useReducer(ocWizardReducer, initialWizardState);
+  const submittedRef = useRef(false);
 
   const activeSteps = useMemo(() => getActiveSteps(state), [state.modoEntregaDetallado, state.quienPagaFlete]);
   const currentStepIdx = activeSteps.indexOf(state.currentStep);
@@ -137,6 +138,9 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
   // ---- Submit ----
 
   const handleSubmit = () => {
+    if (submittedRef.current || isSubmitting) return;
+    submittedRef.current = true;
+
     const formData: OrdenCompraFormData = {
       proveedorId: state.proveedorId,
       productos: state.productos.map((p) => ({
@@ -174,7 +178,11 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
     onSubmit(formData);
   };
 
-  if (!isOpen) return null;
+  // Reset guard when wizard reopens
+  if (!isOpen) {
+    submittedRef.current = false;
+    return null;
+  }
 
   // ---- Step renderer ----
 

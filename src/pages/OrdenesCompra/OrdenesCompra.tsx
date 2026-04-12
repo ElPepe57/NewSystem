@@ -379,7 +379,9 @@ export const OrdenesCompra: React.FC = () => {
         }
       } else {
         setIsOrdenModalOpen(false);
+        setIsWizardV2Open(false);
         setInitialFormData(null);
+        toast.success('Orden de compra creada exitosamente');
       }
     } catch (error: any) {
       console.error('Error al crear orden:', error);
