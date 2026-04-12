@@ -10,6 +10,7 @@ import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
 import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
+import { OCWizardV2 } from '../../components/modules/ordenCompra/OCWizardV2/OCWizardV2';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { RecepcionParcialModal } from '../../components/modules/ordenCompra/RecepcionParcialModal';
@@ -107,6 +108,7 @@ export const OrdenesCompra: React.FC = () => {
   const ordenesLN = useLineaFilter(ordenes, o => o.lineaNegocioId);
 
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
+  const [isWizardV2Open, setIsWizardV2Open] = useState(false);
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
@@ -670,7 +672,7 @@ export const OrdenesCompra: React.FC = () => {
             <Button
               variant="primary"
               size="sm"
-              onClick={() => setIsOrdenModalOpen(true)}
+              onClick={() => setIsWizardV2Open(true)}
               disabled={proveedoresActivos.length === 0}
             >
               <Plus className="h-4 w-4 mr-1.5" />
@@ -947,6 +949,14 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* Modal de Acciones con campos */}
       <ActionModal {...actionModalProps} />
+
+      {/* Wizard V2 — Nuevo flujo de creación (Acuerdos 40-41) */}
+      <OCWizardV2
+        isOpen={isWizardV2Open}
+        onClose={() => setIsWizardV2Open(false)}
+        onSubmit={handleCreateOrden}
+        isSubmitting={isSubmitting}
+      />
     </PageShell>
   );
 };

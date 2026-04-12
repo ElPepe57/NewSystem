@@ -246,6 +246,10 @@ export interface OrdenCompra {
   // Modo de entrega
   modoEntrega?: 'viajero' | 'envio_directo'; // Cómo llega a Perú
   fleteIncluidoEnPrecio?: boolean;            // true = DDP (flete ya en costoUnitario)
+  modoEntregaDetallado?: ModoEntregaDetallado;
+  quienPagaFlete?: QuienPagaFlete;
+  colaboradorTransporteId?: string;    // viajero o courier asignado
+  colaboradorTransporteNombre?: string;
 
   /** @deprecated Usar impuestoCompraUSD */ impuestoUSD?: number;
   /** @deprecated Usar costoEnvioProveedorUSD */ gastosEnvioUSD?: number;
@@ -271,7 +275,8 @@ export interface OrdenCompra {
   // ========== Cargos y Descuentos del proveedor (Acuerdo 5) ==========
   cargosOC?: CargoOC[];
   descuentosOC?: DescuentoOC[];
-  
+  impuestosOC?: ImpuestoOC[];
+
   // Estados (logístico y financiero son independientes)
   estado: EstadoOrden;              // Estado logístico
   estadoPago: EstadoPagoOC;           // Estado de pago (independiente)
@@ -492,4 +497,26 @@ export interface DescuentoOC {
   concepto: string;                    // "Subscribe & Save", "Bulk discount", etc.
   montoUSD: number;
   metodoProrrateo: 'por_valor' | 'por_cantidad' | 'proporcional';
+}
+
+// ========== Wizard V2 — Acuerdos 40-41 ==========
+
+/** Modo de entrega detallado (Acuerdo 40) */
+export type ModoEntregaDetallado =
+  | 'ddp_directo'     // "Me lo traen directamente"
+  | 'via_viajero'     // "Lo recoge un viajero"
+  | 'via_courier'     // "Lo envían por courier"
+  | 'recojo_propio';  // "Lo recojo yo"
+
+/** Quién paga el flete (Acuerdo 40) */
+export type QuienPagaFlete =
+  | 'proveedor'    // "El proveedor lo incluye en el precio"
+  | 'comprador'    // "Yo pago el flete por separado"
+  | 'viajero';     // "El viajero cobra por llevarlo"
+
+/** Impuesto de proveedor individual (Acuerdo 41) */
+export interface ImpuestoOC {
+  id: string;
+  concepto: string;     // "Sales Tax CA", "VAT", etc.
+  montoUSD: number;
 }
