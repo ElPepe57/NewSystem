@@ -642,18 +642,12 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   <tr>
                     <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Producto</th>
                     <th className="px-2 py-2 text-center text-xs font-medium text-slate-500">Cant.</th>
-                    <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">
-                      <div>Precio Base</div>
-                      <div className="text-[10px] font-normal text-slate-400">unitario</div>
-                    </th>
-                    <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">
-                      <div>Desglose</div>
-                      <div className="text-[10px] font-normal text-slate-400">por unidad</div>
-                    </th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-emerald-700 bg-emerald-50">
-                      <div>Costo Real</div>
-                      <div className="text-[10px] font-normal text-emerald-600">unitario</div>
-                    </th>
+                    <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">Precio</th>
+                    {hasImpuesto && <th className="px-2 py-2 text-right text-xs font-medium text-amber-600">Tax</th>}
+                    {hasDescuento && <th className="px-2 py-2 text-right text-xs font-medium text-emerald-600">Desc.</th>}
+                    {hasEnvio && <th className="px-2 py-2 text-right text-xs font-medium text-sky-600">Envío</th>}
+                    {hasOtros && <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">Otros</th>}
+                    <th className="px-3 py-2 text-right text-xs font-medium text-teal-700 bg-teal-50">Costo Unit.</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
@@ -686,31 +680,32 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                             {producto.cantidad}
                           </span>
                         </td>
-                        <td className="px-2 py-3 text-right text-sm text-slate-600">
+                        <td className="px-2 py-3 text-right text-sm text-slate-700 tabular-nums">
                           ${producto.costoUnitario.toFixed(2)}
                         </td>
-                        <td className="px-2 py-3 text-right">
-                          <div className="space-y-0.5 text-[11px]">
-                            {hasImpuesto && (
-                              <div className="text-amber-600">+${impuestoPorUnidad.toFixed(2)} <span className="text-[9px] text-amber-500">tax</span></div>
-                            )}
-                            {hasEnvio && (
-                              <div className="text-sky-600">+${envioPorUd.toFixed(2)} <span className="text-[9px] text-sky-400">envío</span></div>
-                            )}
-                            {hasOtros && (
-                              <div className="text-slate-500">+${otrosPorUd.toFixed(2)} <span className="text-[9px] text-slate-400">otros</span></div>
-                            )}
-                            {hasDescuento && (
-                              <div className="text-emerald-600">-${descuentoPorUd.toFixed(2)} <span className="text-[9px] text-emerald-500">desc.</span></div>
-                            )}
-                            {!hasImpuesto && !hasEnvio && !hasOtros && !hasDescuento && (
-                              <div className="text-slate-400">-</div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-3 py-3 text-right bg-emerald-50">
-                          <div className="text-sm font-bold text-emerald-700">${costoRealUnitario.toFixed(2)}</div>
-                          <div className="text-xs text-emerald-600">S/ {costoRealUnitarioPEN.toFixed(2)}</div>
+                        {hasImpuesto && (
+                          <td className="px-2 py-3 text-right text-[11px] text-amber-600 tabular-nums">
+                            +${impuestoPorUnidad.toFixed(2)}
+                          </td>
+                        )}
+                        {hasDescuento && (
+                          <td className="px-2 py-3 text-right text-[11px] text-emerald-600 tabular-nums">
+                            -${descuentoPorUd.toFixed(2)}
+                          </td>
+                        )}
+                        {hasEnvio && (
+                          <td className="px-2 py-3 text-right text-[11px] text-sky-600 tabular-nums">
+                            +${envioPorUd.toFixed(2)}
+                          </td>
+                        )}
+                        {hasOtros && (
+                          <td className="px-2 py-3 text-right text-[11px] text-slate-500 tabular-nums">
+                            +${otrosPorUd.toFixed(2)}
+                          </td>
+                        )}
+                        <td className="px-3 py-3 text-right bg-teal-50">
+                          <div className="text-sm font-bold text-teal-800 tabular-nums">${costoRealUnitario.toFixed(2)}</div>
+                          <div className="text-[10px] text-teal-600 tabular-nums">S/ {costoRealUnitarioPEN.toFixed(2)}</div>
                         </td>
                       </tr>
                     );
@@ -718,20 +713,16 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 </tbody>
                 <tfoot className="bg-slate-50 border-t-2 border-slate-300">
                   <tr>
-                    <td className="px-3 py-2 text-sm font-medium text-slate-700">Total</td>
+                    <td className="px-3 py-2 text-sm font-semibold text-slate-700">Total</td>
                     <td className="px-2 py-2 text-center text-sm font-semibold text-slate-700">{totalUnidades}</td>
-                    <td className="px-2 py-2 text-right text-sm font-medium text-slate-700">${orden.subtotalUSD.toFixed(2)}</td>
-                    <td className="px-2 py-2 text-right">
-                      <div className="space-y-0.5 text-[11px]">
-                        {hasImpuesto && <div className="text-amber-700 font-medium">+${impuestoTotal.toFixed(2)} <span className="text-[9px]">tax</span></div>}
-                        {hasEnvio && <div className="text-sky-700 font-medium">+${envioTotal.toFixed(2)} <span className="text-[9px]">envío</span></div>}
-                        {hasOtros && <div className="text-slate-600 font-medium">+${otrosTotal.toFixed(2)} <span className="text-[9px]">otros</span></div>}
-                        {hasDescuento && <div className="text-emerald-700 font-medium">-${descuentoTotal.toFixed(2)} <span className="text-[9px]">desc.</span></div>}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 text-right bg-emerald-100">
-                      <div className="text-base font-bold text-emerald-800">${orden.totalUSD.toFixed(2)}</div>
-                      <div className="text-sm font-semibold text-emerald-700">S/ {(orden.totalUSD * tc).toFixed(2)}</div>
+                    <td className="px-2 py-2 text-right text-sm font-semibold text-slate-700 tabular-nums">${orden.subtotalUSD.toFixed(2)}</td>
+                    {hasImpuesto && <td className="px-2 py-2 text-right text-[11px] font-semibold text-amber-700 tabular-nums">+${impuestoTotal.toFixed(2)}</td>}
+                    {hasDescuento && <td className="px-2 py-2 text-right text-[11px] font-semibold text-emerald-700 tabular-nums">-${descuentoTotal.toFixed(2)}</td>}
+                    {hasEnvio && <td className="px-2 py-2 text-right text-[11px] font-semibold text-sky-700 tabular-nums">+${envioTotal.toFixed(2)}</td>}
+                    {hasOtros && <td className="px-2 py-2 text-right text-[11px] font-semibold text-slate-600 tabular-nums">+${otrosTotal.toFixed(2)}</td>}
+                    <td className="px-3 py-2 text-right bg-teal-100">
+                      <div className="text-base font-bold text-teal-900 tabular-nums">${orden.totalUSD.toFixed(2)}</div>
+                      <div className="text-[10px] font-semibold text-teal-700 tabular-nums">S/ {(orden.totalUSD * tc).toFixed(2)}</div>
                     </td>
                   </tr>
                 </tfoot>
