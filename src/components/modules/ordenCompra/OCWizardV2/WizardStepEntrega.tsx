@@ -592,12 +592,23 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                   <select
                     value={config.deudorId}
                     onChange={e => {
-                      const selected = [...viajeros, ...couriers].find(c => c.id === e.target.value);
+                      const allColabs = [...viajeros, ...couriers];
+                      const selected = allColabs.find(c => c.id === e.target.value);
+                      if (!selected) {
+                        onChange({ ...config, deudorId: '', deudorNombre: '', deudorTipo: 'colaborador' });
+                        return;
+                      }
+                      // Auto-configure tramo 2 based on collaborator type
+                      const esViajero = viajeros.some(v => v.id === selected.id);
                       onChange({
                         ...config,
-                        deudorId: e.target.value,
-                        deudorNombre: selected?.nombre || '',
+                        deudorId: selected.id,
+                        deudorNombre: selected.nombre,
                         deudorTipo: 'colaborador',
+                        // Auto-set llegadaPeru + colaborador (skip the question)
+                        llegadaPeru: esViajero ? 'viajero' : 'courier_internacional',
+                        colaboradorId: selected.id,
+                        colaboradorNombre: selected.nombre,
                       });
                     }}
                     className={selectCls}
