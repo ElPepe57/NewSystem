@@ -16,6 +16,7 @@ interface OrdenCompraCardProps {
   onRegistrarPago?: () => void;
   onRecibirOrden?: () => void;
   onRecibirSubOrden?: (subOrdenId: string) => void;
+  onPagarSubOrden?: (subOrdenId: string) => void;
   onRevertirRecepciones?: () => void;
 }
 
@@ -46,6 +47,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   onRegistrarPago,
   onRecibirOrden,
   onRecibirSubOrden,
+  onPagarSubOrden,
   onRevertirRecepciones
 }) => {
   const [showHistory, setShowHistory] = useState(false);
@@ -861,10 +863,10 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     </span>
                   )}
 
-                  {sub.estadoPago !== 'pagado' && onRegistrarPago && (
+                  {sub.estadoPago !== 'pagado' && (onPagarSubOrden || onRegistrarPago) && (
                     <button
                       type="button"
-                      onClick={onRegistrarPago}
+                      onClick={() => onPagarSubOrden ? onPagarSubOrden(sub.id) : onRegistrarPago?.()}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors"
                     >
                       <CreditCard className="w-3 h-3" />

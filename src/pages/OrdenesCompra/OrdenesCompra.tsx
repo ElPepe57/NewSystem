@@ -569,8 +569,17 @@ export const OrdenesCompra: React.FC = () => {
   };
 
   // Registrar pago
+  const [subOrdenPago, setSubOrdenPago] = useState<string | null>(null);
+
   const handleRegistrarPago = () => {
     if (!selectedOrden) return;
+    setSubOrdenPago(null);
+    setIsPagoModalOpen(true);
+  };
+
+  const handlePagarSubOrden = (subOrdenId: string) => {
+    if (!selectedOrden) return;
+    setSubOrdenPago(subOrdenId);
     setIsPagoModalOpen(true);
   };
 
@@ -587,7 +596,8 @@ export const OrdenesCompra: React.FC = () => {
         metodoPago: datos.metodoPago,
         cuentaOrigenId: datos.cuentaOrigenId,
         referencia: datos.referencia,
-        notas: datos.notas
+        notas: datos.notas,
+        subOrdenId: subOrdenPago || undefined
       }, user.uid);
 
       const simbolo = datos.monedaPago === 'USD' ? '$' : 'S/';
@@ -966,6 +976,7 @@ export const OrdenesCompra: React.FC = () => {
             onRegistrarPago={handleRegistrarPago}
             onRecibirOrden={handleRecibirOrden}
             onRecibirSubOrden={handleRecibirSubOrden}
+            onPagarSubOrden={handlePagarSubOrden}
             onRevertirRecepciones={handleRevertirRecepciones}
           />
         )}
@@ -975,25 +986,42 @@ export const OrdenesCompra: React.FC = () => {
       {isPagoModalOpen && selectedOrden && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
-            <PagoUnificadoForm
-              origen="orden_compra"
-              titulo={`Pago ${selectedOrden.numeroOrden} — ${selectedOrden.nombreProveedor}`}
-              montoTotal={selectedOrden.totalUSD}
-              montoPendiente={selectedOrden.montoPendiente || selectedOrden.totalUSD - (selectedOrden.historialPagos?.reduce((s, p) => s + p.montoUSD, 0) || 0)}
-              monedaOriginal="USD"
-              tcDocumento={selectedOrden.tcPago || selectedOrden.tcCompra}
-              pagosAnteriores={(selectedOrden.historialPagos || []).map(p => ({
-                id: p.id,
-                fecha: p.fecha?.toDate?.() || new Date(),
-                monto: p.montoUSD,
-                moneda: 'USD',
-                metodo: p.metodoPago,
-                referencia: p.referencia,
-              }))}
-              onSubmit={handleSubmitPago}
-              onCancel={() => setIsPagoModalOpen(false)}
-              loading={isSubmitting}
-            />
+            {(() => {
+              const subOrdenActiva = subOrdenPago
+                ? selectedOrden.subOrdenes?.find(s => s.id === subOrdenPago)
+                : undefined;
+              const montoTotal = subOrdenActiva ? subOrdenActiva.totalUSD : selectedOrden.totalUSD;
+              // Filtrar pagos anteriores de esta sub-orden (o todos si es OC completa)
+              const pagosRelevantes = (selectedOrden.historialPagos || []).filter(p =>
+                subOrdenPago ? (p as any).subOrdenId === subOrdenPago : !(p as any).subOrdenId
+              );
+              const yaPagado = pagosRelevantes.reduce((s, p) => s + p.montoUSD, 0);
+              const pendiente = montoTotal - yaPagado;
+
+              return (
+                <PagoUnificadoForm
+                  origen="orden_compra"
+                  titulo={subOrdenActiva
+                    ? `Pago Sub-orden — ${subOrdenActiva.referenciaProveedor || subOrdenActiva.id}`
+                    : `Pago ${selectedOrden.numeroOrden} — ${selectedOrden.nombreProveedor}`}
+                  montoTotal={montoTotal}
+                  montoPendiente={Math.max(0, pendiente)}
+                  monedaOriginal="USD"
+                  tcDocumento={selectedOrden.tcPago || selectedOrden.tcCompra}
+                  pagosAnteriores={pagosRelevantes.map(p => ({
+                    id: p.id,
+                    fecha: p.fecha?.toDate?.() || new Date(),
+                    monto: p.montoUSD,
+                    moneda: 'USD',
+                    metodo: p.metodoPago,
+                    referencia: p.referencia,
+                  }))}
+                  onSubmit={handleSubmitPago}
+                  onCancel={() => { setIsPagoModalOpen(false); setSubOrdenPago(null); }}
+                  loading={isSubmitting}
+                />
+              );
+            })()}
           </div>
         </div>
       )}

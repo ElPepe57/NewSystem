@@ -31,6 +31,7 @@ export async function registrarPago(
     cuentaOrigenId?: string;
     referencia?: string;
     notas?: string;
+    subOrdenId?: string;
   },
   userId: string
 ): Promise<PagoOrdenCompra> {
@@ -90,6 +91,7 @@ export async function registrarPago(
     if (cuentaOrigenNombre) nuevoPago.cuentaOrigenNombre = cuentaOrigenNombre;
     if (referencia) nuevoPago.referencia = referencia;
     if (notas) nuevoPago.notas = notas;
+    if (datos.subOrdenId) (nuevoPago as any).subOrdenId = datos.subOrdenId;
 
     const historialPagos = orden.historialPagos || [];
     const totalPagadoUSD = historialPagos.reduce((sum, p) => sum + p.montoUSD, 0) + montoUSD;
@@ -105,7 +107,34 @@ export async function registrarPago(
       editadoPor: userId
     };
 
-    if (estadoPago === 'pagado') {
+    // Actualizar sub-orden si aplica
+    if (datos.subOrdenId && orden.subOrdenes && orden.subOrdenes.length > 0) {
+      updates.subOrdenes = orden.subOrdenes.map(sub => {
+        if (sub.id !== datos.subOrdenId) return sub;
+        // Calcular cuánto se ha pagado de esta sub-orden
+        const pagosSubOrden = [...historialPagos, nuevoPago].filter(
+          (p: any) => p.subOrdenId === datos.subOrdenId
+        );
+        const totalPagadoSub = pagosSubOrden.reduce((s, p) => s + p.montoUSD, 0);
+        const subPagada = totalPagadoSub >= sub.totalUSD - 0.01;
+        return {
+          ...sub,
+          estadoPago: subPagada ? 'pagado' as const : 'pendiente' as const,
+          fechaPago: subPagada ? new Date() : sub.fechaPago,
+        };
+      });
+
+      // Derivar estadoPago de la OC desde sub-órdenes
+      const todasPagadas = updates.subOrdenes.every((s: any) => s.estadoPago === 'pagado');
+      const algunaPagada = updates.subOrdenes.some((s: any) => s.estadoPago === 'pagado');
+      if (todasPagadas) {
+        updates.estadoPago = 'pagado';
+      } else if (algunaPagada || totalPagadoUSD > 0.01) {
+        updates.estadoPago = 'parcial';
+      }
+    }
+
+    if (updates.estadoPago === 'pagado') {
       updates.fechaPago = Timestamp.fromDate(fechaPago);
       updates.totalPEN = orden.totalUSD * tipoCambio;
 
