@@ -485,13 +485,26 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             <h4 className="font-semibold text-slate-900">Totales</h4>
           </div>
           <div className="space-y-2">
+            {/* Desglose financiero en orden lógico */}
             <div className="flex justify-between">
               <span className="text-slate-600">Subtotal Productos:</span>
               <span className="font-semibold">${orden.subtotalUSD.toFixed(2)}</span>
             </div>
+            {orden.descuentoUSD && orden.descuentoUSD > 0 && (
+              <div className="flex justify-between text-sm text-emerald-600">
+                <span>Descuento:</span>
+                <span className="font-medium">-${orden.descuentoUSD.toFixed(2)}</span>
+              </div>
+            )}
+            {orden.descuentoUSD && orden.descuentoUSD > 0 && (orden.impuestoCompraUSD ?? orden.impuestoUSD) && (orden.impuestoCompraUSD ?? orden.impuestoUSD)! > 0 && (
+              <div className="flex justify-between text-sm text-slate-500">
+                <span>Base imponible:</span>
+                <span>${(orden.subtotalUSD - (orden.descuentoUSD || 0)).toFixed(2)}</span>
+              </div>
+            )}
             {(orden.impuestoCompraUSD ?? orden.impuestoUSD) && (orden.impuestoCompraUSD ?? orden.impuestoUSD)! > 0 && (
               <div className="flex justify-between text-sm text-amber-700">
-                <span>Tax / Impuesto ({(((orden.impuestoCompraUSD ?? orden.impuestoUSD)! / orden.subtotalUSD) * 100).toFixed(2)}%):</span>
+                <span>Tax / Impuesto ({(((orden.impuestoCompraUSD ?? orden.impuestoUSD)! / Math.max(orden.subtotalUSD - (orden.descuentoUSD || 0), 1)) * 100).toFixed(2)}%):</span>
                 <span className="font-medium">${(orden.impuestoCompraUSD ?? orden.impuestoUSD)!.toFixed(2)}</span>
               </div>
             )}
@@ -505,12 +518,6 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Otros Gastos:</span>
                 <span>${(orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD)!.toFixed(2)}</span>
-              </div>
-            )}
-            {orden.descuentoUSD && orden.descuentoUSD > 0 && (
-              <div className="flex justify-between text-sm text-emerald-600">
-                <span>Descuento:</span>
-                <span className="font-medium">-${orden.descuentoUSD.toFixed(2)}</span>
               </div>
             )}
             {/* TC referencial */}
