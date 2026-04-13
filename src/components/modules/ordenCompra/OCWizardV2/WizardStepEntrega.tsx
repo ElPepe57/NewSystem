@@ -24,6 +24,9 @@ export type LlegadaPeru = 'ddp_directo' | 'viajero' | 'courier_internacional' | 
 /** Tramo 3: Cómo llega a tu almacén */
 export type UltimaMilla = 'entrega_domicilio' | 'yo_recojo';
 
+/** Quién paga al proveedor (determina a quién va la CxP) */
+export type QuienPagaProveedor = 'yo_pague' | 'recogedor_paga';
+
 export interface ConfigLogistica {
   // Pregunta 0: Proveedor
   proveedorId: string;
@@ -35,6 +38,8 @@ export interface ConfigLogistica {
   fleteProveedorIncluido: boolean | null;
   costoShippingProveedor: number | null;
   tipoShipping: 'local' | 'internacional' | null;
+  // Si recojo en origen: ¿quién paga al proveedor?
+  quienPagaProveedor: QuienPagaProveedor | null;
 
   // Tramo 2: Llegada a Perú
   llegadaPeru: LlegadaPeru | null;
@@ -54,6 +59,7 @@ export const emptyConfig: ConfigLogistica = {
   fleteProveedorIncluido: null,
   costoShippingProveedor: null,
   tipoShipping: null,
+  quienPagaProveedor: null,
   llegadaPeru: null,
   colaboradorId: '',
   colaboradorNombre: '',
@@ -118,6 +124,11 @@ export function getConsequences(config: ConfigLogistica): string[] {
     }
   } else if (config.salidaProveedor === 'recojo_en_origen') {
     items.push('Alguien recoge en el almacén del proveedor');
+    if (config.quienPagaProveedor === 'yo_pague') {
+      items.push('Deuda con el proveedor — yo pagué directamente');
+    } else if (config.quienPagaProveedor === 'recogedor_paga') {
+      items.push('Deuda con el recogedor — la CxP se genera contra quien pagó al proveedor');
+    }
   }
 
   // Tramo 2
@@ -285,9 +296,12 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
     salidaProveedor: hasProveedor,
     fleteProveedor: hasProveedor && config.salidaProveedor === 'proveedor_envia',
     shippingCost: config.salidaProveedor === 'proveedor_envia' && config.fleteProveedorIncluido === false,
+    quienPagaProveedor: config.salidaProveedor === 'recojo_en_origen',
     llegadaPeru:
       config.salidaProveedor !== null &&
-      (config.salidaProveedor !== 'proveedor_envia' || config.fleteProveedorIncluido !== null),
+      (config.salidaProveedor === 'recojo_en_origen'
+        ? config.quienPagaProveedor !== null
+        : config.salidaProveedor !== 'proveedor_envia' || config.fleteProveedorIncluido !== null),
     colaboradorSelector:
       config.llegadaPeru === 'viajero' || config.llegadaPeru === 'courier_internacional',
     ultimaMilla: config.llegadaPeru !== null && config.llegadaPeru !== 'ddp_directo',
@@ -301,6 +315,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
       next.fleteProveedorIncluido = null;
       next.costoShippingProveedor = null;
       next.tipoShipping = null;
+      next.quienPagaProveedor = null;
       next.llegadaPeru = null;
       next.colaboradorId = '';
       next.colaboradorNombre = '';
@@ -515,6 +530,32 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                 </p>
               </div>
             )}
+          </Question>
+        )}
+
+        {/* TRAMO 1.5b: ¿Quién paga al proveedor? (solo recojo en origen) */}
+        {show.quienPagaProveedor && (
+          <Question
+            number={qNum.flete}
+            title="¿Quién paga al proveedor?"
+            subtitle="Determina a quién va dirigida la cuenta por pagar"
+            visible={show.quienPagaProveedor}
+            answered={config.quienPagaProveedor !== null}
+          >
+            <Option
+              icon={DollarSign}
+              label="Yo pagué directamente al proveedor"
+              hint="La deuda (CxP) es con el proveedor — flujo de pago normal"
+              selected={config.quienPagaProveedor === 'yo_pague'}
+              onClick={() => update({ quienPagaProveedor: 'yo_pague' })}
+            />
+            <Option
+              icon={UserCheck}
+              label="El que recoge paga por mí"
+              hint="La deuda (CxP) es con quien pagó — el pago se registra contra el colaborador"
+              selected={config.quienPagaProveedor === 'recogedor_paga'}
+              onClick={() => update({ quienPagaProveedor: 'recogedor_paga' })}
+            />
           </Question>
         )}
 

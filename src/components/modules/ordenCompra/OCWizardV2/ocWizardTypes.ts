@@ -110,6 +110,7 @@ export const initialWizardState: OCWizardState = {
     fleteProveedorIncluido: null,
     costoShippingProveedor: null,
     tipoShipping: null,
+    quienPagaProveedor: null,
     llegadaPeru: null,
     colaboradorId: '',
     colaboradorNombre: '',
