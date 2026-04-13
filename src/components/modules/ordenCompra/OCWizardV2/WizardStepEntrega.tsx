@@ -827,7 +827,9 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                       </div>
                       <div className="min-w-0">
                         <span className="text-sm font-medium text-slate-900 truncate block">{item.nombreComercial}</span>
-                        <span className="text-xs text-slate-400">{item.sku} · {item.presentacion}</span>
+                        <span className="text-xs text-slate-400">
+                          {[item.sku, item.marca, item.presentacion, item.contenido, item.dosaje, item.sabor, item.pesoLibras ? `${item.pesoLibras} lb` : null].filter(Boolean).join(' · ')}
+                        </span>
                       </div>
                     </div>
                     <button
