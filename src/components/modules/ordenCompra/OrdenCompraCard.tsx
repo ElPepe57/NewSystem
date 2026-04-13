@@ -636,11 +636,11 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           const hasDescuento = descuentoTotal > 0;
 
           return (
-            <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-              <table className="min-w-full divide-y divide-slate-200">
+            <div className="bg-white border border-slate-200 rounded-lg overflow-x-auto">
+              <table className="min-w-[600px] w-full divide-y divide-slate-200">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Producto</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 min-w-[200px]">Producto</th>
                     <th className="px-2 py-2 text-center text-xs font-medium text-slate-500">Cant.</th>
                     <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">Precio</th>
                     {hasDescuento && <th className="px-2 py-2 text-right text-xs font-medium text-emerald-600">Desc.</th>}
