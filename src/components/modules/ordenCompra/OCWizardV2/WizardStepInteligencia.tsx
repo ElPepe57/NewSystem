@@ -279,6 +279,27 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                 <p className="text-[11px] text-slate-400">
                   {[prod.marca, prod.presentacion, prod.contenido, prod.dosaje, prod.sabor, prod.pesoLibras ? `${prod.pesoLibras} lb` : null].filter(Boolean).join(' · ')}
                 </p>
+                {/* Score explanation */}
+                {!loading && score > 0 && (
+                  <p className="text-[10px] mt-1 text-slate-500">
+                    {(() => {
+                      const factors: string[] = [];
+                      if (hist.promedio && prod.costoUnitario > 0) {
+                        const diff = ((prod.costoUnitario - hist.promedio) / hist.promedio) * 100;
+                        factors.push(diff <= 0 ? 'Buen precio' : `Precio +${diff.toFixed(0)}%`);
+                      }
+                      if (costoAdicionalPorUnidad > 0 && prod.costoUnitario > 0) {
+                        const ratio = (costoAdicionalPorUnidad / prod.costoUnitario) * 100;
+                        factors.push(ratio > 20 ? `Cargos altos (${ratio.toFixed(0)}%)` : `Cargos ${ratio.toFixed(0)}%`);
+                      }
+                      if (inv?.precioPERUMin > 0 && ctru) {
+                        const margenR = ((inv.precioPERUMin * 0.95 - ctru) / (inv.precioPERUMin * 0.95)) * 100;
+                        factors.push(margenR >= 30 ? `Margen ${margenR.toFixed(0)}%` : margenR >= 0 ? `Margen bajo ${margenR.toFixed(0)}%` : 'Sin margen');
+                      }
+                      return factors.length > 0 ? factors.join(' · ') : '';
+                    })()}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -338,23 +359,22 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                   const margen = precioVenta && ctru && ctru > 0 ? ((precioVenta - ctru) / precioVenta) * 100 : (inv?.margenEstimado > 0 ? inv.margenEstimado : null);
                   const utilidad = precioVenta && ctru ? precioVenta - ctru : null;
 
+                  const margenColor = margen !== null && margen >= 30 ? 'emerald' : margen !== null && margen >= 15 ? 'amber' : margen !== null && margen > 0 ? 'red' : null;
+
                   return (
-                    <div className={cn('p-3 text-center', margen !== null && margen >= 30 ? 'bg-emerald-50' : margen !== null && margen >= 15 ? 'bg-amber-50' : margen !== null && margen > 0 ? 'bg-red-50' : 'bg-white')}>
-                      <p className="text-[9px] text-slate-400 uppercase tracking-wide">Margen</p>
+                    <div className={cn('p-3 text-center', margenColor ? `bg-${margenColor}-50` : 'bg-white')}>
+                      <p className="text-[9px] text-slate-400 uppercase tracking-wide">Utilidad</p>
                       <p className={cn(
                         'text-sm font-bold tabular-nums mt-1',
-                        margen !== null && margen >= 30 ? 'text-emerald-700' : margen !== null && margen >= 15 ? 'text-amber-700' : margen !== null && margen > 0 ? 'text-red-700' : 'text-slate-900',
+                        margenColor ? `text-${margenColor}-700` : 'text-slate-900',
                       )}>
-                        {margen !== null ? `${margen.toFixed(0)}%` : '—'}
+                        {utilidad !== null ? `S/${utilidad.toFixed(0)}` : margen !== null ? `${margen.toFixed(0)}%` : '—'}
                       </p>
-                      {precioVenta && (
-                        <p className="text-[9px] text-slate-400">
-                          Vta S/{precioVenta.toFixed(0)}
-                          {utilidad !== null ? ` · U S/${utilidad.toFixed(0)}` : ''}
+                      {margen !== null && utilidad !== null && (
+                        <p className={cn('text-[9px]', margenColor ? `text-${margenColor}-500` : 'text-slate-400')}>
+                          {margen.toFixed(0)}%
+                          {precioCompetidor ? ' (comp -5%)' : ''}
                         </p>
-                      )}
-                      {precioCompetidor && (
-                        <p className="text-[9px] text-slate-300">Comp -5%</p>
                       )}
                     </div>
                   );
