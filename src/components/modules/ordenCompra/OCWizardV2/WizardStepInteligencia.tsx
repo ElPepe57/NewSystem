@@ -118,9 +118,10 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
   const [intel, setIntel] = useState<Record<string, IntelProducto>>({});
   const { productos: catalogo } = useProductoStore();
 
-  // Total costos adicionales (shipping + cargos - descuentos) prorrateados por unidad
+  // Total costos adicionales (cargos - descuentos) prorrateados por unidad
+  // Nota: costoShippingUSD ya está incluido en cargosOC (auto-sincronizado)
   const totalUnidadesCalc = productos.reduce((s, p) => s + (p.cantidad || 0), 0);
-  const totalCargosUSD = cargosOC.reduce((s, c) => s + (c.montoUSD || 0), 0) + costoShippingUSD;
+  const totalCargosUSD = cargosOC.reduce((s, c) => s + (c.montoUSD || 0), 0);
   const totalDescuentosUSD = descuentosOC.reduce((s, d) => s + (d.montoUSD || 0), 0);
   const costosAdicionalesUSD = totalCargosUSD - totalDescuentosUSD;
   const costoAdicionalPorUnidad = totalUnidadesCalc > 0 ? costosAdicionalesUSD / totalUnidadesCalc : 0;
