@@ -191,6 +191,9 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
           {sub.referenciaProveedor && (
             <span className="text-[10px] text-slate-500 truncate hidden sm:inline">Ref: {sub.referenciaProveedor}</span>
           )}
+          {sub.envioNumero && (
+            <span className="text-[10px] text-sky-600 font-medium hidden sm:inline">{sub.envioNumero}</span>
+          )}
           <span className="text-xs font-semibold text-slate-900 font-mono ml-auto shrink-0">${sub.totalUSD.toFixed(2)}</span>
         </button>
 
@@ -256,9 +259,14 @@ export const SubOrdenCard: React.FC<SubOrdenCardProps> = ({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <span className="text-sm font-semibold text-slate-900">Sub-orden {index + 1}</span>
-          {sub.referenciaProveedor && (
-            <p className="text-xs text-slate-500 mt-0.5 font-mono">Ref: {sub.referenciaProveedor}</p>
-          )}
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            {sub.referenciaProveedor && (
+              <span className="text-xs text-slate-500 font-mono">Ref: {sub.referenciaProveedor}</span>
+            )}
+            {sub.envioNumero && (
+              <span className="text-[10px] text-sky-600 font-medium bg-sky-50 px-1.5 py-0.5 rounded">{sub.envioNumero}</span>
+            )}
+          </div>
         </div>
         <span className="text-sm font-bold tabular-nums text-slate-900 shrink-0">${sub.totalUSD.toFixed(2)}</span>
       </div>
