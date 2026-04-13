@@ -643,8 +643,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Producto</th>
                     <th className="px-2 py-2 text-center text-xs font-medium text-slate-500">Cant.</th>
                     <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">Precio</th>
-                    {hasImpuesto && <th className="px-2 py-2 text-right text-xs font-medium text-amber-600">Tax</th>}
                     {hasDescuento && <th className="px-2 py-2 text-right text-xs font-medium text-emerald-600">Desc.</th>}
+                    {hasImpuesto && <th className="px-2 py-2 text-right text-xs font-medium text-amber-600">Tax</th>}
                     {hasEnvio && <th className="px-2 py-2 text-right text-xs font-medium text-sky-600">Envío</th>}
                     {hasOtros && <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">Otros</th>}
                     <th className="px-3 py-2 text-right text-xs font-medium text-teal-700 bg-teal-50">Costo Unit.</th>
@@ -683,14 +683,14 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                         <td className="px-2 py-3 text-right text-sm text-slate-700 tabular-nums">
                           ${producto.costoUnitario.toFixed(2)}
                         </td>
-                        {hasImpuesto && (
-                          <td className="px-2 py-3 text-right text-[11px] text-amber-600 tabular-nums">
-                            +${impuestoPorUnidad.toFixed(2)}
-                          </td>
-                        )}
                         {hasDescuento && (
                           <td className="px-2 py-3 text-right text-[11px] text-emerald-600 tabular-nums">
                             -${descuentoPorUd.toFixed(2)}
+                          </td>
+                        )}
+                        {hasImpuesto && (
+                          <td className="px-2 py-3 text-right text-[11px] text-amber-600 tabular-nums">
+                            +${impuestoPorUnidad.toFixed(2)}
                           </td>
                         )}
                         {hasEnvio && (
@@ -716,8 +716,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     <td className="px-3 py-2 text-sm font-semibold text-slate-700">Total</td>
                     <td className="px-2 py-2 text-center text-sm font-semibold text-slate-700">{totalUnidades}</td>
                     <td className="px-2 py-2 text-right text-sm font-semibold text-slate-700 tabular-nums">${orden.subtotalUSD.toFixed(2)}</td>
-                    {hasImpuesto && <td className="px-2 py-2 text-right text-[11px] font-semibold text-amber-700 tabular-nums">+${impuestoTotal.toFixed(2)}</td>}
                     {hasDescuento && <td className="px-2 py-2 text-right text-[11px] font-semibold text-emerald-700 tabular-nums">-${descuentoTotal.toFixed(2)}</td>}
+                    {hasImpuesto && <td className="px-2 py-2 text-right text-[11px] font-semibold text-amber-700 tabular-nums">+${impuestoTotal.toFixed(2)}</td>}
                     {hasEnvio && <td className="px-2 py-2 text-right text-[11px] font-semibold text-sky-700 tabular-nums">+${envioTotal.toFixed(2)}</td>}
                     {hasOtros && <td className="px-2 py-2 text-right text-[11px] font-semibold text-slate-600 tabular-nums">+${otrosTotal.toFixed(2)}</td>}
                     <td className="px-3 py-2 text-right bg-teal-100">
