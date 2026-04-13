@@ -476,10 +476,20 @@ export const OrdenesCompra: React.FC = () => {
   const handleCambiarEstado = async (nuevoEstado: EstadoOrden) => {
     if (!user || !selectedOrden) return;
 
-    // REINGENIERIA: Confirmar OC — abrir ConfirmarOCModal para preguntar sub-órdenes
+    // REINGENIERIA: Confirmar OC — directo sin modal separado
     if (nuevoEstado === 'confirmada') {
-      setIsDetailsModalOpen(false);
-      setIsConfirmarModalOpen(true);
+      try {
+        setIsSubmitting(true);
+        const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
+        const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid);
+        await refreshSelectedOrden(selectedOrden.id);
+        setIsDetailsModalOpen(false);
+        toast.success(`OC confirmada: ${result.unidadesCreadas} unidades pedidas creadas`);
+      } catch (error: any) {
+        toast.error(error.message, 'Error al confirmar OC');
+      } finally {
+        setIsSubmitting(false);
+      }
       return;
     }
 
