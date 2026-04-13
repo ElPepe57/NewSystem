@@ -228,6 +228,7 @@ export interface EnvioFormData {
   ordenCompraId?: string;
   subOrdenId?: string;
   unidadesIds: string[];
+  unidadesDetalle?: EnvioUnidad[];  // Datos completos de unidades para poblar envio.unidades[]
   numeroTracking?: string;
   courier?: string;
   fechaSalidaEstimada?: Date;

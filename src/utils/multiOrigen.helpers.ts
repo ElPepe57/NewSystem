@@ -38,7 +38,7 @@ export const normalizarEstadoUnidad = (estado: EstadoUnidad): EstadoUnidad => {
  * Verifica si un estado es "en origen" (genérico + legacy)
  */
 export const esEstadoEnOrigen = (estado: EstadoUnidad): boolean => {
-  return estado === 'recibida_origen' || estado === 'recibida_usa';
+  return estado === 'pedida' || estado === 'recibida_origen' || estado === 'recibida_usa';
 };
 
 /**

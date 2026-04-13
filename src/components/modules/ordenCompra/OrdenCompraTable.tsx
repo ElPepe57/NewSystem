@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
-import { Package, Eye, Pencil, Trash2, TrendingUp, DollarSign, CreditCard, Layers, Info, User, ClipboardCheck, MapPin, Search } from 'lucide-react';
+import { Package, Eye, Pencil, Trash2, TrendingUp, DollarSign, CreditCard, Layers, Info, User, ClipboardCheck, MapPin, Search, Truck, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge, Pagination, usePagination, LineaNegocioBadge, PaisOrigenBadge } from '../../common';
 import { useUserName } from '../../../hooks/useUserNames';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC, RecepcionParcial } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { getSubOrdenResumen } from '../../../utils/ordenCompra.helpers';
 import { DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
 
@@ -80,6 +81,14 @@ const RecepcionRow: React.FC<{
 
 // Componente de desglose expandible
 const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
+  const [subOrdenAbierta, setSubOrdenAbierta] = useState<Set<number>>(new Set());
+  const toggleSubOrden = (idx: number) => {
+    setSubOrdenAbierta(prev => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx); else next.add(idx);
+      return next;
+    });
+  };
   const impuesto = orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0;
   const envio = orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0;
   const otros = orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0;
@@ -207,170 +216,309 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
         )}
       </div>
 
-      {/* Tabla de productos */}
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <h5 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-            Productos ({orden.productos.length})
-          </h5>
-          {tieneRecepciones && (
-            <span className="text-xs text-slate-500">
-              Recibido: {totalRecibido} / {totalPedido} unidades
-            </span>
-          )}
-        </div>
+      {/* Productos: por sub-orden si existen, o tabla plana */}
+      {orden.subOrdenes && orden.subOrdenes.length > 0 ? (
+        <div className="space-y-3">
+          {orden.subOrdenes.map((sub, idx) => {
+            const subEstado = sub.estado || 'borrador';
+            const estadoConfig = {
+              borrador: { label: 'Pendiente', bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200' },
+              en_transito: { label: 'En Transito', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+              recibida: { label: 'Recibida', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+            }[subEstado] || { label: subEstado, bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200' };
+            const subUnidades = sub.productos.reduce((s, p) => s + p.cantidad, 0);
+            const subDescuento = sub.descuentoUSD || 0;
+            const subShipping = sub.shippingUSD || 0;
+            const subTax = sub.impuestoUSD || 0;
+            const subSubtotal = sub.subtotalProductosUSD || sub.productos.reduce((s, p) => s + (p.subtotal ?? 0), 0);
 
-        {/* Vista móvil: cards */}
-        <div className="sm:hidden divide-y divide-slate-100">
-          {orden.productos.map((prod, idx) => {
-            const recibida = prod.cantidadRecibida || 0;
-            const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
-            const desc = getDescripcionProducto(prod);
-
+            const abierta = subOrdenAbierta.has(idx);
             return (
-              <div key={idx} className="px-4 py-3">
-                <div className="text-sm font-medium text-slate-900">
-                  {prod.marca} {prod.nombreComercial}
-                </div>
-                <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
-                  <span className="font-mono text-slate-400">{prod.sku}</span>
-                  {desc && (
-                    <>
-                      <span className="text-slate-300">·</span>
-                      <span>{desc}</span>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center justify-between mt-2 text-xs">
-                  <div className="flex items-center gap-3">
-                    <span className="text-slate-500">{prod.cantidad}u × <span className="font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</span></span>
-                    <span className="font-semibold text-slate-900 font-mono">${(prod.subtotal ?? 0).toFixed(2)}</span>
+              <div key={sub.id || idx} className={`bg-white rounded-lg border ${estadoConfig.border} overflow-hidden`}>
+                {/* Header sub-orden — clickable */}
+                <button
+                  type="button"
+                  onClick={() => toggleSubOrden(idx)}
+                  className="w-full px-4 py-3 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-100 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {abierta
+                      ? <ChevronDown className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                      : <ChevronRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    }
+                    <h5 className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center">
+                      <Layers className="h-3.5 w-3.5 mr-1.5 text-purple-600" />
+                      Sub-orden {idx + 1}
+                    </h5>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${estadoConfig.bg} ${estadoConfig.text}`}>
+                      {estadoConfig.label}
+                    </span>
+                    {sub.estadoPago === 'pagado' && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-emerald-50 text-emerald-700">Pagada</span>
+                    )}
+                    <span className="text-[10px] text-slate-400">{sub.productos.length} prod. / {subUnidades}u</span>
                   </div>
-                  {tieneRecepciones && (
-                    <div className="flex items-center gap-2">
-                      <span className={`font-medium ${recibida >= prod.cantidad ? 'text-emerald-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
-                        {recibida}/{prod.cantidad}
+                  <div className="flex items-center gap-3 text-xs text-slate-500">
+                    {sub.referenciaProveedor && (
+                      <span>Ref: <span className="font-medium text-slate-700">{sub.referenciaProveedor}</span></span>
+                    )}
+                    {sub.numeroTracking && (
+                      <span className="flex items-center gap-1">
+                        <Truck className="h-3 w-3" />
+                        {sub.numeroTracking}
                       </span>
-                      {recibida > 0 && (
-                        <div className="w-12 h-1.5 bg-slate-200 rounded-full">
-                          <div
-                            className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                            style={{ width: `${Math.min(porcentaje, 100)}%` }}
-                          />
-                        </div>
-                      )}
+                    )}
+                    {sub.courier && (
+                      <span className="text-slate-400">{sub.courier}</span>
+                    )}
+                    {sub.envioNumero && (
+                      <span className="text-sky-600 font-medium">{sub.envioNumero}</span>
+                    )}
+                    <span className="font-semibold text-slate-900 font-mono">${sub.totalUSD.toFixed(2)}</span>
+                  </div>
+                </button>
+
+                {/* Contenido colapsable */}
+                {abierta && (
+                  <>
+                    {/* Productos de la sub-orden — móvil */}
+                    <div className="sm:hidden divide-y divide-slate-100 border-t border-slate-200">
+                      {sub.productos.map((prod, pIdx) => {
+                        const desc = getDescripcionProducto(prod);
+                        return (
+                          <div key={pIdx} className="px-4 py-2.5">
+                            <div className="text-sm font-medium text-slate-900">{prod.marca} {prod.nombreComercial}</div>
+                            <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
+                              <span className="font-mono text-slate-400">{prod.sku}</span>
+                              {desc && <><span className="text-slate-300">·</span><span>{desc}</span></>}
+                            </div>
+                            <div className="flex items-center justify-between mt-1.5 text-xs">
+                              <span className="text-slate-500">{prod.cantidad}u × <span className="font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</span></span>
+                              <span className="font-semibold text-slate-900 font-mono">${(prod.subtotal ?? 0).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
+
+                    {/* Productos de la sub-orden — desktop */}
+                    <div className="hidden sm:block border-t border-slate-200">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-100">
+                            <th className="text-left px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase">Producto</th>
+                            <th className="text-right px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase w-14">Cant.</th>
+                            <th className="text-right px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase w-24">Costo Unit.</th>
+                            <th className="text-right px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase w-24">Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                          {sub.productos.map((prod, pIdx) => {
+                            const desc = getDescripcionProducto(prod);
+                            return (
+                              <tr key={pIdx}>
+                                <td className="px-3 py-2">
+                                  <div className="font-medium text-slate-900">{prod.marca} {prod.nombreComercial}</div>
+                                  <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
+                                    <span className="font-mono text-slate-400">{prod.sku}</span>
+                                    {desc && <><span className="text-slate-300">·</span><span>{desc}</span></>}
+                                  </div>
+                                </td>
+                                <td className="px-3 py-2 text-right font-medium">{prod.cantidad}</td>
+                                <td className="px-3 py-2 text-right font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</td>
+                                <td className="px-3 py-2 text-right font-mono font-medium">${(prod.subtotal ?? 0).toFixed(2)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Footer: costos + total */}
+                    <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
+                      <div className="flex items-center gap-3 text-slate-500">
+                        <span>{subUnidades} unidades</span>
+                        {subDescuento > 0 && <span>Desc: <span className="font-mono text-red-600">-${subDescuento.toFixed(2)}</span></span>}
+                        {subShipping > 0 && <span>Envio: <span className="font-mono">${subShipping.toFixed(2)}</span></span>}
+                        {subTax > 0 && <span>Tax: <span className="font-mono">${subTax.toFixed(2)}</span></span>}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             );
           })}
-          {/* Totales móvil */}
-          <div className="px-4 py-3 bg-slate-50 flex items-center justify-between text-xs font-bold">
-            <span className="text-slate-600">{totalPedido} unidades</span>
+          {/* Totales OC */}
+          <div className="flex items-center justify-between px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-bold text-slate-700">
+            <span>Total OC: {totalPedido} unidades en {orden.subOrdenes.length} sub-ordenes</span>
             <span className="font-mono">${orden.subtotalUSD.toFixed(2)}</span>
           </div>
         </div>
+      ) : (
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <h5 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              Productos ({orden.productos.length})
+            </h5>
+            {tieneRecepciones && (
+              <span className="text-xs text-slate-500">
+                Recibido: {totalRecibido} / {totalPedido} unidades
+              </span>
+            )}
+          </div>
 
-        {/* Vista desktop: DataTable */}
-        <div className="hidden sm:block">
-          {(() => {
-            type ProductoOC = (typeof orden.productos)[number];
-            const productoCols: DataTableColumn<ProductoOC>[] = [
-              {
-                key: 'producto',
-                header: 'Producto',
-                render: (prod) => {
-                  const desc = getDescripcionProducto(prod);
-                  return (
-                    <div>
-                      <div className="font-medium text-slate-900" title={`${prod.marca} ${prod.nombreComercial}`}>
-                        {prod.marca} {prod.nombreComercial}
-                      </div>
-                      <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
-                        <span className="font-mono text-slate-400">{prod.sku}</span>
-                        {desc && (
-                          <>
-                            <span className="text-slate-300">·</span>
-                            <span>{desc}</span>
-                          </>
+          {/* Vista móvil: cards */}
+          <div className="sm:hidden divide-y divide-slate-100">
+            {orden.productos.map((prod, idx) => {
+              const recibida = prod.cantidadRecibida || 0;
+              const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
+              const desc = getDescripcionProducto(prod);
+
+              return (
+                <div key={idx} className="px-4 py-3">
+                  <div className="text-sm font-medium text-slate-900">
+                    {prod.marca} {prod.nombreComercial}
+                  </div>
+                  <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
+                    <span className="font-mono text-slate-400">{prod.sku}</span>
+                    {desc && (
+                      <>
+                        <span className="text-slate-300">·</span>
+                        <span>{desc}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between mt-2 text-xs">
+                    <div className="flex items-center gap-3">
+                      <span className="text-slate-500">{prod.cantidad}u × <span className="font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</span></span>
+                      <span className="font-semibold text-slate-900 font-mono">${(prod.subtotal ?? 0).toFixed(2)}</span>
+                    </div>
+                    {tieneRecepciones && (
+                      <div className="flex items-center gap-2">
+                        <span className={`font-medium ${recibida >= prod.cantidad ? 'text-emerald-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                          {recibida}/{prod.cantidad}
+                        </span>
+                        {recibida > 0 && (
+                          <div className="w-12 h-1.5 bg-slate-200 rounded-full">
+                            <div
+                              className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                              style={{ width: `${Math.min(porcentaje, 100)}%` }}
+                            />
+                          </div>
                         )}
                       </div>
-                    </div>
-                  );
-                },
-              },
-              {
-                key: 'cantidad',
-                header: 'Cant.',
-                align: 'right',
-                width: 'w-16',
-                render: (prod) => <span className="font-medium">{prod.cantidad}</span>,
-              },
-              {
-                key: 'costoUnitario',
-                header: 'Costo Unit.',
-                align: 'right',
-                width: 'w-28',
-                render: (prod) => <span className="font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</span>,
-              },
-              {
-                key: 'subtotal',
-                header: 'Subtotal',
-                align: 'right',
-                width: 'w-28',
-                render: (prod) => <span className="font-mono font-medium">${(prod.subtotal ?? 0).toFixed(2)}</span>,
-              },
-              ...(tieneRecepciones
-                ? [{
-                    key: 'recibido',
-                    header: 'Recibido',
-                    align: 'right' as const,
-                    width: 'w-28',
-                    render: (prod: ProductoOC) => {
-                      const recibida = prod.cantidadRecibida || 0;
-                      const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
-                      return (
-                        <div className="flex flex-col items-end gap-1">
-                          <span className={`font-medium ${recibida >= prod.cantidad ? 'text-emerald-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
-                            {recibida}/{prod.cantidad}
-                          </span>
-                          {recibida > 0 && (
-                            <div className="w-16 h-1.5 bg-slate-200 rounded-full">
-                              <div
-                                className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                                style={{ width: `${Math.min(porcentaje, 100)}%` }}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    },
-                  }]
-                : []),
-            ];
-
-            return (
-              <DataTable<ProductoOC>
-                columns={productoCols}
-                data={orden.productos}
-                keyExtractor={(prod) => prod.sku}
-                compact
-              />
-            );
-          })()}
-          {/* Fila de totales */}
-          <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-t border-slate-200 text-xs font-bold text-slate-700">
-            <span>Totales: {totalPedido} unidades</span>
-            <div className="flex items-center gap-6">
-              {tieneRecepciones && (
-                <span className="text-slate-600">{totalRecibido}/{totalPedido} recibidas</span>
-              )}
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {/* Totales móvil */}
+            <div className="px-4 py-3 bg-slate-50 flex items-center justify-between text-xs font-bold">
+              <span className="text-slate-600">{totalPedido} unidades</span>
               <span className="font-mono">${orden.subtotalUSD.toFixed(2)}</span>
             </div>
           </div>
+
+          {/* Vista desktop: DataTable */}
+          <div className="hidden sm:block">
+            {(() => {
+              type ProductoOC = (typeof orden.productos)[number];
+              const productoCols: DataTableColumn<ProductoOC>[] = [
+                {
+                  key: 'producto',
+                  header: 'Producto',
+                  render: (prod) => {
+                    const desc = getDescripcionProducto(prod);
+                    return (
+                      <div>
+                        <div className="font-medium text-slate-900" title={`${prod.marca} ${prod.nombreComercial}`}>
+                          {prod.marca} {prod.nombreComercial}
+                        </div>
+                        <div className="flex items-center flex-wrap gap-x-1.5 text-[10px] text-slate-500 mt-0.5">
+                          <span className="font-mono text-slate-400">{prod.sku}</span>
+                          {desc && (
+                            <>
+                              <span className="text-slate-300">·</span>
+                              <span>{desc}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  },
+                },
+                {
+                  key: 'cantidad',
+                  header: 'Cant.',
+                  align: 'right',
+                  width: 'w-16',
+                  render: (prod) => <span className="font-medium">{prod.cantidad}</span>,
+                },
+                {
+                  key: 'costoUnitario',
+                  header: 'Costo Unit.',
+                  align: 'right',
+                  width: 'w-28',
+                  render: (prod) => <span className="font-mono">${(prod.costoUnitario ?? 0).toFixed(2)}</span>,
+                },
+                {
+                  key: 'subtotal',
+                  header: 'Subtotal',
+                  align: 'right',
+                  width: 'w-28',
+                  render: (prod) => <span className="font-mono font-medium">${(prod.subtotal ?? 0).toFixed(2)}</span>,
+                },
+                ...(tieneRecepciones
+                  ? [{
+                      key: 'recibido',
+                      header: 'Recibido',
+                      align: 'right' as const,
+                      width: 'w-28',
+                      render: (prod: ProductoOC) => {
+                        const recibida = prod.cantidadRecibida || 0;
+                        const porcentaje = prod.cantidad > 0 ? (recibida / prod.cantidad) * 100 : 0;
+                        return (
+                          <div className="flex flex-col items-end gap-1">
+                            <span className={`font-medium ${recibida >= prod.cantidad ? 'text-emerald-600' : recibida > 0 ? 'text-amber-600' : 'text-slate-400'}`}>
+                              {recibida}/{prod.cantidad}
+                            </span>
+                            {recibida > 0 && (
+                              <div className="w-16 h-1.5 bg-slate-200 rounded-full">
+                                <div
+                                  className={`h-full rounded-full ${porcentaje >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                                  style={{ width: `${Math.min(porcentaje, 100)}%` }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      },
+                    }]
+                  : []),
+              ];
+
+              return (
+                <DataTable<ProductoOC>
+                  columns={productoCols}
+                  data={orden.productos}
+                  keyExtractor={(prod) => prod.sku}
+                  compact
+                />
+              );
+            })()}
+            {/* Fila de totales */}
+            <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-t border-slate-200 text-xs font-bold text-slate-700">
+              <span>Totales: {totalPedido} unidades</span>
+              <div className="flex items-center gap-6">
+                {tieneRecepciones && (
+                  <span className="text-slate-600">{totalRecibido}/{totalPedido} recibidas</span>
+                )}
+                <span className="font-mono">${orden.subtotalUSD.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Recepciones */}
       {orden.recepcionesParciales && orden.recepcionesParciales.length > 0 && (
@@ -602,11 +750,30 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
             header: 'Estado',
             render: (orden) => {
               const estadoInfo = estadoLabels[orden.estado] || estadoLabels.borrador;
+              const subResumen = getSubOrdenResumen(orden.subOrdenes);
               return (
                 <div className="flex flex-col gap-1">
                   <Badge variant={estadoInfo.variant}>
                     {estadoInfo.label}
                   </Badge>
+                  {subResumen && (
+                    <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded w-fit font-medium ${
+                      subResumen.recibidas === subResumen.total
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : subResumen.recibidas > 0 || subResumen.enTransito > 0
+                          ? 'bg-amber-50 text-amber-700'
+                          : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      <Layers className="h-2.5 w-2.5" />
+                      {subResumen.recibidas}/{subResumen.total} sub-ord.
+                    </span>
+                  )}
+                  {subResumen && subResumen.pagadas > 0 && subResumen.pagadas < subResumen.total && (
+                    <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded w-fit font-medium bg-amber-50 text-amber-700">
+                      <CreditCard className="h-2.5 w-2.5" />
+                      {subResumen.pagadas}/{subResumen.total} pagadas
+                    </span>
+                  )}
                   {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
                     <div className="flex items-center">
                       <TrendingUp className="h-3 w-3 text-amber-500 mr-1" />
@@ -621,7 +788,7 @@ export const OrdenCompraTable: React.FC<OrdenCompraTableProps> = ({
                   )}
                   {orden.courier && (
                     <span className="text-[10px] text-slate-500">
-                      📦 {orden.courier}
+                      {orden.courier}
                     </span>
                   )}
                 </div>

@@ -416,6 +416,16 @@ export const Unidades: React.FC = () => {
       },
     },
     {
+      key: 'envio',
+      header: 'Envío',
+      hideOnMobile: true,
+      render: unidad => unidad.envioNumero ? (
+        <span className="text-xs font-medium text-sky-600">{unidad.envioNumero}</span>
+      ) : (
+        <span className="text-xs text-slate-300">—</span>
+      ),
+    },
+    {
       key: 'costoUSD',
       header: 'Costo USD',
       align: 'right',

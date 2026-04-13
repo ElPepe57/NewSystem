@@ -669,20 +669,41 @@ export async function confirmarOC(
 
   let envioId: string;
 
+  // Helper: construir EnvioUnidad[] desde unidadIds y productos
+  const buildEnvioUnidades = (ids: string[], productos: typeof orden.productos): import('../types/envio.types').EnvioUnidad[] => {
+    const result: import('../types/envio.types').EnvioUnidad[] = [];
+    let idIdx = 0;
+    for (const prod of productos) {
+      for (let i = 0; i < prod.cantidad; i++) {
+        if (idIdx < ids.length) {
+          result.push({
+            unidadId: ids[idIdx],
+            productoId: prod.productoId,
+            sku: prod.sku,
+            codigoUnidad: ids[idIdx].slice(-6).toUpperCase(),
+            pesoLibras: prod.pesoLibras,
+            estadoEnvio: 'pendiente',
+          });
+          idIdx++;
+        }
+      }
+    }
+    return result;
+  };
+
   if (orden.subOrdenes && orden.subOrdenes.length > 0) {
     // 3a. Multi-envio: one Envio T1 per sub-orden
     const subOrdenesActualizadas = [];
     let firstEnvioId: string | undefined;
 
     for (const subOrden of orden.subOrdenes) {
-      // Collect unidad IDs for all products in this sub-orden.
-      // Each productoId may appear in multiple sub-ordenes only if the same product
-      // was split (unusual), so we consume units in order from the pool.
       const subUnidadIds: string[] = subOrden.productos.flatMap(
         (p) => unitsByProductoId[p.productoId] || []
       );
 
-      const subEnvioId = await envioCrudService.crear({
+      const subEnvioUnidades = buildEnvioUnidades(subUnidadIds, subOrden.productos);
+
+      const envioResult = await envioCrudService.crear({
         origenTipo: 'proveedor',
         origenProveedorId: orden.proveedorId,
         destinoCasillaId,
@@ -690,12 +711,28 @@ export async function confirmarOC(
         ordenCompraId: ocId,
         subOrdenId: subOrden.id,
         unidadesIds: subUnidadIds,
+        unidadesDetalle: subEnvioUnidades,
       }, userId);
 
-      await heredarCargos(subEnvioId);
+      await heredarCargos(envioResult.id);
 
-      subOrdenesActualizadas.push({ ...subOrden, envioId: subEnvioId });
-      if (!firstEnvioId) firstEnvioId = subEnvioId;
+      // Vincular unidades con su envio y sub-orden
+      const linkBatch = createBatch(db);
+      for (const uid of subUnidadIds) {
+        linkBatch.update(doc(db, 'unidades', uid), {
+          envioId: envioResult.id,
+          envioNumero: envioResult.numeroEnvio,
+          subOrdenId: subOrden.id,
+        });
+      }
+      await linkBatch.commit();
+
+      subOrdenesActualizadas.push({
+        ...subOrden,
+        envioId: envioResult.id,
+        envioNumero: envioResult.numeroEnvio,
+      });
+      if (!firstEnvioId) firstEnvioId = envioResult.id;
     }
 
     // Persist envioIds back to the sub-ordenes array on the OC document
@@ -708,21 +745,36 @@ export async function confirmarOC(
     );
   } else {
     // 3b. Envio unico (comportamiento original)
-    envioId = await envioCrudService.crear({
+    const envioUnidades = buildEnvioUnidades(unidadIds, orden.productos);
+
+    const envioResult = await envioCrudService.crear({
       origenTipo: 'proveedor',
       origenProveedorId: orden.proveedorId,
       destinoCasillaId,
       colaboradorId: transporteColaboradorId,
       ordenCompraId: ocId,
       unidadesIds: unidadIds,
+      unidadesDetalle: envioUnidades,
     }, userId);
 
-    await heredarCargos(envioId);
+    await heredarCargos(envioResult.id);
+
+    // Vincular unidades con su envio
+    const linkBatch = createBatch(db);
+    for (const uid of unidadIds) {
+      linkBatch.update(doc(db, 'unidades', uid), {
+        envioId: envioResult.id,
+        envioNumero: envioResult.numeroEnvio,
+      });
+    }
+    await linkBatch.commit();
+
+    envioId = envioResult.id;
 
     if (orden.cargosOC && orden.cargosOC.length > 0) {
       logger.info(`${orden.cargosOC.length} cargos OC heredados al Envio T1 como costosLanded`);
     }
-    logger.success(`OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + Envio T1 creado`);
+    logger.success(`OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + Envio T1 creado (${envioResult.numeroEnvio})`);
   }
 
   return {

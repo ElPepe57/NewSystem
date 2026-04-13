@@ -6,6 +6,7 @@ import { StatusBadge, cn } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOrden } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { calcularEstadoDerivadoOC } from '../../../utils/ordenCompra.helpers';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 
 interface OrdenCompraCardProps {
@@ -85,9 +86,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         return s;
       });
 
-      const allRecibida = updatedSubs.every(s => s.estado === 'recibida');
-      const anyActive = updatedSubs.some(s => s.estado === 'en_transito' || s.estado === 'recibida');
-      const ocEstado = allRecibida ? 'completada' : anyActive ? 'en_proceso' : orden.estado;
+      const ocEstado = calcularEstadoDerivadoOC(updatedSubs, orden.estado);
 
       await updateDoc(doc(db, 'ordenesCompra', orden.id), {
         subOrdenes: updatedSubs,

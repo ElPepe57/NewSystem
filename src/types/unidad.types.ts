@@ -189,10 +189,15 @@ export interface Unidad {
   costoGAAsignado?: number;
   costoGOAsignado?: number;
 
-  // Trazabilidad
+  // Trazabilidad OC
   ordenCompraId: string;         // OC que generó esta unidad
   ordenCompraNumero: string;     // Desnormalizado
   fechaRecepcion: Timestamp;     // Cuándo llegó físicamente
+
+  // Trazabilidad Envio
+  envioId?: string;              // Envio al que pertenece esta unidad
+  envioNumero?: string;          // Desnormalizado (ENV-2026-XXX)
+  subOrdenId?: string;           // Sub-orden de la OC (si aplica)
 
   // Si está vendida
   ventaId?: string;

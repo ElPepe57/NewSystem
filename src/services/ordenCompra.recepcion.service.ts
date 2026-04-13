@@ -12,7 +12,11 @@ import {
   updateDoc,
   writeBatch,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
@@ -45,9 +49,11 @@ export async function recibirOrdenParcial(
     const orden = await getById(id);
     if (!orden) throw new Error('Orden no encontrada');
 
-    if (!['en_transito', 'enviada', 'recibida_parcial'].includes(orden.estado)) {
+    // Aceptar tambien estado 'confirmada' y 'en_proceso' (post-reingenieria)
+    const estadosPermitidos = ['confirmada', 'en_proceso', 'en_transito', 'enviada', 'recibida_parcial'];
+    if (!estadosPermitidos.includes(orden.estado)) {
       throw new Error(
-        'La orden debe estar enviada, en tránsito o recibida parcial para recibir productos'
+        'La orden debe estar confirmada, en proceso o en tránsito para recibir productos'
       );
     }
 
@@ -145,6 +151,26 @@ export async function recibirOrdenParcial(
     if (!almacen) throw new Error(`Almacén ${orden.almacenDestino} no encontrado`);
     const almacenInfo = { nombre: almacen.nombre, pais: almacen.pais };
 
+    // Guard anti-duplicacion: buscar unidades 'pedida' ya creadas por confirmarOC
+    const unidadesPedidaSnap = await getDocs(
+      query(
+        collection(db, 'unidades'),
+        where('ordenCompraId', '==', id),
+        where('estado', '==', 'pedida')
+      )
+    );
+    const unidadesPedidaByProducto: Record<string, string[]> = {};
+    unidadesPedidaSnap.forEach(d => {
+      const pid = d.data().productoId as string;
+      if (!unidadesPedidaByProducto[pid]) unidadesPedidaByProducto[pid] = [];
+      unidadesPedidaByProducto[pid].push(d.id);
+    });
+    const hayUnidadesPedida = unidadesPedidaSnap.size > 0;
+
+    if (hayUnidadesPedida) {
+      logger.info(`Guard anti-dup: ${unidadesPedidaSnap.size} unidades 'pedida' encontradas — transicionando en vez de crear nuevas`);
+    }
+
     for (const pr of productosValidos) {
       const productoOC = orden.productos.find(p => p.productoId === pr.productoId)!;
       const productoInfo = await ProductoService.getById(pr.productoId);
@@ -176,6 +202,11 @@ export async function recibirOrdenParcial(
         tcPago: orden.tcPago
       };
 
+      // Pool de unidades 'pedida' existentes para este producto
+      const poolPedida = hayUnidadesPedida
+        ? [...(unidadesPedidaByProducto[pr.productoId] || [])]
+        : [];
+
       if (reservaPendiente > 0 && reservations.length > 0) {
         let reservaPendienteRestante = reservaPendiente;
         let yaConsumidoPrevio = yaReservadoPrevio;
@@ -191,21 +222,44 @@ export async function recibirOrdenParcial(
 
           const cantReservar = Math.min(pendienteDeEstaReserva, unidadesRestantes);
 
-          const reservadasIds = await unidadService.crearLote(
-            {
-              ...datosBaseLote,
-              cantidad: cantReservar,
-              estadoInicial: 'reservada',
-              reservadoPara: reserva.cotizacionId,
-              requerimientoId: reserva.requerimientoId
-            },
-            userId,
-            { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
-            almacenInfo
-          );
+          if (poolPedida.length >= cantReservar) {
+            // Transicionar unidades existentes a 'reservada'
+            const idsToTransition = poolPedida.splice(0, cantReservar);
+            const tBatch = writeBatch(db);
+            for (const uid of idsToTransition) {
+              tBatch.update(doc(db, 'unidades', uid), {
+                estado: 'reservada',
+                casillaActualId: orden.almacenDestino,
+                casillaNombre: almacenInfo.nombre,
+                pais: almacenInfo.pais,
+                reservadaPara: reserva.cotizacionId,
+                costoUnitarioUSD: costoUnitarioReal,
+                fechaRecepcion: Timestamp.now(),
+                actualizadoPor: userId,
+                fechaActualizacion: Timestamp.now(),
+              });
+            }
+            await tBatch.commit();
+            unidadesGeneradas.push(...idsToTransition);
+            unidadesReservadas.push(...idsToTransition);
+          } else {
+            // Fallback: crear nuevas (pool agotado o inexistente)
+            const reservadasIds = await unidadService.crearLote(
+              {
+                ...datosBaseLote,
+                cantidad: cantReservar,
+                estadoInicial: 'reservada',
+                reservadoPara: reserva.cotizacionId,
+                requerimientoId: reserva.requerimientoId
+              },
+              userId,
+              { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
+              almacenInfo
+            );
+            unidadesGeneradas.push(...reservadasIds);
+            unidadesReservadas.push(...reservadasIds);
+          }
 
-          unidadesGeneradas.push(...reservadasIds);
-          unidadesReservadas.push(...reservadasIds);
           unidadesRestantes -= cantReservar;
           reservaPendienteRestante -= cantReservar;
 
@@ -216,14 +270,36 @@ export async function recibirOrdenParcial(
       }
 
       if (unidadesRestantes > 0) {
-        const disponiblesIds = await unidadService.crearLote(
-          { ...datosBaseLote, cantidad: unidadesRestantes },
-          userId,
-          { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
-          almacenInfo
-        );
-        unidadesGeneradas.push(...disponiblesIds);
-        unidadesDisponibles.push(...disponiblesIds);
+        if (poolPedida.length >= unidadesRestantes) {
+          // Transicionar unidades existentes a 'disponible'
+          const idsToTransition = poolPedida.splice(0, unidadesRestantes);
+          const tBatch = writeBatch(db);
+          for (const uid of idsToTransition) {
+            tBatch.update(doc(db, 'unidades', uid), {
+              estado: 'disponible',
+              casillaActualId: orden.almacenDestino,
+              casillaNombre: almacenInfo.nombre,
+              pais: almacenInfo.pais,
+              costoUnitarioUSD: costoUnitarioReal,
+              fechaRecepcion: Timestamp.now(),
+              actualizadoPor: userId,
+              fechaActualizacion: Timestamp.now(),
+            });
+          }
+          await tBatch.commit();
+          unidadesGeneradas.push(...idsToTransition);
+          unidadesDisponibles.push(...idsToTransition);
+        } else {
+          // Fallback: crear nuevas (pool agotado o inexistente)
+          const disponiblesIds = await unidadService.crearLote(
+            { ...datosBaseLote, cantidad: unidadesRestantes },
+            userId,
+            { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
+            almacenInfo
+          );
+          unidadesGeneradas.push(...disponiblesIds);
+          unidadesDisponibles.push(...disponiblesIds);
+        }
       }
 
       totalUnidadesRecepcion += pr.cantidadRecibida;

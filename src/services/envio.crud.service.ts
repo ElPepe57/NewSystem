@@ -66,7 +66,7 @@ export const envioCrudService = {
   /**
    * Crea un envio nuevo (T1 desde OC o manual entre casillas)
    */
-  async crear(data: EnvioFormData, userId: string): Promise<string> {
+  async crear(data: EnvioFormData, userId: string): Promise<{ id: string; numeroEnvio: string }> {
     const numeroEnvio = await generarNumeroEnvio();
     const now = Timestamp.now();
 
@@ -78,9 +78,9 @@ export const envioCrudService = {
       // Destino
       destinoCasillaId: data.destinoCasillaId,
 
-      // Unidades (se agregan despues)
-      unidades: [],
-      totalUnidades: 0,
+      // Unidades
+      unidades: data.unidadesDetalle || [],
+      totalUnidades: data.unidadesDetalle?.length || 0,
       productosSummary: [],
 
       // Costos landed (vacios, se agregan despues)
@@ -114,7 +114,7 @@ export const envioCrudService = {
 
     const docRef = await addDoc(collection(db, COLL), nuevoEnvio);
     logger.success(`Envio ${numeroEnvio} creado`);
-    return docRef.id;
+    return { id: docRef.id, numeroEnvio };
   },
 
   /**
