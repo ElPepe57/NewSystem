@@ -52,8 +52,12 @@ import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUni
 import { EditFleteModal } from "./EditFleteModal";
 import { TransferenciaDetailModal } from "./TransferenciaDetailModal";
 import { TransferenciaFilters } from "./TransferenciaFilters";
+import { EnviosProveedorTab } from "./EnviosProveedorTab";
+
+type TabEnvios = 'transferencias' | 'proveedor';
 
 export const Transferencias: React.FC = () => {
+  const [tabEnvios, setTabEnvios] = useState<TabEnvios>('transferencias');
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
   const {
@@ -542,6 +546,38 @@ export const Transferencias: React.FC = () => {
         ]}
       />
 
+      {/* Tabs: Transferencias vs Envios Proveedor */}
+      <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit">
+        <button
+          type="button"
+          onClick={() => setTabEnvios('transferencias')}
+          className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
+            tabEnvios === 'transferencias'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <ArrowRightLeft className="w-3.5 h-3.5 inline mr-1.5" />
+          Transferencias
+        </button>
+        <button
+          type="button"
+          onClick={() => setTabEnvios('proveedor')}
+          className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
+            tabEnvios === 'proveedor'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          <Package className="w-3.5 h-3.5 inline mr-1.5" />
+          Envios Proveedor
+        </button>
+      </div>
+
+      {tabEnvios === 'proveedor' ? (
+        <EnviosProveedorTab />
+      ) : (
+      <>
       {/* Filtro de línea de negocio */}
 
       {/* StatCards interactivos */}
@@ -783,6 +819,8 @@ export const Transferencias: React.FC = () => {
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
+      </>
+      )}
     </PageShell>
   );
 };
