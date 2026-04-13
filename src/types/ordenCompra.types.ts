@@ -205,11 +205,17 @@ export interface RecepcionParcial {
     productoId: string;
     cantidadRecibida: number;         // Cuántas llegaron EN ESTA entrega
     cantidadAcumulada: number;        // Acumulado después de esta recepción
+    cantidadDanada?: number;          // Cuántas llegaron dañadas
+    cantidadPerdida?: number;         // Cuántas no llegaron (perdidas/faltantes)
   }>;
   unidadesGeneradas: string[];
   unidadesReservadas: string[];
   unidadesDisponibles: string[];
+  unidadesDanadas?: string[];
+  unidadesPerdidas?: string[];
   totalUnidadesRecepcion: number;
+  totalUnidadesDanadas?: number;
+  totalUnidadesPerdidas?: number;
   costoAdicionalPorUnidad: number;
   registradoPor: string;
   observaciones?: string;
@@ -220,6 +226,8 @@ export interface RecepcionParcialFormData {
   productosRecibidos: Array<{
     productoId: string;
     cantidadRecibida: number;
+    cantidadDanada?: number;
+    cantidadPerdida?: number;
   }>;
   observaciones?: string;
 }

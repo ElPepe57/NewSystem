@@ -631,7 +631,7 @@ export const OrdenesCompra: React.FC = () => {
 
   // Submit de recepción parcial
   const handleSubmitRecepcion = async (
-    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
     observaciones?: string
   ) => {
     if (!user || !selectedOrden) return;

@@ -11,7 +11,7 @@ interface RecepcionParcialModalProps {
   orden: OrdenCompra;
   subOrden?: SubOrdenCompra;
   onSubmit: (
-    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
     observaciones?: string
   ) => Promise<void>;
 }
@@ -24,6 +24,8 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
   onSubmit
 }) => {
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
+  const [danados, setDanados] = useState<Record<string, number>>({});
+  const [perdidos, setPerdidos] = useState<Record<string, number>>({});
   const [recibirTodo, setRecibirTodo] = useState(false);
   const [observaciones, setObservaciones] = useState('');
   const [loading, setLoading] = useState(false);
@@ -164,24 +166,41 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
       }
     }
 
-    // Verificar si esta recepción completa la orden
+    // Totales de daños
+    const totalDanados = Object.values(danados).reduce((s, v) => s + v, 0);
+    const totalPerdidos = Object.values(perdidos).reduce((s, v) => s + v, 0);
+
+    // Verificar si esta recepción completa la orden (recibidos + dañados + perdidos = pendiente)
     const esRecepcionFinal = productosConPendiente.every(p => {
-      const cantidadAAgregar = cantidades[p.productoId] || 0;
-      return (p.recibido + cantidadAAgregar) >= p.cantidad;
+      const recibir = cantidades[p.productoId] || 0;
+      const danar = danados[p.productoId] || 0;
+      const perder = perdidos[p.productoId] || 0;
+      return (p.recibido + recibir + danar + perder) >= p.cantidad;
     });
 
     return {
       productosCount: productosSeleccionados.length,
       totalUnidades,
+      totalDanados,
+      totalPerdidos,
       costoRecepcionUSD,
       esRecepcionFinal
     };
-  }, [cantidades, orden, productosConPendiente]);
+  }, [cantidades, danados, perdidos, orden, productosConPendiente]);
 
   const handleSubmit = async () => {
-    const productosRecibidos = Object.entries(cantidades)
-      .filter(([, cant]) => cant > 0)
-      .map(([productoId, cantidadRecibida]) => ({ productoId, cantidadRecibida }));
+    // Reunir todos los productos con actividad (recibidos, dañados o perdidos)
+    const productoIds = new Set<string>();
+    Object.entries(cantidades).forEach(([id, v]) => { if (v > 0) productoIds.add(id); });
+    Object.entries(danados).forEach(([id, v]) => { if (v > 0) productoIds.add(id); });
+    Object.entries(perdidos).forEach(([id, v]) => { if (v > 0) productoIds.add(id); });
+
+    const productosRecibidos = Array.from(productoIds).map(productoId => ({
+      productoId,
+      cantidadRecibida: cantidades[productoId] || 0,
+      cantidadDanada: danados[productoId] || 0,
+      cantidadPerdida: perdidos[productoId] || 0,
+    }));
 
     if (productosRecibidos.length === 0) return;
 
@@ -190,11 +209,16 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
 
     try {
       await onSubmit(productosRecibidos, observaciones || undefined);
+      const extras = [];
+      if (resumen.totalDanados > 0) extras.push(`${resumen.totalDanados} dañadas`);
+      if (resumen.totalPerdidos > 0) extras.push(`${resumen.totalPerdidos} perdidas`);
+      const extrasMsg = extras.length > 0 ? ` (${extras.join(', ')})` : '';
+
       setResultado({
         success: true,
         message: resumen.esRecepcionFinal
-          ? `Recepcion final completada. ${resumen.totalUnidades} unidades recibidas. La orden está completa.`
-          : `Recepcion #${numeroRecepcion} registrada. ${resumen.totalUnidades} unidades recibidas.`
+          ? `Recepcion final completada. ${resumen.totalUnidades} unidades recibidas${extrasMsg}. La orden está completa.`
+          : `Recepcion #${numeroRecepcion} registrada. ${resumen.totalUnidades} unidades recibidas${extrasMsg}.`
       });
     } catch (error: any) {
       setResultado({
@@ -369,6 +393,8 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                     <th className="px-2 py-2 text-center text-slate-600">Recibido</th>
                     <th className="px-2 py-2 text-center text-slate-600">Pendiente</th>
                     <th className="px-3 py-2 text-center text-slate-600">Recibir ahora</th>
+                    <th className="px-2 py-2 text-center text-red-600">Dañados</th>
+                    <th className="px-2 py-2 text-center text-slate-600">Perdidos</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -425,10 +451,44 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                             <input
                               type="number"
                               min={0}
-                              max={p.pendiente}
+                              max={p.pendiente - (danados[p.productoId] || 0) - (perdidos[p.productoId] || 0)}
                               value={cantidades[p.productoId] || 0}
-                              onChange={(e) => handleCantidadChange(p.productoId, parseInt(e.target.value) || 0, p.pendiente)}
+                              onChange={(e) => handleCantidadChange(p.productoId, parseInt(e.target.value) || 0, p.pendiente - (danados[p.productoId] || 0) - (perdidos[p.productoId] || 0))}
                               className="w-16 text-center border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                            />
+                          )}
+                        </td>
+                        <td className="px-2 py-2 text-center">
+                          {p.completo ? (
+                            <span className="text-slate-400">-</span>
+                          ) : (
+                            <input
+                              type="number"
+                              min={0}
+                              max={p.pendiente - (cantidades[p.productoId] || 0) - (perdidos[p.productoId] || 0)}
+                              value={danados[p.productoId] || 0}
+                              onChange={(e) => {
+                                const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, p.pendiente - (cantidades[p.productoId] || 0) - (perdidos[p.productoId] || 0)));
+                                setDanados(prev => ({ ...prev, [p.productoId]: val }));
+                              }}
+                              className="w-14 text-center border border-red-200 rounded px-1 py-1 text-sm focus:ring-2 focus:ring-red-400 focus:border-red-400 text-red-600"
+                            />
+                          )}
+                        </td>
+                        <td className="px-2 py-2 text-center">
+                          {p.completo ? (
+                            <span className="text-slate-400">-</span>
+                          ) : (
+                            <input
+                              type="number"
+                              min={0}
+                              max={p.pendiente - (cantidades[p.productoId] || 0) - (danados[p.productoId] || 0)}
+                              value={perdidos[p.productoId] || 0}
+                              onChange={(e) => {
+                                const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, p.pendiente - (cantidades[p.productoId] || 0) - (danados[p.productoId] || 0)));
+                                setPerdidos(prev => ({ ...prev, [p.productoId]: val }));
+                              }}
+                              className="w-14 text-center border border-slate-300 rounded px-1 py-1 text-sm focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                             />
                           )}
                         </td>

@@ -35,7 +35,7 @@ import { calcularEstadoDerivadoOC } from '../utils/ordenCompra.helpers';
 
 export async function recibirOrdenParcial(
   id: string,
-  productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+  productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
   userId: string,
   observaciones?: string,
   subOrdenId?: string
@@ -305,6 +305,70 @@ export async function recibirOrdenParcial(
       }
 
       totalUnidadesRecepcion += pr.cantidadRecibida;
+
+      // Unidades dañadas
+      const cantDanada = pr.cantidadDanada || 0;
+      if (cantDanada > 0) {
+        if (poolPedida.length >= cantDanada) {
+          const idsToTransition = poolPedida.splice(0, cantDanada);
+          const dBatch = writeBatch(db);
+          for (const uid of idsToTransition) {
+            dBatch.update(doc(db, 'unidades', uid), {
+              estado: 'danada',
+              casillaActualId: orden.almacenDestino,
+              casillaNombre: almacenInfo.nombre,
+              pais: almacenInfo.pais,
+              costoUnitarioUSD: costoUnitarioReal,
+              fechaRecepcion: Timestamp.now(),
+              actualizadoPor: userId,
+              fechaActualizacion: Timestamp.now(),
+            });
+          }
+          await dBatch.commit();
+          unidadesGeneradas.push(...idsToTransition);
+        } else {
+          const danadasIds = await unidadService.crearLote(
+            { ...datosBaseLote, cantidad: cantDanada, estadoInicial: 'danada' as any },
+            userId,
+            { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
+            almacenInfo
+          );
+          unidadesGeneradas.push(...danadasIds);
+        }
+        logger.warn(`  → ${cantDanada} unidades de ${productoInfo.sku} marcadas como DAÑADAS`);
+      }
+
+      // Unidades perdidas
+      const cantPerdida = pr.cantidadPerdida || 0;
+      if (cantPerdida > 0) {
+        if (poolPedida.length >= cantPerdida) {
+          const idsToTransition = poolPedida.splice(0, cantPerdida);
+          const pBatch = writeBatch(db);
+          for (const uid of idsToTransition) {
+            pBatch.update(doc(db, 'unidades', uid), {
+              estado: 'perdida',
+              casillaActualId: orden.almacenDestino,
+              casillaNombre: almacenInfo.nombre,
+              pais: almacenInfo.pais,
+              costoUnitarioUSD: costoUnitarioReal,
+              fechaRecepcion: Timestamp.now(),
+              actualizadoPor: userId,
+              fechaActualizacion: Timestamp.now(),
+            });
+          }
+          await pBatch.commit();
+          unidadesGeneradas.push(...idsToTransition);
+        } else {
+          const perdidasIds = await unidadService.crearLote(
+            { ...datosBaseLote, cantidad: cantPerdida, estadoInicial: 'perdida' as any },
+            userId,
+            { sku: productoInfo.sku, nombre: productoInfo.nombreComercial },
+            almacenInfo
+          );
+          unidadesGeneradas.push(...perdidasIds);
+        }
+        logger.warn(`  → ${cantPerdida} unidades de ${productoInfo.sku} marcadas como PERDIDAS`);
+      }
     }
 
     // Calculate CTRU for the new batch
@@ -343,13 +407,17 @@ export async function recibirOrdenParcial(
         return {
           productoId: pr.productoId,
           cantidadRecibida: pr.cantidadRecibida,
-          cantidadAcumulada: (productoOC.cantidadRecibida || 0) + pr.cantidadRecibida
+          cantidadAcumulada: (productoOC.cantidadRecibida || 0) + pr.cantidadRecibida,
+          ...(pr.cantidadDanada ? { cantidadDanada: pr.cantidadDanada } : {}),
+          ...(pr.cantidadPerdida ? { cantidadPerdida: pr.cantidadPerdida } : {}),
         };
       }),
       unidadesGeneradas,
       unidadesReservadas,
       unidadesDisponibles,
       totalUnidadesRecepcion,
+      totalUnidadesDanadas: productosValidos.reduce((s, pr) => s + (pr.cantidadDanada || 0), 0) || undefined,
+      totalUnidadesPerdidas: productosValidos.reduce((s, pr) => s + (pr.cantidadPerdida || 0), 0) || undefined,
       costoAdicionalPorUnidad,
       registradoPor: userId,
       ...(observaciones ? { observaciones } : {}),

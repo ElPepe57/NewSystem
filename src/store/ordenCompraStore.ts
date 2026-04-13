@@ -52,7 +52,7 @@ interface OrdenCompraState {
   }>;
   recibirOrdenParcial: (
     id: string,
-    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
     userId: string,
     observaciones?: string,
     subOrdenId?: string
