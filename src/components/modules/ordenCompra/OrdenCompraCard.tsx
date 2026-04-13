@@ -8,6 +8,7 @@ import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOr
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { calcularEstadoDerivadoOC } from '../../../utils/ordenCompra.helpers';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { SubOrdenCard } from './SubOrdenCard';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
@@ -277,176 +278,27 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       )}
 
-      {/* Sub-órdenes como interfaz operativa principal (cuando existen) */}
+      {/* Sub-órdenes como interfaz operativa principal */}
       {orden.estado !== 'borrador' && orden.subOrdenes && orden.subOrdenes.length > 0 && (
         <div className="space-y-3">
           <h4 className="font-semibold text-slate-900 flex items-center gap-2 text-sm">
             <Layers className="h-4 w-4 text-purple-600" />
             Sub-ordenes ({orden.subOrdenes.length})
           </h4>
-          {orden.subOrdenes.map((sub, idx) => {
-            const subEstado = sub.estado || 'borrador';
-            const isLoading = subOrdenLoading[sub.id] || false;
-            const draft = trackingDraft[sub.id] || { tracking: sub.numeroTracking || '', courier: sub.courier || '' };
-            const pasoIdx = subEstado === 'recibida' ? 2 : subEstado === 'en_transito' ? 1 : 0;
-
-            return (
-              <div key={sub.id} className={cn(
-                'rounded-xl border p-4 space-y-3',
-                subEstado === 'recibida' ? 'border-emerald-200 bg-emerald-50/40' :
-                subEstado === 'en_transito' ? 'border-amber-200 bg-amber-50/30' :
-                'border-slate-200 bg-white'
-              )}>
-                {/* Header: titulo + ref + total */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <span className="text-sm font-semibold text-slate-900">Sub-orden {idx + 1}</span>
-                    {sub.referenciaProveedor && (
-                      <p className="text-xs text-slate-500 mt-0.5 font-mono">Ref: {sub.referenciaProveedor}</p>
-                    )}
-                  </div>
-                  <span className="text-sm font-bold tabular-nums text-slate-900 shrink-0">${sub.totalUSD.toFixed(2)}</span>
-                </div>
-
-                {/* Mini-pipeline: 3 pasos + pago */}
-                <div className="flex items-center gap-1.5">
-                  {[
-                    { label: 'Pendiente', icon: Clock },
-                    { label: 'En Transito', icon: Truck },
-                    { label: 'Recibida', icon: CheckCircle2 },
-                  ].map((paso, i) => {
-                    const completado = i < pasoIdx;
-                    const actual = i === pasoIdx;
-                    const PasoIcon = paso.icon;
-                    return (
-                      <React.Fragment key={i}>
-                        {i > 0 && (
-                          <div className={cn('h-px flex-1 max-w-6', completado ? 'bg-emerald-400' : 'bg-slate-200')} />
-                        )}
-                        <div className="flex items-center gap-1" title={paso.label}>
-                          <div className={cn(
-                            'w-5 h-5 rounded-full flex items-center justify-center',
-                            completado ? 'bg-emerald-500 text-white' :
-                            actual ? 'bg-sky-100 text-sky-600 ring-2 ring-sky-300' :
-                            'bg-slate-100 text-slate-400'
-                          )}>
-                            <PasoIcon className="w-3 h-3" />
-                          </div>
-                          <span className={cn(
-                            'text-[10px] font-medium hidden sm:inline',
-                            completado ? 'text-emerald-700' :
-                            actual ? 'text-sky-700' :
-                            'text-slate-400'
-                          )}>{paso.label}</span>
-                        </div>
-                      </React.Fragment>
-                    );
-                  })}
-                  {/* Pago badge */}
-                  <div className="ml-auto">
-                    {sub.estadoPago === 'pagado' ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        <CreditCard className="w-3 h-3" /> Pagada
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                        <CreditCard className="w-3 h-3" /> Pago pendiente
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Tracking inputs — solo cuando no recibida */}
-                {subEstado !== 'recibida' && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-slate-500 block mb-0.5">Tracking</label>
-                      <input
-                        type="text"
-                        value={draft.tracking}
-                        onChange={e => setTrackingDraft(prev => ({
-                          ...prev,
-                          [sub.id]: { ...draft, tracking: e.target.value }
-                        }))}
-                        placeholder="Numero de tracking"
-                        className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-500 block mb-0.5">Courier</label>
-                      <input
-                        type="text"
-                        value={draft.courier}
-                        onChange={e => setTrackingDraft(prev => ({
-                          ...prev,
-                          [sub.id]: { ...draft, courier: e.target.value }
-                        }))}
-                        placeholder="USPS, FedEx, DHL..."
-                        className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Tracking display — cuando recibida */}
-                {subEstado === 'recibida' && (sub.numeroTracking || sub.courier) && (
-                  <div className="flex gap-4 text-xs text-slate-500">
-                    {sub.numeroTracking && <span><span className="font-medium text-slate-700">Tracking:</span> {sub.numeroTracking}</span>}
-                    {sub.courier && <span><span className="font-medium text-slate-700">Courier:</span> {sub.courier}</span>}
-                  </div>
-                )}
-
-                {/* Productos compacto */}
-                <div className="text-xs text-slate-500">
-                  {sub.productos.length} productos / {sub.productos.reduce((s, p) => s + p.cantidad, 0)} unidades
-                  {(sub.descuentoUSD || 0) > 0 && <span className="ml-2 text-red-500">Desc: -${sub.descuentoUSD!.toFixed(2)}</span>}
-                  {(sub.impuestoUSD || 0) > 0 && <span className="ml-2">Tax: ${sub.impuestoUSD!.toFixed(2)}</span>}
-                </div>
-
-                {/* Accion contextual unica */}
-                <div className="flex items-center gap-2">
-                  {subEstado === 'borrador' && (
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => handleSubOrdenAction(sub.id, 'en_transito')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
-                    >
-                      <Send className="w-3 h-3" />
-                      {isLoading ? 'Guardando...' : 'Marcar en Transito'}
-                    </button>
-                  )}
-                  {subEstado === 'en_transito' && (
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => onRecibirSubOrden ? onRecibirSubOrden(sub.id) : handleSubOrdenAction(sub.id, 'recibida')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
-                    >
-                      <Box className="w-3 h-3" />
-                      {isLoading ? 'Guardando...' : 'Recibir Productos'}
-                    </button>
-                  )}
-                  {subEstado === 'recibida' && sub.estadoPago !== 'pagado' && (onPagarSubOrden || onRegistrarPago) && (
-                    <button
-                      type="button"
-                      onClick={() => onPagarSubOrden ? onPagarSubOrden(sub.id) : onRegistrarPago?.()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors"
-                    >
-                      <CreditCard className="w-3 h-3" />
-                      Registrar Pago
-                    </button>
-                  )}
-                  {subEstado === 'recibida' && sub.estadoPago === 'pagado' && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-lg">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Completada
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {orden.subOrdenes.map((sub, idx) => (
+            <SubOrdenCard
+              key={sub.id}
+              subOrden={sub}
+              index={idx}
+              mode="full"
+              loading={subOrdenLoading[sub.id] || false}
+              onMarcarEnTransito={(id) => handleSubOrdenAction(id, 'en_transito')}
+              onRecibirProductos={onRecibirSubOrden || ((id) => handleSubOrdenAction(id, 'recibida'))}
+              onRegistrarPago={onPagarSubOrden || (onRegistrarPago ? () => onRegistrarPago() : undefined)}
+              trackingDraft={trackingDraft[sub.id] || { tracking: sub.numeroTracking || '', courier: sub.courier || '' }}
+              onTrackingChange={(draft) => setTrackingDraft(prev => ({ ...prev, [sub.id]: draft }))}
+            />
+          ))}
         </div>
       )}
 
