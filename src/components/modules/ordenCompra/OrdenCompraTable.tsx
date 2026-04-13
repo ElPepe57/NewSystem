@@ -93,6 +93,8 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
   const envio = orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0;
   const otros = orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0;
   const envioYOtros = envio + otros;
+  const descuento = orden.descuentoUSD
+    ?? (orden.subOrdenes?.reduce((sum, s) => sum + (s.descuentoUSD || 0), 0) || 0);
   const pagoInfo = estadoPagoLabels[orden.estadoPago] || estadoPagoLabels.pendiente;
   const totalRecibido = orden.productos.reduce((sum, p) => sum + (p.cantidadRecibida || 0), 0);
   const totalPedido = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
@@ -141,6 +143,13 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
           </div>
           <div className="text-lg font-bold text-slate-900">${orden.subtotalUSD.toFixed(2)}</div>
         </div>
+
+        {descuento > 0 && (
+          <div className="bg-white rounded-lg p-3 border border-red-100">
+            <div className="text-xs text-slate-500">Descuento</div>
+            <div className="text-lg font-bold text-red-600">-${descuento.toFixed(2)}</div>
+          </div>
+        )}
 
         <div className="bg-white rounded-lg p-3 border border-slate-200">
           <div className="text-xs text-slate-500">Impuesto (Tax)</div>
