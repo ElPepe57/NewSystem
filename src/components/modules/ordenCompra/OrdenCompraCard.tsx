@@ -48,7 +48,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   const [showHistory, setShowHistory] = useState(false);
   const [modoConfirmacion, setModoConfirmacion] = useState<'idle' | 'pregunta' | 'subordenes'>('idle');
   const [subOrdenes, setSubOrdenes] = useState<SubOrdenCompra[]>([]);
-  const [asignacion, setAsignacion] = useState<Record<number, string>>({});
+  // asignacion[productoIdx][subOrdenId] = cantidad asignada
+  const [asignacion, setAsignacion] = useState<Record<number, Record<string, number>>>({});
 
 
   const estadoInfo = estadoLabels[orden.estado];
@@ -244,8 +245,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   onClick={() => {
                     const id1 = `SUB-${Date.now()}-a`;
                     const id2 = `SUB-${Date.now()}-b`;
-                    const init: Record<number, string> = {};
-                    orden.productos.forEach((_, i) => { init[i] = id1; });
+                    // Init: all quantities to sub-orden 1
+                    const init: Record<number, Record<string, number>> = {};
+                    orden.productos.forEach((p, i) => { init[i] = { [id1]: p.cantidad, [id2]: 0 }; });
                     setAsignacion(init);
                     setSubOrdenes([
                       { id: id1, referenciaProveedor: '', productos: [...orden.productos], totalUSD: orden.totalUSD },
@@ -265,74 +267,134 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           )}
 
           {modoConfirmacion === 'subordenes' && (
-            <>
-              <h4 className="font-semibold text-slate-900">Asignar productos a sub-órdenes</h4>
-              <div className="space-y-2">
-                {orden.productos.map((prod, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-2 bg-white rounded-lg px-3 py-2 border border-slate-100">
-                    <div className="min-w-0">
-                      <span className="text-xs font-medium text-slate-900 truncate block">{prod.nombreComercial}</span>
-                      <span className="text-[10px] text-slate-400">{prod.sku} · x{prod.cantidad}</span>
-                    </div>
-                    <select
-                      value={asignacion[idx] || ''}
-                      onChange={e => {
-                        const newA = { ...asignacion, [idx]: e.target.value };
-                        setAsignacion(newA);
-                        setSubOrdenes(prev => prev.map(sub => {
-                          const prods = orden.productos.filter((_, i) => newA[i] === sub.id);
-                          return { ...sub, productos: prods, totalUSD: prods.reduce((s, p) => s + p.costoUnitario * p.cantidad, 0) };
-                        }));
+            (() => {
+              // Rebuild sub-ordenes from partial assignments
+              const rebuildSubs = (newA: Record<number, Record<string, number>>) => {
+                setSubOrdenes(prev => prev.map(sub => {
+                  const prods: ProductoOrden[] = [];
+                  let totalUSD = 0;
+                  orden.productos.forEach((p, idx) => {
+                    const qty = newA[idx]?.[sub.id] || 0;
+                    if (qty > 0) {
+                      prods.push({ ...p, cantidad: qty, subtotal: qty * p.costoUnitario });
+                      totalUSD += qty * p.costoUnitario;
+                    }
+                  });
+                  return { ...sub, productos: prods, totalUSD };
+                }));
+              };
+
+              const updateQty = (prodIdx: number, subId: string, qty: number) => {
+                const newA = { ...asignacion };
+                if (!newA[prodIdx]) newA[prodIdx] = {};
+                newA[prodIdx] = { ...newA[prodIdx], [subId]: Math.max(0, qty) };
+                setAsignacion(newA);
+                rebuildSubs(newA);
+              };
+
+              // Validation: total assigned per product must equal product quantity
+              const isValid = orden.productos.every((p, idx) => {
+                const totalAssigned = Object.values(asignacion[idx] || {}).reduce((s, v) => s + v, 0);
+                return totalAssigned === p.cantidad;
+              });
+
+              return (
+                <>
+                  <h4 className="font-semibold text-slate-900">Asignar cantidades a sub-órdenes</h4>
+                  <p className="text-xs text-slate-500">Distribuye las unidades de cada producto entre las sub-órdenes</p>
+
+                  {/* Product rows with quantity inputs per sub-orden */}
+                  <div className="space-y-3">
+                    {orden.productos.map((prod, idx) => {
+                      const totalAssigned = Object.values(asignacion[idx] || {}).reduce((s, v) => s + v, 0);
+                      const isComplete = totalAssigned === prod.cantidad;
+                      return (
+                        <div key={idx} className={cn('bg-white rounded-xl border p-3 space-y-2', isComplete ? 'border-slate-200' : 'border-amber-300')}>
+                          <div className="flex items-center justify-between">
+                            <div className="min-w-0">
+                              <span className="text-xs font-medium text-slate-900">{prod.nombreComercial}</span>
+                              <span className="text-[10px] text-slate-400 ml-2">{prod.sku}</span>
+                            </div>
+                            <span className={cn('text-xs font-bold', isComplete ? 'text-emerald-600' : 'text-amber-600')}>
+                              {totalAssigned}/{prod.cantidad} uds
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {subOrdenes.map((sub, sIdx) => (
+                              <div key={sub.id} className="flex items-center gap-1.5">
+                                <span className="text-[10px] text-slate-500 w-12">SO {sIdx + 1}:</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={prod.cantidad}
+                                  value={asignacion[idx]?.[sub.id] || 0}
+                                  onChange={e => updateQty(idx, sub.id, parseInt(e.target.value) || 0)}
+                                  className="w-14 px-2 py-1 text-xs text-center border border-slate-200 rounded-lg focus:ring-1 focus:ring-teal-500"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          {!isComplete && (
+                            <p className="text-[10px] text-amber-600">Faltan {prod.cantidad - totalAssigned} unidad{prod.cantidad - totalAssigned !== 1 ? 'es' : ''} por asignar</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Sub-orden cards with reference */}
+                  <div className="space-y-2">
+                    {subOrdenes.map((sub, sIdx) => (
+                      <div key={sub.id} className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-teal-700">Sub-orden {sIdx + 1}</span>
+                          <span className="text-xs font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
+                        </div>
+                        <input
+                          key={`ref-${sub.id}`}
+                          type="text"
+                          value={sub.referenciaProveedor}
+                          onChange={e => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, referenciaProveedor: e.target.value } : s))}
+                          placeholder="Referencia proveedor (ej: Amazon #111-222)"
+                          className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-teal-500"
+                        />
+                        <p className="text-[10px] text-slate-400">{sub.productos.length} producto{sub.productos.length !== 1 ? 's' : ''} · {sub.productos.reduce((s, p) => s + p.cantidad, 0)} uds</p>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newId = `SUB-${Date.now()}`;
+                        setSubOrdenes(prev => [...prev, { id: newId, referenciaProveedor: '', productos: [], totalUSD: 0 }]);
+                        // Add 0 qty for all products in the new sub-orden
+                        setAsignacion(prev => {
+                          const newA = { ...prev };
+                          orden.productos.forEach((_, i) => { newA[i] = { ...newA[i], [newId]: 0 }; });
+                          return newA;
+                        });
                       }}
-                      className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white focus:ring-1 focus:ring-teal-500"
+                      className="text-xs text-teal-600 hover:text-teal-700 flex items-center gap-1"
                     >
-                      <option value="">Sin asignar</option>
-                      {subOrdenes.map((sub, sIdx) => (
-                        <option key={sub.id} value={sub.id}>Sub-orden {sIdx + 1}{sub.referenciaProveedor ? ` — ${sub.referenciaProveedor}` : ''}</option>
-                      ))}
-                    </select>
+                      <Plus className="w-3 h-3" /> Agregar sub-orden
+                    </button>
                   </div>
-                ))}
-              </div>
-              <div className="space-y-2">
-                {subOrdenes.map((sub, sIdx) => (
-                  <div key={sub.id} className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-teal-700">Sub-orden {sIdx + 1}</span>
-                      <span className="text-xs font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
+
+                  {!isValid && (
+                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      Todas las unidades deben estar asignadas
                     </div>
-                    <input
-                      key={`ref-${sub.id}`}
-                      type="text"
-                      value={sub.referenciaProveedor}
-                      onChange={e => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, referenciaProveedor: e.target.value } : s))}
-                      placeholder="Referencia proveedor (ej: Amazon #111-222)"
-                      className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-teal-500"
-                    />
-                    <p className="text-[10px] text-slate-400">{sub.productos.length} producto{sub.productos.length !== 1 ? 's' : ''}</p>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setSubOrdenes(prev => [...prev, { id: `SUB-${Date.now()}`, referenciaProveedor: '', productos: [], totalUSD: 0 }])}
-                  className="text-xs text-teal-600 hover:text-teal-700 flex items-center gap-1"
-                >
-                  <Plus className="w-3 h-3" /> Agregar sub-orden
-                </button>
-              </div>
-              {orden.productos.some((_, i) => !asignacion[i]) && (
-                <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  Hay productos sin asignar
-                </div>
-              )}
-              <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => { setModoConfirmacion('idle'); setSubOrdenes([]); setAsignacion({}); }}>Cancelar</Button>
-                <Button variant="primary" onClick={() => { setModoConfirmacion('idle'); onConfirmarConSubOrdenes?.(subOrdenes); }} disabled={orden.productos.some((_, i) => !asignacion[i])}>
-                  Confirmar con {subOrdenes.length} sub-órdenes
+                  )}
+
+                  <div className="flex gap-3">
+                    <Button variant="secondary" onClick={() => { setModoConfirmacion('idle'); setSubOrdenes([]); setAsignacion({}); }}>Cancelar</Button>
+                    <Button variant="primary" onClick={() => { setModoConfirmacion('idle'); onConfirmarConSubOrdenes?.(subOrdenes); }} disabled={!isValid}>
+                      Confirmar con {subOrdenes.length} sub-órdenes
                 </Button>
               </div>
             </>
+              );
+            })()
           )}
         </div>
       )}
