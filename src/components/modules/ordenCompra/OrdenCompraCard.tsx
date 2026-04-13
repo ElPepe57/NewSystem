@@ -264,16 +264,191 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       </div>
 
-      {/* Timeline de Estado */}
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <StatusTimeline
-          steps={timelineSteps}
-          nextAction={nextAction}
-          orientation="horizontal"
-          showDates={true}
-          compact={false}
-        />
-      </div>
+      {/* Timeline de Estado — solo si NO hay sub-ordenes */}
+      {!(orden.subOrdenes?.length) && (
+        <div className="bg-slate-50 p-4 rounded-lg">
+          <StatusTimeline
+            steps={timelineSteps}
+            nextAction={nextAction}
+            orientation="horizontal"
+            showDates={true}
+            compact={false}
+          />
+        </div>
+      )}
+
+      {/* Sub-órdenes como interfaz operativa principal (cuando existen) */}
+      {orden.estado !== 'borrador' && orden.subOrdenes && orden.subOrdenes.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="font-semibold text-slate-900 flex items-center gap-2 text-sm">
+            <Layers className="h-4 w-4 text-purple-600" />
+            Sub-ordenes ({orden.subOrdenes.length})
+          </h4>
+          {orden.subOrdenes.map((sub, idx) => {
+            const subEstado = sub.estado || 'borrador';
+            const isLoading = subOrdenLoading[sub.id] || false;
+            const draft = trackingDraft[sub.id] || { tracking: sub.numeroTracking || '', courier: sub.courier || '' };
+            const pasoIdx = subEstado === 'recibida' ? 2 : subEstado === 'en_transito' ? 1 : 0;
+
+            return (
+              <div key={sub.id} className={cn(
+                'rounded-xl border p-4 space-y-3',
+                subEstado === 'recibida' ? 'border-emerald-200 bg-emerald-50/40' :
+                subEstado === 'en_transito' ? 'border-amber-200 bg-amber-50/30' :
+                'border-slate-200 bg-white'
+              )}>
+                {/* Header: titulo + ref + total */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <span className="text-sm font-semibold text-slate-900">Sub-orden {idx + 1}</span>
+                    {sub.referenciaProveedor && (
+                      <p className="text-xs text-slate-500 mt-0.5 font-mono">Ref: {sub.referenciaProveedor}</p>
+                    )}
+                  </div>
+                  <span className="text-sm font-bold tabular-nums text-slate-900 shrink-0">${sub.totalUSD.toFixed(2)}</span>
+                </div>
+
+                {/* Mini-pipeline: 3 pasos + pago */}
+                <div className="flex items-center gap-1.5">
+                  {[
+                    { label: 'Pendiente', icon: Clock },
+                    { label: 'En Transito', icon: Truck },
+                    { label: 'Recibida', icon: CheckCircle2 },
+                  ].map((paso, i) => {
+                    const completado = i < pasoIdx;
+                    const actual = i === pasoIdx;
+                    const PasoIcon = paso.icon;
+                    return (
+                      <React.Fragment key={i}>
+                        {i > 0 && (
+                          <div className={cn('h-px flex-1 max-w-6', completado ? 'bg-emerald-400' : 'bg-slate-200')} />
+                        )}
+                        <div className="flex items-center gap-1" title={paso.label}>
+                          <div className={cn(
+                            'w-5 h-5 rounded-full flex items-center justify-center',
+                            completado ? 'bg-emerald-500 text-white' :
+                            actual ? 'bg-sky-100 text-sky-600 ring-2 ring-sky-300' :
+                            'bg-slate-100 text-slate-400'
+                          )}>
+                            <PasoIcon className="w-3 h-3" />
+                          </div>
+                          <span className={cn(
+                            'text-[10px] font-medium hidden sm:inline',
+                            completado ? 'text-emerald-700' :
+                            actual ? 'text-sky-700' :
+                            'text-slate-400'
+                          )}>{paso.label}</span>
+                        </div>
+                      </React.Fragment>
+                    );
+                  })}
+                  {/* Pago badge */}
+                  <div className="ml-auto">
+                    {sub.estadoPago === 'pagado' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <CreditCard className="w-3 h-3" /> Pagada
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                        <CreditCard className="w-3 h-3" /> Pago pendiente
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Tracking inputs — solo cuando no recibida */}
+                {subEstado !== 'recibida' && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">Tracking</label>
+                      <input
+                        type="text"
+                        value={draft.tracking}
+                        onChange={e => setTrackingDraft(prev => ({
+                          ...prev,
+                          [sub.id]: { ...draft, tracking: e.target.value }
+                        }))}
+                        placeholder="Numero de tracking"
+                        className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">Courier</label>
+                      <input
+                        type="text"
+                        value={draft.courier}
+                        onChange={e => setTrackingDraft(prev => ({
+                          ...prev,
+                          [sub.id]: { ...draft, courier: e.target.value }
+                        }))}
+                        placeholder="USPS, FedEx, DHL..."
+                        className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Tracking display — cuando recibida */}
+                {subEstado === 'recibida' && (sub.numeroTracking || sub.courier) && (
+                  <div className="flex gap-4 text-xs text-slate-500">
+                    {sub.numeroTracking && <span><span className="font-medium text-slate-700">Tracking:</span> {sub.numeroTracking}</span>}
+                    {sub.courier && <span><span className="font-medium text-slate-700">Courier:</span> {sub.courier}</span>}
+                  </div>
+                )}
+
+                {/* Productos compacto */}
+                <div className="text-xs text-slate-500">
+                  {sub.productos.length} productos / {sub.productos.reduce((s, p) => s + p.cantidad, 0)} unidades
+                  {(sub.descuentoUSD || 0) > 0 && <span className="ml-2 text-red-500">Desc: -${sub.descuentoUSD!.toFixed(2)}</span>}
+                  {(sub.impuestoUSD || 0) > 0 && <span className="ml-2">Tax: ${sub.impuestoUSD!.toFixed(2)}</span>}
+                </div>
+
+                {/* Accion contextual unica */}
+                <div className="flex items-center gap-2">
+                  {subEstado === 'borrador' && (
+                    <button
+                      type="button"
+                      disabled={isLoading}
+                      onClick={() => handleSubOrdenAction(sub.id, 'en_transito')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
+                    >
+                      <Send className="w-3 h-3" />
+                      {isLoading ? 'Guardando...' : 'Marcar en Transito'}
+                    </button>
+                  )}
+                  {subEstado === 'en_transito' && (
+                    <button
+                      type="button"
+                      disabled={isLoading}
+                      onClick={() => onRecibirSubOrden ? onRecibirSubOrden(sub.id) : handleSubOrdenAction(sub.id, 'recibida')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
+                    >
+                      <Box className="w-3 h-3" />
+                      {isLoading ? 'Guardando...' : 'Recibir Productos'}
+                    </button>
+                  )}
+                  {subEstado === 'recibida' && sub.estadoPago !== 'pagado' && (onPagarSubOrden || onRegistrarPago) && (
+                    <button
+                      type="button"
+                      onClick={() => onPagarSubOrden ? onPagarSubOrden(sub.id) : onRegistrarPago?.()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors"
+                    >
+                      <CreditCard className="w-3 h-3" />
+                      Registrar Pago
+                    </button>
+                  )}
+                  {subEstado === 'recibida' && sub.estadoPago === 'pagado' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-lg">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Completada
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Confirmación con sub-órdenes — aparece justo debajo de la timeline */}
       {modoConfirmacion !== 'idle' && (
@@ -721,169 +896,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       </div>
 
-      {/* Sub-órdenes (si existen) — lifecycle cards post-confirmación */}
-      {orden.estado !== 'borrador' && orden.subOrdenes && orden.subOrdenes.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-semibold text-slate-900 flex items-center gap-2">
-            <Layers className="h-4 w-4 text-purple-600" />
-            Sub-órdenes ({orden.subOrdenes.length})
-          </h4>
-          {orden.subOrdenes.map((sub, idx) => {
-            const subEstado = sub.estado || 'borrador';
-            const isLoading = subOrdenLoading[sub.id] || false;
-            const draft = trackingDraft[sub.id] || { tracking: sub.numeroTracking || '', courier: sub.courier || '' };
-
-            const estadoBadgeMap: Record<string, { label: string; variant: 'default' | 'warning' | 'success' }> = {
-              borrador:    { label: 'Pendiente envío', variant: 'default' },
-              en_transito: { label: 'En Tránsito',     variant: 'warning' },
-              recibida:    { label: 'Recibida',         variant: 'success' }
-            };
-            const badgeInfo = estadoBadgeMap[subEstado] || estadoBadgeMap.borrador;
-
-            return (
-              <div
-                key={sub.id}
-                className={cn(
-                  'rounded-xl border p-4 space-y-3',
-                  subEstado === 'recibida'    ? 'border-emerald-200 bg-emerald-50/40' :
-                  subEstado === 'en_transito' ? 'border-amber-200 bg-amber-50/30' :
-                                               'border-slate-200 bg-white'
-                )}
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-900">Sub-orden {idx + 1}</span>
-                      <StatusBadge variant={badgeInfo.variant} dot size="sm">{badgeInfo.label}</StatusBadge>
-                    </div>
-                    {sub.referenciaProveedor && (
-                      <p className="text-xs text-slate-500 mt-0.5 font-mono">Ref: {sub.referenciaProveedor}</p>
-                    )}
-                  </div>
-                  <span className="text-sm font-bold tabular-nums text-slate-900 flex-shrink-0">${sub.totalUSD.toFixed(2)}</span>
-                </div>
-
-                {/* Tracking inputs — only when not received */}
-                {subEstado !== 'recibida' && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-slate-500 block mb-0.5">Tracking</label>
-                      <input
-                        type="text"
-                        value={draft.tracking}
-                        onChange={e => setTrackingDraft(prev => ({
-                          ...prev,
-                          [sub.id]: { ...draft, tracking: e.target.value }
-                        }))}
-                        placeholder="Número de tracking"
-                        className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-500 block mb-0.5">Courier</label>
-                      <input
-                        type="text"
-                        value={draft.courier}
-                        onChange={e => setTrackingDraft(prev => ({
-                          ...prev,
-                          [sub.id]: { ...draft, courier: e.target.value }
-                        }))}
-                        placeholder="USPS, FedEx, DHL..."
-                        className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Tracking display — when received */}
-                {subEstado === 'recibida' && (sub.numeroTracking || sub.courier) && (
-                  <div className="flex gap-4 text-xs text-slate-500">
-                    {sub.numeroTracking && <span><span className="font-medium text-slate-700">Tracking:</span> {sub.numeroTracking}</span>}
-                    {sub.courier && <span><span className="font-medium text-slate-700">Courier:</span> {sub.courier}</span>}
-                  </div>
-                )}
-
-                {/* Products list */}
-                <div className="space-y-1">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">Productos ({sub.productos.length})</p>
-                  {sub.productos.map((prod, pIdx) => (
-                    <div key={pIdx} className="flex items-center justify-between text-xs">
-                      <span className="text-slate-700 truncate flex-1 mr-2">{prod.nombreComercial}</span>
-                      <span className="text-slate-500 tabular-nums flex-shrink-0">
-                        {prod.cantidad} ud · ${prod.costoUnitario.toFixed(2)}/ud
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Costs summary — read-only */}
-                {(sub.descuentoUSD || sub.shippingUSD || sub.impuestoUSD) ? (
-                  <div className="flex gap-3 text-[10px] tabular-nums">
-                    {(sub.descuentoUSD || 0) > 0 && (
-                      <span className="text-emerald-600">Desc: -${sub.descuentoUSD!.toFixed(2)}</span>
-                    )}
-                    {(sub.shippingUSD || 0) > 0 && (
-                      <span className="text-sky-600">Ship: +${sub.shippingUSD!.toFixed(2)}</span>
-                    )}
-                    {(sub.impuestoUSD || 0) > 0 && (
-                      <span className="text-amber-600">Tax: +${sub.impuestoUSD!.toFixed(2)}</span>
-                    )}
-                  </div>
-                ) : null}
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 pt-1 border-t border-slate-100 flex-wrap">
-                  {subEstado === 'borrador' && (
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => handleSubOrdenAction(sub.id, 'en_transito')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
-                    >
-                      <Send className="w-3 h-3" />
-                      {isLoading ? 'Guardando...' : 'Marcar en Tránsito'}
-                    </button>
-                  )}
-                  {subEstado === 'en_transito' && (
-                    <button
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => onRecibirSubOrden ? onRecibirSubOrden(sub.id) : handleSubOrdenAction(sub.id, 'recibida')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
-                    >
-                      <Box className="w-3 h-3" />
-                      {isLoading ? 'Guardando...' : 'Recibir Productos'}
-                    </button>
-                  )}
-                  {subEstado === 'recibida' && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-lg">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Recibida
-                    </span>
-                  )}
-
-                  {sub.estadoPago !== 'pagado' && (onPagarSubOrden || onRegistrarPago) && (
-                    <button
-                      type="button"
-                      onClick={() => onPagarSubOrden ? onPagarSubOrden(sub.id) : onRegistrarPago?.()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors"
-                    >
-                      <CreditCard className="w-3 h-3" />
-                      Registrar Pago
-                    </button>
-                  )}
-                  {sub.estadoPago === 'pagado' && (
-                    <span className="text-[10px] text-emerald-600 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Pagada
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Sub-órdenes eliminadas de aquí — ahora están arriba, justo después del header */}
 
       {/* Productos con Costo Real */}
       <div>
@@ -1147,8 +1160,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       {/* Acciones */}
       {modoConfirmacion === 'idle' && (
       <div className="flex items-center flex-wrap gap-3 pt-4 border-t">
-        {/* Acciones de estado logístico */}
-        {getAccionesDisponibles().map(accion => (
+        {/* Acciones de estado logístico — ocultar si hay sub-ordenes (estado se deriva) */}
+        {!(orden.subOrdenes?.length) && getAccionesDisponibles().map(accion => (
           <Button
             key={accion.estado}
             variant="primary"
@@ -1158,19 +1171,21 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </Button>
         ))}
 
-        {/* Botón de pago — solo después de confirmada */}
+        {/* Botón de pago a nivel OC completa */}
         {orden.estado !== 'borrador' && orden.estado !== 'cancelada' && orden.estadoPago !== 'pagado' && onRegistrarPago && (
           <Button
             variant="secondary"
             onClick={onRegistrarPago}
           >
             <CreditCard className="h-4 w-4 mr-2" />
-            {orden.estadoPago === 'parcial' ? 'Registrar Pago Adicional' : 'Registrar Pago'}
+            {orden.subOrdenes?.length
+              ? 'Pagar OC Completa'
+              : orden.estadoPago === 'parcial' ? 'Registrar Pago Adicional' : 'Registrar Pago'}
           </Button>
         )}
 
-        {/* Botón de recibir orden */}
-        {(['en_transito', 'enviada', 'recibida_parcial'].includes(orden.estado)) && onRecibirOrden && (
+        {/* Botón de recibir orden — ocultar si hay sub-ordenes (se hace por sub-orden) */}
+        {!(orden.subOrdenes?.length) && (['en_transito', 'enviada', 'recibida_parcial'].includes(orden.estado)) && onRecibirOrden && (
           <Button
             variant={orden.estado === 'recibida_parcial' ? 'warning' : 'primary'}
             onClick={onRecibirOrden}
@@ -1180,8 +1195,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </Button>
         )}
 
-        {/* Botón revertir recepciones (solo cuando hay recepciones) */}
-        {(['recibida_parcial', 'recibida'].includes(orden.estado)) && onRevertirRecepciones && (orden.recepcionesParciales?.length ?? 0) > 0 && (
+        {/* Botón revertir recepciones */}
+        {(['recibida_parcial', 'recibida', 'en_proceso', 'completada'].includes(orden.estado)) && onRevertirRecepciones && (orden.recepcionesParciales?.length ?? 0) > 0 && (
           <Button
             variant="danger"
             onClick={onRevertirRecepciones}
