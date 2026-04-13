@@ -649,7 +649,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
           answered={!!config.llegadaPeru}
         >
           {/* DDP y "Ya en Perú" solo disponibles cuando el proveedor envía (no recojo) */}
-          {config.salidaProveedor !== 'recojo_en_origen' && (
+          {config.salidaProveedor !== 'recojo_en_origen' ? (
             <Option
               icon={Truck}
               label="El proveedor envía directo a Perú (DDP)"
@@ -657,7 +657,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
               selected={config.llegadaPeru === 'ddp_directo'}
               onClick={() => update({ llegadaPeru: 'ddp_directo' })}
             />
-          )}
+          ) : null}
           <Option
             icon={UserCheck}
             label="Un viajero lo trae"
@@ -672,7 +672,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
             selected={config.llegadaPeru === 'courier_internacional'}
             onClick={() => update({ llegadaPeru: 'courier_internacional' })}
           />
-          {config.salidaProveedor !== 'recojo_en_origen' && (
+          {config.salidaProveedor !== 'recojo_en_origen' ? (
             <Option
               icon={Building2}
               label="Ya está en Perú"
@@ -680,7 +680,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
               selected={config.llegadaPeru === 'ya_en_peru'}
               onClick={() => update({ llegadaPeru: 'ya_en_peru' })}
             />
-          )}
+          ) : null}
         </Question>
 
         {/* Viajero selector */}
