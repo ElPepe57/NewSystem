@@ -371,77 +371,61 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                           </div>
 
                           {/* Costos individuales */}
-                          <div className="space-y-1.5">
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">Costos de esta sub-orden</p>
-                            <div className="grid grid-cols-3 gap-2">
-                              <div>
-                                <label className="text-[10px] text-emerald-600 block mb-0.5">Descuento</label>
-                                <div className="relative">
-                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={sub.descuentoUSD || ''}
-                                    onChange={e => {
-                                      const val = parseFloat(e.target.value) || 0;
-                                      setSubOrdenes(prev => prev.map(s => {
-                                        if (s.id !== sub.id) return s;
-                                        const subProd = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
-                                        return { ...s, descuentoUSD: val, totalUSD: subProd - val + (s.shippingUSD || 0) + (s.impuestoUSD || 0) };
-                                      }));
-                                    }}
-                                    placeholder="0.00"
-                                    className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums"
-                                  />
+                          {(() => {
+                            const subProd = sub.subtotalProductosUSD || sub.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
+                            const updateSubCost = (field: 'descuentoUSD' | 'shippingUSD' | 'impuestoUSD', val: number) => {
+                              setSubOrdenes(prev => prev.map(s => {
+                                if (s.id !== sub.id) return s;
+                                const sp = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
+                                const updated = { ...s, [field]: val };
+                                updated.totalUSD = sp - (updated.descuentoUSD || 0) + (updated.shippingUSD || 0) + (updated.impuestoUSD || 0);
+                                return updated;
+                              }));
+                            };
+                            return (
+                              <div className="space-y-2">
+                                <p className="text-[10px] text-slate-400 uppercase tracking-wide">Costos de esta sub-orden</p>
+                                {/* Descuento */}
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] text-emerald-600 w-16 flex-shrink-0">Descuento</span>
+                                  <div className="relative flex-1">
+                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
+                                    <input type="number" step="0.01" min="0" value={sub.descuentoUSD || ''} onChange={e => updateSubCost('descuentoUSD', parseFloat(e.target.value) || 0)} placeholder="0.00" className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
+                                  </div>
+                                </div>
+                                {/* Shipping */}
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] text-sky-600 w-16 flex-shrink-0">Shipping</span>
+                                  <div className="relative flex-1">
+                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
+                                    <input type="number" step="0.01" min="0" value={sub.shippingUSD || ''} onChange={e => updateSubCost('shippingUSD', parseFloat(e.target.value) || 0)} placeholder="0.00" className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
+                                  </div>
+                                </div>
+                                {/* Tax — toggle %/$ */}
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] text-amber-600 w-16 flex-shrink-0">Tax</span>
+                                  <div className="flex rounded border border-slate-200 overflow-hidden flex-shrink-0">
+                                    <button type="button" onClick={() => { const pct = subProd > 0 && (sub.impuestoUSD || 0) > 0 ? ((sub.impuestoUSD || 0) / subProd * 100) : 0; setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, _taxMode: '%', _taxPct: Math.round(pct * 10) / 10 } as any : s)); }} className={cn('px-1.5 py-1 text-[10px] font-medium', (sub as any)._taxMode === '%' ? 'bg-amber-100 text-amber-700' : 'text-slate-400')}>%</button>
+                                    <button type="button" onClick={() => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, _taxMode: '$' } as any : s))} className={cn('px-1.5 py-1 text-[10px] font-medium', (sub as any)._taxMode !== '%' ? 'bg-amber-100 text-amber-700' : 'text-slate-400')}>$</button>
+                                  </div>
+                                  {(sub as any)._taxMode === '%' ? (
+                                    <div className="flex items-center gap-1 flex-1">
+                                      <div className="relative flex-1">
+                                        <input type="number" step="0.1" min="0" max="100" value={(sub as any)._taxPct || ''} onChange={e => { const pct = parseFloat(e.target.value) || 0; const monto = Math.round(subProd * pct / 100 * 100) / 100; setSubOrdenes(prev => prev.map(s => s.id === sub.id ? (() => { const u = { ...s, impuestoUSD: monto, _taxPct: pct, _taxMode: '%' } as any; u.totalUSD = (u.subtotalProductosUSD || subProd) - (u.descuentoUSD || 0) + (u.shippingUSD || 0) + monto; return u; })() : s)); }} placeholder="0.0" className="w-full pr-6 pl-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">%</span>
+                                      </div>
+                                      <span className="text-[10px] text-slate-500 tabular-nums w-16 text-right">= ${(sub.impuestoUSD || 0).toFixed(2)}</span>
+                                    </div>
+                                  ) : (
+                                    <div className="relative flex-1">
+                                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
+                                      <input type="number" step="0.01" min="0" value={sub.impuestoUSD || ''} onChange={e => updateSubCost('impuestoUSD', parseFloat(e.target.value) || 0)} placeholder="0.00" className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                              <div>
-                                <label className="text-[10px] text-sky-600 block mb-0.5">Shipping</label>
-                                <div className="relative">
-                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={sub.shippingUSD || ''}
-                                    onChange={e => {
-                                      const val = parseFloat(e.target.value) || 0;
-                                      setSubOrdenes(prev => prev.map(s => {
-                                        if (s.id !== sub.id) return s;
-                                        const subProd = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
-                                        return { ...s, shippingUSD: val, totalUSD: subProd - (s.descuentoUSD || 0) + val + (s.impuestoUSD || 0) };
-                                      }));
-                                    }}
-                                    placeholder="0.00"
-                                    className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums"
-                                  />
-                                </div>
-                              </div>
-                              <div>
-                                <label className="text-[10px] text-amber-600 block mb-0.5">Tax</label>
-                                <div className="relative">
-                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
-                                  <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={sub.impuestoUSD || ''}
-                                    onChange={e => {
-                                      const val = parseFloat(e.target.value) || 0;
-                                      setSubOrdenes(prev => prev.map(s => {
-                                        if (s.id !== sub.id) return s;
-                                        const subProd = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
-                                        return { ...s, impuestoUSD: val, totalUSD: subProd - (s.descuentoUSD || 0) + (s.shippingUSD || 0) + val };
-                                      }));
-                                    }}
-                                    placeholder="0.00"
-                                    className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                            );
+                          })()}
 
                           {/* Summary */}
                           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
@@ -494,10 +478,35 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     </div>
                   )}
 
-                  {/* Cost distribution note */}
-                  <div className="text-[10px] text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
-                    Ingresa descuento, shipping e impuesto específico de cada sub-orden según la factura del proveedor.
-                  </div>
+                  {/* Validator: sums must match OC totals */}
+                  {(() => {
+                    const ocDesc = orden.descuentoUSD || 0;
+                    const ocTax = orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0;
+                    const sumDesc = subOrdenes.reduce((s, so) => s + (so.descuentoUSD || 0), 0);
+                    const sumShip = subOrdenes.reduce((s, so) => s + (so.shippingUSD || 0), 0);
+                    const sumTax = subOrdenes.reduce((s, so) => s + (so.impuestoUSD || 0), 0);
+                    const descMatch = Math.abs(sumDesc - ocDesc) < 0.02;
+                    const taxMatch = Math.abs(sumTax - ocTax) < 0.02;
+                    const sumTotal = subOrdenes.reduce((s, so) => s + so.totalUSD, 0);
+                    const ocTotal = orden.totalUSD;
+                    const totalMatch = Math.abs(sumTotal - ocTotal) < 0.05;
+
+                    return (
+                      <div className="bg-slate-50 rounded-lg px-3 py-2 space-y-1">
+                        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Validación vs OC original</p>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[10px] tabular-nums">
+                          <span className="text-slate-500">Descuento OC: ${ocDesc.toFixed(2)}</span>
+                          <span className={descMatch ? 'text-emerald-600' : 'text-red-600'}>Suma sub: ${sumDesc.toFixed(2)} {descMatch ? '✓' : '✗'}</span>
+                          <span className="text-slate-500">Tax OC: ${ocTax.toFixed(2)}</span>
+                          <span className={taxMatch ? 'text-emerald-600' : 'text-red-600'}>Suma sub: ${sumTax.toFixed(2)} {taxMatch ? '✓' : '✗'}</span>
+                          <span className="text-slate-500">Shipping sub-órdenes:</span>
+                          <span className="text-sky-600">${sumShip.toFixed(2)}</span>
+                          <span className="text-slate-700 font-semibold">Total OC: ${ocTotal.toFixed(2)}</span>
+                          <span className={cn('font-semibold', totalMatch ? 'text-emerald-600' : 'text-red-600')}>Suma sub: ${sumTotal.toFixed(2)} {totalMatch ? '✓' : '✗'}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   <div className="flex gap-3">
                     <Button variant="secondary" onClick={() => { setModoConfirmacion('idle'); setSubOrdenes([]); setAsignacion({}); }}>Cancelar</Button>
