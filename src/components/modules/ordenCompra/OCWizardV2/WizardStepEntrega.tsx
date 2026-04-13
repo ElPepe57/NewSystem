@@ -648,13 +648,16 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
           visible={show.llegadaPeru}
           answered={!!config.llegadaPeru}
         >
-          <Option
-            icon={Truck}
-            label="El proveedor envía directo a Perú (DDP)"
-            hint="El proveedor incluye el flete internacional. Llega a tu puerta sin costo extra."
-            selected={config.llegadaPeru === 'ddp_directo'}
-            onClick={() => update({ llegadaPeru: 'ddp_directo' })}
-          />
+          {/* DDP y "Ya en Perú" solo disponibles cuando el proveedor envía (no recojo) */}
+          {config.salidaProveedor !== 'recojo_en_origen' && (
+            <Option
+              icon={Truck}
+              label="El proveedor envía directo a Perú (DDP)"
+              hint="El proveedor incluye el flete internacional. Llega a tu puerta sin costo extra."
+              selected={config.llegadaPeru === 'ddp_directo'}
+              onClick={() => update({ llegadaPeru: 'ddp_directo' })}
+            />
+          )}
           <Option
             icon={UserCheck}
             label="Un viajero lo trae"
@@ -669,13 +672,15 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
             selected={config.llegadaPeru === 'courier_internacional'}
             onClick={() => update({ llegadaPeru: 'courier_internacional' })}
           />
-          <Option
-            icon={Building2}
-            label="Ya está en Perú"
-            hint="Proveedor local o la mercadería ya se encuentra en el país"
-            selected={config.llegadaPeru === 'ya_en_peru'}
+          {config.salidaProveedor !== 'recojo_en_origen' && (
+            <Option
+              icon={Building2}
+              label="Ya está en Perú"
+              hint="Proveedor local o la mercadería ya se encuentra en el país"
+              selected={config.llegadaPeru === 'ya_en_peru'}
             onClick={() => update({ llegadaPeru: 'ya_en_peru' })}
-          />
+            />
+          )}
         </Question>
 
         {/* Viajero selector */}
