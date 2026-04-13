@@ -678,7 +678,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
               label="Ya está en Perú"
               hint="Proveedor local o la mercadería ya se encuentra en el país"
               selected={config.llegadaPeru === 'ya_en_peru'}
-            onClick={() => update({ llegadaPeru: 'ya_en_peru' })}
+              onClick={() => update({ llegadaPeru: 'ya_en_peru' })}
             />
           )}
         </Question>
