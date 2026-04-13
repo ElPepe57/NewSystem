@@ -61,9 +61,13 @@ function isStepValid(step: number, state: typeof initialWizardState): boolean {
     case 2:
       // Intelligence step is informational only — always valid
       return true;
-    case 3:
-      // Cargos step is always optional
-      return true;
+    case 3: {
+      // Cargos step: if items exist, all must have concepto filled
+      const allCargosNamed = state.cargosOC.every(c => c.concepto.trim().length > 0);
+      const allDescNamed = state.descuentosOC.every(d => d.concepto.trim().length > 0);
+      const allImpNamed = state.impuestosOC.every(i => i.concepto.trim().length > 0);
+      return allCargosNamed && allDescNamed && allImpNamed;
+    }
     case 4:
       return true;
     default:

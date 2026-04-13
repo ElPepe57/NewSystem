@@ -109,16 +109,21 @@ function LineItem<T extends { id: string; concepto: string; montoUSD: number }>(
   datalistId?: string;
   sugerencias?: string[];
 }) {
+  const missingConcepto = item.concepto.trim().length === 0 && item.montoUSD > 0;
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 min-w-0">
         <AutocompleteInput
           value={item.concepto}
           onChange={val => onUpdate({ ...item, concepto: val })}
-          placeholder="Concepto..."
+          placeholder="Concepto (obligatorio)..."
           suggestions={sugerencias || []}
-          className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+          className={cn(
+            'w-full rounded-lg border px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500',
+            missingConcepto ? 'border-amber-400 bg-amber-50' : 'border-slate-200',
+          )}
         />
+        {missingConcepto && <p className="text-[10px] text-amber-600 mt-0.5">Indica el concepto del cargo</p>}
       </div>
       <div className="relative w-32 flex-shrink-0">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
@@ -275,10 +280,14 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
                   <AutocompleteInput
                     value={i.concepto}
                     onChange={val => onUpdateImpuesto({ ...i, concepto: val })}
-                    placeholder="Concepto..."
+                    placeholder="Concepto (obligatorio)..."
                     suggestions={SUGERENCIAS_IMPUESTOS}
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                    className={cn(
+                      'w-full rounded-lg border px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500',
+                      i.concepto.trim().length === 0 && i.montoUSD > 0 ? 'border-amber-400 bg-amber-50' : 'border-slate-200',
+                    )}
                   />
+                  {i.concepto.trim().length === 0 && i.montoUSD > 0 && <p className="text-[10px] text-amber-600 mt-0.5">Indica el concepto del impuesto</p>}
                 </div>
                 {/* Toggle % / $ */}
                 <div className="flex rounded-lg border border-slate-200 overflow-hidden flex-shrink-0">
