@@ -268,7 +268,6 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
           {modoConfirmacion === 'subordenes' && (
             (() => {
-              // Rebuild sub-ordenes from partial assignments
               const rebuildSubs = (newA: Record<number, Record<string, number>>) => {
                 setSubOrdenes(prev => prev.map(sub => {
                   const prods: ProductoOrden[] = [];
@@ -292,81 +291,100 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 rebuildSubs(newA);
               };
 
-              // Validation: total assigned per product must equal product quantity
-              const isValid = orden.productos.every((p, idx) => {
+              const qtyValid = orden.productos.every((p, idx) => {
                 const totalAssigned = Object.values(asignacion[idx] || {}).reduce((s, v) => s + v, 0);
                 return totalAssigned === p.cantidad;
               });
+              const refsValid = subOrdenes.every(s => s.referenciaProveedor.trim().length > 0);
+              const hasProducts = subOrdenes.every(s => s.productos.length > 0);
+              const isValid = qtyValid && refsValid && hasProducts;
+
+              // Cost distribution
+              const totalOC = orden.totalUSD || 0;
+              const subtotalProds = orden.subtotalUSD || orden.productos.reduce((s, p) => s + p.costoUnitario * p.cantidad, 0);
+              const costosExtra = totalOC - subtotalProds; // tax + shipping + otros - descuento
 
               return (
                 <>
-                  <h4 className="font-semibold text-slate-900">Asignar cantidades a sub-órdenes</h4>
-                  <p className="text-xs text-slate-500">Distribuye las unidades de cada producto entre las sub-órdenes</p>
+                  <h4 className="font-semibold text-slate-900">Dividir en sub-órdenes</h4>
+                  <p className="text-xs text-slate-500">Asigna cantidades de cada producto y la referencia de cada sub-orden</p>
 
-                  {/* Product rows with quantity inputs per sub-orden */}
-                  <div className="space-y-3">
-                    {orden.productos.map((prod, idx) => {
-                      const totalAssigned = Object.values(asignacion[idx] || {}).reduce((s, v) => s + v, 0);
-                      const isComplete = totalAssigned === prod.cantidad;
+                  {/* Sub-orden cards — each contains reference + product assignments */}
+                  <div className="space-y-4">
+                    {subOrdenes.map((sub, sIdx) => {
+                      const subUnits = sub.productos.reduce((s, p) => s + p.cantidad, 0);
+                      const totalUnitsOC = orden.productos.reduce((s, p) => s + p.cantidad, 0);
+                      const proportion = totalUnitsOC > 0 ? subUnits / totalUnitsOC : 0;
+                      const costosProporcion = costosExtra * proportion;
+                      const missingRef = sub.referenciaProveedor.trim().length === 0;
+
                       return (
-                        <div key={idx} className={cn('bg-white rounded-xl border p-3 space-y-2', isComplete ? 'border-slate-200' : 'border-amber-300')}>
+                        <div key={sub.id} className={cn('bg-white border rounded-xl p-4 space-y-3', missingRef ? 'border-amber-300' : 'border-slate-200')}>
+                          {/* Header */}
                           <div className="flex items-center justify-between">
-                            <div className="min-w-0">
-                              <span className="text-xs font-medium text-slate-900">{prod.nombreComercial}</span>
-                              <span className="text-[10px] text-slate-400 ml-2">{prod.sku}</span>
+                            <span className="text-sm font-semibold text-teal-700">Sub-orden {sIdx + 1}</span>
+                            <div className="text-right">
+                              <span className="text-sm font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
+                              {costosProporcion > 0 && (
+                                <span className="text-[10px] text-amber-600 block">+${costosProporcion.toFixed(2)} cargos</span>
+                              )}
                             </div>
-                            <span className={cn('text-xs font-bold', isComplete ? 'text-emerald-600' : 'text-amber-600')}>
-                              {totalAssigned}/{prod.cantidad} uds
-                            </span>
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            {subOrdenes.map((sub, sIdx) => (
-                              <div key={sub.id} className="flex items-center gap-1.5">
-                                <span className="text-[10px] text-slate-500 w-12">SO {sIdx + 1}:</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max={prod.cantidad}
-                                  value={asignacion[idx]?.[sub.id] || 0}
-                                  onChange={e => updateQty(idx, sub.id, parseInt(e.target.value) || 0)}
-                                  className="w-14 px-2 py-1 text-xs text-center border border-slate-200 rounded-lg focus:ring-1 focus:ring-teal-500"
-                                />
-                              </div>
-                            ))}
+
+                          {/* Reference — obligatory */}
+                          <div>
+                            <label className="text-[10px] text-slate-500 block mb-0.5">
+                              Referencia proveedor <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              key={`ref-${sub.id}`}
+                              type="text"
+                              value={sub.referenciaProveedor}
+                              onChange={e => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, referenciaProveedor: e.target.value } : s))}
+                              placeholder="Número de orden / factura (obligatorio)"
+                              className={cn('w-full text-xs border rounded-lg px-3 py-2 focus:ring-1 focus:ring-teal-500', missingRef ? 'border-amber-300 bg-amber-50' : 'border-slate-200')}
+                            />
+                            {missingRef && <p className="text-[10px] text-amber-600 mt-0.5">Referencia obligatoria</p>}
                           </div>
-                          {!isComplete && (
-                            <p className="text-[10px] text-amber-600">Faltan {prod.cantidad - totalAssigned} unidad{prod.cantidad - totalAssigned !== 1 ? 'es' : ''} por asignar</p>
-                          )}
+
+                          {/* Product quantities — vertical layout */}
+                          <div className="space-y-1.5">
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">Productos</p>
+                            {orden.productos.map((prod, idx) => {
+                              const qty = asignacion[idx]?.[sub.id] || 0;
+                              return (
+                                <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-1.5">
+                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <span className="text-xs text-slate-700 truncate">{prod.nombreComercial}</span>
+                                    <span className="text-[10px] text-slate-400">${prod.costoUnitario.toFixed(2)}/ud</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max={prod.cantidad}
+                                      value={qty}
+                                      onChange={e => updateQty(idx, sub.id, parseInt(e.target.value) || 0)}
+                                      className="w-12 px-1 py-1 text-xs text-center border border-slate-200 rounded focus:ring-1 focus:ring-teal-500"
+                                    />
+                                    <span className="text-[10px] text-slate-400">/{prod.cantidad}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Summary */}
+                          <p className="text-[10px] text-slate-400">{sub.productos.length} productos · {subUnits} uds</p>
                         </div>
                       );
                     })}
-                  </div>
 
-                  {/* Sub-orden cards with reference */}
-                  <div className="space-y-2">
-                    {subOrdenes.map((sub, sIdx) => (
-                      <div key={sub.id} className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-semibold text-teal-700">Sub-orden {sIdx + 1}</span>
-                          <span className="text-xs font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
-                        </div>
-                        <input
-                          key={`ref-${sub.id}`}
-                          type="text"
-                          value={sub.referenciaProveedor}
-                          onChange={e => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, referenciaProveedor: e.target.value } : s))}
-                          placeholder="Referencia proveedor (ej: Amazon #111-222)"
-                          className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-teal-500"
-                        />
-                        <p className="text-[10px] text-slate-400">{sub.productos.length} producto{sub.productos.length !== 1 ? 's' : ''} · {sub.productos.reduce((s, p) => s + p.cantidad, 0)} uds</p>
-                      </div>
-                    ))}
                     <button
                       type="button"
                       onClick={() => {
                         const newId = `SUB-${Date.now()}`;
                         setSubOrdenes(prev => [...prev, { id: newId, referenciaProveedor: '', productos: [], totalUSD: 0 }]);
-                        // Add 0 qty for all products in the new sub-orden
                         setAsignacion(prev => {
                           const newA = { ...prev };
                           orden.productos.forEach((_, i) => { newA[i] = { ...newA[i], [newId]: 0 }; });
@@ -379,10 +397,30 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     </button>
                   </div>
 
-                  {!isValid && (
+                  {/* Validation warnings */}
+                  {!qtyValid && (
                     <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
                       <AlertTriangle className="w-3.5 h-3.5" />
                       Todas las unidades deben estar asignadas
+                    </div>
+                  )}
+                  {qtyValid && !refsValid && (
+                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      Todas las sub-órdenes requieren referencia del proveedor
+                    </div>
+                  )}
+                  {qtyValid && refsValid && !hasProducts && (
+                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      Cada sub-orden debe tener al menos 1 producto
+                    </div>
+                  )}
+
+                  {/* Cost distribution note */}
+                  {costosExtra > 0 && (
+                    <div className="text-[10px] text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
+                      Los cargos adicionales (${costosExtra.toFixed(2)}) se distribuyen proporcionalmente por unidades asignadas a cada sub-orden.
                     </div>
                   )}
 
