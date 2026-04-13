@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
-import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw } from 'lucide-react';
+import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw, Layers } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
 import { StatusBadge } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
@@ -150,13 +150,18 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   }, [orden.estado, onCambiarEstado, onRecibirOrden]);
 
   // Determinar siguientes acciones posibles (solo estado logístico)
+  // Nota: "Confirmar OC" se maneja por la timeline (nextAction), no aquí
   const getAccionesDisponibles = () => {
     const acciones: Array<{ estado: EstadoOrden; label: string }> = [];
 
-    if (orden.estado === 'borrador') {
-      acciones.push({ estado: 'enviada', label: 'Marcar como Enviada' });
-    } else if (orden.estado === 'enviada') {
-      acciones.push({ estado: 'en_transito', label: 'Poner en Tránsito' });
+    // Borrador: sin acciones extra (Confirmar está en la timeline)
+    // Confirmada: puede pasar a en_proceso
+    if (orden.estado === 'confirmada' || orden.estado === 'enviada') {
+      acciones.push({ estado: 'en_proceso', label: 'Marcar En Proceso' });
+    }
+    // En proceso: puede pasar a despachada
+    if (orden.estado === 'en_proceso' || orden.estado === 'en_transito') {
+      acciones.push({ estado: 'despachada', label: 'Marcar Despachada' });
     }
 
     return acciones;
@@ -274,12 +279,41 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                 <span className="font-medium">-${orden.descuentoUSD.toFixed(2)}</span>
               </div>
             )}
+            {/* TC referencial */}
+            {(orden.tcReferencial || orden.tcCompra) && (
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">TC Referencial:</span>
+                <span className="font-medium text-slate-900">S/ {(orden.tcReferencial || orden.tcCompra || 0).toFixed(3)}</span>
+              </div>
+            )}
+            {/* Modo de entrega */}
+            {orden.modoEntregaDetallado && (
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Modo entrega:</span>
+                <span className="font-medium text-slate-900">
+                  {{ ddp_directo: 'DDP Directo', via_viajero: 'Vía viajero', via_courier: 'Vía courier', recojo_propio: 'Recojo propio' }[orden.modoEntregaDetallado] || orden.modoEntregaDetallado}
+                </span>
+              </div>
+            )}
+            {orden.colaboradorTransporteNombre && (
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Transportista:</span>
+                <span className="font-medium text-slate-900">{orden.colaboradorTransporteNombre}</span>
+              </div>
+            )}
             <div className="border-t border-teal-200 pt-2">
               <div className="flex justify-between">
                 <span className="font-semibold text-slate-900">Total USD:</span>
                 <span className="text-xl font-bold text-teal-600">${orden.totalUSD.toFixed(2)}</span>
               </div>
             </div>
+            {/* Total PEN estimado */}
+            {(orden.tcReferencial || orden.tcCompra) && !orden.totalPEN && (
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Estimado PEN:</span>
+                <span className="font-medium text-slate-700">S/ {(orden.totalUSD * (orden.tcReferencial || orden.tcCompra || 0)).toFixed(2)}</span>
+              </div>
+            )}
             {orden.totalPEN && (
               <div className="flex justify-between">
                 <span className="text-sm text-slate-600">Total PEN (TC {orden.tcPago?.toFixed(3)}):</span>
@@ -309,6 +343,30 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Sub-órdenes (si existen) */}
+      {orden.subOrdenes && orden.subOrdenes.length > 0 && (
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+          <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
+            <Layers className="h-4 w-4 text-purple-600" />
+            Sub-órdenes ({orden.subOrdenes.length})
+          </h4>
+          <div className="space-y-2">
+            {orden.subOrdenes.map((sub, idx) => (
+              <div key={sub.id} className="bg-white rounded-lg p-3 border border-purple-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-900">Sub-orden {idx + 1}</span>
+                  <span className="text-sm font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
+                </div>
+                {sub.referenciaProveedor && (
+                  <p className="text-xs text-slate-500 mt-0.5">Ref: {sub.referenciaProveedor}</p>
+                )}
+                <p className="text-xs text-slate-400 mt-0.5">{sub.productos.length} productos</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Productos con Costo Real */}
       <div>
@@ -590,8 +648,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </Button>
         ))}
 
-        {/* Botón de pago */}
-        {orden.estado !== 'cancelada' && orden.estadoPago !== 'pagado' && onRegistrarPago && (
+        {/* Botón de pago — solo después de confirmada */}
+        {orden.estado !== 'borrador' && orden.estado !== 'cancelada' && orden.estadoPago !== 'pagado' && onRegistrarPago && (
           <Button
             variant="secondary"
             onClick={onRegistrarPago}
