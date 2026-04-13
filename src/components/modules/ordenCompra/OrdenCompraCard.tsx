@@ -739,12 +739,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
               {/* Leyenda explicativa */}
               <div className="px-3 py-2 bg-sky-50 border-t border-sky-200">
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                  <span className="text-sky-700">
-                    <strong>TC:</strong> S/ {tc.toFixed(2)}
-                  </span>
-                </div>
-                <div className="mt-1 text-[10px] text-sky-600">
+                <div className="text-[10px] text-sky-600">
                   * Tax uniforme por unidad · Envío, otros y descuento prorrateados por costo base
                 </div>
               </div>
