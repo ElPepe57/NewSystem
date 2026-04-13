@@ -249,6 +249,9 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
           <WizardStepInteligencia
             productos={state.productos}
             tcCompra={state.tcCompra}
+            costoShippingUSD={state.configLogistica.costoShippingProveedor || 0}
+            cargosOC={state.cargosOC}
+            descuentosOC={state.descuentosOC}
           />
         );
 

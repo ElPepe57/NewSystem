@@ -27,6 +27,9 @@ interface IntelProducto {
 interface WizardStepInteligenciaProps {
   productos: ProductoOrden[];
   tcCompra: number;
+  costoShippingUSD?: number;
+  cargosOC?: Array<{ montoUSD: number }>;
+  descuentosOC?: Array<{ montoUSD: number }>;
 }
 
 // ─── Score Ring (SVG) ─────────────────────────────────────────────
@@ -110,10 +113,17 @@ function computeScore(
 // ─── Main Component ───────────────────────────────────────────────
 
 export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
-  productos, tcCompra,
+  productos, tcCompra, costoShippingUSD = 0, cargosOC = [], descuentosOC = [],
 }) => {
   const [intel, setIntel] = useState<Record<string, IntelProducto>>({});
   const { productos: catalogo } = useProductoStore();
+
+  // Total costos adicionales (shipping + cargos - descuentos) prorrateados por unidad
+  const totalUnidadesCalc = productos.reduce((s, p) => s + (p.cantidad || 0), 0);
+  const totalCargosUSD = cargosOC.reduce((s, c) => s + (c.montoUSD || 0), 0) + costoShippingUSD;
+  const totalDescuentosUSD = descuentosOC.reduce((s, d) => s + (d.montoUSD || 0), 0);
+  const costosAdicionalesUSD = totalCargosUSD - totalDescuentosUSD;
+  const costoAdicionalPorUnidad = totalUnidadesCalc > 0 ? costosAdicionalesUSD / totalUnidadesCalc : 0;
 
   // Load price history
   useEffect(() => {
@@ -159,10 +169,11 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
     const inv = invMap[prod.productoId] ?? null;
     const loading = data?.loading ?? true;
     const score = loading ? 0 : computeScore(prod, hist, inv, tcCompra);
-    const ctru = prod.costoUnitario > 0 && tcCompra > 0 ? prod.costoUnitario * tcCompra : null;
+    const ctruBase = prod.costoUnitario > 0 && tcCompra > 0 ? prod.costoUnitario * tcCompra : null;
+    const ctru = ctruBase !== null ? ctruBase + (costoAdicionalPorUnidad * tcCompra) : null;
     const inversion = (prod.costoUnitario || 0) * (prod.cantidad || 0);
     const mejorPrecioProveedor = inv?.precioUSAMin > 0 ? inv.precioUSAMin : null;
-    return { prod, hist, inv, loading, score, ctru, inversion, mejorPrecioProveedor };
+    return { prod, hist, inv, loading, score, ctru, ctruBase, inversion, mejorPrecioProveedor };
   }), [productos, intel, invMap, tcCompra]);
 
   // Aggregates
@@ -208,6 +219,11 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
               <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-sm">
                 <span className="tabular-nums"><span className="text-slate-500">Inversión:</span> <strong>${totalUSD.toFixed(2)}</strong></span>
                 <span className="tabular-nums"><span className="text-slate-500">Productos:</span> <strong>{productos.length}</strong> ({totalUds} uds)</span>
+                {costosAdicionalesUSD > 0 && (
+                  <span className="tabular-nums text-amber-700 flex items-center gap-1">
+                    <DollarSign className="w-3.5 h-3.5" /> +${costosAdicionalesUSD.toFixed(2)} en cargos (${costoAdicionalPorUnidad.toFixed(2)}/ud)
+                  </span>
+                )}
                 {alertas > 0 && (
                   <span className="text-red-600 flex items-center gap-1">
                     <AlertTriangle className="w-3.5 h-3.5" /> {alertas} producto{alertas > 1 ? 's' : ''} con alerta
@@ -219,7 +235,7 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
         </div>
 
         {/* ─── Product Cards ─── */}
-        {analysis.map(({ prod, hist, inv, loading, score, ctru, inversion, mejorPrecioProveedor }) => (
+        {analysis.map(({ prod, hist, inv, loading, score, ctru, ctruBase, inversion, mejorPrecioProveedor }) => (
           <div
             key={prod.productoId}
             className={cn(
@@ -277,12 +293,17 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                   )}
                 </div>
 
-                {/* CTRU estimado */}
-                <div className="bg-white p-3 text-center">
+                {/* CTRU estimado (incluye cargos prorrateados) */}
+                <div className={cn('p-3 text-center', costoAdicionalPorUnidad > 0 ? 'bg-amber-50' : 'bg-white')}>
                   <p className="text-[9px] text-slate-400 uppercase tracking-wide">CTRU est.</p>
-                  <p className="text-sm font-bold tabular-nums text-slate-900 mt-1">
+                  <p className={cn('text-sm font-bold tabular-nums mt-1', costoAdicionalPorUnidad > 0 ? 'text-amber-800' : 'text-slate-900')}>
                     {ctru ? `S/${ctru.toFixed(2)}` : '—'}
                   </p>
+                  {costoAdicionalPorUnidad > 0 && ctruBase !== null && (
+                    <p className="text-[9px] text-amber-500">
+                      +S/{(costoAdicionalPorUnidad * tcCompra).toFixed(0)} cargos
+                    </p>
+                  )}
                 </div>
 
                 {/* Margen — calculado: (precioVenta - CTRU) / precioVenta */}
