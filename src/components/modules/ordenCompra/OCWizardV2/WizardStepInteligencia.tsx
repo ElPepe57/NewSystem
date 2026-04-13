@@ -82,29 +82,52 @@ function computeScore(
   hist: PrecioHistorico,
   inv: any | null,
   tcCompra: number,
+  costoAdicionalPorUnidadUSD: number,
 ): number {
   let total = 0;
   let weight = 0;
 
-  // Price vs historical average (40%)
+  // 1. Price vs historical average (30%)
   if (hist.promedio && hist.promedio > 0 && prod.costoUnitario > 0) {
     const diff = ((prod.costoUnitario - hist.promedio) / hist.promedio) * 100;
     const s = diff <= -10 ? 100 : diff <= -5 ? 90 : diff <= 0 ? 75 : diff <= 5 ? 55 : diff <= 10 ? 35 : 10;
-    total += s * 40;
-    weight += 40;
+    total += s * 30;
+    weight += 30;
   }
 
-  // Margin (35%)
-  if (inv?.margenEstimado > 0) {
+  // 2. Real margin with charges (35%) — uses competitor price -5% vs CTRU with charges
+  const ctruConCargos = prod.costoUnitario > 0 && tcCompra > 0
+    ? (prod.costoUnitario + costoAdicionalPorUnidadUSD) * tcCompra
+    : null;
+  const precioVenta = inv?.precioPERUMin > 0 ? inv.precioPERUMin * 0.95 : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
+  if (ctruConCargos && precioVenta && precioVenta > 0) {
+    const margenReal = ((precioVenta - ctruConCargos) / precioVenta) * 100;
+    const s = margenReal >= 45 ? 100 : margenReal >= 35 ? 85 : margenReal >= 25 ? 65 : margenReal >= 15 ? 40 : margenReal >= 0 ? 20 : 5;
+    total += s * 35;
+    weight += 35;
+  } else if (inv?.margenEstimado > 0) {
+    // Fallback to research margin if no competitor data
     const s = inv.margenEstimado >= 45 ? 100 : inv.margenEstimado >= 35 ? 85 : inv.margenEstimado >= 25 ? 65 : inv.margenEstimado >= 15 ? 40 : 15;
     total += s * 35;
     weight += 35;
   }
 
-  // Viability from research (25%)
+  // 3. Charge burden (20%) — penalizes if charges are a large % of product cost
+  if (prod.costoUnitario > 0 && costoAdicionalPorUnidadUSD > 0) {
+    const chargeRatio = (costoAdicionalPorUnidadUSD / prod.costoUnitario) * 100;
+    const s = chargeRatio <= 5 ? 95 : chargeRatio <= 10 ? 75 : chargeRatio <= 20 ? 55 : chargeRatio <= 35 ? 30 : 10;
+    total += s * 20;
+    weight += 20;
+  } else if (prod.costoUnitario > 0) {
+    // No charges = perfect score on this dimension
+    total += 100 * 20;
+    weight += 20;
+  }
+
+  // 4. Viability from research (15%)
   if (inv?.puntuacionViabilidad > 0) {
-    total += inv.puntuacionViabilidad * 25;
-    weight += 25;
+    total += inv.puntuacionViabilidad * 15;
+    weight += 15;
   }
 
   return weight > 0 ? Math.round(total / weight) : 0;
@@ -169,7 +192,7 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
     const hist = data?.precioHistorico ?? { ultimoPrecio: null, promedio: null, minimo: null, maximo: null, totalCompras: 0 };
     const inv = invMap[prod.productoId] ?? null;
     const loading = data?.loading ?? true;
-    const score = loading ? 0 : computeScore(prod, hist, inv, tcCompra);
+    const score = loading ? 0 : computeScore(prod, hist, inv, tcCompra, costoAdicionalPorUnidad);
     const ctruBase = prod.costoUnitario > 0 && tcCompra > 0 ? prod.costoUnitario * tcCompra : null;
     const ctru = ctruBase !== null ? ctruBase + (costoAdicionalPorUnidad * tcCompra) : null;
     const inversion = (prod.costoUnitario || 0) * (prod.cantidad || 0);
