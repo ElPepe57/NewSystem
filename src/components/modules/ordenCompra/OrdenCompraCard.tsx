@@ -2,14 +2,16 @@ import React, { useMemo, useState } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw, Layers } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
-import { StatusBadge } from '../../../design-system';
+import { StatusBadge, cn } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
-import type { OrdenCompra, EstadoOrden, EstadoPagoOC } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOrden } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
+import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
   onCambiarEstado?: (nuevoEstado: EstadoOrden) => void;
+  onConfirmarConSubOrdenes?: (subOrdenes?: SubOrdenCompra[]) => void;
   onRegistrarPago?: () => void;
   onRecibirOrden?: () => void;
   onRevertirRecepciones?: () => void;
@@ -38,11 +40,15 @@ const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success'
 export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   orden,
   onCambiarEstado,
+  onConfirmarConSubOrdenes,
   onRegistrarPago,
   onRecibirOrden,
   onRevertirRecepciones
 }) => {
   const [showHistory, setShowHistory] = useState(false);
+  const [modoConfirmacion, setModoConfirmacion] = useState<'idle' | 'pregunta' | 'subordenes'>('idle');
+  const [subOrdenes, setSubOrdenes] = useState<SubOrdenCompra[]>([]);
+  const [asignacion, setAsignacion] = useState<Record<number, string>>({});
 
 
   const estadoInfo = estadoLabels[orden.estado];
@@ -103,9 +109,19 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
     const actions: Record<string, NextAction> = {
       borrador: {
         label: 'Confirmar OC',
-        description: 'Confirma la orden, crea unidades pedidas y env\u00edo autom\u00e1tico',
-        buttonText: onCambiarEstado ? 'Confirmar' : undefined,
-        onClick: onCambiarEstado ? () => onCambiarEstado('confirmada') : undefined,
+        description: 'Confirma la orden, crea unidades pedidas y envío automático',
+        buttonText: (onConfirmarConSubOrdenes || onCambiarEstado) ? 'Confirmar' : undefined,
+        onClick: (onConfirmarConSubOrdenes || onCambiarEstado)
+          ? () => {
+              if (onConfirmarConSubOrdenes && orden.productos.length >= 2) {
+                setModoConfirmacion('pregunta');
+              } else if (onConfirmarConSubOrdenes) {
+                onConfirmarConSubOrdenes(); // single product, no sub-orders needed
+              } else if (onCambiarEstado) {
+                onCambiarEstado('confirmada');
+              }
+            }
+          : undefined,
         variant: 'primary'
       },
       confirmada: {
@@ -635,7 +651,131 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       )}
 
+      {/* Confirmación con sub-órdenes (inline) */}
+      {modoConfirmacion !== 'idle' && (
+        <div className="border border-teal-200 bg-teal-50/50 rounded-xl p-4 space-y-4">
+          {modoConfirmacion === 'pregunta' && (
+            <>
+              <h4 className="font-semibold text-slate-900 text-sm">¿Esta orden fue subdividida por el proveedor?</h4>
+              <p className="text-xs text-slate-500">Si el proveedor envió con múltiples referencias (ej: varias órdenes de Amazon), divídela en sub-órdenes.</p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setModoConfirmacion('idle'); onConfirmarConSubOrdenes?.(); }}
+                  className="flex-1 px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-900 hover:border-teal-500 hover:bg-teal-50 transition-all"
+                >
+                  <Package className="w-5 h-5 mx-auto mb-1 text-slate-500" />
+                  No, es una sola orden
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id1 = `SUB-${Date.now()}-a`;
+                    const id2 = `SUB-${Date.now()}-b`;
+                    const init: Record<number, string> = {};
+                    orden.productos.forEach((_, i) => { init[i] = id1; });
+                    setAsignacion(init);
+                    setSubOrdenes([
+                      { id: id1, referenciaProveedor: '', productos: [...orden.productos], totalUSD: orden.totalUSD },
+                      { id: id2, referenciaProveedor: '', productos: [], totalUSD: 0 },
+                    ]);
+                    setModoConfirmacion('subordenes');
+                  }}
+                  className="flex-1 px-4 py-3 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-900 hover:border-teal-500 hover:bg-teal-50 transition-all"
+                >
+                  <Layers className="w-5 h-5 mx-auto mb-1 text-slate-500" />
+                  Sí, dividir
+                </button>
+              </div>
+              <button onClick={() => setModoConfirmacion('idle')} className="text-xs text-slate-400 hover:text-slate-600">Cancelar</button>
+            </>
+          )}
+
+          {modoConfirmacion === 'subordenes' && (
+            <>
+              <h4 className="font-semibold text-slate-900 text-sm">Asignar productos a sub-órdenes</h4>
+              {/* Product assignment */}
+              <div className="space-y-2">
+                {orden.productos.map((prod, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-2 bg-white rounded-lg px-3 py-2 border border-slate-100">
+                    <div className="min-w-0">
+                      <span className="text-xs font-medium text-slate-900 truncate block">{prod.nombreComercial}</span>
+                      <span className="text-[10px] text-slate-400">{prod.sku} · x{prod.cantidad}</span>
+                    </div>
+                    <select
+                      value={asignacion[idx] || ''}
+                      onChange={e => {
+                        const newA = { ...asignacion, [idx]: e.target.value };
+                        setAsignacion(newA);
+                        // Rebuild sub-ordenes
+                        setSubOrdenes(prev => prev.map(sub => {
+                          const prods = orden.productos.filter((_, i) => newA[i] === sub.id);
+                          return { ...sub, productos: prods, totalUSD: prods.reduce((s, p) => s + p.costoUnitario * p.cantidad, 0) };
+                        }));
+                      }}
+                      className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white focus:ring-1 focus:ring-teal-500"
+                    >
+                      <option value="">Sin asignar</option>
+                      {subOrdenes.map((sub, sIdx) => (
+                        <option key={sub.id} value={sub.id}>Sub-orden {sIdx + 1}{sub.referenciaProveedor ? ` — ${sub.referenciaProveedor}` : ''}</option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+              {/* Sub-orden cards */}
+              <div className="space-y-2">
+                {subOrdenes.map((sub, sIdx) => (
+                  <div key={sub.id} className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-teal-700">Sub-orden {sIdx + 1}</span>
+                      <span className="text-xs font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={sub.referenciaProveedor}
+                      onChange={e => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, referenciaProveedor: e.target.value } : s))}
+                      placeholder="Referencia proveedor (ej: Amazon #111-222)"
+                      className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-teal-500"
+                    />
+                    <p className="text-[10px] text-slate-400">{sub.productos.length} producto{sub.productos.length !== 1 ? 's' : ''}</p>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setSubOrdenes(prev => [...prev, { id: `SUB-${Date.now()}`, referenciaProveedor: '', productos: [], totalUSD: 0 }])}
+                  className="text-xs text-teal-600 hover:text-teal-700 flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Agregar sub-orden
+                </button>
+              </div>
+              {/* Unassigned warning */}
+              {orden.productos.some((_, i) => !asignacion[i]) && (
+                <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Hay productos sin asignar a una sub-orden
+                </div>
+              )}
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button variant="secondary" onClick={() => { setModoConfirmacion('idle'); setSubOrdenes([]); setAsignacion({}); }}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => { setModoConfirmacion('idle'); onConfirmarConSubOrdenes?.(subOrdenes); }}
+                  disabled={orden.productos.some((_, i) => !asignacion[i])}
+                >
+                  Confirmar con {subOrdenes.length} sub-órdenes
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Acciones */}
+      {modoConfirmacion === 'idle' && (
       <div className="flex items-center flex-wrap gap-3 pt-4 border-t">
         {/* Acciones de estado logístico */}
         {getAccionesDisponibles().map(accion => (
@@ -681,6 +821,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </Button>
         )}
       </div>
+      )}
     </div>
   );
 };

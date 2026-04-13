@@ -953,6 +953,7 @@ export const OrdenesCompra: React.FC = () => {
           <OrdenCompraCard
             orden={selectedOrden}
             onCambiarEstado={handleCambiarEstado}
+            onConfirmarConSubOrdenes={handleConfirmarConSubOrdenes}
             onRegistrarPago={handleRegistrarPago}
             onRecibirOrden={handleRecibirOrden}
             onRevertirRecepciones={handleRevertirRecepciones}
