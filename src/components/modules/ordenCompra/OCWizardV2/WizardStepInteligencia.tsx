@@ -251,111 +251,105 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                 </div>
               )}
 
-              {/* Market research data */}
+              {/* Investigación de mercado — conclusiones */}
               {(() => {
                 const inv = investigacionMap[prod.productoId];
                 if (!inv) return null;
-                const proveedores = inv.proveedoresUSA || [];
-                const competidores = inv.competidoresPeru || [];
-                if (proveedores.length === 0 && competidores.length === 0) return null;
+
+                const recomLabels: Record<string, { text: string; variant: 'success' | 'warning' | 'danger' }> = {
+                  importar: { text: 'Importar', variant: 'success' },
+                  investigar_mas: { text: 'Investigar más', variant: 'warning' },
+                  descartar: { text: 'Descartar', variant: 'danger' },
+                };
+                const competenciaLabels: Record<string, string> = {
+                  baja: 'Competencia baja', media: 'Competencia media',
+                  alta: 'Competencia alta', saturada: 'Mercado saturado',
+                };
+                const demandaLabels: Record<string, string> = {
+                  baja: 'Demanda baja', media: 'Demanda media', alta: 'Demanda alta',
+                };
+                const tendenciaLabels: Record<string, string> = {
+                  subiendo: 'Tendencia al alza', bajando: 'Tendencia a la baja', estable: 'Tendencia estable',
+                };
+                const recom = recomLabels[inv.recomendacion] || null;
 
                 return (
-                  <div className="space-y-3 pt-3 border-t border-slate-100">
-                    {/* Proveedores USA */}
-                    {proveedores.length > 0 && (
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <Globe className="w-3.5 h-3.5 text-sky-500" />
-                          <span className="text-xs font-semibold text-slate-700">Proveedores USA</span>
-                          {inv.precioUSAMin > 0 && (
-                            <span className="text-[10px] text-slate-400 ml-auto">
-                              Mejor: ${inv.precioUSAMin.toFixed(2)}
-                            </span>
+                  <div className="pt-3 border-t border-slate-100 space-y-3">
+                    {/* Recomendación + Viabilidad */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-3.5 h-3.5 text-sky-500" />
+                        <span className="text-xs font-semibold text-slate-700">Investigación de Mercado</span>
+                      </div>
+                      {recom && <StatusBadge variant={recom.variant}>{recom.text}</StatusBadge>}
+                    </div>
+
+                    {/* Metrics grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                      {inv.precioUSAPromedio > 0 && (
+                        <div className="bg-slate-50 rounded-lg p-2">
+                          <p className="text-[10px] text-slate-500">Precio USA prom.</p>
+                          <p className="font-semibold text-slate-900">${inv.precioUSAPromedio.toFixed(2)}</p>
+                          {inv.precioUSAMin > 0 && inv.precioUSAMin !== inv.precioUSAPromedio && (
+                            <p className="text-[10px] text-slate-400">Mejor: ${inv.precioUSAMin.toFixed(2)}</p>
                           )}
                         </div>
-                        <div className="space-y-1">
-                          {proveedores.slice(0, 4).map((prov: any, pIdx: number) => {
-                            const esMasBarato = prod.costoUnitario > 0 && prov.precio < prod.costoUnitario;
-                            const esMasCaro = prod.costoUnitario > 0 && prov.precio > prod.costoUnitario;
-                            return (
-                              <div key={pIdx} className="flex items-center justify-between text-xs bg-slate-50 rounded-lg px-3 py-1.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <span className="text-slate-700 font-medium truncate">{prov.nombre}</span>
-                                  {prov.disponibilidad === 'en_stock' && (
-                                    <span className="text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">En stock</span>
-                                  )}
-                                  {prov.disponibilidad === 'sin_stock' && (
-                                    <span className="text-[9px] text-red-600 bg-red-50 px-1.5 py-0.5 rounded">Sin stock</span>
-                                  )}
-                                  {prov.url && (
-                                    <a href={prov.url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-teal-600" onClick={e => e.stopPropagation()}>
-                                      <ExternalLink className="w-3 h-3" />
-                                    </a>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 flex-shrink-0">
-                                  <span className={cn(
-                                    'font-semibold',
-                                    esMasBarato ? 'text-emerald-600' : esMasCaro ? 'text-red-600' : 'text-slate-700'
-                                  )}>
-                                    ${prov.precio.toFixed(2)}
-                                  </span>
-                                  {prov.impuesto > 0 && (
-                                    <span className="text-[9px] text-slate-400">+{prov.impuesto}% tax</span>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
+                      )}
+                      {inv.precioPERUPromedio > 0 && (
+                        <div className="bg-slate-50 rounded-lg p-2">
+                          <p className="text-[10px] text-slate-500">Precio Perú prom.</p>
+                          <p className="font-semibold text-slate-900">S/ {inv.precioPERUPromedio.toFixed(2)}</p>
+                          {inv.precioPERUMin > 0 && (
+                            <p className="text-[10px] text-slate-400">Desde S/ {inv.precioPERUMin.toFixed(2)}</p>
+                          )}
                         </div>
+                      )}
+                      {inv.margenEstimado > 0 && (
+                        <div className={cn('rounded-lg p-2', inv.margenEstimado >= 30 ? 'bg-emerald-50' : inv.margenEstimado >= 15 ? 'bg-amber-50' : 'bg-red-50')}>
+                          <p className="text-[10px] text-slate-500">Margen estimado</p>
+                          <p className={cn('font-semibold', inv.margenEstimado >= 30 ? 'text-emerald-700' : inv.margenEstimado >= 15 ? 'text-amber-700' : 'text-red-700')}>
+                            {inv.margenEstimado.toFixed(0)}%
+                          </p>
+                        </div>
+                      )}
+                      {inv.precioSugeridoCalculado > 0 && (
+                        <div className="bg-slate-50 rounded-lg p-2">
+                          <p className="text-[10px] text-slate-500">Precio sugerido</p>
+                          <p className="font-semibold text-slate-900">S/ {inv.precioSugeridoCalculado.toFixed(2)}</p>
+                        </div>
+                      )}
+                      {inv.nivelCompetencia && (
+                        <div className="bg-slate-50 rounded-lg p-2">
+                          <p className="text-[10px] text-slate-500">Competencia</p>
+                          <p className="font-semibold text-slate-700">{competenciaLabels[inv.nivelCompetencia] || inv.nivelCompetencia}</p>
+                          {inv.numeroCompetidores > 0 && <p className="text-[10px] text-slate-400">{inv.numeroCompetidores} competidores</p>}
+                        </div>
+                      )}
+                      {inv.demandaEstimada && (
+                        <div className="bg-slate-50 rounded-lg p-2">
+                          <p className="text-[10px] text-slate-500">Demanda</p>
+                          <p className="font-semibold text-slate-700">{demandaLabels[inv.demandaEstimada] || inv.demandaEstimada}</p>
+                          {inv.tendencia && <p className="text-[10px] text-slate-400">{tendenciaLabels[inv.tendencia]}</p>}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Viabilidad score */}
+                    {inv.puntuacionViabilidad !== undefined && inv.puntuacionViabilidad > 0 && (
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-slate-200 rounded-full h-2 overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full', inv.puntuacionViabilidad >= 60 ? 'bg-emerald-500' : inv.puntuacionViabilidad >= 40 ? 'bg-amber-500' : 'bg-red-500')}
+                            style={{ width: `${inv.puntuacionViabilidad}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700 w-12 text-right">{inv.puntuacionViabilidad}/100</span>
                       </div>
                     )}
 
-                    {/* Competencia Perú */}
-                    {competidores.length > 0 && (
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <Store className="w-3.5 h-3.5 text-amber-500" />
-                          <span className="text-xs font-semibold text-slate-700">Competencia en Perú</span>
-                          {inv.precioPERUMin > 0 && (
-                            <span className="text-[10px] text-slate-400 ml-auto">
-                              Desde S/ {inv.precioPERUMin.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="space-y-1">
-                          {competidores.slice(0, 4).map((comp: any, cIdx: number) => (
-                            <div key={cIdx} className="flex items-center justify-between text-xs bg-slate-50 rounded-lg px-3 py-1.5">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-slate-700 font-medium truncate">{comp.nombre}</span>
-                                <span className="text-[9px] text-slate-400">{comp.plataforma?.replace('_', ' ')}</span>
-                                {comp.url && (
-                                  <a href={comp.url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-teal-600" onClick={e => e.stopPropagation()}>
-                                    <ExternalLink className="w-3 h-3" />
-                                  </a>
-                                )}
-                              </div>
-                              <span className="font-semibold text-slate-700 flex-shrink-0">
-                                S/ {comp.precio.toFixed(2)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        {/* Margin estimate vs competition */}
-                        {ctruUnitario && inv.precioPERUMin > 0 && (
-                          <div className={cn(
-                            'mt-2 text-xs px-3 py-2 rounded-lg',
-                            inv.precioPERUMin > ctruUnitario
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : 'bg-red-50 text-red-700'
-                          )}>
-                            {inv.precioPERUMin > ctruUnitario
-                              ? `Margen potencial: ${((1 - ctruUnitario / inv.precioPERUMin) * 100).toFixed(0)}% vs competidor más barato`
-                              : `CTRU supera el precio mínimo de la competencia — revisar viabilidad`
-                            }
-                          </div>
-                        )}
-                      </div>
+                    {/* Razonamiento */}
+                    {inv.razonamiento && (
+                      <p className="text-[11px] text-slate-500 italic">{inv.razonamiento}</p>
                     )}
                   </div>
                 );
