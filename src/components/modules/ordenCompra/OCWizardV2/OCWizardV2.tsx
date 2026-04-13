@@ -86,15 +86,19 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
   const [state, dispatch] = useReducer(ocWizardReducer, initialWizardState);
   const submittedRef = useRef(false);
 
-  // Auto-fetch TC del día al montar
+  // Auto-fetch TC del día al abrir el wizard
   React.useEffect(() => {
-    if (state.tcCompra === 0 && isOpen) {
-      import('../../../../store/tipoCambioStore').then(({ useTipoCambioStore }) => {
-        useTipoCambioStore.getState().getTCDelDia().then((tc) => {
-          if (tc?.venta) dispatch({ type: 'SET_TC', tc: tc.venta } as OCWizardAction);
-        });
-      });
-    }
+    if (!isOpen) return;
+    const fetchTC = async () => {
+      try {
+        const { useTipoCambioStore } = await import('../../../../store/tipoCambioStore');
+        const tc = await useTipoCambioStore.getState().getTCDelDia();
+        if (tc?.venta && state.tcCompra === 0) {
+          dispatch({ type: 'SET_TC', tc: tc.venta } as OCWizardAction);
+        }
+      } catch { /* silent */ }
+    };
+    fetchTC();
   }, [isOpen]);
 
   const activeSteps = useMemo(() => getActiveSteps(state), [state.modoEntregaDetallado, state.quienPagaFlete]);
