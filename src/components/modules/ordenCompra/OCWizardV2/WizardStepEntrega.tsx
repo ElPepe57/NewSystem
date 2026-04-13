@@ -887,6 +887,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                   </div>
                 ) : (
                   <ProductoAutocomplete
+                    key={`prod-ac-${productos.length}`}
                     productos={catalogoProductos}
                     value={null}
                     onChange={handleSelectProducto}
