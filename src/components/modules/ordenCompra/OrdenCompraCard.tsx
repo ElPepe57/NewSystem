@@ -163,7 +163,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
     };
 
     return actions[orden.estado];
-  }, [orden.estado, onCambiarEstado, onRecibirOrden]);
+  }, [orden.estado, onCambiarEstado, onConfirmarConSubOrdenes, onRecibirOrden]);
 
   // Determinar siguientes acciones posibles (solo estado logístico)
   // Nota: "Confirmar OC" se maneja por la timeline (nextAction), no aquí
