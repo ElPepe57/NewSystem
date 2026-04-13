@@ -86,48 +86,53 @@ function computeScore(
 ): number {
   let total = 0;
   let weight = 0;
+  const mejorProv = inv?.precioUSAMin > 0 ? inv.precioUSAMin : null;
 
-  // 1. Price vs historical average (30%)
-  if (hist.promedio && hist.promedio > 0 && prod.costoUnitario > 0) {
+  // 1. Price vs best provider (40%) — most important: are you getting the best deal?
+  if (mejorProv && prod.costoUnitario > 0) {
+    const diff = ((prod.costoUnitario - mejorProv) / mejorProv) * 100;
+    // Strict: even 3% over best = significant penalty
+    const s = diff <= -5 ? 95 : diff <= 0 ? 85 : diff <= 2 ? 65 : diff <= 5 ? 45 : diff <= 10 ? 25 : 10;
+    total += s * 40;
+    weight += 40;
+  } else if (hist.promedio && hist.promedio > 0 && prod.costoUnitario > 0) {
+    // Fallback: vs historical average
     const diff = ((prod.costoUnitario - hist.promedio) / hist.promedio) * 100;
-    const s = diff <= -10 ? 100 : diff <= -5 ? 90 : diff <= 0 ? 75 : diff <= 5 ? 55 : diff <= 10 ? 35 : 10;
-    total += s * 30;
-    weight += 30;
+    const s = diff <= -5 ? 90 : diff <= 0 ? 75 : diff <= 5 ? 50 : diff <= 10 ? 30 : 10;
+    total += s * 40;
+    weight += 40;
   }
 
-  // 2. Real margin with charges (35%) — uses competitor price -5% vs CTRU with charges
+  // 2. Margin with charges (30%) — is the business viable at this price?
   const ctruConCargos = prod.costoUnitario > 0 && tcCompra > 0
     ? (prod.costoUnitario + costoAdicionalPorUnidadUSD) * tcCompra
     : null;
   const precioVenta = inv?.precioPERUMin > 0 ? inv.precioPERUMin * 0.95 : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
   if (ctruConCargos && precioVenta && precioVenta > 0) {
     const margenReal = ((precioVenta - ctruConCargos) / precioVenta) * 100;
-    const s = margenReal >= 45 ? 100 : margenReal >= 35 ? 85 : margenReal >= 25 ? 65 : margenReal >= 15 ? 40 : margenReal >= 0 ? 20 : 5;
-    total += s * 35;
-    weight += 35;
+    // Stricter thresholds
+    const s = margenReal >= 60 ? 90 : margenReal >= 45 ? 75 : margenReal >= 30 ? 60 : margenReal >= 15 ? 35 : margenReal >= 0 ? 15 : 5;
+    total += s * 30;
+    weight += 30;
   } else if (inv?.margenEstimado > 0) {
-    // Fallback to research margin if no competitor data
-    const s = inv.margenEstimado >= 45 ? 100 : inv.margenEstimado >= 35 ? 85 : inv.margenEstimado >= 25 ? 65 : inv.margenEstimado >= 15 ? 40 : 15;
-    total += s * 35;
-    weight += 35;
+    const s = inv.margenEstimado >= 60 ? 90 : inv.margenEstimado >= 45 ? 75 : inv.margenEstimado >= 30 ? 60 : inv.margenEstimado >= 15 ? 35 : 10;
+    total += s * 30;
+    weight += 30;
   }
 
-  // 3. Charge burden (20%) — penalizes if charges are a large % of product cost
-  if (prod.costoUnitario > 0 && costoAdicionalPorUnidadUSD > 0) {
-    const chargeRatio = (costoAdicionalPorUnidadUSD / prod.costoUnitario) * 100;
-    const s = chargeRatio <= 5 ? 95 : chargeRatio <= 10 ? 75 : chargeRatio <= 20 ? 55 : chargeRatio <= 35 ? 30 : 10;
+  // 3. Charge burden (20%) — how much do extra costs eat into margins?
+  if (prod.costoUnitario > 0) {
+    const chargeRatio = costoAdicionalPorUnidadUSD > 0 ? (costoAdicionalPorUnidadUSD / prod.costoUnitario) * 100 : 0;
+    // No charges = 70 (neutral, not perfect — you still have logistics costs ahead)
+    const s = chargeRatio === 0 ? 70 : chargeRatio <= 5 ? 65 : chargeRatio <= 10 ? 55 : chargeRatio <= 20 ? 40 : chargeRatio <= 35 ? 25 : 10;
     total += s * 20;
     weight += 20;
-  } else if (prod.costoUnitario > 0) {
-    // No charges = perfect score on this dimension
-    total += 100 * 20;
-    weight += 20;
   }
 
-  // 4. Viability from research (15%)
+  // 4. Viability from research (10%) — lower weight, just a reference
   if (inv?.puntuacionViabilidad > 0) {
-    total += inv.puntuacionViabilidad * 15;
-    weight += 15;
+    total += inv.puntuacionViabilidad * 10;
+    weight += 10;
   }
 
   return weight > 0 ? Math.round(total / weight) : 0;
