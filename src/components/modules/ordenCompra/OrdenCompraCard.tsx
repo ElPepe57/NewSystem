@@ -62,7 +62,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
   const handleSubOrdenAction = useCallback(async (
     subOrdenId: string,
-    action: 'en_transito' | 'recibida' | 'pagado'
+    action: 'en_transito' | 'recibida'
   ) => {
     setSubOrdenLoading(prev => ({ ...prev, [subOrdenId]: true }));
     try {
@@ -84,9 +84,6 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         }
         if (action === 'recibida') {
           return { ...s, estado: 'recibida' as const, fechaRecepcion: new Date() };
-        }
-        if (action === 'pagado') {
-          return { ...s, estadoPago: 'pagado' as const, fechaPago: new Date() };
         }
         return s;
       });

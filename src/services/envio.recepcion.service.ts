@@ -221,8 +221,8 @@ export const envioRecepcionService = {
 
           batch.update(unidadRef, updateData);
         } else {
-          // Faltante/perdida — marcar segun corresponda
-          const estadoNuevo: EstadoUnidad = ur.perdida ? 'perdida' : 'disponible';
+          // Faltante/perdida — perdida explicita o mantener en transito (faltante, puede llegar despues)
+          const estadoNuevo: EstadoUnidad = ur.perdida ? 'perdida' : 'en_transito';
           batch.update(unidadRef, {
             estado: estadoNuevo,
             actualizadoPor: userId,

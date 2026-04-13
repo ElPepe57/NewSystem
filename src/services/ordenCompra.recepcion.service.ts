@@ -154,12 +154,14 @@ export async function recibirOrdenParcial(
     const almacenInfo = { nombre: almacen.nombre, pais: almacen.pais };
 
     // Guard anti-duplicacion: buscar unidades 'pedida' ya creadas por confirmarOC
+    // Si hay subOrdenId, filtrar solo las unidades de ESA sub-orden
+    const pedidaConstraints = [
+      where('ordenCompraId', '==', id),
+      where('estado', '==', 'pedida'),
+      ...(subOrdenId ? [where('subOrdenId', '==', subOrdenId)] : []),
+    ];
     const unidadesPedidaSnap = await getDocs(
-      query(
-        collection(db, 'unidades'),
-        where('ordenCompraId', '==', id),
-        where('estado', '==', 'pedida')
-      )
+      query(collection(db, 'unidades'), ...pedidaConstraints)
     );
     const unidadesPedidaByProducto: Record<string, string[]> = {};
     unidadesPedidaSnap.forEach(d => {
