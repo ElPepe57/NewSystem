@@ -243,17 +243,32 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
               <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-sm">
                 <span className="tabular-nums"><span className="text-slate-500">Inversión:</span> <strong>${totalUSD.toFixed(2)}</strong></span>
                 <span className="tabular-nums"><span className="text-slate-500">Productos:</span> <strong>{productos.length}</strong> ({totalUds} uds)</span>
-                {costosAdicionalesUSD > 0 && (
-                  <span className="tabular-nums text-amber-700 flex items-center gap-1">
-                    <DollarSign className="w-3.5 h-3.5" /> +${costosAdicionalesUSD.toFixed(2)} en cargos (${costoAdicionalPorUnidad.toFixed(2)}/ud)
-                  </span>
-                )}
                 {alertas > 0 && (
                   <span className="text-red-600 flex items-center gap-1">
-                    <AlertTriangle className="w-3.5 h-3.5" /> {alertas} producto{alertas > 1 ? 's' : ''} con alerta
+                    <AlertTriangle className="w-3.5 h-3.5" /> {alertas} alerta{alertas > 1 ? 's' : ''}
                   </span>
                 )}
               </div>
+              {/* Charge impact detail */}
+              {costosAdicionalesUSD > 0 && (
+                <div className="mt-3 pt-3 border-t border-current/10 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">Costo productos</span>
+                    <span className="font-semibold tabular-nums">${totalUSD.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-amber-700">
+                    <span>+ Cargos adicionales</span>
+                    <span className="font-semibold tabular-nums">+${costosAdicionalesUSD.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between font-bold">
+                    <span className="text-slate-800">Costo total de la orden</span>
+                    <span className="tabular-nums">${(totalUSD + costosAdicionalesUSD).toFixed(2)}</span>
+                  </div>
+                  <p className="text-amber-600 text-[10px] mt-1">
+                    Los cargos representan el {((costosAdicionalesUSD / totalUSD) * 100).toFixed(0)}% del valor de productos — encarece el CTRU en +${costoAdicionalPorUnidad.toFixed(2)}/ud
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -279,27 +294,6 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                 <p className="text-[11px] text-slate-400">
                   {[prod.marca, prod.presentacion, prod.contenido, prod.dosaje, prod.sabor, prod.pesoLibras ? `${prod.pesoLibras} lb` : null].filter(Boolean).join(' · ')}
                 </p>
-                {/* Score explanation */}
-                {!loading && score > 0 && (
-                  <p className="text-[10px] mt-1 text-slate-500">
-                    {(() => {
-                      const factors: string[] = [];
-                      if (hist.promedio && prod.costoUnitario > 0) {
-                        const diff = ((prod.costoUnitario - hist.promedio) / hist.promedio) * 100;
-                        factors.push(diff <= 0 ? 'Buen precio' : `Precio +${diff.toFixed(0)}%`);
-                      }
-                      if (costoAdicionalPorUnidad > 0 && prod.costoUnitario > 0) {
-                        const ratio = (costoAdicionalPorUnidad / prod.costoUnitario) * 100;
-                        factors.push(ratio > 20 ? `Cargos altos (${ratio.toFixed(0)}%)` : `Cargos ${ratio.toFixed(0)}%`);
-                      }
-                      if (inv?.precioPERUMin > 0 && ctru) {
-                        const margenR = ((inv.precioPERUMin * 0.95 - ctru) / (inv.precioPERUMin * 0.95)) * 100;
-                        factors.push(margenR >= 30 ? `Margen ${margenR.toFixed(0)}%` : margenR >= 0 ? `Margen bajo ${margenR.toFixed(0)}%` : 'Sin margen');
-                      }
-                      return factors.length > 0 ? factors.join(' · ') : '';
-                    })()}
-                  </p>
-                )}
               </div>
             </div>
 
