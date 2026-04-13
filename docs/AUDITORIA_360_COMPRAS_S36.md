@@ -20,9 +20,11 @@ Query busca `where('ordenCompraId', '==', id)` sin filtrar por subOrdenId. Al re
 `ur.recibida === false && ur.perdida === false` → estado `'disponible'`. Debería ser `'en_transito'` (faltante, puede llegar después).
 **Fix:** Cambiar a `const estadoNuevo = ur.perdida ? 'perdida' : 'en_transito';`
 
-### P1: Doble vía de recepción sin coordinación
-`ordenCompra.recepcion.service.ts` y `envio.recepcion.service.ts` operan sobre las mismas unidades sin saber del otro. Riesgo de doble conteo.
-**Fix (futuro):** recibirOrdenParcial debería delegar al envío vinculado cuando existe.
+### ~~P1: Doble vía de recepción~~ RECLASIFICADO — NO ES BUG
+Son dos recepciones diferentes para dos tramos diferentes:
+- `recibirOrdenParcial()` = proveedor entregó en casilla (recepción OC)
+- `registrarRecepcion()` = productos llegaron de casilla a Perú (recepción envío)
+No hay conflicto. La arquitectura es correcta.
 
 ---
 
