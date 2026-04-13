@@ -285,19 +285,35 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                   </p>
                 </div>
 
-                {/* Margen */}
-                <div className={cn('p-3 text-center', inv?.margenEstimado >= 30 ? 'bg-emerald-50' : inv?.margenEstimado >= 15 ? 'bg-amber-50' : inv?.margenEstimado > 0 ? 'bg-red-50' : 'bg-white')}>
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">Margen</p>
-                  <p className={cn(
-                    'text-sm font-bold tabular-nums mt-1',
-                    inv?.margenEstimado >= 30 ? 'text-emerald-700' : inv?.margenEstimado >= 15 ? 'text-amber-700' : inv?.margenEstimado > 0 ? 'text-red-700' : 'text-slate-900',
-                  )}>
-                    {inv?.margenEstimado > 0 ? `${inv.margenEstimado.toFixed(0)}%` : '—'}
-                  </p>
-                  {inv?.precioSugeridoCalculado > 0 && (
-                    <p className="text-[9px] text-slate-400">Vta S/{inv.precioSugeridoCalculado.toFixed(0)}</p>
-                  )}
-                </div>
+                {/* Margen — calculado: (precioVenta - CTRU) / precioVenta */}
+                {(() => {
+                  // Precio de venta = competidor más barato - 5%
+                  const precioCompetidor = inv?.precioPERUMin > 0 ? inv.precioPERUMin : null;
+                  const precioVenta = precioCompetidor ? precioCompetidor * 0.95 : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
+                  const margen = precioVenta && ctru && ctru > 0 ? ((precioVenta - ctru) / precioVenta) * 100 : (inv?.margenEstimado > 0 ? inv.margenEstimado : null);
+                  const utilidad = precioVenta && ctru ? precioVenta - ctru : null;
+
+                  return (
+                    <div className={cn('p-3 text-center', margen !== null && margen >= 30 ? 'bg-emerald-50' : margen !== null && margen >= 15 ? 'bg-amber-50' : margen !== null && margen > 0 ? 'bg-red-50' : 'bg-white')}>
+                      <p className="text-[9px] text-slate-400 uppercase tracking-wide">Margen</p>
+                      <p className={cn(
+                        'text-sm font-bold tabular-nums mt-1',
+                        margen !== null && margen >= 30 ? 'text-emerald-700' : margen !== null && margen >= 15 ? 'text-amber-700' : margen !== null && margen > 0 ? 'text-red-700' : 'text-slate-900',
+                      )}>
+                        {margen !== null ? `${margen.toFixed(0)}%` : '—'}
+                      </p>
+                      {precioVenta && (
+                        <p className="text-[9px] text-slate-400">
+                          Vta S/{precioVenta.toFixed(0)}
+                          {utilidad !== null ? ` · U S/${utilidad.toFixed(0)}` : ''}
+                        </p>
+                      )}
+                      {precioCompetidor && (
+                        <p className="text-[9px] text-slate-300">Comp -5%</p>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Inversión */}
                 <div className="bg-white p-3 text-center">
