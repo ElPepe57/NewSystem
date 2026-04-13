@@ -204,17 +204,21 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
   onAddDescuento, onRemoveDescuento, onUpdateDescuento,
   onAddImpuesto, onRemoveImpuesto, onUpdateImpuesto,
 }) => {
-  // Recalculate percentage-based taxes when subtotal changes
+  // Base imponible = subtotal productos - descuentos (el tax se calcula después del descuento)
+  const totalDescuentosCalc = descuentos.reduce((s, d) => s + (d.montoUSD || 0), 0);
+  const baseImponible = subtotalProductos - totalDescuentosCalc;
+
+  // Recalculate percentage-based taxes when base changes
   useEffect(() => {
     impuestos.forEach(i => {
       if (i.modo === 'porcentaje' && i.porcentaje) {
-        const newMonto = Math.round((subtotalProductos * i.porcentaje / 100) * 100) / 100;
+        const newMonto = Math.round((baseImponible * i.porcentaje / 100) * 100) / 100;
         if (newMonto !== i.montoUSD) {
           onUpdateImpuesto({ ...i, montoUSD: newMonto });
         }
       }
     });
-  }, [subtotalProductos]);
+  }, [baseImponible, subtotalProductos]);
 
   const totalCargos = cargos.reduce((s, c) => s + (c.montoUSD || 0), 0);
   const totalDescuentos = descuentos.reduce((s, d) => s + (d.montoUSD || 0), 0);
@@ -295,7 +299,7 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
                     type="button"
                     onClick={() => {
                       const pct = i.porcentaje || 0;
-                      onUpdateImpuesto({ ...i, modo: 'porcentaje', montoUSD: Math.round((subtotalProductos * pct / 100) * 100) / 100 });
+                      onUpdateImpuesto({ ...i, modo: 'porcentaje', montoUSD: Math.round((baseImponible * pct / 100) * 100) / 100 });
                     }}
                     className={cn('px-2 py-1.5 text-xs font-medium transition-colors', i.modo === 'porcentaje' ? 'bg-sky-100 text-sky-700' : 'text-slate-400 hover:text-slate-600')}
                   >%</button>
@@ -316,7 +320,7 @@ export const WizardStepCargos: React.FC<WizardStepCargosProps> = ({
                         value={i.porcentaje || ''}
                         onChange={e => {
                           const pct = parseFloat(e.target.value) || 0;
-                          const monto = Math.round((subtotalProductos * pct / 100) * 100) / 100;
+                          const monto = Math.round((baseImponible * pct / 100) * 100) / 100;
                           onUpdateImpuesto({ ...i, porcentaje: pct, montoUSD: monto });
                         }}
                         placeholder="0.0"
