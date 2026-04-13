@@ -40,6 +40,9 @@ export interface ConfigLogistica {
   tipoShipping: 'local' | 'internacional' | null;
   // Si recojo en origen: ¿quién paga al proveedor?
   quienPagaProveedor: QuienPagaProveedor | null;
+  deudorId: string;         // ID de a quién le debo (proveedor o colaborador)
+  deudorNombre: string;     // Nombre para display
+  deudorTipo: 'proveedor' | 'colaborador' | '';
 
   // Tramo 2: Llegada a Perú
   llegadaPeru: LlegadaPeru | null;
@@ -60,6 +63,9 @@ export const emptyConfig: ConfigLogistica = {
   costoShippingProveedor: null,
   tipoShipping: null,
   quienPagaProveedor: null,
+  deudorId: '',
+  deudorNombre: '',
+  deudorTipo: '',
   llegadaPeru: null,
   colaboradorId: '',
   colaboradorNombre: '',
@@ -300,7 +306,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
     llegadaPeru:
       config.salidaProveedor !== null &&
       (config.salidaProveedor === 'recojo_en_origen'
-        ? config.quienPagaProveedor !== null
+        ? config.quienPagaProveedor !== null && (config.quienPagaProveedor === 'yo_pague' || !!config.deudorId)
         : config.salidaProveedor !== 'proveedor_envia' || config.fleteProveedorIncluido !== null),
     colaboradorSelector:
       config.llegadaPeru === 'viajero' || config.llegadaPeru === 'courier_internacional',
@@ -316,6 +322,26 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
       next.costoShippingProveedor = null;
       next.tipoShipping = null;
       next.quienPagaProveedor = null;
+      next.deudorId = '';
+      next.deudorNombre = '';
+      next.deudorTipo = '';
+      next.llegadaPeru = null;
+      next.colaboradorId = '';
+      next.colaboradorNombre = '';
+      next.ultimaMilla = null;
+      next.requiereRecojo = false;
+    }
+    if ('quienPagaProveedor' in partial) {
+      // Auto-set deudor based on who pays
+      if (partial.quienPagaProveedor === 'yo_pague') {
+        next.deudorId = config.proveedorId;
+        next.deudorNombre = config.proveedorNombre;
+        next.deudorTipo = 'proveedor';
+      } else if (partial.quienPagaProveedor === 'recogedor_paga') {
+        next.deudorId = '';
+        next.deudorNombre = '';
+        next.deudorTipo = 'colaborador';
+      }
       next.llegadaPeru = null;
       next.colaboradorId = '';
       next.colaboradorNombre = '';
@@ -556,6 +582,50 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
               selected={config.quienPagaProveedor === 'recogedor_paga'}
               onClick={() => update({ quienPagaProveedor: 'recogedor_paga' })}
             />
+            {/* Selector de deudor cuando recogedor paga */}
+            {config.quienPagaProveedor === 'recogedor_paga' && (
+              <div className="mt-3 pl-11">
+                <label className="block text-xs font-medium text-slate-600 mb-1">
+                  ¿Quién pagó por ti?
+                </label>
+                {viajeros.length > 0 ? (
+                  <select
+                    value={config.deudorId}
+                    onChange={e => {
+                      const selected = [...viajeros, ...couriers].find(c => c.id === e.target.value);
+                      onChange({
+                        ...config,
+                        deudorId: e.target.value,
+                        deudorNombre: selected?.nombre || '',
+                        deudorTipo: 'colaborador',
+                      });
+                    }}
+                    className={selectCls}
+                  >
+                    <option value="">Seleccionar persona...</option>
+                    {viajeros.map(v => (
+                      <option key={v.id} value={v.id}>{v.nombre} (viajero)</option>
+                    ))}
+                    {couriers.map(c => (
+                      <option key={c.id} value={c.id}>{c.nombre} (courier)</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={config.deudorNombre}
+                    onChange={e => onChange({ ...config, deudorNombre: e.target.value, deudorTipo: 'colaborador' })}
+                    placeholder="Nombre de quien pagó..."
+                    className={inputCls}
+                  />
+                )}
+                {config.deudorNombre && (
+                  <p className="text-xs text-teal-600 mt-1">
+                    La CxP de esta OC se registrará contra: <strong>{config.deudorNombre}</strong>
+                  </p>
+                )}
+              </div>
+            )}
           </Question>
         )}
 
