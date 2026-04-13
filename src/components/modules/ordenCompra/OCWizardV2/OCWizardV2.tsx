@@ -86,6 +86,17 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
   const [state, dispatch] = useReducer(ocWizardReducer, initialWizardState);
   const submittedRef = useRef(false);
 
+  // Auto-fetch TC del día al montar
+  React.useEffect(() => {
+    if (state.tcCompra === 0 && isOpen) {
+      import('../../../../store/tipoCambioStore').then(({ useTipoCambioStore }) => {
+        useTipoCambioStore.getState().getTCDelDia().then((tc) => {
+          if (tc?.venta) dispatch({ type: 'SET_TC', tc: tc.venta } as OCWizardAction);
+        });
+      });
+    }
+  }, [isOpen]);
+
   const activeSteps = useMemo(() => getActiveSteps(state), [state.modoEntregaDetallado, state.quienPagaFlete]);
   const currentStepIdx = activeSteps.indexOf(state.currentStep);
   const isFirstStep = currentStepIdx === 0;
