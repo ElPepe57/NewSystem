@@ -271,15 +271,16 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               const rebuildSubs = (newA: Record<number, Record<string, number>>) => {
                 setSubOrdenes(prev => prev.map(sub => {
                   const prods: ProductoOrden[] = [];
-                  let totalUSD = 0;
+                  let subtotalProds = 0;
                   orden.productos.forEach((p, idx) => {
                     const qty = newA[idx]?.[sub.id] || 0;
                     if (qty > 0) {
                       prods.push({ ...p, cantidad: qty, subtotal: qty * p.costoUnitario });
-                      totalUSD += qty * p.costoUnitario;
+                      subtotalProds += qty * p.costoUnitario;
                     }
                   });
-                  return { ...sub, productos: prods, totalUSD };
+                  const totalUSD = subtotalProds - (sub.descuentoUSD || 0) + (sub.shippingUSD || 0) + (sub.impuestoUSD || 0);
+                  return { ...sub, productos: prods, subtotalProductosUSD: subtotalProds, totalUSD };
                 }));
               };
 
@@ -323,12 +324,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                           {/* Header */}
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-semibold text-teal-700">Sub-orden {sIdx + 1}</span>
-                            <div className="text-right">
-                              <span className="text-sm font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
-                              {costosProporcion > 0 && (
-                                <span className="text-[10px] text-amber-600 block">+${costosProporcion.toFixed(2)} cargos</span>
-                              )}
-                            </div>
+                            <span className="text-sm font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
                           </div>
 
                           {/* Reference — obligatory */}
@@ -374,8 +370,89 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                             })}
                           </div>
 
+                          {/* Costos individuales */}
+                          <div className="space-y-1.5">
+                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">Costos de esta sub-orden</p>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div>
+                                <label className="text-[10px] text-emerald-600 block mb-0.5">Descuento</label>
+                                <div className="relative">
+                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={sub.descuentoUSD || ''}
+                                    onChange={e => {
+                                      const val = parseFloat(e.target.value) || 0;
+                                      setSubOrdenes(prev => prev.map(s => {
+                                        if (s.id !== sub.id) return s;
+                                        const subProd = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
+                                        return { ...s, descuentoUSD: val, totalUSD: subProd - val + (s.shippingUSD || 0) + (s.impuestoUSD || 0) };
+                                      }));
+                                    }}
+                                    placeholder="0.00"
+                                    className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-[10px] text-sky-600 block mb-0.5">Shipping</label>
+                                <div className="relative">
+                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={sub.shippingUSD || ''}
+                                    onChange={e => {
+                                      const val = parseFloat(e.target.value) || 0;
+                                      setSubOrdenes(prev => prev.map(s => {
+                                        if (s.id !== sub.id) return s;
+                                        const subProd = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
+                                        return { ...s, shippingUSD: val, totalUSD: subProd - (s.descuentoUSD || 0) + val + (s.impuestoUSD || 0) };
+                                      }));
+                                    }}
+                                    placeholder="0.00"
+                                    className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-[10px] text-amber-600 block mb-0.5">Tax</label>
+                                <div className="relative">
+                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={sub.impuestoUSD || ''}
+                                    onChange={e => {
+                                      const val = parseFloat(e.target.value) || 0;
+                                      setSubOrdenes(prev => prev.map(s => {
+                                        if (s.id !== sub.id) return s;
+                                        const subProd = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
+                                        return { ...s, impuestoUSD: val, totalUSD: subProd - (s.descuentoUSD || 0) + (s.shippingUSD || 0) + val };
+                                      }));
+                                    }}
+                                    placeholder="0.00"
+                                    className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
                           {/* Summary */}
-                          <p className="text-[10px] text-slate-400">{sub.productos.length} productos · {subUnits} uds</p>
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                            <p className="text-[10px] text-slate-400">{sub.productos.length} productos · {subUnits} uds</p>
+                            <div className="text-right text-[10px] text-slate-500 tabular-nums">
+                              {sub.subtotalProductosUSD ? `Prod: $${sub.subtotalProductosUSD.toFixed(2)}` : ''}
+                              {(sub.descuentoUSD || 0) > 0 && <span className="text-emerald-600 ml-2">-${sub.descuentoUSD?.toFixed(2)}</span>}
+                              {(sub.shippingUSD || 0) > 0 && <span className="text-sky-600 ml-2">+${sub.shippingUSD?.toFixed(2)}</span>}
+                              {(sub.impuestoUSD || 0) > 0 && <span className="text-amber-600 ml-2">+${sub.impuestoUSD?.toFixed(2)}</span>}
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
@@ -418,11 +495,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                   )}
 
                   {/* Cost distribution note */}
-                  {costosExtra > 0 && (
-                    <div className="text-[10px] text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
-                      Los cargos adicionales (${costosExtra.toFixed(2)}) se distribuyen proporcionalmente por unidades asignadas a cada sub-orden.
-                    </div>
-                  )}
+                  <div className="text-[10px] text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
+                    Ingresa descuento, shipping e impuesto específico de cada sub-orden según la factura del proveedor.
+                  </div>
 
                   <div className="flex gap-3">
                     <Button variant="secondary" onClick={() => { setModoConfirmacion('idle'); setSubOrdenes([]); setAsignacion({}); }}>Cancelar</Button>

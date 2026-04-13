@@ -484,7 +484,12 @@ export interface SubOrdenCompra {
   id: string;                          // SUB-{ocId}-{secuencial}
   referenciaProveedor: string;         // Numero de orden/factura del proveedor
   productos: ProductoOrden[];
-  totalUSD: number;
+  totalUSD: number;                    // subtotal productos + shipping + tax - descuento
+  // Costos individuales por sub-orden
+  descuentoUSD?: number;               // Descuento específico de esta sub-orden
+  shippingUSD?: number;                // Flete/shipping específico de esta sub-orden
+  impuestoUSD?: number;                // Tax/impuesto específico de esta sub-orden
+  subtotalProductosUSD?: number;       // Solo productos (sin costos adicionales)
   envioId?: string;                    // ID del Envio T1 generado automaticamente
   envioNumero?: string;
 }
