@@ -211,19 +211,18 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
       subtotalUSD: subtotal,
       totalUSD: grandTotal,
       tcCompra: state.tcCompra,
+      // Legacy fields for detalle compatibility
+      ...(totalImpuestos > 0 && { impuestoCompraUSD: totalImpuestos }),
+      ...(totalDescuentos > 0 && { descuentoUSD: totalDescuentos }),
       modoEntrega: config.modoEntrega,
       fleteIncluidoEnPrecio: config.fleteIncluidoEnPrecio,
-      // almacenDestino is managed downstream (casilla selection is outside wizard scope)
       almacenDestino: '',
       paisOrigen: state.paisOrigen || undefined,
       observaciones: state.observaciones || undefined,
-      // Cargos / descuentos / impuestos
+      // New structured cargos/descuentos/impuestos
       ...(state.cargosOC.length > 0 && { cargosOC: state.cargosOC }),
       ...(state.descuentosOC.length > 0 && { descuentosOC: state.descuentosOC }),
       ...(state.impuestosOC.length > 0 && { impuestosOC: state.impuestosOC }),
-      // Sub-órdenes are configured in ConfirmarOCModal, not at creation time
-      // Impuesto total from impuestosOC
-      ...(totalImpuestos > 0 && { impuestoCompraUSD: totalImpuestos }),
       // Requerimiento links
       ...(requerimientoId && { requerimientoId }),
       ...(requerimientoIds && requerimientoIds.length > 0 && { requerimientoIds }),
