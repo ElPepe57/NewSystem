@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, Info } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Info, Store, Globe, ExternalLink } from 'lucide-react';
 import { cn } from '../../../../design-system';
 import { StatusBadge } from '../../../../design-system';
 import type { ProductoOrden } from '../../../../types/ordenCompra.types';
 import { OrdenCompraService } from '../../../../services/ordenCompra.service';
+import { useProductoStore } from '../../../../store/productoStore';
 
 // ---- Types ----
 
@@ -96,6 +97,19 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
       }
     });
   }, [productos]);
+
+  // Catalog data for market research
+  const { productos: catalogoProductos } = useProductoStore();
+  const investigacionMap = useMemo(() => {
+    const map: Record<string, any> = {};
+    for (const prod of productos) {
+      const catalogItem = catalogoProductos.find(c => c.id === prod.productoId);
+      if (catalogItem?.investigacion) {
+        map[prod.productoId] = catalogItem.investigacion;
+      }
+    }
+    return map;
+  }, [productos, catalogoProductos]);
 
   // Summary totals
   const totalUnidades = productos.reduce((s, p) => s + (p.cantidad || 0), 0);
@@ -236,6 +250,116 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
                   </p>
                 </div>
               )}
+
+              {/* Market research data */}
+              {(() => {
+                const inv = investigacionMap[prod.productoId];
+                if (!inv) return null;
+                const proveedores = inv.proveedoresUSA || [];
+                const competidores = inv.competidoresPeru || [];
+                if (proveedores.length === 0 && competidores.length === 0) return null;
+
+                return (
+                  <div className="space-y-3 pt-3 border-t border-slate-100">
+                    {/* Proveedores USA */}
+                    {proveedores.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <Globe className="w-3.5 h-3.5 text-sky-500" />
+                          <span className="text-xs font-semibold text-slate-700">Proveedores USA</span>
+                          {inv.precioUSAMin > 0 && (
+                            <span className="text-[10px] text-slate-400 ml-auto">
+                              Mejor: ${inv.precioUSAMin.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          {proveedores.slice(0, 4).map((prov: any, pIdx: number) => {
+                            const esMasBarato = prod.costoUnitario > 0 && prov.precio < prod.costoUnitario;
+                            const esMasCaro = prod.costoUnitario > 0 && prov.precio > prod.costoUnitario;
+                            return (
+                              <div key={pIdx} className="flex items-center justify-between text-xs bg-slate-50 rounded-lg px-3 py-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="text-slate-700 font-medium truncate">{prov.nombre}</span>
+                                  {prov.disponibilidad === 'en_stock' && (
+                                    <span className="text-[9px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">En stock</span>
+                                  )}
+                                  {prov.disponibilidad === 'sin_stock' && (
+                                    <span className="text-[9px] text-red-600 bg-red-50 px-1.5 py-0.5 rounded">Sin stock</span>
+                                  )}
+                                  {prov.url && (
+                                    <a href={prov.url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-teal-600" onClick={e => e.stopPropagation()}>
+                                      <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <span className={cn(
+                                    'font-semibold',
+                                    esMasBarato ? 'text-emerald-600' : esMasCaro ? 'text-red-600' : 'text-slate-700'
+                                  )}>
+                                    ${prov.precio.toFixed(2)}
+                                  </span>
+                                  {prov.impuesto > 0 && (
+                                    <span className="text-[9px] text-slate-400">+{prov.impuesto}% tax</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Competencia Perú */}
+                    {competidores.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <Store className="w-3.5 h-3.5 text-amber-500" />
+                          <span className="text-xs font-semibold text-slate-700">Competencia en Perú</span>
+                          {inv.precioPERUMin > 0 && (
+                            <span className="text-[10px] text-slate-400 ml-auto">
+                              Desde S/ {inv.precioPERUMin.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          {competidores.slice(0, 4).map((comp: any, cIdx: number) => (
+                            <div key={cIdx} className="flex items-center justify-between text-xs bg-slate-50 rounded-lg px-3 py-1.5">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-slate-700 font-medium truncate">{comp.nombre}</span>
+                                <span className="text-[9px] text-slate-400">{comp.plataforma?.replace('_', ' ')}</span>
+                                {comp.url && (
+                                  <a href={comp.url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-teal-600" onClick={e => e.stopPropagation()}>
+                                    <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                )}
+                              </div>
+                              <span className="font-semibold text-slate-700 flex-shrink-0">
+                                S/ {comp.precio.toFixed(2)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        {/* Margin estimate vs competition */}
+                        {ctruUnitario && inv.precioPERUMin > 0 && (
+                          <div className={cn(
+                            'mt-2 text-xs px-3 py-2 rounded-lg',
+                            inv.precioPERUMin > ctruUnitario
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-red-50 text-red-700'
+                          )}>
+                            {inv.precioPERUMin > ctruUnitario
+                              ? `Margen potencial: ${((1 - ctruUnitario / inv.precioPERUMin) * 100).toFixed(0)}% vs competidor más barato`
+                              : `CTRU supera el precio mínimo de la competencia — revisar viabilidad`
+                            }
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           );
         })}
