@@ -486,11 +486,19 @@ export interface SubOrdenCompra {
   productos: ProductoOrden[];
   totalUSD: number;                    // subtotal productos + shipping + tax - descuento
   // Costos individuales por sub-orden
-  descuentoUSD?: number;               // Descuento específico de esta sub-orden
-  shippingUSD?: number;                // Flete/shipping específico de esta sub-orden
-  impuestoUSD?: number;                // Tax/impuesto específico de esta sub-orden
-  subtotalProductosUSD?: number;       // Solo productos (sin costos adicionales)
-  envioId?: string;                    // ID del Envio T1 generado automaticamente
+  descuentoUSD?: number;
+  shippingUSD?: number;
+  impuestoUSD?: number;
+  subtotalProductosUSD?: number;
+  // Ciclo de vida independiente
+  estado?: 'borrador' | 'en_transito' | 'recibida';
+  estadoPago?: 'pendiente' | 'pagado';
+  numeroTracking?: string;
+  courier?: string;
+  fechaEnvio?: any;                    // Timestamp
+  fechaRecepcion?: any;                // Timestamp
+  fechaPago?: any;                     // Timestamp
+  envioId?: string;
   envioNumero?: string;
 }
 
