@@ -3,12 +3,13 @@ import { Modal } from '../../common/Modal';
 import { Button } from '../../common/Button';
 import { BarcodeScanner } from '../../common/BarcodeScanner';
 import { Package, CheckCircle2, AlertTriangle, Box, Truck, ScanLine, Keyboard } from 'lucide-react';
-import type { OrdenCompra } from '../../../types/ordenCompra.types';
+import type { OrdenCompra, SubOrdenCompra } from '../../../types/ordenCompra.types';
 
 interface RecepcionParcialModalProps {
   isOpen: boolean;
   onClose: () => void;
   orden: OrdenCompra;
+  subOrden?: SubOrdenCompra;
   onSubmit: (
     productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
     observaciones?: string
@@ -19,6 +20,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
   isOpen,
   onClose,
   orden,
+  subOrden,
   onSubmit
 }) => {
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
@@ -36,9 +38,12 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
 
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  // Productos fuente: sub-orden si existe, o toda la OC
+  const productosBase = subOrden ? subOrden.productos : orden.productos;
+
   // Calcular pendientes por producto
   const productosConPendiente = useMemo(() => {
-    return orden.productos.map(p => {
+    return productosBase.map(p => {
       const recibido = p.cantidadRecibida || 0;
       const pendiente = p.cantidad - recibido;
       return {
@@ -48,7 +53,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
         completo: pendiente <= 0
       };
     });
-  }, [orden.productos]);
+  }, [productosBase]);
 
   const hayPendientes = productosConPendiente.some(p => !p.completo);
 
@@ -59,8 +64,8 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
   const handleBarcodeScan = useCallback((barcode: string) => {
     setScanError('');
 
-    // Buscar producto en la orden por codigoUPC o SKU
-    const producto = orden.productos.find(
+    // Buscar producto por codigoUPC o SKU
+    const producto = productosBase.find(
       p => p.codigoUPC === barcode || p.sku === barcode
     );
 
@@ -98,7 +103,7 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
     feedbackTimeoutRef.current = setTimeout(() => setScanFeedback(null), 1200);
 
     if (recibirTodo) setRecibirTodo(false);
-  }, [orden.productos, productosConPendiente, cantidades, recibirTodo]);
+  }, [productosBase, productosConPendiente, cantidades, recibirTodo]);
 
   // Manejar cambio de checkbox "Recibir todo"
   const handleRecibirTodo = (checked: boolean) => {
@@ -147,13 +152,13 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
     const totalUnidades = productosSeleccionados.reduce((sum, [, cant]) => sum + cant, 0);
 
     // Calcular costo de esta entrega
-    const totalUnidadesOrden = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
+    const totalUnidadesOrden = productosBase.reduce((sum, p) => sum + p.cantidad, 0);
     const costosAdicionales = (orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0) + (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0) + (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0);
     const costoAdicionalPorUnidad = totalUnidadesOrden > 0 ? costosAdicionales / totalUnidadesOrden : 0;
 
     let costoRecepcionUSD = 0;
     for (const [productoId, cant] of productosSeleccionados) {
-      const producto = orden.productos.find(p => p.productoId === productoId);
+      const producto = productosBase.find(p => p.productoId === productoId);
       if (producto) {
         costoRecepcionUSD += cant * (producto.costoUnitario + costoAdicionalPorUnidad);
       }
@@ -213,18 +218,20 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
   };
 
   // Progreso global de la OC
-  const totalOrdenado = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-  const totalRecibido = orden.productos.reduce((sum, p) => sum + (p.cantidadRecibida || 0), 0);
+  const totalOrdenado = productosBase.reduce((sum, p) => sum + p.cantidad, 0);
+  const totalRecibido = productosBase.reduce((sum, p) => sum + (p.cantidadRecibida || 0), 0);
   const porcentajeGlobal = totalOrdenado > 0 ? (totalRecibido / totalOrdenado) * 100 : 0;
 
   // Check if any product has UPC codes for scanner mode
-  const tieneCodigosUPC = orden.productos.some(p => p.codigoUPC);
+  const tieneCodigosUPC = productosBase.some(p => p.codigoUPC);
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={`Recepción de Productos - ${orden.numeroOrden}`}
+      title={subOrden
+        ? `Recepción — Sub-orden ${subOrden.referenciaProveedor || subOrden.id}`
+        : `Recepción de Productos - ${orden.numeroOrden}`}
       subtitle={`${orden.nombreProveedor} · Recepción #${numeroRecepcion}`}
       size="lg"
     >

@@ -605,8 +605,17 @@ export const OrdenesCompra: React.FC = () => {
   };
 
   // Recibir orden - abrir modal de recepción parcial
+  const [subOrdenRecepcion, setSubOrdenRecepcion] = useState<string | null>(null);
+
   const handleRecibirOrden = () => {
     if (!selectedOrden) return;
+    setSubOrdenRecepcion(null);
+    setIsRecepcionModalOpen(true);
+  };
+
+  const handleRecibirSubOrden = (subOrdenId: string) => {
+    if (!selectedOrden) return;
+    setSubOrdenRecepcion(subOrdenId);
     setIsRecepcionModalOpen(true);
   };
 
@@ -617,7 +626,7 @@ export const OrdenesCompra: React.FC = () => {
   ) => {
     if (!user || !selectedOrden) return;
 
-    await recibirOrdenParcial(selectedOrden.id, productosRecibidos, user.uid, observaciones);
+    await recibirOrdenParcial(selectedOrden.id, productosRecibidos, user.uid, observaciones, subOrdenRecepcion || undefined);
 
     // Recargar orden actualizada
     await fetchOrdenes();
@@ -956,6 +965,7 @@ export const OrdenesCompra: React.FC = () => {
             onConfirmarConSubOrdenes={handleConfirmarConSubOrdenes}
             onRegistrarPago={handleRegistrarPago}
             onRecibirOrden={handleRecibirOrden}
+            onRecibirSubOrden={handleRecibirSubOrden}
             onRevertirRecepciones={handleRevertirRecepciones}
           />
         )}
@@ -992,8 +1002,9 @@ export const OrdenesCompra: React.FC = () => {
       {isRecepcionModalOpen && selectedOrden && (
         <RecepcionParcialModal
           isOpen={isRecepcionModalOpen}
-          onClose={() => setIsRecepcionModalOpen(false)}
+          onClose={() => { setIsRecepcionModalOpen(false); setSubOrdenRecepcion(null); }}
           orden={selectedOrden}
+          subOrden={subOrdenRecepcion ? selectedOrden.subOrdenes?.find(s => s.id === subOrdenRecepcion) : undefined}
           onSubmit={handleSubmitRecepcion}
         />
       )}

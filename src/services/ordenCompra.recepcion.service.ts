@@ -31,12 +31,14 @@ import { ctruService } from './ctru.service';
 import { actividadService } from './actividad.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
 import { getById } from './ordenCompra.crud.service';
+import { calcularEstadoDerivadoOC } from '../utils/ordenCompra.helpers';
 
 export async function recibirOrdenParcial(
   id: string,
   productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
   userId: string,
-  observaciones?: string
+  observaciones?: string,
+  subOrdenId?: string
 ): Promise<{
   recepcionId: string;
   unidadesGeneradas: string[];
@@ -350,7 +352,8 @@ export async function recibirOrdenParcial(
       totalUnidadesRecepcion,
       costoAdicionalPorUnidad,
       registradoPor: userId,
-      ...(observaciones ? { observaciones } : {})
+      ...(observaciones ? { observaciones } : {}),
+      ...(subOrdenId ? { subOrdenId } : {})
     };
 
     // Update warehouse counters
@@ -385,10 +388,45 @@ export async function recibirOrdenParcial(
       // ML not configured — do not block OC
     }
 
+    // Actualizar sub-orden si aplica
+    let subOrdenesActualizadas = orden.subOrdenes;
+    if (subOrdenId && orden.subOrdenes && orden.subOrdenes.length > 0) {
+      subOrdenesActualizadas = orden.subOrdenes.map(sub => {
+        if (sub.id !== subOrdenId) return sub;
+        // Actualizar cantidadRecibida en productos de esta sub-orden
+        const prodActualizados = sub.productos.map(p => {
+          const recibido = productosValidos.find(pr => pr.productoId === p.productoId);
+          if (recibido) {
+            return { ...p, cantidadRecibida: (p.cantidadRecibida || 0) + recibido.cantidadRecibida };
+          }
+          return p;
+        });
+        const subCompleta = prodActualizados.every(
+          p => (p.cantidadRecibida || 0) >= p.cantidad
+        );
+        return {
+          ...sub,
+          productos: prodActualizados,
+          estado: subCompleta ? 'recibida' as const : sub.estado,
+          fechaRecepcion: subCompleta ? new Date() : sub.fechaRecepcion,
+        };
+      });
+    }
+
     // Update OC document
     const todasUnidadesGeneradas = [...(orden.unidadesGeneradas || []), ...unidadesGeneradas];
     const totalUnidadesRecibidasGlobal =
       (orden.totalUnidadesRecibidas || 0) + totalUnidadesRecepcion;
+
+    // Estado OC: derivar desde sub-ordenes si existen, o usar logica legacy
+    let estadoOC: string;
+    if (subOrdenesActualizadas && subOrdenesActualizadas.length > 0) {
+      estadoOC = calcularEstadoDerivadoOC(subOrdenesActualizadas, orden.estado);
+    } else if (esRecepcionFinal) {
+      estadoOC = 'recibida';
+    } else {
+      estadoOC = 'recibida_parcial';
+    }
 
     const ocUpdates: any = {
       productos: productosActualizados,
@@ -396,16 +434,19 @@ export async function recibirOrdenParcial(
       unidadesGeneradas: todasUnidadesGeneradas,
       totalUnidadesRecibidas: totalUnidadesRecibidasGlobal,
       ultimaEdicion: serverTimestamp(),
-      editadoPor: userId
+      editadoPor: userId,
+      estado: estadoOC,
     };
 
-    if (esRecepcionFinal) {
-      ocUpdates.estado = 'recibida';
+    if (subOrdenesActualizadas) {
+      ocUpdates.subOrdenes = subOrdenesActualizadas;
+    }
+
+    if (estadoOC === 'recibida' || estadoOC === 'completada') {
       ocUpdates.fechaRecibida = Timestamp.now();
       ocUpdates.inventarioGenerado = true;
       ocUpdates.cotizacionVinculada = cotizacionId || null;
     } else {
-      ocUpdates.estado = 'recibida_parcial';
       if (!orden.fechaPrimeraRecepcion) ocUpdates.fechaPrimeraRecepcion = Timestamp.now();
     }
 

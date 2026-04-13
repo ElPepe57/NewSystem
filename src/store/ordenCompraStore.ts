@@ -54,7 +54,8 @@ interface OrdenCompraState {
     id: string,
     productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
     userId: string,
-    observaciones?: string
+    observaciones?: string,
+    subOrdenId?: string
   ) => Promise<{
     recepcionId: string;
     unidadesGeneradas: string[];
@@ -292,10 +293,10 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
     }
   },
 
-  recibirOrdenParcial: async (id, productosRecibidos, userId, observaciones) => {
+  recibirOrdenParcial: async (id, productosRecibidos, userId, observaciones, subOrdenId) => {
     set({ loading: true, error: null });
     try {
-      const resultado = await OrdenCompraService.recibirOrdenParcial(id, productosRecibidos, userId, observaciones);
+      const resultado = await OrdenCompraService.recibirOrdenParcial(id, productosRecibidos, userId, observaciones, subOrdenId);
       await get().fetchOrdenes();
       await get().fetchStats();
 

@@ -15,6 +15,7 @@ interface OrdenCompraCardProps {
   onConfirmarConSubOrdenes?: (subOrdenes?: SubOrdenCompra[]) => void;
   onRegistrarPago?: () => void;
   onRecibirOrden?: () => void;
+  onRecibirSubOrden?: (subOrdenId: string) => void;
   onRevertirRecepciones?: () => void;
 }
 
@@ -44,6 +45,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   onConfirmarConSubOrdenes,
   onRegistrarPago,
   onRecibirOrden,
+  onRecibirSubOrden,
   onRevertirRecepciones
 }) => {
   const [showHistory, setShowHistory] = useState(false);
@@ -845,11 +847,11 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
                     <button
                       type="button"
                       disabled={isLoading}
-                      onClick={() => handleSubOrdenAction(sub.id, 'recibida')}
+                      onClick={() => onRecibirSubOrden ? onRecibirSubOrden(sub.id) : handleSubOrdenAction(sub.id, 'recibida')}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors"
                     >
                       <Box className="w-3 h-3" />
-                      {isLoading ? 'Guardando...' : 'Marcar Recibida'}
+                      {isLoading ? 'Guardando...' : 'Recibir Productos'}
                     </button>
                   )}
                   {subEstado === 'recibida' && (

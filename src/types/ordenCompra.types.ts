@@ -213,6 +213,7 @@ export interface RecepcionParcial {
   costoAdicionalPorUnidad: number;
   registradoPor: string;
   observaciones?: string;
+  subOrdenId?: string;              // Si la recepción fue por sub-orden
 }
 
 export interface RecepcionParcialFormData {
