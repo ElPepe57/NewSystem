@@ -18,7 +18,7 @@ import type {
 import { VentaService } from './venta.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { gastoService } from './gasto.service';
-import { transferenciaService } from './transferencia.service';
+import { envioPagosService } from './envio.pagos.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { TesoreriaService } from './tesoreria.service';
 import { CotizacionService } from './cotizacion.service';
@@ -218,7 +218,7 @@ export const cuentasPendientesService = {
    */
   async getViajerosPorPagar(tc: number): Promise<PendienteFinanciero[]> {
     try {
-      const transferencias = await transferenciaService.getPendientesPagoViajero();
+      const transferencias = await envioPagosService.getPendientesPagoColaborador();
       const pendientes: PendienteFinanciero[] = [];
 
       for (const t of transferencias) {
@@ -233,7 +233,7 @@ export const cuentasPendientesService = {
         const montoPendienteUSD = t.montoPendienteUSD !== undefined
           ? t.montoPendienteUSD
           : t.costoFleteTotal;
-        const esParcial = montoPagadoUSD > 0 && t.estadoPagoViajero === 'parcial';
+        const esParcial = montoPagadoUSD > 0 && t.estadoPagoColaborador === 'parcial';
 
         let montoEquivalentePEN = montoPendienteUSD;
         if (moneda === 'USD') {
@@ -244,9 +244,9 @@ export const cuentasPendientesService = {
           id: `viajero-${t.id}`,
           tipo: 'viajero_por_pagar',
           documentoId: t.id,
-          numeroDocumento: t.numeroTransferencia,
-          contraparteNombre: t.viajeroNombre || 'Viajero sin nombre',
-          contraparteId: t.viajeroId,
+          numeroDocumento: t.numeroEnvio,
+          contraparteNombre: t.colaboradorNombre || 'Colaborador sin nombre',
+          contraparteId: t.colaboradorId,
           montoTotal: t.costoFleteTotal,
           montoPagado: montoPagadoUSD,
           montoPendiente: montoPendienteUSD,

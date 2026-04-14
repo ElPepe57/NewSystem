@@ -14,15 +14,15 @@ import type { BajaDanoData } from '../../services/bajaInventario.service';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
 import type {
-  Transferencia,
-  IncidenciaTransferencia,
+  Envio,
+  IncidenciaEnvio,
   DisposicionDanada,
   ResponsableDano,
-} from '../../types/transferencia.types';
+} from '../../types/envio.types';
 import type { Producto } from '../../types/producto.types';
 
 interface GestionDanadasModalProps {
-  transferencia: Transferencia;
+  transferencia: Envio;
   productosMap: Map<string, Producto>;
   onClose: () => void;
   onSuccess: () => void;
@@ -113,8 +113,8 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
   };
 
   // Get unidad info from transferencia
-  const getUnidadInfo = (inc: IncidenciaTransferencia) => {
-    const unidad = transferencia.unidades.find((u) => u.unidadId === inc.unidadId);
+  const getUnidadInfo = (inc: IncidenciaEnvio) => {
+    const unidad = (transferencia.unidades ?? []).find((u) => u.unidadId === inc.unidadId);
     const producto = productosMap.get(inc.productoId || unidad?.productoId || '');
     return { unidad, producto };
   };
@@ -131,7 +131,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
 
         return {
           unidadId: inc.unidadId || unidad?.unidadId || '',
-          transferenciaId: transferencia.id,
+          envioId: transferencia.id,
           incidenciaId: inc.id,
           productoId: inc.productoId || unidad?.productoId || '',
           productoNombre: producto?.nombreComercial || inc.productoNombre || inc.sku || '',
@@ -179,7 +179,7 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
     <Modal
       isOpen
       onClose={onClose}
-      title={`Unidades con Incidencia — ${transferencia.numeroTransferencia}`}
+      title={`Unidades con Incidencia — ${transferencia.numeroEnvio}`}
       size="lg"
     >
       <div className="space-y-4">

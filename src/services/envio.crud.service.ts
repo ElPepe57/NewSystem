@@ -8,11 +8,19 @@ import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Envio, EnvioFormData, EnvioFiltros, EnvioUnidad,
-  EstadoEnvio, CostoLanded, RecepcionEnvio
+  EstadoEnvio, CostoLanded, RecepcionEnvio, ResumenEnvios
 } from '../types/envio.types';
+import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
 
 const COLL = COLLECTIONS.ENVIOS;
 const UNIDADES_COLL = COLLECTIONS.UNIDADES;
+
+/** Elimina recursivamente campos undefined de un objeto (Firestore los rechaza) */
+function removeUndefined<T extends Record<string, unknown>>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  ) as T;
+}
 
 async function generarNumeroEnvio(): Promise<string> {
   const year = new Date().getFullYear();
@@ -77,6 +85,7 @@ export const envioCrudService = {
 
       // Destino
       destinoCasillaId: data.destinoCasillaId,
+      destinoCasillaNombre: '', // se resuelve abajo
 
       // Unidades
       unidades: data.unidadesDetalle || [],
@@ -112,7 +121,24 @@ export const envioCrudService = {
     if (data.fechaLlegadaEstimada) nuevoEnvio.fechaLlegadaEstimada = Timestamp.fromDate(data.fechaLlegadaEstimada);
     if (data.notas) nuevoEnvio.notas = data.notas;
 
-    const docRef = await addDoc(collection(db, COLL), nuevoEnvio);
+    // Resolver nombre de casilla destino
+    if (data.destinoCasillaId) {
+      const { casillaCrudService } = await import('./casilla.crud.service');
+      const cas = await casillaCrudService.getById(data.destinoCasillaId);
+      if (cas) {
+        nuevoEnvio.destinoCasillaNombre = cas.nombre;
+      } else {
+        // Fallback legacy: buscar en almacenes
+        const almRef = await import('firebase/firestore').then(m => m.getDoc(doc(db, 'almacenes', data.destinoCasillaId)));
+        if (almRef.exists()) nuevoEnvio.destinoCasillaNombre = (almRef.data() as any).nombre;
+      }
+    }
+
+    // Sanitizar undefined en unidades anidadas y en el objeto raíz
+    if (Array.isArray(nuevoEnvio.unidades)) {
+      nuevoEnvio.unidades = (nuevoEnvio.unidades as Record<string, unknown>[]).map(u => removeUndefined(u));
+    }
+    const docRef = await addDoc(collection(db, COLL), removeUndefined(nuevoEnvio));
     logger.success(`Envio ${numeroEnvio} creado`);
     return { id: docRef.id, numeroEnvio };
   },
@@ -236,5 +262,167 @@ export const envioCrudService = {
     const q = query(collection(db, COLL), where('estado', 'in', ['en_transito', 'recibida_parcial']));
     const snap = await getDocs(q);
     return snap.docs.map(d => ({ id: d.id, ...d.data() } as Envio));
+  },
+
+  async getByColaboradorId(colaboradorId: string): Promise<Envio[]> {
+    return this.getByFiltros({ colaboradorId });
+  },
+
+  /**
+   * Actualiza el flete de un envio.
+   * Distribuye el costo de flete entre las unidades por producto.
+   * Si el envio ya fue recibido, propaga el costoFleteUSD a las unidades
+   * individuales en Firestore y recalcula su ctruInicial.
+   */
+  async actualizarFleteEnvio(
+    envioId: string,
+    costoFletePorProducto: Record<string, number>,
+    userId: string
+  ): Promise<void> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error('Envio no encontrado');
+
+    if (envio.tipo && !TIPOS_ENVIO_INTERNACIONAL.includes(envio.tipo)) {
+      throw new Error('Solo se puede asignar flete a envios internacionales → Peru');
+    }
+
+    // Agrupar unidades por producto para calcular costo por unidad
+    const unidadesPorProducto = new Map<string, EnvioUnidad[]>();
+    for (const u of envio.unidades) {
+      if (!unidadesPorProducto.has(u.productoId)) {
+        unidadesPorProducto.set(u.productoId, []);
+      }
+      unidadesPorProducto.get(u.productoId)!.push(u);
+    }
+
+    // Calcular costoFleteUSD por unidad y costo total
+    let costoFleteTotal = 0;
+    const unidadesActualizadas = envio.unidades.map(u => {
+      const costoFleteProducto = costoFletePorProducto[u.productoId] || 0;
+      const cantidadUnidades = unidadesPorProducto.get(u.productoId)?.length || 1;
+      const costoPorUnidad = cantidadUnidades > 0 ? costoFleteProducto / cantidadUnidades : 0;
+      return { ...u, costoFleteUSD: costoPorUnidad };
+    });
+
+    for (const costo of Object.values(costoFletePorProducto)) {
+      costoFleteTotal += costo || 0;
+    }
+
+    // Actualizar documento del envio
+    const ref = doc(db, COLL, envioId);
+    await updateDoc(ref, {
+      unidades: unidadesActualizadas,
+      costoFleteTotal,
+      monedaFlete: 'USD',
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now(),
+    });
+
+    // Si el envio ya fue recibido, propagar flete a las unidades en Firestore
+    const yaRecibida = envio.estado === 'recibida_completa' || envio.estado === 'recibida_parcial';
+    if (yaRecibida) {
+      const batch = writeBatch(db);
+      let batchCount = 0;
+
+      for (const unidad of unidadesActualizadas) {
+        if (unidad.estadoEnvio !== 'recibida') continue;
+        if (!unidad.costoFleteUSD || unidad.costoFleteUSD <= 0) continue;
+
+        const unidadRef = doc(db, UNIDADES_COLL, unidad.unidadId);
+        const unidadSnap = await getDoc(unidadRef);
+        if (!unidadSnap.exists()) continue;
+
+        const unidadData = unidadSnap.data();
+        const updateData: Record<string, unknown> = {
+          costoFleteUSD: unidad.costoFleteUSD,
+          actualizadoPor: userId,
+          fechaActualizacion: Timestamp.now(),
+        };
+
+        // Recalcular ctruInicial incluyendo flete
+        const tc = unidadData.tcPago || unidadData.tcCompra || 0;
+        const costoBasePEN = (unidadData.costoUnitarioUSD || 0) * tc;
+        const costoFletePEN = unidad.costoFleteUSD * tc;
+        const nuevoCtruInicial = costoBasePEN + costoFletePEN;
+        updateData.ctruInicial = nuevoCtruInicial;
+        if (!unidadData.costoGAGOAsignado || unidadData.costoGAGOAsignado === 0) {
+          updateData.ctruDinamico = nuevoCtruInicial;
+        }
+
+        batch.update(unidadRef, updateData);
+        batchCount++;
+
+        if (batchCount >= 490) {
+          await batch.commit();
+          batchCount = 0;
+        }
+      }
+
+      if (batchCount > 0) await batch.commit();
+
+      // Trigger recalculo CTRU dinamico si aplica
+      try {
+        const ctruService = await import('./ctru.service');
+        await ctruService.ctruService.recalcularCTRUDinamicoSafe();
+      } catch (e) {
+        logger.warn('No se pudo recalcular CTRU tras actualizar flete:', e);
+      }
+    }
+
+    logger.success(`Flete actualizado para envio ${envio.numeroEnvio}: $${costoFleteTotal.toFixed(2)}`);
+  },
+
+  /**
+   * Retorna KPIs del modulo de envios
+   */
+  async getResumen(): Promise<ResumenEnvios> {
+    const todos = await this.getAll();
+    const hoy = new Date();
+    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+    const enTransito = todos.filter(e => e.estado === 'en_transito');
+    const pendientesRecepcion = todos.filter(e =>
+      e.estado === 'en_transito' || e.estado === 'recibida_parcial'
+    );
+    const completadasMes = todos.filter(e =>
+      (e.estado === 'recibida_completa' || e.estado === 'recibida_parcial') &&
+      e.fechaLlegadaReal &&
+      e.fechaLlegadaReal.toDate() >= inicioMes
+    );
+
+    const internos = todos.filter(e => e.tipo === 'interna_origen').length;
+    const internacionales = todos.filter(e => e.tipo === 'internacional_peru').length;
+
+    // Tiempo promedio de transito de envios internacionales completados
+    const completadosConDias = todos.filter(e =>
+      e.tipo === 'internacional_peru' && e.diasEnTransito !== undefined
+    );
+    const tiempoPromedioTransitoDias = completadosConDias.length > 0
+      ? completadosConDias.reduce((sum, e) => sum + (e.diasEnTransito || 0), 0) / completadosConDias.length
+      : 0;
+
+    // Incidencias del mes (unidades danadas/faltantes en recepciones del mes)
+    const unidadesFaltantesMes = completadasMes.reduce(
+      (sum, e) => sum + (e.totalUnidadesFaltantes || 0), 0
+    );
+    const unidadesDanadasMes = completadasMes.reduce(
+      (sum, e) => sum + (e.totalUnidadesDanadas || 0), 0
+    );
+    const enviosConIncidencias = completadasMes.filter(
+      e => (e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0
+    ).length;
+
+    return {
+      totalEnvios: todos.length,
+      enTransito: enTransito.length,
+      pendientesRecepcion: pendientesRecepcion.length,
+      completadasMes: completadasMes.length,
+      internos,
+      internacionales,
+      tiempoPromedioTransitoDias: Math.round(tiempoPromedioTransitoDias * 10) / 10,
+      enviosConIncidencias,
+      unidadesFaltantesMes,
+      unidadesDanadasMes,
+    };
   },
 };

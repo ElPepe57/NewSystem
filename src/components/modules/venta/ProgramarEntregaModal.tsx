@@ -11,10 +11,10 @@ import {
 } from 'lucide-react';
 import { Button, Modal, Input, Badge } from '../../common';
 import { GoogleMapsAddressInput, type AddressData } from '../../common/GoogleMapsAddressInput';
-import { useTransportistaStore } from '../../../store/transportistaStore';
+import { useColaboradorStore } from '../../../store/colaboradorStore';
 import { entregaService } from '../../../services/entrega.service';
 import type { Venta, ProductoVenta, MetodoPago } from '../../../types/venta.types';
-import type { Transportista } from '../../../types/transportista.types';
+import type { Colaborador as Transportista } from '../../../types/colaborador.types';
 import type { ProgramarEntregaData, Entrega } from '../../../types/entrega.types';
 
 interface ProgramarEntregaModalProps {
@@ -55,7 +55,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
   venta,
   loading = false
 }) => {
-  const { transportistasActivos, fetchActivos } = useTransportistaStore();
+  const { transportistasActivos, fetchActivos } = useColaboradorStore();
 
   // Estado del formulario
   const [transportistaId, setTransportistaId] = useState('');
@@ -207,8 +207,8 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
     if (transportistaId) {
       const transportista = transportistasActivos.find(t => t.id === transportistaId);
       if (transportista) {
-        const costo = transportista.costoFijo
-          ?? transportista.costoPromedioPorEntrega
+        const costo = transportista.tarifas?.costoFijo
+          ?? transportista.metricas?.costoPromedioPorEntrega
           ?? 0;
         setCostoTransportista(costo);
       }
@@ -340,21 +340,21 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
             <option value="">Seleccionar transportista...</option>
             <optgroup label="Internos (Lima)">
               {transportistasActivos
-                .filter(t => t.tipo === 'interno')
+                .filter(t => t.subtipoTransportista === 'interno')
                 .map(t => (
                   <option key={t.id} value={t.id}>
-                    {t.nombre} - S/ {(t.costoFijo ?? t.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
-                    {t.tasaExito ? ` (${t.tasaExito.toFixed(0)}% exito)` : ''}
+                    {t.nombre} - S/ {(t.tarifas?.costoFijo ?? t.metricas?.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
+                    {t.metricas?.tasaExito ? ` (${t.metricas.tasaExito.toFixed(0)}% exito)` : ''}
                   </option>
                 ))
               }
             </optgroup>
             <optgroup label="Externos (Couriers)">
               {transportistasActivos
-                .filter(t => t.tipo === 'externo')
+                .filter(t => t.subtipoTransportista === 'externo')
                 .map(t => (
                   <option key={t.id} value={t.id}>
-                    {t.nombre} ({courierLabels[t.courierExterno || 'otro']}) - S/ {(t.costoFijo ?? t.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
+                    {t.nombre} ({courierLabels[t.courierExterno || 'otro']}) - S/ {(t.tarifas?.costoFijo ?? t.metricas?.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
                   </option>
                 ))
               }
@@ -363,15 +363,15 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
 
           {transportistaSeleccionado && (
             <div className="mt-2 flex items-center gap-2">
-              <Badge variant={transportistaSeleccionado.tipo === 'interno' ? 'info' : 'warning'}>
-                {transportistaSeleccionado.tipo === 'interno' ? 'Interno' : 'Courier'}
+              <Badge variant={transportistaSeleccionado.subtipoTransportista === 'interno' ? 'info' : 'warning'}>
+                {transportistaSeleccionado.subtipoTransportista === 'interno' ? 'Interno' : 'Courier'}
               </Badge>
-              {transportistaSeleccionado.totalEntregas && transportistaSeleccionado.totalEntregas > 0 && (
+              {transportistaSeleccionado.metricas?.totalEntregas && transportistaSeleccionado.metricas.totalEntregas > 0 && (
                 <Badge variant={
-                  (transportistaSeleccionado.tasaExito || 0) >= 90 ? 'success' :
-                  (transportistaSeleccionado.tasaExito || 0) >= 70 ? 'warning' : 'danger'
+                  (transportistaSeleccionado.metricas?.tasaExito || 0) >= 90 ? 'success' :
+                  (transportistaSeleccionado.metricas?.tasaExito || 0) >= 70 ? 'warning' : 'danger'
                 }>
-                  {transportistaSeleccionado.tasaExito?.toFixed(0) || 0}% exito
+                  {transportistaSeleccionado.metricas?.tasaExito?.toFixed(0) || 0}% exito
                 </Badge>
               )}
               {transportistaSeleccionado.telefono && (
@@ -648,10 +648,10 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
               step="any"
               helperText="Se registrara como gasto GD al completar la entrega"
             />
-            {transportistaSeleccionado?.comisionPorcentaje && (
+            {transportistaSeleccionado?.tarifas?.comisionPorcentaje && (
               <div className="flex items-center text-sm text-slate-600">
                 <span>
-                  + {transportistaSeleccionado.comisionPorcentaje}% comision sobre el valor
+                  + {transportistaSeleccionado.tarifas.comisionPorcentaje}% comision sobre el valor
                 </span>
               </div>
             )}
@@ -659,7 +659,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
           {/* ISSUE 6: Warning mejorado para costo 0 */}
           {costoTransportista === 0 && transportistaId && (
             <div className={`mt-3 p-2 rounded-lg border ${
-              transportistaSeleccionado?.costoFijo
+              transportistaSeleccionado?.tarifas?.costoFijo
                 ? 'bg-amber-100 border-amber-200'
                 : 'bg-red-50 border-red-200'
             }`}>
@@ -669,7 +669,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                   : 'text-red-800 font-medium'
               }`}>
                 <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-                {transportistaSeleccionado?.costoFijo
+                {transportistaSeleccionado?.tarifas?.costoFijo
                   ? 'El costo es S/ 0.00. Ajusta si el transportista cobra por esta entrega.'
                   : `${transportistaSeleccionado?.nombre || 'Transportista'} no tiene costo fijo configurado. Ingresa el costo manualmente.`
                 }

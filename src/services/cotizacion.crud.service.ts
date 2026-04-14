@@ -21,6 +21,7 @@ import { stockDisponibilidadService } from './stockDisponibilidad.service';
 import { tipoCambioService } from './tipoCambio.service';
 import { ctruService } from './ctru.service';
 import { logger } from '../lib/logger';
+import { buildProductoSnapshot } from '../utils/producto.helpers';
 import type { DisponibilidadProducto } from '../types/stockDisponibilidad.types';
 
 /** Calcular estimación de costo/margen para una cotización usando el CTRU actual */
@@ -129,14 +130,7 @@ export async function create(data: CotizacionFormData, userId: string): Promise<
       subtotalPEN += subtotal;
 
       const productoCotizacion: ProductoCotizacion = {
-        productoId: prod.productoId,
-        sku: producto.sku,
-        marca: producto.marca,
-        nombreComercial: producto.nombreComercial,
-        presentacion: producto.presentacion,
-        contenido: producto.contenido,
-        dosaje: producto.dosaje,
-        ...(producto.atributosSkincare && { atributosSkincare: producto.atributosSkincare }),
+        ...buildProductoSnapshot({ ...producto, productoId: prod.productoId }),
         cantidad: prod.cantidad,
         precioUnitario: prod.precioUnitario,
         subtotal,
@@ -365,11 +359,7 @@ export async function update(
         subtotalPEN += subtotal;
 
         productosCotizacion.push({
-          productoId: prod.productoId,
-          sku: producto.sku,
-          marca: producto.marca,
-          nombreComercial: producto.nombreComercial,
-          presentacion: producto.presentacion,
+          ...buildProductoSnapshot({ ...producto, productoId: prod.productoId }),
           cantidad: prod.cantidad,
           precioUnitario: prod.precioUnitario,
           subtotal,

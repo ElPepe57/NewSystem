@@ -64,3 +64,53 @@ export function getSearchableProductText(p: {
 
   return `${base} ${p.presentacion ?? ''} ${p.dosaje ?? ''} ${p.contenido ?? ''} ${p.sabor ?? ''}`.toLowerCase();
 }
+
+/**
+ * Construye el snapshot base de un producto para persistir en Firestore.
+ * Fuente única de verdad: todos los servicios que guardan datos de producto
+ * (OC, ventas, cotizaciones) deben usar este helper.
+ *
+ * - Nunca incluye campos undefined (Firestore los rechaza)
+ * - Acepta tanto producto del catálogo (id) como snapshot existente (productoId)
+ *
+ * Uso: const snap = buildProductoSnapshot(producto);
+ *      const prodOrden = { ...snap, cantidad, costoUnitario, subtotal };
+ */
+export function buildProductoSnapshot(producto: {
+  productoId?: string;
+  id?: string;
+  sku: string;
+  marca: string;
+  nombreComercial: string;
+  presentacion?: string;
+  contenido?: string;
+  dosaje?: string;
+  sabor?: string;
+  pesoLibras?: number;
+  atributosSkincare?: AtributosSkincare;
+}): {
+  productoId: string;
+  sku: string;
+  marca: string;
+  nombreComercial: string;
+  presentacion?: string;
+  contenido?: string;
+  dosaje?: string;
+  sabor?: string;
+  pesoLibras?: number;
+  atributosSkincare?: AtributosSkincare;
+} {
+  const snap: Record<string, unknown> = {
+    productoId: producto.productoId || producto.id || '',
+    sku: producto.sku,
+    marca: producto.marca,
+    nombreComercial: producto.nombreComercial,
+  };
+  if (producto.presentacion) snap.presentacion = producto.presentacion;
+  if (producto.contenido) snap.contenido = producto.contenido;
+  if (producto.dosaje) snap.dosaje = producto.dosaje;
+  if (producto.sabor) snap.sabor = producto.sabor;
+  if (producto.pesoLibras && producto.pesoLibras > 0) snap.pesoLibras = producto.pesoLibras;
+  if (producto.atributosSkincare) snap.atributosSkincare = producto.atributosSkincare;
+  return snap as any;
+}

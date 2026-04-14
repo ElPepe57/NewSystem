@@ -1,27 +1,27 @@
 import React from "react";
 import { Search } from "lucide-react";
-import type { TipoTransferencia, EstadoTransferencia } from "../../types/transferencia.types";
+import type { TipoEnvio, EstadoEnvio } from "../../types/envio.types";
 
-interface TransferenciaFiltersProps {
+interface EnvioFiltersProps {
   activeTab: 'todas' | 'en_transito' | 'pendientes';
-  filtroTipo: TipoTransferencia | 'todas';
-  filtroEstado: EstadoTransferencia | 'todas';
+  filtroTipo: TipoEnvio | 'todas';
+  filtroEstado: EstadoEnvio | 'todas';
   busqueda: string;
-  totalTransferencias: number;
+  totalEnvios: number;
   totalEnTransito: number;
   totalPendientes: number;
   onTabChange: (tab: 'todas' | 'en_transito' | 'pendientes') => void;
-  onFiltroTipoChange: (tipo: TipoTransferencia | 'todas') => void;
-  onFiltroEstadoChange: (estado: EstadoTransferencia | 'todas') => void;
+  onFiltroTipoChange: (tipo: TipoEnvio | 'todas') => void;
+  onFiltroEstadoChange: (estado: EstadoEnvio | 'todas') => void;
   onBusquedaChange: (busqueda: string) => void;
 }
 
-export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
+export const EnvioFilters: React.FC<EnvioFiltersProps> = ({
   activeTab,
   filtroTipo,
   filtroEstado,
   busqueda,
-  totalTransferencias,
+  totalEnvios,
   totalEnTransito,
   totalPendientes,
   onTabChange,
@@ -42,7 +42,7 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
-            Todas ({totalTransferencias})
+            Todas ({totalEnvios})
           </button>
           <button
             onClick={() => onTabChange('en_transito')}
@@ -52,7 +52,7 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
                 : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
           >
-            En Transito ({totalEnTransito})
+            En Tránsito ({totalEnTransito})
           </button>
           <button
             onClick={() => onTabChange('pendientes')}
@@ -82,7 +82,7 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
         <div className="flex items-center gap-2">
           <select
             value={filtroTipo}
-            onChange={(e) => onFiltroTipoChange(e.target.value as TipoTransferencia | 'todas')}
+            onChange={(e) => onFiltroTipoChange(e.target.value as TipoEnvio | 'todas')}
             className="flex-1 sm:flex-initial px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="todas">Todos los tipos</option>
@@ -91,13 +91,13 @@ export const TransferenciaFilters: React.FC<TransferenciaFiltersProps> = ({
           </select>
           <select
             value={filtroEstado}
-            onChange={(e) => onFiltroEstadoChange(e.target.value as EstadoTransferencia | 'todas')}
+            onChange={(e) => onFiltroEstadoChange(e.target.value as EstadoEnvio | 'todas')}
             className="flex-1 sm:flex-initial px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="todas">Todos los estados</option>
             <option value="borrador">Borrador</option>
-            <option value="preparando">Preparando</option>
-            <option value="en_transito">En Transito</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="en_transito">En Tránsito</option>
             <option value="recibida_parcial">Recibida Parcial</option>
             <option value="recibida_completa">Completada</option>
             <option value="cancelada">Cancelada</option>

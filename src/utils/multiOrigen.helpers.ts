@@ -11,7 +11,7 @@
  */
 
 import type { EstadoUnidad } from '../types/unidad.types';
-import type { TipoTransferencia } from '../types/transferencia.types';
+import type { TipoEnvio as TipoTransferencia } from '../types/envio.types';
 import type { TipoGasto } from '../types/gasto.types';
 import type { EstadoAsignacion } from '../types/requerimiento.types';
 import { PAISES_CONFIG } from '../types/almacen.types';
@@ -77,25 +77,21 @@ export const esEstadoActivo = (estado: EstadoUnidad): boolean => {
  * usa_peru → internacional_peru
  */
 export const normalizarTipoTransferencia = (tipo: TipoTransferencia): TipoTransferencia => {
-  switch (tipo) {
-    case 'interna_usa': return 'interna_origen';
-    case 'usa_peru': return 'internacional_peru';
-    default: return tipo;
-  }
+  return tipo;
 };
 
 /**
- * Verifica si un tipo es transferencia interna (genérico + legacy)
+ * Verifica si un tipo es transferencia interna
  */
-export const esTipoTransferenciaInterna = (tipo: TipoTransferencia): boolean => {
-  return tipo === 'interna_origen' || tipo === 'interna_usa';
+export const esTipoTransferenciaInterna = (tipo: TipoTransferencia | string | undefined | null): boolean => {
+  return tipo === 'interna_origen';
 };
 
 /**
- * Verifica si un tipo es transferencia internacional (genérico + legacy)
+ * Verifica si un tipo es transferencia internacional
  */
-export const esTipoTransferenciaInternacional = (tipo: TipoTransferencia): boolean => {
-  return tipo === 'internacional_peru' || tipo === 'usa_peru';
+export const esTipoTransferenciaInternacional = (tipo: TipoTransferencia | string | undefined | null): boolean => {
+  return tipo === 'internacional_peru';
 };
 
 // ============================================================
@@ -227,13 +223,12 @@ export const getLabelEstadoAsignacion = (estado: EstadoAsignacion, pais?: string
 /**
  * Genera el label de tipo de transferencia
  */
-export const getLabelTipoTransferencia = (tipo: TipoTransferencia, paisOrigen?: string): string => {
-  const tipoNorm = normalizarTipoTransferencia(tipo);
-  if (tipoNorm === 'interna_origen') {
+export const getLabelTipoTransferencia = (tipo: TipoTransferencia | string | undefined | null, paisOrigen?: string): string => {
+  if (tipo === 'interna_origen') {
     return paisOrigen ? `Interna ${paisOrigen}` : 'Interna Origen';
   }
-  if (tipoNorm === 'internacional_peru') {
+  if (tipo === 'internacional_peru') {
     return paisOrigen ? `${paisOrigen} → Perú` : 'Internacional → Perú';
   }
-  return tipo;
+  return tipo || '';
 };

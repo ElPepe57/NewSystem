@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { Truck, Package, CheckCircle2, AlertTriangle, Clock, ChevronDown, Calendar } from 'lucide-react';
-import { transferenciaService } from '../../../../services/transferencia.service';
+import { envioCrudService } from '../../../../services/envio.crud.service';
+import { envioRecepcionService } from '../../../../services/envio.recepcion.service';
 import { ProductoService } from '../../../../services/producto.service';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
-import type { Transferencia, RecepcionFormData } from '../../../../types/transferencia.types';
-import { getLabelTipoTransferencia } from '../../../../utils/multiOrigen.helpers';
+import type { Envio, RecepcionEnvioFormData } from '../../../../types/envio.types';
 import { VincularUPCModal } from '../VincularUPCModal';
 
 export interface ModoRecepcionHandle {
@@ -29,8 +29,8 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
   const toast = useToastStore();
   const { user } = useAuthStore();
 
-  const [transferencias, setTransferencias] = useState<Transferencia[]>([]);
-  const [selectedTransferencia, setSelectedTransferencia] = useState<Transferencia | null>(null);
+  const [transferencias, setTransferencias] = useState<Envio[]>([]);
+  const [selectedTransferencia, setSelectedTransferencia] = useState<Envio | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cantidadRecibir, setCantidadRecibir] = useState<Record<string, number>>({});
@@ -44,20 +44,20 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
   useEffect(() => {
     const load = async () => {
       try {
-        const pendientes = await transferenciaService.getPendientesRecepcion();
+        const pendientes = await envioCrudService.getPendientesRecepcion();
         // Filter to only en_transito and recibida_parcial
         const validas = pendientes.filter(t =>
           t.estado === 'en_transito' || t.estado === 'recibida_parcial'
         );
         setTransferencias(validas);
 
-        // Pre-select transfer from query param
+        // Pre-select envio from query param
         if (preselectedTransferenciaId && !selectedTransferencia) {
           const found = validas.find(t => t.id === preselectedTransferenciaId);
           if (found) setSelectedTransferencia(found);
         }
       } catch {
-        toast.error('Error al cargar transferencias');
+        toast.error('Error al cargar envios');
       } finally {
         setLoading(false);
       }
@@ -69,11 +69,11 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
   const productosAgrupados = useMemo((): ProductoAgrupado[] => {
     if (!selectedTransferencia) return [];
 
-    const pendientes = selectedTransferencia.unidades.filter(u =>
-      u.estadoTransferencia === 'enviada' ||
-      u.estadoTransferencia === 'faltante' ||
-      u.estadoTransferencia === 'pendiente' ||
-      u.estadoTransferencia === 'preparada'
+    const pendientes = (selectedTransferencia.unidades ?? []).filter(u =>
+      u.estadoEnvio === 'enviada' ||
+      u.estadoEnvio === 'faltante' ||
+      u.estadoEnvio === 'pendiente' ||
+      u.estadoEnvio === 'preparada'
     );
 
     const map = new Map<string, { sku: string; nombre: string; lote?: string; unidadIds: string[] }>();
@@ -173,7 +173,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
 
     try {
       // Build unidadesRecibidas: for each product, mark first N units as received
-      const unidadesRecibidas: RecepcionFormData['unidadesRecibidas'] = [];
+      const unidadesRecibidas: RecepcionEnvioFormData['unidadesRecibidas'] = [];
       for (const prod of productosAgrupados) {
         const cant = cantidadRecibir[prod.productoId] || 0;
         prod.unidadIds.forEach((unidadId, idx) => {
@@ -191,9 +191,9 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
         if (fecha) fechasValidas[pid] = fecha;
       }
 
-      await transferenciaService.registrarRecepcion(
+      await envioRecepcionService.registrarRecepcion(
         {
-          transferenciaId: selectedTransferencia.id,
+          envioId: selectedTransferencia.id,
           unidadesRecibidas,
           fechasVencimiento: Object.keys(fechasValidas).length > 0 ? fechasValidas : undefined,
           costoRecojoPEN: costoRecojoPEN ? parseFloat(costoRecojoPEN) : undefined,
@@ -204,8 +204,8 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
 
       toast.success('Recepcion registrada correctamente');
 
-      // Refresh transfers list
-      const pendientes = await transferenciaService.getPendientesRecepcion();
+      // Refresh envios list
+      const pendientes = await envioCrudService.getPendientesRecepcion();
       const validas = pendientes.filter(t =>
         t.estado === 'en_transito' || t.estado === 'recibida_parcial'
       );
@@ -236,7 +236,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
       <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4">
         <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2">
           <Truck className="h-4 w-4 text-slate-500" />
-          Transferencia a recibir
+          Envio a recibir
         </label>
         {loading ? (
           <div className="flex items-center gap-2 py-2">
@@ -244,7 +244,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
             <span className="text-sm text-slate-500">Cargando transferencias...</span>
           </div>
         ) : transferencias.length === 0 ? (
-          <p className="text-sm text-slate-500 py-2">No hay transferencias pendientes de recepcion</p>
+          <p className="text-sm text-slate-500 py-2">No hay envios pendientes de recepcion</p>
         ) : (
           <select
             value={selectedTransferencia?.id || ''}
@@ -254,10 +254,10 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
             }}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           >
-            <option value="">Selecciona una transferencia</option>
+            <option value="">Selecciona un envio</option>
             {transferencias.map(t => (
               <option key={t.id} value={t.id}>
-                {t.numeroTransferencia} — {t.almacenOrigenNombre} → {t.almacenDestinoNombre} ({t.totalUnidades} uds)
+                {t.numeroEnvio} — {t.origenCasillaNombre ?? t.origenProveedorNombre ?? '?'} → {t.destinoCasillaNombre} ({t.totalUnidades} uds)
                 {t.estado === 'recibida_parcial' ? ' [Parcial]' : ''}
               </option>
             ))}
@@ -267,9 +267,9 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
         {/* Transfer summary */}
         {selectedTransferencia && (
           <div className="mt-3 p-2.5 bg-sky-50 border border-sky-200 rounded-lg text-xs space-y-1">
-            <p><span className="text-sky-600 font-medium">Origen:</span> {selectedTransferencia.almacenOrigenNombre}</p>
-            <p><span className="text-sky-600 font-medium">Destino:</span> {selectedTransferencia.almacenDestinoNombre}</p>
-            <p><span className="text-sky-600 font-medium">Tipo:</span> {getLabelTipoTransferencia(selectedTransferencia.tipo)}</p>
+            <p><span className="text-sky-600 font-medium">Origen:</span> {selectedTransferencia.origenCasillaNombre ?? selectedTransferencia.origenProveedorNombre ?? '—'}</p>
+            <p><span className="text-sky-600 font-medium">Destino:</span> {selectedTransferencia.destinoCasillaNombre}</p>
+            <p><span className="text-sky-600 font-medium">Tipo:</span> {selectedTransferencia.tipo === 'internacional_peru' ? 'Internacional → Peru' : 'Interna Origen'}</p>
             <p><span className="text-sky-600 font-medium">Unidades pendientes:</span> {totalPendiente} de {selectedTransferencia.totalUnidades}</p>
           </div>
         )}

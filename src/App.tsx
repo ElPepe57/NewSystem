@@ -11,7 +11,7 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard').then(m => ({ defa
 const Productos = React.lazy(() => import('./pages/Productos/Productos').then(m => ({ default: m.Productos })));
 const Inventario = React.lazy(() => import('./pages/Inventario/Inventario').then(m => ({ default: m.Inventario })));
 // Almacenes page removed from routing — functionality lives in Maestros/AlmacenesLogistica
-const Envios = React.lazy(() => import('./pages/Envios/Transferencias').then(m => ({ default: m.Transferencias })));
+const Envios = React.lazy(() => import('./pages/Envios/Envios').then(m => ({ default: m.Envios })));
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
 const OrdenesCompra = React.lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
@@ -38,6 +38,7 @@ const LineaNegocio = React.lazy(() => import('./pages/LineaNegocio/LineaNegocio'
 const Proyeccion = React.lazy(() => import('./pages/Proyeccion/Proyeccion').then(m => ({ default: m.Proyeccion })));
 const MapaCalor = React.lazy(() => import('./pages/MapaCalor/MapaCalor').then(m => ({ default: m.MapaCalor })));
 const Planilla = React.lazy(() => import('./pages/Planilla/Planilla').then(m => ({ default: m.Planilla })));
+const RedLogistica = React.lazy(() => import('./pages/RedLogistica/RedLogistica').then(m => ({ default: m.RedLogistica })));
 // MigracionProductos removed — one-time migration tool no longer needed
 
 // Stores y servicios
@@ -140,6 +141,7 @@ function App() {
               <Route path="productos-intel" element={<ProductosIntel />} />
               <Route path="inventario" element={<Inventario />} />
               <Route path="envios" element={<Envios />} />
+              <Route path="red-logistica" element={<RedLogistica />} />
               <Route path="unidades" element={<Unidades />} />
               <Route path="escaner" element={<Escaner />} />
 

@@ -92,10 +92,10 @@ export interface MovimientoInventario {
   productoNombre: string;
 
   // Origen y destino
-  almacenOrigenId?: string;
-  almacenOrigenNombre?: string;
-  almacenDestinoId?: string;
-  almacenDestinoNombre?: string;
+  casillaOrigenId?: string;
+  casillaOrigenNombre?: string;
+  casillaDestinoId?: string;
+  casillaDestinoNombre?: string;
 
   // Cantidad y unidades afectadas
   cantidad: number;
@@ -135,8 +135,8 @@ export interface InventarioFiltros {
 export interface MovimientoInventarioFormData {
   tipo: 'transferencia' | 'ajuste' | 'merma' | 'devolucion';
   productoId: string;
-  almacenOrigenId?: string;
-  almacenDestinoId?: string;
+  casillaOrigenId?: string;
+  casillaDestinoId?: string;
   cantidad: number;
   motivo: string;
   observaciones?: string;

@@ -682,18 +682,18 @@ class SincronizacionService {
         let necesitaActualizar = false;
         const updates: any = {};
 
-        // Verificar almacén origen
-        if (transferencia.almacenOrigenId && !almacenesIds.has(transferencia.almacenOrigenId)) {
-          updates.almacenOrigenId = null;
-          updates.almacenOrigenNombre = '[Almacén eliminado]';
+        // Verificar casilla origen
+        if (transferencia.casillaOrigenId && !almacenesIds.has(transferencia.casillaOrigenId)) {
+          updates.casillaOrigenId = null;
+          updates.casillaOrigenNombre = '[Casilla eliminada]';
           result.referenciasLimpiadas++;
           necesitaActualizar = true;
         }
 
-        // Verificar almacén destino
-        if (transferencia.almacenDestinoId && !almacenesIds.has(transferencia.almacenDestinoId)) {
-          updates.almacenDestinoId = null;
-          updates.almacenDestinoNombre = '[Almacén eliminado]';
+        // Verificar casilla destino
+        if (transferencia.casillaDestinoId && !almacenesIds.has(transferencia.casillaDestinoId)) {
+          updates.casillaDestinoId = null;
+          updates.casillaDestinoNombre = '[Casilla eliminada]';
           result.referenciasLimpiadas++;
           necesitaActualizar = true;
         }

@@ -13,15 +13,15 @@ import {
 } from "lucide-react";
 import { Modal, Button, Badge } from "../../components/common";
 import { BarcodeScanner } from "../../components/common/BarcodeScanner";
-import type { Transferencia, RecepcionFormData } from "../../types/transferencia.types";
+import type { Envio, RecepcionEnvioFormData } from "../../types/envio.types";
 import type { Producto } from "../../types/producto.types";
 import { getDescripcionProducto } from "../../utils/producto.helpers";
 
 interface RecepcionModalProps {
-  transferencia: Transferencia;
+  transferencia: Envio;
   productosMap: Map<string, Producto>;
   onClose: () => void;
-  onConfirm: (data: RecepcionFormData) => Promise<void>;
+  onConfirm: (data: RecepcionEnvioFormData) => Promise<void>;
 }
 
 // ---- Helpers ----
@@ -63,11 +63,11 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const unidadesPendientes = transferencia.unidades.filter(
-    u => u.estadoTransferencia === 'enviada' || u.estadoTransferencia === 'faltante'
-      || u.estadoTransferencia === 'pendiente' || u.estadoTransferencia === 'preparada'
+  const unidadesPendientes = (transferencia.unidades ?? []).filter(
+    u => u.estadoEnvio === 'enviada' || u.estadoEnvio === 'faltante'
+      || u.estadoEnvio === 'pendiente' || u.estadoEnvio === 'preparada'
   );
-  const recepcionNumero = (transferencia.recepcionesTransferencia?.length || (transferencia.recepcion ? 1 : 0)) + 1;
+  const recepcionNumero = (transferencia.recepciones?.length ?? 0) + 1;
 
   const productosAgrupados = useMemo(() => {
     const map = new Map<string, typeof unidadesPendientes>();
@@ -79,7 +79,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
     return [...map.entries()].map(([productoId, unids]) => {
       const pSummary = transferencia.productosSummary.find(p => p.productoId === productoId);
       const totalEnvio = pSummary?.cantidad || unids.length;
-      const yaRecibido = transferencia.unidades.filter(u => u.productoId === productoId && u.estadoTransferencia === 'recibida').length;
+      const yaRecibido = (transferencia.unidades ?? []).filter(u => u.productoId === productoId && u.estadoEnvio === 'recibida').length;
       const costoFleteUnit = unids[0].costoFleteUSD || 0;
       const costoFleteTotal = unids.reduce((s, u) => s + (u.costoFleteUSD || 0), 0);
       return {
@@ -283,7 +283,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
       }
 
       await onConfirm({
-        transferenciaId: transferencia.id,
+        envioId: transferencia.id,
         unidadesRecibidas,
         fechasVencimiento: Object.keys(fechasVencimiento).length > 0 ? fechasVencimiento : undefined,
         costoRecojoPEN: costoRecojoPEN ? parseFloat(costoRecojoPEN) : undefined,
@@ -298,7 +298,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title={`Recepcion de Productos - ${transferencia.numeroTransferencia}`}
+      title={`Recepcion de Productos - ${transferencia.numeroEnvio}`}
       size="lg"
     >
       <div className="space-y-4">

@@ -2,11 +2,11 @@ import React, { useState, useMemo } from "react";
 import { DollarSign, AlertTriangle } from "lucide-react";
 import { Modal, Button } from "../../components/common";
 import { useProductoStore } from "../../store/productoStore";
-import type { Transferencia } from "../../types/transferencia.types";
+import type { Envio } from "../../types/envio.types";
 import { getDescripcionProducto } from "../../utils/producto.helpers";
 
 interface EditFleteModalProps {
-  transferencia: Transferencia;
+  transferencia: Envio;
   onClose: () => void;
   onConfirm: (costoFletePorProducto: Record<string, number>) => Promise<void>;
 }
@@ -60,17 +60,17 @@ export const EditFleteModal: React.FC<EditFleteModalProps> = ({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title={`Flete - ${transferencia.numeroTransferencia}`}
+      title={`Flete - ${transferencia.numeroEnvio}`}
       size="lg"
     >
       <div className="space-y-4">
         {/* Info de la transferencia */}
         <div className="bg-slate-50 rounded-lg p-3 text-sm">
           <div className="grid grid-cols-2 gap-2">
-            <div><span className="text-slate-500">Destino:</span> <span className="font-medium">{transferencia.almacenDestinoNombre}</span></div>
+            <div><span className="text-slate-500">Destino:</span> <span className="font-medium">{transferencia.destinoCasillaNombre}</span></div>
             <div><span className="text-slate-500">Unidades:</span> <span className="font-medium">{transferencia.totalUnidades}</span></div>
-            {transferencia.viajeroNombre && (
-              <div><span className="text-slate-500">Viajero:</span> <span className="font-medium">{transferencia.viajeroNombre}</span></div>
+            {transferencia.colaboradorNombre && (
+              <div><span className="text-slate-500">Viajero:</span> <span className="font-medium">{transferencia.colaboradorNombre}</span></div>
             )}
             <div>
               <span className="text-slate-500">Flete actual:</span>{' '}

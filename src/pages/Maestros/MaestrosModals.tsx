@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Plus,
   Trash2,
-  Plane,
   Store,
   Crown
 } from 'lucide-react';
@@ -12,10 +11,8 @@ import {
   ClienteDetalleModal,
   MarcaDetalleModal,
   ProveedorDetalleModal,
-  AlmacenDetalleModal,
   CompetidorDetalleModal
 } from '../../components/Maestros/DetalleModals';
-import { ViajeroDetalle } from '../../components/modules/casilla/ViajeroDetalle';
 import { ClienteDetalle } from '../../components/modules/cliente/ClienteDetalle';
 import { CanalAutocomplete } from '../../components/modules/canalVenta/CanalAutocomplete';
 import type {
@@ -28,7 +25,6 @@ import type {
 } from '../../types/entidadesMaestras.types';
 import type { Marca, MarcaFormData } from '../../types/entidadesMaestras.types';
 import type { Proveedor, ProveedorFormData, TipoProveedor } from '../../types/ordenCompra.types';
-import type { Almacen, AlmacenFormData, TipoAlmacen, EstadoAlmacen, FrecuenciaViaje } from '../../types/almacen.types';
 
 interface MaestrosModalsProps {
   // Cliente modal
@@ -56,14 +52,6 @@ interface MaestrosModalsProps {
   onProveedorFormChange: (form: Partial<ProveedorFormData>) => void;
   onSaveProveedor: () => void;
 
-  // Almacen modal
-  showAlmacenModal: boolean;
-  editingAlmacen: Almacen | null;
-  almacenForm: Partial<AlmacenFormData>;
-  onCloseAlmacenModal: () => void;
-  onAlmacenFormChange: (form: Partial<AlmacenFormData>) => void;
-  onSaveAlmacen: () => void;
-
   // Competidor modal
   showCompetidorModal: boolean;
   editingCompetidor: Competidor | null;
@@ -79,26 +67,19 @@ interface MaestrosModalsProps {
   detalleCliente: Cliente | null;
   detalleMarca: Marca | null;
   detalleProveedor: Proveedor | null;
-  detalleAlmacen: Almacen | null;
   detalleCompetidor: Competidor | null;
-  historialViajero: Almacen | null;
   historialCliente: Cliente | null;
   onCloseDetalleCliente: () => void;
   onCloseDetalleMarca: () => void;
   onCloseDetalleProveedor: () => void;
-  onCloseDetalleAlmacen: () => void;
   onCloseDetalleCompetidor: () => void;
-  onCloseHistorialViajero: () => void;
   onCloseHistorialCliente: () => void;
   onEditFromDetalleCliente: () => void;
   onEditFromDetalleMarca: () => void;
   onEditFromDetalleProveedor: () => void;
-  onEditFromDetalleAlmacen: () => void;
   onEditFromDetalleCompetidor: () => void;
-  onEditFromHistorialViajero: () => void;
   onEditFromHistorialCliente: () => void;
   onViewHistoryFromDetalleCliente: () => void;
-  onViewHistoryFromDetalleAlmacen: (() => void) | undefined;
 
   // Confirm dialog
   confirmDialog: React.ReactNode;
@@ -127,13 +108,6 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
   onCloseProveedorModal,
   onProveedorFormChange,
   onSaveProveedor,
-  // Almacen
-  showAlmacenModal,
-  editingAlmacen,
-  almacenForm,
-  onCloseAlmacenModal,
-  onAlmacenFormChange,
-  onSaveAlmacen,
   // Competidor
   showCompetidorModal,
   editingCompetidor,
@@ -148,26 +122,19 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
   detalleCliente,
   detalleMarca,
   detalleProveedor,
-  detalleAlmacen,
   detalleCompetidor,
-  historialViajero,
   historialCliente,
   onCloseDetalleCliente,
   onCloseDetalleMarca,
   onCloseDetalleProveedor,
-  onCloseDetalleAlmacen,
   onCloseDetalleCompetidor,
-  onCloseHistorialViajero,
   onCloseHistorialCliente,
   onEditFromDetalleCliente,
   onEditFromDetalleMarca,
   onEditFromDetalleProveedor,
-  onEditFromDetalleAlmacen,
   onEditFromDetalleCompetidor,
-  onEditFromHistorialViajero,
   onEditFromHistorialCliente,
   onViewHistoryFromDetalleCliente,
-  onViewHistoryFromDetalleAlmacen,
   confirmDialog
 }) => {
   return (
@@ -549,262 +516,6 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
         </div>
       </Modal>
 
-      {/* ============ MODAL ALMACEN ============ */}
-      <Modal
-        isOpen={showAlmacenModal}
-        onClose={onCloseAlmacenModal}
-        title={editingAlmacen ? 'Editar Almacen' : 'Nuevo Almacen / Viajero'}
-        size="lg"
-      >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {editingAlmacen && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Codigo
-                </label>
-                <input
-                  type="text"
-                  value={editingAlmacen.codigo}
-                  disabled
-                  className="w-full px-3 py-2 border border-slate-200 rounded-md font-mono bg-slate-100 text-slate-600"
-                />
-                <p className="text-xs text-slate-500 mt-1">
-                  El codigo no se puede modificar
-                </p>
-              </div>
-            )}
-
-            <div className={editingAlmacen ? '' : 'col-span-2'}>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Nombre *
-              </label>
-              <input
-                type="text"
-                value={almacenForm.nombre || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, nombre: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="Carlos Rodriguez, Almacen Miami..."
-              />
-              {!editingAlmacen && (
-                <p className="text-xs text-slate-500 mt-1">
-                  El codigo se generara automaticamente segun el tipo
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Tipo *
-              </label>
-              <select
-                value={almacenForm.tipo}
-                onChange={(e) => {
-                  const tipo = e.target.value as TipoAlmacen;
-                  onAlmacenFormChange({
-                    ...almacenForm,
-                    tipo,
-                    esViajero: tipo === 'viajero',
-                    pais: tipo === 'almacen_peru' ? 'Peru' : 'USA'
-                  });
-                }}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-              >
-                <option value="viajero">Viajero (USA - Almacena y transporta)</option>
-                <option value="almacen_peru">Almacen Peru</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Estado
-              </label>
-              <select
-                value={almacenForm.estadoAlmacen}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, estadoAlmacen: e.target.value as EstadoAlmacen })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-              >
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-                <option value="suspendido">Suspendido</option>
-              </select>
-            </div>
-
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Direccion
-              </label>
-              <input
-                type="text"
-                value={almacenForm.direccion || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, direccion: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="123 Main Street, Apt 4B"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Ciudad
-              </label>
-              <input
-                type="text"
-                value={almacenForm.ciudad || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, ciudad: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="Miami, Lima, etc."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Estado/Region
-              </label>
-              <input
-                type="text"
-                value={almacenForm.estado || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, estado: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="Florida, California, Lima..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Contacto
-              </label>
-              <input
-                type="text"
-                value={almacenForm.contacto || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, contacto: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="Nombre del contacto"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Telefono / WhatsApp
-              </label>
-              <input
-                type="tel"
-                value={almacenForm.telefono || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, telefono: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="+1 (305) 555-0101"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={almacenForm.email || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, email: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="contacto@email.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Capacidad (unidades)
-              </label>
-              <input
-                type="number"
-                value={almacenForm.capacidadUnidades || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, capacidadUnidades: parseInt(e.target.value) || undefined })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="200"
-              />
-            </div>
-
-            {almacenForm.esViajero && (
-              <>
-                <div className="col-span-2 border-t pt-4 mt-2">
-                  <h4 className="text-sm font-semibold text-purple-700 flex items-center">
-                    <Plane className="h-4 w-4 mr-2" />
-                    Configuracion de Viajero
-                  </h4>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Frecuencia de Viaje
-                  </label>
-                  <select
-                    value={almacenForm.frecuenciaViaje || ''}
-                    onChange={(e) => onAlmacenFormChange({ ...almacenForm, frecuenciaViaje: e.target.value as FrecuenciaViaje })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                  >
-                    <option value="">Seleccionar...</option>
-                    <option value="semanal">Semanal</option>
-                    <option value="quincenal">Quincenal</option>
-                    <option value="mensual">Mensual</option>
-                    <option value="bimestral">Bimestral</option>
-                    <option value="variable">Variable</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Proximo Viaje
-                  </label>
-                  <input
-                    type="date"
-                    value={almacenForm.proximoViaje ? new Date(almacenForm.proximoViaje).toISOString().split('T')[0] : ''}
-                    onChange={(e) => onAlmacenFormChange({ ...almacenForm, proximoViaje: e.target.value ? new Date(e.target.value) : undefined })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Costo Promedio Flete (USD/unidad)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={almacenForm.costoPromedioFlete || ''}
-                    onChange={(e) => onAlmacenFormChange({ ...almacenForm, costoPromedioFlete: parseFloat(e.target.value) || undefined })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                    placeholder="5.00"
-                  />
-                </div>
-              </>
-            )}
-
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Notas
-              </label>
-              <textarea
-                value={almacenForm.notas || ''}
-                onChange={(e) => onAlmacenFormChange({ ...almacenForm, notas: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                rows={2}
-                placeholder="Notas adicionales sobre el almacen o viajero..."
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <Button variant="ghost" onClick={onCloseAlmacenModal}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={onSaveAlmacen}
-              disabled={isSubmitting || !almacenForm.nombre}
-            >
-              {isSubmitting ? 'Guardando...' : editingAlmacen ? 'Actualizar' : 'Crear Almacen'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
       {/* ============ MODAL COMPETIDOR ============ */}
       <Modal
         isOpen={showCompetidorModal}
@@ -1104,28 +815,12 @@ export const MaestrosModals: React.FC<MaestrosModalsProps> = ({
         onEdit={onEditFromDetalleProveedor}
       />
 
-      <AlmacenDetalleModal
-        isOpen={!!detalleAlmacen}
-        onClose={onCloseDetalleAlmacen}
-        almacen={detalleAlmacen}
-        onEdit={onEditFromDetalleAlmacen}
-        onViewHistory={onViewHistoryFromDetalleAlmacen}
-      />
-
       <CompetidorDetalleModal
         isOpen={!!detalleCompetidor}
         onClose={onCloseDetalleCompetidor}
         competidor={detalleCompetidor}
         onEdit={onEditFromDetalleCompetidor}
       />
-
-      {historialViajero && (
-        <ViajeroDetalle
-          viajero={historialViajero}
-          onClose={onCloseHistorialViajero}
-          onEdit={onEditFromHistorialViajero}
-        />
-      )}
 
       {historialCliente && (
         <ClienteDetalle

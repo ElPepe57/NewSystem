@@ -85,5 +85,5 @@ export interface VentaDirectaItem {
 
 export interface TransferenciaScanItem {
   stockDisponible: number;
-  almacenOrigenId: string;
+  casillaOrigenId: string;
 }

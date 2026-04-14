@@ -34,7 +34,8 @@ import {
   Palette,
   Target,
   MapPin,
-  Banknote
+  Banknote,
+  Network
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -83,6 +84,7 @@ const menuGroups: MenuGroup[] = [
       { icon: Warehouse, label: 'Stock', path: '/inventario', permiso: PERMISOS.VER_INVENTARIO },
       { icon: Box, label: 'Unidades', path: '/unidades', permiso: PERMISOS.GESTIONAR_INVENTARIO },
       { icon: ArrowRightLeft, label: 'Env\u00edos', path: '/envios', permiso: PERMISOS.TRANSFERIR_UNIDADES },
+      { icon: Network, label: 'Red Log\u00edstica', path: '/red-logistica', permiso: PERMISOS.VER_INVENTARIO },
       { icon: ScanLine, label: 'Escaner', path: '/escaner', permiso: PERMISOS.VER_INVENTARIO },
     ]
   },

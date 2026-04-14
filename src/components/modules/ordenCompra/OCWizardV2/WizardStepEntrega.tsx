@@ -12,6 +12,7 @@ import { ProductoAutocomplete } from '../../entidades/ProductoAutocomplete';
 import type { ProductoSnapshot } from '../../entidades/ProductoAutocomplete';
 import { useColaboradorStore } from '../../../../store/colaboradorStore';
 import { useProductoStore } from '../../../../store/productoStore';
+import { useAlmacenStore } from '../../../../store/casillaStore';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -48,6 +49,8 @@ export interface ConfigLogistica {
   llegadaPeru: LlegadaPeru | null;
   colaboradorId: string;
   colaboradorNombre: string;
+  casillaDestinoId: string;       // Casilla del colaborador (almacén destino real)
+  casillaDestinoNombre: string;
 
   // Tramo 3: Última milla
   ultimaMilla: UltimaMilla | null;
@@ -69,6 +72,8 @@ export const emptyConfig: ConfigLogistica = {
   llegadaPeru: null,
   colaboradorId: '',
   colaboradorNombre: '',
+  casillaDestinoId: '',
+  casillaDestinoNombre: '',
   ultimaMilla: null,
   requiereRecojo: false,
 };
@@ -254,9 +259,11 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
 }) => {
   const { colaboradores, fetchColaboradores, getByTipo } = useColaboradorStore();
   const { productos: catalogoProductos, fetchProductos, loading: loadingProductos } = useProductoStore();
+  const { casillas, fetchCasillas, getCasillasByColaborador, getCasillaPrincipal } = useAlmacenStore();
 
   useEffect(() => {
     if (colaboradores.length === 0) fetchColaboradores();
+    if (casillas.length === 0) fetchCasillas();
   }, []);
 
   useEffect(() => {
@@ -313,8 +320,30 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
     ultimaMilla: config.llegadaPeru !== null && config.llegadaPeru !== 'ddp_directo',
   };
 
+  // Auto-resolver casilla principal del colaborador seleccionado
+  const resolverCasilla = (colabId: string, next: ConfigLogistica) => {
+    if (!colabId) {
+      next.casillaDestinoId = '';
+      next.casillaDestinoNombre = '';
+      return;
+    }
+    const casilla = getCasillaPrincipal(colabId);
+    if (casilla) {
+      next.casillaDestinoId = casilla.id;
+      next.casillaDestinoNombre = casilla.nombre;
+    } else {
+      next.casillaDestinoId = '';
+      next.casillaDestinoNombre = '';
+    }
+  };
+
   const update = (partial: Partial<ConfigLogistica>) => {
     const next = { ...config, ...partial };
+
+    // Auto-resolver casilla cuando cambia colaborador
+    if ('colaboradorId' in partial) {
+      resolverCasilla(partial.colaboradorId || '', next);
+    }
 
     // Reset downstream when upstream changes
     if ('salidaProveedor' in partial) {
@@ -328,6 +357,8 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
       next.llegadaPeru = null;
       next.colaboradorId = '';
       next.colaboradorNombre = '';
+      next.casillaDestinoId = '';
+      next.casillaDestinoNombre = '';
       next.ultimaMilla = null;
       next.requiereRecojo = false;
     }
@@ -345,6 +376,8 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
       next.llegadaPeru = null;
       next.colaboradorId = '';
       next.colaboradorNombre = '';
+      next.casillaDestinoId = '';
+      next.casillaDestinoNombre = '';
       next.ultimaMilla = null;
       next.requiereRecojo = false;
     }
@@ -354,12 +387,16 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
       next.llegadaPeru = null;
       next.colaboradorId = '';
       next.colaboradorNombre = '';
+      next.casillaDestinoId = '';
+      next.casillaDestinoNombre = '';
       next.ultimaMilla = null;
       next.requiereRecojo = false;
     }
     if ('llegadaPeru' in partial) {
       next.colaboradorId = '';
       next.colaboradorNombre = '';
+      next.casillaDestinoId = '';
+      next.casillaDestinoNombre = '';
       next.ultimaMilla = null;
       next.requiereRecojo = false;
       // DDP = entrega a domicilio implícita
@@ -600,6 +637,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                       }
                       // Auto-configure tramo 2 based on collaborator type
                       const esViajero = viajeros.some(v => v.id === selected.id);
+                      const casilla = getCasillaPrincipal(selected.id);
                       onChange({
                         ...config,
                         deudorId: selected.id,
@@ -609,6 +647,8 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                         llegadaPeru: esViajero ? 'viajero' : 'courier_internacional',
                         colaboradorId: selected.id,
                         colaboradorNombre: selected.nombre,
+                        casillaDestinoId: casilla?.id || '',
+                        casillaDestinoNombre: casilla?.nombre || '',
                       });
                     }}
                     className={selectCls}
@@ -694,8 +734,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                 value={config.colaboradorId}
                 onChange={(e) => {
                   const selected = viajeros.find((v) => v.id === e.target.value);
-                  onChange({
-                    ...config,
+                  update({
                     colaboradorId: e.target.value,
                     colaboradorNombre: selected?.nombre ?? '',
                   });
@@ -721,6 +760,29 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
           </div>
         )}
 
+        {/* Casilla auto-seleccionada feedback */}
+        {config.colaboradorId && config.casillaDestinoId && (
+          <div className="pl-8 mt-2">
+            <div className="flex items-center gap-2 px-3 py-2 bg-teal-50 border border-teal-200 rounded-lg text-sm">
+              <MapPin className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />
+              <span className="text-teal-800">
+                Casilla: <span className="font-medium">{config.casillaDestinoNombre}</span>
+              </span>
+            </div>
+          </div>
+        )}
+        {config.colaboradorId && !config.casillaDestinoId && (
+          <div className="pl-8 mt-2">
+            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+              <span className="text-amber-800">
+                Este colaborador no tiene casilla asignada.{' '}
+                <span className="text-amber-600">Crea una en Red Logistica.</span>
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Courier selector */}
         {config.llegadaPeru === 'courier_internacional' && (
           <div className="pl-8">
@@ -732,8 +794,7 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                 value={config.colaboradorId}
                 onChange={(e) => {
                   const selected = couriers.find((c) => c.id === e.target.value);
-                  onChange({
-                    ...config,
+                  update({
                     colaboradorId: e.target.value,
                     colaboradorNombre: selected?.nombre ?? '',
                   });

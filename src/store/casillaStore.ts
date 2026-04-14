@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { almacenService } from '../services/casilla.service';
+import { casillaCrudService } from '../services/casilla.crud.service';
 import type { Almacen, AlmacenFormData, ResumenAlmacenesUSA } from '../types/almacen.types';
+import type { Casilla, CasillaFormData } from '../types/casilla.types';
 
 // Tipo para estadísticas de almacenes
 export interface AlmacenStats {
@@ -40,7 +42,7 @@ export interface AlmacenStats {
 }
 
 interface AlmacenState {
-  // Estado
+  // Estado legacy (almacenes)
   almacenes: Almacen[];
   almacenesUSA: Almacen[];
   almacenesPeru: Almacen[];
@@ -53,7 +55,11 @@ interface AlmacenState {
   loading: boolean;
   error: string | null;
 
-  // Acciones
+  // Estado nuevo (casillas)
+  casillas: Casilla[];
+  casillasLoading: boolean;
+
+  // Acciones legacy
   fetchAlmacenes: () => Promise<void>;
   fetchAlmacenesUSA: () => Promise<void>;
   fetchAlmacenesPeru: () => Promise<void>;
@@ -68,6 +74,12 @@ interface AlmacenState {
   setSelectedAlmacen: (almacen: Almacen | null) => void;
   seedDefaultAlmacenes: (userId: string) => Promise<void>;
   clearError: () => void;
+
+  // Acciones nuevas (casillas)
+  fetchCasillas: () => Promise<void>;
+  getCasillasByColaborador: (colaboradorId: string) => Casilla[];
+  getCasillaPrincipal: (colaboradorId: string) => Casilla | undefined;
+  crearCasilla: (data: CasillaFormData, userId: string) => Promise<string>;
 }
 
 export const useAlmacenStore = create<AlmacenState>((set, get) => ({
@@ -81,6 +93,8 @@ export const useAlmacenStore = create<AlmacenState>((set, get) => ({
   selectedAlmacen: null,
   loading: false,
   error: null,
+  casillas: [],
+  casillasLoading: false,
 
   fetchAlmacenes: async () => {
     set({ loading: true, error: null });
@@ -239,6 +253,33 @@ export const useAlmacenStore = create<AlmacenState>((set, get) => ({
       set({ error: message, loading: false });
       throw error;
     }
+  },
+
+  // ── Casillas (modelo nuevo) ──
+
+  fetchCasillas: async () => {
+    set({ casillasLoading: true });
+    try {
+      const casillas = await casillaCrudService.getAll();
+      set({ casillas, casillasLoading: false });
+    } catch {
+      set({ casillasLoading: false });
+    }
+  },
+
+  getCasillasByColaborador: (colaboradorId: string): Casilla[] => {
+    return get().casillas.filter(c => c.colaboradorId === colaboradorId && c.estado === 'activa');
+  },
+
+  getCasillaPrincipal: (colaboradorId: string): Casilla | undefined => {
+    const del = get().getCasillasByColaborador(colaboradorId);
+    return del.find(c => c.esPrincipal) || del[0];
+  },
+
+  crearCasilla: async (data: CasillaFormData, userId: string): Promise<string> => {
+    const id = await casillaCrudService.crear(data, userId);
+    await get().fetchCasillas();
+    return id;
   },
 
   clearError: () => set({ error: null })

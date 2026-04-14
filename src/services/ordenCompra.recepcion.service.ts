@@ -149,9 +149,25 @@ export async function recibirOrdenParcial(
     const unidadesDisponibles: string[] = [];
     let totalUnidadesRecepcion = 0;
 
-    const almacen = await almacenService.getById(orden.almacenDestino);
-    if (!almacen) throw new Error(`Almacén ${orden.almacenDestino} no encontrado`);
-    const almacenInfo = { nombre: almacen.nombre, pais: almacen.pais };
+    // almacenDestino apunta a una casilla (modelo nuevo) o almacén (legacy)
+    let almacenInfo: { nombre: string; pais: string };
+    const { casillaCrudService } = await import('./casilla.crud.service');
+    const casilla = await casillaCrudService.getById(orden.almacenDestino);
+    if (casilla) {
+      almacenInfo = { nombre: casilla.nombre, pais: casilla.pais };
+    } else {
+      // Fallback legacy: buscar en almacenes
+      const almacen = await almacenService.getById(orden.almacenDestino);
+      if (almacen) {
+        almacenInfo = { nombre: almacen.nombre, pais: almacen.pais };
+      } else {
+        // Fallback final: buscar en colaboradores (OCs creadas antes del fix)
+        const { colaboradorService } = await import('./colaborador.service');
+        const colaborador = await colaboradorService.getById(orden.almacenDestino);
+        if (!colaborador) throw new Error(`Casilla/Almacén ${orden.almacenDestino} no encontrado`);
+        almacenInfo = { nombre: colaborador.nombre, pais: colaborador.pais || 'USA' };
+      }
+    }
 
     // Guard anti-duplicacion: buscar unidades 'pedida' ya creadas por confirmarOC
     // Si hay subOrdenId, filtrar solo las unidades de ESA sub-orden
@@ -436,11 +452,17 @@ export async function recibirOrdenParcial(
       );
     }, 0);
 
-    await almacenService.incrementarUnidadesRecibidas(
-      orden.almacenDestino,
-      totalUnidadesRecepcion
-    );
-    await almacenService.actualizarValorInventario(orden.almacenDestino, valorRecepcionUSD);
+    // Actualizar contadores de la casilla/almacén
+    if (casilla) {
+      await casillaCrudService.incrementarUnidadesRecibidas(orden.almacenDestino, totalUnidadesRecepcion);
+      await casillaCrudService.actualizarValorInventario(orden.almacenDestino, valorRecepcionUSD);
+    } else {
+      const almLegacy = await almacenService.getById(orden.almacenDestino);
+      if (almLegacy) {
+        await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, totalUnidadesRecepcion);
+        await almacenService.actualizarValorInventario(orden.almacenDestino, valorRecepcionUSD);
+      }
+    }
 
     // Sync stock
     const productosAfectados = productosValidos.map(pr => pr.productoId);
@@ -655,10 +677,16 @@ export async function revertirRecepciones(
     const totalUnidadesRecibidas = orden.totalUnidadesRecibidas || 0;
 
     if (orden.almacenDestino && totalUnidadesRecibidas > 0) {
-      await almacenService.incrementarUnidadesRecibidas(
-        orden.almacenDestino,
-        -totalUnidadesRecibidas
-      );
+      const { casillaCrudService: casillaSvc } = await import('./casilla.crud.service');
+      const casDest = await casillaSvc.getById(orden.almacenDestino);
+      if (casDest) {
+        await casillaSvc.incrementarUnidadesRecibidas(orden.almacenDestino, -totalUnidadesRecibidas);
+      } else {
+        const almDest = await almacenService.getById(orden.almacenDestino);
+        if (almDest) {
+          await almacenService.incrementarUnidadesRecibidas(orden.almacenDestino, -totalUnidadesRecibidas);
+        }
+      }
     }
 
     const productosRestaurados = orden.productos.map(p => ({ ...p, cantidadRecibida: 0 }));

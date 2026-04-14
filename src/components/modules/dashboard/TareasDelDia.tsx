@@ -166,8 +166,8 @@ export const TareasDelDia: React.FC = () => {
   const fetchCotizaciones = useCotizacionStore(state => state.fetchCotizaciones);
   const requerimientos = useRequerimientoStore(state => state.requerimientos);
   const fetchRequerimientos = useRequerimientoStore(state => state.fetchRequerimientos);
-  const transferencias = useTransferenciaStore(state => state.transferencias);
-  const fetchTransferencias = useTransferenciaStore(state => state.fetchTransferencias);
+  const transferencias = useTransferenciaStore(state => state.envios);
+  const fetchTransferencias = useTransferenciaStore(state => state.fetchEnvios);
   const userProfile = useAuthStore(state => state.userProfile);
 
   // Carga lazy de stores que el Dashboard no inicializa por defecto.

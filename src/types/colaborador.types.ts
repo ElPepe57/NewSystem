@@ -15,6 +15,18 @@ export type TipoColaborador = 'empresa' | 'viajero' | 'courier_externo' | 'trans
 export type EstadoColaborador = 'activo' | 'inactivo' | 'suspendido';
 
 /**
+ * Subtipo para transportistas locales
+ * - interno: Repartidor propio (motorizado, socio)
+ * - externo: Courier tercerizado (Olva, Shalom, etc.)
+ */
+export type SubtipoTransportistaLocal = 'interno' | 'externo';
+
+/**
+ * Couriers externos soportados
+ */
+export type CourierExterno = 'olva' | 'mercado_envios' | 'urbano' | 'shalom' | 'otro';
+
+/**
  * Tarifas del colaborador (varia segun tipo)
  */
 export interface TarifasColaborador {
@@ -29,6 +41,8 @@ export interface TarifasColaborador {
   // Transportista local
   tarifaEntregaPEN?: number;          // Tarifa por entrega local
   zonaCobertura?: string;             // Descripcion de zona de cobertura
+  comisionPorcentaje?: number;        // % sobre el valor de la venta
+  costoFijo?: number;                 // Costo fijo por entrega (PEN)
 }
 
 /**
@@ -44,6 +58,15 @@ export interface MetricasColaborador {
   // Solo viajeros
   viajesRealizados?: number;
   proximoViaje?: Timestamp;
+  // Solo transportistas locales
+  totalEntregas?: number;
+  entregasExitosas?: number;
+  entregasFallidas?: number;
+  tasaExito?: number;                 // entregasExitosas / totalEntregas * 100
+  costoPromedioPorEntrega?: number;   // Calculado automaticamente
+  costoTotalHistorico?: number;       // Suma de todos los costos de entrega
+  tiempoPromedioEntrega?: number;     // En horas
+  zonasAtendidas?: string[];
 }
 
 /**
@@ -76,6 +99,12 @@ export interface Colaborador {
   frecuenciaViaje?: 'semanal' | 'quincenal' | 'mensual' | 'bimestral' | 'variable';
   proximoViaje?: Timestamp;
 
+  // Solo transportistas locales
+  subtipoTransportista?: SubtipoTransportistaLocal;  // interno | externo
+  courierExterno?: CourierExterno;                   // solo si subtipo='externo'
+  dni?: string;                                      // solo internos
+  licencia?: string;                                 // solo internos
+
   // Notas
   notas?: string;
 
@@ -103,4 +132,23 @@ export interface ColaboradorFormData {
   frecuenciaViaje?: 'semanal' | 'quincenal' | 'mensual' | 'bimestral' | 'variable';
   proximoViaje?: Date;
   notas?: string;
+  // Solo transportistas locales
+  subtipoTransportista?: SubtipoTransportistaLocal;
+  courierExterno?: CourierExterno;
+  dni?: string;
+  licencia?: string;
 }
+
+// ============================================
+// ALIAS DE COMPATIBILIDAD — Transportista = Colaborador tipo transportista_local
+// Permiten que el codigo consumidor siga compilando sin reescritura masiva
+// ============================================
+
+/** Alias: Transportista es un Colaborador de tipo transportista_local */
+export type Transportista = Colaborador;
+
+/** Alias: subtipo de transportista (interno | externo) */
+export type TipoTransportista = SubtipoTransportistaLocal;
+
+/** Alias: estado de transportista */
+export type EstadoTransportista = EstadoColaborador;

@@ -20,7 +20,7 @@ import type {
   HistorialEvaluacionAlmacen
 } from '../types/almacen.types';
 import type { Unidad } from '../types/unidad.types';
-import type { Transferencia } from '../types/transferencia.types';
+import type { Envio as Transferencia } from '../types/envio.types';
 
 // ============================================
 // TIPOS PARA ANALYTICS DE ALMACENES
@@ -100,10 +100,10 @@ export interface TransferenciaHistorial {
   id: string;
   fecha: Date;
   tipoMovimiento: 'entrada' | 'salida';
-  almacenOrigenId: string;
-  almacenOrigenNombre: string;
-  almacenDestinoId: string;
-  almacenDestinoNombre: string;
+  casillaOrigenId: string;
+  casillaOrigenNombre: string;
+  casillaDestinoId: string;
+  casillaDestinoNombre: string;
   productos: Array<{
     productoId: string;
     sku: string;
@@ -480,8 +480,8 @@ class AlmacenAnalyticsService {
   private async getTransferenciasAlmacen(almacenId: string): Promise<Transferencia[]> {
     // Transferencias donde es origen o destino
     const [origenSnapshot, destinoSnapshot] = await Promise.all([
-      getDocs(query(collection(db, COLLECTIONS.TRANSFERENCIAS), where('almacenOrigenId', '==', almacenId))),
-      getDocs(query(collection(db, COLLECTIONS.TRANSFERENCIAS), where('almacenDestinoId', '==', almacenId)))
+      getDocs(query(collection(db, COLLECTIONS.ENVIOS), where('origenCasillaId', '==', almacenId))),
+      getDocs(query(collection(db, COLLECTIONS.ENVIOS), where('destinoCasillaId', '==', almacenId)))
     ]);
 
     const transferencias: Transferencia[] = [];
@@ -706,7 +706,7 @@ class AlmacenAnalyticsService {
     // Movimientos de transferencia
     transferencias.forEach(t => {
       const fecha = t.fechaCreacion instanceof Timestamp ? t.fechaCreacion.toDate() : new Date(t.fechaCreacion);
-      const esOrigen = t.almacenOrigenId === almacenId;
+      const esOrigen = t.origenCasillaId === almacenId;
 
       if (t.unidades && t.unidades.length > 0) {
         movimientos.push({
@@ -716,9 +716,9 @@ class AlmacenAnalyticsService {
           cantidad: t.unidades.length,
           productoId: '',
           productoSKU: 'Múltiples',
-          productoNombre: `Transferencia ${t.numeroTransferencia || t.id}`,
-          origen: esOrigen ? almacenId : t.almacenOrigenId,
-          destino: esOrigen ? t.almacenDestinoId : almacenId,
+          productoNombre: `Envio ${t.numeroEnvio || t.id}`,
+          origen: esOrigen ? almacenId : t.origenCasillaId,
+          destino: esOrigen ? t.destinoCasillaId : almacenId,
           transferenciaId: t.id,
           valorUSD: t.costoFleteTotal || 0
         });
@@ -828,16 +828,16 @@ class AlmacenAnalyticsService {
   ): TransferenciaHistorial[] {
     return transferencias.map(t => {
       const fecha = t.fechaCreacion instanceof Timestamp ? t.fechaCreacion.toDate() : new Date(t.fechaCreacion);
-      const esOrigen = t.almacenOrigenId === almacenId;
+      const esOrigen = t.origenCasillaId === almacenId;
 
       return {
         id: t.id,
         fecha,
         tipoMovimiento: esOrigen ? 'salida' as const : 'entrada' as const,
-        almacenOrigenId: t.almacenOrigenId,
-        almacenOrigenNombre: t.almacenOrigenNombre || '',
-        almacenDestinoId: t.almacenDestinoId,
-        almacenDestinoNombre: t.almacenDestinoNombre || '',
+        casillaOrigenId: t.origenCasillaId || '',
+        casillaOrigenNombre: t.origenCasillaNombre || '',
+        casillaDestinoId: t.destinoCasillaId || '',
+        casillaDestinoNombre: t.destinoCasillaNombre || '',
         productos: [], // Se podría expandir con datos de productos
         totalUnidades: t.unidades?.length || 0,
         valorTotalUSD: t.costoFleteTotal || 0,
@@ -859,7 +859,7 @@ class AlmacenAnalyticsService {
     const proximoViaje = almacen.proximoViaje instanceof Timestamp ? almacen.proximoViaje.toDate() : undefined;
 
     // Transferencias salientes (viajes)
-    const viajes = transferencias.filter(t => t.almacenOrigenId === almacen.id);
+    const viajes = transferencias.filter(t => t.origenCasillaId === almacen.id);
     const viajes30 = viajes.filter(t => {
       const fecha = t.fechaCreacion instanceof Timestamp ? t.fechaCreacion.toDate() : new Date(t.fechaCreacion);
       return fecha >= hace30Dias;

@@ -64,7 +64,7 @@ export const Unidades: React.FC = () => {
 
   const [filtros, setFiltros] = useState({
     productoId: '',
-    almacenId: '',
+    casillaId: '',
     estado: '' as EstadoUnidad | '',
     pais: '' as string
   });
@@ -238,12 +238,12 @@ export const Unidades: React.FC = () => {
           unidad.productoSKU?.toLowerCase().includes(term) ||
           unidad.productoNombre?.toLowerCase().includes(term) ||
           unidad.lote?.toLowerCase().includes(term) ||
-          unidad.almacenNombre?.toLowerCase().includes(term);
+          (unidad.casillaNombre || unidad.almacenNombre)?.toLowerCase().includes(term);
         if (!matchSearch) return false;
       }
 
       if (filtros.productoId && unidad.productoId !== filtros.productoId) return false;
-      if (filtros.almacenId && unidad.almacenId !== filtros.almacenId) return false;
+      if (filtros.casillaId && (unidad.casillaActualId || unidad.almacenId) !== filtros.casillaId) return false;
       if (filtros.estado) {
         if (filtros.estado === 'recibida_origen') {
           if (!esEstadoEnOrigen(unidad.estado)) return false;
@@ -283,7 +283,7 @@ export const Unidades: React.FC = () => {
   const limpiarFiltros = () => {
     setFiltros({
       productoId: '',
-      almacenId: '',
+      casillaId: '',
       estado: '',
       pais: ''
     });
@@ -352,7 +352,7 @@ export const Unidades: React.FC = () => {
 
   // formatCurrency importado de utils/format (USD por defecto)
 
-  const hayFiltrosActivos = busqueda || filtros.productoId || filtros.almacenId || filtros.estado || filtros.pais || filtroEstadoPipeline;
+  const hayFiltrosActivos = busqueda || filtros.productoId || filtros.casillaId || filtros.estado || filtros.pais || filtroEstadoPipeline;
 
   const tablaColumns: DataTableColumn<Unidad>[] = [
     {
@@ -400,10 +400,10 @@ export const Unidades: React.FC = () => {
     },
     {
       key: 'almacen',
-      header: 'Almacén',
+      header: 'Casilla',
       render: unidad => (
         <div className="text-sm text-slate-900">
-          {getPaisEmoji(unidad.pais)} {unidad.almacenNombre || '-'}
+          {getPaisEmoji(unidad.pais)} {unidad.casillaNombre || unidad.almacenNombre || '-'}
         </div>
       ),
     },
@@ -574,7 +574,7 @@ export const Unidades: React.FC = () => {
             search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar por SKU, nombre, lote...' }}
             viewMode={vistaActual === 'tabla' ? 'table' : 'card'}
             onViewModeChange={(mode) => setVistaActual(mode === 'table' ? 'tabla' : 'cards')}
-            filterCount={[filtros.productoId, filtros.almacenId, filtros.estado, filtros.pais].filter(Boolean).length}
+            filterCount={[filtros.productoId, filtros.casillaId, filtros.estado, filtros.pais].filter(Boolean).length}
             onFilterToggle={() => setShowFilters(true)}
             resultCount={unidadesFiltradas.length}
           />
@@ -583,14 +583,14 @@ export const Unidades: React.FC = () => {
           <FilterDrawer
             isOpen={showFilters}
             onClose={() => setShowFilters(false)}
-            onClearAll={() => setFiltros({ productoId: '', almacenId: '', estado: '' as any, pais: '' })}
-            activeFilterCount={[filtros.productoId, filtros.almacenId, filtros.estado, filtros.pais].filter(Boolean).length}
+            onClearAll={() => setFiltros({ productoId: '', casillaId: '', estado: '' as any, pais: '' })}
+            activeFilterCount={[filtros.productoId, filtros.casillaId, filtros.estado, filtros.pais].filter(Boolean).length}
           >
             <FilterSection title="Producto">
               <Select label="Producto" value={filtros.productoId} onChange={(e) => setFiltros({ ...filtros, productoId: e.target.value })} options={[{ value: '', label: 'Todos' }, ...productos.map(p => ({ value: p.id, label: `${p.sku} - ${p.nombreComercial}` }))]} />
             </FilterSection>
             <FilterSection title="Ubicacion">
-              <Select label="Casilla" value={filtros.almacenId} onChange={(e) => setFiltros({ ...filtros, almacenId: e.target.value })} options={[{ value: '', label: 'Todas' }, ...almacenes.map(a => ({ value: a.id, label: a.nombre }))]} />
+              <Select label="Casilla" value={filtros.casillaId} onChange={(e) => setFiltros({ ...filtros, casillaId: e.target.value })} options={[{ value: '', label: 'Todas' }, ...almacenes.map(a => ({ value: a.id, label: a.nombre }))]} />
               <Select label="Pais" value={filtros.pais} onChange={(e) => setFiltros({ ...filtros, pais: e.target.value })} options={[{ value: '', label: 'Todos' }, { value: 'USA', label: 'USA' }, { value: 'Peru', label: 'Peru' }]} />
             </FilterSection>
             <FilterSection title="Estado">

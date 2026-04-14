@@ -7,11 +7,15 @@ interface ColaboradorState {
   viajeros: Colaborador[];
   couriers: Colaborador[];
   empresa: Colaborador | null;
+  // Transportistas locales activos (alias para compatibilidad con consumidores del transportistaStore)
+  transportistasActivos: Colaborador[];
   loading: boolean;
   error: string | null;
 
   // Actions
   fetchColaboradores: () => Promise<void>;
+  // Alias compatible con el transportistaStore: carga transportistas_local activos
+  fetchActivos: () => Promise<void>;
   crearColaborador: (data: ColaboradorFormData, userId: string) => Promise<string>;
   actualizarColaborador: (id: string, data: Partial<ColaboradorFormData>, userId: string) => Promise<void>;
   getByTipo: (tipo: TipoColaborador) => Colaborador[];
@@ -22,6 +26,7 @@ export const useColaboradorStore = create<ColaboradorState>((set, get) => ({
   viajeros: [],
   couriers: [],
   empresa: null,
+  transportistasActivos: [],
   loading: false,
   error: null,
 
@@ -32,9 +37,27 @@ export const useColaboradorStore = create<ColaboradorState>((set, get) => ({
       const viajeros = colaboradores.filter(c => c.tipo === 'viajero');
       const couriers = colaboradores.filter(c => c.tipo === 'courier_externo');
       const empresa = colaboradores.find(c => c.tipo === 'empresa') || null;
-      set({ colaboradores, viajeros, couriers, empresa, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+      const transportistasActivos = colaboradores.filter(
+        c => c.tipo === 'transportista_local' && c.estado === 'activo'
+      );
+      set({ colaboradores, viajeros, couriers, empresa, transportistasActivos, loading: false });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      set({ error: message, loading: false });
+    }
+  },
+
+  fetchActivos: async () => {
+    set({ loading: true, error: null });
+    try {
+      const colaboradores = await colaboradorService.getAll();
+      const transportistasActivos = colaboradores.filter(
+        c => c.tipo === 'transportista_local' && c.estado === 'activo'
+      );
+      set({ transportistasActivos, loading: false });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      set({ error: message, loading: false });
     }
   },
 

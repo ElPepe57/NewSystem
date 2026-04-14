@@ -18,67 +18,63 @@ import {
   ConfirmDialog,
   useConfirmDialog,
   PipelineHeader,
-
   StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
 import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader, DataTable, StatusBadge } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
-import { useTransferenciaStore } from '../../store/envioStore';
+import { useEnvioStore } from '../../store/envioStore';
 import { useProductoStore } from "../../store/productoStore";
 import { useAlmacenStore } from '../../store/casillaStore';
 import { useAuthStore } from "../../store/authStore";
 import { tesoreriaService } from "../../services/tesoreria.service";
 import { useTipoCambioStore } from "../../store/tipoCambioStore";
 import type {
-  Transferencia,
-  TipoTransferencia,
-  EstadoTransferencia,
-  TransferenciaFormData,
-  RecepcionFormData,
-} from "../../types/transferencia.types";
+  Envio,
+  TipoEnvio,
+  EstadoEnvio,
+  EnvioFormData,
+  RecepcionEnvioFormData,
+} from "../../types/envio.types";
 import type { CuentaCaja, MetodoTesoreria } from "../../types/tesoreria.types";
-import { esTipoTransferenciaInterna, esTipoTransferenciaInternacional, esPaisOrigen } from "../../utils/multiOrigen.helpers";
 import { useLineaFilter } from "../../hooks/useLineaFilter";
 import { useToastStore } from "../../store/toastStore";
 
-// Sub-componentes extraidos
-import { TransferenciaCard } from "./TransferenciaCard";
-import { CreateTransferenciaModal } from "./CreateTransferenciaModal";
+// Sub-componentes
+import { EnvioCard } from "./EnvioCard";
+import { CreateEnvioModal } from "./CreateEnvioModal";
 import { RecepcionModal } from "./RecepcionModal";
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { EditFleteModal } from "./EditFleteModal";
-import { TransferenciaDetailModal } from "./TransferenciaDetailModal";
-import { TransferenciaFilters } from "./TransferenciaFilters";
+import { EnvioDetailModal } from "./EnvioDetailModal";
 import { EnviosProveedorTab } from "./EnviosProveedorTab";
 
-type TabEnvios = 'transferencias' | 'proveedor';
+type TabEnvios = 'envios' | 'proveedor';
 
-export const Transferencias: React.FC = () => {
-  const [tabEnvios, setTabEnvios] = useState<TabEnvios>('transferencias');
+export const Envios: React.FC = () => {
+  const [tabEnvios, setTabEnvios] = useState<TabEnvios>('envios');
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
   const {
-    transferencias,
-    transferenciasEnTransito,
-    transferenciasPendientes,
+    envios,
+    enviosEnTransito,
+    enviosPendientesRecepcion,
     resumen,
     loading,
-    fetchTransferencias,
+    fetchEnvios,
     fetchEnTransito,
     fetchPendientesRecepcion,
     fetchResumen,
-    crearTransferencia,
-    confirmarTransferencia,
-    enviarTransferencia,
-    registrarRecepcion,
-    cancelarTransferencia,
-    registrarPagoViajero,
+    crearEnvio,
+    confirmarEnvio,
+    enviarEnvio,
+    cancelarEnvio,
+    registrarPagoColaborador,
     actualizarFlete,
-    reconciliarPagoViajero,
-  } = useTransferenciaStore();
+    reconciliarPagoColaborador,
+  } = useEnvioStore();
 
   const { getTCDelDia } = useTipoCambioStore();
   const [tipoCambioActual, setTipoCambioActual] = useState<{ tasaVenta: number } | null>(null);
@@ -92,9 +88,8 @@ export const Transferencias: React.FC = () => {
     fetchViajeros,
   } = useAlmacenStore();
 
-  // Almacenes dinamicos por tipo
   const almacenesOrigen = useMemo(() =>
-    todosAlmacenes.filter(a => a.estadoAlmacen === 'activo' && esPaisOrigen(a.pais)),
+    todosAlmacenes.filter(a => a.estadoAlmacen === 'activo'),
     [todosAlmacenes]
   );
   const almacenesDestinoPeru = useMemo(() =>
@@ -113,19 +108,19 @@ export const Transferencias: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
   const [showPagoModal, setShowPagoModal] = useState(false);
-  const [transferenciaParaRecepcion, setTransferenciaParaRecepcion] = useState<Transferencia | null>(null);
-  const [transferenciaParaPago, setTransferenciaParaPago] = useState<Transferencia | null>(null);
-  const [selectedTransferencia, setSelectedTransferencia] = useState<Transferencia | null>(null);
+  const [envioParaRecepcion, setEnvioParaRecepcion] = useState<Envio | null>(null);
+  const [envioParaPago, setEnvioParaPago] = useState<Envio | null>(null);
+  const [selectedEnvio, setSelectedEnvio] = useState<Envio | null>(null);
   const [showEditFleteModal, setShowEditFleteModal] = useState(false);
-  const [transferenciaParaFlete, setTransferenciaParaFlete] = useState<Transferencia | null>(null);
+  const [envioParaFlete, setEnvioParaFlete] = useState<Envio | null>(null);
 
   // Estado de vista
   const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
 
   // Estado de filtros
   const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes'>('todas');
-  const [filtroTipo, setFiltroTipo] = useState<TipoTransferencia | 'todas'>('todas');
-  const [filtroEstado, setFiltroEstado] = useState<EstadoTransferencia | 'todas'>('todas');
+  const [filtroTipo, setFiltroTipo] = useState<TipoEnvio | 'todas'>('todas');
+  const [filtroEstado, setFiltroEstado] = useState<EstadoEnvio | ''>('');
   const [busqueda, setBusqueda] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
@@ -136,7 +131,7 @@ export const Transferencias: React.FC = () => {
 
   // Carga inicial de datos
   useEffect(() => {
-    fetchTransferencias();
+    fetchEnvios();
     fetchEnTransito();
     fetchPendientesRecepcion();
     fetchResumen();
@@ -146,33 +141,33 @@ export const Transferencias: React.FC = () => {
     fetchViajeros();
     getTCDelDia().then(tc => setTipoCambioActual(tc ? { tasaVenta: tc.venta } : null)).catch(console.error);
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
-  }, [fetchTransferencias, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
+  }, [fetchEnvios, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
 
   useEffect(() => {
     if (todosProductos.length === 0) fetchProductos();
   }, [todosProductos.length, fetchProductos]);
 
-  // Deep-link desde query param (ej. desde Tesoreria CxP)
+  // Deep-link desde query param
   useEffect(() => {
-    const transferenciaId = searchParams.get('transferenciaId');
-    if (transferenciaId && transferencias.length > 0) {
-      const found = transferencias.find(t => t.id === transferenciaId);
+    const envioId = searchParams.get('envioId');
+    if (envioId && envios.length > 0) {
+      const found = envios.find(e => e.id === envioId);
       if (found) {
-        setSelectedTransferencia(found);
+        setSelectedEnvio(found);
         setSearchParams({}, { replace: true });
       }
     }
-  }, [searchParams, transferencias, setSearchParams]);
+  }, [searchParams, envios, setSearchParams]);
 
-  // Filtrar cada fuente por línea de negocio (sin lineaNegocioId = compartidas, siempre visibles)
-  const transferenciasPorLinea = useLineaFilter(transferencias, t => t.lineaNegocioId, { allowUndefined: true });
-  const transEnTransitoPorLinea = useLineaFilter(transferenciasEnTransito, t => t.lineaNegocioId, { allowUndefined: true });
-  const transPendientesPorLinea = useLineaFilter(transferenciasPendientes, t => t.lineaNegocioId, { allowUndefined: true });
+  // Filtrar por linea de negocio
+  const enviosPorLinea = useLineaFilter(envios, e => e.lineaNegocioId, { allowUndefined: true });
+  const enviosEnTransitoPorLinea = useLineaFilter(enviosEnTransito, e => e.lineaNegocioId, { allowUndefined: true });
+  const enviosPendientesPorLinea = useLineaFilter(enviosPendientesRecepcion, e => e.lineaNegocioId, { allowUndefined: true });
 
-  // Pipeline stages para visualizacion
+  // Pipeline stages
   const pipelineStages: PipelineStage[] = useMemo(() => {
-    const contarPorEstado = (estados: EstadoTransferencia[]) =>
-      transferenciasPorLinea.filter(t => estados.includes(t.estado)).length;
+    const contarPorEstado = (estados: EstadoEnvio[]) =>
+      enviosPorLinea.filter(e => estados.includes(e.estado)).length;
 
     return [
       {
@@ -183,9 +178,9 @@ export const Transferencias: React.FC = () => {
         icon: <FileText className="h-4 w-4" />,
       },
       {
-        id: 'preparando',
-        label: 'Preparando',
-        count: contarPorEstado(['preparando']),
+        id: 'confirmado',
+        label: 'Confirmado',
+        count: contarPorEstado(['confirmado']),
         color: 'yellow' as const,
         icon: <Package className="h-4 w-4" />,
       },
@@ -211,144 +206,144 @@ export const Transferencias: React.FC = () => {
         icon: <XOctagon className="h-4 w-4" />,
       },
     ];
-  }, [transferenciasPorLinea]);
+  }, [enviosPorLinea]);
 
   // Calcular valor total en transito
   const valorEnTransito = useMemo(() => {
-    return transferenciasEnTransito.reduce((total, t) => {
-      const valorTransferencia = t.productosSummary?.reduce((sum, p) => sum + ((p as { costoTotalUSD?: number }).costoTotalUSD || 0), 0) || 0;
-      return total + valorTransferencia;
+    return enviosEnTransito.reduce((total, e) => {
+      const valorEnvio = e.productosSummary?.reduce((sum, p) => sum + ((p as { costoTotalUSD?: number }).costoTotalUSD || 0), 0) || 0;
+      return total + valorEnvio;
     }, 0);
-  }, [transferenciasEnTransito]);
+  }, [enviosEnTransito]);
 
-  // Filtrar transferencias
-  const transferenciasFiltradas = useMemo(() => {
+  // Filtrar envios
+  const enviosFiltrados = useMemo(() => {
     let lista = activeTab === 'en_transito'
-      ? transEnTransitoPorLinea
+      ? enviosEnTransitoPorLinea
       : activeTab === 'pendientes'
-        ? transPendientesPorLinea
-        : transferenciasPorLinea;
+        ? enviosPendientesPorLinea
+        : enviosPorLinea;
 
     if (pipelineStage) {
       if (pipelineStage === 'recibida') {
-        lista = lista.filter(t => t.estado === 'recibida_parcial' || t.estado === 'recibida_completa');
+        lista = lista.filter(e => e.estado === 'recibida_parcial' || e.estado === 'recibida_completa');
       } else {
-        lista = lista.filter(t => t.estado === pipelineStage);
+        lista = lista.filter(e => e.estado === pipelineStage);
       }
     }
 
     if (filtroTipo !== 'todas') {
-      if (filtroTipo === 'internacional_peru' || filtroTipo === 'usa_peru') {
-        lista = lista.filter(t => esTipoTransferenciaInternacional(t.tipo));
-      } else if (filtroTipo === 'interna_origen' || filtroTipo === 'interna_usa') {
-        lista = lista.filter(t => esTipoTransferenciaInterna(t.tipo));
-      } else {
-        lista = lista.filter(t => t.tipo === filtroTipo);
-      }
+      lista = lista.filter(e => e.tipo === filtroTipo);
     }
 
-    if (filtroEstado !== 'todas') {
-      lista = lista.filter(t => t.estado === filtroEstado);
+    if (filtroEstado) {
+      lista = lista.filter(e => e.estado === filtroEstado);
     }
 
     if (busqueda) {
       const term = busqueda.toLowerCase();
-      lista = lista.filter(t => {
-        const numeroTransferencia = (t.numeroTransferencia ?? '').toLowerCase();
-        const almacenOrigenNombre = (t.almacenOrigenNombre ?? '').toLowerCase();
-        const almacenDestinoNombre = (t.almacenDestinoNombre ?? '').toLowerCase();
-        return numeroTransferencia.includes(term) ||
-               almacenOrigenNombre.includes(term) ||
-               almacenDestinoNombre.includes(term);
+      lista = lista.filter(e => {
+        const numeroEnvio = (e.numeroEnvio ?? '').toLowerCase();
+        const origenNombre = (e.origenCasillaNombre ?? e.origenProveedorNombre ?? '').toLowerCase();
+        const destinoNombre = (e.destinoCasillaNombre ?? '').toLowerCase();
+        return numeroEnvio.includes(term) ||
+               origenNombre.includes(term) ||
+               destinoNombre.includes(term);
       });
     }
 
     return lista;
-  }, [activeTab, transEnTransitoPorLinea, transPendientesPorLinea, transferenciasPorLinea,
+  }, [activeTab, enviosEnTransitoPorLinea, enviosPendientesPorLinea, enviosPorLinea,
       pipelineStage, filtroTipo, filtroEstado, busqueda]);
 
   // Handlers de acciones
   const handleConfirmar = useCallback(async (id: string) => {
     if (!user) return;
     const confirmed = await confirmDialog({
-      title: 'Confirmar Transferencia',
-      message: 'Confirmar esta env00edo para preparaci00f3n?',
+      title: 'Confirmar Envio',
+      message: 'Confirmar este envio para preparacion?',
       confirmText: 'Confirmar',
       variant: 'info',
     });
     if (confirmed) {
-      await confirmarTransferencia(id, user.uid);
+      await confirmarEnvio(id, user.uid);
     }
-  }, [user, confirmDialog, confirmarTransferencia]);
+  }, [user, confirmDialog, confirmarEnvio]);
 
   const handleEnviar = useCallback(async (id: string) => {
     if (!user) return;
     const confirmed = await confirmDialog({
-      title: 'Enviar Transferencia',
-      message: 'Marcar esta env00edo como enviado?',
+      title: 'Marcar como Enviado',
+      message: 'Marcar este envio como en transito?',
       confirmText: 'Enviar',
       variant: 'info',
     });
     if (confirmed) {
-      await enviarTransferencia(id, { fechaSalida: new Date() }, user.uid);
+      await enviarEnvio(id, { fechaSalida: new Date() }, user.uid);
     }
-  }, [user, confirmDialog, enviarTransferencia]);
+  }, [user, confirmDialog, enviarEnvio]);
 
   const handleCancelar = useCallback(async (id: string) => {
     if (!user) return;
     const motivo = prompt("Ingrese el motivo de cancelacion:");
     if (motivo) {
-      await cancelarTransferencia(id, motivo, user.uid);
+      await cancelarEnvio(id, motivo, user.uid);
     }
-  }, [user, cancelarTransferencia]);
+  }, [user, cancelarEnvio]);
 
-  const handleIniciarRecepcion = useCallback((transferencia: Transferencia) => {
-    setTransferenciaParaRecepcion(transferencia);
-    setSelectedTransferencia(null);
+  const handleIniciarRecepcion = useCallback((envio: Envio) => {
+    setEnvioParaRecepcion(envio);
+    setSelectedEnvio(null);
     setShowRecepcionModal(true);
   }, []);
 
-  const handleAbrirPagoViajero = useCallback((transferencia: Transferencia) => {
-    setTransferenciaParaPago(transferencia);
-    setSelectedTransferencia(null);
+  const handleAbrirPagoColaborador = useCallback((envio: Envio) => {
+    setEnvioParaPago(envio);
+    setSelectedEnvio(null);
     setShowPagoModal(true);
   }, []);
 
-  const handleAbrirEditFlete = useCallback((transferencia: Transferencia) => {
-    setTransferenciaParaFlete(transferencia);
+  const handleAbrirEditFlete = useCallback((envio: Envio) => {
+    setEnvioParaFlete(envio);
     setShowEditFleteModal(true);
   }, []);
 
-  const handleReconciliarPago = useCallback(async (transferencia: Transferencia) => {
+  const handleReconciliarPago = useCallback(async (envio: Envio) => {
     if (!user) return;
     try {
-      await reconciliarPagoViajero(transferencia.id, user.uid);
-      setSelectedTransferencia(null);
-      toast.success('Pago sincronizado correctamente en Tesorería');
+      await reconciliarPagoColaborador(envio.id, user.uid);
+      setSelectedEnvio(null);
+      toast.success('Pago sincronizado correctamente en Tesoreria');
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Error desconocido';
       toast.error(msg);
     }
-  }, [user, reconciliarPagoViajero]);
+  }, [user, reconciliarPagoColaborador, toast]);
 
-  const handleCrearTransferencia = useCallback(async (data: TransferenciaFormData) => {
+  const handleCrearEnvio = useCallback(async (data: EnvioFormData) => {
     if (!user) return;
-    await crearTransferencia(data, user.uid);
-  }, [user, crearTransferencia]);
+    await crearEnvio(data, user.uid);
+  }, [user, crearEnvio]);
 
-  const handleRegistrarRecepcion = useCallback(async (data: RecepcionFormData) => {
+  const handleRegistrarRecepcion = useCallback(async (data: RecepcionEnvioFormData) => {
     if (!user) return;
     try {
-      await registrarRecepcion(data, user.uid);
+      // Recepcion se registra via el servicio de recepcion directamente por ahora
+      // El store tiene registrarRecepcion pero la accion es del servicio
+      const { envioRecepcionService } = await import('../../services/envio.recepcion.service');
+      await envioRecepcionService.registrarRecepcion(data, user.uid);
+      await fetchEnvios();
+      await fetchPendientesRecepcion();
       setShowRecepcionModal(false);
-      setTransferenciaParaRecepcion(null);
+      setEnvioParaRecepcion(null);
+      toast.success('Recepcion registrada correctamente');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       toast.error('Error: ' + message);
     }
-  }, [user, registrarRecepcion]);
+  }, [user, fetchEnvios, fetchPendientesRecepcion, toast]);
 
-  const handleRegistrarPagoViajero = useCallback(async (datos: {
+  const handleRegistrarPagoColaborador = useCallback(async (datos: {
     fechaPago: Date;
     monedaPago: 'USD' | 'PEN';
     montoOriginal: number;
@@ -358,86 +353,96 @@ export const Transferencias: React.FC = () => {
     referencia?: string;
     notas?: string;
   }) => {
-    if (!user || !transferenciaParaPago) return;
+    if (!user || !envioParaPago) return;
     try {
-      await registrarPagoViajero(transferenciaParaPago.id, datos, user.uid);
+      await registrarPagoColaborador(envioParaPago.id, datos, user.uid);
       setShowPagoModal(false);
-      setTransferenciaParaPago(null);
-      toast.success('Pago al viajero registrado correctamente');
+      setEnvioParaPago(null);
+      toast.success('Pago al colaborador registrado correctamente');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       toast.error('Error: ' + message);
     }
-  }, [user, transferenciaParaPago, registrarPagoViajero]);
+  }, [user, envioParaPago, registrarPagoColaborador, toast]);
 
   const handleActualizarFlete = useCallback(async (costoFletePorProducto: Record<string, number>) => {
-    if (!user || !transferenciaParaFlete) return;
+    if (!user || !envioParaFlete) return;
     try {
-      await actualizarFlete(transferenciaParaFlete.id, costoFletePorProducto, user.uid);
+      await actualizarFlete(envioParaFlete.id, costoFletePorProducto, user.uid);
       setShowEditFleteModal(false);
-      setTransferenciaParaFlete(null);
-      setSelectedTransferencia(null);
+      setEnvioParaFlete(null);
+      setSelectedEnvio(null);
       toast.success('Flete actualizado correctamente');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       toast.error('Error: ' + message);
     }
-  }, [user, transferenciaParaFlete, actualizarFlete]);
+  }, [user, envioParaFlete, actualizarFlete, toast]);
 
   // Mapeo de estado → variante visual
-  const estadoVariant = (estado: EstadoTransferencia) => {
-    const map: Record<EstadoTransferencia, 'neutral' | 'info' | 'warning' | 'success' | 'danger'> = {
+  const estadoVariant = (estado: EstadoEnvio): 'neutral' | 'info' | 'warning' | 'success' | 'danger' => {
+    const map: Record<EstadoEnvio, 'neutral' | 'info' | 'warning' | 'success' | 'danger'> = {
       borrador: 'neutral',
-      preparando: 'info',
+      confirmado: 'info',
       en_transito: 'warning',
+      retenida_aduana: 'danger',
       recibida_parcial: 'warning',
       recibida_completa: 'success',
+      perdida_total: 'danger',
       cancelada: 'danger',
     };
     return map[estado] ?? 'neutral';
   };
 
-  const estadoLabel = (estado: EstadoTransferencia): string => {
-    const map: Record<EstadoTransferencia, string> = {
+  const estadoLabel = (estado: EstadoEnvio): string => {
+    const map: Record<EstadoEnvio, string> = {
       borrador: 'Borrador',
-      preparando: 'Preparando',
-      en_transito: 'En Tránsito',
+      confirmado: 'Confirmado',
+      en_transito: 'En Transito',
+      retenida_aduana: 'Aduana',
       recibida_parcial: 'Parcial',
       recibida_completa: 'Completa',
+      perdida_total: 'Perdida',
       cancelada: 'Cancelada',
     };
     return map[estado] ?? estado;
   };
 
   // Columnas de la tabla
-  const envioColumns: DataTableColumn<Transferencia>[] = [
+  const envioColumns: DataTableColumn<Envio>[] = [
     {
       key: 'numero',
-      header: 'Número',
-      render: (t) => (
+      header: 'Numero',
+      render: (e) => (
         <div className="flex flex-col gap-0.5">
-          <span className="font-mono text-sm font-medium text-slate-900">{t.numeroTransferencia}</span>
-          <span className="text-xs text-slate-500 capitalize">{esTipoTransferenciaInternacional(t.tipo) ? 'Internacional' : 'Interna'}</span>
+          <span className="font-mono text-sm font-medium text-slate-900">{e.numeroEnvio}</span>
+          <span className="text-xs text-slate-500 capitalize">
+            {e.tipo === 'internacional_peru' ? 'Internacional' : 'Interna'}
+          </span>
         </div>
       ),
     },
     {
       key: 'ruta',
       header: 'Ruta',
-      render: (t) => (
+      render: (e) => (
         <div className="flex items-center gap-1 text-sm text-slate-700">
-          <span className="truncate max-w-[90px]" title={t.almacenOrigenNombre}>{t.almacenOrigenNombre}</span>
+          <span className="truncate max-w-[90px]" title={e.origenCasillaNombre ?? e.origenProveedorNombre}>
+            {e.origenCasillaNombre ?? e.origenProveedorNombre ?? '—'}
+          </span>
           <ArrowRightLeft className="h-3 w-3 text-slate-400 shrink-0" />
-          <span className="truncate max-w-[90px]" title={t.almacenDestinoNombre}>{t.almacenDestinoNombre}</span>
+          <span className="truncate max-w-[90px]" title={e.destinoCasillaNombre}>
+            {e.destinoCasillaNombre}
+          </span>
         </div>
       ),
     },
     {
       key: 'estado',
       header: 'Estado',
-      render: (t) => (
-        <StatusBadge variant={estadoVariant(t.estado)} dot>
-          {estadoLabel(t.estado)}
+      render: (e) => (
+        <StatusBadge variant={estadoVariant(e.estado)} dot>
+          {estadoLabel(e.estado)}
         </StatusBadge>
       ),
     },
@@ -445,8 +450,8 @@ export const Transferencias: React.FC = () => {
       key: 'unidades',
       header: 'Unidades',
       align: 'right',
-      render: (t) => (
-        <span className="text-sm text-slate-700">{t.totalUnidades ?? t.unidades?.length ?? 0}</span>
+      render: (e) => (
+        <span className="text-sm text-slate-700">{e.totalUnidades ?? e.unidades?.length ?? 0}</span>
       ),
       hideOnMobile: true,
     },
@@ -454,10 +459,10 @@ export const Transferencias: React.FC = () => {
       key: 'flete',
       header: 'Flete',
       align: 'right',
-      render: (t) => (
+      render: (e) => (
         <span className="text-sm text-slate-700">
-          {t.costoFleteTotal != null
-            ? `$${t.costoFleteTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+          {e.costoFleteTotal != null
+            ? `$${e.costoFleteTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
             : '—'}
         </span>
       ),
@@ -467,10 +472,10 @@ export const Transferencias: React.FC = () => {
       key: 'fecha',
       header: 'Fecha',
       align: 'right',
-      render: (t) => (
+      render: (e) => (
         <span className="text-sm text-slate-500">
-          {t.fechaCreacion?.toDate
-            ? t.fechaCreacion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' })
+          {e.fechaCreacion?.toDate
+            ? e.fechaCreacion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' })
             : '—'}
         </span>
       ),
@@ -480,27 +485,27 @@ export const Transferencias: React.FC = () => {
       key: 'acciones',
       header: '',
       align: 'right',
-      render: (t) => (
-        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-          {t.estado === 'borrador' && (
+      render: (e) => (
+        <div className="flex items-center justify-end gap-1" onClick={(ev) => ev.stopPropagation()}>
+          {e.estado === 'borrador' && (
             <button
-              onClick={() => handleConfirmar(t.id)}
+              onClick={() => handleConfirmar(e.id)}
               className="text-xs px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors"
             >
               Confirmar
             </button>
           )}
-          {t.estado === 'preparando' && (
+          {e.estado === 'confirmado' && (
             <button
-              onClick={() => handleEnviar(t.id)}
+              onClick={() => handleEnviar(e.id)}
               className="text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
             >
               Enviar
             </button>
           )}
-          {(t.estado === 'en_transito' || t.estado === 'recibida_parcial') && (
+          {(e.estado === 'en_transito' || e.estado === 'recibida_parcial') && (
             <button
-              onClick={() => handleIniciarRecepcion(t)}
+              onClick={() => handleIniciarRecepcion(e)}
               className="text-xs px-2 py-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
             >
               Recibir
@@ -514,16 +519,15 @@ export const Transferencias: React.FC = () => {
   return (
     <PageShell>
       <PageHeader
-        title="Env\u00edos"
+        title="Envios"
         subtitle="Gestiona el movimiento de productos entre casillas"
         icon={ArrowRightLeft}
-       
         actions={
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               onClick={() => {
-                fetchTransferencias();
+                fetchEnvios();
                 fetchEnTransito();
                 fetchPendientesRecepcion();
                 fetchResumen();
@@ -534,31 +538,31 @@ export const Transferencias: React.FC = () => {
             </Button>
             <Button variant="primary" size="sm" onClick={() => setShowCreateModal(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Nueva Transferencia
+              Nuevo Envio
             </Button>
           </div>
         }
         stats={[
-          { label: 'Total', value: transferenciasPorLinea.length },
+          { label: 'Total', value: enviosPorLinea.length },
           { label: 'En Transito', value: resumen?.enTransito || 0 },
           { label: 'Pendientes', value: resumen?.pendientesRecepcion || 0 },
           { label: 'Completadas', value: resumen?.completadasMes || 0 },
         ]}
       />
 
-      {/* Tabs: Transferencias vs Envios Proveedor */}
+      {/* Tabs: Envios vs Envios Proveedor */}
       <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit">
         <button
           type="button"
-          onClick={() => setTabEnvios('transferencias')}
+          onClick={() => setTabEnvios('envios')}
           className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
-            tabEnvios === 'transferencias'
+            tabEnvios === 'envios'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           <ArrowRightLeft className="w-3.5 h-3.5 inline mr-1.5" />
-          Transferencias
+          Envios
         </button>
         <button
           type="button"
@@ -578,34 +582,32 @@ export const Transferencias: React.FC = () => {
         <EnviosProveedorTab />
       ) : (
       <>
-      {/* Filtro de línea de negocio */}
-
       {/* StatCards interactivos */}
       <DSKPIBar columns={6}>
-        <DSStatCard label="Total" value={transferenciasPorLinea.length} icon={ArrowRightLeft} variant="neutral" />
+        <DSStatCard label="Total" value={enviosPorLinea.length} icon={ArrowRightLeft} variant="neutral" />
         <DSStatCard label="En Transito" value={resumen?.enTransito || 0} icon={Truck} variant="info" onClick={() => setActiveTab('en_transito')} active={activeTab === 'en_transito'} />
         <DSStatCard label="Pendientes" value={resumen?.pendientesRecepcion || 0} icon={Clock} variant="warning" onClick={() => setActiveTab('pendientes')} active={activeTab === 'pendientes'} />
         <DSStatCard label="Completadas" value={resumen?.completadasMes || 0} icon={CheckCircle} variant="success" />
-        <DSStatCard label="Incidencias" value={resumen?.transferenciasConIncidencias || 0} icon={AlertTriangle} variant={resumen?.transferenciasConIncidencias ? 'danger' : 'neutral'} />
+        <DSStatCard label="Incidencias" value={resumen?.enviosConIncidencias || 0} icon={AlertTriangle} variant={resumen?.enviosConIncidencias ? 'danger' : 'neutral'} />
         <DSStatCard label="Valor USD" value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'} icon={DollarSign} variant="brand" />
       </DSKPIBar>
 
       {/* Distribucion Visual */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <StatDistribution
-          title="Estado de Transferencias"
+          title="Estado de Envios"
           data={[
             { label: 'Borrador', value: pipelineStages[0]?.count || 0, color: 'bg-slate-400' },
-            { label: 'Preparando', value: pipelineStages[1]?.count || 0, color: 'bg-yellow-500' },
+            { label: 'Confirmado', value: pipelineStages[1]?.count || 0, color: 'bg-yellow-500' },
             { label: 'En Transito', value: pipelineStages[2]?.count || 0, color: 'bg-sky-500' },
             { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-emerald-500' },
           ]}
         />
         <StatDistribution
-          title="Tipo de Transferencias"
+          title="Tipo de Envios"
           data={[
-            { label: 'Internacional → Peru', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInternacional(t.tipo)).length, color: 'bg-sky-500' },
-            { label: 'Interna Origen', value: transferenciasPorLinea.filter(t => esTipoTransferenciaInterna(t.tipo)).length, color: 'bg-slate-500' },
+            { label: 'Internacional Peru', value: enviosPorLinea.filter(e => e.tipo === 'internacional_peru').length, color: 'bg-sky-500' },
+            { label: 'Interna Origen', value: enviosPorLinea.filter(e => e.tipo === 'interna_origen').length, color: 'bg-slate-500' },
           ]}
         />
       </div>
@@ -615,7 +617,7 @@ export const Transferencias: React.FC = () => {
         stages={pipelineStages}
         activeStage={pipelineStage}
         onStageClick={setPipelineStage}
-        title="Flujo de Transferencias"
+        title="Flujo de Envios"
       />
 
       {/* Toolbar */}
@@ -623,7 +625,7 @@ export const Transferencias: React.FC = () => {
         search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar envios...' }}
         filterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
         onFilterToggle={() => setShowFilters(true)}
-        resultCount={transferenciasFiltradas.length}
+        resultCount={enviosFiltrados.length}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
@@ -636,67 +638,68 @@ export const Transferencias: React.FC = () => {
         activeFilterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
       >
         <FilterSection title="Vista">
-          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={activeTab} onChange={e => setActiveTab(e.target.value as any)}>
+          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={activeTab} onChange={e => setActiveTab(e.target.value as 'todas' | 'en_transito' | 'pendientes')}>
             <option value="todas">Todos los envios</option>
             <option value="en_transito">En transito</option>
             <option value="pendientes">Pendientes recepcion</option>
           </select>
         </FilterSection>
         <FilterSection title="Tipo">
-          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroTipo} onChange={e => setFiltroTipo(e.target.value as any)}>
+          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroTipo} onChange={e => setFiltroTipo(e.target.value as TipoEnvio | 'todas')}>
             <option value="todas">Todos los tipos</option>
             <option value="internacional_peru">Internacional</option>
             <option value="interna_origen">Interna Origen</option>
           </select>
         </FilterSection>
         <FilterSection title="Estado">
-          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value as EstadoEnvio | '')}>
             <option value="">Todos</option>
             <option value="borrador">Borrador</option>
-            <option value="preparando">Preparando</option>
+            <option value="confirmado">Confirmado</option>
             <option value="en_transito">En Transito</option>
             <option value="recibida_parcial">Parcial</option>
             <option value="recibida_completa">Completada</option>
+            <option value="cancelada">Cancelada</option>
           </select>
         </FilterSection>
       </FilterDrawer>
 
-      {/* Lista de transferencias */}
+      {/* Lista de envios */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
         </div>
-      ) : transferenciasFiltradas.length === 0 ? (
+      ) : enviosFiltrados.length === 0 ? (
         <Card padding="lg">
           <div className="text-center py-12">
             <ArrowRightLeft className="h-16 w-16 text-slate-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
-              No hay transferencias
+              No hay envios
             </h3>
             <p className="text-slate-600 mb-6">
               {activeTab === 'en_transito'
-                ? 'No hay env00edos en tr00e1nsito'
+                ? 'No hay envios en transito'
                 : activeTab === 'pendientes'
-                  ? 'No hay env00edos pendientes de recepci00f3n'
-                  : 'Crea tu primer env00edo para mover productos entre casillas'
+                  ? 'No hay envios pendientes de recepcion'
+                  : 'Crea tu primer envio para mover productos entre casillas'
               }
             </p>
             {activeTab === 'todas' && (
               <Button variant="primary" onClick={() => setShowCreateModal(true)}>
                 <Plus className="h-5 w-5 mr-2" />
-                Nueva Transferencia
+                Nuevo Envio
               </Button>
             )}
           </div>
         </Card>
       ) : viewMode === 'card' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {transferenciasFiltradas.map(transferencia => (
-            <TransferenciaCard
-              key={transferencia.id}
-              transferencia={transferencia}
+          {enviosFiltrados.map(envio => (
+            <EnvioCard
+              key={envio.id}
+              envio={envio}
               productosMap={productosMapGlobal}
-              onSelect={setSelectedTransferencia}
+              onSelect={setSelectedEnvio}
               onConfirmar={handleConfirmar}
               onEnviar={handleEnviar}
               onCancelar={handleCancelar}
@@ -708,17 +711,17 @@ export const Transferencias: React.FC = () => {
         <Card padding="none">
           <DataTable
             columns={envioColumns}
-            data={transferenciasFiltradas}
-            keyExtractor={(t) => t.id}
-            onRowClick={(t) => setSelectedTransferencia(t)}
+            data={enviosFiltrados}
+            keyExtractor={(e) => e.id}
+            onRowClick={(e) => setSelectedEnvio(e)}
             compact
             emptyMessage="No hay envios con los filtros actuales"
           />
         </Card>
       )}
 
-      {/* Modal: Crear transferencia */}
-      <CreateTransferenciaModal
+      {/* Modal: Crear envio */}
+      <CreateEnvioModal
         isOpen={showCreateModal}
         loading={loading}
         almacenesOrigen={almacenesOrigen}
@@ -726,52 +729,50 @@ export const Transferencias: React.FC = () => {
         viajeros={viajeros}
         productosMap={productosMapGlobal}
         onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCrearTransferencia}
+        onSubmit={handleCrearEnvio}
       />
 
-      {/* Modal: Detalle de transferencia */}
-      {selectedTransferencia && (
-        <TransferenciaDetailModal
-          transferencia={selectedTransferencia}
+      {/* Modal: Detalle de envio */}
+      {selectedEnvio && (
+        <EnvioDetailModal
+          envio={selectedEnvio}
           productosMap={productosMapGlobal}
           userId={user?.uid}
-          onClose={() => setSelectedTransferencia(null)}
+          onClose={() => setSelectedEnvio(null)}
           onConfirmar={handleConfirmar}
           onEnviar={handleEnviar}
           onIniciarRecepcion={handleIniciarRecepcion}
-          onAbrirPagoViajero={handleAbrirPagoViajero}
+          onAbrirPagoColaborador={handleAbrirPagoColaborador}
           onAbrirEditFlete={handleAbrirEditFlete}
           onReconciliarPago={handleReconciliarPago}
         />
       )}
 
       {/* Modal: Recepcion */}
-      {showRecepcionModal && transferenciaParaRecepcion && (
+      {showRecepcionModal && envioParaRecepcion && (
         <RecepcionModal
-          transferencia={transferenciaParaRecepcion}
+          transferencia={envioParaRecepcion}
           productosMap={productosMapGlobal}
           onClose={() => {
             setShowRecepcionModal(false);
-            setTransferenciaParaRecepcion(null);
+            setEnvioParaRecepcion(null);
           }}
           onConfirm={handleRegistrarRecepcion}
         />
       )}
 
-      {/* Modal: Pago al Viajero (Unificado) */}
-      {showPagoModal && transferenciaParaPago && (() => {
-        const pagosAnteriores = transferenciaParaPago.pagosViajero?.length
-          ? transferenciaParaPago.pagosViajero
-          : transferenciaParaPago.pagoViajero ? [transferenciaParaPago.pagoViajero] : [];
+      {/* Modal: Pago al Colaborador (Unificado) */}
+      {showPagoModal && envioParaPago && (() => {
+        const pagosAnteriores = envioParaPago.pagosColaborador ?? [];
         const pagadoUSD = pagosAnteriores.reduce((s, p) => s + (p.montoUSD || 0), 0);
-        const pendienteUSD = (transferenciaParaPago.costoFleteTotal || 0) - pagadoUSD;
+        const pendienteUSD = (envioParaPago.costoFleteTotal || 0) - pagadoUSD;
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6">
               <PagoUnificadoForm
                 origen="viajero"
-                titulo={`Pago Viajero — ${transferenciaParaPago.viajeroNombre || transferenciaParaPago.numeroEnvio}`}
-                montoTotal={transferenciaParaPago.costoFleteTotal || 0}
+                titulo={`Pago Colaborador — ${envioParaPago.colaboradorNombre || envioParaPago.numeroEnvio}`}
+                montoTotal={envioParaPago.costoFleteTotal || 0}
                 montoPendiente={Math.max(0, pendienteUSD)}
                 monedaOriginal="USD"
                 tcDocumento={tipoCambioActual?.tasaVenta}
@@ -784,12 +785,12 @@ export const Transferencias: React.FC = () => {
                   referencia: p.referencia,
                 }))}
                 onSubmit={async (datos: PagoUnificadoResult) => {
-                  await handleRegistrarPagoViajero({
+                  await handleRegistrarPagoColaborador({
                     fechaPago: datos.fechaPago,
                     monedaPago: datos.monedaPago,
                     montoOriginal: datos.montoOriginal,
                     tipoCambio: datos.tipoCambio,
-                    metodoPago: datos.metodoPago as any,
+                    metodoPago: datos.metodoPago as MetodoTesoreria,
                     cuentaOrigenId: datos.cuentaOrigenId,
                     referencia: datos.referencia,
                     notas: datos.notas,
@@ -797,7 +798,7 @@ export const Transferencias: React.FC = () => {
                 }}
                 onCancel={() => {
                   setShowPagoModal(false);
-                  setTransferenciaParaPago(null);
+                  setEnvioParaPago(null);
                 }}
               />
             </div>
@@ -806,12 +807,12 @@ export const Transferencias: React.FC = () => {
       })()}
 
       {/* Modal: Editar Flete */}
-      {showEditFleteModal && transferenciaParaFlete && (
+      {showEditFleteModal && envioParaFlete && (
         <EditFleteModal
-          transferencia={transferenciaParaFlete}
+          transferencia={envioParaFlete}
           onClose={() => {
             setShowEditFleteModal(false);
-            setTransferenciaParaFlete(null);
+            setEnvioParaFlete(null);
           }}
           onConfirm={handleActualizarFlete}
         />

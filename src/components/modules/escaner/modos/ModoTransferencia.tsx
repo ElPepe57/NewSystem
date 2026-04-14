@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { ArrowRightLeft, Warehouse, Package, CheckCircle2, Trash2, Minus, Plus, AlertCircle, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { almacenService } from '../../../../services/casilla.service';
+import { casillaCrudService } from '../../../../services/casilla.crud.service';
 import { unidadService } from '../../../../services/unidad.service';
-import { transferenciaService } from '../../../../services/transferencia.service';
+import { envioCrudService } from '../../../../services/envio.crud.service';
 import { ProductoService } from '../../../../services/producto.service';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import type { Almacen } from '../../../../types/almacen.types';
 import type { Unidad } from '../../../../types/unidad.types';
-import type { TipoTransferencia } from '../../../../types/transferencia.types';
-import { esTipoTransferenciaInternacional, esTipoTransferenciaInterna, getLabelTipoTransferencia } from '../../../../utils/multiOrigen.helpers';
+import type { TipoEnvio } from '../../../../types/envio.types';
 import { VincularUPCModal } from '../VincularUPCModal';
 
 export interface ModoTransferenciaHandle {
@@ -50,12 +50,33 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   useEffect(() => {
     const load = async () => {
       try {
-        const [all, viajerosData] = await Promise.all([
+        const [almLegacy, viajerosData, casillasNuevas] = await Promise.all([
           almacenService.getAll(),
           almacenService.getViajeros().catch(() => [] as Almacen[]),
+          casillaCrudService.getAll().catch(() => []),
         ]);
-        // Solo almacenes locales en Perú (el escáner no se usa en USA)
-        setAlmacenes(all.filter(a => a.estadoAlmacen !== 'inactivo' && (a.pais === 'Peru' || a.pais === 'Peru_local')));
+
+        // Unificar: casillas nuevas + almacenes legacy (sin duplicados por id)
+        const idsCasillas = new Set(casillasNuevas.map(c => c.id));
+        const legacyFiltered = almLegacy.filter(a =>
+          !idsCasillas.has(a.id) && a.estadoAlmacen !== 'inactivo' && (a.pais === 'Peru' || a.pais === 'Peru_local')
+        );
+        const casillasPeru = casillasNuevas
+          .filter(c => c.estado === 'activa' && (c.pais === 'Peru' || c.pais === 'Peru_local'))
+          // Adaptar forma de Casilla a Almacen para compatibilidad local de UI
+          .map(c => ({
+            id: c.id,
+            codigo: c.codigo,
+            nombre: c.nombre,
+            pais: c.pais,
+            tipo: 'almacen_peru',
+            estadoAlmacen: c.estado === 'activa' ? 'activo' : 'inactivo',
+            direccion: c.direccion || '',
+            ciudad: c.ciudad || '',
+            esViajero: false,
+          } as any as Almacen));
+
+        setAlmacenes([...casillasPeru, ...legacyFiltered]);
         setViajeros(viajerosData);
       } catch {
         toast.error('Error al cargar almacenes');
@@ -118,7 +139,7 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
   }, [unidadesOrigen]);
 
   // Determine transfer type based on warehouse selection
-  const tipoTransferencia = useMemo((): TipoTransferencia | null => {
+  const tipoTransferencia = useMemo((): TipoEnvio | null => {
     if (!origenId || !destinoId) return null;
     const origen = almacenes.find(a => a.id === origenId);
     const destino = almacenes.find(a => a.id === destinoId);
@@ -237,17 +258,18 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
         unidadesIds.push(...ids);
       }
 
-      const transferenciaId = await transferenciaService.crear({
+      const { id: transferenciaId } = await envioCrudService.crear({
         tipo: tipoTransferencia,
-        almacenOrigenId: origenId,
-        almacenDestinoId: destinoId,
+        origenTipo: 'casilla',
+        origenCasillaId: origenId,
+        destinoCasillaId: destinoId,
         unidadesIds,
         notas: notas || undefined,
-        ...(esTipoTransferenciaInternacional(tipoTransferencia) && viajeroId ? { viajeroId } : {}),
-        ...(esTipoTransferenciaInternacional(tipoTransferencia) && numeroTracking.trim() ? { numeroTracking: numeroTracking.trim() } : {}),
+        ...(tipoTransferencia === 'internacional_peru' && viajeroId ? { viajeroId, colaboradorId: viajeroId } : {}),
+        ...(tipoTransferencia === 'internacional_peru' && numeroTracking.trim() ? { numeroTracking: numeroTracking.trim() } : {}),
       }, user.uid);
 
-      toast.success(`Transferencia creada exitosamente`);
+      toast.success(`Envio creado exitosamente`);
       setProductos([]);
       setNotas('');
       setViajeroId('');
@@ -332,11 +354,11 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
             {tipoTransferencia && (
               <div className="flex items-center gap-2 text-xs">
                 <span className={`px-2 py-0.5 rounded-full font-medium ${
-                  esTipoTransferenciaInternacional(tipoTransferencia)
+                  tipoTransferencia === 'internacional_peru'
                     ? 'bg-purple-100 text-purple-700'
                     : 'bg-sky-100 text-sky-700'
                 }`}>
-                  {getLabelTipoTransferencia(tipoTransferencia, almacenes.find(a => a.id === origenId)?.pais)}
+                  {tipoTransferencia === 'internacional_peru' ? 'Internacional → Peru' : 'Interna Origen'}
                 </span>
                 {loadingUnidades && (
                   <span className="flex items-center gap-1 text-slate-500">
@@ -446,7 +468,7 @@ export const ModoTransferencia = forwardRef<ModoTransferenciaHandle>((_props, re
       {productos.length > 0 && (
         <>
           {/* Viajero/tracking fields for USA → Peru */}
-          {tipoTransferencia && esTipoTransferenciaInternacional(tipoTransferencia) && (
+          {tipoTransferencia && tipoTransferencia === 'internacional_peru' && (
             <div className="bg-white border border-purple-200 rounded-xl p-3 sm:p-4">
               <button
                 type="button"

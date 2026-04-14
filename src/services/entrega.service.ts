@@ -28,7 +28,7 @@ import type {
 } from '../types/entrega.types';
 import type { Venta, EstadoVenta } from '../types/venta.types';
 import type { Unidad, MovimientoUnidad } from '../types/unidad.types';
-import { transportistaService } from './transportista.service';
+import { colaboradorService } from './colaborador.service';
 import { movimientoTransportistaService } from './movimiento-transportista.service';
 import { gastoService } from './gasto.service';
 import { unidadService } from './unidad.service';
@@ -274,8 +274,8 @@ export const entregaService = {
     venta: Venta,
     userId: string
   ): Promise<string> {
-    // Obtener transportista
-    const transportista = await transportistaService.getById(data.transportistaId);
+    // Obtener transportista (colaborador de tipo transportista_local)
+    const transportista = await colaboradorService.getById(data.transportistaId);
     if (!transportista) {
       throw new Error('Transportista no encontrado');
     }
@@ -332,8 +332,9 @@ export const entregaService = {
     // ISSUE 6: Fallback de costo del transportista
     // =============================================
     let costoFinal = data.costoTransportista;
-    if (costoFinal === 0 && transportista.costoFijo && transportista.costoFijo > 0) {
-      costoFinal = transportista.costoFijo;
+    const costoFijoTransportista = transportista.tarifas?.costoFijo;
+    if (costoFinal === 0 && costoFijoTransportista && costoFijoTransportista > 0) {
+      costoFinal = costoFijoTransportista;
       logger.warn(`[Entrega] costoTransportista era 0, usando costoFijo del transportista: S/${costoFinal}`);
     }
 
@@ -369,7 +370,7 @@ export const entregaService = {
       // Transportista
       transportistaId: data.transportistaId,
       nombreTransportista: transportista.nombre,
-      tipoTransportista: transportista.tipo,
+      tipoTransportista: transportista.subtipoTransportista,
       // Cliente
       nombreCliente: venta.nombreCliente,
       // Dirección
@@ -739,7 +740,7 @@ export const entregaService = {
 
       // B5. Actualizar métricas del transportista
       try {
-        await transportistaService.registrarEntrega(
+        await colaboradorService.registrarEntrega(
           entrega.transportistaId,
           true,
           tiempoEntregaMinutos || 0,
@@ -898,7 +899,7 @@ export const entregaService = {
       }
 
       // 4. Actualizar métricas del transportista (fallo)
-      await transportistaService.registrarEntrega(
+      await colaboradorService.registrarEntrega(
         entrega.transportistaId,
         false,
         0,
@@ -1285,13 +1286,13 @@ export const entregaService = {
 
     // Actualizar transportista si cambio
     if (transportistaCambio) {
-      const nuevoTransportista = await transportistaService.getById(data.transportistaId!);
-      if (!nuevoTransportista) {
+      const nuevoTransportista = await colaboradorService.getById(data.transportistaId!);
+      if (!nuevoTransportista || nuevoTransportista.tipo !== 'transportista_local') {
         throw new Error('Transportista no encontrado');
       }
       updates.transportistaId = nuevoTransportista.id;
       updates.nombreTransportista = nuevoTransportista.nombre;
-      updates.tipoTransportista = nuevoTransportista.tipo;
+      updates.tipoTransportista = nuevoTransportista.subtipoTransportista;
       nombreTransportistaActualizado = nuevoTransportista.nombre;
 
       if (nuevoTransportista.telefono) {
@@ -1350,7 +1351,7 @@ export const entregaService = {
           logger.log(`[Entrega ${entrega.codigo}] Metricas revertidas para transportista anterior: ${entrega.nombreTransportista}`);
 
           // Acreditar metricas al nuevo transportista
-          await transportistaService.registrarEntrega(
+          await colaboradorService.registrarEntrega(
             data.transportistaId!,
             true,
             entrega.tiempoEntregaMinutos || 0,
@@ -1419,23 +1420,24 @@ export const entregaService = {
    * Revierte las metricas de un transportista por una entrega exitosa que se reasigno
    */
   async revertirMetricasTransportista(transportistaId: string, costoEntrega: number): Promise<void> {
-    const transportista = await transportistaService.getById(transportistaId);
+    const transportista = await colaboradorService.getById(transportistaId);
     if (!transportista) return;
+    const m = transportista.metricas || {} as any;
 
-    const totalEntregas = Math.max(0, (transportista.totalEntregas || 0) - 1);
-    const entregasExitosas = Math.max(0, (transportista.entregasExitosas || 0) - 1);
+    const totalEntregas = Math.max(0, (m.totalEntregas || 0) - 1);
+    const entregasExitosas = Math.max(0, (m.entregasExitosas || 0) - 1);
     const tasaExito = totalEntregas > 0 ? (entregasExitosas / totalEntregas) * 100 : 0;
-    const costoTotalHistorico = Math.max(0, (transportista.costoTotalHistorico || 0) - costoEntrega);
+    const costoTotalHistorico = Math.max(0, ((m as any).costoTotalHistorico || 0) - costoEntrega);
     const costoPromedioPorEntrega = totalEntregas > 0 ? costoTotalHistorico / totalEntregas : 0;
 
-    const docRef = doc(db, COLLECTIONS.TRANSPORTISTAS, transportistaId);
+    const docRef = doc(db, COLLECTIONS.COLABORADORES, transportistaId);
     await updateDoc(docRef, {
-      totalEntregas,
-      entregasExitosas,
-      entregasFallidas: transportista.entregasFallidas || 0,
-      tasaExito,
-      costoTotalHistorico,
-      costoPromedioPorEntrega
+      'metricas.totalEntregas': totalEntregas,
+      'metricas.entregasExitosas': entregasExitosas,
+      'metricas.entregasFallidas': m.entregasFallidas || 0,
+      'metricas.tasaExito': tasaExito,
+      'metricas.costoTotalHistorico': costoTotalHistorico,
+      'metricas.costoPromedioPorEntrega': costoPromedioPorEntrega,
     });
   },
 
@@ -1443,18 +1445,19 @@ export const entregaService = {
    * Ajusta el costoTotalHistorico de un transportista cuando solo cambio la tarifa
    */
   async ajustarCostoTransportista(transportistaId: string, costoAnterior: number, costoNuevo: number): Promise<void> {
-    const transportista = await transportistaService.getById(transportistaId);
+    const transportista = await colaboradorService.getById(transportistaId);
     if (!transportista) return;
+    const m = transportista.metricas || {} as any;
 
     const delta = costoNuevo - costoAnterior;
-    const costoTotalHistorico = Math.max(0, (transportista.costoTotalHistorico || 0) + delta);
-    const totalEntregas = transportista.totalEntregas || 1;
+    const costoTotalHistorico = Math.max(0, ((m as any).costoTotalHistorico || 0) + delta);
+    const totalEntregas = m.totalEntregas || 1;
     const costoPromedioPorEntrega = costoTotalHistorico / totalEntregas;
 
-    const docRef = doc(db, COLLECTIONS.TRANSPORTISTAS, transportistaId);
+    const docRef = doc(db, COLLECTIONS.COLABORADORES, transportistaId);
     await updateDoc(docRef, {
-      costoTotalHistorico,
-      costoPromedioPorEntrega
+      'metricas.costoTotalHistorico': costoTotalHistorico,
+      'metricas.costoPromedioPorEntrega': costoPromedioPorEntrega,
     });
   }
 };

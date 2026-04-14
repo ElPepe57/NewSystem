@@ -140,7 +140,7 @@ export const Inventario: React.FC = () => {
 
     unidadesPorLinea.forEach(u => {
       // Aplicar filtros de almacén y país
-      if (filtroAlmacen && u.almacenId !== filtroAlmacen) return;
+      if (filtroAlmacen && (u.casillaActualId || u.almacenId) !== filtroAlmacen) return;
       if (filtroPais && u.pais !== filtroPais) return;
 
       // Contar vendidas por separado
@@ -265,7 +265,7 @@ export const Inventario: React.FC = () => {
 
     // Aplicar filtros de almacén y país
     if (filtroAlmacen) {
-      unidadesActivas = unidadesActivas.filter(u => u.almacenId === filtroAlmacen);
+      unidadesActivas = unidadesActivas.filter(u => (u.casillaActualId || u.almacenId) === filtroAlmacen);
     }
     if (filtroPais) {
       unidadesActivas = unidadesActivas.filter(u => u.pais === filtroPais);

@@ -220,7 +220,8 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
       ...(totalDescuentos > 0 && { descuentoUSD: totalDescuentos }),
       modoEntrega: config.modoEntrega,
       fleteIncluidoEnPrecio: config.fleteIncluidoEnPrecio,
-      almacenDestino: '',
+      almacenDestino: state.configLogistica.casillaDestinoId || '',
+      colaboradorTransporteId: state.configLogistica.colaboradorId || undefined,
       paisOrigen: state.paisOrigen || undefined,
       observaciones: state.observaciones || undefined,
       // New structured cargos/descuentos/impuestos

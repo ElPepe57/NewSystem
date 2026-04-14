@@ -27,8 +27,8 @@ import { tesoreriaService } from './tesoreria.service';
 import type { Venta } from '../types/venta.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
-import type { Transferencia } from '../types/transferencia.types';
-import { TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
+import type { Envio as Transferencia } from '../types/envio.types';
+import { TIPOS_ENVIO_INTERNACIONAL as TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/envio.types';
 import type {
   EstadoResultados,
   PeriodoContable,
@@ -148,7 +148,7 @@ async function obtenerTipoCambio(): Promise<number> {
  */
 async function getPagosViajerosPendientes(tc: number): Promise<number> {
   try {
-    const transferenciasRef = collection(db, COLLECTIONS.TRANSFERENCIAS);
+    const transferenciasRef = collection(db, COLLECTIONS.ENVIOS);
     // No podemos filtrar por estadoPagoViajero !== 'pagado' en Firestore,
     // así que traemos todas las internacionales (legacy + genérico) y filtramos en memoria
     const q = query(
@@ -166,7 +166,7 @@ async function getPagosViajerosPendientes(tc: number): Promise<number> {
       // - NO está pagado (estadoPagoViajero !== 'pagado')
       // - Estado es recibida_completa o recibida_parcial
       const costoFlete = transferencia.costoFleteTotal || 0;
-      const estaPagado = transferencia.estadoPagoViajero === 'pagado';
+      const estaPagado = transferencia.estadoPagoColaborador === 'pagado';
       const estaRecibida = transferencia.estado === 'recibida_completa' ||
                            transferencia.estado === 'recibida_parcial';
 
@@ -335,7 +335,7 @@ async function getComprasPeriodo(mes: number, anio: number): Promise<OrdenCompra
  */
 async function getTransferenciasPeriodo(mes: number, anio: number): Promise<Transferencia[]> {
   try {
-    const transferenciasRef = collection(db, COLLECTIONS.TRANSFERENCIAS);
+    const transferenciasRef = collection(db, COLLECTIONS.ENVIOS);
 
     const inicioMes = new Date(anio, mes - 1, 1);
     const finMes = new Date(anio, mes, 0, 23, 59, 59);
@@ -358,7 +358,7 @@ async function getTransferenciasPeriodo(mes: number, anio: number): Promise<Tran
       }
 
       // Filtrar por fecha de llegada real (recepción) en el período
-      const fechaRecepcion = transferencia.fechaLlegadaReal || transferencia.recepcion?.fechaRecepcion;
+      const fechaRecepcion = transferencia.fechaLlegadaReal || (transferencia.recepciones && transferencia.recepciones.length > 0 ? transferencia.recepciones[transferencia.recepciones.length - 1].fechaRecepcion : undefined);
       if (fechaRecepcion) {
         const fecha = fechaRecepcion.toDate();
         if (fecha >= inicioMes && fecha <= finMes) {

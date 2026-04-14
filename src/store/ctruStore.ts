@@ -3,7 +3,7 @@ import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { ctruService } from '../services/ctru.service';
-import { transferenciaService } from '../services/transferencia.service';
+import { envioCrudService } from '../services/envio.crud.service';
 import { ProductoService } from '../services/producto.service';
 import { getCTRU, getCostoBasePEN, getTC, calcularGAGOProporcional } from '../utils/ctru.utils';
 import { poolUSDService } from '../services/poolUSD.service';
@@ -1069,7 +1069,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       // (typical savings: 20-40 % of unit documents on mature datasets).
       const [todasUnidades, todasTransferencias, todosProductos, poolResumen] = await Promise.all([
         fetchUnidadesParaCTRU(),
-        transferenciaService.getByFiltros({ tipo: 'usa_peru' }),
+        envioCrudService.getByFiltros({ tipo: 'internacional_peru' }),
         ProductoService.getAll(true, Infinity),
         poolUSDService.getResumen().catch(() => ({ tcpa: 0 }))
       ]);
@@ -1115,7 +1115,7 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       for (const t of todasTransferencias) {
         if (t.estado !== 'recibida_completa' && t.estado !== 'recibida_parcial') continue;
         for (const ut of t.unidades) {
-          if (ut.costoFleteUSD > 0 && ut.estadoTransferencia === 'recibida') {
+          if ((ut.costoFleteUSD ?? 0) > 0 && ut.estadoEnvio === 'recibida') {
             fleteByUnitMap.set(ut.unidadId, ut.costoFleteUSD);
             const acc = fleteByProductAccum.get(ut.productoId) || { sum: 0, count: 0 };
             acc.sum += ut.costoFleteUSD;

@@ -23,7 +23,7 @@ import { Button, Badge, Modal, Input } from '../../common';
 import { useEntregaStore } from '../../../store/entregaStore';
 import { useAuthStore } from '../../../store/authStore';
 import { useToastStore } from '../../../store/toastStore';
-import { useTransportistaStore } from '../../../store/transportistaStore';
+import { useColaboradorStore } from '../../../store/colaboradorStore';
 import { pdfService } from '../../../services/pdf.service';
 import { invalidarCacheGastos } from '../../../hooks/useRentabilidadVentas';
 import { tesoreriaService } from '../../../services/tesoreria.service';
@@ -86,7 +86,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
   const { fetchByVenta, fetchResumenVenta, resumenVenta, marcarEnCamino, registrarResultado, corregirEntrega } = useEntregaStore();
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
-  const { transportistasActivos, fetchActivos } = useTransportistaStore();
+  const { transportistasActivos, fetchActivos } = useColaboradorStore();
   const [entregas, setEntregas] = useState<Entrega[]>([]);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState<string | null>(null);
@@ -412,7 +412,7 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
       if (editTransportistaId !== entregaEditando.transportistaId) {
         const transportista = transportistasActivos.find(t => t.id === editTransportistaId);
         if (transportista) {
-          const costo = transportista.costoFijo ?? transportista.costoPromedioPorEntrega ?? 0;
+          const costo = transportista.tarifas?.costoFijo ?? transportista.metricas?.costoPromedioPorEntrega ?? 0;
           setEditCostoTransportista(costo);
         }
       }
@@ -1068,20 +1068,20 @@ export const EntregasVenta: React.FC<EntregasVentaProps> = ({ ventaId, venta, on
                 <option value="">Seleccionar transportista...</option>
                 <optgroup label="Internos (Lima)">
                   {transportistasActivos
-                    .filter(t => t.tipo === 'interno')
+                    .filter(t => t.subtipoTransportista === 'interno')
                     .map(t => (
                       <option key={t.id} value={t.id}>
-                        {t.nombre} - S/ {(t.costoFijo ?? t.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
+                        {t.nombre} - S/ {(t.tarifas?.costoFijo ?? t.metricas?.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
                       </option>
                     ))
                   }
                 </optgroup>
                 <optgroup label="Externos (Couriers)">
                   {transportistasActivos
-                    .filter(t => t.tipo === 'externo')
+                    .filter(t => t.subtipoTransportista === 'externo')
                     .map(t => (
                       <option key={t.id} value={t.id}>
-                        {t.nombre} ({courierLabels[t.courierExterno || 'otro']}) - S/ {(t.costoFijo ?? t.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
+                        {t.nombre} ({courierLabels[t.courierExterno || 'otro']}) - S/ {(t.tarifas?.costoFijo ?? t.metricas?.costoPromedioPorEntrega)?.toFixed(2) || '0.00'}
                       </option>
                     ))
                   }

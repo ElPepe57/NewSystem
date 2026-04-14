@@ -93,4 +93,69 @@ export const colaboradorService = {
     const empresas = await this.getByTipo('empresa');
     return empresas[0] || null;
   },
+
+  /** Obtiene transportistas_local activos (reemplaza transportistaService.getActivos) */
+  async getTransportistasActivos(): Promise<Colaborador[]> {
+    const q = query(
+      collection(db, COLL),
+      where('tipo', '==', 'transportista_local'),
+      where('estado', '==', 'activo')
+    );
+    const snap = await getDocs(q);
+    const resultado = snap.docs.map(d => ({ id: d.id, ...d.data() } as Colaborador));
+    return resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  },
+
+  /**
+   * Actualiza las metricas de un transportista_local despues de una entrega.
+   * Equivale a transportistaService.registrarEntrega.
+   */
+  async registrarEntrega(
+    colaboradorId: string,
+    exitosa: boolean,
+    tiempoMinutos: number,
+    costo: number,
+    zona?: string
+  ): Promise<void> {
+    const colaborador = await this.getById(colaboradorId);
+    if (!colaborador) return;
+
+    const m = colaborador.metricas || {
+      enviosRealizados: 0,
+      enviosCompletados: 0,
+      enviosConIncidencia: 0,
+      tasaIncidencias: 0,
+      unidadesTransportadas: 0,
+      tiempoPromedioEntregaDias: 0,
+    };
+
+    const totalEntregas = (m.totalEntregas || 0) + 1;
+    const entregasExitosas = (m.entregasExitosas || 0) + (exitosa ? 1 : 0);
+    const entregasFallidas = (m.entregasFallidas || 0) + (exitosa ? 0 : 1);
+    const tasaExito = totalEntregas > 0 ? (entregasExitosas / totalEntregas) * 100 : 0;
+
+    const tiempoAnterior = m.tiempoPromedioEntrega || 0;
+    const tiempoPromedioEntrega = ((tiempoAnterior * (totalEntregas - 1)) + tiempoMinutos) / totalEntregas;
+
+    const costoTotalHistorico = ((colaborador as Record<string, unknown>).costoTotalHistorico as number || 0) + costo;
+    const costoPromedioPorEntrega = costoTotalHistorico / totalEntregas;
+
+    let zonasAtendidas = m.zonasAtendidas || [];
+    if (zona && !zonasAtendidas.includes(zona)) {
+      zonasAtendidas = [...zonasAtendidas, zona];
+    }
+
+    const ref = doc(db, COLL, colaboradorId);
+    await updateDoc(ref, {
+      'metricas.totalEntregas': totalEntregas,
+      'metricas.entregasExitosas': entregasExitosas,
+      'metricas.entregasFallidas': entregasFallidas,
+      'metricas.tasaExito': tasaExito,
+      'metricas.tiempoPromedioEntrega': tiempoPromedioEntrega,
+      'metricas.costoPromedioPorEntrega': costoPromedioPorEntrega,
+      'metricas.zonasAtendidas': zonasAtendidas,
+      costoTotalHistorico,
+      fechaUltimaEntrega: Timestamp.now(),
+    });
+  },
 };

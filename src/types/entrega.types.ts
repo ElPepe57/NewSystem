@@ -1,7 +1,7 @@
 import type { Timestamp } from 'firebase/firestore';
 import type { BaseEntity } from './common.types';
 import type { MetodoPago } from './venta.types';
-import type { TipoTransportista, CourierExterno } from './transportista.types';
+import type { TipoTransportista, CourierExterno } from './colaborador.types';
 
 /**
  * Estado de la entrega

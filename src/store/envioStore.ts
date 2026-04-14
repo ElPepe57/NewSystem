@@ -1,41 +1,42 @@
 import { create } from 'zustand';
-import { transferenciaService } from '../services/transferencia.service';
+import { envioCrudService } from '../services/envio.crud.service';
+import { envioPagosService } from '../services/envio.pagos.service';
 import type {
-  Transferencia,
-  TransferenciaFormData,
-  RecepcionFormData,
-  TransferenciaFiltros,
-  ResumenTransferencias,
-  PagoViajero
-} from '../types/transferencia.types';
+  Envio,
+  EnvioFormData,
+  EnvioFiltros,
+  ResumenEnvios,
+  PagoColaborador,
+} from '../types/envio.types';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 
-interface TransferenciaState {
+interface EnvioState {
   // Estado
-  transferencias: Transferencia[];
-  transferenciasEnTransito: Transferencia[];
-  transferenciasPendientes: Transferencia[];
-  resumen: ResumenTransferencias | null;
-  selectedTransferencia: Transferencia | null;
+  envios: Envio[];
+  enviosEnTransito: Envio[];
+  enviosPendientesRecepcion: Envio[];
+  pendientesPago: Envio[];
+  resumen: ResumenEnvios | null;
+  selectedEnvio: Envio | null;
   loading: boolean;
   error: string | null;
 
-  // Acciones de consulta
-  fetchTransferencias: () => Promise<void>;
+  // Consultas
+  fetchEnvios: () => Promise<void>;
+  fetchPorFiltros: (filtros: EnvioFiltros) => Promise<Envio[]>;
   fetchEnTransito: () => Promise<void>;
   fetchPendientesRecepcion: () => Promise<void>;
-  fetchByFiltros: (filtros: TransferenciaFiltros) => Promise<void>;
+  fetchPendientesPago: () => Promise<void>;
   fetchResumen: () => Promise<void>;
-  getById: (id: string) => Promise<Transferencia | null>;
+  getById: (id: string) => Promise<Envio | null>;
 
-  // Acciones de gestión
-  crearTransferencia: (data: TransferenciaFormData, userId: string) => Promise<string>;
-  confirmarTransferencia: (id: string, userId: string) => Promise<void>;
-  enviarTransferencia: (id: string, datos: { numeroTracking?: string; fechaSalida?: Date }, userId: string) => Promise<void>;
-  registrarRecepcion: (data: RecepcionFormData, userId: string) => Promise<void>;
-  cancelarTransferencia: (id: string, motivo: string, userId: string) => Promise<void>;
-  registrarPagoViajero: (
-    transferenciaId: string,
+  // Gestion
+  crearEnvio: (data: EnvioFormData, userId: string) => Promise<string>;
+  confirmarEnvio: (id: string, userId: string) => Promise<void>;
+  enviarEnvio: (id: string, datos: { numeroTracking?: string; fechaSalida?: Date }, userId: string) => Promise<void>;
+  cancelarEnvio: (id: string, motivo: string, userId: string) => Promise<void>;
+  registrarPagoColaborador: (
+    envioId: string,
     datos: {
       fechaPago: Date;
       monedaPago: 'USD' | 'PEN';
@@ -47,21 +48,22 @@ interface TransferenciaState {
       notas?: string;
     },
     userId: string
-  ) => Promise<PagoViajero>;
-  actualizarFlete: (transferenciaId: string, costoFletePorProducto: Record<string, number>, userId: string) => Promise<void>;
-  reconciliarPagoViajero: (transferenciaId: string, userId: string, pagoId?: string) => Promise<string>;
+  ) => Promise<PagoColaborador>;
+  reconciliarPagoColaborador: (envioId: string, userId: string, pagoId?: string) => Promise<string>;
+  actualizarFlete: (id: string, costoFletePorProducto: Record<string, number>, userId: string) => Promise<void>;
 
   // Utilidades
-  setSelectedTransferencia: (transferencia: Transferencia | null) => void;
+  setSelectedEnvio: (envio: Envio | null) => void;
   clearError: () => void;
 }
 
-export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
-  transferencias: [],
-  transferenciasEnTransito: [],
-  transferenciasPendientes: [],
+export const useEnvioStore = create<EnvioState>((set, get) => ({
+  envios: [],
+  enviosEnTransito: [],
+  enviosPendientesRecepcion: [],
+  pendientesPago: [],
   resumen: null,
-  selectedTransferencia: null,
+  selectedEnvio: null,
   loading: false,
   error: null,
 
@@ -69,11 +71,24 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
   // CONSULTAS
   // ============================================
 
-  fetchTransferencias: async () => {
+  fetchEnvios: async () => {
     set({ loading: true, error: null });
     try {
-      const transferencias = await transferenciaService.getAll();
-      set({ transferencias, loading: false });
+      const envios = await envioCrudService.getAll();
+      set({ envios, loading: false });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      set({ error: message, loading: false });
+      throw error;
+    }
+  },
+
+  fetchPorFiltros: async (filtros: EnvioFiltros) => {
+    set({ loading: true, error: null });
+    try {
+      const envios = await envioCrudService.getByFiltros(filtros);
+      set({ envios, loading: false });
+      return envios;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
@@ -84,8 +99,8 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
   fetchEnTransito: async () => {
     set({ loading: true, error: null });
     try {
-      const transferenciasEnTransito = await transferenciaService.getEnTransito();
-      set({ transferenciasEnTransito, loading: false });
+      const enviosEnTransito = await envioCrudService.getEnTransito();
+      set({ enviosEnTransito, loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
@@ -96,8 +111,8 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
   fetchPendientesRecepcion: async () => {
     set({ loading: true, error: null });
     try {
-      const transferenciasPendientes = await transferenciaService.getPendientesRecepcion();
-      set({ transferenciasPendientes, loading: false });
+      const enviosPendientesRecepcion = await envioCrudService.getPendientesRecepcion();
+      set({ enviosPendientesRecepcion, loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
@@ -105,11 +120,11 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
     }
   },
 
-  fetchByFiltros: async (filtros: TransferenciaFiltros) => {
+  fetchPendientesPago: async () => {
     set({ loading: true, error: null });
     try {
-      const transferencias = await transferenciaService.getByFiltros(filtros);
-      set({ transferencias, loading: false });
+      const pendientesPago = await envioPagosService.getPendientesPagoColaborador();
+      set({ pendientesPago, loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
@@ -120,7 +135,7 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
   fetchResumen: async () => {
     set({ loading: true, error: null });
     try {
-      const resumen = await transferenciaService.getResumen();
+      const resumen = await envioCrudService.getResumen();
       set({ resumen, loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -132,9 +147,9 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
   getById: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const transferencia = await transferenciaService.getById(id);
-      set({ selectedTransferencia: transferencia, loading: false });
-      return transferencia;
+      const envio = await envioCrudService.getById(id);
+      set({ selectedEnvio: envio, loading: false });
+      return envio;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       set({ error: message, loading: false });
@@ -143,14 +158,14 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
   },
 
   // ============================================
-  // GESTIÓN
+  // GESTION
   // ============================================
 
-  crearTransferencia: async (data: TransferenciaFormData, userId: string) => {
+  crearEnvio: async (data: EnvioFormData, userId: string) => {
     set({ loading: true, error: null });
     try {
-      const id = await transferenciaService.crear(data, userId);
-      await get().fetchTransferencias();
+      const { id } = await envioCrudService.crear(data, userId);
+      await get().fetchEnvios();
       await get().fetchResumen();
       set({ loading: false });
       return id;
@@ -161,11 +176,11 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
     }
   },
 
-  confirmarTransferencia: async (id: string, userId: string) => {
+  confirmarEnvio: async (id: string, userId: string) => {
     set({ loading: true, error: null });
     try {
-      await transferenciaService.confirmar(id, userId);
-      await get().fetchTransferencias();
+      await envioCrudService.confirmar(id, userId);
+      await get().fetchEnvios();
       await get().fetchPendientesRecepcion();
       set({ loading: false });
     } catch (error: unknown) {
@@ -175,15 +190,11 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
     }
   },
 
-  enviarTransferencia: async (
-    id: string,
-    datos: { numeroTracking?: string; fechaSalida?: Date },
-    userId: string
-  ) => {
+  enviarEnvio: async (id: string, datos: { numeroTracking?: string; fechaSalida?: Date }, userId: string) => {
     set({ loading: true, error: null });
     try {
-      await transferenciaService.enviar(id, datos, userId);
-      await get().fetchTransferencias();
+      await envioCrudService.enviar(id, datos, userId);
+      await get().fetchEnvios();
       await get().fetchEnTransito();
       await get().fetchPendientesRecepcion();
       await get().fetchResumen();
@@ -195,13 +206,11 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
     }
   },
 
-  registrarRecepcion: async (data: RecepcionFormData, userId: string) => {
+  cancelarEnvio: async (id: string, motivo: string, userId: string) => {
     set({ loading: true, error: null });
     try {
-      await transferenciaService.registrarRecepcion(data, userId);
-      await get().fetchTransferencias();
-      await get().fetchEnTransito();
-      await get().fetchPendientesRecepcion();
+      await envioCrudService.cancelar(id, motivo, userId);
+      await get().fetchEnvios();
       await get().fetchResumen();
       set({ loading: false });
     } catch (error: unknown) {
@@ -211,38 +220,11 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
     }
   },
 
-  cancelarTransferencia: async (id: string, motivo: string, userId: string) => {
+  registrarPagoColaborador: async (envioId, datos, userId) => {
     set({ loading: true, error: null });
     try {
-      await transferenciaService.cancelar(id, motivo, userId);
-      await get().fetchTransferencias();
-      await get().fetchResumen();
-      set({ loading: false });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Error desconocido';
-      set({ error: message, loading: false });
-      throw error;
-    }
-  },
-
-  registrarPagoViajero: async (
-    transferenciaId: string,
-    datos: {
-      fechaPago: Date;
-      monedaPago: 'USD' | 'PEN';
-      montoOriginal: number;
-      tipoCambio: number;
-      metodoPago: MetodoTesoreria;
-      cuentaOrigenId?: string;
-      referencia?: string;
-      notas?: string;
-    },
-    userId: string
-  ) => {
-    set({ loading: true, error: null });
-    try {
-      const pago = await transferenciaService.registrarPagoViajero(transferenciaId, datos, userId);
-      await get().fetchTransferencias();
+      const pago = await envioPagosService.registrarPagoColaborador(envioId, datos, userId);
+      await get().fetchEnvios();
       set({ loading: false });
       return pago;
     } catch (error: unknown) {
@@ -252,11 +234,11 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
     }
   },
 
-  reconciliarPagoViajero: async (transferenciaId: string, userId: string, pagoId?: string) => {
+  reconciliarPagoColaborador: async (envioId, userId, pagoId) => {
     set({ loading: true, error: null });
     try {
-      const movimientoId = await transferenciaService.reconciliarPagoViajero(transferenciaId, userId, pagoId);
-      await get().fetchTransferencias();
+      const movimientoId = await envioPagosService.reconciliarPagoColaborador(envioId, userId, pagoId);
+      await get().fetchEnvios();
       set({ loading: false });
       return movimientoId;
     } catch (error: unknown) {
@@ -266,11 +248,11 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
     }
   },
 
-  actualizarFlete: async (transferenciaId: string, costoFletePorProducto: Record<string, number>, userId: string) => {
+  actualizarFlete: async (id, costoFletePorProducto, userId) => {
     set({ loading: true, error: null });
     try {
-      await transferenciaService.actualizarFleteTransferencia(transferenciaId, costoFletePorProducto, userId);
-      await get().fetchTransferencias();
+      await envioCrudService.actualizarFleteEnvio(id, costoFletePorProducto, userId);
+      await get().fetchEnvios();
       set({ loading: false });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
@@ -283,9 +265,13 @@ export const useTransferenciaStore = create<TransferenciaState>((set, get) => ({
   // UTILIDADES
   // ============================================
 
-  setSelectedTransferencia: (transferencia: Transferencia | null) => {
-    set({ selectedTransferencia: transferencia });
-  },
-
-  clearError: () => set({ error: null })
+  setSelectedEnvio: (envio) => set({ selectedEnvio: envio }),
+  clearError: () => set({ error: null }),
 }));
+
+/**
+ * Alias legacy para migración progresiva.
+ * Los componentes que importan useTransferenciaStore siguen funcionando
+ * sin cambios mientras se migran gradualmente a useEnvioStore.
+ */
+export const useTransferenciaStore = useEnvioStore;

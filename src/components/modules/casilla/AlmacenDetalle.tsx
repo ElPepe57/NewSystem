@@ -232,14 +232,14 @@ export const AlmacenDetalle: React.FC<AlmacenDetalleProps> = ({
         // Transferencias recibidas (destino)
         const recibidasQuery = query(
           collection(db, 'transferencias'),
-          where('almacenDestinoId', '==', almacen.id)
+          where('casillaDestinoId', '==', almacen.id)
         );
         const recibidasSnapshot = await getDocs(recibidasQuery);
 
         // Transferencias enviadas (origen)
         const enviadasQuery = query(
           collection(db, 'transferencias'),
-          where('almacenOrigenId', '==', almacen.id)
+          where('casillaOrigenId', '==', almacen.id)
         );
         const enviadasSnapshot = await getDocs(enviadasQuery);
 

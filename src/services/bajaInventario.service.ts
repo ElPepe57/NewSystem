@@ -1,7 +1,7 @@
 import { doc, updateDoc, collection, addDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
-import type { DisposicionDanada, ResponsableDano, IncidenciaTransferencia } from '../types/transferencia.types';
+import type { DisposicionDanada, ResponsableDano, IncidenciaEnvio } from '../types/envio.types';
 import type { EstadoUnidad, DisposicionVencida } from '../types/unidad.types';
 import type { TipoGasto } from '../types/gasto.types';
 
@@ -10,7 +10,7 @@ import type { TipoGasto } from '../types/gasto.types';
  */
 export interface BajaDanoData {
   unidadId: string;
-  transferenciaId: string;
+  envioId: string;
   incidenciaId: string;
   productoId: string;
   productoNombre: string;
@@ -94,7 +94,7 @@ export const bajaInventarioService = {
         fecha: now,
         estado: 'pagado',
         // Referencias
-        transferenciaId: data.transferenciaId,
+        envioId: data.envioId,
         unidadId: data.unidadId,
         productoId: data.productoId,
         // Cuenta contable
@@ -109,14 +109,14 @@ export const bajaInventarioService = {
       gastoId = gastoRef.id;
     }
 
-    // 4. Actualizar la incidencia en la transferencia como resuelta
-    const transferRef = doc(db, COLLECTIONS.TRANSFERENCIAS, data.transferenciaId);
-    // Leemos la transferencia para actualizar la incidencia específica
+    // 4. Actualizar la incidencia en el envio como resuelta
+    const transferRef = doc(db, COLLECTIONS.ENVIOS, data.envioId);
+    // Leemos el envio para actualizar la incidencia específica
     const { getDoc: getDocFn } = await import('firebase/firestore');
     const transferSnap = await getDocFn(transferRef);
     if (transferSnap.exists()) {
       const transferData = transferSnap.data();
-      const incidencias: IncidenciaTransferencia[] = transferData.incidencias || [];
+      const incidencias: IncidenciaEnvio[] = transferData.incidencias || [];
       const updatedIncidencias = incidencias.map(inc => {
         if (inc.id === data.incidenciaId) {
           return {

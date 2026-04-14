@@ -480,8 +480,12 @@ export const OrdenesCompra: React.FC = () => {
     if (nuevoEstado === 'confirmada') {
       try {
         setIsSubmitting(true);
-        const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
-        const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid);
+        if (!selectedOrden.almacenDestino) {
+          toast.error('Esta OC no tiene casilla destino asignada. Edita la OC y selecciona un viajero/courier.');
+          setIsSubmitting(false);
+          return;
+        }
+        const result = await confirmarOC(selectedOrden.id, selectedOrden.almacenDestino, user.uid);
         await refreshSelectedOrden(selectedOrden.id);
         setIsDetailsModalOpen(false);
         toast.success(`OC confirmada: ${result.unidadesCreadas} unidades pedidas creadas`);
@@ -553,9 +557,13 @@ export const OrdenesCompra: React.FC = () => {
     if (!user || !selectedOrden) return;
     try {
       setIsSubmitting(true);
-      const destinoCasillaId = selectedOrden.almacenDestino || 'PROVEEDOR';
+      if (!selectedOrden.almacenDestino) {
+        toast.error('Esta OC no tiene casilla destino asignada. Edita la OC y selecciona un viajero/courier.');
+        setIsSubmitting(false);
+        return;
+      }
       // Sub-órdenes se pasan a confirmarOC que las persiste en el batch
-      const result = await confirmarOC(selectedOrden.id, destinoCasillaId, user.uid, undefined, subOrdenes);
+      const result = await confirmarOC(selectedOrden.id, selectedOrden.almacenDestino, user.uid, undefined, subOrdenes);
       await refreshSelectedOrden(selectedOrden.id);
       setIsConfirmarModalOpen(false);
       toast.success(
@@ -966,7 +974,7 @@ export const OrdenesCompra: React.FC = () => {
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         title="Detalles de Orden"
-        size="xl"
+        size="full"
       >
         {selectedOrden && (
           <OrdenCompraCard

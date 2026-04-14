@@ -3,7 +3,7 @@ import { db } from '../lib/firebase';
 import { COLLECTIONS } from '../config/collections';
 import { unidadService } from './unidad.service';
 import { ProductoService } from './producto.service';
-import { transferenciaService } from './transferencia.service';
+import { envioCrudService } from './envio.crud.service';
 import type {
   InventarioProducto,
   InventarioPorPais,
@@ -39,7 +39,7 @@ export const inventarioService = {
     const agrupaciones = new Map<string, Unidad[]>();
 
     unidades.forEach(unidad => {
-      const key = `${unidad.productoId}-${unidad.almacenId}`;
+      const key = `${unidad.productoId}-${unidad.casillaActualId || unidad.almacenId}`;
       if (!agrupaciones.has(key)) {
         agrupaciones.set(key, []);
       }
@@ -115,8 +115,8 @@ export const inventarioService = {
         productoMarca: producto.marca,
         productoGrupo: producto.grupo,
         productoSubgrupo: producto.subgrupo || '',
-        almacenId: primeraUnidad.almacenId,
-        almacenNombre: primeraUnidad.almacenNombre,
+        almacenId: primeraUnidad.casillaActualId || primeraUnidad.almacenId,
+        almacenNombre: primeraUnidad.casillaNombre || primeraUnidad.almacenNombre,
         pais: primeraUnidad.pais,
         totalUnidades: unidadesGrupo.length,
         disponibles: disponibles.length,
@@ -218,7 +218,7 @@ export const inventarioService = {
     return timed('inventarioService.getStats', async () => {
     const [unidades, transferencias] = await Promise.all([
       unidadService.getAll(),
-      transferenciaService.getAll()
+      envioCrudService.getAll()
     ]);
     const inventario = await this.getInventarioAgregado(undefined, unidades);
 

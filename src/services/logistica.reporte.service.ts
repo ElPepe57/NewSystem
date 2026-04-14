@@ -4,9 +4,9 @@
  * métricas de rendimiento por viajero/courier.
  */
 
-import { transferenciaService } from './transferencia.service';
+import { envioCrudService } from './envio.crud.service';
 import { almacenService } from './casilla.service';
-import type { Transferencia } from '../types/transferencia.types';
+import type { Envio as Transferencia } from '../types/envio.types';
 import type { Almacen } from '../types/almacen.types';
 import { logger } from '../lib/logger';
 
@@ -67,7 +67,7 @@ export const logisticaReporteService = {
   async getResumenLogistica(): Promise<ResumenLogistica> {
     try {
       const [transferencias, almacenes] = await Promise.all([
-        transferenciaService.getAll(),
+        envioCrudService.getAll(),
         almacenService.getAll(),
       ]);
 
@@ -197,7 +197,7 @@ function calcularRendimientoViajero(
     totalDanadas += t.totalUnidadesDanadas || 0;
     totalFaltantes += t.totalUnidadesFaltantes || 0;
 
-    if (t.estadoPagoViajero === 'pendiente' || t.estadoPagoViajero === 'parcial') {
+    if (t.estadoPagoColaborador === 'pendiente' || t.estadoPagoColaborador === 'parcial') {
       montoPendiente += (t.montoPendienteUSD || flete - (t.montoPagadoUSD || 0));
     }
 
@@ -210,7 +210,7 @@ function calcularRendimientoViajero(
 
     resumenTransferencias.push({
       id: t.id,
-      numero: t.numeroTransferencia,
+      numero: t.numeroEnvio,
       fecha: fecha || new Date(),
       unidades: uds,
       pesoTotalLb: pesoEnvio > 0 ? pesoEnvio : undefined,

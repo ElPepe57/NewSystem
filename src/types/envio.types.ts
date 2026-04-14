@@ -1,6 +1,68 @@
 import { Timestamp } from 'firebase/firestore';
 
 /**
+ * Tipo de envio (reemplaza TipoTransferencia del modelo legacy)
+ * - interna_origen: Movimiento interno en el pais de origen entre casillas/viajeros
+ * - internacional_peru: Envio internacional desde cualquier origen hacia Peru
+ */
+export type TipoEnvio = 'interna_origen' | 'internacional_peru';
+
+/**
+ * Motivo de un envio interno en origen
+ */
+export type MotivoEnvioInterno =
+  | 'consolidacion'   // Juntar inventario en una casilla
+  | 'capacidad'       // La casilla actual no tiene espacio
+  | 'viaje_proximo'   // Mover a viajero que viaja pronto
+  | 'costo_menor'     // Viajero con mejor tarifa de flete
+  | 'otro';
+
+/**
+ * Arrays de compatibilidad para queries y filtros
+ */
+export const TIPOS_ENVIO_INTERNO: TipoEnvio[] = ['interna_origen'];
+export const TIPOS_ENVIO_INTERNACIONAL: TipoEnvio[] = ['internacional_peru'];
+
+/**
+ * Disposicion de una unidad danada
+ */
+export type DisposicionDanada =
+  | 'baja_definitiva'
+  | 'devolucion_proveedor'
+  | 'reparacion_reingreso';
+
+/**
+ * Responsable del dano
+ */
+export type ResponsableDano = 'viajero' | 'proveedor' | 'sin_responsable';
+
+/**
+ * Incidencia registrada en un envio
+ */
+export interface IncidenciaEnvio {
+  id: string;
+  tipo: 'faltante' | 'danada' | 'diferente' | 'otro';
+  unidadId?: string;
+  sku?: string;
+  productoId?: string;
+  productoNombre?: string;
+  descripcion: string;
+  evidenciaURL?: string;
+  fechaRegistro: Timestamp;
+  registradoPor: string;
+  resuelta: boolean;
+  resolucion?: string;
+  fechaResolucion?: Timestamp;
+  disposicion?: DisposicionDanada;
+  disposicionMotivo?: string;
+  disposicionPor?: string;
+  disposicionFecha?: Timestamp;
+  responsable?: ResponsableDano;
+  montoReclamoPEN?: number;
+  estadoReclamo?: 'pendiente' | 'aceptado' | 'rechazado' | 'cobrado';
+}
+
+/**
  * Estado del envio
  */
 export type EstadoEnvio =
@@ -67,6 +129,13 @@ export interface EnvioUnidad {
   codigoUnidad: string;
   pesoLibras?: number;
 
+  // Flete de esta unidad (especifico para envios internacionales)
+  costoFleteUSD?: number;
+
+  // Datos de lote y vencimiento
+  lote?: string;
+  fechaVencimiento?: Timestamp;
+
   // Estado en este envio
   estadoEnvio: 'pendiente' | 'preparada' | 'enviada' | 'recibida' | 'faltante' | 'danada' | 'perdida' | 'retenida';
 
@@ -110,6 +179,11 @@ export interface Envio {
   numeroEnvio: string;                 // ENV-2026-001
   estado: EstadoEnvio;
 
+  // Clasificacion (nuevo — reemplaza TipoTransferencia)
+  tipo?: TipoEnvio;
+  motivo?: MotivoEnvioInterno;
+  motivoDetalle?: string;
+
   // Origen polimorfico
   origenTipo: OrigenTipoEnvio;
   origenProveedorId?: string;          // Si origenTipo = 'proveedor'
@@ -152,6 +226,11 @@ export interface Envio {
   // Peso
   pesoTotalLibras?: number;
 
+  // Flete (separado de costos landed: es lo que se le paga al colaborador transportador)
+  costoFleteTotal?: number;
+  monedaFlete?: 'USD' | 'PEN';
+  costoFletePorLibra?: number;
+
   // Pago al colaborador (viajero/courier)
   estadoPagoColaborador?: 'pendiente' | 'parcial' | 'pagado';
   pagosColaborador?: PagoColaborador[];
@@ -179,6 +258,9 @@ export interface Envio {
   // Linea de negocio
   lineaNegocioId?: string;
   lineaNegocioNombre?: string;
+
+  // Incidencias
+  incidencias?: IncidenciaEnvio[];
 
   // Notas
   notas?: string;
@@ -225,10 +307,21 @@ export interface EnvioFormData {
   origenCasillaId?: string;
   destinoCasillaId: string;
   colaboradorId?: string;
+  // Alias semantico de colaboradorId cuando el colaborador llega como viajero internacional
+  viajeroId?: string;
   ordenCompraId?: string;
   subOrdenId?: string;
   unidadesIds: string[];
   unidadesDetalle?: EnvioUnidad[];  // Datos completos de unidades para poblar envio.unidades[]
+
+  // Clasificacion
+  tipo?: TipoEnvio;
+  motivo?: MotivoEnvioInterno;
+  motivoDetalle?: string;
+
+  // Flete por producto al crear (productoId -> costoTotalUSD del flete de ese producto)
+  costoFletePorProducto?: Record<string, number>;
+
   numeroTracking?: string;
   courier?: string;
   fechaSalidaEstimada?: Date;
@@ -242,10 +335,51 @@ export interface EnvioFormData {
 export interface EnvioFiltros {
   estado?: EstadoEnvio;
   origenTipo?: OrigenTipoEnvio;
+  tipo?: TipoEnvio;
   origenCasillaId?: string;
   destinoCasillaId?: string;
   colaboradorId?: string;
   ordenCompraId?: string;
   fechaDesde?: Date;
   fechaHasta?: Date;
+  conIncidencias?: boolean;
+}
+
+/**
+ * Datos para registrar recepcion de un envio
+ */
+export interface RecepcionEnvioFormData {
+  envioId: string;
+
+  unidadesRecibidas: {
+    unidadId: string;
+    recibida: boolean;
+    danada: boolean;
+    incidencia?: string;
+  }[];
+
+  // Fechas de vencimiento por unidadId (YYYY-MM-DD)
+  fechasVencimiento?: Record<string, string>;
+
+  // C3 — Costo de recojo en Peru (por recepcion parcial)
+  costoRecojoPEN?: number;
+
+  observaciones?: string;
+  fotoEvidencia?: string;
+}
+
+/**
+ * Resumen de envios (KPIs del modulo)
+ */
+export interface ResumenEnvios {
+  totalEnvios: number;
+  enTransito: number;
+  pendientesRecepcion: number;
+  completadasMes: number;
+  internos: number;
+  internacionales: number;
+  tiempoPromedioTransitoDias: number;
+  enviosConIncidencias: number;
+  unidadesFaltantesMes: number;
+  unidadesDanadasMes: number;
 }

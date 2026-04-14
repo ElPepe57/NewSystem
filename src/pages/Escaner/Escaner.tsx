@@ -40,7 +40,7 @@ const VALID_MODES: ScannerModoId[] = ['consulta', 'auditoria', 'recepcion', 'des
 export const Escaner: React.FC = () => {
   const [searchParams] = useSearchParams();
   const modoParam = searchParams.get('modo') as ScannerModoId | null;
-  const transferenciaIdParam = searchParams.get('transferenciaId');
+  const transferenciaIdParam = searchParams.get('envioId') || searchParams.get('transferenciaId');
   const navigate = useNavigate();
 
   const [activeMode, setActiveMode] = useState<ScannerModoId>(
@@ -94,7 +94,7 @@ export const Escaner: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => navigate(`/envios?transferenciaId=${transferenciaIdParam}`)}
+              onClick={() => navigate(`/envios?envioId=${transferenciaIdParam}`)}
               className="text-xs font-medium text-sky-700 hover:text-sky-900 underline flex-shrink-0"
             >
               Volver a Env\u00edos

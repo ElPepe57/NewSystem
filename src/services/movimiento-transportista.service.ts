@@ -12,11 +12,15 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+// MovimientoTransportista y ResumenCuentaTransportista son registros contables históricos.
+// Se reexportan desde transportista.types para compatibilidad, pero las definiciones
+// reales viven aquí tras la migración. Importamos desde el archivo original que sigue existiendo
+// en tanto no se decida mover estas interfaces a otro módulo contable.
 import type {
   MovimientoTransportista,
   TipoMovimientoTransportista,
   ResumenCuentaTransportista
-} from '../types/transportista.types';
+} from '../types/movimiento-transportista.types';
 import type { Entrega } from '../types/entrega.types';
 import { COLLECTIONS } from '../config/collections';
 

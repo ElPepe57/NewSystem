@@ -29,7 +29,7 @@ import type {
   TipoMovimiento
 } from '../types/unidad.types';
 import { ESTADOS_EN_ORIGEN, ESTADOS_EN_TRANSITO_ORIGEN } from '../types/unidad.types';
-import { TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/transferencia.types';
+import { TIPOS_ENVIO_INTERNACIONAL as TIPOS_TRANSFERENCIA_INTERNACIONAL } from '../types/envio.types';
 import { esEstadoEnOrigen, esEstadoEnTransitoOrigen, esPaisOrigen } from '../utils/multiOrigen.helpers';
 import { logBackgroundError } from '../lib/logger';
 import { logger } from '../lib/logger';

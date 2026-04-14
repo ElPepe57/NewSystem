@@ -3,13 +3,13 @@ import { ShoppingBag, CheckCircle2, AlertTriangle, Clock, Package, Truck, Loader
 import { ProductoService } from '../../../../services/producto.service';
 import { VentaService } from '../../../../services/venta.service';
 import { entregaService } from '../../../../services/entrega.service';
-import { transportistaService } from '../../../../services/transportista.service';
+import { colaboradorService } from '../../../../services/colaborador.service';
 import { useMercadoLibreStore } from '../../../../store/mercadoLibreStore';
 import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import type { MLOrderSync } from '../../../../types/mercadoLibre.types';
 import type { Venta } from '../../../../types/venta.types';
-import type { Transportista } from '../../../../types/transportista.types';
+import type { Colaborador as Transportista } from '../../../../types/colaborador.types';
 import type { MetodoPago } from '../../../../types/venta.types';
 import type { ProgramarEntregaData, Entrega } from '../../../../types/entrega.types';
 
@@ -264,7 +264,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
       setVentaActual(venta);
 
       setLoadingTransportistas(true);
-      const transp = await transportistaService.getActivos();
+      const transp = await colaboradorService.getTransportistasActivos();
       setTransportistas(transp);
       setLoadingTransportistas(false);
 
@@ -291,7 +291,7 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
     setTransportistaId(id);
     const t = transportistas.find(tr => tr.id === id);
     if (t) {
-      setCostoTransportista(t.costoFijo || t.costoPromedioPorEntrega || 0);
+      setCostoTransportista(t.tarifas?.costoFijo || t.metricas?.costoPromedioPorEntrega || 0);
     }
   }, [transportistas]);
 
@@ -571,21 +571,21 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
                         className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       >
                         <option value="">Selecciona transportista</option>
-                        {transportistas.filter(t => t.tipo === 'interno').length > 0 && (
+                        {transportistas.filter(t => t.subtipoTransportista === 'interno').length > 0 && (
                           <optgroup label="Internos (Lima)">
-                            {transportistas.filter(t => t.tipo === 'interno').map(t => (
+                            {transportistas.filter(t => t.subtipoTransportista === 'interno').map(t => (
                               <option key={t.id} value={t.id}>
-                                {t.nombre} {t.costoFijo ? `— S/ ${t.costoFijo.toFixed(2)}` : ''}
-                                {t.tasaExito ? ` (${t.tasaExito.toFixed(0)}%)` : ''}
+                                {t.nombre} {t.tarifas?.costoFijo ? `— S/ ${t.tarifas.costoFijo.toFixed(2)}` : ''}
+                                {t.metricas?.tasaExito ? ` (${t.metricas.tasaExito.toFixed(0)}%)` : ''}
                               </option>
                             ))}
                           </optgroup>
                         )}
-                        {transportistas.filter(t => t.tipo === 'externo').length > 0 && (
+                        {transportistas.filter(t => t.subtipoTransportista === 'externo').length > 0 && (
                           <optgroup label="Externos (Couriers)">
-                            {transportistas.filter(t => t.tipo === 'externo').map(t => (
+                            {transportistas.filter(t => t.subtipoTransportista === 'externo').map(t => (
                               <option key={t.id} value={t.id}>
-                                {t.nombre} {t.costoFijo ? `— S/ ${t.costoFijo.toFixed(2)}` : ''}
+                                {t.nombre} {t.tarifas?.costoFijo ? `— S/ ${t.tarifas.costoFijo.toFixed(2)}` : ''}
                               </option>
                             ))}
                           </optgroup>

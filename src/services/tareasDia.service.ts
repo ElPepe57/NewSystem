@@ -11,7 +11,7 @@ import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Cotizacion } from '../types/cotizacion.types';
 import type { Requerimiento } from '../types/requerimiento.types';
-import type { Transferencia } from '../types/transferencia.types';
+import type { Envio as Transferencia } from '../types/envio.types';
 import type { UserRole } from '../types/auth.types';
 import type {
   TareaDia,
@@ -268,8 +268,8 @@ function extraerTransferenciasPorRecibir(transferencias: Transferencia[]): Tarea
         id: `trf-${t.id}`,
         categoria: 'transferencia_por_recibir' as CategoriaTarea,
         prioridad,
-        titulo: `Transferencia en tránsito: ${t.numeroTransferencia}`,
-        subtitulo: `${t.almacenOrigenNombre} → ${t.almacenDestinoNombre} · ${diasEnTransito}d`,
+        titulo: `Envio en transito: ${t.numeroEnvio}`,
+        subtitulo: `${t.casillaOrigenNombre} → ${t.casillaDestinoNombre} · ${diasEnTransito}d`,
         diasRestantes: -diasEnTransito,
         rutaDestino: '/transferencias',
         documentoId: t.id,

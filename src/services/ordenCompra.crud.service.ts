@@ -36,6 +36,7 @@ import { actividadService } from './actividad.service';
 import { metricasService } from './metricas.service';
 import { ORDENES_COLLECTION, PROVEEDORES_COLLECTION, generateNumeroOrden } from './ordenCompra.shared';
 import { getProveedorById } from './ordenCompra.proveedores.service';
+import { buildProductoSnapshot } from '../utils/producto.helpers';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -119,19 +120,15 @@ export async function create(
       const subtotal = prod.cantidad * prod.costoUnitario;
       subtotalUSD += subtotal;
 
+      const snapshot = buildProductoSnapshot({ ...producto, productoId: prod.productoId });
       const prodOrden: ProductoOrden = {
-        productoId: prod.productoId,
-        sku: producto.sku,
-        marca: producto.marca,
-        nombreComercial: producto.nombreComercial,
-        presentacion: producto.presentacion,
+        ...snapshot,
         cantidad: prod.cantidad,
         costoUnitario: prod.costoUnitario,
         subtotal
       };
-      if (producto.pesoLibras && producto.pesoLibras > 0) {
-        prodOrden.pesoLibras = producto.pesoLibras;
-        pesoTotalEstimadoLb += producto.pesoLibras * prod.cantidad;
+      if (snapshot.pesoLibras) {
+        pesoTotalEstimadoLb += snapshot.pesoLibras * prod.cantidad;
       }
       productosOrden.push(prodOrden);
 
@@ -199,8 +196,15 @@ export async function create(
 
     if (data.almacenDestino) {
       nuevaOrden.almacenDestino = data.almacenDestino;
-      const almacen = await almacenService.getById(data.almacenDestino);
-      if (almacen) nuevaOrden.nombreAlmacenDestino = almacen.nombre;
+      // Resolver nombre: primero casilla (modelo nuevo), luego almacén (legacy)
+      const { casillaCrudService } = await import('./casilla.crud.service');
+      const casilla = await casillaCrudService.getById(data.almacenDestino);
+      if (casilla) {
+        nuevaOrden.nombreAlmacenDestino = casilla.nombre;
+      } else {
+        const almacen = await almacenService.getById(data.almacenDestino);
+        if (almacen) nuevaOrden.nombreAlmacenDestino = almacen.nombre;
+      }
     }
 
     if (data.observaciones) nuevaOrden.observaciones = data.observaciones;
@@ -352,11 +356,7 @@ export async function update(
         subtotalUSD += subtotal;
 
         productosOrden.push({
-          productoId: prod.productoId,
-          sku: producto.sku,
-          marca: producto.marca,
-          nombreComercial: producto.nombreComercial,
-          presentacion: producto.presentacion,
+          ...buildProductoSnapshot({ ...producto, productoId: prod.productoId }),
           cantidad: prod.cantidad,
           costoUnitario: prod.costoUnitario,
           subtotal
@@ -630,6 +630,14 @@ export async function confirmarOC(
     estado: 'confirmada',
     inventarioGenerado: true,
     unidadesGeneradas: unidadIds,
+    almacenDestino: destinoCasillaId,
+    ...(orden.nombreAlmacenDestino ? {} : await (async () => {
+      const { casillaCrudService } = await import('./casilla.crud.service');
+      const cas = await casillaCrudService.getById(destinoCasillaId);
+      if (cas) return { nombreAlmacenDestino: cas.nombre };
+      const alm = await almacenService.getById(destinoCasillaId);
+      return alm ? { nombreAlmacenDestino: alm.nombre } : {};
+    })()),
     ultimaEdicion: now,
     editadoPor: userId,
   };
@@ -676,14 +684,15 @@ export async function confirmarOC(
     for (const prod of productos) {
       for (let i = 0; i < prod.cantidad; i++) {
         if (idIdx < ids.length) {
-          result.push({
+          const envioUnidad: import('../types/envio.types').EnvioUnidad = {
             unidadId: ids[idIdx],
             productoId: prod.productoId,
             sku: prod.sku,
             codigoUnidad: ids[idIdx].slice(-6).toUpperCase(),
-            pesoLibras: prod.pesoLibras,
             estadoEnvio: 'pendiente',
-          });
+          };
+          if (prod.pesoLibras) envioUnidad.pesoLibras = prod.pesoLibras;
+          result.push(envioUnidad);
           idIdx++;
         }
       }

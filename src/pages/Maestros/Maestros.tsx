@@ -6,7 +6,6 @@ import {
   Truck,
   Plus,
   RefreshCw,
-  Warehouse,
   Shield,
   Store,
   Crown,
@@ -29,13 +28,10 @@ import { useToastStore } from '../../store/toastStore';
 import { useClienteStore } from '../../store/clienteStore';
 import { useMarcaStore } from '../../store/marcaStore';
 import { useProveedorStore } from '../../store/proveedorStore';
-import { useAlmacenStore } from '../../store/casillaStore';
 import { useCompetidorStore } from '../../store/competidorStore';
-import { useTransportistaStore } from '../../store/transportistaStore';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
 import { useAuthStore } from '../../store/authStore';
 import { metricasService } from '../../services/metricas.service';
-import { almacenService } from '../../services/casilla.service';
 import { MaestrosModals } from './MaestrosModals';
 import type {
   Cliente,
@@ -46,7 +42,6 @@ import type {
 } from '../../types/entidadesMaestras.types';
 import type { Marca, MarcaFormData } from '../../types/entidadesMaestras.types';
 import type { Proveedor, ProveedorFormData } from '../../types/ordenCompra.types';
-import type { Almacen, AlmacenFormData } from '../../types/almacen.types';
 
 // Lazy-loaded tab components — each chunk is only fetched when the user first visits that tab
 const TabResumen = lazy(() => import('./TabResumen').then(m => ({ default: m.TabResumen })));
@@ -54,9 +49,7 @@ const TabClasificacion = lazy(() => import('./TabClasificacion').then(m => ({ de
 const ClientesCRM = lazy(() => import('../../components/Maestros/ClientesCRM').then(m => ({ default: m.ClientesCRM })));
 const MarcasAnalytics = lazy(() => import('../../components/Maestros/MarcasAnalytics').then(m => ({ default: m.MarcasAnalytics })));
 const ProveedoresSRM = lazy(() => import('../../components/Maestros/ProveedoresSRM').then(m => ({ default: m.ProveedoresSRM })));
-const AlmacenesLogistica = lazy(() => import('../../components/Maestros/AlmacenesLogistica').then(m => ({ default: m.AlmacenesLogistica })));
 const CompetidoresIntel = lazy(() => import('../../components/Maestros/CompetidoresIntel').then(m => ({ default: m.CompetidoresIntel })));
-const TransportistasLogistica = lazy(() => import('../../components/Maestros/TransportistasLogistica').then(m => ({ default: m.TransportistasLogistica })));
 const CanalesVentaAnalytics = lazy(() => import('../../components/Maestros/CanalesVentaAnalytics').then(m => ({ default: m.CanalesVentaAnalytics })));
 const CategoriasCostos = lazy(() => import('../../components/Maestros/CategoriasCostos').then(m => ({ default: m.CategoriasCostos })));
 const InsumosEmpaque = lazy(() => import('../../components/Maestros/InsumosEmpaque').then(m => ({ default: m.InsumosEmpaque })));
@@ -68,9 +61,9 @@ const TabFallback = (
   </div>
 );
 
-type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'almacenes' | 'competidores' | 'transportistas' | 'canales' | 'clasificacion';
+type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'competidores' | 'canales' | 'clasificacion';
 
-const VALID_TABS: TabActiva[] = ['resumen', 'clientes', 'marcas', 'proveedores', 'almacenes', 'competidores', 'transportistas', 'canales', 'clasificacion'];
+const VALID_TABS: TabActiva[] = ['resumen', 'clientes', 'marcas', 'proveedores', 'competidores', 'canales', 'clasificacion'];
 
 export const Maestros: React.FC = () => {
   const user = useAuthStore(state => state.user);
@@ -125,16 +118,6 @@ export const Maestros: React.FC = () => {
   } = useProveedorStore();
 
   const {
-    almacenes,
-    stats: almacenStats,
-    loading: loadingAlmacenes,
-    fetchAlmacenes,
-    fetchStats: fetchAlmacenStats,
-    createAlmacen,
-    updateAlmacen
-  } = useAlmacenStore();
-
-  const {
     competidores,
     stats: competidorStats,
     loading: loadingCompetidores,
@@ -145,12 +128,6 @@ export const Maestros: React.FC = () => {
     deleteCompetidor,
     cambiarEstado: cambiarEstadoCompetidor
   } = useCompetidorStore();
-
-  const {
-    transportistas,
-    loading: loadingTransportistas,
-    fetchTransportistas
-  } = useTransportistaStore();
 
   const {
     canales,
@@ -164,14 +141,12 @@ export const Maestros: React.FC = () => {
   const [showClienteModal, setShowClienteModal] = useState(false);
   const [showMarcaModal, setShowMarcaModal] = useState(false);
   const [showProveedorModal, setShowProveedorModal] = useState(false);
-  const [showAlmacenModal, setShowAlmacenModal] = useState(false);
   const [showCompetidorModal, setShowCompetidorModal] = useState(false);
 
   // Editing entities
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [editingMarca, setEditingMarca] = useState<Marca | null>(null);
   const [editingProveedor, setEditingProveedor] = useState<Proveedor | null>(null);
-  const [editingAlmacen, setEditingAlmacen] = useState<Almacen | null>(null);
   const [editingCompetidor, setEditingCompetidor] = useState<Competidor | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -179,9 +154,7 @@ export const Maestros: React.FC = () => {
   const [detalleCliente, setDetalleCliente] = useState<Cliente | null>(null);
   const [detalleMarca, setDetalleMarca] = useState<Marca | null>(null);
   const [detalleProveedor, setDetalleProveedor] = useState<Proveedor | null>(null);
-  const [detalleAlmacen, setDetalleAlmacen] = useState<Almacen | null>(null);
   const [detalleCompetidor, setDetalleCompetidor] = useState<Competidor | null>(null);
-  const [historialViajero, setHistorialViajero] = useState<Almacen | null>(null);
   const [historialCliente, setHistorialCliente] = useState<Cliente | null>(null);
 
   // Form state
@@ -195,12 +168,6 @@ export const Maestros: React.FC = () => {
   const [proveedorForm, setProveedorForm] = useState<Partial<ProveedorFormData>>({
     tipo: 'distribuidor',
     pais: 'USA'
-  });
-  const [almacenForm, setAlmacenForm] = useState<Partial<AlmacenFormData>>({
-    pais: 'USA',
-    tipo: 'viajero',
-    estadoAlmacen: 'activo',
-    esViajero: true
   });
   const [competidorForm, setCompetidorForm] = useState<Partial<CompetidorFormData>>({
     plataformasData: [],
@@ -222,11 +189,8 @@ export const Maestros: React.FC = () => {
         fetchMarcaStats(),
         fetchProveedores(),
         fetchProveedorStats(),
-        fetchAlmacenes(),
-        fetchAlmacenStats(),
         fetchCompetidores(),
         fetchCompetidorStats(),
-        fetchTransportistas(),
         fetchCanales(),
         fetchCanalesActivos()
       ]);
@@ -254,10 +218,9 @@ export const Maestros: React.FC = () => {
       await metricasService.sincronizarMetricasProveedores();
       await metricasService.sincronizarMetricasCompetidores();
       await metricasService.sincronizarOrdenesProveedores();
-      await almacenService.recalcularTodosLosAlmacenes();
       await loadAllData();
       toast.success(
-        'Metricas de clientes, marcas, proveedores, competidores y almacenes sincronizadas correctamente.',
+        'Metricas de clientes, marcas, proveedores y competidores sincronizadas correctamente.',
         'Sincronizacion Completada'
       );
     } catch (error: any) {
@@ -462,70 +425,6 @@ export const Maestros: React.FC = () => {
     }
   };
 
-  // Almacen handlers
-  const handleOpenAlmacenModal = (almacen?: Almacen) => {
-    if (almacen) {
-      setEditingAlmacen(almacen);
-      setAlmacenForm({
-        codigo: almacen.codigo,
-        nombre: almacen.nombre,
-        pais: almacen.pais,
-        tipo: almacen.tipo,
-        estadoAlmacen: almacen.estadoAlmacen,
-        direccion: almacen.direccion,
-        ciudad: almacen.ciudad,
-        estado: almacen.estado,
-        codigoPostal: almacen.codigoPostal,
-        contacto: almacen.contacto,
-        telefono: almacen.telefono,
-        email: almacen.email,
-        whatsapp: almacen.whatsapp,
-        capacidadUnidades: almacen.capacidadUnidades,
-        esViajero: almacen.esViajero,
-        frecuenciaViaje: almacen.frecuenciaViaje,
-        proximoViaje: almacen.proximoViaje?.toDate(),
-        costoPromedioFlete: almacen.costoPromedioFlete,
-        notas: almacen.notas
-      });
-    } else {
-      setEditingAlmacen(null);
-      setAlmacenForm({
-        pais: 'USA',
-        tipo: 'viajero',
-        estadoAlmacen: 'activo',
-        esViajero: true
-      });
-    }
-    setShowAlmacenModal(true);
-  };
-
-  const handleSaveAlmacen = async () => {
-    if (!user) return;
-    if (!almacenForm.nombre?.trim()) {
-      toast.error('Ingresa el nombre del almacen o viajero', 'Campo requerido');
-      return;
-    }
-    if (!almacenForm.direccion?.trim()) {
-      toast.error('Ingresa la direccion del almacen', 'Campo requerido');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      if (editingAlmacen) {
-        await updateAlmacen(editingAlmacen.id, almacenForm, user.uid);
-      } else {
-        await createAlmacen(almacenForm as AlmacenFormData, user.uid);
-      }
-      setShowAlmacenModal(false);
-      setEditingAlmacen(null);
-      toast.success(editingAlmacen ? 'Almacen actualizado' : 'Almacen creado');
-    } catch (error: any) {
-      toast.error(error.message, 'Error al guardar almacen');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // Competidor handlers
   const handleOpenCompetidorModal = (competidor?: Competidor) => {
     if (competidor) {
@@ -622,17 +521,15 @@ export const Maestros: React.FC = () => {
   };
 
   // Loading state
-  const hayDatos = clientes.length > 0 || marcas.length > 0 || proveedores.length > 0 || almacenes.length > 0 || competidores.length > 0;
-  const loading = !hayDatos && (loadingClientes || loadingMarcas || loadingProveedores || loadingAlmacenes || loadingCompetidores);
+  const hayDatos = clientes.length > 0 || marcas.length > 0 || proveedores.length > 0 || competidores.length > 0;
+  const loading = !hayDatos && (loadingClientes || loadingMarcas || loadingProveedores || loadingCompetidores);
 
   const tabs = [
     { id: 'resumen', label: 'Resumen', icon: LayoutDashboard },
     { id: 'clientes', label: 'Clientes', icon: Users, count: clientes.length },
     { id: 'marcas', label: 'Marcas', icon: Tag, count: marcas.length },
     { id: 'proveedores', label: 'Proveedores', icon: Truck, count: proveedores.length },
-    { id: 'almacenes', label: 'Red Log\u00edstica', icon: Warehouse, count: almacenes.length },
     { id: 'competidores', label: 'Competidores', icon: Shield, count: competidores.length },
-    { id: 'transportistas', label: 'Transportistas', icon: Truck },
     { id: 'canales', label: 'Canales', icon: Store },
     { id: 'categorias_costos', label: 'Costos', icon: Boxes },
     { id: 'insumos', label: 'Insumos', icon: Package },
@@ -675,13 +572,6 @@ export const Maestros: React.FC = () => {
             Nuevo Proveedor
           </Button>
         );
-      case 'almacenes':
-        return (
-          <Button variant="primary" onClick={() => handleOpenAlmacenModal()} className="bg-white text-slate-800 hover:bg-slate-100">
-            <Plus className="h-5 w-5 mr-2" />
-            Nuevo Almacen
-          </Button>
-        );
       case 'competidores':
         return (
           <Button variant="primary" onClick={() => handleOpenCompetidorModal()} className="bg-white text-slate-800 hover:bg-slate-100">
@@ -698,7 +588,7 @@ export const Maestros: React.FC = () => {
     <div className="space-y-6">
       <PageHeader
         title="Gestion de Maestros"
-        subtitle="Administra clientes, marcas, proveedores, almacenes y competidores"
+        subtitle="Administra clientes, marcas, proveedores, competidores y canales"
         icon={Boxes}
        
         actions={
@@ -719,8 +609,6 @@ export const Maestros: React.FC = () => {
           { label: 'Clientes', value: clientes.length },
           { label: 'Marcas', value: marcas.length },
           { label: 'Proveedores', value: proveedores.length },
-          { label: 'Almacenes', value: almacenes.length },
-          { label: 'Transportistas', value: transportistas.length },
           { label: 'Canales', value: canales.length }
         ]}
       />
@@ -740,9 +628,7 @@ export const Maestros: React.FC = () => {
           <DSStatCard label="Clientes" value={clientes.length} icon={Users} variant="brand" onClick={() => setTabActiva('clientes')} active={tabActiva === 'clientes'} size="sm" />
           <DSStatCard label="Marcas" value={marcas.length} icon={Tag} variant="brand" onClick={() => setTabActiva('marcas')} active={tabActiva === 'marcas'} size="sm" />
           <DSStatCard label="Proveedores" value={proveedores.length} icon={Truck} variant="brand" onClick={() => setTabActiva('proveedores')} active={tabActiva === 'proveedores'} size="sm" />
-          <DSStatCard label="Red Log." value={almacenes.length} icon={Warehouse} variant="warning" onClick={() => setTabActiva('almacenes')} active={tabActiva === 'almacenes'} size="sm" />
           <DSStatCard label="Competidores" value={competidores.length} icon={Shield} variant="danger" onClick={() => setTabActiva('competidores')} active={tabActiva === 'competidores'} size="sm" />
-          <DSStatCard label="Transportistas" value={transportistas.length} icon={Truck} variant="neutral" onClick={() => setTabActiva('transportistas')} active={tabActiva === 'transportistas'} size="sm" />
           <DSStatCard label="Canales" value={canales.length} icon={Store} variant="neutral" onClick={() => setTabActiva('canales')} active={tabActiva === 'canales'} size="sm" />
           <DSStatCard label="Resumen" value="360" icon={LayoutDashboard} variant="info" onClick={() => setTabActiva('resumen')} size="sm" />
         </KPIBar>
@@ -755,14 +641,11 @@ export const Maestros: React.FC = () => {
             clientes={clientes}
             marcas={marcas}
             proveedores={proveedores}
-            almacenes={almacenes}
             competidores={competidores}
-            transportistas={transportistas}
             canales={canales}
             clienteStats={clienteStats}
             marcaStats={marcaStats}
             proveedorStats={proveedorStats}
-            almacenStats={almacenStats}
             competidorStats={competidorStats}
             isRefreshing={isRefreshing}
             isRecalculando={isRecalculando}
@@ -771,7 +654,6 @@ export const Maestros: React.FC = () => {
             onOpenClienteModal={() => handleOpenClienteModal()}
             onOpenMarcaModal={() => handleOpenMarcaModal()}
             onOpenProveedorModal={() => handleOpenProveedorModal()}
-            onOpenAlmacenModal={() => handleOpenAlmacenModal()}
             onOpenCompetidorModal={() => handleOpenCompetidorModal()}
             onRecalcularMetricas={handleRecalcularMetricas}
           />
@@ -818,16 +700,6 @@ export const Maestros: React.FC = () => {
             </Suspense>
           )}
 
-          {tabActiva === 'almacenes' && (
-            <Suspense fallback={TabFallback}>
-              <AlmacenesLogistica
-                onOpenAlmacenModal={handleOpenAlmacenModal}
-                onViewAlmacen={(almacen) => setDetalleAlmacen(almacen)}
-                onEditAlmacen={(almacen) => handleOpenAlmacenModal(almacen)}
-              />
-            </Suspense>
-          )}
-
           {tabActiva === 'competidores' && (
             <Suspense fallback={TabFallback}>
               <CompetidoresIntel
@@ -836,12 +708,6 @@ export const Maestros: React.FC = () => {
                 onEditCompetidor={(competidor) => handleOpenCompetidorModal(competidor)}
                 onDeleteCompetidor={handleDeleteCompetidor}
               />
-            </Suspense>
-          )}
-
-          {tabActiva === 'transportistas' && (
-            <Suspense fallback={TabFallback}>
-              <TransportistasLogistica />
             </Suspense>
           )}
 
@@ -900,13 +766,6 @@ export const Maestros: React.FC = () => {
         onCloseProveedorModal={() => { setShowProveedorModal(false); setEditingProveedor(null); }}
         onProveedorFormChange={setProveedorForm}
         onSaveProveedor={handleSaveProveedor}
-        // Almacen
-        showAlmacenModal={showAlmacenModal}
-        editingAlmacen={editingAlmacen}
-        almacenForm={almacenForm}
-        onCloseAlmacenModal={() => { setShowAlmacenModal(false); setEditingAlmacen(null); }}
-        onAlmacenFormChange={setAlmacenForm}
-        onSaveAlmacen={handleSaveAlmacen}
         // Competidor
         showCompetidorModal={showCompetidorModal}
         editingCompetidor={editingCompetidor}
@@ -921,16 +780,12 @@ export const Maestros: React.FC = () => {
         detalleCliente={detalleCliente}
         detalleMarca={detalleMarca}
         detalleProveedor={detalleProveedor}
-        detalleAlmacen={detalleAlmacen}
         detalleCompetidor={detalleCompetidor}
-        historialViajero={historialViajero}
         historialCliente={historialCliente}
         onCloseDetalleCliente={() => setDetalleCliente(null)}
         onCloseDetalleMarca={() => setDetalleMarca(null)}
         onCloseDetalleProveedor={() => setDetalleProveedor(null)}
-        onCloseDetalleAlmacen={() => setDetalleAlmacen(null)}
         onCloseDetalleCompetidor={() => setDetalleCompetidor(null)}
-        onCloseHistorialViajero={() => setHistorialViajero(null)}
         onCloseHistorialCliente={() => setHistorialCliente(null)}
         onEditFromDetalleCliente={() => {
           if (detalleCliente) { handleOpenClienteModal(detalleCliente); setDetalleCliente(null); }
@@ -941,14 +796,8 @@ export const Maestros: React.FC = () => {
         onEditFromDetalleProveedor={() => {
           if (detalleProveedor) { handleOpenProveedorModal(detalleProveedor); setDetalleProveedor(null); }
         }}
-        onEditFromDetalleAlmacen={() => {
-          if (detalleAlmacen) { handleOpenAlmacenModal(detalleAlmacen); setDetalleAlmacen(null); }
-        }}
         onEditFromDetalleCompetidor={() => {
           if (detalleCompetidor) { handleOpenCompetidorModal(detalleCompetidor); setDetalleCompetidor(null); }
-        }}
-        onEditFromHistorialViajero={() => {
-          if (historialViajero) { handleOpenAlmacenModal(historialViajero); setHistorialViajero(null); }
         }}
         onEditFromHistorialCliente={() => {
           if (historialCliente) { handleOpenClienteModal(historialCliente); setHistorialCliente(null); }
@@ -956,10 +805,6 @@ export const Maestros: React.FC = () => {
         onViewHistoryFromDetalleCliente={() => {
           if (detalleCliente) { setHistorialCliente(detalleCliente); setDetalleCliente(null); }
         }}
-        onViewHistoryFromDetalleAlmacen={detalleAlmacen?.esViajero ? () => {
-          setHistorialViajero(detalleAlmacen);
-          setDetalleAlmacen(null);
-        } : undefined}
         confirmDialog={<ConfirmDialog {...dialogProps} />}
       />
     </div>

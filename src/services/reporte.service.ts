@@ -14,7 +14,7 @@ import { inventarioService } from './inventario.service';
 import { VentaService } from './venta.service';
 import { OrdenCompraService } from './ordenCompra.service';
 import { tipoCambioService } from './tipoCambio.service';
-import { transferenciaService } from './transferencia.service';
+import { envioCrudService } from './envio.crud.service';
 import { gastoService } from './gasto.service';
 
 export class ReporteService {
@@ -59,7 +59,7 @@ export class ReporteService {
         this.getVentasPorRango({ inicio: inicioSemana, fin: ahora }),
         this.getVentasPorRango({ inicio: inicioMes, fin: ahora }),
         this.getVentasPorRango(rangoFinal),
-        transferenciaService.getAll(),
+        envioCrudService.getAll(),
         VentaService.getAll()
       ]);
 

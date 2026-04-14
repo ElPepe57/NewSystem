@@ -74,6 +74,7 @@ import { gastoService } from './gasto.service';
 import { actividadService } from './actividad.service';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { logBackgroundError } from '../lib/logger';
+import { buildProductoSnapshot } from '../utils/producto.helpers';
 
 // Módulos especializados
 import * as PagosService from './venta.pagos.service';
@@ -276,15 +277,7 @@ export class VentaService {
         const disponiblesEnUSA = disponiblesPorProductoUSA.get(producto.id) || 0;
 
         const productoDisponible: ProductoDisponible = {
-          productoId: producto.id,
-          sku: producto.sku,
-          marca: producto.marca,
-          nombreComercial: producto.nombreComercial,
-          presentacion: producto.presentacion,
-          ...(producto.contenido && { contenido: producto.contenido }),
-          ...(producto.dosaje && { dosaje: producto.dosaje }),
-          ...(producto.sabor && { sabor: producto.sabor }),
-          ...(producto.atributosSkincare && { atributosSkincare: producto.atributosSkincare }),
+          ...buildProductoSnapshot({ ...producto, productoId: producto.id }),
           // Propagate variant fields for selector filtering
           ...(producto.esPadre && { esPadre: producto.esPadre }),
           ...(producto.grupoVarianteId && { grupoVarianteId: producto.grupoVarianteId }),
@@ -390,19 +383,11 @@ export class VentaService {
         subtotalPEN += subtotal;
 
         const prodVenta: ProductoVenta = {
-          productoId: prod.productoId,
-          sku: producto.sku,
-          marca: producto.marca,
-          nombreComercial: producto.nombreComercial,
-          presentacion: producto.presentacion,
+          ...buildProductoSnapshot({ ...producto, productoId: prod.productoId }),
           cantidad: prod.cantidad,
           precioUnitario: prod.precioUnitario,
           subtotal
         };
-        if (producto.contenido) prodVenta.contenido = producto.contenido;
-        if (producto.dosaje) prodVenta.dosaje = producto.dosaje;
-        if ((producto as any).sabor) prodVenta.sabor = (producto as any).sabor;
-        if (producto.atributosSkincare) prodVenta.atributosSkincare = producto.atributosSkincare;
         productosVenta.push(prodVenta);
       }
 
