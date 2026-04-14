@@ -382,126 +382,119 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
               </label>
             )}
 
-            {/* Lista de productos */}
-            <div className="border rounded-lg overflow-x-auto">
-              <table className="w-full text-xs sm:text-sm min-w-[480px]">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-3 py-2 text-left text-slate-600 w-8"></th>
-                    <th className="px-3 py-2 text-left text-slate-600">Producto</th>
-                    <th className="px-2 py-2 text-center text-slate-600">Ordenado</th>
-                    <th className="px-2 py-2 text-center text-slate-600">Recibido</th>
-                    <th className="px-2 py-2 text-center text-slate-600">Pendiente</th>
-                    <th className="px-3 py-2 text-center text-slate-600">Recibir ahora</th>
-                    <th className="px-2 py-2 text-center text-red-600">Dañados</th>
-                    <th className="px-2 py-2 text-center text-slate-600">Perdidos</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {productosConPendiente.map(p => {
-                    const isFlashing = scanFeedback?.productoId === p.productoId;
-                    return (
-                      <tr
-                        key={p.productoId}
-                        className={`transition-all duration-300 ${
-                          isFlashing
-                            ? 'bg-emerald-100 ring-2 ring-inset ring-emerald-400'
-                            : p.completo
-                            ? 'bg-emerald-50 opacity-60'
-                            : 'hover:bg-slate-50'
-                        }`}
-                      >
-                        <td className="px-3 py-2">
+            {/* Lista de productos — card por producto */}
+            <div className="space-y-2">
+              {productosConPendiente.map(p => {
+                const isFlashing = scanFeedback?.productoId === p.productoId;
+                const cantRecibir = cantidades[p.productoId] || 0;
+                const cantDanar = danados[p.productoId] || 0;
+                const cantPerder = perdidos[p.productoId] || 0;
+                const maxRecibir = p.pendiente - cantDanar - cantPerder;
+                const maxDanar = p.pendiente - cantRecibir - cantPerder;
+                const maxPerder = p.pendiente - cantRecibir - cantDanar;
+
+                return (
+                  <div
+                    key={p.productoId}
+                    className={`rounded-lg border p-3 transition-all duration-200 ${
+                      isFlashing ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-400' :
+                      p.completo ? 'bg-emerald-50/50 border-emerald-200 opacity-70' :
+                      'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    {/* Producto header */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {p.completo ? (
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                        ) : (
+                          <input
+                            type="checkbox"
+                            checked={cantRecibir > 0}
+                            onChange={() => toggleProducto(p.productoId, p.pendiente)}
+                            className="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 shrink-0"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium text-slate-900 truncate">{p.nombreComercial}</div>
+                          <div className="text-[10px] text-slate-500">{p.marca} · {p.sku}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs shrink-0">
+                        <div className="text-center">
+                          <div className="text-[10px] text-slate-400 uppercase">Pedido</div>
+                          <div className="font-semibold text-slate-900">{p.cantidad}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-[10px] text-slate-400 uppercase">Previo</div>
+                          <div className={p.recibido > 0 ? 'font-semibold text-emerald-600' : 'text-slate-300'}>{p.recibido}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-[10px] text-slate-400 uppercase">Pendiente</div>
                           {p.completo ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                            <span className="text-[10px] font-medium text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full">OK</span>
+                          ) : (
+                            <div className="font-semibold text-amber-600">{p.pendiente}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Inputs — solo si no completo */}
+                    {!p.completo && (
+                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
+                        {/* Recibir */}
+                        <div className="flex-1">
+                          <label className="text-[10px] text-slate-500 block mb-0.5">Recibir</label>
+                          {modoEscaner ? (
+                            <div className={`text-center text-lg font-bold ${cantRecibir > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>
+                              {cantRecibir}
+                            </div>
                           ) : (
                             <input
-                              type="checkbox"
-                              checked={(cantidades[p.productoId] || 0) > 0}
-                              onChange={() => toggleProducto(p.productoId, p.pendiente)}
-                              className="h-4 w-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500"
+                              type="number" min={0} max={maxRecibir}
+                              value={cantRecibir}
+                              onChange={(e) => handleCantidadChange(p.productoId, parseInt(e.target.value) || 0, maxRecibir)}
+                              className="w-full text-center text-sm font-medium border border-slate-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                             />
                           )}
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="font-medium text-slate-900">{p.nombreComercial}</div>
-                          <div className="text-xs text-slate-500">{p.marca} · {p.sku}</div>
-                        </td>
-                        <td className="px-2 py-2 text-center font-medium">{p.cantidad}</td>
-                        <td className="px-2 py-2 text-center">
-                          <span className={p.recibido > 0 ? 'text-emerald-600 font-medium' : 'text-slate-400'}>
-                            {p.recibido}
-                          </span>
-                        </td>
-                        <td className="px-2 py-2 text-center">
-                          {p.completo ? (
-                            <span className="text-xs font-medium text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Completo</span>
-                          ) : (
-                            <span className="text-amber-600 font-medium">{p.pendiente}</span>
-                          )}
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          {p.completo ? (
-                            <span className="text-slate-400">-</span>
-                          ) : modoEscaner ? (
-                            <span className={`font-bold text-lg ${(cantidades[p.productoId] || 0) > 0 ? 'text-emerald-600' : 'text-slate-300'}`}>
-                              {cantidades[p.productoId] || 0}
-                            </span>
-                          ) : (
-                            <input
-                              type="number"
-                              min={0}
-                              max={p.pendiente - (danados[p.productoId] || 0) - (perdidos[p.productoId] || 0)}
-                              value={cantidades[p.productoId] || 0}
-                              onChange={(e) => handleCantidadChange(p.productoId, parseInt(e.target.value) || 0, p.pendiente - (danados[p.productoId] || 0) - (perdidos[p.productoId] || 0))}
-                              className="w-16 text-center border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                            />
-                          )}
-                        </td>
-                        <td className="px-2 py-2 text-center">
-                          {p.completo ? (
-                            <span className="text-slate-400">-</span>
-                          ) : (
-                            <input
-                              type="number"
-                              min={0}
-                              max={p.pendiente - (cantidades[p.productoId] || 0) - (perdidos[p.productoId] || 0)}
-                              value={danados[p.productoId] || 0}
-                              onChange={(e) => {
-                                const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, p.pendiente - (cantidades[p.productoId] || 0) - (perdidos[p.productoId] || 0)));
-                                setDanados(prev => ({ ...prev, [p.productoId]: val }));
-                              }}
-                              className="w-14 text-center border border-red-200 rounded px-1 py-1 text-sm focus:ring-2 focus:ring-red-400 focus:border-red-400 text-red-600"
-                            />
-                          )}
-                        </td>
-                        <td className="px-2 py-2 text-center">
-                          {p.completo ? (
-                            <span className="text-slate-400">-</span>
-                          ) : (
-                            <input
-                              type="number"
-                              min={0}
-                              max={p.pendiente - (cantidades[p.productoId] || 0) - (danados[p.productoId] || 0)}
-                              value={perdidos[p.productoId] || 0}
-                              onChange={(e) => {
-                                const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, p.pendiente - (cantidades[p.productoId] || 0) - (danados[p.productoId] || 0)));
-                                setPerdidos(prev => ({ ...prev, [p.productoId]: val }));
-                              }}
-                              className="w-14 text-center border border-slate-300 rounded px-1 py-1 text-sm focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
-                            />
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        </div>
+                        {/* Dañados */}
+                        <div className="w-16">
+                          <label className="text-[10px] text-red-500 block mb-0.5">Dañados</label>
+                          <input
+                            type="number" min={0} max={maxDanar}
+                            value={cantDanar}
+                            onChange={(e) => {
+                              const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, maxDanar));
+                              setDanados(prev => ({ ...prev, [p.productoId]: val }));
+                            }}
+                            className="w-full text-center text-sm font-medium border border-red-200 rounded-lg px-1 py-1.5 focus:ring-2 focus:ring-red-400 focus:border-red-400 text-red-600 bg-red-50/50"
+                          />
+                        </div>
+                        {/* Perdidos */}
+                        <div className="w-16">
+                          <label className="text-[10px] text-slate-500 block mb-0.5">Perdidos</label>
+                          <input
+                            type="number" min={0} max={maxPerder}
+                            value={cantPerder}
+                            onChange={(e) => {
+                              const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, maxPerder));
+                              setPerdidos(prev => ({ ...prev, [p.productoId]: val }));
+                            }}
+                            className="w-full text-center text-sm font-medium border border-slate-200 rounded-lg px-1 py-1.5 focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Observaciones */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="text-[10px] font-medium text-slate-500 uppercase tracking-wide block mb-1">
                 Observaciones (opcional)
               </label>
               <textarea
@@ -509,36 +502,48 @@ export const RecepcionParcialModal: React.FC<RecepcionParcialModalProps> = ({
                 onChange={(e) => setObservaciones(e.target.value)}
                 placeholder="Ej: Paquete 2 de 3, tracking TBA12345..."
                 rows={2}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 placeholder:text-slate-300"
               />
             </div>
 
             {/* Resumen */}
-            {resumen.totalUnidades > 0 && (
-              <div className={`rounded-lg p-4 border ${resumen.esRecepcionFinal ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}>
-                <div className="flex items-center gap-2 mb-2">
+            {(resumen.totalUnidades > 0 || resumen.totalDanados > 0 || resumen.totalPerdidos > 0) && (
+              <div className={`rounded-lg border p-4 ${resumen.esRecepcionFinal ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}>
+                <div className="flex items-center gap-2 mb-3">
                   <Package className="h-4 w-4 text-slate-600" />
                   <span className="text-sm font-semibold text-slate-900">
-                    Resumen de recepción #{numeroRecepcion}
+                    Resumen #{numeroRecepcion}
                   </span>
                   {resumen.esRecepcionFinal && (
-                    <span className="text-xs font-medium text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
-                      RECEPCIÓN FINAL
+                    <span className="text-[10px] font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                      FINAL
                     </span>
                   )}
                 </div>
-                <div className="grid grid-cols-3 gap-3 text-sm">
-                  <div>
-                    <span className="text-slate-600">Productos:</span>
-                    <span className="ml-1 font-medium">{resumen.productosCount}</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-white rounded-lg p-2.5 border border-slate-100 text-center">
+                    <div className="text-[10px] text-slate-400 uppercase">Productos</div>
+                    <div className="text-lg font-bold text-slate-900">{resumen.productosCount}</div>
                   </div>
-                  <div>
-                    <span className="text-slate-600">Unidades:</span>
-                    <span className="ml-1 font-medium">{resumen.totalUnidades}</span>
+                  <div className="bg-white rounded-lg p-2.5 border border-emerald-100 text-center">
+                    <div className="text-[10px] text-emerald-600 uppercase">Recibidas</div>
+                    <div className="text-lg font-bold text-emerald-700">{resumen.totalUnidades}</div>
                   </div>
-                  <div>
-                    <span className="text-slate-600">Valor:</span>
-                    <span className="ml-1 font-medium">${resumen.costoRecepcionUSD.toFixed(2)}</span>
+                  {resumen.totalDanados > 0 && (
+                    <div className="bg-red-50 rounded-lg p-2.5 border border-red-100 text-center">
+                      <div className="text-[10px] text-red-500 uppercase">Dañadas</div>
+                      <div className="text-lg font-bold text-red-600">{resumen.totalDanados}</div>
+                    </div>
+                  )}
+                  {resumen.totalPerdidos > 0 && (
+                    <div className="bg-slate-100 rounded-lg p-2.5 border border-slate-200 text-center">
+                      <div className="text-[10px] text-slate-500 uppercase">Perdidas</div>
+                      <div className="text-lg font-bold text-slate-700">{resumen.totalPerdidos}</div>
+                    </div>
+                  )}
+                  <div className="bg-white rounded-lg p-2.5 border border-slate-100 text-center">
+                    <div className="text-[10px] text-slate-400 uppercase">Valor USD</div>
+                    <div className="text-lg font-bold text-slate-900">${resumen.costoRecepcionUSD.toFixed(2)}</div>
                   </div>
                 </div>
               </div>
