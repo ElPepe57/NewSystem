@@ -90,8 +90,21 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
       const ocEstado = calcularEstadoDerivadoOC(updatedSubs, orden.estado);
 
+      // Firestore no acepta undefined — limpiar recursivamente
+      const clean = (obj: any): any => {
+        if (Array.isArray(obj)) return obj.map(clean);
+        if (obj && typeof obj === 'object' && !(obj instanceof Date)) {
+          const result: any = {};
+          for (const [k, v] of Object.entries(obj)) {
+            if (v !== undefined) result[k] = clean(v);
+          }
+          return result;
+        }
+        return obj;
+      };
+
       await updateDoc(doc(db, 'ordenesCompra', orden.id), {
-        subOrdenes: updatedSubs,
+        subOrdenes: clean(updatedSubs),
         estado: ocEstado
       });
     } catch (err) {
