@@ -19,6 +19,7 @@ interface OrdenCompraCardProps {
   onRecibirSubOrden?: (subOrdenId: string) => void;
   onPagarSubOrden?: (subOrdenId: string) => void;
   onRevertirRecepciones?: () => void;
+  onRefresh?: () => void;
 }
 
 const estadoLabels: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
@@ -49,7 +50,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   onRecibirOrden,
   onRecibirSubOrden,
   onPagarSubOrden,
-  onRevertirRecepciones
+  onRevertirRecepciones,
+  onRefresh
 }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [modoConfirmacion, setModoConfirmacion] = useState<'idle' | 'pregunta' | 'subordenes'>('idle');
@@ -107,6 +109,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         subOrdenes: clean(updatedSubs),
         estado: ocEstado
       });
+
+      // Refresh para reflejar cambios en la UI
+      onRefresh?.();
     } catch (err) {
       console.error('Error actualizando sub-orden:', err);
     } finally {

@@ -978,6 +978,7 @@ export const OrdenesCompra: React.FC = () => {
             onRecibirSubOrden={handleRecibirSubOrden}
             onPagarSubOrden={handlePagarSubOrden}
             onRevertirRecepciones={handleRevertirRecepciones}
+            onRefresh={() => { fetchOrdenes(); if (selectedOrden) refreshSelectedOrden(selectedOrden.id); }}
           />
         )}
       </Modal>
