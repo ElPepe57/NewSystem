@@ -162,9 +162,10 @@ export class OrdenCompraService {
 
   static async recibirOrdenParcial(
     id: string,
-    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number }>,
+    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
     userId: string,
-    observaciones?: string
+    observaciones?: string,
+    subOrdenId?: string
   ): Promise<{
     recepcionId: string;
     unidadesGeneradas: string[];
@@ -173,7 +174,7 @@ export class OrdenCompraService {
     esRecepcionFinal: boolean;
     cotizacionVinculada?: string;
   }> {
-    return recibirOrdenParcial(id, productosRecibidos, userId, observaciones);
+    return recibirOrdenParcial(id, productosRecibidos, userId, observaciones, subOrdenId);
   }
 
   static async recibirOrden(
