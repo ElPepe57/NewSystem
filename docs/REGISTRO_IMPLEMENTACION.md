@@ -10721,3 +10721,379 @@ Sesion de consolidacion del catalogo de productos en tres frentes: (1) mejoras a
 
 *Cierre registrado por implementation-controller (Agente 23).*
 *2026-04-08 — Sesion 31 CERRADA. 9 deploys (Deploy 93-101). 19 cambios (CAMBIO-293 a CAMBIO-311). Limpieza exhaustiva del catalogo: SUP renumerado (155 SKUs sin huecos), SKC migrado a campos correctos (tipoPiel/ingredienteClave/textura), 53 productos con tipoProducto [object Object] corregidos, marcas renumeradas (45 sin huecos). Helper centralizado getDescripcionProducto aplicado en 27 componentes. atributosSkincare desnormalizado en 5 tipos + 4 servicios de creacion. Fix UX AutocompleteInput (mousedown/blur). 6 decisiones (D-53 a D-58). Proxima sesion: TAREA-098 (Reportes CxC/CxP + costo landed) → TAREA-097 Fase 2 (calibracion proyecciones) → TAREA-099 (trazabilidad ubicacion).*
+
+---
+
+## SESION 36 — 2026-04-13 (Sub-ordenes operativas completas + Auditoria 360 Compras)
+
+### Objetivo
+Completar el ciclo operativo de sub-ordenes en Ordenes de Compra: recepcion parcial, pagos por sub-orden, productos danados/perdidos, y corregir el ciclo Unidades↔Envio que tenia 4 bugs criticos descubiertos en sesiones anteriores. Completar con auditoria 360 del modulo Compras.
+
+### Contexto
+La sesion partio del plan documentado en `docs/PLAN_FIX_UNIDADES_ENVIO_SUBORDENES.md` con 5 fixes criticos identificados. Se completaron los 5 fixes, se construyeron las funcionalidades de sub-ordenes, y se ejecuto una auditoria 360 con 4 agentes sobre el ciclo completo.
+
+### Metricas de la sesion
+
+| Metrica | Valor |
+|---------|-------|
+| Deploys realizados | 15 (Deploy 194 a Deploy 208) |
+| Cambios registrados | 20 (Deploy 194 a Deploy 208, algunos con multiples cambios) |
+| Archivos nuevos | 6 |
+| Fixes criticos ciclo Unidades-Envio | 5/5 (plan completado) |
+| Bugs auditoria 360 ronda 1 corregidos | 3 de 4 criticos |
+| Scripts nuevos | 1 (cleanup-envios-huerfanos.mjs) |
+| Fixes acumulados totales | ~429 |
+
+---
+
+### BLOQUE 1 — Fix ciclo Unidades↔Envio (5 fixes del plan)
+
+#### CAMBIO-312 — envioId/subOrdenId en tipo Unidad
+- Fecha: 2026-04-13
+- Tipo: Cambio de tipos TypeScript
+- Descripcion: Campos opcionales `envioId`, `envioNumero`, y `subOrdenId` agregados a la interfaz `Unidad` en `src/types/unidad.types.ts`. Prerequisito para que las unidades queden vinculadas al envio que las origino y a la sub-orden de la OC correspondiente.
+- Archivo: `src/types/unidad.types.ts`
+- Reversible: si (campos opcionales — sin breaking change)
+
+#### CAMBIO-313 — envio.crear() pobla unidades[] con EnvioUnidad[]
+- Fecha: 2026-04-13
+- Tipo: Bug fix critico
+- Descripcion: `envio.crud.service.ts` — el metodo `crear()` ignoraba el parametro `unidadesIds` y escribia siempre `unidades: []` al documento de Firestore. Corregido para poblar `unidades[]` con el array de `EnvioUnidad[]` recibido. El metodo ahora retorna `{id, numeroEnvio}` para que los llamadores puedan usar el ID generado.
+- Archivo: `src/services/envio.crud.service.ts`
+- Reversible: si
+
+#### CAMBIO-314 — confirmarOC() vincula unidades↔envio
+- Fecha: 2026-04-13
+- Tipo: Bug fix critico
+- Descripcion: `ordenCompra.crud.service.ts` — `confirmarOC()` no escribia `envioId`, `envioNumero` ni `subOrdenId` en las unidades creadas. Corregido para que al confirmar una OC: (1) se recupere el `{id, numeroEnvio}` del envio creado, (2) cada unidad reciba `envioId`, `envioNumero` y `subOrdenId` correspondiente.
+- Archivo: `src/services/ordenCompra.crud.service.ts`
+- Reversible: si
+
+#### CAMBIO-315 — Guard anti-duplicacion en recibirOrdenParcial
+- Fecha: 2026-04-13
+- Tipo: Bug fix critico
+- Descripcion: `ordenCompra.recepcion.service.ts` — `recibirOrdenParcial()` creaba unidades nuevas sin verificar si ya existian, lo que duplicaba el inventario en recepciones repetidas o reintentos. Implementado guard que busca unidades en estado 'pedida' para la sub-orden/producto antes de crear nuevas, y las transiciona a 'disponible' si ya existen.
+- Archivo: `src/services/ordenCompra.recepcion.service.ts`
+- Reversible: si
+
+#### CAMBIO-316 — Columna Envio en pagina Unidades
+- Fecha: 2026-04-13
+- Tipo: Feature UI
+- Descripcion: La pagina `Unidades.tsx` agrego una columna "Envio" que muestra el `envioNumero` (ENV-2026-XXX) de cada unidad, permitiendo trazabilidad directa desde el inventario hacia el envio de origen.
+- Archivo: `src/pages/Unidades/Unidades.tsx`
+- Reversible: si
+
+#### CAMBIO-317 — esEstadoEnOrigen() incluye 'pedida'
+- Fecha: 2026-04-13
+- Tipo: Bug fix
+- Descripcion: `src/utils/multiOrigen.helpers.ts` — la funcion `esEstadoEnOrigen()` no incluia el estado 'pedida' (estado inicial de una unidad al confirmar OC). Esto causaba que las unidades recien creadas no aparecieran en la vista de Stock de origen. Agregado 'pedida' a la lista de estados de origen.
+- Archivo: `src/utils/multiOrigen.helpers.ts`
+- Reversible: si
+
+---
+
+### BLOQUE 2 — Helper centralizado y badges de sub-ordenes
+
+#### CAMBIO-318 — calcularEstadoDerivadoOC() helper centralizado
+- Fecha: 2026-04-13
+- Tipo: Refactoring / Nuevo helper
+- Descripcion: Archivo nuevo `src/utils/ordenCompra.helpers.ts` con tres funciones exportadas:
+  - `calcularEstadoDerivadoOC(oc)`: calcula el estado global de la OC derivandolo del estado de sus sub-ordenes.
+  - `calcularEstadoPagoDerivado(oc)`: calcula el estado de pago global derivado del pago de sub-ordenes.
+  - `getSubOrdenResumen(oc)`: retorna objeto con conteos y porcentaje de avance de sub-ordenes.
+  Reemplaza logica inline duplicada en OrdenCompraCard.tsx y OrdenCompraTable.tsx.
+- Archivo: `src/utils/ordenCompra.helpers.ts` (nuevo)
+- Reversible: si
+
+#### CAMBIO-319 — Badges X/N sub-ord. con color dinamico en tabla OC
+- Fecha: 2026-04-13
+- Tipo: Feature UI
+- Descripcion: `OrdenCompraTable.tsx` agrega pill "X/N sub-ord." en la columna de estado usando el helper `getSubOrdenResumen()`. Color dinamico: slate (ninguna avanzada), amber (parcial), emerald (todas completadas). Icono Layers acompana el pill. Badge de pago parcial de sub-ordenes con icono CreditCard.
+- Archivo: `src/components/modules/ordenCompra/OrdenCompraTable.tsx`
+- Reversible: si
+
+#### CAMBIO-320 — Expandable colapsable por sub-orden en tabla OC
+- Fecha: 2026-04-13
+- Tipo: Feature UI
+- Descripcion: En `OrdenCompraTable.tsx`, cuando una OC tiene sub-ordenes, el desglose de productos reemplaza la tabla plana. Cada sub-orden es un card colapsable (cerrada por defecto) con: header clickable (chevron + estado + referencia + total), tabla de productos, y footer con costos individuales (descuento/shipping/tax). Tarjeta de descuento integrada con orden correcto: Subtotal → Descuento → Impuesto → Envio → Total.
+- Archivo: `src/components/modules/ordenCompra/OrdenCompraTable.tsx`
+- Reversible: si
+
+---
+
+### BLOQUE 3 — Recepcion parcial por sub-orden
+
+#### CAMBIO-321 — RecepcionParcialModal acepta contexto de sub-orden
+- Fecha: 2026-04-13
+- Tipo: Feature
+- Descripcion: `RecepcionParcialModal.tsx` acepta prop opcional `subOrden` que filtra los productos al scope de esa sub-orden. Cuando se recibe por sub-orden, solo se muestran los productos asignados a ella. Agregados campos de Danados y Perdidos por producto con validacion cruzada (recibido + danado + perdido <= cantidad total).
+- Archivo: `src/components/modules/ordenCompra/RecepcionParcialModal.tsx`
+- Reversible: si
+
+#### CAMBIO-322 — recibirOrdenParcial con subOrdenId, daños y perdidos
+- Fecha: 2026-04-13
+- Tipo: Feature / Bug fix
+- Descripcion: `ordenCompra.recepcion.service.ts` acepta param `subOrdenId`, actualiza `cantidadRecibida` en la sub-orden especifica, y auto-transiciona el estado de la sub-orden. Crea/transiciona unidades con estado 'danada' o 'perdida' segun corresponda. Tipo `RecepcionParcial` ampliado con `+subOrdenId`, `+cantidadDanada`, `+cantidadPerdida`, `+totalUnidadesDanadas`, `+totalUnidadesPerdidas`. `removeUndefined()` aplicado antes de escritura a Firestore.
+- Archivos: `src/services/ordenCompra.recepcion.service.ts`, `src/types/ordenCompra.types.ts`
+- Reversible: si
+
+#### CAMBIO-323 — Wiring recepcion por sub-orden en OrdenesCompra.tsx
+- Fecha: 2026-04-13
+- Tipo: Feature
+- Descripcion: `OrdenesCompra.tsx` maneja state `subOrdenRecepcion` para pasar contexto de sub-orden al modal de recepcion. `OrdenCompraCard` expone callback `onRecibirSubOrden`. Store actualizado para pasar `subOrdenId` al servicio.
+- Archivos: `src/pages/OrdenesCompra/OrdenesCompra.tsx`, `src/store/ordenCompraStore.ts`
+- Reversible: si
+
+---
+
+### BLOQUE 4 — Pagos parciales por sub-orden
+
+#### CAMBIO-324 — registrarPago con subOrdenId
+- Fecha: 2026-04-13
+- Tipo: Feature
+- Descripcion: `ordenCompra.pagos.service.ts` acepta param `subOrdenId`, actualiza `estadoPago` de la sub-orden especifica, y deriva el estadoPago global de la OC. Tipo `PagoOrdenCompra` ampliado con `+subOrdenId`. `removeUndefined()` aplicado antes de escritura a Firestore.
+- Archivos: `src/services/ordenCompra.pagos.service.ts`, `src/types/ordenCompra.types.ts`
+- Reversible: si
+
+#### CAMBIO-325 — Wiring pagos por sub-orden en OrdenesCompra.tsx
+- Fecha: 2026-04-13
+- Tipo: Feature
+- Descripcion: `OrdenesCompra.tsx` maneja state `subOrdenPago` para pasar contexto de sub-orden al modal `PagoUnificadoForm`. El modal se inicializa con `montoTotal` y `montoPendiente` de la sub-orden especifica. `OrdenCompraCard` expone callback `onPagarSubOrden`.
+- Archivos: `src/pages/OrdenesCompra/OrdenesCompra.tsx`
+- Reversible: si
+
+---
+
+### BLOQUE 5 — Rediseno visual OrdenCompraCard + SubOrdenCard
+
+#### CAMBIO-326 — Rediseno OrdenCompraCard con mini-pipelines por sub-orden
+- Fecha: 2026-04-13
+- Tipo: Feature UI / Refactoring
+- Descripcion: `OrdenCompraCard.tsx` completamente rediseñado. El pipeline global se oculta cuando hay sub-ordenes (estado derivado mostrado como badge). Sub-ordenes aparecen primero con mini-pipeline individual (3 pasos + badge pago). Un boton de accion contextual unico por sub-orden. Botones globales redundantes (En Proceso, Recibir) ocultados.
+- Archivo: `src/components/modules/ordenCompra/OrdenCompraCard.tsx`
+- Reversible: si
+
+#### CAMBIO-327 — SubOrdenCard componente reutilizable (modos compact y full)
+- Fecha: 2026-04-13
+- Tipo: Feature UI / Nuevo componente
+- Descripcion: Nuevo componente `src/components/modules/ordenCompra/SubOrdenCard.tsx` con modos 'compact' y 'full'. Mini-pipeline: Pendiente → En Transito → Recibida + badge pago. Border-l-4 accent por estado (slate/amber/emerald). `envioNumero` visible en ambos modos como badge sky (ENV-2026-XXX). Integrado en `OrdenCompraCard` (modo full) y `OrdenCompraTable` (modo compact). Elimina ~300 lineas de codigo duplicado.
+- Archivo: `src/components/modules/ordenCompra/SubOrdenCard.tsx` (nuevo)
+- Reversible: si
+
+---
+
+### BLOQUE 6 — Productos danados y perdidos
+
+#### CAMBIO-328 — RecepcionParcialModal modernizado con columnas Danados/Perdidos
+- Fecha: 2026-04-13
+- Tipo: Feature UI
+- Descripcion: Modal de recepcion rediseñado con card-per-product layout (reemplaza tabla raw). Inputs inline: Recibir + Danados + Perdidos con labels. Validacion cruzada entre los tres campos. Resumen con mini-cards KPI al pie (productos/recibidas/danadas/valor).
+- Archivo: `src/components/modules/ordenCompra/RecepcionParcialModal.tsx`
+- Reversible: si
+
+#### CAMBIO-329 — Unidades con estado 'danada' y 'perdida' en recepcion
+- Fecha: 2026-04-13
+- Tipo: Feature
+- Descripcion: `recibirOrdenParcial()` ahora crea/transiciona unidades con estado 'danada' o 'perdida' ademas de 'disponible'. Las unidades faltantes (no recibidas, no danadas, no perdidas) mantienen estado 'en_transito' en lugar de 'disponible' — corrige el bug de stock fantasma (FIX CRIT-3 de auditoria).
+- Archivo: `src/services/ordenCompra.recepcion.service.ts`
+- Reversible: si
+
+---
+
+### BLOQUE 7 — Tab Envios Proveedor en modulo de Envios
+
+#### CAMBIO-330 — EnviosProveedorTab.tsx: tabla de envios T1
+- Fecha: 2026-04-13
+- Tipo: Feature UI / Nuevo componente
+- Descripcion: Nuevo componente `src/pages/Envios/EnviosProveedorTab.tsx` que muestra los envios T1 (proveedor → casilla). Tabla con columnas: numero de envio, OC origen, proveedor, estado, unidades, fecha. Toggle en la pagina `/envios` entre "Transferencias" y "Envios Proveedor".
+- Archivos: `src/pages/Envios/EnviosProveedorTab.tsx` (nuevo), `src/pages/Envios/Transferencias.tsx`
+- Reversible: si
+
+#### CAMBIO-331 — Script cleanup-envios-huerfanos.mjs
+- Fecha: 2026-04-13
+- Tipo: Limpieza de datos
+- Descripcion: Script `scripts/cleanup-envios-huerfanos.mjs` que identifico y elimino 8 envios T1 legacy con `totalUnidades=0` (pre-fix, creados antes de que `envio.crear()` poblara las unidades correctamente). Los envios huerfanos no tenian impacto en inventario pero contaminaban la vista del modulo.
+- Script: `scripts/cleanup-envios-huerfanos.mjs` (nuevo)
+- Reversible: no (eliminacion de datos)
+
+---
+
+### BLOQUE 8 — Fixes de auditoria 360
+
+#### CAMBIO-332 — FIX CRIT-1: Eliminar case 'pagado' de handleSubOrdenAction
+- Fecha: 2026-04-13
+- Tipo: Bug fix critico (seguridad financiera)
+- Descripcion: `OrdenCompraCard.tsx` — el switch `handleSubOrdenAction` tenia un `case 'pagado'` que marcaba directamente la sub-orden como pagada sin registrar ningun pago real, creando un bypass financiero. Eliminado el case. El flujo de pago correcto es exclusivamente via `onPagarSubOrden` → `PagoUnificadoForm` → `registrarPago`.
+- Archivo: `src/components/modules/ordenCompra/OrdenCompraCard.tsx`
+- Reversible: si
+
+#### CAMBIO-333 — FIX CRIT-2: Guard anti-dup filtra por subOrdenId
+- Fecha: 2026-04-13
+- Tipo: Bug fix critico (integridad de inventario)
+- Descripcion: `ordenCompra.recepcion.service.ts` — el guard anti-duplicacion buscaba unidades en estado 'pedida' para el producto sin filtrar por `subOrdenId`, lo que podia consumir unidades de otras sub-ordenes de la misma OC. Agregado filtro `where('subOrdenId', '==', subOrdenId)` en la query de busqueda.
+- Archivo: `src/services/ordenCompra.recepcion.service.ts`
+- Reversible: si
+
+#### CAMBIO-334 — FIX CRIT-3: Unidades faltantes mantienen 'en_transito'
+- Fecha: 2026-04-13
+- Tipo: Bug fix critico (stock fantasma)
+- Descripcion: `src/services/envio.recepcion.service.ts` — al registrar recepcion, las unidades que no llegaron (faltantes) se transicionaban a 'disponible', generando stock fantasma. Corregido para que las unidades faltantes permanezcan en estado 'en_transito' hasta que se reciban fisicamente o se registren como perdidas.
+- Archivo: `src/services/envio.recepcion.service.ts`
+- Reversible: si
+
+#### CAMBIO-335 — FIX: Sanitizar undefined en handleSubOrdenAction antes de updateDoc
+- Fecha: 2026-04-13
+- Tipo: Bug fix
+- Descripcion: `OrdenCompraCard.tsx` — `handleSubOrdenAction` llamaba a `updateDoc` con campos que podian ser `undefined`, lo que Firestore rechaza. Aplicado `removeUndefined()` recursivo sobre el objeto de actualizacion antes de la escritura.
+- Archivo: `src/components/modules/ordenCompra/OrdenCompraCard.tsx`
+- Reversible: si
+
+#### CAMBIO-336 — FIX: handleSubOrdenAction llama onRefresh() despues del update
+- Fecha: 2026-04-13
+- Tipo: Bug fix / UX
+- Descripcion: `OrdenCompraCard.tsx` — tras ejecutar una accion en una sub-orden (transicion de estado), la UI no se actualizaba automaticamente. Agregada llamada a `onRefresh()` al finalizar `handleSubOrdenAction`. `OrdenesCompra.tsx` implementa el callback que recarga las ordenes y la orden seleccionada.
+- Archivos: `src/components/modules/ordenCompra/OrdenCompraCard.tsx`, `src/pages/OrdenesCompra/OrdenesCompra.tsx`
+- Reversible: si
+
+#### CAMBIO-337 — FIX CRITICO: Facade OrdenCompraService.recibirOrdenParcial() no pasaba subOrdenId
+- Fecha: 2026-04-13
+- Tipo: Bug fix critico
+- Descripcion: `src/services/ordenCompra.service.ts` (facade) — el metodo `recibirOrdenParcial()` no incluia `subOrdenId` en su firma ni en la llamada al servicio interno. Las recepciones por sub-orden llegaban al servicio sin contexto de sub-orden, ignorando el filtro de productos y no actualizando `cantidadRecibida` en la sub-orden correcta. Corregida la firma del facade para incluir y propagar `subOrdenId`.
+- Archivo: `src/services/ordenCompra.service.ts`
+- Reversible: si
+
+---
+
+### Auditoria 360 Compras — Sesion 36
+
+4 agentes ejecutaron analisis del ciclo completo Compras-Envio-Inventario-Pago.
+
+| Agente | Area analizada |
+|--------|---------------|
+| code-logic-analyst | Flujo Unidades↔Envio, estados, guards |
+| backend-cloud-engineer | Servicios, facades, transacciones Firestore |
+| erp-business-architect | Flujo de negocio OC end-to-end, gaps |
+| quality-uat-director | Escenarios de usuario, casos borde |
+
+Resultados:
+
+| Categoria | Criticos | Medios | Menores |
+|-----------|----------|--------|---------|
+| Identificados | 4 | 8 | 7 |
+| Corregidos en S36 | 3 | 0 | 0 |
+| P1 reclasificado | 1 (no es bug — son 2 recepciones distintas) | | |
+| Pendientes para S37 | 0 criticos | 8 medios | 7 menores |
+
+Documentacion completa: `docs/AUDITORIA_360_COMPRAS_S36.md`
+
+---
+
+### Archivos nuevos creados en Sesion 36
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `src/utils/ordenCompra.helpers.ts` | calcularEstadoDerivadoOC, calcularEstadoPagoDerivado, getSubOrdenResumen |
+| `src/components/modules/ordenCompra/SubOrdenCard.tsx` | Componente reutilizable modos compact/full |
+| `src/pages/Envios/EnviosProveedorTab.tsx` | Tabla de envios T1 proveedor→casilla |
+| `scripts/cleanup-envios-huerfanos.mjs` | Eliminacion de 8 envios legacy con 0 unidades |
+| `docs/PLAN_FIX_UNIDADES_ENVIO_SUBORDENES.md` | Plan original 5 fixes (completado) |
+| `docs/AUDITORIA_360_COMPRAS_S36.md` | Hallazgos auditoria 360 con priorizacion |
+
+---
+
+### Archivos modificados clave en Sesion 36
+
+| Archivo | Cambios |
+|---------|---------|
+| `src/types/unidad.types.ts` | +envioId, +subOrdenId, +envioNumero |
+| `src/types/envio.types.ts` | +unidadesDetalle en EnvioFormData |
+| `src/types/ordenCompra.types.ts` | +subOrdenId en RecepcionParcial, +cantidadDanada/Perdida, estadoPago parcial sub-orden |
+| `src/services/envio.crud.service.ts` | crear() pobla unidades[], retorna {id, numeroEnvio} |
+| `src/services/ordenCompra.crud.service.ts` | confirmarOC() vincula unidades↔envio |
+| `src/services/ordenCompra.recepcion.service.ts` | guard anti-dup con subOrdenId, daños/perdidos, removeUndefined |
+| `src/services/ordenCompra.pagos.service.ts` | subOrdenId, actualizacion sub-orden, removeUndefined |
+| `src/services/ordenCompra.service.ts` | facade con subOrdenId en firma |
+| `src/services/envio.recepcion.service.ts` | faltantes mantienen 'en_transito' |
+| `src/store/ordenCompraStore.ts` | subOrdenId en recibirOrdenParcial y registrarPago |
+| `src/components/modules/ordenCompra/OrdenCompraCard.tsx` | rediseno completo, mini-pipelines, SubOrdenCard, refresh, removeUndefined |
+| `src/components/modules/ordenCompra/OrdenCompraTable.tsx` | badges X/N, expandable con SubOrdenCard compact |
+| `src/components/modules/ordenCompra/RecepcionParcialModal.tsx` | subOrden prop, daños/perdidos, modernizacion UI |
+| `src/pages/OrdenesCompra/OrdenesCompra.tsx` | wiring subOrden para recepcion y pagos, onRefresh |
+| `src/pages/Unidades/Unidades.tsx` | columna Envio |
+| `src/pages/Envios/Transferencias.tsx` | toggle tab Envios Proveedor |
+| `src/utils/multiOrigen.helpers.ts` | esEstadoEnOrigen incluye 'pedida' |
+
+---
+
+### Pendientes para Sesion 37
+
+#### URGENTES (hacer primero)
+
+**TAREA-P37-001 — Validacion E2E con OC nueva**
+- Descripcion: Crear una OC nueva con sub-ordenes y validar el flujo completo corregido: confirmar → unidades con envioId → marcar en transito → recibir por sub-orden → pagar. La OC-2026-016 es legacy pre-fixes con datos potencialmente corruptos.
+- Prioridad: Alta
+- Estimacion: 2-3h
+
+**TAREA-P37-002 — Wizard OC no guarda almacenDestino**
+- Descripcion: Al seleccionar viajero en el wizard de creacion de OC, el campo `almacenDestino` no se persiste en Firestore. Bug del paso de configuracion del wizard.
+- Prioridad: Alta
+- Estimacion: 1-2h
+
+#### Auditoria 360 Ronda 2 (Medios)
+
+**TAREA-P37-003 — BUG-002-PAG: Estado pago OC calculado dos veces con logicas distintas**
+- Descripcion: Con sub-ordenes, usar SOLO derivacion desde sub-ordenes. Eliminar el calculo por totalUSD que coexiste con la derivacion.
+
+**TAREA-P37-004 — BUG-004-PAG: Sub-orden sin estado 'parcial' en pago**
+- Descripcion: Ampliar enum de estado pago sub-orden a 'pendiente'|'parcial'|'pagado'.
+
+**TAREA-P37-005 — BUG-001-PAG: subOrdenId no esta en tipo PagoOrdenCompra**
+- Descripcion: Agregar campo `subOrdenId` al tipo `PagoOrdenCompra`.
+
+**TAREA-P37-006 — DATA-001: Modal pago OC completa excluye pagos de sub-ordenes**
+- Descripcion: El calculo de monto pendiente en el modal de pago de OC completa no suma los pagos ya registrados en sub-ordenes.
+
+**TAREA-P37-007 — REC-002: Transicion pedida→reservada pierde requerimientoId**
+- Descripcion: Al transicionar unidades de 'pedida' a estado activo, el campo `requerimientoId` no se preserva.
+
+**TAREA-P37-008 — BUG-001-CTRU: calcularCTRULote incluye unidades danadas/perdidas**
+- Descripcion: El calculo del CTRU de lote debe excluir unidades en estado 'danada' o 'perdida'.
+
+**TAREA-P37-009 — P2-P3: Filtros pipeline Unidades no capturan estados nuevos**
+- Descripcion: Los filtros de pipeline en `Unidades.tsx` no incluyen los estados 'en_transito' y 'disponible' del nuevo modelo.
+
+#### Auditoria 360 Ronda 3 (Menores)
+
+**TAREA-P37-010 — BUG-003-PAG: Diferencia cambiaria usa solo TC del ultimo pago**
+**TAREA-P37-011 — EDGE-001-INV: Columna "Problemas" omite 'perdida' y 'retenida_aduana'**
+**TAREA-P37-012 — REC-003: cotizacionVinculada solo persiste en OC en estado final**
+**TAREA-P37-013 — P4: Borrador→confirmado de envio no garantizado en UI**
+**TAREA-P37-014 — P6: esEstadoActivo() no incluye 'en_transito' nuevo**
+**TAREA-P37-015 — DATA-002: Race condition en segunda escritura de historialPagos**
+**TAREA-P37-016 — Dashboard: sin KPI de unidades danadas/perdidas**
+
+#### Features pendientes
+
+**TAREA-P37-017 — Envio DDP Directo**
+- Descripcion: Cuando OC tiene `modoEntregaDetallado='ddp_directo'`, confirmarOC() debe crear Envio con destino=Peru directo, courier=externo, sin cargos flete adicionales. Envio nace en 'borrador'. Flujo: confirmar OC → Envio borrador → usuario marca en_transito → recepcion en Peru.
+
+**TAREA-P37-018 — Envios T1: ampliar funcionalidad del tab**
+- Descripcion: Los envios T1 ya aparecen en el tab pero necesitan acciones (marcar en transito, ver detalle), filtros por estado, y vinculo al detalle de OC.
+
+**TAREA-P37-019 — Rediseno modulo Stock (pipeline visual por producto)**
+- Descripcion: Pipeline visual por producto estilo control tower moderno en vez de columnas numericas. URGENTE despues de terminar ciclo Compras.
+- Prioridad: Alta — proxima sesion dedicada
+
+**TAREA-P37-020 — Unificar UI Pagos**
+- Descripcion: ConfigPagoPanel (masivos) debe consumir/componer sobre PagoUnificadoForm (individual). Solo la UI esta duplicada; el servicio ya es el mismo (registrarPago).
+
+**TAREA-P37-021 — Responsive audit**
+- Descripcion: Pendiente desde S34.
+
+**TAREA-P37-022 — Gastos 3 cajas**
+- Descripcion: Migrar de GV/GD/GA/GO a categorias dinamicas Firestore.
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23).*
+*2026-04-13 — Sesion 36 CERRADA. 15 deploys (Deploy 194-208). 26 cambios registrados (CAMBIO-312 a CAMBIO-337). 5/5 fixes del plan ciclo Unidades-Envio completados. Sub-ordenes operativas completas: recepcion parcial, pagos, productos danados/perdidos. SubOrdenCard componente reutilizable (compact/full). EnviosProveedorTab para envios T1. 3 bugs criticos de auditoria 360 corregidos. Facade fix critico (subOrdenId no propagado). Fixes de UI: refresh post-accion, sanitizar undefined. 6 archivos nuevos. Proxima sesion: validacion E2E OC nueva (URGENTE) → bugs medios auditoria ronda 2 → rediseno modulo Stock.*
