@@ -139,11 +139,11 @@ describe('esEstadoActivo', () => {
 // ---------------------------------------------------------------------------
 describe('normalizarTipoTransferencia', () => {
   it('convierte interna_usa → interna_origen', () => {
-    expect(normalizarTipoTransferencia('interna_usa')).toBe('interna_origen');
+    expect(normalizarTipoTransferencia('interna_usa' as any)).toBe('interna_origen');
   });
 
   it('convierte usa_peru → internacional_peru', () => {
-    expect(normalizarTipoTransferencia('usa_peru')).toBe('internacional_peru');
+    expect(normalizarTipoTransferencia('usa_peru' as any)).toBe('internacional_peru');
   });
 
   it('deja pasar tipos genéricos sin cambio', () => {

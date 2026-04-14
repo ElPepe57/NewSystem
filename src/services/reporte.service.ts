@@ -63,9 +63,9 @@ export class ReporteService {
         VentaService.getAll()
       ]);
 
-      // Calcular costo total de flete de transferencias USA→Perú
+      // Calcular costo total de flete de envios internacionales → Perú
       const costoFleteTotal = transferencias
-        .filter(t => t.tipo === 'usa_peru' && t.costoFleteTotal)
+        .filter(t => t.tipo === 'internacional_peru' && t.costoFleteTotal)
         .reduce((sum, t) => sum + (t.costoFleteTotal || 0), 0);
 
       // Calcular costo de envío asumido por la empresa (incluyeEnvio = true)
@@ -555,7 +555,7 @@ export class ReporteService {
     const { ESTADOS_VENTA_VALIDOS: estadosValidos } = await import('../constants/venta.constants');
 
     const ventasRango = ventas.filter(v => {
-      if (!estadosValidos.includes(v.estado)) return false;
+      if (!(estadosValidos as readonly string[]).includes(v.estado)) return false;
       if (v.esVentaSocio) return false;
       // Usar fechaEntrega si existe, sino fechaConfirmacion, sino fechaCreacion
       const fechaVenta = v.fechaEntrega?.toDate() || v.fechaConfirmacion?.toDate() || v.fechaCreacion?.toDate();

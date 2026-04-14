@@ -93,7 +93,7 @@ export function buildProductoSnapshot(producto: {
   sku: string;
   marca: string;
   nombreComercial: string;
-  presentacion?: string;
+  presentacion: string;
   contenido?: string;
   dosaje?: string;
   sabor?: string;
@@ -105,8 +105,8 @@ export function buildProductoSnapshot(producto: {
     sku: producto.sku,
     marca: producto.marca,
     nombreComercial: producto.nombreComercial,
+    presentacion: producto.presentacion || '',
   };
-  if (producto.presentacion) snap.presentacion = producto.presentacion;
   if (producto.contenido) snap.contenido = producto.contenido;
   if (producto.dosaje) snap.dosaje = producto.dosaje;
   if (producto.sabor) snap.sabor = producto.sabor;

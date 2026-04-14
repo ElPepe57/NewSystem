@@ -494,6 +494,7 @@ export const requerimientoService = {
               requerimientoId: id,
               entidadTipo: 'usuario',
               entidadId: id,
+              creadoPor: 'sistema',
               metadata: {
                 montoUSD,
                 rolPendiente: pendiente,

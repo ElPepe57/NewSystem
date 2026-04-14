@@ -269,7 +269,7 @@ function extraerTransferenciasPorRecibir(transferencias: Transferencia[]): Tarea
         categoria: 'transferencia_por_recibir' as CategoriaTarea,
         prioridad,
         titulo: `Envio en transito: ${t.numeroEnvio}`,
-        subtitulo: `${t.casillaOrigenNombre} → ${t.casillaDestinoNombre} · ${diasEnTransito}d`,
+        subtitulo: `${t.origenCasillaNombre || 'Origen'} → ${t.destinoCasillaNombre} · ${diasEnTransito}d`,
         diasRestantes: -diasEnTransito,
         rutaDestino: '/transferencias',
         documentoId: t.id,

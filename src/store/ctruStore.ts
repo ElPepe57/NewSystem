@@ -1115,10 +1115,11 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
       for (const t of todasTransferencias) {
         if (t.estado !== 'recibida_completa' && t.estado !== 'recibida_parcial') continue;
         for (const ut of t.unidades) {
-          if ((ut.costoFleteUSD ?? 0) > 0 && ut.estadoEnvio === 'recibida') {
-            fleteByUnitMap.set(ut.unidadId, ut.costoFleteUSD);
+          const costoFlete = ut.costoFleteUSD ?? 0;
+          if (costoFlete > 0 && ut.estadoEnvio === 'recibida') {
+            fleteByUnitMap.set(ut.unidadId, costoFlete);
             const acc = fleteByProductAccum.get(ut.productoId) || { sum: 0, count: 0 };
-            acc.sum += ut.costoFleteUSD;
+            acc.sum += costoFlete;
             acc.count += 1;
             fleteByProductAccum.set(ut.productoId, acc);
           }

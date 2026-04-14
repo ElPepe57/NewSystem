@@ -1372,11 +1372,11 @@ export class VentaService {
       // Revertir métricas de marcas
       if (venta.productos?.length) {
         const marcaMap = new Map<string, { unidades: number; monto: number }>();
-        for (const prod of venta.productos) {
+        for (const prod of venta.productos as any[]) {
           if (prod.marcaId) {
             const prev = marcaMap.get(prod.marcaId) || { unidades: 0, monto: 0 };
             prev.unidades += prod.cantidad || 1;
-            prev.monto += prod.subtotalPEN || 0;
+            prev.monto += prod.subtotalPEN || prod.subtotal || 0;
             marcaMap.set(prod.marcaId, prev);
           }
         }
