@@ -145,7 +145,20 @@ export async function registrarPago(
       }
     }
 
-    await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
+    // Firestore no acepta undefined — limpiar recursivamente
+    const removeUndefined = (obj: any): any => {
+      if (Array.isArray(obj)) return obj.map(removeUndefined);
+      if (obj && typeof obj === 'object' && typeof obj.toDate !== 'function' && !(obj instanceof Date)) {
+        const result: any = {};
+        for (const [k, v] of Object.entries(obj)) {
+          if (v !== undefined) result[k] = removeUndefined(v);
+        }
+        return result;
+      }
+      return obj;
+    };
+
+    await updateDoc(doc(db, ORDENES_COLLECTION, id), removeUndefined(updates));
 
     // Register in Tesorería (non-blocking)
     try {
