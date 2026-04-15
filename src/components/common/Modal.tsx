@@ -29,7 +29,8 @@ export const subscribeToModalChanges = (callback: () => void) => {
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title?: string;
+  label?: string; // alias legacy de title
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   footer?: React.ReactNode;
@@ -46,7 +47,8 @@ interface ModalProps {
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
-  title,
+  title: titleProp,
+  label,
   children,
   size = 'md',
   footer,
@@ -59,6 +61,7 @@ export const Modal: React.FC<ModalProps> = ({
   showHeaderShadow = true,
   showScrollIndicator = true,
 }) => {
+  const title = titleProp || label || '';
   const contentRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);

@@ -53,8 +53,8 @@ export const UnidadesDesglose: React.FC<UnidadesDesgloseProps> = ({
       if (!grupos[key]) {
         grupos[key] = {
           estado: unidad.estado,
-          almacenId: unidad.almacenId,
-          almacenNombre: unidad.almacenNombre,
+          almacenId: unidad.almacenId || '',
+          almacenNombre: unidad.almacenNombre || '',
           pais: unidad.pais,
           unidades: [],
           valorTotal: 0

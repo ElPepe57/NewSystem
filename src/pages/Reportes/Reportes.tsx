@@ -355,7 +355,7 @@ export const Reportes: React.FC = () => {
   // KPIs de ventas recalculados por línea (override del resumenEjecutivo global)
   const ventasKPILinea = useMemo(() => {
     const ventasPEN = ventasEntregadasFiltradas.reduce((s, v) => s + (v.totalPEN || 0), 0);
-    const utilidadPEN = ventasEntregadasFiltradas.reduce((s, v) => s + (v.utilidadPEN || 0), 0);
+    const utilidadPEN = ventasEntregadasFiltradas.reduce((s, v) => s + ((v as any).utilidadPEN || 0), 0);
     return { ventasPEN, utilidadPEN, cantidad: ventasEntregadasFiltradas.length };
   }, [ventasEntregadasFiltradas]);
 

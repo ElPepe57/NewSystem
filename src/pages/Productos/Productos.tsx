@@ -230,7 +230,7 @@ export const Productos: React.FC = () => {
       esPrincipalGrupo: false,
       parentId: grupo.id,
       esVariante: true,
-    } as any);
+    } as any, user.uid);
 
     toast.success(`Variante "${data.varianteLabel}" creada en el grupo de ${grupo.nombreComercial}`);
     setIsFormVarianteReducidaOpen(false);
@@ -704,7 +704,6 @@ export const Productos: React.FC = () => {
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <Button
-              variant="ghost"
               onClick={() => setIsArchivoModalOpen(true)}
               variant="outline"
               size="sm"
@@ -1281,7 +1280,7 @@ export const Productos: React.FC = () => {
         onClose={() => setShowMobileFilters(false)}
         filters={filters}
         onApply={(newFilters) => {
-          setFilters(newFilters);
+          setFilters(newFilters as any);
           setCurrentPage(1);
           const necesitaInactivos = newFilters.estado === '' || newFilters.estado === 'inactivo' || newFilters.estado === 'descontinuado';
           fetchProductos(necesitaInactivos);

@@ -45,7 +45,7 @@ const COLORES_PRESET: Record<string, Array<{ fondo: string; texto: string; borde
   ]
 };
 
-const ICONOS_SUGERIDOS: Record<TipoEtiqueta, string[]> = {
+const ICONOS_SUGERIDOS: Partial<Record<TipoEtiqueta, string[]>> = {
   atributo: ['🌱', '🌿', '🍃', '💚', '✅', '🥗', '🌾', '🥛'],
   marketing: ['⭐', '🔥', '✨', '💎', '🏆', '🎯', '💰', '🆕'],
   origen: ['🇺🇸', '🇵🇪', '🌎', '🚢', '✈️', '🏭', '🏠', '📦']
@@ -169,7 +169,7 @@ export function EtiquetaForm({
 
   const tipoActual = formData.tipo;
   const coloresDelTipo = COLORES_PRESET[tipoActual];
-  const iconosDelTipo = ICONOS_SUGERIDOS[tipoActual];
+  const iconosDelTipo = ICONOS_SUGERIDOS[tipoActual] || [];
 
   return (
     <Modal

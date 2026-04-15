@@ -413,18 +413,13 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     if (!investigacionSeleccionada) return null;
 
     const inv = investigacionSeleccionada;
-    const demanda = null; // demandaDetectada eliminada (DEAD-003)
 
     // Calcular stocks basados en demanda
     let stockMinimo = 10;
     let stockMaximo = 100;
     let razonStock = 'Stocks estandar sin datos de demanda';
 
-    if (demanda && demanda.ventasMensualesPromedio > 0) {
-      stockMinimo = Math.ceil(demanda.ventasMensualesPromedio * 1.5);
-      stockMaximo = Math.ceil(demanda.ventasMensualesPromedio * 4);
-      razonStock = `Basado en ${demanda.ventasMensualesPromedio} ventas/mes (min: 1.5 meses, max: 4 meses)`;
-    } else if (inv) {
+    if (inv) {
       const ventasEstimadas = inv.demandaEstimada === 'alta' ? 30 :
         inv.demandaEstimada === 'media' ? 20 : 10;
       stockMinimo = Math.ceil(ventasEstimadas * 1.5);

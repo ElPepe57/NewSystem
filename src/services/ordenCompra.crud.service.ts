@@ -162,13 +162,13 @@ export async function create(
 
     // Legacy — campos individuales (solo usar si NO vienen arrays, para evitar doble conteo)
     const impuestoLegacy = cargosV2 === 0 && impuestosV2 === 0
-      ? (data.impuestoCompraUSD ?? data.impuestoUSD ?? 0)
+      ? (data.impuestoCompraUSD ?? 0)
       : 0;
     const gastosEnvioLegacy = cargosV2 === 0
-      ? (data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? 0)
+      ? (data.costoEnvioProveedorUSD ?? 0)
       : 0;
     const otrosGastosLegacy = cargosV2 === 0
-      ? (data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? 0)
+      ? (data.otrosGastosCompraUSD ?? 0)
       : 0;
     const descuentoLegacy = descuentosV2 === 0 ? (data.descuentoUSD || 0) : 0;
 
@@ -400,13 +400,13 @@ export async function update(
       const impuestosV2 = impuestosArr.reduce((s, i) => s + (i.montoUSD || 0), 0);
 
       const impuestoLegacy = cargosV2 === 0 && impuestosV2 === 0
-        ? (data.impuestoCompraUSD ?? data.impuestoUSD ?? orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0)
+        ? (data.impuestoCompraUSD ?? orden.impuestoCompraUSD ?? 0)
         : 0;
       const gastosEnvioLegacy = cargosV2 === 0
-        ? (data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0)
+        ? (data.costoEnvioProveedorUSD ?? orden.costoEnvioProveedorUSD ?? 0)
         : 0;
       const otrosGastosLegacy = cargosV2 === 0
-        ? (data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0)
+        ? (data.otrosGastosCompraUSD ?? orden.otrosGastosCompraUSD ?? 0)
         : 0;
       const descuentoLegacy = descuentosV2 === 0
         ? (data.descuentoUSD !== undefined ? data.descuentoUSD : orden.descuentoUSD || 0)
@@ -437,11 +437,8 @@ export async function update(
     }
 
     if (data.impuestoCompraUSD !== undefined) updates.impuestoCompraUSD = data.impuestoCompraUSD;
-    else if (data.impuestoUSD !== undefined) updates.impuestoCompraUSD = data.impuestoUSD;
     if (data.costoEnvioProveedorUSD !== undefined) updates.costoEnvioProveedorUSD = data.costoEnvioProveedorUSD;
-    else if (data.gastosEnvioUSD !== undefined) updates.costoEnvioProveedorUSD = data.gastosEnvioUSD;
     if (data.otrosGastosCompraUSD !== undefined) updates.otrosGastosCompraUSD = data.otrosGastosCompraUSD;
-    else if (data.otrosGastosUSD !== undefined) updates.otrosGastosCompraUSD = data.otrosGastosUSD;
     if (data.modoEntrega !== undefined) updates.modoEntrega = data.modoEntrega;
     if (data.fleteIncluidoEnPrecio !== undefined) updates.fleteIncluidoEnPrecio = data.fleteIncluidoEnPrecio;
     if (data.tcCompra !== undefined) updates.tcCompra = data.tcCompra;

@@ -28,6 +28,7 @@ export interface OCBuilderProducto {
   proveedorSugerido?: string;
   urlReferencia?: string;
   origenes: ProductoOrigen[];
+  atributosSkincare?: import('../../../../types/producto.types').AtributosSkincare;
 }
 
 /** Producto en el pool (sin asignar o parcialmente asignado) */

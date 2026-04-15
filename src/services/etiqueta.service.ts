@@ -418,7 +418,7 @@ export const etiquetaService = {
       const todas = await this.getAll();
       const activas = todas.filter(e => e.estado === 'activa');
 
-      const porTipo: Record<TipoEtiqueta, number> = {
+      const porTipo: Partial<Record<TipoEtiqueta, number>> = {
         atributo: todas.filter(e => e.tipo === 'atributo').length,
         marketing: todas.filter(e => e.tipo === 'marketing').length,
         origen: todas.filter(e => e.tipo === 'origen').length

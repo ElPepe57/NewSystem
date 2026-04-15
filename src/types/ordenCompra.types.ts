@@ -263,10 +263,6 @@ export interface OrdenCompra {
   colaboradorTransporteId?: string;    // viajero o courier asignado
   colaboradorTransporteNombre?: string;
 
-  /** @deprecated Usar impuestoCompraUSD */ impuestoUSD?: number;
-  /** @deprecated Usar costoEnvioProveedorUSD */ gastosEnvioUSD?: number;
-  /** @deprecated Usar otrosGastosCompraUSD */ otrosGastosUSD?: number;
-  
   // Origen y línea de negocio
   paisOrigen?: string;             // País de origen del proveedor ('USA', 'China', 'Corea', 'Peru')
   lineaNegocioId?: string;         // Si todos los productos son de la misma línea

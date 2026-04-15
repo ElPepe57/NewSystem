@@ -2,7 +2,8 @@ import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface AlertCardProps {
-  title: string;
+  title?: string;
+  label?: string; // alias legacy
   items: Array<{
     id: string;
     label: string;
@@ -50,6 +51,7 @@ const alertVariantStyles = {
 
 export const AlertCard: React.FC<AlertCardProps> = ({
   title,
+  label,
   items,
   icon: Icon,
   variant = 'warning',
@@ -58,6 +60,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({
   onItemClick,
   onViewAll
 }) => {
+  const displayTitle = title || label || '';
   const styles = alertVariantStyles[variant];
   const displayItems = items.slice(0, maxItems);
   const hasMore = items.length > maxItems;
@@ -70,7 +73,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({
             <Icon className={`h-4 w-4 ${styles.iconColor}`} />
           </div>
         )}
-        <h3 className="font-medium text-slate-900">{title}</h3>
+        <h3 className="font-medium text-slate-900">{displayTitle}</h3>
         {items.length > 0 && (
           <span className={`ml-auto text-xs font-medium ${styles.iconColor} ${styles.iconBg} px-2 py-0.5 rounded-full`}>
             {items.length}

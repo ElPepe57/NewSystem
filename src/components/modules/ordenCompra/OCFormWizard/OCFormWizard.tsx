@@ -74,7 +74,7 @@ export interface OCFormWizardProps {
       costoUnitario: number;
     }>;
     subtotalUSD: number;
-    impuestoUSD?: number;
+    impuestoCompraUSD?: number;
     costoEnvioProveedorUSD?: number;
     otrosGastosCompraUSD?: number;
     descuentoUSD?: number;
@@ -152,8 +152,8 @@ export const OCFormWizard: React.FC<OCFormWizardProps> = ({
         cantidad: p.cantidad,
         costoUnitario: p.costoUnitario,
       }));
-      if (ordenEditar.impuestoUSD && ordenEditar.subtotalUSD > 0) {
-        init.porcentajeTax = (ordenEditar.impuestoUSD / ordenEditar.subtotalUSD) * 100;
+      if (ordenEditar.impuestoCompraUSD && ordenEditar.subtotalUSD > 0) {
+        init.porcentajeTax = (ordenEditar.impuestoCompraUSD / ordenEditar.subtotalUSD) * 100;
       }
       init.costoEnvioProveedorUSD = ordenEditar.costoEnvioProveedorUSD || 0;
       init.otrosGastosCompraUSD = ordenEditar.otrosGastosCompraUSD || 0;

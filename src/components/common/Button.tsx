@@ -1,11 +1,12 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'success' | 'warning';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  label?: string; // alias legacy - se ignora si children tiene contenido
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -14,6 +15,7 @@ export const Button: React.FC<ButtonProps> = ({
   loading = false,
   disabled,
   children,
+  label,
   className = '',
   ...props
 }) => {
@@ -45,7 +47,7 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-      {children}
+      {children ?? label}
     </button>
   );
 };

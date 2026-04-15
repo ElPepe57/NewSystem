@@ -97,7 +97,7 @@ export const LineaNegocio: React.FC = () => {
     <PageShell>
       {/* Header */}
       <PageHeader
-        label="Lineas de Negocio"
+        title="Lineas de Negocio"
         subtitle="Gestiona las lineas de tu negocio"
         icon={Layers}
        

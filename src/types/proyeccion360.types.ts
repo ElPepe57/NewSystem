@@ -59,6 +59,8 @@
 
 // Horizonte de proyección (antes importado de costoProyeccion.service, ahora definido aquí)
 export type Horizonte = 30 | 90;
+// Alias retrocompat
+export type Horizonte360 = Horizonte;
 
 // ============================================
 // 0. SUPUESTOS — La base de todo el modelo
@@ -871,6 +873,9 @@ export interface ProyeccionGlobal {
   /** Alertas y advertencias del modelo */
   alertas: AlertaProyeccion[];
 }
+
+// Alias retrocompat
+export type Proyeccion360 = ProyeccionGlobal;
 
 // ============================================
 // 8. ALERTAS DEL MODELO

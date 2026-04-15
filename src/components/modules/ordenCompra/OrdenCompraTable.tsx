@@ -82,9 +82,9 @@ const RecepcionRow: React.FC<{
 
 // Componente de desglose expandible
 const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
-  const impuesto = orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0;
-  const envio = orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0;
-  const otros = orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0;
+  const impuesto = orden.impuestoCompraUSD ?? 0;
+  const envio = orden.costoEnvioProveedorUSD ?? 0;
+  const otros = orden.otrosGastosCompraUSD ?? 0;
   const envioYOtros = envio + otros;
   const descuento = orden.descuentoUSD
     ?? (orden.subOrdenes?.reduce((sum, s) => sum + (s.descuentoUSD || 0), 0) || 0);

@@ -150,7 +150,7 @@ export interface EtiquetaStats {
   etiquetasActivas: number;
 
   // Por tipo
-  etiquetasPorTipo: Record<TipoEtiqueta, number>;
+  etiquetasPorTipo: Partial<Record<TipoEtiqueta, number>>;
 
   // Top etiquetas por uso
   topEtiquetasPorUso: Array<{

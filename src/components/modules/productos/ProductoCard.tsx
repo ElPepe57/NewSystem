@@ -54,14 +54,16 @@ interface ProductoCardProps {
 
 // Componente para secciones colapsables
 const CollapsibleSection: React.FC<{
-  title: string;
+  title?: string;
+  label?: string;
   icon: React.ReactNode;
   defaultOpen?: boolean;
   badge?: React.ReactNode;
   children: React.ReactNode;
   iconBgColor?: string;
   iconColor?: string;
-}> = ({ title, icon, defaultOpen = false, badge, children, iconBgColor = 'bg-slate-100', iconColor }) => {
+}> = ({ title, label, icon, defaultOpen = false, badge, children, iconBgColor = 'bg-slate-100', iconColor }) => {
+  const displayTitle = title || label || '';
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
@@ -74,7 +76,7 @@ const CollapsibleSection: React.FC<{
           <div className={`p-2 rounded-lg ${iconBgColor}`}>
             <span className={iconColor}>{icon}</span>
           </div>
-          <span className="font-medium text-slate-800">{title}</span>
+          <span className="font-medium text-slate-800">{displayTitle}</span>
           {badge}
         </div>
         {isOpen ? (
@@ -253,7 +255,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onInvestigar}
                 className="p-2 bg-transparent border border-slate-500 text-slate-200 hover:bg-slate-600/50 rounded-lg transition-colors"
-                label="Investigar"
+                aria-label="Investigar"
               >
                 <Search className="h-4 w-4" />
               </button>
@@ -262,7 +264,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onCreateVariante}
                 className="p-2 bg-transparent border border-slate-500 text-slate-200 hover:bg-slate-600/50 rounded-lg transition-colors"
-                label="Crear variante"
+                aria-label="Crear variante"
               >
                 <Copy className="h-4 w-4" />
               </button>
@@ -270,7 +272,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
             <button
               onClick={onEdit}
               className="p-2 bg-transparent border border-slate-500 text-slate-200 hover:bg-slate-600/50 rounded-lg transition-colors"
-              label="Editar"
+              aria-label="Editar"
             >
               <Pencil className="h-4 w-4" />
             </button>
@@ -278,7 +280,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onReactivar}
                 className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors shadow-sm"
-                label="Reactivar producto"
+                aria-label="Reactivar producto"
               >
                 <RefreshCw className="h-4 w-4" />
               </button>
@@ -286,7 +288,7 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <button
                 onClick={onDelete}
                 className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-sm"
-                label="Eliminar"
+                aria-label="Eliminar"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -767,21 +769,21 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               <div className="col-span-2 bg-purple-50/50 rounded-lg p-3 border border-purple-100">
                 <span className="text-xs font-medium text-purple-700 mb-2 block">Atributos Skincare</span>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {producto.atributosSkincare.tipoPiel?.length > 0 && (
+                  {(producto.atributosSkincare.tipoPiel?.length ?? 0) > 0 && (
                     <div>
                       <span className="text-[10px] text-slate-500 block">Tipo de Piel</span>
                       <div className="flex flex-wrap gap-1 mt-0.5">
-                        {producto.atributosSkincare.tipoPiel.map((t: string) => (
+                        {producto.atributosSkincare.tipoPiel!.map((t: string) => (
                           <span key={t} className="text-[11px] px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-full">{t}</span>
                         ))}
                       </div>
                     </div>
                   )}
-                  {producto.atributosSkincare.preocupaciones?.length > 0 && (
+                  {(producto.atributosSkincare.preocupaciones?.length ?? 0) > 0 && (
                     <div className="col-span-2 sm:col-span-2">
                       <span className="text-[10px] text-slate-500 block">Preocupaciones</span>
                       <div className="flex flex-wrap gap-1 mt-0.5">
-                        {producto.atributosSkincare.preocupaciones.map((p: string) => (
+                        {producto.atributosSkincare.preocupaciones!.map((p: string) => (
                           <span key={p} className="text-[11px] px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded-full">{p}</span>
                         ))}
                       </div>

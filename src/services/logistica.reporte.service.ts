@@ -73,17 +73,17 @@ export const logisticaReporteService = {
 
       // Solo transferencias internacionales (USA → Perú)
       const internacionales = transferencias.filter(t =>
-        t.tipo === 'internacional_peru' || t.tipo === 'usa_peru'
+        t.tipo === 'internacional_peru'
       );
 
       // En tránsito
       const enTransito = internacionales.filter(t => t.estado === 'en_transito');
       const unidadesEnTransito = enTransito.reduce((s, t) => s + (t.totalUnidades || 0), 0);
 
-      // Agrupar por viajero
+      // Agrupar por viajero (colaborador post-S37)
       const viajeroMap = new Map<string, Transferencia[]>();
       for (const t of internacionales) {
-        const key = t.viajeroId || t.viajeroNombre || t.courier || 'Sin asignar';
+        const key = t.colaboradorId || t.colaboradorNombre || t.courier || 'Sin asignar';
         const arr = viajeroMap.get(key) || [];
         arr.push(t);
         viajeroMap.set(key, arr);
@@ -100,7 +100,7 @@ export const logisticaReporteService = {
 
       for (const [key, trfs] of viajeroMap) {
         const almacen = almacenes.find(a =>
-          a.id === trfs[0]?.viajeroId || a.nombre === key
+          a.id === trfs[0]?.colaboradorId || a.nombre === key
         );
 
         const resultado = calcularRendimientoViajero(key, trfs, almacen);

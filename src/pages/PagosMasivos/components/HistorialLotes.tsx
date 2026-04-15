@@ -8,7 +8,7 @@ import { DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
 import { formatCurrency } from '../../../utils/format';
 import { usePagoMasivoStore } from '../../../store/pagoMasivoStore';
-import type { LotePago } from '../../../types/tesoreria.types';
+import type { LotePago } from '../../../types/pagoMasivo.types';
 
 const loteColumns = (setLoteDetalle: (lote: LotePago) => void): DataTableColumn<LotePago>[] => [
   {

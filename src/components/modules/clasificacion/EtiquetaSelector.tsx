@@ -13,7 +13,7 @@ interface EtiquetaSelectorProps {
   className?: string;
 }
 
-const TIPO_LABELS: Record<TipoEtiqueta, string> = {
+const TIPO_LABELS: Partial<Record<TipoEtiqueta, string>> = {
   atributo: 'Atributos',
   marketing: 'Marketing',
   origen: 'Origen'

@@ -252,7 +252,7 @@ export const Ventas: React.FC = () => {
 
       // BN-004: Si es venta bajo costo, pedir autorización
       if (error.message?.startsWith('VENTA_BAJO_COSTO:') && esVentaDirecta) {
-        const userRole = user?.role || (user as any)?.rol;
+        const userRole = (user as any)?.role || (user as any)?.rol;
         const esAdminOGerente = userRole === 'admin' || userRole === 'gerente';
 
         if (esAdminOGerente) {

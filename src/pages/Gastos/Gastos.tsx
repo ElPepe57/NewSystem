@@ -30,7 +30,8 @@ export const Gastos: React.FC = () => {
     gastos, stats, loading,
     fetchGastos, fetchGastosMes, buscarGastos,
     fetchStats, setViewMode: storeSetViewMode, reloadCurrentView,
-    fetchGastosPendientesYParciales, eliminarGasto
+    fetchGastosPendientesYParciales, eliminarGasto,
+    registrarPagoGasto
   } = useGastoStore();
 
   const [showModal, setShowModal] = useState(false);

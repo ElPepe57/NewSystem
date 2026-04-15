@@ -31,9 +31,12 @@ interface RequerimientosListViewProps {
 
 const getEstadoBadge = (estado: EstadoRequerimiento) => {
   const config: Record<EstadoRequerimiento, { label: string; className: string; icon: React.ReactNode }> = {
+    borrador: { label: 'Borrador', className: 'bg-slate-100 text-slate-700 border-slate-200', icon: <Clock className="h-3 w-3" /> },
     pendiente: { label: 'Pendiente', className: 'bg-amber-100 text-amber-700 border-amber-200', icon: <Clock className="h-3 w-3" /> },
+    pendiente_aprobacion: { label: 'Por aprobar', className: 'bg-orange-100 text-orange-700 border-orange-200', icon: <Clock className="h-3 w-3" /> },
     aprobado: { label: 'Aprobado', className: 'bg-emerald-100 text-emerald-700 border-emerald-200', icon: <Check className="h-3 w-3" /> },
-    vinculado_oc: { label: 'Con OC', className: 'bg-sky-100 text-sky-700 border-sky-200', icon: <Link2 className="h-3 w-3" /> },
+    parcial: { label: 'Parcial', className: 'bg-teal-100 text-teal-700 border-teal-200', icon: <Link2 className="h-3 w-3" /> },
+    en_proceso: { label: 'En proceso', className: 'bg-sky-100 text-sky-700 border-sky-200', icon: <Link2 className="h-3 w-3" /> },
     completado: { label: 'Completado', className: 'bg-teal-100 text-teal-700 border-teal-200', icon: <Check className="h-3 w-3" /> },
     cancelado: { label: 'Cancelado', className: 'bg-red-100 text-red-700 border-red-200', icon: <XCircle className="h-3 w-3" /> },
   };
@@ -62,14 +65,14 @@ const getPrioridadBadge = (prioridad: string) => {
 
 const getSolicitanteIcon = (tipo: TipoSolicitante) => {
   switch (tipo) {
-    case 'empresa': return <Building2 className="h-4 w-4 text-sky-500" />;
-    case 'equipo': return <Users className="h-4 w-4 text-purple-500" />;
-    case 'gerencia': return <ShieldAlert className="h-4 w-4 text-amber-500" />;
+    case 'cliente': return <Building2 className="h-4 w-4 text-sky-500" />;
+    case 'ventas': return <Users className="h-4 w-4 text-purple-500" />;
+    case 'administracion': return <ShieldAlert className="h-4 w-4 text-amber-500" />;
     default: return <Users className="h-4 w-4 text-slate-400" />;
   }
 };
 
-const getSolicitanteLabel = (req: Requerimiento) => req.solicitanteNombre || req.tipoSolicitante;
+const getSolicitanteLabel = (req: Requerimiento) => req.nombreSolicitante || req.tipoSolicitante;
 
 export const RequerimientosListView: React.FC<RequerimientosListViewProps> = ({
   requerimientos, loading, onOpenDetail, onAprobar, onRefresh,

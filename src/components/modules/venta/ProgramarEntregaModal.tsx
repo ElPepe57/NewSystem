@@ -664,7 +664,7 @@ export const ProgramarEntregaModal: React.FC<ProgramarEntregaModalProps> = ({
                 : 'bg-red-50 border-red-200'
             }`}>
               <p className={`text-sm flex items-center ${
-                transportistaSeleccionado?.costoFijo
+                transportistaSeleccionado?.tarifas?.costoFijo
                   ? 'text-amber-800'
                   : 'text-red-800 font-medium'
               }`}>

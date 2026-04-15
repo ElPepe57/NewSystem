@@ -415,13 +415,13 @@ function calcularCompras(
     costoProductos += orden.subtotalUSD * tc * fraccion;
 
     // Impuestos de compra (sales tax, IVA origen, etc.)
-    impuestos += (orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0) * tc * fraccion;
+    impuestos += (orden.impuestoCompraUSD ?? 0) * tc * fraccion;
 
     // Envío del proveedor al punto de recojo
-    otrosGastosImportacion += (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0) * tc * fraccion;
+    otrosGastosImportacion += (orden.costoEnvioProveedorUSD ?? 0) * tc * fraccion;
 
     // Otros gastos de la compra
-    otrosGastosImportacion += (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0) * tc * fraccion;
+    otrosGastosImportacion += (orden.otrosGastosCompraUSD ?? 0) * tc * fraccion;
 
     // Contar unidades (solo las recibidas para parciales)
     if (fraccion < 1) {

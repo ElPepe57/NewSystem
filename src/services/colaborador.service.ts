@@ -137,7 +137,7 @@ export const colaboradorService = {
     const tiempoAnterior = m.tiempoPromedioEntrega || 0;
     const tiempoPromedioEntrega = ((tiempoAnterior * (totalEntregas - 1)) + tiempoMinutos) / totalEntregas;
 
-    const costoTotalHistorico = ((colaborador as Record<string, unknown>).costoTotalHistorico as number || 0) + costo;
+    const costoTotalHistorico = ((colaborador as unknown as Record<string, unknown>).costoTotalHistorico as number || 0) + costo;
     const costoPromedioPorEntrega = costoTotalHistorico / totalEntregas;
 
     let zonasAtendidas = m.zonasAtendidas || [];

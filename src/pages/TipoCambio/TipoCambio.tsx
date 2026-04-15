@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, TrendingUp, Calendar } from "lucide-react";
+import { Plus, TrendingUp, Calendar, DollarSign } from "lucide-react";
 import { Button, Card, Modal } from "../../components/common";
 import { PageShell, PageHeader, Toolbar } from '../../design-system';
 import { TipoCambioForm } from "../../components/modules/tipoCambio/TipoCambioForm";

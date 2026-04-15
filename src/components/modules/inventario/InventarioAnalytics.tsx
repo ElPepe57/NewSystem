@@ -122,6 +122,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
       contenido: string;
       dosaje: string;
       sabor: string;
+      atributosSkincare?: any;
       unidades: Unidad[];
       cantidadTotal: number;
       valorTotal: number;
@@ -1195,7 +1196,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
                 key={c.label}
                 className={`${c.color} flex items-center justify-center transition-all duration-500`}
                 style={{ width: `${Math.max(c.pct, 2)}%` }}
-                label={`${c.label}: ${c.pct.toFixed(1)}%`}
+                title={`${c.label}: ${c.pct.toFixed(1)}%`}
               >
                 {c.pct >= 8 && <span className="text-[10px] font-bold text-white">{c.pct.toFixed(0)}%</span>}
               </div>
@@ -1545,7 +1546,7 @@ export const InventarioAnalytics: React.FC<InventarioAnalyticsProps> = ({
           <div className="space-y-2">
             {concentracionMarca.slice(0, 8).map(m => (
               <div key={m.marca} className="flex items-center gap-3">
-                <div className="w-28 text-sm font-medium text-slate-700 truncate" label={m.marca}>{m.marca}</div>
+                <div className="w-28 text-sm font-medium text-slate-700 truncate" title={m.marca}>{m.marca}</div>
                 <div className="flex-1">
                   <div className="h-5 bg-slate-100 rounded-full overflow-hidden">
                     <div

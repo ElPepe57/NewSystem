@@ -654,7 +654,7 @@ export function useDashboardData(): DashboardData {
   }, [ventasUltimos30Dias, ventasLN]);
 
   // --- CASH & LIQUIDEZ ---
-  const valorInventarioPEN = resumenInventario?.valorTotalPEN ?? 0;
+  const valorInventarioPEN = (resumenInventario as any)?.valorTotalPEN ?? 0;
   const gastoMensualPromedio = useMemo(() => {
     const meses = [gastosMes2Atras, gastosMesAnterior, gastosMes].filter(g => g > 0);
     if (meses.length === 0) return 0;

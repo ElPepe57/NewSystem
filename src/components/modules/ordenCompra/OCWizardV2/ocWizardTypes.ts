@@ -119,6 +119,8 @@ export const initialWizardState: OCWizardState = {
     colaboradorNombre: '',
     ultimaMilla: null,
     requiereRecojo: false,
+    casillaDestinoId: '',
+    casillaDestinoNombre: '',
   },
   modoEntregaDetallado: null,
   quienPagaFlete: null,

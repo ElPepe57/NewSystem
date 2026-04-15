@@ -139,8 +139,8 @@ export const GestionDanadasModal: React.FC<GestionDanadasModalProps> = ({
           disposicion: decision.disposicion!,
           motivo: decision.motivo || 'Sin motivo adicional',
           responsable: decision.responsable,
-          costoUnidadPEN: unidad?.costoBasePEN || unidad?.ctruInicial?.costoBasePEN || 0,
-          costoUnidadUSD: unidad?.costoBaseUSD || 0,
+          costoUnidadPEN: (unidad as any)?.costoBasePEN || (unidad as any)?.ctruInicial?.costoBasePEN || 0,
+          costoUnidadUSD: (unidad as any)?.costoBaseUSD || 0,
           evidenciaURL: inc.evidenciaURL,
         };
       });

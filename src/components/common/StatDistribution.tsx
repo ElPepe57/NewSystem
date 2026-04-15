@@ -25,7 +25,8 @@ const formatStatValue = (value: number, format?: 'currency' | 'number' | 'compac
 };
 
 export interface StatDistributionProps {
-  title: string;
+  title?: string;
+  label?: string; // alias legacy
   data: Array<{
     label: string;
     value: number;
@@ -38,11 +39,13 @@ export interface StatDistributionProps {
 
 export const StatDistribution: React.FC<StatDistributionProps> = ({
   title,
+  label,
   data,
   total: providedTotal,
   showPercentage = true,
   valueFormat = 'number'
 }) => {
+  const displayTitle = title || label || '';
   const total = providedTotal || data.reduce((sum, item) => sum + item.value, 0);
 
   const defaultColors = [
@@ -57,7 +60,7 @@ export const StatDistribution: React.FC<StatDistributionProps> = ({
 
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-4">
-      <h3 className="text-sm font-medium text-slate-700 mb-3">{title}</h3>
+      <h3 className="text-sm font-medium text-slate-700 mb-3">{displayTitle}</h3>
 
       {/* Barra de distribución */}
       <div className="h-3 flex rounded-full overflow-hidden bg-slate-100 mb-4">

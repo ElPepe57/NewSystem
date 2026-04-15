@@ -620,7 +620,7 @@ export const OrdenesCompra: React.FC = () => {
         monedaPago: datos.monedaPago,
         montoOriginal: datos.montoOriginal,
         tipoCambio: datos.tipoCambio,
-        metodoPago: datos.metodoPago,
+        metodoPago: datos.metodoPago as any,
         cuentaOrigenId: datos.cuentaOrigenId,
         referencia: datos.referencia,
         notas: datos.notas,
@@ -855,7 +855,7 @@ export const OrdenesCompra: React.FC = () => {
                 key={orden.id}
                 code={orden.numeroOrden}
                 title={orden.nombreProveedor || 'Sin proveedor'}
-                subtitle={`${orden.items?.length || 0} productos`}
+                subtitle={`${orden.productos?.length || 0} productos`}
                 status={{
                   label: getEstadoLabel(orden.estado),
                   variant: getEstadoVariant(orden.estado),
@@ -971,16 +971,16 @@ export const OrdenesCompra: React.FC = () => {
                       costoUnitario: p.costoUnitario
                     })),
                     subtotalUSD: ordenEditando.subtotalUSD,
-                    impuestoUSD: ordenEditando.impuestoCompraUSD ?? ordenEditando.impuestoUSD,
-                    costoEnvioProveedorUSD: ordenEditando.costoEnvioProveedorUSD ?? ordenEditando.gastosEnvioUSD,
-                    otrosGastosCompraUSD: ordenEditando.otrosGastosCompraUSD ?? ordenEditando.otrosGastosUSD,
+                    impuestoCompraUSD: ordenEditando.impuestoCompraUSD,
+                    costoEnvioProveedorUSD: ordenEditando.costoEnvioProveedorUSD,
+                    otrosGastosCompraUSD: ordenEditando.otrosGastosCompraUSD,
                     descuentoUSD: ordenEditando.descuentoUSD,
                     totalUSD: ordenEditando.totalUSD,
                     tcCompra: ordenEditando.tcCompra || 0,
                     numeroTracking: ordenEditando.numeroTracking,
                     courier: ordenEditando.courier,
                     observaciones: ordenEditando.observaciones
-                  } : undefined}
+                  } as any : undefined}
                 />
               </div>
             </div>

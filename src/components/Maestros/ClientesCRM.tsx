@@ -1110,28 +1110,28 @@ export const ClientesCRM: React.FC<ClientesCRMProps> = ({
                           <button
                             onClick={() => setClienteDetalle(cliente)}
                             className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded"
-                            label="Ver analytics detallado"
+                            aria-label="Ver analytics detallado"
                           >
                             <BarChart3 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onViewCliente(cliente)}
                             className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
-                            label="Ver detalle"
+                            aria-label="Ver detalle"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onEditCliente(cliente)}
                             className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
-                            label="Editar"
+                            aria-label="Editar"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => onDeleteCliente(cliente.id)}
                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            label="Eliminar"
+                            aria-label="Eliminar"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>

@@ -209,6 +209,7 @@ export const ClienteAutocomplete: React.FC<ClienteAutocompleteProps> = ({
   const handleSelectEmpleado = (usuario: UserProfile) => {
     // Crear un snapshot de cliente con los datos del usuario
     const snapshot: ClienteSnapshot = {
+      clienteId: usuario.uid || '',
       nombre: usuario.displayName,
       email: usuario.email,
     };

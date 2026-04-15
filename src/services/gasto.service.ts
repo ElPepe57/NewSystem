@@ -215,7 +215,7 @@ export const gastoService = {
           ...data,
           montoPEN: typeof data.montoPEN === 'number' ? data.montoPEN : (data.montoOriginal || 0),
           montoUSD: typeof data.montoUSD === 'number' ? data.montoUSD : 0,
-        } as Gasto;
+        } as unknown as Gasto;
       });
 
       // Ordenar en memoria por fecha descendente
@@ -560,7 +560,7 @@ export const gastoService = {
           ...data,
           montoPEN: typeof data.montoPEN === 'number' ? data.montoPEN : (data.montoOriginal || 0),
           montoUSD: typeof data.montoUSD === 'number' ? data.montoUSD : 0,
-        } as Gasto;
+        } as unknown as Gasto;
       });
 
       // Ordenar en memoria por fecha descendente

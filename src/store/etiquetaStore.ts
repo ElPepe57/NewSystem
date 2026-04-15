@@ -37,7 +37,7 @@ interface EtiquetaState {
   // Acciones CRUD
   getById: (id: string) => Promise<Etiqueta | null>;
   create: (data: EtiquetaFormData, userId: string) => Promise<Etiqueta>;
-  crearRapida: (nombre: string, tipo: TipoEtiqueta, userId: string) => Promise<Etiqueta>;
+  crearRapida: (nombre: string, tipo: TipoEtiqueta, userId: string, lineaNegocioIds?: string[]) => Promise<Etiqueta>;
   update: (id: string, data: Partial<EtiquetaFormData>, userId: string) => Promise<void>;
   delete: (id: string) => Promise<void>;
   cambiarEstado: (id: string, estado: 'activa' | 'inactiva', userId: string) => Promise<void>;

@@ -70,6 +70,8 @@ interface VentaState {
     referencia?: string;
     comprobante?: string;
     notas?: string;
+    tipoCambio?: number;
+    cuentaDestinoId?: string;
   }, userId: string) => Promise<PagoVenta>;
   eliminarPago: (ventaId: string, pagoId: string, userId: string) => Promise<void>;
   fetchVentasByEstadoPago: (estadoPago: EstadoPago) => Promise<void>;

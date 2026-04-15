@@ -41,7 +41,7 @@ export const RentabilidadTresNivelesWidget: React.FC = () => {
         const todasVentas = await VentaService.getAll(500);
         const ventasMes = todasVentas.filter(v => {
           if (v.estado === 'cotizacion' || v.estado === 'cancelada') return false;
-          const fecha = v.fechaVenta?.toDate?.() || v.fechaCreacion?.toDate?.();
+          const fecha = v.fechaCreacion?.toDate?.();
           return fecha && fecha >= inicioMes;
         });
 

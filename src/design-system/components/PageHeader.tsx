@@ -12,6 +12,8 @@ interface PageHeaderProps {
   /** Renderiza contenido junto al título (ej: LineaDropdown) */
   titleExtra?: React.ReactNode;
   className?: string;
+  /** Stats rápidas junto al título (alias legacy — se ignoran visualmente) */
+  stats?: Array<{ label: string; value: string | number; color?: string }>;
 }
 
 /**

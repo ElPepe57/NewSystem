@@ -256,6 +256,7 @@ export const Requerimientos: React.FC = () => {
     const grouped: Record<EstadoRequerimiento, Requerimiento[]> = {
       borrador: [],
       pendiente: [],
+      pendiente_aprobacion: [],
       aprobado: [],
       parcial: [],
       en_proceso: [],

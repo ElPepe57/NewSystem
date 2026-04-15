@@ -43,6 +43,7 @@ interface OrdenCompraState {
     cuentaOrigenId?: string;
     referencia?: string;
     notas?: string;
+    subOrdenId?: string;
   }, userId: string) => Promise<PagoOrdenCompra>;
   recibirOrden: (id: string, userId: string) => Promise<{
     unidadesGeneradas: string[];

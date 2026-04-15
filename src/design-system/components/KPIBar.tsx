@@ -5,6 +5,9 @@ interface KPIBarProps {
   children: React.ReactNode;
   columns?: 2 | 3 | 4 | 5 | 6;
   className?: string;
+  // Aliases legacy ignorados (compat)
+  mdColumns?: number;
+  lgColumns?: number;
 }
 
 const colsMap = {

@@ -60,27 +60,27 @@ export const PagosMasivos: React.FC = () => {
     }
 
     const count = seleccionados.size;
-    confirm.show({
+    const ok = await confirm.confirm({
       title: 'Confirmar pago masivo',
       message: `Se procesaran ${count} pago${count !== 1 ? 's' : ''} desde la cuenta "${config.cuentaNombre}". Esta accion no se puede deshacer automaticamente.`,
-      confirmLabel: `Procesar ${count} pago${count !== 1 ? 's' : ''}`,
+      confirmText: `Procesar ${count} pago${count !== 1 ? 's' : ''}`,
       variant: 'warning',
-      onConfirm: async () => {
-        setShowProgreso(true);
-        try {
-          const lote = await ejecutarPagoMasivo(config, user.uid);
-          if (lote.itemsConError === 0) {
-            toast.success(`Lote ${lote.id} completado: ${lote.itemsExitosos} pagos exitosos`);
-          } else {
-            toast.warning(
-              `Lote ${lote.id}: ${lote.itemsExitosos} exitosos, ${lote.itemsConError} con error`
-            );
-          }
-        } catch (err: any) {
-          toast.error(err.message || 'Error al procesar el lote');
-        }
-      },
     });
+    if (ok) {
+      setShowProgreso(true);
+      try {
+        const lote = await ejecutarPagoMasivo(config, user.uid);
+        if (lote.itemsConError === 0) {
+          toast.success(`Lote ${lote.id} completado: ${lote.itemsExitosos} pagos exitosos`);
+        } else {
+          toast.warning(
+            `Lote ${lote.id}: ${lote.itemsExitosos} exitosos, ${lote.itemsConError} con error`
+          );
+        }
+      } catch (err: any) {
+        toast.error(err.message || 'Error al procesar el lote');
+      }
+    }
   };
 
   const handleCerrarProgreso = () => {
@@ -167,7 +167,7 @@ export const PagosMasivos: React.FC = () => {
       <LoteDetalleModal />
 
       {/* ConfirmDialog */}
-      <ConfirmDialog {...confirm.props} />
+      <ConfirmDialog {...confirm.dialogProps} />
     </PageShell>
   );
 };

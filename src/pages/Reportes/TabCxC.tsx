@@ -42,7 +42,7 @@ export const TabCxC: React.FC = () => {
   const aging = useMemo(() => {
     const buckets = { corriente: 0, dias30: 0, dias60: 0, dias90: 0 };
     for (const v of ventasPendientes) {
-      const fecha = v.fechaVenta?.toDate?.() || v.fechaCreacion?.toDate?.();
+      const fecha = v.fechaCreacion?.toDate?.();
       if (!fecha) continue;
       const dias = Math.floor((hoy.getTime() - fecha.getTime()) / (1000 * 60 * 60 * 24));
       const monto = (v.totalPEN || 0) - ((v as any).montoPagado || 0);
@@ -106,7 +106,7 @@ export const TabCxC: React.FC = () => {
                 return <span className="font-medium text-red-600">{fmt(pendiente)}</span>;
               }},
               { key: 'dias', header: 'Dias', align: 'center' as const, render: (v: any) => {
-                const fecha = v.fechaVenta?.toDate?.() || v.fechaCreacion?.toDate?.();
+                const fecha = v.fechaCreacion?.toDate?.();
                 const dias = fecha ? Math.floor((hoy.getTime() - fecha.getTime()) / (1000 * 60 * 60 * 24)) : 0;
                 return <Badge variant={dias > 60 ? 'danger' : dias > 30 ? 'warning' : 'default'} className="text-xs">{dias}d</Badge>;
               }},

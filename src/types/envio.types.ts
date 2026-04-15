@@ -188,14 +188,17 @@ export interface Envio {
   origenTipo: OrigenTipoEnvio;
   origenProveedorId?: string;          // Si origenTipo = 'proveedor'
   origenProveedorNombre?: string;
+  origenProveedorPais?: string;        // Desnormalizado (S38)
   origenCasillaId?: string;            // Si origenTipo = 'casilla'
   origenCasillaNombre?: string;
   origenCasillaCodigo?: string;
+  origenCasillaPais?: string;
 
   // Destino (siempre una casilla)
   destinoCasillaId: string;
   destinoCasillaNombre: string;
   destinoCasillaCodigo: string;
+  destinoCasillaPais?: string;         // Desnormalizado (S38)
 
   // Transportador
   colaboradorId?: string;              // Quien transporta (viajero, courier, etc.)
@@ -371,7 +374,9 @@ export interface RecepcionEnvioFormData {
     unidadId: string;
     recibida: boolean;
     danada: boolean;
+    perdida?: boolean;
     incidencia?: string;
+    fechaVencimiento?: string;
   }[];
 
   // Fechas de vencimiento por unidadId (YYYY-MM-DD)

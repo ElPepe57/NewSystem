@@ -794,8 +794,8 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                   <PagoUnificadoForm
                     origen="gasto"
                     titulo="Pago del gasto"
-                    montoTotal={formData.montoOriginal || formData.montoPEN}
-                    montoPendiente={formData.montoOriginal || formData.montoPEN}
+                    montoTotal={formData.montoOriginal}
+                    montoPendiente={formData.montoOriginal}
                     monedaOriginal={formData.moneda as 'PEN' | 'USD'}
                     tcDocumento={formData.tipoCambio}
                     onSubmit={(datos: PagoUnificadoResult) => {

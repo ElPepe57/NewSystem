@@ -19,6 +19,11 @@ interface StatCardProps {
   onClick?: () => void;
   active?: boolean;
   className?: string;
+  // Aliases legacy para compat con consumidores antiguos
+  subtitle?: string;
+  subtext?: string;
+  bgColor?: string;
+  textColor?: string;
 }
 
 /**
@@ -28,7 +33,9 @@ interface StatCardProps {
 export const StatCard: React.FC<StatCardProps> = ({
   label, value, icon: Icon, trend, variant = 'neutral',
   size = 'md', onClick, active, className,
+  subtitle, subtext,
 }) => {
+  const subText = subtitle || subtext;
   const colors = statusColors[variant] || statusColors.neutral;
   const isClickable = !!onClick;
   const trendPositive = trend && trend.value > 0;
@@ -53,6 +60,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           <p className={cn(size === 'sm' ? text.metricSm : text.metric, 'mt-1')}>
             {typeof value === 'number' ? value.toLocaleString('es-PE') : value}
           </p>
+          {subText && <p className={cn(text.caption, 'mt-0.5 truncate')}>{subText}</p>}
         </div>
         {Icon && (
           <div className={cn('flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center', colors.bg)}>

@@ -109,7 +109,10 @@ export const transition = {
 
 // ─── Status Variant Mapping ──────────────────────────────────────────────────
 
-export type StatusVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'brand';
+export type StatusVariant =
+  | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'brand'
+  // Aliases legacy para compat con consumidores que usan nombres de color directo
+  | 'amber' | 'red' | 'blue' | 'green' | 'default';
 
 export const statusColors: Record<StatusVariant, { bg: string; text: string; border: string; dot: string }> = {
   success: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
@@ -118,4 +121,10 @@ export const statusColors: Record<StatusVariant, { bg: string; text: string; bor
   info: { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200', dot: 'bg-sky-500' },
   neutral: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200', dot: 'bg-slate-500' },
   brand: { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200', dot: 'bg-teal-500' },
+  // Aliases legacy — mapean al mismo color
+  amber: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', dot: 'bg-amber-500' },
+  red: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', dot: 'bg-red-500' },
+  blue: { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200', dot: 'bg-sky-500' },
+  green: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500' },
+  default: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200', dot: 'bg-slate-500' },
 };

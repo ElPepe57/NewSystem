@@ -292,7 +292,9 @@ export const Tesoreria: React.FC = () => {
       'ajuste_negativo': 'Ajuste -',
       'retiro_socio': 'Retiro Socio',
       'transferencia_interna': 'Transferencia',
-      'aporte_capital': 'Aporte Capital'
+      'aporte_capital': 'Aporte Capital',
+      'pago_nomina': 'Pago Nómina',
+      'adelanto_empleado': 'Adelanto Empleado'
     };
     return labels[tipo] || tipo;
   };

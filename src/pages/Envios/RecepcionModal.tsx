@@ -255,7 +255,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
     if (totalARecibir === 0) return;
     setSubmitting(true);
     try {
-      const unidadesRecibidas: RecepcionFormData['unidadesRecibidas'] = [];
+      const unidadesRecibidas: RecepcionEnvioFormData['unidadesRecibidas'] = [];
       const fechasVencimiento: Record<string, string> = {};
 
       for (const prod of productosAgrupados) {
@@ -579,10 +579,10 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                               {unidad.lote && <span className="text-sm text-slate-900">Lote: {unidad.lote}</span>}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-                              {unidad.estadoTransferencia === 'faltante' && (
+                              {unidad.estadoEnvio === 'faltante' && (
                                 <span className="text-amber-600 font-medium">Prev. faltante</span>
                               )}
-                              <span>Estado: {unidad.estadoTransferencia}</span>
+                              <span>Estado: {unidad.estadoEnvio}</span>
                             </div>
                           </div>
                         </div>
@@ -601,7 +601,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
         </div>
 
         {/* C3: Costo de recojo en Peru */}
-        {transferencia.tipo === 'internacional_peru' || transferencia.tipo === 'usa_peru' ? (
+        {transferencia.tipo === 'internacional_peru' ? (
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <label className="block text-sm font-medium text-amber-800 mb-1">
               Costo de recojo en Peru (S/) — opcional

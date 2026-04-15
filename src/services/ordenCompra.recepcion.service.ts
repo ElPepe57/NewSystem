@@ -127,10 +127,10 @@ export async function recibirOrdenParcial(
       0
     );
     const impuestoPorUnidad =
-      totalUnidadesOrden > 0 ? (orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0) / totalUnidadesOrden : 0;
+      totalUnidadesOrden > 0 ? (orden.impuestoCompraUSD ?? 0) / totalUnidadesOrden : 0;
     const costosProrrateo =
-      (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0) +
-      (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0) -
+      (orden.costoEnvioProveedorUSD ?? 0) +
+      (orden.otrosGastosCompraUSD ?? 0) -
       (orden.descuentoUSD || 0);
 
     const getCostoAdicional = (costoUnitario: number): number => {
@@ -141,7 +141,7 @@ export async function recibirOrdenParcial(
 
     const costoAdicionalPorUnidad =
       totalUnidadesOrden > 0
-        ? ((orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0) + costosProrrateo) / totalUnidadesOrden
+        ? ((orden.impuestoCompraUSD ?? 0) + costosProrrateo) / totalUnidadesOrden
         : 0;
 
     const unidadesGeneradas: string[] = [];
@@ -679,10 +679,10 @@ export async function revertirRecepciones(
       0
     );
     const impuestoPorUnidad =
-      totalUnidadesOrden > 0 ? (orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0) / totalUnidadesOrden : 0;
+      totalUnidadesOrden > 0 ? (orden.impuestoCompraUSD ?? 0) / totalUnidadesOrden : 0;
     const costosProrrateo =
-      (orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0) +
-      (orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0) -
+      (orden.costoEnvioProveedorUSD ?? 0) +
+      (orden.otrosGastosCompraUSD ?? 0) -
       (orden.descuentoUSD || 0);
 
     const totalUnidadesRecibidas = orden.totalUnidadesRecibidas || 0;

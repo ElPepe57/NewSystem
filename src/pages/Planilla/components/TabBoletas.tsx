@@ -61,37 +61,37 @@ export const TabBoletas: React.FC = () => {
   };
 
   const handleAnular = async (boleta: Boleta) => {
-    confirm.show({
+    const ok = await confirm.confirm({
       title: 'Anular boleta',
       message: `¿Anular la boleta ${boleta.id} de ${boleta.empleadoNombre}?`,
-      confirmLabel: 'Anular',
+      confirmText: 'Anular',
       variant: 'danger',
-      onConfirm: async () => {
-        try {
-          await anularBoleta(boleta.id);
-          toast.success('Boleta anulada');
-        } catch (e: any) {
-          toast.error(e.message);
-        }
-      },
     });
+    if (ok) {
+      try {
+        await anularBoleta(boleta.id);
+        toast.success('Boleta anulada');
+      } catch (e: any) {
+        toast.error(e.message);
+      }
+    }
   };
 
   const handleEliminar = async (boleta: Boleta) => {
-    confirm.show({
+    const ok = await confirm.confirm({
       title: 'Eliminar boleta',
       message: `¿Eliminar la boleta ${boleta.id}? Esta accion no se puede deshacer.`,
-      confirmLabel: 'Eliminar',
+      confirmText: 'Eliminar',
       variant: 'danger',
-      onConfirm: async () => {
-        try {
-          await eliminarBoleta(boleta.id);
-          toast.success('Boleta eliminada');
-        } catch (e: any) {
-          toast.error(e.message);
-        }
-      },
     });
+    if (ok) {
+      try {
+        await eliminarBoleta(boleta.id);
+        toast.success('Boleta eliminada');
+      } catch (e: any) {
+        toast.error(e.message);
+      }
+    }
   };
 
   const handleMesAnterior = () => {
@@ -254,7 +254,7 @@ export const TabBoletas: React.FC = () => {
         />
       )}
 
-      <ConfirmDialog {...confirm.props} />
+      <ConfirmDialog {...confirm.dialogProps} />
     </div>
   );
 };

@@ -61,7 +61,7 @@ const TabFallback = (
   </div>
 );
 
-type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'competidores' | 'canales' | 'clasificacion';
+type TabActiva = 'resumen' | 'clientes' | 'marcas' | 'proveedores' | 'competidores' | 'canales' | 'clasificacion' | 'categorias_costos' | 'insumos' | 'kits';
 
 const VALID_TABS: TabActiva[] = ['resumen', 'clientes', 'marcas', 'proveedores', 'competidores', 'canales', 'clasificacion'];
 

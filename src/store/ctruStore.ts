@@ -1102,9 +1102,9 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
         const totalUnidades = oc.productos.reduce((sum, p) => sum + p.cantidad, 0);
         if (totalUnidades > 0) {
           ocCostBreakdownMap.set(oc.id!, {
-            impuestoPerUnit: (oc.impuestoCompraUSD ?? oc.impuestoUSD ?? 0) / totalUnidades,
-            envioPerUnit: (oc.costoEnvioProveedorUSD ?? oc.gastosEnvioUSD ?? 0) / totalUnidades,
-            otrosPerUnit: (oc.otrosGastosCompraUSD ?? oc.otrosGastosUSD ?? 0) / totalUnidades
+            impuestoPerUnit: (oc.impuestoCompraUSD ?? 0) / totalUnidades,
+            envioPerUnit: (oc.costoEnvioProveedorUSD ?? 0) / totalUnidades,
+            otrosPerUnit: (oc.otrosGastosCompraUSD ?? 0) / totalUnidades
           });
         }
       }
