@@ -81,8 +81,8 @@ async function findRelatedData(ocIds) {
       .get();
     related.unidades.push(...unidadesSnap.docs);
 
-    // Buscar envíos vinculados
-    const enviosSnap = await db.collection('transferencias')
+    // Buscar envíos vinculados (S37: 'transferencias' → 'envios')
+    const enviosSnap = await db.collection('envios')
       .where('ordenCompraId', '==', ocId)
       .get();
     related.envios.push(...enviosSnap.docs);
@@ -112,10 +112,59 @@ async function deleteInBatches(docs, label) {
   }
 }
 
-async function updateCounters(ocDocs) {
-  // Decrementar contadores de secuencia si las OC son recientes
-  // (solo si queremos reutilizar los números — opcional)
-  console.log('  ℹ Contadores de secuencia NO se modifican (los números se consideran usados)');
+async function updateCounters() {
+  // Resync contadores transaccionales al MAX(número) realmente existente.
+  // No toca contadores de maestros (SUP, SKC, MRC, CAT, etc.).
+  console.log('\n🔄 Resincronizando contadores transaccionales...');
+  const TX_COUNTERS = [
+    { re: /^OC-\d{4}$/,    col: 'ordenesCompra',       field: 'numeroOrden' },
+    { re: /^VT-\d{4}$/,    col: 'ventas',              field: 'numeroVenta' },
+    { re: /^ENV-\d{4}$/,   col: 'envios',              field: 'numeroEnvio' },
+    { re: /^COT-\d{4}$/,   col: 'cotizaciones',        field: 'numeroCotizacion' },
+    { re: /^REQ-\d{4}$/,   col: 'requerimientos',      field: 'numeroRequerimiento' },
+    { re: /^ENT-\d{4}$/,   col: 'entregas',            field: 'numeroEntrega' },
+    { re: /^DEV-\d{4}$/,   col: 'devoluciones',        field: 'numeroDevolucion' },
+    { re: /^ADL-\d{4}$/,   col: 'adelantosNomina',     field: 'numero' },
+    { re: /^LOTE-\d{4}$/,  col: 'lotePagos',           field: 'numero' },
+    { re: /^MOV-\d{4}$/,   col: 'movimientosTesoreria',field: 'numero' },
+    { re: /^CONV-\d{4}$/,  col: 'conversionesCambiarias', field: 'numero' },
+    { re: /^GAS$/,         col: 'gastos',              field: 'codigo' },
+    { re: /^BOL-\d{4}-\d{2}$/, col: 'boletas',         field: 'numero' },
+  ];
+  const MASTER = new Set([
+    'SUP','SKC','CAT','TIP','TPR','MRC','COL','CAS','ALM',
+    'PRV','CC','CMP','ETQ','LIN','TP','TC','CV','CLI','KIT','INS','BMN','TRN-2026',
+  ]);
+  const snap = await db.collection('contadores').get();
+  const batch = db.batch();
+  let updates = 0;
+  for (const cdoc of snap.docs) {
+    if (MASTER.has(cdoc.id)) continue;
+    const mapping = TX_COUNTERS.find(m => m.re.test(cdoc.id));
+    if (!mapping) continue;
+    const colSnap = await db.collection(mapping.col).get();
+    let maxNum = 0;
+    colSnap.forEach(d => {
+      const val = d.data()[mapping.field];
+      if (!val) return;
+      if (cdoc.id.includes('-') && !String(val).startsWith(cdoc.id + '-')) return;
+      const parts = String(val).split('-');
+      const n = parseInt(parts[parts.length - 1], 10);
+      if (!isNaN(n) && n > maxNum) maxNum = n;
+    });
+    const current = cdoc.data().current || 0;
+    if (maxNum !== current) {
+      console.log(`  ${cdoc.id}: ${current} → ${maxNum}`);
+      batch.set(cdoc.ref, { current: maxNum, updatedAt: new Date() }, { merge: true });
+      updates++;
+    }
+  }
+  if (updates > 0) {
+    await batch.commit();
+    console.log(`  ✅ ${updates} contadores resincronizados`);
+  } else {
+    console.log('  ℹ Ya estaban sincronizados');
+  }
 }
 
 async function main() {
@@ -181,7 +230,7 @@ async function main() {
   await deleteInBatches(related.envios, 'Envíos');
   await deleteInBatches(ocDocs, 'Órdenes de Compra');
 
-  await updateCounters(ocDocs);
+  if (!dryRun) await updateCounters();
 
   console.log(`\n✅ Limpieza completada: ${totalDocs} documentos eliminados.`);
 }

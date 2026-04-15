@@ -1000,9 +1000,11 @@ export const OrdenesCompra: React.FC = () => {
                 ? selectedOrden.subOrdenes?.find(s => s.id === subOrdenPago)
                 : undefined;
               const montoTotal = subOrdenActiva ? subOrdenActiva.totalUSD : selectedOrden.totalUSD;
-              // Filtrar pagos anteriores de esta sub-orden (o todos si es OC completa)
+              // DATA-001: para pago de OC completa, NO filtrar por subOrdenId — todos los
+              // pagos (sub-orden o completa) cuentan contra el total de la OC. Sólo cuando
+              // se paga una sub-orden específica filtramos por su subOrdenId.
               const pagosRelevantes = (selectedOrden.historialPagos || []).filter(p =>
-                subOrdenPago ? (p as any).subOrdenId === subOrdenPago : !(p as any).subOrdenId
+                subOrdenPago ? p.subOrdenId === subOrdenPago : true
               );
               const yaPagado = pagosRelevantes.reduce((s, p) => s + p.montoUSD, 0);
               const pendiente = montoTotal - yaPagado;

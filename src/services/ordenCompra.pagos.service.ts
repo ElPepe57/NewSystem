@@ -91,47 +91,56 @@ export async function registrarPago(
     if (cuentaOrigenNombre) nuevoPago.cuentaOrigenNombre = cuentaOrigenNombre;
     if (referencia) nuevoPago.referencia = referencia;
     if (notas) nuevoPago.notas = notas;
-    if (datos.subOrdenId) (nuevoPago as any).subOrdenId = datos.subOrdenId;
+    if (datos.subOrdenId) nuevoPago.subOrdenId = datos.subOrdenId;
 
     const historialPagos = orden.historialPagos || [];
     const totalPagadoUSD = historialPagos.reduce((sum, p) => sum + p.montoUSD, 0) + montoUSD;
     const pendienteUSD = orden.totalUSD - totalPagadoUSD;
-    const estadoPago = pendienteUSD <= 0.01 ? 'pagado' : 'parcial';
+
+    const tieneSubOrdenes = !!(orden.subOrdenes && orden.subOrdenes.length > 0);
 
     const updates: any = {
       historialPagos: [...historialPagos, nuevoPago],
-      estadoPago,
       tcPago: tipoCambio,
       montoPendiente: Math.max(0, pendienteUSD * tipoCambio),
       ultimaEdicion: serverTimestamp(),
       editadoPor: userId
     };
 
-    // Actualizar sub-orden si aplica
-    if (datos.subOrdenId && orden.subOrdenes && orden.subOrdenes.length > 0) {
-      updates.subOrdenes = orden.subOrdenes.map(sub => {
-        if (sub.id !== datos.subOrdenId) return sub;
-        // Calcular cuánto se ha pagado de esta sub-orden
+    // BUG-002-PAG: cuando hay sub-órdenes, el estadoPago de la OC SE DERIVA ÚNICAMENTE
+    // desde los estados de las sub-órdenes — no desde el total agregado.
+    // Así evitamos dos derivaciones que pueden contradecirse.
+    if (tieneSubOrdenes) {
+      updates.subOrdenes = orden.subOrdenes!.map(sub => {
+        // Pagos acumulados de ESTA sub-orden (incluye el nuevo si aplica)
         const pagosSubOrden = [...historialPagos, nuevoPago].filter(
-          (p: any) => p.subOrdenId === datos.subOrdenId
+          (p) => p.subOrdenId === sub.id
         );
         const totalPagadoSub = pagosSubOrden.reduce((s, p) => s + p.montoUSD, 0);
-        const subPagada = totalPagadoSub >= sub.totalUSD - 0.01;
+        // BUG-004-PAG: tri-estado pendiente | parcial | pagado
+        let estadoPagoSub: 'pendiente' | 'parcial' | 'pagado';
+        if (totalPagadoSub >= sub.totalUSD - 0.01) {
+          estadoPagoSub = 'pagado';
+        } else if (totalPagadoSub > 0.01) {
+          estadoPagoSub = 'parcial';
+        } else {
+          estadoPagoSub = 'pendiente';
+        }
         return {
           ...sub,
-          estadoPago: subPagada ? 'pagado' as const : 'pendiente' as const,
-          fechaPago: subPagada ? new Date() : sub.fechaPago,
+          estadoPago: estadoPagoSub,
+          fechaPago: estadoPagoSub === 'pagado' ? (sub.fechaPago ?? new Date()) : sub.fechaPago,
         };
       });
 
-      // Derivar estadoPago de la OC desde sub-órdenes
       const todasPagadas = updates.subOrdenes.every((s: any) => s.estadoPago === 'pagado');
-      const algunaPagada = updates.subOrdenes.some((s: any) => s.estadoPago === 'pagado');
-      if (todasPagadas) {
-        updates.estadoPago = 'pagado';
-      } else if (algunaPagada || totalPagadoUSD > 0.01) {
-        updates.estadoPago = 'parcial';
-      }
+      const algunaConPago = updates.subOrdenes.some(
+        (s: any) => s.estadoPago === 'pagado' || s.estadoPago === 'parcial'
+      );
+      updates.estadoPago = todasPagadas ? 'pagado' : (algunaConPago ? 'parcial' : 'pendiente');
+    } else {
+      // Sin sub-órdenes: derivación clásica por total agregado
+      updates.estadoPago = pendienteUSD <= 0.01 ? 'pagado' : (totalPagadoUSD > 0.01 ? 'parcial' : 'pendiente');
     }
 
     if (updates.estadoPago === 'pagado') {

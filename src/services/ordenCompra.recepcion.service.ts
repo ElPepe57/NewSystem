@@ -253,6 +253,9 @@ export async function recibirOrdenParcial(
                 casillaNombre: almacenInfo.nombre,
                 pais: almacenInfo.pais,
                 reservadaPara: reserva.cotizacionId,
+                // REC-002: preservar requerimientoId en la transición pedida→reservada
+                // para mantener trazabilidad con el fallback crearLote, que sí lo escribe.
+                requerimientoId: reserva.requerimientoId,
                 costoUnitarioUSD: costoUnitarioReal,
                 fechaRecepcion: Timestamp.now(),
                 actualizadoPor: userId,
@@ -390,9 +393,13 @@ export async function recibirOrdenParcial(
     }
 
     // Calculate CTRU for the new batch
-    if (unidadesGeneradas.length > 0) {
+    // BUG-001-CTRU: solo prorratear costos sobre unidades "vivas" (reservadas + disponibles).
+    // Las dañadas y perdidas nunca generarán venta — no deben heredar cargos de lote, y
+    // no deben diluir el CTRU de las unidades buenas.
+    const unidadesVivas = [...unidadesReservadas, ...unidadesDisponibles];
+    if (unidadesVivas.length > 0) {
       try {
-        const ctruCalculadas = await ctruService.calcularCTRULote(unidadesGeneradas, id);
+        const ctruCalculadas = await ctruService.calcularCTRULote(unidadesVivas, id);
         logger.success(`  → CTRU inicial calculado para ${ctruCalculadas} unidades`);
       } catch (ctruError) {
         logger.error('Error al calcular CTRU de lote (no bloqueante):', ctruError);

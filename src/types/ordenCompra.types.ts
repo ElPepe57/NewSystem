@@ -190,6 +190,9 @@ export interface PagoOrdenCompra {
   lotePagoId?: string;
   esPagoMasivo?: boolean;
 
+  // Sub-orden (pago vinculado a una sub-orden específica de la OC)
+  subOrdenId?: string;
+
   // Auditoría
   registradoPor: string;
   fechaRegistro: Timestamp;
@@ -501,7 +504,7 @@ export interface SubOrdenCompra {
   subtotalProductosUSD?: number;
   // Ciclo de vida independiente
   estado?: 'borrador' | 'en_transito' | 'recibida';
-  estadoPago?: 'pendiente' | 'pagado';
+  estadoPago?: 'pendiente' | 'parcial' | 'pagado';
   numeroTracking?: string;
   courier?: string;
   fechaEnvio?: any;                    // Timestamp
