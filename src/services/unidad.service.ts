@@ -378,6 +378,10 @@ export const unidadService = {
         // Tipo de cambio de la OC (para trazabilidad financiera)
         ...(data.tcCompra && { tcCompra: data.tcCompra }),
         ...(data.tcPago && { tcPago: data.tcPago }),
+        // S38-010: Trazabilidad de proveedor desnormalizado
+        ...(data.proveedorId && { proveedorId: data.proveedorId }),
+        ...(data.proveedorNombre && { proveedorNombre: data.proveedorNombre }),
+        ...(data.proveedorPais && { proveedorPais: data.proveedorPais }),
         // Datos de reserva automática (si aplica)
         ...(esReservaAutomatica && {
           reservadaPara: data.reservadoPara,

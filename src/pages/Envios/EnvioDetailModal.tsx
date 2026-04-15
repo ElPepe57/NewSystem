@@ -10,6 +10,14 @@ import {
   Clock,
   RefreshCw,
   Banknote,
+  MapPin,
+  Calendar,
+  Hash,
+  Copy,
+  FileText,
+  Building2,
+  Plane,
+  PackageCheck,
 } from "lucide-react";
 import { Modal, Button, Badge } from "../../components/common";
 import type { Envio, EstadoEnvio, TipoEnvio } from "../../types/envio.types";
@@ -67,54 +75,204 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   const [showGestionDanadas, setShowGestionDanadas] = useState(false);
   const esInternacional = envio.tipo === 'internacional_peru';
 
+  // S38-014: representación clara DE / VÍA / A
   const origenNombre = envio.origenTipo === 'proveedor'
-    ? (envio.origenProveedorNombre || 'Proveedor')
+    ? (envio.origenProveedorNombre || 'Proveedor sin nombre')
     : (envio.origenCasillaNombre || 'Casilla Origen');
-  const origenCodigo = envio.origenTipo === 'casilla' ? envio.origenCasillaCodigo : undefined;
+  const origenSubtitulo = envio.origenTipo === 'proveedor'
+    ? (envio.origenProveedorPais ? `Proveedor · ${envio.origenProveedorPais}` : 'Proveedor')
+    : (envio.origenCasillaCodigo || 'Casilla');
+  const courierNombre = envio.courier || envio.colaboradorNombre || null;
+  const destinoSubtitulo = envio.destinoCasillaPais
+    ? `Casilla · ${envio.destinoCasillaPais}`
+    : (envio.destinoCasillaCodigo || 'Casilla');
+
+  // S38-011: enriquecimiento visual
+  const esDDP = (envio as any).esDDP === true;
+  const diasEnTransito = envio.fechaSalida
+    ? Math.floor((Date.now() - envio.fechaSalida.toDate().getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+  const stages = [
+    { key: 'borrador', label: 'Borrador', icon: FileText },
+    { key: 'confirmado', label: 'Confirmado', icon: CheckCircle },
+    { key: 'en_transito', label: esDDP ? 'En camino (DDP)' : 'En tránsito', icon: Plane },
+    { key: 'recibida_completa', label: 'Recibido', icon: PackageCheck },
+  ];
+  const currentIdx = stages.findIndex(s => s.key === envio.estado);
+  const stageIdx = envio.estado === 'recibida_parcial' ? 2 : currentIdx >= 0 ? currentIdx : 0;
+
+  const copyTracking = async () => {
+    if (envio.numeroTracking) {
+      try { await navigator.clipboard.writeText(envio.numeroTracking); } catch {}
+    }
+  };
 
   return (
     <>
       <Modal
         isOpen={true}
         onClose={onClose}
-        title={`Envio ${envio.numeroEnvio}`}
+        title={`Envío ${envio.numeroEnvio}`}
         size="lg"
       >
-        <div className="space-y-6">
-          {/* Estado y tipo */}
-          <div className="flex items-center space-x-3">
-            {getTipoBadge(envio.tipo)}
-            {getEstadoBadge(envio.estado)}
-          </div>
-
-          {/* Ruta */}
-          <div className="bg-slate-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-4">
-              <div className="flex-1">
-                <div className="text-xs text-slate-500 uppercase mb-1">Origen</div>
-                <div className="font-semibold text-slate-900">{origenNombre}</div>
-                {origenCodigo && <div className="text-sm text-slate-500">{origenCodigo}</div>}
+        <div className="space-y-5">
+          {/* HERO — info clave del envío */}
+          <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl border border-slate-200 overflow-hidden">
+            {/* Top: badges + total unidades */}
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {getEstadoBadge(envio.estado)}
+                {getTipoBadge(envio.tipo)}
+                {esDDP && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                    <Truck className="w-3 h-3" /> DDP directo
+                  </span>
+                )}
               </div>
-              <div className="flex-shrink-0">
-                <div className="h-8 w-8 rounded-full bg-teal-100 flex items-center justify-center">
-                  <ChevronRight className="h-5 w-5 text-teal-600" />
+              <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                <Package className="w-4 h-4 text-slate-400" />
+                <span className="font-semibold text-slate-900">{envio.totalUnidades}</span> unidades
+                <span className="text-slate-300">·</span>
+                <span>{envio.productosSummary?.length || 0} productos</span>
+              </div>
+            </div>
+
+            {/* Timeline visual del estado */}
+            <div className="px-5 py-4 bg-white">
+              <div className="flex items-center justify-between gap-2">
+                {stages.map((stage, idx) => {
+                  const StageIcon = stage.icon;
+                  const isPast = idx < stageIdx;
+                  const isCurrent = idx === stageIdx;
+                  const isFuture = idx > stageIdx;
+                  return (
+                    <React.Fragment key={stage.key}>
+                      <div className="flex flex-col items-center flex-shrink-0">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                          isCurrent ? 'bg-teal-100 ring-2 ring-teal-500 ring-offset-2' :
+                          isPast ? 'bg-emerald-500 text-white' :
+                          'bg-slate-100 text-slate-400'
+                        }`}>
+                          <StageIcon className={`w-4 h-4 ${isCurrent ? 'text-teal-700' : ''}`} />
+                        </div>
+                        <span className={`mt-1.5 text-[10px] font-medium text-center max-w-[80px] ${
+                          isCurrent ? 'text-teal-700' : isPast ? 'text-emerald-700' : 'text-slate-400'
+                        }`}>{stage.label}</span>
+                      </div>
+                      {idx < stages.length - 1 && (
+                        <div className={`flex-1 h-0.5 mb-5 transition-all ${isPast ? 'bg-emerald-500' : 'bg-slate-200'}`} />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* S38-014: Ruta DE → VÍA → A (3 entidades distintas con roles claros) */}
+            <div className="px-5 py-4 bg-slate-50/50 border-t border-slate-100">
+              <div className="grid grid-cols-3 gap-3 items-start">
+                {/* DE — Proveedor o casilla origen */}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                    <Building2 className="w-3 h-3" />
+                    De (Origen)
+                  </div>
+                  <div className="font-semibold text-slate-900 text-sm leading-tight">{origenNombre}</div>
+                  <div className="text-xs text-slate-500 mt-1">{origenSubtitulo}</div>
+                </div>
+
+                {/* VÍA — Courier (transporte) */}
+                <div className="min-w-0 text-center border-x border-slate-200 px-3">
+                  <div className="flex items-center justify-center gap-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                    <Truck className="w-3 h-3" />
+                    Vía (Transporte)
+                  </div>
+                  {courierNombre ? (
+                    <>
+                      <div className="font-semibold text-slate-900 text-sm leading-tight">{courierNombre}</div>
+                      <div className="text-xs text-slate-500 mt-1">
+                        {envio.colaboradorId ? 'Courier registrado' : 'Sin colaborador'}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-sm text-slate-400 italic mt-2">Sin asignar</div>
+                  )}
+                </div>
+
+                {/* A — Casilla destino */}
+                <div className="min-w-0 text-right">
+                  <div className="flex items-center justify-end gap-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                    <MapPin className="w-3 h-3" />
+                    A (Destino)
+                  </div>
+                  <div className="font-semibold text-slate-900 text-sm leading-tight">{envio.destinoCasillaNombre || 'Sin destino'}</div>
+                  <div className="text-xs text-slate-500 mt-1">{destinoSubtitulo}</div>
                 </div>
               </div>
-              <div className="flex-1 text-right">
-                <div className="text-xs text-slate-500 uppercase mb-1">Destino</div>
-                <div className="font-semibold text-slate-900">{envio.destinoCasillaNombre}</div>
-                <div className="text-sm text-slate-500">{envio.destinoCasillaCodigo}</div>
+            </div>
+
+            {/* Info quick stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 px-5 py-3 bg-white border-t border-slate-100">
+              {/* Tracking */}
+              <div>
+                <div className="text-[10px] uppercase text-slate-400 mb-0.5 flex items-center gap-1">
+                  <Hash className="w-3 h-3" /> Tracking
+                </div>
+                {envio.numeroTracking ? (
+                  <button
+                    onClick={copyTracking}
+                    className="text-xs font-mono font-semibold text-slate-900 hover:text-teal-600 flex items-center gap-1 group"
+                    title="Copiar tracking"
+                  >
+                    <span className="truncate max-w-[120px]">{envio.numeroTracking}</span>
+                    <Copy className="w-3 h-3 opacity-0 group-hover:opacity-100 transition" />
+                  </button>
+                ) : (
+                  <div className="text-xs text-slate-400 italic">Sin tracking</div>
+                )}
+              </div>
+
+              {/* Días en tránsito */}
+              <div>
+                <div className="text-[10px] uppercase text-slate-400 mb-0.5 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> En tránsito
+                </div>
+                {diasEnTransito !== null && diasEnTransito >= 0 ? (
+                  <div className="text-xs font-semibold text-slate-900">
+                    {diasEnTransito} día{diasEnTransito !== 1 ? 's' : ''}
+                  </div>
+                ) : (
+                  <div className="text-xs text-slate-400 italic">—</div>
+                )}
+              </div>
+
+              {/* Salida */}
+              <div>
+                <div className="text-[10px] uppercase text-slate-400 mb-0.5 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> Salida
+                </div>
+                <div className="text-xs font-semibold text-slate-900">
+                  {envio.fechaSalida
+                    ? envio.fechaSalida.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
+                    : <span className="text-slate-400 italic font-normal">—</span>}
+                </div>
+              </div>
+
+              {/* Llegada estimada */}
+              <div>
+                <div className="text-[10px] uppercase text-slate-400 mb-0.5 flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> Llegada
+                </div>
+                <div className="text-xs font-semibold text-slate-900">
+                  {envio.fechaLlegadaReal
+                    ? envio.fechaLlegadaReal.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
+                    : envio.fechaLlegadaEstimada
+                      ? <span className="text-slate-500">{envio.fechaLlegadaEstimada.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })} <span className="text-slate-400 font-normal">est.</span></span>
+                      : <span className="text-slate-400 italic font-normal">—</span>}
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Colaborador */}
-          {envio.colaboradorNombre && (
-            <div className="text-sm">
-              <span className="text-slate-500">{esInternacional ? 'Viajero: ' : 'Colaborador: '}</span>
-              <span className="font-medium text-slate-900">{envio.colaboradorNombre}</span>
-            </div>
-          )}
 
           {/* Productos */}
           <div>
@@ -190,33 +348,11 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Fechas */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-xs text-slate-500 uppercase mb-1">Fecha Creacion</div>
-              <div className="text-slate-900">{envio.fechaCreacion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
-            </div>
-            {envio.fechaSalida && (
-              <div>
-                <div className="text-xs text-slate-500 uppercase mb-1">Fecha Salida</div>
-                <div className="text-slate-900">{envio.fechaSalida.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
-              </div>
-            )}
-            {envio.fechaLlegadaReal && (
-              <div>
-                <div className="text-xs text-slate-500 uppercase mb-1">Fecha Llegada</div>
-                <div className="text-slate-900">{envio.fechaLlegadaReal.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
-              </div>
-            )}
+          {/* Fecha de creación (solo, las otras están en el hero) */}
+          <div className="text-xs text-slate-500 flex items-center gap-1.5">
+            <FileText className="w-3 h-3" />
+            Creado el {envio.fechaCreacion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
           </div>
-
-          {/* Tracking */}
-          {envio.numeroTracking && (
-            <div>
-              <div className="text-xs text-slate-500 uppercase mb-1">Numero de Tracking</div>
-              <div className="font-medium text-slate-900">{envio.numeroTracking}</div>
-            </div>
-          )}
 
           {/* Flete (solo internacional) */}
           {esInternacional && (

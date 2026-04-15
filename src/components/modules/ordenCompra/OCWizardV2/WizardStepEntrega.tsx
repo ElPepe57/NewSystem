@@ -399,7 +399,8 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
       next.casillaDestinoNombre = '';
       next.ultimaMilla = null;
       next.requiereRecojo = false;
-      // DDP = entrega a domicilio implícita
+      // DDP: entrega a domicilio implícita. La casilla destino se elige en un selector
+      // explícito abajo (S38-009) — no se auto-asigna para dar control al usuario.
       if (partial.llegadaPeru === 'ddp_directo') {
         next.ultimaMilla = 'entrega_domicilio';
         next.requiereRecojo = false;
@@ -722,6 +723,49 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
             />
           ) : null}
         </Question>
+
+        {/* S38-009: Casilla destino DDP — usuario elige entre sus casillas Peru activas */}
+        {config.llegadaPeru === 'ddp_directo' && (
+          <div className="pl-8">
+            <label className="block text-xs font-medium text-slate-600 mb-1">
+              ¿A qué casilla llega el paquete?
+            </label>
+            {(() => {
+              const casillasPeru = casillas.filter(c => c.pais === 'Peru' && c.estado === 'activa');
+              if (casillasPeru.length === 0) {
+                return (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                    <span className="text-amber-800">
+                      No hay casillas Perú activas.{' '}
+                      <span className="text-amber-600">Crea una en Red Logistica.</span>
+                    </span>
+                  </div>
+                );
+              }
+              return (
+                <select
+                  value={config.casillaDestinoId}
+                  onChange={(e) => {
+                    const selected = casillasPeru.find(c => c.id === e.target.value);
+                    update({
+                      casillaDestinoId: e.target.value,
+                      casillaDestinoNombre: selected?.nombre ?? '',
+                    });
+                  }}
+                  className={selectCls}
+                >
+                  <option value="">Seleccionar casilla Perú...</option>
+                  {casillasPeru.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}{c.esPrincipal ? ' (principal)' : ''}
+                    </option>
+                  ))}
+                </select>
+              );
+            })()}
+          </div>
+        )}
 
         {/* Viajero selector */}
         {config.llegadaPeru === 'viajero' && (

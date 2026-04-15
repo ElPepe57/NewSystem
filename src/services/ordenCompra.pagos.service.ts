@@ -171,7 +171,7 @@ export async function registrarPago(
 
     // Register in Tesorería (non-blocking)
     try {
-      const esPagoCompleto = estadoPago === 'pagado';
+      const esPagoCompleto = updates.estadoPago === 'pagado';
       const movimientoData: any = {
         tipo: 'pago_orden_compra',
         moneda: monedaPago,

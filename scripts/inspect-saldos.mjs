@@ -1,0 +1,14 @@
+import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+initializeApp({ credential: applicationDefault(), projectId: 'businessmn-269c9' });
+const db = getFirestore();
+const d = await db.collection('cuentasCaja').doc('K5K0fesic1czXoFHJISa').get();
+const c = d.data();
+console.log(`Cuenta: ${c.nombre}`);
+console.log(`  moneda: ${c.moneda}`);
+console.log(`  esBiMoneda: ${c.esBiMoneda}`);
+console.log(`  saldoActual: ${c.saldoActual}`);
+console.log(`  saldoUSD: ${c.saldoUSD}`);
+console.log(`  saldoPEN: ${c.saldoPEN}`);
+console.log(`  activa: ${c.activa}`);
+process.exit(0);

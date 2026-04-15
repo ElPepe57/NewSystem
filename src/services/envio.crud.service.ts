@@ -78,6 +78,61 @@ export const envioCrudService = {
     const numeroEnvio = await generarNumeroEnvio();
     const now = Timestamp.now();
 
+    // S38-014: productosSummary con snapshot completo por línea de negocio (SUP vs SKC).
+    // DRY: usamos buildProductoSnapshot — misma fuente de verdad que OC, Venta, Cotización.
+    // El scanner y otros consumidores pueden llamar getDescripcionProducto() sin lookup runtime.
+    const unidadesArr = data.unidadesDetalle || [];
+    const summaryMap = new Map<string, any>();
+    let pesoTotal = 0;
+
+    const productoIdsUnicos = [...new Set(unidadesArr.map(u => u.productoId).filter(Boolean))];
+    const snapshotsProductos: Record<string, any> = {};
+    if (productoIdsUnicos.length > 0) {
+      try {
+        const { ProductoService } = await import('./producto.service');
+        const { buildProductoSnapshot } = await import('../utils/producto.helpers');
+        for (const pid of productoIdsUnicos) {
+          const p = await ProductoService.getById(pid);
+          if (p) {
+            snapshotsProductos[pid] = {
+              ...buildProductoSnapshot({ ...p, productoId: pid }),
+              lineaNegocioId: (p as any).lineaNegocioId,
+            };
+          }
+        }
+      } catch (err) {
+        logger.warn('No se pudo enriquecer productosSummary del envío:', err);
+      }
+    }
+
+    for (const u of unidadesArr) {
+      const existing = summaryMap.get(u.productoId);
+      if (existing) {
+        existing.cantidad += 1;
+      } else {
+        const snap = snapshotsProductos[u.productoId];
+        summaryMap.set(u.productoId, snap
+          ? {
+              productoId: u.productoId,
+              sku: snap.sku,
+              nombre: snap.nombreComercial,
+              cantidad: 1,
+              ...(snap.marca && { marca: snap.marca }),
+              ...(snap.presentacion && { presentacion: snap.presentacion }),
+              ...(snap.contenido && { contenido: snap.contenido }),
+              ...(snap.dosaje && { dosaje: snap.dosaje }),
+              ...(snap.sabor && { sabor: snap.sabor }),
+              ...(snap.pesoLibras && { pesoLibras: snap.pesoLibras }),
+              ...(snap.atributosSkincare && { atributosSkincare: snap.atributosSkincare }),
+              ...(snap.lineaNegocioId && { lineaNegocioId: snap.lineaNegocioId }),
+            }
+          : { productoId: u.productoId, sku: u.sku, nombre: u.sku, cantidad: 1 }
+        );
+      }
+      if (u.pesoLibras) pesoTotal += u.pesoLibras;
+    }
+    const productosSummary = Array.from(summaryMap.values());
+
     const nuevoEnvio: Record<string, unknown> = {
       numeroEnvio,
       estado: 'borrador' as EstadoEnvio,
@@ -88,9 +143,10 @@ export const envioCrudService = {
       destinoCasillaNombre: '', // se resuelve abajo
 
       // Unidades
-      unidades: data.unidadesDetalle || [],
-      totalUnidades: data.unidadesDetalle?.length || 0,
-      productosSummary: [],
+      unidades: unidadesArr,
+      totalUnidades: unidadesArr.length,
+      productosSummary,
+      ...(pesoTotal > 0 ? { pesoTotalLibras: Math.round(pesoTotal * 100) / 100 } : {}),
 
       // Costos landed (vacios, se agregan despues)
       costosLanded: [],
@@ -101,15 +157,44 @@ export const envioCrudService = {
       fechaCreacion: now,
     };
 
-    // Origen
+    // S38-014: Origen — DESNORMALIZAR nombre y país del proveedor/casilla
+    // para que la UI no tenga que hacer JOIN cada vez (DRY: mismo patrón que destinoCasillaNombre)
     if (data.origenTipo === 'proveedor' && data.origenProveedorId) {
       nuevoEnvio.origenProveedorId = data.origenProveedorId;
+      try {
+        const { proveedorService } = await import('./proveedor.service');
+        const prov = await proveedorService.getById(data.origenProveedorId);
+        if (prov) {
+          nuevoEnvio.origenProveedorNombre = prov.nombre;
+          if (prov.pais) nuevoEnvio.origenProveedorPais = prov.pais;
+        }
+      } catch (err) {
+        logger.warn('No se pudo desnormalizar nombre del proveedor de origen:', err);
+      }
     } else if (data.origenTipo === 'casilla' && data.origenCasillaId) {
       nuevoEnvio.origenCasillaId = data.origenCasillaId;
+      try {
+        const { casillaCrudService } = await import('./casilla.crud.service');
+        const cas = await casillaCrudService.getById(data.origenCasillaId);
+        if (cas) {
+          nuevoEnvio.origenCasillaNombre = cas.nombre;
+        }
+      } catch (err) {
+        logger.warn('No se pudo desnormalizar nombre de la casilla de origen:', err);
+      }
     }
 
-    // Colaborador transportador
-    if (data.colaboradorId) nuevoEnvio.colaboradorId = data.colaboradorId;
+    // S38-014: Colaborador (courier) — desnormalizar nombre también
+    if (data.colaboradorId) {
+      nuevoEnvio.colaboradorId = data.colaboradorId;
+      try {
+        const { colaboradorService } = await import('./colaborador.service');
+        const col = await colaboradorService.getById(data.colaboradorId);
+        if (col) nuevoEnvio.colaboradorNombre = col.nombre;
+      } catch (err) {
+        logger.warn('No se pudo desnormalizar nombre del colaborador:', err);
+      }
+    }
 
     // Vinculo OC
     if (data.ordenCompraId) nuevoEnvio.ordenCompraId = data.ordenCompraId;
@@ -120,6 +205,12 @@ export const envioCrudService = {
     if (data.courier) nuevoEnvio.courier = data.courier;
     if (data.fechaLlegadaEstimada) nuevoEnvio.fechaLlegadaEstimada = Timestamp.fromDate(data.fechaLlegadaEstimada);
     if (data.notas) nuevoEnvio.notas = data.notas;
+
+    // S38-009: esDDP significa que NO hay casilla origen intermedia (el proveedor
+    // despacha directo a la casilla destino). El destino SIEMPRE es una casilla real.
+    if (data.esDDP) {
+      nuevoEnvio.esDDP = true;
+    }
 
     // Resolver nombre de casilla destino
     if (data.destinoCasillaId) {

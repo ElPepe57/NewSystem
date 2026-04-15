@@ -7,6 +7,7 @@ import { useToastStore } from '../../../../store/toastStore';
 import { useAuthStore } from '../../../../store/authStore';
 import type { Envio, RecepcionEnvioFormData } from '../../../../types/envio.types';
 import { VincularUPCModal } from '../VincularUPCModal';
+import { getDescripcionProducto } from '../../../../utils/producto.helpers';
 
 export interface ModoRecepcionHandle {
   handleScan: (barcode: string, format?: string) => void;
@@ -76,31 +77,41 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
       u.estadoEnvio === 'preparada'
     );
 
-    const map = new Map<string, { sku: string; nombre: string; lote?: string; unidadIds: string[] }>();
+    // S38-014: enriquecer cada producto con snapshot completo del envío
+    // (incluye marca, atributosSkincare, presentacion, etc. para getDescripcionProducto)
+    type ProductoAgrup = {
+      productoId: string;
+      sku: string;
+      nombre: string;
+      marca?: string;
+      lote?: string;
+      pendiente: number;
+      unidadIds: string[];
+      // Snapshot completo para getDescripcionProducto
+      snapshot?: any;
+    };
+    const map = new Map<string, ProductoAgrup>();
     for (const u of pendientes) {
       const existing = map.get(u.productoId);
       if (existing) {
         existing.unidadIds.push(u.unidadId);
+        existing.pendiente += 1;
       } else {
-        // Use productosSummary for name if available
-        const summary = selectedTransferencia.productosSummary?.find(ps => ps.productoId === u.productoId);
+        const summary: any = selectedTransferencia.productosSummary?.find(ps => ps.productoId === u.productoId);
         map.set(u.productoId, {
-          sku: u.sku,
+          productoId: u.productoId,
+          sku: summary?.sku || u.sku,
           nombre: summary?.nombre || u.sku,
+          marca: summary?.marca,
           lote: u.lote,
+          pendiente: 1,
           unidadIds: [u.unidadId],
+          snapshot: summary, // tiene marca, presentacion, dosaje, sabor, atributosSkincare, etc.
         });
       }
     }
 
-    return [...map.entries()].map(([productoId, data]) => ({
-      productoId,
-      sku: data.sku,
-      nombre: data.nombre,
-      lote: data.lote,
-      pendiente: data.unidadIds.length,
-      unidadIds: data.unidadIds,
-    }));
+    return Array.from(map.values());
   }, [selectedTransferencia]);
 
   // Reset quantities when transfer changes
@@ -257,7 +268,7 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
             <option value="">Selecciona un envio</option>
             {transferencias.map(t => (
               <option key={t.id} value={t.id}>
-                {t.numeroEnvio} — {t.origenCasillaNombre ?? t.origenProveedorNombre ?? '?'} → {t.destinoCasillaNombre} ({t.totalUnidades} uds)
+                {t.numeroEnvio} — {t.origenProveedorNombre || t.origenCasillaNombre || 'Origen sin nombre'} → {t.destinoCasillaNombre} ({t.totalUnidades} uds)
                 {t.estado === 'recibida_parcial' ? ' [Parcial]' : ''}
               </option>
             ))}
@@ -340,9 +351,18 @@ export const ModoRecepcion = forwardRef<ModoRecepcionHandle, ModoRecepcionProps>
                         ) : (
                           <Clock className="h-4 w-4 text-slate-400 shrink-0" />
                         )}
-                        <p className="text-sm font-medium text-slate-900 truncate">{prod.nombre}</p>
+                        <p className="text-sm font-medium text-slate-900 truncate">
+                          {prod.nombre}
+                          {(prod as any).marca && <span className="text-xs text-sky-700 font-normal ml-1.5">· {(prod as any).marca}</span>}
+                        </p>
                       </div>
-                      <p className="text-xs text-slate-500 ml-6">
+                      {/* S38-014: Descripción enriquecida según línea de negocio (SUP vs SKC) */}
+                      {(prod as any).snapshot && (
+                        <p className="text-xs text-slate-600 ml-6 truncate">
+                          {getDescripcionProducto((prod as any).snapshot)}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-slate-400 ml-6">
                         {prod.sku} {prod.lote && `· Lote: ${prod.lote}`}
                       </p>
 

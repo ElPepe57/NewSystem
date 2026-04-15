@@ -215,8 +215,18 @@ export interface Envio {
   productosSummary: {
     productoId: string;
     sku: string;
-    nombre: string;
+    nombre: string;          // = nombreComercial del catálogo
     cantidad: number;
+    // S38-014: snapshot enriquecido por línea de negocio (SUP vs SKC)
+    // Permite getDescripcionProducto() consistente sin lookup runtime
+    marca?: string;
+    presentacion?: string;
+    contenido?: string;
+    dosaje?: string;
+    sabor?: string;
+    pesoLibras?: number;
+    atributosSkincare?: import('./producto.types').AtributosSkincare;
+    lineaNegocioId?: string;
   }[];
 
   // Costos landed (costos de importacion de este envio)
@@ -261,6 +271,9 @@ export interface Envio {
 
   // Incidencias
   incidencias?: IncidenciaEnvio[];
+
+  // S38-009: DDP directo — proveedor entrega directo a Perú sin casilla intermedia
+  esDDP?: boolean;
 
   // Notas
   notas?: string;
@@ -327,6 +340,9 @@ export interface EnvioFormData {
   fechaSalidaEstimada?: Date;
   fechaLlegadaEstimada?: Date;
   notas?: string;
+
+  // S38-009: DDP directo — proveedor despacha directo a destino sin casilla intermedia
+  esDDP?: boolean;
 }
 
 /**

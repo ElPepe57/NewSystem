@@ -194,6 +194,11 @@ export interface Unidad {
   ordenCompraNumero: string;     // Desnormalizado
   fechaRecepcion: Timestamp;     // Cuándo llegó físicamente
 
+  // S38-010: Trazabilidad Proveedor (desnormalizado para queries/filtros sin JOIN)
+  proveedorId?: string;          // ID del proveedor que vendió esta unidad
+  proveedorNombre?: string;      // Nombre desnormalizado para display
+  proveedorPais?: string;        // Pais del proveedor (China, USA, etc) — útil para filtros de origen
+
   // Trazabilidad Envio
   envioId?: string;              // Envio al que pertenece esta unidad
   envioNumero?: string;          // Desnormalizado (ENV-2026-XXX)
@@ -295,6 +300,11 @@ export interface CrearUnidadesLoteData {
   // Tipo de cambio de la OC (para trazabilidad financiera)
   tcCompra?: number;            // TC al momento de crear la OC
   tcPago?: number;              // TC al momento del pago de la OC
+
+  // S38-010: Trazabilidad de proveedor desnormalizado
+  proveedorId?: string;
+  proveedorNombre?: string;
+  proveedorPais?: string;
 
   // ========== RESERVA AUTOMÁTICA (desde requerimiento de cliente) ==========
   // Si la OC viene de un requerimiento vinculado a una cotización,

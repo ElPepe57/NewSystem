@@ -89,19 +89,23 @@ export const envioRecepcionService = {
    * Al recibir: actualiza CTRU de unidades con costos landed prorrateados.
    * Mueve unidades a 'disponible' en casilla destino.
    */
+  /**
+   * Registra la recepción de un envío.
+   * Contrato canónico: recibe el formData del modal de recepción + userId.
+   * (Reescrito en S38-013 — antes tenía firma posicional que el caller post-S37 no respetaba)
+   */
   async registrarRecepcion(
-    envioId: string,
-    unidadesRecibidas: Array<{
-      unidadId: string;
-      recibida: boolean;
-      danada?: boolean;
-      perdida?: boolean;
-      incidencia?: string;
-      fechaVencimiento?: string;
-    }>,
-    userId: string,
-    observaciones?: string
+    formData: import('../types/envio.types').RecepcionEnvioFormData,
+    userId: string
   ): Promise<void> {
+    const { envioId, observaciones, fechasVencimiento } = formData;
+
+    // Mergear fechas de vencimiento del formData en cada unidad si no la trae
+    const unidadesRecibidas = formData.unidadesRecibidas.map(u => ({
+      ...u,
+      fechaVencimiento: (u as any).fechaVencimiento || fechasVencimiento?.[u.unidadId],
+    }));
+
     const envio = await envioCrudService.getById(envioId);
     if (!envio) throw new Error('Envio no encontrado');
 
@@ -277,5 +281,56 @@ export const envioRecepcionService = {
     await batch.commit();
 
     logger.success(`Envio ${envio.numeroEnvio}: recepcion ${nuevaRecepcion.numero} — ${recEnEsta} recibidas, ${faltEnEsta} faltantes, ${danEnEsta} danadas`);
+
+    // S38-014: Sync Envío → OC. Si el envío está vinculado a una OC, propagar el estado
+    // - Recepción parcial → OC pasa a 'recibida_parcial'
+    // - Recepción completa Y todos los envíos de la OC también completos → OC pasa a 'completada'
+    if (envio.ordenCompraId) {
+      try {
+        const ocRef = doc(db, 'ordenesCompra', envio.ordenCompraId);
+        const ocSnap = await getDoc(ocRef);
+        if (!ocSnap.exists()) {
+          logger.warn(`OC ${envio.ordenCompraId} no encontrada al sincronizar recepción`);
+        } else {
+          const oc = ocSnap.data() as any;
+
+          // Buscar TODOS los envíos vinculados a esta OC
+          const enviosOC = await envioCrudService.getByFiltros({ ordenCompraId: envio.ordenCompraId });
+          // Reemplazar el actual con su nuevo estado (todavía no se refleja en el getByFiltros recién hecho)
+          const enviosActuales = enviosOC.map(e => e.id === envioId ? { ...e, estado: estadoFinal } : e);
+
+          const todosCompletos = enviosActuales.every(e => e.estado === 'recibida_completa' || e.estado === 'cancelada');
+          const algunoConRecepcion = enviosActuales.some(e =>
+            e.estado === 'recibida_completa' || e.estado === 'recibida_parcial'
+          );
+
+          let nuevoEstadoOC: string | null = null;
+          if (todosCompletos && oc.estado !== 'completada' && oc.estado !== 'recibida') {
+            nuevoEstadoOC = 'completada';
+          } else if (algunoConRecepcion && oc.estado !== 'recibida_parcial' && oc.estado !== 'completada' && oc.estado !== 'recibida') {
+            nuevoEstadoOC = 'recibida_parcial';
+          }
+
+          if (nuevoEstadoOC) {
+            const updates: any = {
+              estado: nuevoEstadoOC,
+              ultimaEdicion: now,
+              editadoPor: userId,
+            };
+            if (nuevoEstadoOC === 'recibida_parcial' && !oc.fechaPrimeraRecepcion) {
+              updates.fechaPrimeraRecepcion = now;
+            }
+            if (nuevoEstadoOC === 'completada') {
+              updates.fechaRecibida = updates.fechaRecibida || now;
+            }
+            await updateDoc(ocRef, updates);
+            logger.info(`OC ${oc.numeroOrden} → ${nuevoEstadoOC} (sync desde Envío ${envio.numeroEnvio})`);
+          }
+        }
+      } catch (err: any) {
+        // No bloquear si falla el sync
+        logger.error('Error al sincronizar OC tras recepción de envío (no bloqueante):', err);
+      }
+    }
   },
 };

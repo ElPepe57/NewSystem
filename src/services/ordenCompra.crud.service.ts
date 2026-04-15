@@ -149,11 +149,35 @@ export async function create(
     const derivedPaisOrigen =
       mostFrequent(paisesOrigen) ?? (proveedor.pais as string | undefined);
 
-    // Totals
-    const impuesto = data.impuestoCompraUSD ?? data.impuestoUSD ?? 0;
-    const gastosEnvio = data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? 0;
-    const otrosGastos = data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? 0;
-    const descuento = data.descuentoUSD || 0;
+    // Totals — S38-008: soporte unificado para cargos v2 (cargosOC[]) + legacy
+    // Los campos legacy (impuestoCompraUSD, gastosEnvioUSD, otrosGastosUSD, descuentoUSD)
+    // coexisten con las nuevas estructuras (cargosOC[], descuentosOC[], impuestosOC[]).
+    // El wizard V2 usa las estructuras nuevas; flujos antiguos usan los campos legacy.
+    // Sumamos AMBOS para no perder cargos cuando el wizard solo envía cargosOC[].
+
+    // v2 — arrays estructurados
+    const cargosV2 = (data.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0);
+    const descuentosV2 = (data.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0);
+    const impuestosV2 = (data.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0);
+
+    // Legacy — campos individuales (solo usar si NO vienen arrays, para evitar doble conteo)
+    const impuestoLegacy = cargosV2 === 0 && impuestosV2 === 0
+      ? (data.impuestoCompraUSD ?? data.impuestoUSD ?? 0)
+      : 0;
+    const gastosEnvioLegacy = cargosV2 === 0
+      ? (data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? 0)
+      : 0;
+    const otrosGastosLegacy = cargosV2 === 0
+      ? (data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? 0)
+      : 0;
+    const descuentoLegacy = descuentosV2 === 0 ? (data.descuentoUSD || 0) : 0;
+
+    // Agregados finales (para guardar en campos legacy por retrocompat de lectores)
+    const impuesto = impuestoLegacy + impuestosV2;
+    const gastosEnvio = gastosEnvioLegacy + cargosV2;
+    const otrosGastos = otrosGastosLegacy;
+    const descuento = descuentoLegacy + descuentosV2;
+
     const totalUSD = subtotalUSD + impuesto + gastosEnvio + otrosGastos - descuento;
 
     const numeroOrden = await generateNumeroOrden();
@@ -366,14 +390,33 @@ export async function update(
       updates.productos = productosOrden;
       updates.subtotalUSD = subtotalUSD;
 
-      const impuestoUSD =
-        data.impuestoCompraUSD ?? data.impuestoUSD ?? orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0;
-      const gastosEnvio =
-        data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0;
-      const otrosGastos =
-        data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0;
-      const descuentoOC =
-        data.descuentoUSD !== undefined ? data.descuentoUSD : orden.descuentoUSD || 0;
+      // S38-008: soporte v2 (cargosOC[]) + legacy unificado
+      const cargosArr = data.cargosOC ?? orden.cargosOC ?? [];
+      const descuentosArr = data.descuentosOC ?? orden.descuentosOC ?? [];
+      const impuestosArr = data.impuestosOC ?? orden.impuestosOC ?? [];
+
+      const cargosV2 = cargosArr.reduce((s, c) => s + (c.montoUSD || 0), 0);
+      const descuentosV2 = descuentosArr.reduce((s, d) => s + (d.montoUSD || 0), 0);
+      const impuestosV2 = impuestosArr.reduce((s, i) => s + (i.montoUSD || 0), 0);
+
+      const impuestoLegacy = cargosV2 === 0 && impuestosV2 === 0
+        ? (data.impuestoCompraUSD ?? data.impuestoUSD ?? orden.impuestoCompraUSD ?? orden.impuestoUSD ?? 0)
+        : 0;
+      const gastosEnvioLegacy = cargosV2 === 0
+        ? (data.costoEnvioProveedorUSD ?? data.gastosEnvioUSD ?? orden.costoEnvioProveedorUSD ?? orden.gastosEnvioUSD ?? 0)
+        : 0;
+      const otrosGastosLegacy = cargosV2 === 0
+        ? (data.otrosGastosCompraUSD ?? data.otrosGastosUSD ?? orden.otrosGastosCompraUSD ?? orden.otrosGastosUSD ?? 0)
+        : 0;
+      const descuentoLegacy = descuentosV2 === 0
+        ? (data.descuentoUSD !== undefined ? data.descuentoUSD : orden.descuentoUSD || 0)
+        : 0;
+
+      const impuestoUSD = impuestoLegacy + impuestosV2;
+      const gastosEnvio = gastosEnvioLegacy + cargosV2;
+      const otrosGastos = otrosGastosLegacy;
+      const descuentoOC = descuentoLegacy + descuentosV2;
+
       updates.totalUSD = subtotalUSD + impuestoUSD + gastosEnvio + otrosGastos - descuentoOC;
     }
 
@@ -456,7 +499,9 @@ export async function cambiarEstado(
   datos?: {
     tcPago?: number;
     numeroTracking?: string;
-    courier?: string;
+    courier?: string;                  // Nombre del courier (string libre o derivado del colaborador)
+    courierColaboradorId?: string;     // S38-011: ID del colaborador (Red Logística) si fue seleccionado
+    fechaDespacho?: Date;
     motivo?: string;
     observaciones?: string;
   }
@@ -471,6 +516,10 @@ export async function cambiarEstado(
       editadoPor: userId
     };
 
+    // S38-011: cuando OC pasa a estados de tránsito/despacho, propagamos al Envío
+    const estadosDespacho: EstadoOrden[] = ['en_proceso', 'en_transito', 'enviada', 'despachada'];
+    const debeActivarEnvio = estadosDespacho.includes(nuevoEstado);
+
     if (nuevoEstado === 'enviada' && !orden.fechaEnviada) {
       updates.fechaEnviada = Timestamp.now();
     } else if (nuevoEstado === 'en_transito' && !orden.fechaEnTransito) {
@@ -484,6 +533,38 @@ export async function cambiarEstado(
     }
 
     await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);
+
+    // S38-011: Sincronizar Envíos vinculados — si la OC se despacha,
+    // los Envíos en borrador pasan a en_transito y heredan info del courier
+    if (debeActivarEnvio) {
+      try {
+        const { envioCrudService } = await import('./envio.crud.service');
+        // Buscar todos los envíos vinculados a esta OC en estado borrador
+        const enviosVinculados = await envioCrudService.getByFiltros({
+          ordenCompraId: id,
+        });
+        const enviosABorrador = enviosVinculados.filter(e => e.estado === 'borrador');
+        for (const env of enviosABorrador) {
+          const updatesEnvio: any = {
+            estado: 'en_transito',
+          };
+          if (datos?.fechaDespacho) {
+            updatesEnvio.fechaSalida = Timestamp.fromDate(datos.fechaDespacho);
+          } else {
+            updatesEnvio.fechaSalida = Timestamp.now();
+          }
+          if (datos?.numeroTracking) updatesEnvio.numeroTracking = datos.numeroTracking;
+          if (datos?.courier) updatesEnvio.courier = datos.courier;
+          // S38-011: vincular colaborador (Red Logística) al envío para reportes/métricas
+          if (datos?.courierColaboradorId) updatesEnvio.colaboradorId = datos.courierColaboradorId;
+          await updateDoc(doc(db, 'envios', env.id), updatesEnvio);
+          logger.info(`Envío ${env.numeroEnvio} → en_transito (sync desde OC ${orden.numeroOrden})`);
+        }
+      } catch (envioErr: any) {
+        // No bloquear el cambio de estado de la OC si falla el sync
+        logger.error('Error al sincronizar Envíos vinculados (no bloqueante):', envioErr);
+      }
+    }
   } catch (error: any) {
     logger.error('Error al cambiar estado:', error);
     throw new Error(error.message || 'Error al cambiar estado');
@@ -596,13 +677,17 @@ export async function confirmarOC(
         productoNombre: prod.nombreComercial,
         lote: 'PENDIENTE',
         fechaVencimiento: Timestamp.fromDate(new Date('2099-12-31')), // placeholder
-        casillaActualId: 'PROVEEDOR', // ubicacion virtual del proveedor
+        casillaActualId: 'PROVEEDOR', // ubicacion virtual generica del proveedor
         pais: orden.paisOrigen || 'USA',
         estado: 'pedida',
         costoUnitarioUSD: prod.costoUnitario,
         tcCompra: orden.tcReferencial || orden.tcCompra || 0,
         ordenCompraId: ocId,
         ordenCompraNumero: orden.numeroOrden,
+        // S38-010: Desnormalizar proveedor para filtros/reportes sin JOIN
+        proveedorId: orden.proveedorId,
+        proveedorNombre: orden.nombreProveedor,
+        ...(orden.paisOrigen ? { proveedorPais: orden.paisOrigen } : {}),
         fechaRecepcion: now, // placeholder — se actualiza al recibir
         movimientos: [],
         creadoPor: userId,
@@ -626,6 +711,9 @@ export async function confirmarOC(
 
   // 2. Actualizar OC a 'confirmada'
   const ocRef = doc(db, ORDENES_COLLECTION, ocId);
+  // S38-009: DDP se detecta por modoEntregaDetallado, no por un sentinel en destinoCasillaId.
+  // El destino SIEMPRE es una casilla real (en DDP: la casilla Peru principal del cliente).
+  const esDDP = orden.modoEntregaDetallado === 'ddp_directo';
   const ocUpdate: Record<string, unknown> = {
     estado: 'confirmada',
     inventarioGenerado: true,
@@ -721,6 +809,7 @@ export async function confirmarOC(
         subOrdenId: subOrden.id,
         unidadesIds: subUnidadIds,
         unidadesDetalle: subEnvioUnidades,
+        esDDP, // S38-009: sin casilla intermedia, proveedor entrega directo a destino
       }, userId);
 
       await heredarCargos(envioResult.id);
@@ -764,6 +853,7 @@ export async function confirmarOC(
       ordenCompraId: ocId,
       unidadesIds: unidadIds,
       unidadesDetalle: envioUnidades,
+      esDDP, // S38-009: sin casilla intermedia, proveedor entrega directo a destino
     }, userId);
 
     await heredarCargos(envioResult.id);

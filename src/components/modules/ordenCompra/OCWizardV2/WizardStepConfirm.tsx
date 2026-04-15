@@ -11,10 +11,10 @@ interface WizardStepConfirmProps {
 }
 
 const modoLabels: Record<string, string> = {
-  ddp_directo: 'Entrega directa (DDP)',
-  via_viajero: 'Via viajero',
-  via_courier: 'Via courier',
-  recojo_propio: 'Recojo propio',
+  ddp_directo: 'Envío directo del proveedor',
+  via_viajero: 'Traído por viajero',
+  via_courier: 'Courier internacional',
+  recojo_propio: 'Recojo en origen',
 };
 
 const fleteLabels: Record<string, string> = {

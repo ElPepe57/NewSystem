@@ -48,9 +48,13 @@ const getTipoBadge = (tipo?: TipoEnvio) => {
     : <StatusBadge variant="info">Internacional → Perú</StatusBadge>;
 };
 
+// S38-014: incluir país/contexto del origen
 const getOrigenLabel = (envio: Envio): { nombre: string; codigo?: string } => {
   if (envio.origenTipo === 'proveedor') {
-    return { nombre: envio.origenProveedorNombre || 'Proveedor', codigo: undefined };
+    return {
+      nombre: envio.origenProveedorNombre || 'Proveedor sin nombre',
+      codigo: envio.origenProveedorPais ? `Proveedor · ${envio.origenProveedorPais}` : 'Proveedor',
+    };
   }
   return {
     nombre: envio.origenCasillaNombre || 'Casilla Origen',
@@ -102,18 +106,30 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
         </div>
       </div>
 
-      {/* Ruta */}
-      <div className="flex items-center space-x-2 mb-4 p-3 bg-slate-50 rounded-lg">
-        <div className="flex-1">
-          <div className="text-xs text-slate-500">Origen</div>
-          <div className="font-medium text-slate-900">{origen.nombre}</div>
-          {origen.codigo && <div className="text-xs text-slate-500">{origen.codigo}</div>}
+      {/* S38-014: Ruta DE / VÍA / A — proveedor + courier + destino */}
+      <div className="grid grid-cols-3 gap-2 mb-4 p-3 bg-slate-50 rounded-lg items-start">
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase text-slate-500 font-semibold tracking-wide">De</div>
+          <div className="font-medium text-slate-900 text-sm leading-tight truncate">{origen.nombre}</div>
+          {origen.codigo && <div className="text-[11px] text-slate-500 truncate">{origen.codigo}</div>}
         </div>
-        <ChevronRight className="h-5 w-5 text-slate-400 flex-shrink-0" />
-        <div className="flex-1 text-right">
-          <div className="text-xs text-slate-500">Destino</div>
-          <div className="font-medium text-slate-900">{envio.destinoCasillaNombre}</div>
-          <div className="text-xs text-slate-500">{envio.destinoCasillaCodigo}</div>
+        <div className="min-w-0 text-center border-x border-slate-200 px-2">
+          <div className="text-[10px] uppercase text-slate-500 font-semibold tracking-wide">Vía</div>
+          {(envio.courier || envio.colaboradorNombre) ? (
+            <>
+              <div className="font-medium text-slate-900 text-sm leading-tight truncate">{envio.courier || envio.colaboradorNombre}</div>
+              <div className="text-[11px] text-slate-500">Courier</div>
+            </>
+          ) : (
+            <div className="text-sm text-slate-400 italic mt-1">Sin asignar</div>
+          )}
+        </div>
+        <div className="min-w-0 text-right">
+          <div className="text-[10px] uppercase text-slate-500 font-semibold tracking-wide">A</div>
+          <div className="font-medium text-slate-900 text-sm leading-tight truncate">{envio.destinoCasillaNombre}</div>
+          <div className="text-[11px] text-slate-500 truncate">
+            {envio.destinoCasillaPais ? `Casilla · ${envio.destinoCasillaPais}` : envio.destinoCasillaCodigo}
+          </div>
         </div>
       </div>
 

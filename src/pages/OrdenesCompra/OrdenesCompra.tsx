@@ -15,12 +15,14 @@ import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoF
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { RecepcionParcialModal } from '../../components/modules/ordenCompra/RecepcionParcialModal';
 import { ConfirmarOCModal } from '../../components/modules/ordenCompra/ConfirmarOCModal';
+import { DespacharOCModal, type DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
 import type { SubOrdenCompra } from '../../types/ordenCompra.types';
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useProveedorStore } from '../../store/proveedorStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useTipoCambioStore } from '../../store/tipoCambioStore';
 import { useAuthStore } from '../../store/authStore';
+import { useColaboradorStore } from '../../store/colaboradorStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
@@ -79,6 +81,12 @@ export const OrdenesCompra: React.FC = () => {
   // Proveedores desde el store centralizado
   const { proveedoresActivos, fetchProveedoresActivos } = useProveedorStore();
 
+  // S38-011: Colaboradores (couriers + transportistas locales) para el modal de despacho
+  const { colaboradores, fetchColaboradores } = useColaboradorStore();
+  useEffect(() => {
+    if (colaboradores.length === 0) fetchColaboradores();
+  }, []);
+
   // Datos del requerimiento si viene de Requerimientos
   const fromRequerimiento = (location.state as { fromRequerimiento?: RequerimientoData })?.fromRequerimiento;
   const fromRequerimientoMultiViajero = (location.state as { fromRequerimientoMultiViajero?: RequerimientoMultiViajeroData })?.fromRequerimientoMultiViajero;
@@ -116,6 +124,8 @@ export const OrdenesCompra: React.FC = () => {
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [isRecepcionModalOpen, setIsRecepcionModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
+  // S38-011: estado para el modal custom de despacho
+  const [despacharCtx, setDespacharCtx] = useState<{ estadoTarget: EstadoOrden; titulo: string } | null>(null);
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
@@ -497,50 +507,20 @@ export const OrdenesCompra: React.FC = () => {
       return;
     }
 
-    // Si cambia a "en_transito", pedir tracking
-    if (nuevoEstado === 'en_transito') {
-      const result = await openActionModal({
-        title: 'Marcar en Tránsito',
-        description: 'Ingresa la información de seguimiento del envío.',
-        variant: 'info',
-        confirmText: 'Marcar en Tránsito',
-        contextInfo: [
-          { label: 'Orden', value: selectedOrden.numeroOrden },
-          { label: 'Proveedor', value: selectedOrden.nombreProveedor },
-          { label: 'Total', value: `$${selectedOrden.totalUSD.toFixed(2)}` }
-        ],
-        fields: [
-          {
-            id: 'numeroTracking',
-            label: 'Número de tracking',
-            type: 'text',
-            placeholder: 'Ej: 1Z999AA10123456784'
-          },
-          {
-            id: 'courier',
-            label: 'Courier / Transportista',
-            type: 'text',
-            placeholder: 'Ej: UPS, FedEx, DHL...'
-          }
-        ]
-      });
-
-      if (!result) return;
-
-      try {
-        await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid, {
-          numeroTracking: result.numeroTracking as string || undefined,
-          courier: result.courier as string || undefined
-        });
-        await refreshSelectedOrden(selectedOrden.id);
-        setIsDetailsModalOpen(false);
-        toast.success('Orden marcada en tránsito');
-      } catch (error: any) {
-        toast.error(error.message, 'Error');
-      }
+    // S38-011: Despachar OC — abrir modal custom con autocomplete de courier
+    const estadosDespacho: EstadoOrden[] = ['en_proceso', 'en_transito', 'enviada', 'despachada'];
+    if (estadosDespacho.includes(nuevoEstado)) {
+      const tituloEstado = nuevoEstado === 'en_transito' ? 'Marcar en Tránsito'
+        : nuevoEstado === 'despachada' ? 'Marcar Despachada'
+        : nuevoEstado === 'enviada' ? 'Marcar Enviada'
+        : 'Marcar En Proceso';
+      // Abre el modal custom — la lógica de submit ocurre en handleDespacharSubmit
+      setDespacharCtx({ estadoTarget: nuevoEstado, titulo: tituloEstado });
+      return;
     }
-    // Otros estados
-    else {
+
+    // Otros estados (cancelada, etc.)
+    {
       try {
         await cambiarEstadoOrden(selectedOrden.id, nuevoEstado, user.uid);
         await refreshSelectedOrden(selectedOrden.id);
@@ -549,6 +529,45 @@ export const OrdenesCompra: React.FC = () => {
       } catch (error: any) {
         toast.error(error.message, 'Error');
       }
+    }
+  };
+
+  // S38-011: Submit del modal de despacho (autocomplete + crear inline)
+  const handleDespacharSubmit = async (result: DespacharOCResult) => {
+    if (!user || !selectedOrden || !despacharCtx) return;
+    let courierColaboradorIdFinal = result.courierColaboradorId;
+
+    // Si el modal pidió crear nuevo colaborador, hacerlo aquí (caller)
+    if (!courierColaboradorIdFinal && result.crearNuevoColaborador) {
+      try {
+        const { colaboradorService } = await import('../../services/colaborador.service');
+        const { tipo, nombre } = result.crearNuevoColaborador;
+        const pais = tipo === 'transportista_local' ? 'Peru' : (selectedOrden.paisOrigen || 'USA');
+        courierColaboradorIdFinal = await colaboradorService.crear(
+          { nombre, tipo, estado: 'activo', pais } as any,
+          user.uid
+        );
+        await fetchColaboradores();
+        toast.success(`Courier "${nombre}" agregado a Red Logística`);
+      } catch (err: any) {
+        toast.error(`Error creando courier: ${err.message}`);
+        return;
+      }
+    }
+
+    try {
+      await cambiarEstadoOrden(selectedOrden.id, despacharCtx.estadoTarget, user.uid, {
+        numeroTracking: result.numeroTracking,
+        courier: result.courierNombre,
+        courierColaboradorId: courierColaboradorIdFinal,
+        fechaDespacho: result.fechaDespacho,
+      });
+      await refreshSelectedOrden(selectedOrden.id);
+      setDespacharCtx(null);
+      setIsDetailsModalOpen(false);
+      toast.success(`OC ${despacharCtx.titulo.toLowerCase()} — Envío activado`);
+    } catch (error: any) {
+      toast.error(error.message, 'Error');
     }
   };
 
@@ -1072,6 +1091,18 @@ export const OrdenesCompra: React.FC = () => {
         onSubmit={handleCreateOrden}
         isSubmitting={isSubmitting}
       />
+
+      {/* S38-011: Modal Despachar OC con autocomplete inteligente de courier */}
+      {despacharCtx && selectedOrden && (
+        <DespacharOCModal
+          isOpen={true}
+          onClose={() => setDespacharCtx(null)}
+          orden={selectedOrden}
+          tituloEstado={despacharCtx.titulo}
+          colaboradores={colaboradores}
+          onConfirm={handleDespacharSubmit}
+        />
+      )}
     </PageShell>
   );
 };

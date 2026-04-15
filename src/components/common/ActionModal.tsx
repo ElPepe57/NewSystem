@@ -10,13 +10,17 @@ export type ActionModalVariant = 'info' | 'warning' | 'success' | 'danger';
 export interface ActionModalField {
   id: string;
   label: string;
-  type: 'text' | 'number' | 'textarea';
+  type: 'text' | 'number' | 'textarea' | 'date' | 'select';
   placeholder?: string;
   required?: boolean;
   defaultValue?: string | number;
   min?: number;
   max?: number;
   step?: number;
+  // Para type='select'
+  options?: Array<{ value: string; label: string }>;
+  // Para mostrar un link/CTA debajo del campo (ej: "+ Crear nuevo en Red Logística")
+  helperLink?: { label: string; href: string; target?: string };
 }
 
 export interface ActionModalProps {
@@ -241,6 +245,19 @@ export const ActionModal: React.FC<ActionModalProps> = ({
                           rows={3}
                           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 resize-none"
                         />
+                      ) : field.type === 'select' ? (
+                        <select
+                          id={field.id}
+                          value={values[field.id] ?? ''}
+                          onChange={(e) => handleChange(field.id, e.target.value)}
+                          required={field.required}
+                          className="block w-full rounded-lg border border-slate-300 pl-3 pr-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
+                        >
+                          <option value="">{field.placeholder || 'Seleccionar...'}</option>
+                          {(field.options || []).map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
                       ) : index === 0 ? (
                         <input
                           ref={firstInputRef}
@@ -273,6 +290,16 @@ export const ActionModal: React.FC<ActionModalProps> = ({
                           max={field.max}
                           step={field.step}
                         />
+                      )}
+                      {field.helperLink && (
+                        <a
+                          href={field.helperLink.href}
+                          target={field.helperLink.target || '_blank'}
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-block text-xs text-teal-600 hover:text-teal-700 hover:underline"
+                        >
+                          {field.helperLink.label} →
+                        </a>
                       )}
                     </div>
                   ))}

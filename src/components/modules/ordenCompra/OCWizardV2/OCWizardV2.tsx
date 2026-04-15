@@ -219,7 +219,11 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
       ...(totalImpuestos > 0 && { impuestoCompraUSD: totalImpuestos }),
       ...(totalDescuentos > 0 && { descuentoUSD: totalDescuentos }),
       modoEntrega: config.modoEntrega,
+      modoEntregaDetallado: state.modoEntregaDetallado || undefined,
       fleteIncluidoEnPrecio: config.fleteIncluidoEnPrecio,
+      // S38-009: Siempre pasamos casillaDestinoId real (incluso en DDP: es la casilla Peru
+      // del cliente, auto-asignada en WizardStepEntrega). Lo "especial" de DDP no es el
+      // destino sino la ausencia de casilla intermedia en origen (marcado con esDDP en Envío).
       almacenDestino: state.configLogistica.casillaDestinoId || '',
       colaboradorTransporteId: state.configLogistica.colaboradorId || undefined,
       paisOrigen: state.paisOrigen || undefined,
@@ -324,8 +328,9 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
   };
 
   return (
-    /* Full-screen overlay */
-    <div className="fixed inset-0 z-50 flex flex-col bg-white">
+    /* Modal centrado con max-width — pseudo full-screen pero con padding alrededor */
+    <div className="fixed inset-0 z-50 flex flex-col bg-white sm:bg-slate-900/40 sm:backdrop-blur-sm sm:p-6 md:p-8">
+      <div className="flex-1 sm:max-w-6xl sm:mx-auto sm:w-full sm:bg-white sm:rounded-2xl sm:shadow-2xl flex flex-col overflow-hidden">
       {/* ---- Header ---- */}
       <div className="flex-shrink-0 border-b border-slate-200 bg-white">
         <div className="flex items-center justify-between px-4 sm:px-6 h-14">
@@ -484,6 +489,7 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
             </button>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

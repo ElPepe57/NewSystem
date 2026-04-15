@@ -38,8 +38,8 @@ const estadoLabels: Record<string, { label: string; variant: 'success' | 'warnin
 
 const estadoPagoLabels: Record<EstadoPagoOC, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
   pendiente: { label: 'Pendiente de Pago', variant: 'danger' },
-  pago_parcial: { label: 'Pago Parcial', variant: 'warning' },
-  pagada: { label: 'Pagada', variant: 'success' }
+  parcial: { label: 'Pago Parcial', variant: 'warning' },
+  pagado: { label: 'Pagada', variant: 'success' }
 };
 
 export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
@@ -120,8 +120,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   }, [orden.id, orden.subOrdenes, orden.estado, trackingDraft]);
 
 
-  const estadoInfo = estadoLabels[orden.estado];
-  const estadoPagoInfo = estadoPagoLabels[orden.estadoPago || 'pendiente'];
+  const estadoInfo = estadoLabels[orden.estado] ?? { label: orden.estado || 'Desconocido', variant: 'secondary' as const, icon: null };
+  const estadoPagoInfo = estadoPagoLabels[orden.estadoPago as EstadoPagoOC] ?? estadoPagoLabels.pendiente;
 
   // Generar pasos del timeline (soporta estados nuevos + legacy)
   const timelineSteps: TimelineStep[] = useMemo(() => {
@@ -706,14 +706,24 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               </div>
             )}
             {/* Modo de entrega */}
-            {orden.modoEntregaDetallado && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Modo entrega:</span>
-                <span className="font-medium text-slate-900">
-                  {{ ddp_directo: 'DDP Directo', via_viajero: 'Vía viajero', via_courier: 'Vía courier', recojo_propio: 'Recojo propio' }[orden.modoEntregaDetallado] || orden.modoEntregaDetallado}
-                </span>
-              </div>
-            )}
+            {orden.modoEntregaDetallado && (() => {
+              const modoInfo: Record<string, { label: string; desc: string }> = {
+                ddp_directo:    { label: 'Envío directo del proveedor', desc: 'El proveedor envía a Perú con flete incluido' },
+                via_viajero:    { label: 'Traído por viajero',          desc: 'Una persona lo trae desde el origen' },
+                via_courier:    { label: 'Courier internacional',       desc: 'DHL/FedEx contratado por nosotros' },
+                recojo_propio:  { label: 'Recojo en origen',            desc: 'Lo recogemos del proveedor' },
+              };
+              const info = modoInfo[orden.modoEntregaDetallado] || { label: orden.modoEntregaDetallado, desc: '' };
+              return (
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600">Modo entrega:</span>
+                  <span className="font-medium text-slate-900 text-right" title={info.desc}>
+                    {info.label}
+                    {info.desc && <span className="block text-xs text-slate-500 font-normal">{info.desc}</span>}
+                  </span>
+                </div>
+              );
+            })()}
             {orden.colaboradorTransporteNombre && (
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Transportista:</span>

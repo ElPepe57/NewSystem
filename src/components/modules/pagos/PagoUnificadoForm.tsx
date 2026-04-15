@@ -116,7 +116,12 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
   // Estado del formulario
   const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0]);
   const [monedaPago, setMonedaPago] = useState<'PEN' | 'USD'>(monedaOriginal);
-  const [montoOriginal, setMontoOriginal] = useState(0);
+  // Estado string para el input (permite escribir punto/coma sin que React lo descarte).
+  // El number se deriva abajo con parseFloat — setMontoOriginal sigue funcionando
+  // porque es un wrapper que formatea con toFixed(2).
+  const [montoOriginalStr, setMontoOriginalStr] = useState('');
+  const montoOriginal = parseFloat(montoOriginalStr.replace(',', '.')) || 0;
+  const setMontoOriginal = (n: number) => setMontoOriginalStr(n ? n.toFixed(2) : '');
   const [tipoCambio, setTipoCambio] = useState(tcDocumento || 0);
   const [showTC, setShowTC] = useState(false);
   const [metodoPago, setMetodoPago] = useState('');
@@ -512,7 +517,18 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           </button>
         </div>
         <input type="text" inputMode="decimal"
-          value={montoOriginal || ''} onChange={e => setMontoOriginal(parseFloat(e.target.value) || 0)}
+          value={montoOriginalStr}
+          onChange={e => {
+            // Permitir solo dígitos + un separador decimal (. o ,) + hasta 2 decimales
+            const v = e.target.value.replace(',', '.');
+            if (v === '' || /^\d*\.?\d{0,2}$/.test(v)) setMontoOriginalStr(v);
+          }}
+          onBlur={() => {
+            // Al salir del campo, normalizar visualmente (ej: "80." → "80.00", "" se queda vacío)
+            if (montoOriginalStr && !isNaN(parseFloat(montoOriginalStr))) {
+              setMontoOriginalStr(parseFloat(montoOriginalStr).toFixed(2));
+            }
+          }}
           disabled={esPagoCompleto}
           className="w-full px-3 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300 disabled:bg-slate-100" />
         {showTC && (

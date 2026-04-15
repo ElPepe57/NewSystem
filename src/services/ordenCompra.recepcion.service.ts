@@ -149,7 +149,7 @@ export async function recibirOrdenParcial(
     const unidadesDisponibles: string[] = [];
     let totalUnidadesRecepcion = 0;
 
-    // almacenDestino apunta a una casilla (modelo nuevo) o almacén (legacy)
+    // S38-009: destino SIEMPRE es casilla real (incluso en DDP: la casilla Peru principal)
     let almacenInfo: { nombre: string; pais: string };
     const { casillaCrudService } = await import('./casilla.crud.service');
     const casilla = await casillaCrudService.getById(orden.almacenDestino);
@@ -219,7 +219,11 @@ export async function recibirOrdenParcial(
         ordenCompraNumero: orden.numeroOrden,
         fechaRecepcion: new Date(),
         tcCompra: orden.tcCompra,
-        tcPago: orden.tcPago
+        tcPago: orden.tcPago,
+        // S38-010: heredar trazabilidad de proveedor desnormalizada
+        proveedorId: orden.proveedorId,
+        proveedorNombre: orden.nombreProveedor,
+        proveedorPais: orden.paisOrigen,
       };
 
       // Pool de unidades 'pedida' existentes para este producto
