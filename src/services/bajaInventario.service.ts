@@ -60,10 +60,10 @@ export const bajaInventarioService = {
         nuevoEstado = 'baja';
         break;
       case 'devolucion_proveedor':
-        nuevoEstado = 'en_reclamo';
+        nuevoEstado = 'perdida'; // S39: 'en_reclamo' legacy → usar 'perdida' con flag de reclamo
         break;
       case 'reparacion_reingreso':
-        nuevoEstado = 'disponible_peru';
+        nuevoEstado = 'disponible'; // S39: 'disponible_peru' legacy eliminado
         break;
     }
 

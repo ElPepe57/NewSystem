@@ -66,6 +66,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
   const unidadesPendientes = (transferencia.unidades ?? []).filter(
     u => u.estadoEnvio === 'enviada' || u.estadoEnvio === 'faltante'
       || u.estadoEnvio === 'pendiente' || u.estadoEnvio === 'preparada'
+      || u.estadoEnvio === 'retenida'
   );
   const recepcionNumero = (transferencia.recepciones?.length ?? 0) + 1;
 
@@ -103,6 +104,23 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
     return init;
   });
 
+  // S39: contadores de dañadas, perdidas y retenidas por producto
+  const [cantidadDanada, setCantidadDanada] = useState<Record<string, number>>(() => {
+    const init: Record<string, number> = {};
+    productosAgrupados.forEach(p => { init[p.productoId] = 0; });
+    return init;
+  });
+  const [cantidadPerdida, setCantidadPerdida] = useState<Record<string, number>>(() => {
+    const init: Record<string, number> = {};
+    productosAgrupados.forEach(p => { init[p.productoId] = 0; });
+    return init;
+  });
+  const [cantidadRetenida, setCantidadRetenida] = useState<Record<string, number>>(() => {
+    const init: Record<string, number> = {};
+    productosAgrupados.forEach(p => { init[p.productoId] = 0; });
+    return init;
+  });
+
   // ---- Estado: lotes por producto (multi-lote con mes/año) ----
   const [lotesPorProducto, setLotesPorProducto] = useState<Record<string, LoteInput[]>>(() => {
     const init: Record<string, LoteInput[]> = {};
@@ -124,6 +142,10 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
   const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
 
   const totalARecibir = Object.values(cantidadRecibir).reduce((s, v) => s + v, 0);
+  const totalDanadas = Object.values(cantidadDanada).reduce((s, v) => s + v, 0);
+  const totalPerdidas = Object.values(cantidadPerdida).reduce((s, v) => s + v, 0);
+  const totalRetenidas = Object.values(cantidadRetenida).reduce((s, v) => s + v, 0);
+  const totalProcesadas = totalARecibir + totalDanadas + totalPerdidas + totalRetenidas;
   const totalPendiente = unidadesPendientes.length;
 
   // Validar: cada producto con cantidad > 0 debe tener lotes que sumen = cantidad
@@ -252,27 +274,67 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
 
   // ---- Submit ----
   const handleSubmit = async () => {
-    if (totalARecibir === 0) return;
+    if (totalProcesadas === 0) return;
     setSubmitting(true);
     try {
       const unidadesRecibidas: RecepcionEnvioFormData['unidadesRecibidas'] = [];
       const fechasVencimiento: Record<string, string> = {};
 
       for (const prod of productosAgrupados) {
-        const cant = cantidadRecibir[prod.productoId] || 0;
+        const cantRec = cantidadRecibir[prod.productoId] || 0;
+        const cantDan = cantidadDanada[prod.productoId] || 0;
+        const cantPer = cantidadPerdida[prod.productoId] || 0;
+        const cantRet = cantidadRetenida[prod.productoId] || 0;
         const lotes = lotesPorProducto[prod.productoId] || [];
 
-        // Asignar unidades a lotes en orden
+        // S39: Asignar unidades en orden: recibidas → dañadas → perdidas → retenidas → faltantes
         let unidadIdx = 0;
+
+        // 1. Recibidas OK (con lotes de vencimiento)
         for (const lote of lotes) {
-          for (let i = 0; i < lote.cantidad && unidadIdx < prod.unidades.length; i++) {
+          for (let i = 0; i < lote.cantidad && unidadIdx < cantRec; i++) {
             const u = prod.unidades[unidadIdx];
             unidadesRecibidas.push({ unidadId: u.unidadId, recibida: true, danada: false });
             fechasVencimiento[u.unidadId] = mesAnioToDateStr(lote.mes, lote.anio);
             unidadIdx++;
           }
         }
-        // Unidades no recibidas
+
+        // 2. Dañadas (llegaron pero con daño — recibida=true, danada=true)
+        for (let i = 0; i < cantDan && unidadIdx < prod.unidades.length; i++) {
+          unidadesRecibidas.push({
+            unidadId: prod.unidades[unidadIdx].unidadId,
+            recibida: true,
+            danada: true,
+            incidencia: 'Unidad recibida con daño físico'
+          });
+          unidadIdx++;
+        }
+
+        // 3. Perdidas (no llegaron y se dan por perdidas)
+        for (let i = 0; i < cantPer && unidadIdx < prod.unidades.length; i++) {
+          unidadesRecibidas.push({
+            unidadId: prod.unidades[unidadIdx].unidadId,
+            recibida: false,
+            danada: false,
+            perdida: true,
+            incidencia: 'Unidad perdida en tránsito'
+          });
+          unidadIdx++;
+        }
+
+        // 4. Retenidas en aduana (pendientes de liberación)
+        for (let i = 0; i < cantRet && unidadIdx < prod.unidades.length; i++) {
+          unidadesRecibidas.push({
+            unidadId: prod.unidades[unidadIdx].unidadId,
+            recibida: false,
+            danada: false,
+            incidencia: 'Retenida en aduana — pendiente de liberación'
+          });
+          unidadIdx++;
+        }
+
+        // 5. Resto = faltantes (pueden llegar después)
         for (; unidadIdx < prod.unidades.length; unidadIdx++) {
           unidadesRecibidas.push({
             unidadId: prod.unidades[unidadIdx].unidadId,
@@ -470,6 +532,47 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                     </div>
                   </div>
 
+                  {/* S39: Contadores de dañadas/perdidas/retenidas — compactos */}
+                  {(() => {
+                    const dan = cantidadDanada[prod.productoId] || 0;
+                    const per = cantidadPerdida[prod.productoId] || 0;
+                    const ret = cantidadRetenida[prod.productoId] || 0;
+                    const disponibles = prod.pendiente - cant;
+                    const maxDan = disponibles - per - ret;
+                    const maxPer = disponibles - dan - ret;
+                    const maxRet = disponibles - dan - per;
+                    if (disponibles <= 0 && dan === 0 && per === 0 && ret === 0) return null;
+                    return (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 pl-7">
+                        <span className="text-[10px] uppercase font-semibold text-slate-400">Excepciones:</span>
+                        {/* Dañadas */}
+                        <div className="flex items-center gap-1">
+                          <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadDanada(p => ({ ...p, [prod.productoId]: Math.max(0, dan - 1) })); }} className="px-1 py-0.5 text-red-400 hover:bg-red-50 rounded text-xs">−</button>
+                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${dan > 0 ? 'bg-red-100 text-red-700' : 'text-slate-400'}`}>
+                            {dan} dañ.
+                          </span>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); if (dan < maxDan) setCantidadDanada(p => ({ ...p, [prod.productoId]: dan + 1 })); }} className="px-1 py-0.5 text-red-400 hover:bg-red-50 rounded text-xs">+</button>
+                        </div>
+                        {/* Perdidas */}
+                        <div className="flex items-center gap-1">
+                          <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadPerdida(p => ({ ...p, [prod.productoId]: Math.max(0, per - 1) })); }} className="px-1 py-0.5 text-orange-400 hover:bg-orange-50 rounded text-xs">−</button>
+                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${per > 0 ? 'bg-orange-100 text-orange-700' : 'text-slate-400'}`}>
+                            {per} perd.
+                          </span>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); if (per < maxPer) setCantidadPerdida(p => ({ ...p, [prod.productoId]: per + 1 })); }} className="px-1 py-0.5 text-orange-400 hover:bg-orange-50 rounded text-xs">+</button>
+                        </div>
+                        {/* Retenidas aduana */}
+                        <div className="flex items-center gap-1">
+                          <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadRetenida(p => ({ ...p, [prod.productoId]: Math.max(0, ret - 1) })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">−</button>
+                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${ret > 0 ? 'bg-amber-100 text-amber-700' : 'text-slate-400'}`}>
+                            {ret} aduana
+                          </span>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); if (ret < maxRet) setCantidadRetenida(p => ({ ...p, [prod.productoId]: ret + 1 })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">+</button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Sección de lotes con mes/año — visible cuando hay cantidad > 0 */}
                   {cant > 0 && (
                     <div className={`mt-3 p-3 rounded-lg border ${lotesValidos ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
@@ -651,7 +754,7 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
           <Button
             variant="primary"
             onClick={handleSubmit}
-            disabled={submitting || totalARecibir === 0 || hayErrorLotes}
+            disabled={submitting || totalProcesadas === 0 || hayErrorLotes}
           >
             {submitting ? (
               <span className="flex items-center">
@@ -665,7 +768,12 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
             ) : (
               <span className="flex items-center">
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Registrar Recepcion #{recepcionNumero}
+                Registrar #{recepcionNumero}
+                {totalARecibir > 0 && <span className="ml-1">({totalARecibir} OK</span>}
+                {totalDanadas > 0 && <span>, {totalDanadas} dañ.</span>}
+                {totalPerdidas > 0 && <span>, {totalPerdidas} perd.</span>}
+                {totalRetenidas > 0 && <span>, {totalRetenidas} aduana</span>}
+                {totalARecibir > 0 && <span>)</span>}
               </span>
             )}
           </Button>

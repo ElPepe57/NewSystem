@@ -321,16 +321,22 @@ export const Envios: React.FC = () => {
       numeroTracking: result.numeroTracking,
     }, user.uid);
 
-    // 3. Sync courier a la OC vinculada (ida y vuelta)
+    // 3. Sync courier a la OC vinculada (ida y vuelta).
+    // Usamos updateDoc directo porque updateOrden solo permite editar borradores.
     if (envioParaDespachar.ordenCompraId) {
       try {
-        const { updateOrden } = (await import('../../store/ordenCompraStore')).useOrdenCompraStore.getState();
-        await updateOrden(envioParaDespachar.ordenCompraId, {
-          courier: result.courierNombre,
-          colaboradorTransporteId: courierColabId,
-          colaboradorTransporteNombre: result.courierNombre,
-          numeroTracking: result.numeroTracking,
-        } as any, user.uid);
+        const { doc, updateDoc } = await import('firebase/firestore');
+        const { db } = await import('../../lib/firebase');
+        const updates: Record<string, unknown> = {};
+        if (result.courierNombre) {
+          updates.courier = result.courierNombre;
+          updates.colaboradorTransporteNombre = result.courierNombre;
+        }
+        if (courierColabId) updates.colaboradorTransporteId = courierColabId;
+        if (result.numeroTracking) updates.numeroTracking = result.numeroTracking;
+        if (Object.keys(updates).length > 0) {
+          await updateDoc(doc(db, 'ordenesCompra', envioParaDespachar.ordenCompraId), updates);
+        }
       } catch (err) {
         // No bloquear — sync a OC es best-effort
         console.warn('No se pudo sincronizar courier a OC vinculada:', err);

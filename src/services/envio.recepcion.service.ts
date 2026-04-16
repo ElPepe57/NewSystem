@@ -148,9 +148,13 @@ export const envioRecepcionService = {
       let estadoEnvio: EnvioUnidad['estadoEnvio'];
       let resultado: 'recibida' | 'faltante' | 'danada' | 'perdida' | 'retenida';
 
+      // S39: clasificar resultado — retenida se detecta por incidencia (patrón "Retenida en aduana")
+      const esRetenida = !ur.recibida && !ur.perdida && ur.incidencia?.includes('Retenida en aduana');
       if (!ur.recibida) {
         if (ur.perdida) {
           estadoEnvio = 'perdida'; resultado = 'perdida'; faltEnEsta++;
+        } else if (esRetenida) {
+          estadoEnvio = 'retenida'; resultado = 'retenida'; faltEnEsta++;
         } else {
           estadoEnvio = 'faltante'; resultado = 'faltante'; faltEnEsta++;
         }
@@ -225,8 +229,10 @@ export const envioRecepcionService = {
 
           batch.update(unidadRef, updateData);
         } else {
-          // Faltante/perdida — perdida explicita o mantener en transito (faltante, puede llegar despues)
-          const estadoNuevo: EstadoUnidad = ur.perdida ? 'perdida' : 'en_transito';
+          // Faltante/perdida/retenida
+          const estadoNuevo: EstadoUnidad = ur.perdida ? 'perdida'
+            : esRetenida ? 'retenida_aduana'
+            : 'en_transito'; // faltante: puede llegar después
           batch.update(unidadRef, {
             estado: estadoNuevo,
             actualizadoPor: userId,
@@ -240,12 +246,13 @@ export const envioRecepcionService = {
     const totalRecibidas = unidadesActualizadas.filter(u => u.estadoEnvio === 'recibida').length;
     const totalFaltantes = unidadesActualizadas.filter(u => u.estadoEnvio === 'faltante' || u.estadoEnvio === 'perdida').length;
     const totalDanadas = unidadesActualizadas.filter(u => u.estadoEnvio === 'danada').length;
+    const totalRetenidas = unidadesActualizadas.filter(u => u.estadoEnvio === 'retenida').length;
     const totalPendientes = unidadesActualizadas.filter(u => u.estadoEnvio === 'enviada' || u.estadoEnvio === 'pendiente').length;
 
     // S39: solo es "completa" si TODO fue recibido (incluye dañadas como procesadas).
-    // Faltantes = no recibidas aún = parcial (pueden llegar después).
+    // Faltantes, retenidas = no resueltas aún = parcial.
     const estadoFinal: EstadoEnvio =
-      totalPendientes === 0 && totalFaltantes === 0
+      totalPendientes === 0 && totalFaltantes === 0 && totalRetenidas === 0
         ? 'recibida_completa'
         : 'recibida_parcial';
 
@@ -268,6 +275,28 @@ export const envioRecepcionService = {
       ...(observaciones ? { observaciones } : {}),
     };
 
+    // S39: Crear IncidenciaEnvio para dañadas, perdidas y retenidas
+    const incidenciasExistentes: import('../types/envio.types').IncidenciaEnvio[] = envio.incidencias || [];
+    const nuevasIncidencias: import('../types/envio.types').IncidenciaEnvio[] = [];
+    for (const up of unidadesProcesadas) {
+      if (up.resultado === 'danada' || up.resultado === 'perdida' || up.resultado === 'retenida') {
+        const unidadEnvio = unidadesActualizadas.find(u => u.unidadId === up.unidadId);
+        nuevasIncidencias.push({
+          id: `INC-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+          tipo: up.resultado === 'danada' ? 'danada' : up.resultado === 'retenida' ? 'otro' : 'faltante',
+          unidadId: up.unidadId,
+          productoId: unidadEnvio?.productoId,
+          sku: unidadEnvio?.sku,
+          productoNombre: unidadEnvio?.sku, // fallback a SKU
+          descripcion: up.incidencia || (up.resultado === 'danada' ? 'Unidad dañada' : up.resultado === 'retenida' ? 'Retenida en aduana' : 'Unidad perdida'),
+          fechaRegistro: now,
+          registradoPor: userId,
+          resuelta: false,
+        });
+      }
+    }
+    const todasIncidencias = [...incidenciasExistentes, ...nuevasIncidencias];
+
     // Actualizar envio
     const envioRef = doc(db, ENVIOS_COLL, envioId);
     batch.update(envioRef, {
@@ -278,6 +307,7 @@ export const envioRecepcionService = {
       totalUnidadesRecibidas: totalRecibidas,
       totalUnidadesFaltantes: totalFaltantes,
       totalUnidadesDanadas: totalDanadas,
+      ...(nuevasIncidencias.length > 0 ? { incidencias: todasIncidencias } : {}),
       ...(envio.estado === 'en_transito' ? { fechaLlegadaReal: now } : {}),
       actualizadoPor: userId,
       fechaActualizacion: now,
