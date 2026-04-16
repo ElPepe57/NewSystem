@@ -168,12 +168,14 @@ export const DespacharOCModal: React.FC<Props> = ({
           </div>
           <div>
             <div className="text-slate-500">Proveedor</div>
-            <div className="font-semibold text-slate-900 truncate">{orden.nombreProveedor}</div>
+            <div className="font-semibold text-slate-900 truncate">{orden.nombreProveedor || '—'}</div>
           </div>
-          <div>
-            <div className="text-slate-500">Total</div>
-            <div className="font-semibold text-slate-900">${orden.totalUSD.toFixed(2)}</div>
-          </div>
+          {orden.totalUSD != null && (
+            <div>
+              <div className="text-slate-500">Total</div>
+              <div className="font-semibold text-slate-900">${orden.totalUSD.toFixed(2)}</div>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">

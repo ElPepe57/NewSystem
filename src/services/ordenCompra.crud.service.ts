@@ -521,21 +521,25 @@ export async function cambiarEstado(
 
     if (nuevoEstado === 'enviada' && !orden.fechaEnviada) {
       updates.fechaEnviada = Timestamp.now();
-    } else if (nuevoEstado === 'en_transito' && !orden.fechaEnTransito) {
-      updates.fechaEnTransito = Timestamp.now();
-      if (datos?.numeroTracking) updates.numeroTracking = datos.numeroTracking;
-      if (datos?.courier) updates.courier = datos.courier;
-      // S39: sincronizar colaboradorTransporteId/Nombre con courier (ida y vuelta)
-      if (datos?.courierColaboradorId) {
-        updates.colaboradorTransporteId = datos.courierColaboradorId;
-      }
-      if (datos?.courier) {
-        updates.colaboradorTransporteNombre = datos.courier;
-      }
     } else if (nuevoEstado === 'recibida_parcial') {
       if (!orden.fechaPrimeraRecepcion) updates.fechaPrimeraRecepcion = Timestamp.now();
     } else if (nuevoEstado === 'recibida' && !orden.fechaRecibida) {
       updates.fechaRecibida = Timestamp.now();
+    }
+
+    // S39: courier/tracking se graban para CUALQUIER estado de despacho (en_proceso, en_transito, despachada, enviada)
+    if (debeActivarEnvio) {
+      if (datos?.numeroTracking) updates.numeroTracking = datos.numeroTracking;
+      if (datos?.courier) {
+        updates.courier = datos.courier;
+        updates.colaboradorTransporteNombre = datos.courier;
+      }
+      if (datos?.courierColaboradorId) {
+        updates.colaboradorTransporteId = datos.courierColaboradorId;
+      }
+      if (!updates.fechaEnTransito && !orden.fechaEnTransito) {
+        updates.fechaEnTransito = Timestamp.now();
+      }
     }
 
     await updateDoc(doc(db, ORDENES_COLLECTION, id), updates);

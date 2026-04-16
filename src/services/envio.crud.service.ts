@@ -282,7 +282,7 @@ export const envioCrudService = {
   /**
    * Marca el envio como en transito
    */
-  async enviar(envioId: string, datos: { numeroTracking?: string; fechaSalida?: Date }, userId: string): Promise<void> {
+  async enviar(envioId: string, datos: { numeroTracking?: string; fechaSalida?: Date; courier?: string; courierColaboradorId?: string }, userId: string): Promise<void> {
     const envio = await this.getById(envioId);
     if (!envio) throw new Error('Envio no encontrado');
     if (envio.estado !== 'confirmado') throw new Error('Solo se pueden enviar envios confirmados');
@@ -296,6 +296,17 @@ export const envioCrudService = {
     };
 
     if (datos.numeroTracking) updateData.numeroTracking = datos.numeroTracking;
+    // S39: courier info desde DespacharOCModal
+    if (datos.courier) updateData.courier = datos.courier;
+    if (datos.courierColaboradorId) {
+      updateData.colaboradorId = datos.courierColaboradorId;
+      // Desnormalizar nombre
+      try {
+        const { colaboradorService } = await import('./colaborador.service');
+        const col = await colaboradorService.getById(datos.courierColaboradorId);
+        if (col) updateData.colaboradorNombre = col.nombre;
+      } catch { /* best effort */ }
+    }
 
     // Actualizar estado de unidades en el envio a 'enviada'
     if (envio.unidades.length > 0) {

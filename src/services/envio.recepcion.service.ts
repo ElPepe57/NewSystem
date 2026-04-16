@@ -242,7 +242,12 @@ export const envioRecepcionService = {
     const totalDanadas = unidadesActualizadas.filter(u => u.estadoEnvio === 'danada').length;
     const totalPendientes = unidadesActualizadas.filter(u => u.estadoEnvio === 'enviada' || u.estadoEnvio === 'pendiente').length;
 
-    const estadoFinal: EstadoEnvio = totalPendientes === 0 ? 'recibida_completa' : 'recibida_parcial';
+    // S39: solo es "completa" si TODO fue recibido (incluye dañadas como procesadas).
+    // Faltantes = no recibidas aún = parcial (pueden llegar después).
+    const estadoFinal: EstadoEnvio =
+      totalPendientes === 0 && totalFaltantes === 0
+        ? 'recibida_completa'
+        : 'recibida_parcial';
 
     const diasEnTransito = envio.fechaSalida
       ? Math.ceil((now.toMillis() - envio.fechaSalida.toMillis()) / (1000 * 60 * 60 * 24))

@@ -33,7 +33,7 @@ interface EnvioState {
   // Gestion
   crearEnvio: (data: EnvioFormData, userId: string) => Promise<string>;
   confirmarEnvio: (id: string, userId: string) => Promise<void>;
-  enviarEnvio: (id: string, datos: { numeroTracking?: string; fechaSalida?: Date }, userId: string) => Promise<void>;
+  enviarEnvio: (id: string, datos: { numeroTracking?: string; fechaSalida?: Date; courier?: string; courierColaboradorId?: string }, userId: string) => Promise<void>;
   cancelarEnvio: (id: string, motivo: string, userId: string) => Promise<void>;
   registrarPagoColaborador: (
     envioId: string,
@@ -190,7 +190,7 @@ export const useEnvioStore = create<EnvioState>((set, get) => ({
     }
   },
 
-  enviarEnvio: async (id: string, datos: { numeroTracking?: string; fechaSalida?: Date }, userId: string) => {
+  enviarEnvio: async (id: string, datos: { numeroTracking?: string; fechaSalida?: Date; courier?: string; courierColaboradorId?: string }, userId: string) => {
     set({ loading: true, error: null });
     try {
       await envioCrudService.enviar(id, datos, userId);

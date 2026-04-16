@@ -50,6 +50,8 @@ import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUni
 import { EditFleteModal } from "./EditFleteModal";
 import { EnvioDetailModal } from "./EnvioDetailModal";
 import { EnviosProveedorTab } from "./EnviosProveedorTab";
+import { DespacharOCModal, type DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
+import { useColaboradorStore } from '../../store/colaboradorStore';
 
 type TabEnvios = 'envios' | 'proveedor';
 
@@ -113,6 +115,9 @@ export const Envios: React.FC = () => {
   const [selectedEnvio, setSelectedEnvio] = useState<Envio | null>(null);
   const [showEditFleteModal, setShowEditFleteModal] = useState(false);
   const [envioParaFlete, setEnvioParaFlete] = useState<Envio | null>(null);
+  // S39: Despachar envío con courier (reutiliza DespacharOCModal)
+  const [envioParaDespachar, setEnvioParaDespachar] = useState<Envio | null>(null);
+  const { colaboradores, fetchColaboradores } = useColaboradorStore();
 
   // Estado de vista
   const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
@@ -139,6 +144,7 @@ export const Envios: React.FC = () => {
     fetchAlmacenesUSA();
     fetchAlmacenesPeru();
     fetchViajeros();
+    fetchColaboradores();
     getTCDelDia().then(tc => setTipoCambioActual(tc ? { tasaVenta: tc.venta } : null)).catch(console.error);
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
   }, [fetchEnvios, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
@@ -280,18 +286,60 @@ export const Envios: React.FC = () => {
     }
   }, [user, confirmDialog, confirmarEnvio]);
 
-  const handleEnviar = useCallback(async (id: string) => {
-    if (!user) return;
-    const confirmed = await confirmDialog({
-      title: 'Marcar como Enviado',
-      message: 'Marcar este envio como en transito?',
-      confirmText: 'Enviar',
-      variant: 'info',
-    });
-    if (confirmed) {
-      await enviarEnvio(id, { fechaSalida: new Date() }, user.uid);
+  // S39: "Marcar como Enviado" abre DespacharOCModal para seleccionar courier + tracking
+  const handleEnviar = useCallback((id: string) => {
+    const envio = envios.find(e => e.id === id) || enviosEnTransito.find(e => e.id === id);
+    if (envio) setEnvioParaDespachar(envio);
+  }, [envios, enviosEnTransito]);
+
+  const handleDespacharEnvioSubmit = useCallback(async (result: DespacharOCResult) => {
+    if (!user || !envioParaDespachar) return;
+
+    // 1. Si creó un courier nuevo, persistirlo
+    let courierColabId = result.courierColaboradorId;
+    if (!courierColabId && result.crearNuevoColaborador) {
+      try {
+        const { colaboradorService } = await import('../../services/colaborador.service');
+        const { tipo, nombre } = result.crearNuevoColaborador;
+        courierColabId = await colaboradorService.crear(
+          { nombre, tipo, estado: 'activo', pais: tipo === 'transportista_local' ? 'Peru' : 'USA' } as any,
+          user.uid
+        );
+        fetchColaboradores();
+        toast.success(`Courier "${nombre}" agregado a Red Logística`);
+      } catch (err: any) {
+        toast.error(`Error creando courier: ${err.message}`);
+        return;
+      }
     }
-  }, [user, confirmDialog, enviarEnvio]);
+
+    // 2. Enviar el envío con courier + tracking
+    await enviarEnvio(envioParaDespachar.id, {
+      fechaSalida: result.fechaDespacho,
+      courier: result.courierNombre,
+      courierColaboradorId: courierColabId,
+      numeroTracking: result.numeroTracking,
+    }, user.uid);
+
+    // 3. Sync courier a la OC vinculada (ida y vuelta)
+    if (envioParaDespachar.ordenCompraId) {
+      try {
+        const { updateOrden } = (await import('../../store/ordenCompraStore')).useOrdenCompraStore.getState();
+        await updateOrden(envioParaDespachar.ordenCompraId, {
+          courier: result.courierNombre,
+          colaboradorTransporteId: courierColabId,
+          colaboradorTransporteNombre: result.courierNombre,
+          numeroTracking: result.numeroTracking,
+        } as any, user.uid);
+      } catch (err) {
+        // No bloquear — sync a OC es best-effort
+        console.warn('No se pudo sincronizar courier a OC vinculada:', err);
+      }
+    }
+
+    setEnvioParaDespachar(null);
+    toast.success('Envío marcado como en tránsito');
+  }, [user, envioParaDespachar, enviarEnvio, fetchColaboradores, toast]);
 
   const handleCancelar = useCallback(async (id: string) => {
     if (!user) return;
@@ -828,6 +876,25 @@ export const Envios: React.FC = () => {
             setEnvioParaFlete(null);
           }}
           onConfirm={handleActualizarFlete}
+        />
+      )}
+
+      {/* S39: Despachar envío con courier */}
+      {envioParaDespachar && (
+        <DespacharOCModal
+          isOpen={true}
+          onClose={() => setEnvioParaDespachar(null)}
+          orden={{
+            id: envioParaDespachar.ordenCompraId || envioParaDespachar.id,
+            numeroOrden: envioParaDespachar.ordenCompraNumero || envioParaDespachar.numeroEnvio,
+            colaboradorTransporteId: envioParaDespachar.colaboradorId,
+            colaboradorTransporteNombre: envioParaDespachar.colaboradorNombre || envioParaDespachar.courier,
+            courier: envioParaDespachar.courier,
+            numeroTracking: envioParaDespachar.numeroTracking,
+          } as any}
+          tituloEstado="Marcar como Enviado"
+          colaboradores={colaboradores}
+          onConfirm={handleDespacharEnvioSubmit}
         />
       )}
 
