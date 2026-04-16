@@ -491,7 +491,7 @@ export const OrdenesCompra: React.FC = () => {
       try {
         setIsSubmitting(true);
         if (!selectedOrden.almacenDestino) {
-          toast.error('Esta OC no tiene casilla destino asignada. Edita la OC y selecciona un viajero/courier.');
+          toast.error('Esta OC no tiene casilla destino asignada. Edítala y selecciona una casilla Perú (en DDP) o la casilla del viajero/courier.');
           setIsSubmitting(false);
           return;
         }
@@ -577,7 +577,7 @@ export const OrdenesCompra: React.FC = () => {
     try {
       setIsSubmitting(true);
       if (!selectedOrden.almacenDestino) {
-        toast.error('Esta OC no tiene casilla destino asignada. Edita la OC y selecciona un viajero/courier.');
+        toast.error('Esta OC no tiene casilla destino asignada. Edítala y selecciona una casilla Perú (en DDP) o la casilla del viajero/courier.');
         setIsSubmitting(false);
         return;
       }

@@ -274,6 +274,104 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
             </div>
           </div>
 
+          {/* Incidencias — S38-012 sección consolidada */}
+          {(() => {
+            const danadas = envio.totalUnidadesDanadas || 0;
+            const faltantes = envio.totalUnidadesFaltantes || 0;
+            const esRetenida = envio.estado === 'retenida_aduana';
+            const esPerdida = envio.estado === 'perdida_total';
+            const incidenciasArr = (envio.incidencias || []);
+            const incidenciasAbiertas = incidenciasArr.filter(i => !i.resuelta);
+            const incidenciasResueltas = incidenciasArr.filter(i => i.resuelta);
+            const tieneAlgo = danadas > 0 || faltantes > 0 || esRetenida || esPerdida || incidenciasArr.length > 0;
+
+            if (!tieneAlgo) return null;
+
+            const severidad: 'danger' | 'warning' | 'neutral' =
+              (esRetenida || esPerdida || incidenciasAbiertas.length > 0) ? 'danger' :
+              (danadas > 0 || faltantes > 0) ? 'warning' :
+              'neutral';
+
+            const bg = severidad === 'danger' ? 'bg-red-50 border-red-200'
+              : severidad === 'warning' ? 'bg-amber-50 border-amber-200'
+              : 'bg-slate-50 border-slate-200';
+            const iconColor = severidad === 'danger' ? 'text-red-600'
+              : severidad === 'warning' ? 'text-amber-600'
+              : 'text-slate-500';
+
+            return (
+              <div className={`rounded-xl border ${bg} p-4 space-y-3`}>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className={`w-5 h-5 ${iconColor}`} />
+                    <h4 className="text-sm font-semibold text-slate-900">Incidencias del envío</h4>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs flex-wrap">
+                    {esRetenida && <Badge variant="danger">Retenida en aduana</Badge>}
+                    {esPerdida && <Badge variant="danger">Envío perdido</Badge>}
+                    {danadas > 0 && <span className="text-amber-700 font-medium">{danadas} dañada{danadas !== 1 ? 's' : ''}</span>}
+                    {faltantes > 0 && <span className="text-red-700 font-medium">{faltantes} faltante{faltantes !== 1 ? 's' : ''}</span>}
+                    {incidenciasAbiertas.length > 0 && (
+                      <span className="text-red-700 font-medium">{incidenciasAbiertas.length} sin resolver</span>
+                    )}
+                    {incidenciasResueltas.length > 0 && (
+                      <span className="text-emerald-700">{incidenciasResueltas.length} resuelta{incidenciasResueltas.length !== 1 ? 's' : ''}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Listado de incidencias registradas */}
+                {incidenciasArr.length > 0 && (
+                  <div className="space-y-1.5">
+                    {incidenciasArr.slice(0, 5).map(inc => (
+                      <div key={inc.id} className="flex items-start gap-2 p-2 bg-white/60 rounded-lg border border-white">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {inc.resuelta
+                            ? <CheckCircle className="w-4 h-4 text-emerald-500" />
+                            : <AlertTriangle className="w-4 h-4 text-amber-500" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-semibold text-slate-700 capitalize">{inc.tipo}</span>
+                            {inc.sku && <span className="text-[10px] text-slate-500">{inc.sku}</span>}
+                            {inc.productoNombre && <span className="text-[11px] text-slate-600 truncate">· {inc.productoNombre}</span>}
+                            {inc.estadoReclamo && (
+                              <Badge variant={inc.estadoReclamo === 'cobrado' ? 'success' : inc.estadoReclamo === 'rechazado' ? 'danger' : 'warning'} size="sm">
+                                Reclamo: {inc.estadoReclamo}
+                              </Badge>
+                            )}
+                          </div>
+                          {inc.descripcion && <div className="text-xs text-slate-600 mt-0.5 truncate">{inc.descripcion}</div>}
+                          <div className="text-[10px] text-slate-400 mt-0.5">
+                            {inc.fechaRegistro.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            {inc.resuelta && inc.fechaResolucion && (
+                              <> · resuelta {inc.fechaResolucion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}</>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {incidenciasArr.length > 5 && (
+                      <div className="text-[11px] text-slate-500 text-center py-1">
+                        +{incidenciasArr.length - 5} incidencia{incidenciasArr.length - 5 !== 1 ? 's' : ''} más
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Acción: gestionar dañadas */}
+                {danadas > 0 && (
+                  <div className="pt-2 border-t border-white/60 flex justify-end">
+                    <Button variant="secondary" size="sm" onClick={() => setShowGestionDanadas(true)}>
+                      <AlertTriangle className="w-4 h-4 mr-1.5" />
+                      Gestionar unidades dañadas
+                    </Button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Productos */}
           <div>
             <h4 className="text-sm font-medium text-slate-700 mb-3">

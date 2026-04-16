@@ -499,9 +499,14 @@ export const envioCrudService = {
     const unidadesDanadasMes = completadasMes.reduce(
       (sum, e) => sum + (e.totalUnidadesDanadas || 0), 0
     );
-    const enviosConIncidencias = completadasMes.filter(
-      e => (e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0
-    ).length;
+    // Envios con incidencias = completadas con danadas/faltantes + estados excepcion (aduana/perdida) + incidencias[] sin resolver en TODOS los envios (no solo mes)
+    const tieneIncidenciaActiva = (e: Envio): boolean => {
+      if ((e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0) return true;
+      if (e.estado === 'retenida_aduana' || e.estado === 'perdida_total') return true;
+      if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
+      return false;
+    };
+    const enviosConIncidencias = todos.filter(tieneIncidenciaActiva).length;
 
     return {
       totalEnvios: todos.length,

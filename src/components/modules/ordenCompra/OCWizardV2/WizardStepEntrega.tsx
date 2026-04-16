@@ -764,6 +764,44 @@ export const WizardStepEntrega: React.FC<WizardStepEntregaProps> = ({
                 </select>
               );
             })()}
+
+            {/* S39: Courier del proveedor en DDP (opcional — para referencia operativa) */}
+            <div className="mt-3">
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                ¿Qué courier usa el proveedor? <span className="text-slate-400 font-normal">(opcional)</span>
+              </label>
+              {couriers.length > 0 ? (
+                <select
+                  value={config.colaboradorId}
+                  onChange={(e) => {
+                    const selected = couriers.find((c) => c.id === e.target.value);
+                    update({
+                      colaboradorId: e.target.value,
+                      colaboradorNombre: selected?.nombre ?? '',
+                    });
+                  }}
+                  className={selectCls}
+                >
+                  <option value="">Sin especificar</option>
+                  {couriers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={config.colaboradorNombre}
+                  onChange={(e) => onChange({ ...config, colaboradorNombre: e.target.value })}
+                  placeholder="Ej: DHL, FedEx, UPS..."
+                  className={inputCls}
+                />
+              )}
+              <p className="text-[11px] text-slate-400 mt-1">
+                Referencia de transporte — el proveedor asume la responsabilidad de carga en DDP
+              </p>
+            </div>
           </div>
         )}
 

@@ -118,7 +118,7 @@ export const Envios: React.FC = () => {
   const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
 
   // Estado de filtros
-  const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes'>('todas');
+  const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes' | 'incidencias'>('todas');
   const [filtroTipo, setFiltroTipo] = useState<TipoEnvio | 'todas'>('todas');
   const [filtroEstado, setFiltroEstado] = useState<EstadoEnvio | ''>('');
   const [busqueda, setBusqueda] = useState('');
@@ -223,6 +223,16 @@ export const Envios: React.FC = () => {
       : activeTab === 'pendientes'
         ? enviosPendientesPorLinea
         : enviosPorLinea;
+
+    // Filtro por incidencias activas (KPI clickable)
+    if (activeTab === 'incidencias') {
+      lista = lista.filter(e => {
+        if ((e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0) return true;
+        if (e.estado === 'retenida_aduana' || e.estado === 'perdida_total') return true;
+        if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
+        return false;
+      });
+    }
 
     if (pipelineStage) {
       if (pipelineStage === 'recibida') {
@@ -588,7 +598,7 @@ export const Envios: React.FC = () => {
         <DSStatCard label="En Transito" value={resumen?.enTransito || 0} icon={Truck} variant="info" onClick={() => setActiveTab('en_transito')} active={activeTab === 'en_transito'} />
         <DSStatCard label="Pendientes" value={resumen?.pendientesRecepcion || 0} icon={Clock} variant="warning" onClick={() => setActiveTab('pendientes')} active={activeTab === 'pendientes'} />
         <DSStatCard label="Completadas" value={resumen?.completadasMes || 0} icon={CheckCircle} variant="success" />
-        <DSStatCard label="Incidencias" value={resumen?.enviosConIncidencias || 0} icon={AlertTriangle} variant={resumen?.enviosConIncidencias ? 'danger' : 'neutral'} />
+        <DSStatCard label="Incidencias" value={resumen?.enviosConIncidencias || 0} icon={AlertTriangle} variant={resumen?.enviosConIncidencias ? 'danger' : 'neutral'} onClick={() => setActiveTab('incidencias')} active={activeTab === 'incidencias'} />
         <DSStatCard label="Valor USD" value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'} icon={DollarSign} variant="brand" />
       </DSKPIBar>
 
@@ -638,10 +648,11 @@ export const Envios: React.FC = () => {
         activeFilterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
       >
         <FilterSection title="Vista">
-          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={activeTab} onChange={e => setActiveTab(e.target.value as 'todas' | 'en_transito' | 'pendientes')}>
+          <select className="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" value={activeTab} onChange={e => setActiveTab(e.target.value as 'todas' | 'en_transito' | 'pendientes' | 'incidencias')}>
             <option value="todas">Todos los envios</option>
             <option value="en_transito">En transito</option>
             <option value="pendientes">Pendientes recepcion</option>
+            <option value="incidencias">Con incidencias</option>
           </select>
         </FilterSection>
         <FilterSection title="Tipo">
@@ -681,7 +692,9 @@ export const Envios: React.FC = () => {
                 ? 'No hay envios en transito'
                 : activeTab === 'pendientes'
                   ? 'No hay envios pendientes de recepcion'
-                  : 'Crea tu primer envio para mover productos entre casillas'
+                  : activeTab === 'incidencias'
+                    ? 'Sin incidencias abiertas. Todo bajo control.'
+                    : 'Crea tu primer envio para mover productos entre casillas'
               }
             </p>
             {activeTab === 'todas' && (

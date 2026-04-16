@@ -8,6 +8,7 @@ import {
   Truck,
   Package,
   ScanLine,
+  AlertTriangle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, Badge, Button } from "../../components/common";
@@ -39,6 +40,42 @@ const getEstadoBadge = (estado: EstadoEnvio) => {
   };
   const { variant, label } = config[estado] ?? { variant: "neutral" as const, label: estado };
   return <StatusBadge variant={variant} dot>{label}</StatusBadge>;
+};
+
+/**
+ * Resumen consolidado de incidencias activas en un envio.
+ * Incluye: unidades danadas, unidades faltantes, estados excepcion, incidencias[] sin resolver.
+ */
+const getResumenIncidencias = (envio: Envio) => {
+  const danadas = envio.totalUnidadesDanadas || 0;
+  const faltantes = envio.totalUnidadesFaltantes || 0;
+  const incidenciasAbiertas = (envio.incidencias || []).filter(i => !i.resuelta).length;
+  const esRetenida = envio.estado === 'retenida_aduana';
+  const esPerdida = envio.estado === 'perdida_total';
+
+  const total = danadas + faltantes + incidenciasAbiertas + (esRetenida ? 1 : 0) + (esPerdida ? 1 : 0);
+  if (total === 0) return null;
+
+  const partes: string[] = [];
+  if (esRetenida) partes.push('Retenida en aduana');
+  if (esPerdida) partes.push('Envio perdido');
+  if (danadas > 0) partes.push(`${danadas} u. danada${danadas !== 1 ? 's' : ''}`);
+  if (faltantes > 0) partes.push(`${faltantes} u. faltante${faltantes !== 1 ? 's' : ''}`);
+  if (incidenciasAbiertas > 0) partes.push(`${incidenciasAbiertas} incidencia${incidenciasAbiertas !== 1 ? 's' : ''} sin resolver`);
+
+  const severidad: 'danger' | 'warning' = (esRetenida || esPerdida) ? 'danger' : 'warning';
+  return { total, tooltip: partes.join(' · '), severidad };
+};
+
+const getIncidenciasBadge = (envio: Envio) => {
+  const resumen = getResumenIncidencias(envio);
+  if (!resumen) return null;
+  return (
+    <StatusBadge variant={resumen.severidad}>
+      <AlertTriangle className="h-3 w-3 mr-1 inline" />
+      {resumen.total} {resumen.total === 1 ? 'incidencia' : 'incidencias'}
+    </StatusBadge>
+  );
 };
 
 const getTipoBadge = (tipo?: TipoEnvio) => {
@@ -95,9 +132,14 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-slate-900">{envio.numeroEnvio}</h3>
-            <div className="flex items-center space-x-2 mt-1">
+            <div className="flex flex-wrap items-center gap-2 mt-1">
               {getTipoBadge(envio.tipo)}
               {getEstadoBadge(envio.estado)}
+              {(() => {
+                const resumen = getResumenIncidencias(envio);
+                if (!resumen) return null;
+                return <span title={resumen.tooltip}>{getIncidenciasBadge(envio)}</span>;
+              })()}
             </div>
           </div>
         </div>

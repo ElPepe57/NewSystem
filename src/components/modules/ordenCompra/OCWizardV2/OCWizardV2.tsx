@@ -48,14 +48,23 @@ const STEP_LABELS: Record<number, string> = {
 function isStepValid(step: number, state: ReturnType<typeof initialWizardState extends infer T ? () => T : never>): boolean;
 function isStepValid(step: number, state: typeof initialWizardState): boolean {
   switch (step) {
-    case 0:
+    case 0: {
+      // S39: Validación completa — TODAS las secciones obligatorias del wizard
+      const cfg = state.configLogistica;
+      // Viajero o courier requieren colaborador asignado
+      const needsColaborador = cfg.llegadaPeru === 'viajero' || cfg.llegadaPeru === 'courier_internacional';
       return (
-        !!state.configLogistica.proveedorId &&
-        !!state.configLogistica.salidaProveedor &&
-        !!state.configLogistica.llegadaPeru &&
+        !!cfg.proveedorId &&
+        !!cfg.salidaProveedor &&
+        !!cfg.llegadaPeru &&
+        !!cfg.casillaDestinoId &&
+        // Colaborador obligatorio cuando viajero/courier
+        (!needsColaborador || !!cfg.colaboradorId) &&
+        // Productos con costo
         state.productos.length > 0 &&
         state.productos.some((p) => p.costoUnitario > 0)
       );
+    }
     case 1:
       return state.quienPagaFlete !== null;
     case 2:
@@ -69,7 +78,8 @@ function isStepValid(step: number, state: typeof initialWizardState): boolean {
       return allCargosNamed && allDescNamed && allImpNamed;
     }
     case 4:
-      return true;
+      // Confirmar: TC debe estar definido
+      return state.tcCompra > 0;
     default:
       return true;
   }
@@ -226,6 +236,7 @@ export const OCWizardV2: React.FC<OCWizardV2Props> = ({
       // destino sino la ausencia de casilla intermedia en origen (marcado con esDDP en Envío).
       almacenDestino: state.configLogistica.casillaDestinoId || '',
       colaboradorTransporteId: state.configLogistica.colaboradorId || undefined,
+      colaboradorTransporteNombre: state.configLogistica.colaboradorNombre || undefined,
       paisOrigen: state.paisOrigen || undefined,
       observaciones: state.observaciones || undefined,
       // New structured cargos/descuentos/impuestos

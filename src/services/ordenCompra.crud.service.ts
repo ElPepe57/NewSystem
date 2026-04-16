@@ -208,6 +208,8 @@ export async function create(
     if (data.colaboradorTransporteId) {
       nuevaOrden.colaboradorTransporteId = data.colaboradorTransporteId;
       if (data.colaboradorTransporteNombre) nuevaOrden.colaboradorTransporteNombre = data.colaboradorTransporteNombre;
+      // S39: sync bidireccional — courier = colaboradorTransporteNombre
+      if (data.colaboradorTransporteNombre) nuevaOrden.courier = data.colaboradorTransporteNombre;
     }
     if (data.cargosOC && data.cargosOC.length > 0) nuevaOrden.cargosOC = data.cargosOC;
     if (data.descuentosOC && data.descuentosOC.length > 0) nuevaOrden.descuentosOC = data.descuentosOC;
@@ -523,6 +525,13 @@ export async function cambiarEstado(
       updates.fechaEnTransito = Timestamp.now();
       if (datos?.numeroTracking) updates.numeroTracking = datos.numeroTracking;
       if (datos?.courier) updates.courier = datos.courier;
+      // S39: sincronizar colaboradorTransporteId/Nombre con courier (ida y vuelta)
+      if (datos?.courierColaboradorId) {
+        updates.colaboradorTransporteId = datos.courierColaboradorId;
+      }
+      if (datos?.courier) {
+        updates.colaboradorTransporteNombre = datos.courier;
+      }
     } else if (nuevoEstado === 'recibida_parcial') {
       if (!orden.fechaPrimeraRecepcion) updates.fechaPrimeraRecepcion = Timestamp.now();
     } else if (nuevoEstado === 'recibida' && !orden.fechaRecibida) {

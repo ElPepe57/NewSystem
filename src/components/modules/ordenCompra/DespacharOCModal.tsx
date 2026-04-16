@@ -65,7 +65,7 @@ export const DespacharOCModal: React.FC<Props> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Reset al cerrar
+  // Reset al cerrar / pre-fill al abrir desde datos de la OC (ida y vuelta)
   useEffect(() => {
     if (!isOpen) {
       setQuery('');
@@ -74,6 +74,19 @@ export const DespacharOCModal: React.FC<Props> = ({
       setFecha(new Date().toISOString().split('T')[0]);
       setShowDropdown(false);
     } else {
+      // S39: Pre-fill courier si la OC ya tiene uno (seleccionado en wizard o despacho previo)
+      if (orden.colaboradorTransporteId) {
+        const existing = couriersDisponibles.find(c => c.id === orden.colaboradorTransporteId);
+        if (existing) {
+          setSelected(existing);
+          setQuery(existing.nombre);
+        } else if (orden.colaboradorTransporteNombre) {
+          setQuery(orden.colaboradorTransporteNombre);
+        }
+      } else if (orden.courier) {
+        setQuery(orden.courier);
+      }
+      if (orden.numeroTracking) setTracking(orden.numeroTracking);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
