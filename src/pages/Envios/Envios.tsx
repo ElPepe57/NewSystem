@@ -10,6 +10,8 @@ import {
   DollarSign,
   RefreshCw,
   Package,
+  Gavel,
+  BarChart3,
 } from "lucide-react";
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
@@ -52,11 +54,16 @@ import { EnvioDetailModal } from "./EnvioDetailModal";
 import { EnviosProveedorTab } from "./EnviosProveedorTab";
 import { DespacharOCModal, type DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
 import { useColaboradorStore } from '../../store/colaboradorStore';
+import { useReclamoStore } from '../../store/reclamoStore';
+import { TabReclamos } from './TabReclamos';
+import { TabIncidencias } from './TabIncidencias';
+import { TabCostosLanded } from './TabCostosLanded';
+import { TabRendimiento } from './TabRendimiento';
 
-type TabEnvios = 'envios' | 'proveedor';
+type TabEnvios = 'operaciones' | 'proveedor' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
 
 export const Envios: React.FC = () => {
-  const [tabEnvios, setTabEnvios] = useState<TabEnvios>('envios');
+  const [tabEnvios, setTabEnvios] = useState<TabEnvios>('operaciones');
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
   const {
@@ -134,6 +141,12 @@ export const Envios: React.FC = () => {
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // S40 Bloque B: KPI reclamos
+  const {
+    resumen: resumenReclamos,
+    fetchResumen: fetchResumenReclamos,
+  } = useReclamoStore();
+
   // Carga inicial de datos
   useEffect(() => {
     fetchEnvios();
@@ -145,9 +158,10 @@ export const Envios: React.FC = () => {
     fetchAlmacenesPeru();
     fetchViajeros();
     fetchColaboradores();
+    fetchResumenReclamos();
     getTCDelDia().then(tc => setTipoCambioActual(tc ? { tasaVenta: tc.venta } : null)).catch(console.error);
     tesoreriaService.getCuentas().then(setCuentasTesoreria).catch(console.error);
-  }, [fetchEnvios, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia]);
+  }, [fetchEnvios, fetchEnTransito, fetchPendientesRecepcion, fetchResumen, fetchAlmacenesUSA, fetchAlmacenesPeru, fetchViajeros, getTCDelDia, fetchResumenReclamos]);
 
   useEffect(() => {
     if (todosProductos.length === 0) fetchProductos();
@@ -389,13 +403,16 @@ export const Envios: React.FC = () => {
     await crearEnvio(data, user.uid);
   }, [user, crearEnvio]);
 
-  const handleRegistrarRecepcion = useCallback(async (data: RecepcionEnvioFormData) => {
+  const handleRegistrarRecepcion = useCallback(async (
+    data: RecepcionEnvioFormData,
+    extras?: { gastosAduanaPEN?: number; gastosAduanaDescripcion?: string }
+  ) => {
     if (!user) return;
     try {
       // Recepcion se registra via el servicio de recepcion directamente por ahora
       // El store tiene registrarRecepcion pero la accion es del servicio
       const { envioRecepcionService } = await import('../../services/envio.recepcion.service');
-      await envioRecepcionService.registrarRecepcion(data, user.uid);
+      await envioRecepcionService.registrarRecepcion(data, user.uid, extras);
       await fetchEnvios();
       await fetchPendientesRecepcion();
       setShowRecepcionModal(false);
@@ -614,36 +631,60 @@ export const Envios: React.FC = () => {
         ]}
       />
 
-      {/* Tabs: Envios vs Envios Proveedor */}
-      <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit">
-        <button
-          type="button"
-          onClick={() => setTabEnvios('envios')}
-          className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
-            tabEnvios === 'envios'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <ArrowRightLeft className="w-3.5 h-3.5 inline mr-1.5" />
-          Envios
-        </button>
-        <button
-          type="button"
+      {/* S40 Bloque D: Tabs módulo logístico — Operaciones / Proveedor / Incidencias / Reclamos / Costos / Rendimiento */}
+      <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 w-fit flex-wrap">
+        <EnviosTabButton
+          active={tabEnvios === 'operaciones'}
+          onClick={() => setTabEnvios('operaciones')}
+          icon={ArrowRightLeft}
+          label="Operaciones"
+        />
+        <EnviosTabButton
+          active={tabEnvios === 'proveedor'}
           onClick={() => setTabEnvios('proveedor')}
-          className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
-            tabEnvios === 'proveedor'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          <Package className="w-3.5 h-3.5 inline mr-1.5" />
-          Envios Proveedor
-        </button>
+          icon={Package}
+          label="Envíos Proveedor"
+        />
+        <EnviosTabButton
+          active={tabEnvios === 'incidencias'}
+          onClick={() => setTabEnvios('incidencias')}
+          icon={AlertTriangle}
+          label="Incidencias"
+          badge={resumen?.enviosConIncidencias || 0}
+          badgeColor="red"
+        />
+        <EnviosTabButton
+          active={tabEnvios === 'reclamos'}
+          onClick={() => setTabEnvios('reclamos')}
+          icon={Gavel}
+          label="Reclamos"
+          badge={resumenReclamos?.reclamosPendientes || 0}
+          badgeColor="amber"
+        />
+        <EnviosTabButton
+          active={tabEnvios === 'costos'}
+          onClick={() => setTabEnvios('costos')}
+          icon={DollarSign}
+          label="Costos Landed"
+        />
+        <EnviosTabButton
+          active={tabEnvios === 'rendimiento'}
+          onClick={() => setTabEnvios('rendimiento')}
+          icon={BarChart3}
+          label="Rendimiento"
+        />
       </div>
 
-      {tabEnvios === 'proveedor' ? (
+      {tabEnvios === 'reclamos' ? (
+        <TabReclamos />
+      ) : tabEnvios === 'proveedor' ? (
         <EnviosProveedorTab />
+      ) : tabEnvios === 'incidencias' ? (
+        <TabIncidencias />
+      ) : tabEnvios === 'costos' ? (
+        <TabCostosLanded />
+      ) : tabEnvios === 'rendimiento' ? (
+        <TabRendimiento />
       ) : (
       <>
       {/* StatCards interactivos */}
@@ -651,8 +692,17 @@ export const Envios: React.FC = () => {
         <DSStatCard label="Total" value={enviosPorLinea.length} icon={ArrowRightLeft} variant="neutral" />
         <DSStatCard label="En Transito" value={resumen?.enTransito || 0} icon={Truck} variant="info" onClick={() => setActiveTab('en_transito')} active={activeTab === 'en_transito'} />
         <DSStatCard label="Pendientes" value={resumen?.pendientesRecepcion || 0} icon={Clock} variant="warning" onClick={() => setActiveTab('pendientes')} active={activeTab === 'pendientes'} />
-        <DSStatCard label="Completadas" value={resumen?.completadasMes || 0} icon={CheckCircle} variant="success" />
         <DSStatCard label="Incidencias" value={resumen?.enviosConIncidencias || 0} icon={AlertTriangle} variant={resumen?.enviosConIncidencias ? 'danger' : 'neutral'} onClick={() => setActiveTab('incidencias')} active={activeTab === 'incidencias'} />
+        <DSStatCard
+          label="En reclamo"
+          value={resumenReclamos?.reclamosPendientes || 0}
+          icon={Gavel}
+          variant={resumenReclamos && resumenReclamos.reclamosPendientes > 0 ? 'warning' : 'neutral'}
+          onClick={() => setTabEnvios('reclamos')}
+          subtitle={resumenReclamos && resumenReclamos.totalReclamadoPEN > 0
+            ? `S/ ${resumenReclamos.totalReclamadoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`
+            : undefined}
+        />
         <DSStatCard label="Valor USD" value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'} icon={DollarSign} variant="brand" />
       </DSKPIBar>
 
@@ -909,5 +959,36 @@ export const Envios: React.FC = () => {
       </>
       )}
     </PageShell>
+  );
+};
+
+// ─── Helper component: botón de tab unificado ─────────────────────────────
+interface EnviosTabButtonProps {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ElementType;
+  label: string;
+  badge?: number;
+  badgeColor?: 'red' | 'amber';
+}
+
+const EnviosTabButton: React.FC<EnviosTabButtonProps> = ({ active, onClick, icon: Icon, label, badge, badgeColor = 'red' }) => {
+  const badgeClass = badgeColor === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-2 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${
+        active ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+      }`}
+    >
+      <Icon className="w-3.5 h-3.5" />
+      <span>{label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span className={`inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${badgeClass}`}>
+          {badge}
+        </span>
+      )}
+    </button>
   );
 };

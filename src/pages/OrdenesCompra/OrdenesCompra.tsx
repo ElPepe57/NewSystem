@@ -13,7 +13,7 @@ import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompr
 import { OCWizardV2 } from '../../components/modules/ordenCompra/OCWizardV2/OCWizardV2';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
-import { RecepcionParcialModal } from '../../components/modules/ordenCompra/RecepcionParcialModal';
+// S40: RecepcionParcialModal eliminado — recepción ahora se gestiona desde el Envío (ver EnviosDeOC en OrdenCompraCard)
 import { ConfirmarOCModal } from '../../components/modules/ordenCompra/ConfirmarOCModal';
 import { DespacharOCModal, type DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
 import type { SubOrdenCompra } from '../../types/ordenCompra.types';
@@ -108,8 +108,6 @@ export const OrdenesCompra: React.FC = () => {
     cambiarEstadoOrden,
     confirmarOC,
     registrarPago,
-    recibirOrden,
-    recibirOrdenParcial,
     deleteOrden,
     fetchStats
   } = useOrdenCompraStore();
@@ -122,7 +120,6 @@ export const OrdenesCompra: React.FC = () => {
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
-  const [isRecepcionModalOpen, setIsRecepcionModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
   // S38-011: estado para el modal custom de despacho
   const [despacharCtx, setDespacharCtx] = useState<{ estadoTarget: EstadoOrden; titulo: string } | null>(null);
@@ -641,61 +638,10 @@ export const OrdenesCompra: React.FC = () => {
     }
   };
 
-  // Recibir orden - abrir modal de recepción parcial
-  const [subOrdenRecepcion, setSubOrdenRecepcion] = useState<string | null>(null);
-
-  const handleRecibirOrden = () => {
-    if (!selectedOrden) return;
-    setSubOrdenRecepcion(null);
-    setIsRecepcionModalOpen(true);
-  };
-
-  const handleRecibirSubOrden = (subOrdenId: string) => {
-    if (!selectedOrden) return;
-    setSubOrdenRecepcion(subOrdenId);
-    setIsRecepcionModalOpen(true);
-  };
-
-  // Submit de recepción parcial
-  const handleSubmitRecepcion = async (
-    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
-    observaciones?: string
-  ) => {
-    if (!user || !selectedOrden) return;
-
-    await recibirOrdenParcial(selectedOrden.id, productosRecibidos, user.uid, observaciones, subOrdenRecepcion || undefined);
-
-    // Recargar orden actualizada
-    await fetchOrdenes();
-    refreshSelectedOrden(selectedOrden.id);
-  };
-
-  // Revertir recepciones (limpieza de datos de prueba)
-  const handleRevertirRecepciones = async () => {
-    if (!user || !selectedOrden) return;
-
-    const confirmed = await confirm({
-      title: 'Revertir Recepciones',
-      message: `¿Revertir TODAS las recepciones de ${selectedOrden.numeroOrden}? Esto eliminará las unidades generadas y regresará la OC a estado "En Tránsito". Esta acción NO se puede deshacer.`,
-      confirmText: 'Revertir Todo',
-      variant: 'danger'
-    });
-    if (!confirmed) return;
-
-    try {
-      setIsSubmitting(true);
-      const { OrdenCompraService } = await import('../../services/ordenCompra.service');
-      const result = await OrdenCompraService.revertirRecepciones(selectedOrden.id, user.uid);
-      toast.success(`Recepciones revertidas: ${result.unidadesEliminadas} unidades eliminadas, estado → ${result.estadoRestaurado}`);
-      await fetchOrdenes();
-      await fetchStats();
-      refreshSelectedOrden(selectedOrden.id);
-    } catch (error: any) {
-      toast.error(error.message || 'Error al revertir');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // S40: handlers de recepción directa eliminados — flujo canónico es vía Envíos (ver EnviosDeOC).
+  // Los handlers legacy (handleRecibirOrden, handleRecibirSubOrden, handleSubmitRecepcion,
+  // handleRevertirRecepciones) y su estado (subOrdenRecepcion, isRecepcionModalOpen) fueron
+  // removidos junto con RecepcionParcialModal.tsx.
 
   // Eliminar orden
   const handleDelete = async (orden: OrdenCompra) => {
@@ -1001,10 +947,7 @@ export const OrdenesCompra: React.FC = () => {
             onCambiarEstado={handleCambiarEstado}
             onConfirmarConSubOrdenes={handleConfirmarConSubOrdenes}
             onRegistrarPago={handleRegistrarPago}
-            onRecibirOrden={handleRecibirOrden}
-            onRecibirSubOrden={handleRecibirSubOrden}
             onPagarSubOrden={handlePagarSubOrden}
-            onRevertirRecepciones={handleRevertirRecepciones}
             onRefresh={() => { fetchOrdenes(); if (selectedOrden) refreshSelectedOrden(selectedOrden.id); }}
           />
         )}
@@ -1056,16 +999,7 @@ export const OrdenesCompra: React.FC = () => {
         </div>
       )}
 
-      {/* Modal Recepción Parcial */}
-      {isRecepcionModalOpen && selectedOrden && (
-        <RecepcionParcialModal
-          isOpen={isRecepcionModalOpen}
-          onClose={() => { setIsRecepcionModalOpen(false); setSubOrdenRecepcion(null); }}
-          orden={selectedOrden}
-          subOrden={subOrdenRecepcion ? selectedOrden.subOrdenes?.find(s => s.id === subOrdenRecepcion) : undefined}
-          onSubmit={handleSubmitRecepcion}
-        />
-      )}
+      {/* S40: Modal Recepción Parcial eliminado — la recepción se gestiona desde el Envío asociado (ver EnviosDeOC en OrdenCompraCard) */}
 
       {/* Modal Confirmar OC */}
       {selectedOrden && (

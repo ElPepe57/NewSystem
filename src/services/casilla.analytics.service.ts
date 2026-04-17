@@ -315,7 +315,7 @@ class AlmacenAnalyticsService {
     try {
       // Obtener almacén
       const almacenDoc = await getDocs(
-        query(collection(db, COLLECTIONS.ALMACENES), where('__name__', '==', almacenId))
+        query(collection(db, COLLECTIONS.CASILLAS), where('__name__', '==', almacenId))
       );
 
       if (almacenDoc.empty) {
@@ -508,7 +508,7 @@ class AlmacenAnalyticsService {
    * Obtiene todos los almacenes para comparativa
    */
   private async getTodosAlmacenes(): Promise<Almacen[]> {
-    const snapshot = await getDocs(collection(db, COLLECTIONS.ALMACENES));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.CASILLAS));
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()

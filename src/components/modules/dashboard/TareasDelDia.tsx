@@ -23,7 +23,7 @@ import { useVentaStore } from '../../../store/ventaStore';
 import { useOrdenCompraStore } from '../../../store/ordenCompraStore';
 import { useCotizacionStore } from '../../../store/cotizacionStore';
 import { useRequerimientoStore } from '../../../store/requerimientoStore';
-import { useTransferenciaStore } from '../../../store/envioStore';
+import { useEnvioStore } from '../../../store/envioStore';
 import { useAuthStore } from '../../../store/authStore';
 import { calcularTareasDia } from '../../../services/tareasDia.service';
 import { formatCurrency } from '../../../utils/format';
@@ -166,8 +166,8 @@ export const TareasDelDia: React.FC = () => {
   const fetchCotizaciones = useCotizacionStore(state => state.fetchCotizaciones);
   const requerimientos = useRequerimientoStore(state => state.requerimientos);
   const fetchRequerimientos = useRequerimientoStore(state => state.fetchRequerimientos);
-  const transferencias = useTransferenciaStore(state => state.envios);
-  const fetchTransferencias = useTransferenciaStore(state => state.fetchEnvios);
+  const transferencias = useEnvioStore(state => state.envios);
+  const fetchTransferencias = useEnvioStore(state => state.fetchEnvios);
   const userProfile = useAuthStore(state => state.userProfile);
 
   // Carga lazy de stores que el Dashboard no inicializa por defecto.

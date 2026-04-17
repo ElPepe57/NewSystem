@@ -24,7 +24,9 @@ import type { Envio, EstadoEnvio, TipoEnvio } from "../../types/envio.types";
 import type { Producto } from "../../types/producto.types";
 import { getDescripcionProducto } from "../../utils/producto.helpers";
 import { UserName } from "./UserName";
-import { GestionDanadasModal } from "./GestionDanadasModal";
+import { GestionIncidenciasModal } from "./GestionIncidenciasModal";
+import { LiberarAduanaModal } from "./LiberarAduanaModal";
+import { useToastStore } from "../../store/toastStore";
 
 interface EnvioDetailModalProps {
   envio: Envio;
@@ -64,6 +66,7 @@ const getTipoBadge = (tipo?: TipoEnvio) => {
 export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   envio,
   productosMap,
+  userId,
   onClose,
   onConfirmar,
   onEnviar,
@@ -72,8 +75,46 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   onAbrirEditFlete,
   onReconciliarPago,
 }) => {
-  const [showGestionDanadas, setShowGestionDanadas] = useState(false);
+  const [showGestionIncidencias, setShowGestionIncidencias] = useState(false);
+  const [showLiberarAduana, setShowLiberarAduana] = useState(false);
+  const [liberandoAduana, setLiberandoAduana] = useState(false);
+  const toast = useToastStore();
   const esInternacional = envio.tipo === 'internacional_peru';
+
+  // S40: ¿Hay incidencias de aduana sin resolver? (simplificado post-cleanup)
+  const tieneAduanaPendiente = (envio.incidencias || []).some(inc => !inc.resuelta && inc.tipo === 'aduana');
+
+  const handleLiberarAduana = async (data: {
+    unidadIds: string[];
+    gastosLiberacionPEN: number;
+    documentoLiberacion?: string;
+    descripcion?: string;
+  }) => {
+    if (!userId) {
+      toast.error('Usuario no identificado');
+      return;
+    }
+    setLiberandoAduana(true);
+    try {
+      const { envioRecepcionService } = await import('../../services/envio.recepcion.service');
+      await envioRecepcionService.liberarUnidadesAduana(
+        envio.id,
+        data.unidadIds,
+        data.gastosLiberacionPEN,
+        userId,
+        data.documentoLiberacion,
+        data.descripcion,
+      );
+      toast.success(`${data.unidadIds.length} unidad(es) liberadas de aduana`);
+      setShowLiberarAduana(false);
+      onClose(); // Refresca cerrando el detalle; caller recarga envíos
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error('Error al liberar aduana: ' + msg);
+    } finally {
+      setLiberandoAduana(false);
+    }
+  };
 
   // S38-014: representación clara DE / VÍA / A
   const origenNombre = envio.origenTipo === 'proveedor'
@@ -359,13 +400,21 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                   </div>
                 )}
 
-                {/* Acción: gestionar dañadas */}
-                {danadas > 0 && (
-                  <div className="pt-2 border-t border-white/60 flex justify-end">
-                    <Button variant="secondary" size="sm" onClick={() => setShowGestionDanadas(true)}>
-                      <AlertTriangle className="w-4 h-4 mr-1.5" />
-                      Gestionar unidades dañadas
-                    </Button>
+                {/* Acciones: gestionar incidencias unificado / liberar aduana */}
+                {(incidenciasAbiertas.length > 0 || tieneAduanaPendiente) && (
+                  <div className="pt-2 border-t border-white/60 flex flex-wrap justify-end gap-2">
+                    {incidenciasAbiertas.length > 0 && (
+                      <Button variant="secondary" size="sm" onClick={() => setShowGestionIncidencias(true)}>
+                        <AlertTriangle className="w-4 h-4 mr-1.5" />
+                        Gestionar incidencias ({incidenciasAbiertas.length})
+                      </Button>
+                    )}
+                    {tieneAduanaPendiente && (
+                      <Button variant="primary" size="sm" onClick={() => setShowLiberarAduana(true)}>
+                        <PackageCheck className="w-4 h-4 mr-1.5" />
+                        Liberar aduana
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
@@ -632,13 +681,23 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
         </div>
       </Modal>
 
-      {/* Modal gestion danadas */}
-      {showGestionDanadas && (
-        <GestionDanadasModal
+      {/* S40 Bloque C: Modal gestión de incidencias unificado (dañadas/perdidas/aduana) */}
+      {showGestionIncidencias && (
+        <GestionIncidenciasModal
           transferencia={envio as any}
           productosMap={productosMap}
-          onClose={() => setShowGestionDanadas(false)}
-          onSuccess={() => { setShowGestionDanadas(false); onClose(); }}
+          onClose={() => setShowGestionIncidencias(false)}
+          onSuccess={() => { setShowGestionIncidencias(false); onClose(); }}
+        />
+      )}
+
+      {/* S40 Bloque A: Modal liberar aduana (alternativa directa cuando solo hay aduana) */}
+      {showLiberarAduana && !liberandoAduana && (
+        <LiberarAduanaModal
+          envio={envio}
+          productosMap={productosMap}
+          onClose={() => setShowLiberarAduana(false)}
+          onConfirm={handleLiberarAduana}
         />
       )}
     </>

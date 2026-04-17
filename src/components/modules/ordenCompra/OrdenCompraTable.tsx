@@ -401,33 +401,9 @@ const DesgloseOrdenCompra: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
         </div>
       )}
 
-      {/* Recepciones */}
-      {orden.recepcionesParciales && orden.recepcionesParciales.length > 0 && (
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden mt-4">
-          <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-            <h5 className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center">
-              <ClipboardCheck className="h-3.5 w-3.5 mr-1.5 text-emerald-600" />
-              Recepciones ({orden.recepcionesParciales.length})
-            </h5>
-            {orden.nombreAlmacenDestino && (
-              <span className="text-xs text-slate-500">
-                Destino: <span className="font-medium text-sky-700">{orden.nombreAlmacenDestino}</span>
-              </span>
-            )}
-          </div>
-          <div className="divide-y divide-slate-100">
-            {orden.recepcionesParciales.map((recepcion) => (
-              <RecepcionRow
-                key={recepcion.id}
-                recepcion={recepcion}
-                nombreAlmacenDestino={orden.nombreAlmacenDestino}
-                registradoPorNombre={creadoPorNombre}
-                formatTimestamp={formatTimestamp}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {/* S40 Bloque E: sección "Recepciones" eliminada — la recepción se visualiza
+          ahora por envío desde EnviosDeOC en el detalle. Para OCs legacy con
+          recepcionesParciales[] preservadas, el dato sigue en BD (accesible vía scripts). */}
 
       {/* Observaciones */}
       {orden.observaciones && (

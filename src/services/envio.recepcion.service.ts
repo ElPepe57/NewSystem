@@ -93,10 +93,14 @@ export const envioRecepcionService = {
    * Registra la recepción de un envío.
    * Contrato canónico: recibe el formData del modal de recepción + userId.
    * (Reescrito en S38-013 — antes tenía firma posicional que el caller post-S37 no respetaba)
+   *
+   * S40 — opcionalmente acepta `extras.gastosAduanaPEN` para registrar los gastos de
+   * liberación aduanera pagados en esta recepción como CostoLanded categoría Aduana.
    */
   async registrarRecepcion(
     formData: import('../types/envio.types').RecepcionEnvioFormData,
-    userId: string
+    userId: string,
+    extras?: { gastosAduanaPEN?: number; gastosAduanaDescripcion?: string }
   ): Promise<void> {
     const { envioId, observaciones, fechasVencimiento } = formData;
 
@@ -275,23 +279,26 @@ export const envioRecepcionService = {
       ...(observaciones ? { observaciones } : {}),
     };
 
-    // S39: Crear IncidenciaEnvio para dañadas, perdidas y retenidas
+    // S39/S40: Crear IncidenciaEnvio para dañadas, perdidas y retenidas
+    // S40: tipo 'aduana' explícito para retenidas (antes era 'otro') + fechaRetencion
     const incidenciasExistentes: import('../types/envio.types').IncidenciaEnvio[] = envio.incidencias || [];
     const nuevasIncidencias: import('../types/envio.types').IncidenciaEnvio[] = [];
     for (const up of unidadesProcesadas) {
       if (up.resultado === 'danada' || up.resultado === 'perdida' || up.resultado === 'retenida') {
         const unidadEnvio = unidadesActualizadas.find(u => u.unidadId === up.unidadId);
+        const esAduana = up.resultado === 'retenida';
         nuevasIncidencias.push({
           id: `INC-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
-          tipo: up.resultado === 'danada' ? 'danada' : up.resultado === 'retenida' ? 'otro' : 'faltante',
+          tipo: up.resultado === 'danada' ? 'danada' : esAduana ? 'aduana' : 'faltante',
           unidadId: up.unidadId,
           productoId: unidadEnvio?.productoId,
           sku: unidadEnvio?.sku,
           productoNombre: unidadEnvio?.sku, // fallback a SKU
-          descripcion: up.incidencia || (up.resultado === 'danada' ? 'Unidad dañada' : up.resultado === 'retenida' ? 'Retenida en aduana' : 'Unidad perdida'),
+          descripcion: up.incidencia || (up.resultado === 'danada' ? 'Unidad dañada' : esAduana ? 'Retenida en aduana — pendiente de liberación' : 'Unidad perdida'),
           fechaRegistro: now,
           registradoPor: userId,
           resuelta: false,
+          ...(esAduana ? { fechaRetencion: now } : {}),
         });
       }
     }
@@ -316,6 +323,25 @@ export const envioRecepcionService = {
     await batch.commit();
 
     logger.success(`Envio ${envio.numeroEnvio}: recepcion ${nuevaRecepcion.numero} — ${recEnEsta} recibidas, ${faltEnEsta} faltantes, ${danEnEsta} danadas`);
+
+    // S40: Registrar gastos de liberación aduanera como CostoLanded categoría Aduana (si vienen)
+    if (extras?.gastosAduanaPEN && extras.gastosAduanaPEN > 0) {
+      try {
+        await envioCrudService.agregarCostoLanded(envioId, {
+          categoriaCostoId: 'aduana',
+          categoriaCostoNombre: 'Aduana',
+          descripcion: extras.gastosAduanaDescripcion || `Gastos de liberación aduanera — Recepción #${nuevaRecepcion.numero}`,
+          monto: extras.gastosAduanaPEN,
+          moneda: 'PEN',
+          montoPEN: extras.gastosAduanaPEN,
+          metodoProrrateo: 'fijo_por_unidad',
+          pagado: false,
+        }, userId);
+        logger.info(`Gastos aduana S/ ${extras.gastosAduanaPEN.toFixed(2)} registrados como CostoLanded en envio ${envio.numeroEnvio}`);
+      } catch (err) {
+        logger.error('Error registrando gastos aduana como CostoLanded (no bloqueante):', err);
+      }
+    }
 
     // S38-014: Sync Envío → OC. Si el envío está vinculado a una OC, propagar el estado
     // - Recepción parcial → OC pasa a 'recibida_parcial'
@@ -367,5 +393,115 @@ export const envioRecepcionService = {
         logger.error('Error al sincronizar OC tras recepción de envío (no bloqueante):', err);
       }
     }
+  },
+
+  /**
+   * S40 — Libera unidades retenidas en aduana.
+   *
+   * Flujo:
+   *  1. Marca las incidencias tipo 'aduana' (o legacy 'otro' con "Retenida en aduana") como
+   *     resueltas, con fechaLiberacion, gastosLiberacionPEN y documentoLiberacion.
+   *  2. Las unidades NO cambian de estado automáticamente: la liberación aduanera es un
+   *     paso administrativo; su recepción física se registra en una recepción posterior
+   *     vía `registrarRecepcion`.
+   *     (La única excepción es actualizar `EnvioUnidad.estadoEnvio` de 'retenida' a 'enviada'
+   *     para que aparezcan como pendientes en la próxima recepción.)
+   *  3. Si `gastosLiberacionPEN > 0` → crea CostoLanded categoría Aduana en el envío.
+   *
+   * @param envioId         ID del envío
+   * @param unidadIds       IDs de las unidades que se liberan (subset de las retenidas)
+   * @param gastosPEN       Gastos de liberación (tasas, aranceles, brokerage) en soles
+   * @param userId          Usuario que registra
+   * @param documentoLiberacion  URL de evidencia (DUA, constancia) — opcional
+   * @param descripcionGastos    Descripción del cargo — opcional
+   */
+  async liberarUnidadesAduana(
+    envioId: string,
+    unidadIds: string[],
+    gastosPEN: number,
+    userId: string,
+    documentoLiberacion?: string,
+    descripcionGastos?: string
+  ): Promise<void> {
+    if (unidadIds.length === 0) {
+      throw new Error('Debe indicar al menos una unidad a liberar');
+    }
+
+    const envio = await envioCrudService.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+
+    const unidadIdsSet = new Set(unidadIds);
+    const now = Timestamp.now();
+    const batch = writeBatch(db);
+
+    // 1. Actualizar incidencias: marcar como resueltas, agregar datos de liberación
+    // S40: sin fallback legacy — solo tipo='aduana' canónico
+    const incidenciasActualizadas = (envio.incidencias || []).map(inc => {
+      if (inc.tipo !== 'aduana' || inc.resuelta) return inc;
+      if (!inc.unidadId || !unidadIdsSet.has(inc.unidadId)) return inc;
+      return {
+        ...inc,
+        resuelta: true,
+        resolucion: 'Liberada de aduana',
+        fechaResolucion: now,
+        fechaLiberacion: now,
+        ...(gastosPEN > 0 ? { gastosLiberacionPEN: gastosPEN } : {}),
+        ...(documentoLiberacion ? { documentoLiberacion } : {}),
+      };
+    });
+
+    // 2. Actualizar EnvioUnidad: 'retenida' → 'enviada' para que puedan recibirse
+    const unidadesActualizadas = envio.unidades.map(u => {
+      if (!unidadIdsSet.has(u.unidadId)) return u;
+      if (u.estadoEnvio !== 'retenida') return u;
+      return { ...u, estadoEnvio: 'enviada' as const };
+    });
+
+    // 3. Actualizar doc envío
+    const envioRef = doc(db, ENVIOS_COLL, envioId);
+    batch.update(envioRef, {
+      incidencias: incidenciasActualizadas,
+      unidades: unidadesActualizadas,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    });
+
+    // 4. Actualizar Unidad.estado: 'retenida_aduana' → 'en_transito' (puede recibirse)
+    for (const unidadId of unidadIds) {
+      const unidadRef = doc(db, UNIDADES_COLL, unidadId);
+      const snap = await getDoc(unidadRef);
+      if (snap.exists()) {
+        const data = snap.data() as Unidad;
+        if (data.estado === 'retenida_aduana') {
+          batch.update(unidadRef, {
+            estado: 'en_transito' as EstadoUnidad,
+            actualizadoPor: userId,
+            fechaActualizacion: now,
+          });
+        }
+      }
+    }
+
+    await batch.commit();
+
+    // 5. Registrar CostoLanded (fuera de batch — usa updateDoc interno)
+    if (gastosPEN > 0) {
+      try {
+        await envioCrudService.agregarCostoLanded(envioId, {
+          categoriaCostoId: 'aduana',
+          categoriaCostoNombre: 'Aduana',
+          descripcion: descripcionGastos || `Liberación aduanera — ${unidadIds.length} unidad(es)`,
+          monto: gastosPEN,
+          moneda: 'PEN',
+          montoPEN: gastosPEN,
+          metodoProrrateo: 'fijo_por_unidad',
+          pagado: false,
+        }, userId);
+      } catch (err) {
+        logger.error('Error registrando gastos aduana como CostoLanded (no bloqueante):', err);
+      }
+    }
+
+    logger.success(`Envío ${envio.numeroEnvio}: ${unidadIds.length} unidad(es) liberadas de aduana${gastosPEN > 0 ? ` con gastos S/ ${gastosPEN.toFixed(2)}` : ''}`);
   },
 };

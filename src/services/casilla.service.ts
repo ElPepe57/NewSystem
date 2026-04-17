@@ -29,7 +29,9 @@ import type {
 } from '../types/almacen.types';
 import { esPaisOrigen } from '../utils/multiOrigen.helpers';
 
-const COLLECTION_NAME = COLLECTIONS.ALMACENES;
+// S40: consolidación de colección — el servicio opera sobre `casillas` (coherente con el nombre).
+// Antes apuntaba a COLLECTIONS.ALMACENES (legacy pre-S37).
+const COLLECTION_NAME = COLLECTIONS.CASILLAS;
 
 /**
  * Genera el siguiente código de almacén automáticamente según el tipo

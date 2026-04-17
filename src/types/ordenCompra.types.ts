@@ -318,9 +318,16 @@ export interface OrdenCompra {
   inventarioGenerado: boolean;
   unidadesGeneradas?: string[];  // IDs de las unidades creadas
 
-  // ========== Recepciones Parciales ==========
+  // ========== Recepciones Parciales (LEGACY pre-S37) ==========
+  // @deprecated S40 — el flujo canónico de recepción es vía Envío (envio.recepcion.service).
+  // Estos campos se preservan en el tipo solo para retrocompat con OCs históricas
+  // que tengan data en ellos (contabilidad.service.ts los lee para reconocimiento de ingresos).
+  // NO se escriben más desde la app (recibirOrdenParcial eliminado en S40).
+  /** @deprecated Usar envio.recepciones[] del Envío asociado */
   recepcionesParciales?: RecepcionParcial[];
+  /** @deprecated Usar envio.totalUnidadesRecibidas del Envío asociado */
   totalUnidadesRecibidas?: number;
+  /** @deprecated Usar envio.fechaLlegadaReal o fecha de la primera recepción del envío */
   fechaPrimeraRecepcion?: Timestamp;
 
   // ========== Requerimiento de origen ==========

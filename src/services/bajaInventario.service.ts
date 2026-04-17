@@ -1,8 +1,10 @@
-import { doc, updateDoc, collection, addDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, collection, addDoc, getDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
+import { gastoService } from './gasto.service';
 import type { DisposicionDanada, ResponsableDano, IncidenciaEnvio } from '../types/envio.types';
-import type { EstadoUnidad, DisposicionVencida } from '../types/unidad.types';
+import type { EstadoUnidad, DisposicionVencida, Unidad } from '../types/unidad.types';
 import type { TipoGasto } from '../types/gasto.types';
 
 /**
@@ -42,9 +44,13 @@ export const bajaInventarioService = {
   /**
    * Registra la baja de una unidad dañada
    * - Actualiza estado de la unidad
-   * - Genera gasto contable si es baja definitiva
-   * - Registra reclamo si hay responsable
+   * - Genera gasto contable si es baja definitiva (usa gastoService.create con categoría válida)
    * - Marca la incidencia como resuelta
+   * - Si disposición = devolucion_proveedor → reclamoGenerado=true (el caller abre ReclamoPanel)
+   *
+   * S40 Bloque C — fixes:
+   *  - DATA-001: si `costoUnidadPEN` viene 0/undefined, lee `ctruDinamico` del doc Unidad.
+   *  - DATA-003/004/005: usa `gastoService.create` (categoría GV válida), no addDoc directo.
    */
   async registrarBajaPorDano(
     data: BajaDanoData,
@@ -53,6 +59,21 @@ export const bajaInventarioService = {
     const now = Timestamp.now();
     let nuevoEstado: EstadoUnidad;
     let gastoId: string | undefined;
+
+    // 0. Leer la unidad real. Sirve para:
+    //    - Fallback de costo si el caller pasó 0 (DATA-001)
+    //    - Validar que la unidad existe antes de actualizar
+    const unidadRef = doc(db, COLLECTIONS.UNIDADES, data.unidadId);
+    const unidadSnap = await getDoc(unidadRef);
+    if (!unidadSnap.exists()) {
+      throw new Error(`Unidad ${data.unidadId} no encontrada`);
+    }
+    const unidadDoc = unidadSnap.data() as Unidad;
+
+    // Costo efectivo: prefiere el que pasa el caller; si viene 0 usa ctruDinamico del doc.
+    const costoEfectivoPEN = (data.costoUnidadPEN && data.costoUnidadPEN > 0)
+      ? data.costoUnidadPEN
+      : (unidadDoc.ctruDinamico || unidadDoc.ctruInicial || 0);
 
     // 1. Determinar nuevo estado según disposición
     switch (data.disposicion) {
@@ -68,7 +89,6 @@ export const bajaInventarioService = {
     }
 
     // 2. Actualizar estado de la unidad
-    const unidadRef = doc(db, COLLECTIONS.UNIDADES, data.unidadId);
     await updateDoc(unidadRef, {
       estado: nuevoEstado,
       disposicionDano: data.disposicion,
@@ -78,42 +98,41 @@ export const bajaInventarioService = {
       ultimaEdicion: now,
     });
 
-    // 3. Generar gasto contable si es baja definitiva o sin responsable
+    // 3. Generar gasto contable si es baja definitiva o sin responsable identificado
+    //    (DATA-003: usar gastoService.create con categoria GV válida — no addDoc directo)
     if (data.disposicion === 'baja_definitiva' ||
         (data.disposicion === 'devolucion_proveedor' && data.responsable === 'sin_responsable')) {
-      const tipoGasto: TipoGasto = 'merma_transferencia';
-      const gastoRef = await addDoc(collection(db, COLLECTIONS.GASTOS), {
-        tipo: tipoGasto,
-        categoria: 'operativo',
-        concepto: `Baja por daño: ${data.sku} - ${data.productoNombre}`,
-        descripcion: `Disposición: ${data.disposicion}. Motivo: ${data.motivo}`,
-        montoOriginal: data.costoUnidadPEN,
-        moneda: 'PEN',
-        montoPEN: data.costoUnidadPEN,
-        montoUSD: data.costoUnidadUSD || 0,
-        fecha: now,
-        estado: 'pagado',
-        // Referencias
-        envioId: data.envioId,
-        unidadId: data.unidadId,
-        productoId: data.productoId,
-        // Cuenta contable
-        cuentaContable: '6952', // Desmedros
-        cuentaContrapartida: '2011', // Mercaderías importadas
-        // Metadata
-        creadoPor: userId,
-        fechaCreacion: now,
-        esAutomatico: true,
-        origenGasto: 'baja_inventario',
-      });
-      gastoId = gastoRef.id;
+      if (costoEfectivoPEN <= 0) {
+        logger.warn(`Baja unidad ${data.sku}: costo 0, gasto NO generado. Revisar ctruDinamico de la unidad.`);
+      } else {
+        try {
+          const tipoGasto: TipoGasto = 'merma_transferencia';
+          gastoId = await gastoService.create(
+            {
+              tipo: tipoGasto,
+              categoria: 'GV',                // S40: categoría válida (antes: 'operativo' inválido)
+              descripcion: `Baja por daño ${data.sku} — ${data.productoNombre}. Disposición: ${data.disposicion}. ${data.motivo}`,
+              moneda: 'PEN',
+              montoOriginal: costoEfectivoPEN,
+              esProrrateable: false,
+              fecha: now.toDate(),
+              frecuencia: 'unico',
+              estado: 'pendiente',             // Reconocido contablemente, sin implicar pago
+              impactaCTRU: false,
+              notas: `Unidad: ${data.unidadId} · Envío: ${data.envioId} · Responsable: ${data.responsable}`,
+            },
+            userId,
+          );
+          logger.info(`Gasto merma ${gastoId} generado por baja de ${data.sku} (S/ ${costoEfectivoPEN.toFixed(2)})`);
+        } catch (err) {
+          logger.error(`Error generando gasto para baja de ${data.sku} (no bloqueante):`, err);
+        }
+      }
     }
 
     // 4. Actualizar la incidencia en el envio como resuelta
     const transferRef = doc(db, COLLECTIONS.ENVIOS, data.envioId);
-    // Leemos el envio para actualizar la incidencia específica
-    const { getDoc: getDocFn } = await import('firebase/firestore');
-    const transferSnap = await getDocFn(transferRef);
+    const transferSnap = await getDoc(transferRef);
     if (transferSnap.exists()) {
       const transferData = transferSnap.data();
       const incidencias: IncidenciaEnvio[] = transferData.incidencias || [];
@@ -129,7 +148,7 @@ export const bajaInventarioService = {
             disposicionPor: userId,
             disposicionFecha: now,
             responsable: data.responsable,
-            montoReclamoPEN: data.disposicion === 'devolucion_proveedor' ? data.costoUnidadPEN : undefined,
+            montoReclamoPEN: data.disposicion === 'devolucion_proveedor' ? costoEfectivoPEN : undefined,
             estadoReclamo: data.disposicion === 'devolucion_proveedor' ? 'pendiente' as const : undefined,
           };
         }
@@ -146,23 +165,40 @@ export const bajaInventarioService = {
       unidadId: data.unidadId,
       nuevoEstado,
       gastoGenerado: gastoId,
-      reclamoGenerado: data.disposicion === 'devolucion_proveedor',
+      reclamoGenerado: data.disposicion === 'devolucion_proveedor' && data.responsable !== 'sin_responsable',
     };
   },
 
   /**
-   * Procesa múltiples bajas en lote (para el modal de gestión)
+   * Procesa múltiples bajas en lote.
+   *
+   * S40 Bloque C — fix EDGE-002: antes era un `for` secuencial que se detenía en el primer
+   * error. Ahora usa `Promise.allSettled` para procesar todas en paralelo y reportar qué
+   * fallaron, permitiendo al caller mostrar "N procesadas, M fallidas" en vez de perder
+   * trabajo por una sola falla.
+   *
+   * Nota: las bajas son semi-independientes (cada una toca una Unidad distinta + un gasto
+   * separado) — NO hay garantía transaccional. Si esto es crítico en el futuro, hay que
+   * reescribir usando `writeBatch` (máx 450 ops por batch) con todas las unidades juntas.
    */
   async procesarBajasLote(
     bajas: BajaDanoData[],
     userId: string
-  ): Promise<BajaResultado[]> {
-    const resultados: BajaResultado[] = [];
-    for (const baja of bajas) {
-      const resultado = await this.registrarBajaPorDano(baja, userId);
-      resultados.push(resultado);
-    }
-    return resultados;
+  ): Promise<Array<BajaResultado & { error?: string }>> {
+    const settled = await Promise.allSettled(
+      bajas.map(baja => this.registrarBajaPorDano(baja, userId))
+    );
+
+    return settled.map((s, i): BajaResultado & { error?: string } => {
+      if (s.status === 'fulfilled') return s.value;
+      const err = s.reason instanceof Error ? s.reason.message : String(s.reason);
+      logger.error(`Baja ${bajas[i].sku} fallida:`, s.reason);
+      return {
+        unidadId: bajas[i].unidadId,
+        nuevoEstado: 'danada' as EstadoUnidad,  // Se queda en estado previo
+        error: err,
+      };
+    });
   },
 
   /**

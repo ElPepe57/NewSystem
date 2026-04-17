@@ -13,7 +13,7 @@
  *   ordenCompra.proveedores.service.ts — CRUD for Proveedores
  *   ordenCompra.crud.service.ts        — OC getAll/getById/create/update/delete/cambiarEstado
  *   ordenCompra.pagos.service.ts       — registrarPago (Tesorería + Pool USD)
- *   ordenCompra.recepcion.service.ts   — recibirOrdenParcial / recibirOrden / revertirRecepciones
+ *   ordenCompra.recepcion.service.ts   — revertirRecepciones (S40: recibir* eliminados)
  *   ordenCompra.stats.service.ts       — getStats, precios históricos, investigación mercado
  */
 
@@ -51,9 +51,8 @@ import {
 
 import { registrarPago } from './ordenCompra.pagos.service';
 
+// S40: recibirOrden + recibirOrdenParcial eliminados. revertirRecepciones preservado para scripts/admin.
 import {
-  recibirOrdenParcial,
-  recibirOrden,
   revertirRecepciones
 } from './ordenCompra.recepcion.service';
 
@@ -160,34 +159,7 @@ export class OrdenCompraService {
     return registrarPago(id, datos, userId);
   }
 
-  static async recibirOrdenParcial(
-    id: string,
-    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
-    userId: string,
-    observaciones?: string,
-    subOrdenId?: string
-  ): Promise<{
-    recepcionId: string;
-    unidadesGeneradas: string[];
-    unidadesReservadas: string[];
-    unidadesDisponibles: string[];
-    esRecepcionFinal: boolean;
-    cotizacionVinculada?: string;
-  }> {
-    return recibirOrdenParcial(id, productosRecibidos, userId, observaciones, subOrdenId);
-  }
-
-  static async recibirOrden(
-    id: string,
-    userId: string
-  ): Promise<{
-    unidadesGeneradas: string[];
-    unidadesReservadas: string[];
-    unidadesDisponibles: string[];
-    cotizacionVinculada?: string;
-  }> {
-    return recibirOrden(id, userId);
-  }
+  // S40: recibirOrden + recibirOrdenParcial eliminados — flujo canónico vía Envío.
 
   static async delete(id: string): Promise<void> {
     return deleteOrden(id);

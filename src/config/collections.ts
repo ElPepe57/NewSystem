@@ -73,6 +73,7 @@ export const COLLECTIONS = {
   CASILLAS: 'casillas',
   COLABORADORES: 'colaboradores',
   ENVIOS: 'envios',
+  RECLAMOS: 'reclamos',
 
   // === Reingenieria: Costos y Finanzas ===
   CATEGORIAS_COSTOS: 'categoriasCostos',

@@ -9,16 +9,14 @@ import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { calcularEstadoDerivadoOC } from '../../../utils/ordenCompra.helpers';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
+import { EnviosDeOC } from './EnviosDeOC';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
   onCambiarEstado?: (nuevoEstado: EstadoOrden) => void;
   onConfirmarConSubOrdenes?: (subOrdenes?: SubOrdenCompra[]) => void;
   onRegistrarPago?: () => void;
-  onRecibirOrden?: () => void;
-  onRecibirSubOrden?: (subOrdenId: string) => void;
   onPagarSubOrden?: (subOrdenId: string) => void;
-  onRevertirRecepciones?: () => void;
   onRefresh?: () => void;
 }
 
@@ -47,10 +45,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   onCambiarEstado,
   onConfirmarConSubOrdenes,
   onRegistrarPago,
-  onRecibirOrden,
-  onRecibirSubOrden,
   onPagarSubOrden,
-  onRevertirRecepciones,
   onRefresh
 }) => {
   const [showHistory, setShowHistory] = useState(false);
@@ -202,9 +197,10 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       },
       en_proceso: {
         label: 'Recibir Productos',
-        description: 'Registra los productos recibidos via env\u00edo',
-        buttonText: onRecibirOrden ? 'Recibir' : undefined,
-        onClick: onRecibirOrden,
+        description: 'La recepción se gestiona desde el Envío asociado',
+        // S40: Botón "Recibir" eliminado — ver EnviosDeOC arriba
+        buttonText: undefined,
+        onClick: undefined,
         variant: 'success'
       },
       // Legacy states
@@ -217,22 +213,22 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       },
       en_transito: {
         label: 'Recibir Productos',
-        description: 'Registra los productos recibidos y genera inventario',
-        buttonText: onRecibirOrden ? 'Recibir' : undefined,
-        onClick: onRecibirOrden,
+        description: 'La recepción se gestiona desde el Envío asociado',
+        buttonText: undefined,
+        onClick: undefined,
         variant: 'success'
       },
       recibida_parcial: {
         label: 'Recibir M\u00e1s Productos',
-        description: 'Registrar siguiente entrega de productos',
-        buttonText: onRecibirOrden ? 'Recibir Más' : undefined,
-        onClick: onRecibirOrden,
+        description: 'La recepción se gestiona desde el Envío asociado',
+        buttonText: undefined,
+        onClick: undefined,
         variant: 'warning'
       }
     };
 
     return actions[orden.estado];
-  }, [orden.estado, onCambiarEstado, onConfirmarConSubOrdenes, onRecibirOrden]);
+  }, [orden.estado, onCambiarEstado, onConfirmarConSubOrdenes]);
 
   // Determinar siguientes acciones posibles (solo estado logístico)
   // Nota: "Confirmar OC" se maneja por la timeline (nextAction), no aquí
@@ -308,7 +304,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
               mode="full"
               loading={subOrdenLoading[sub.id] || false}
               onMarcarEnTransito={(id) => handleSubOrdenAction(id, 'en_transito')}
-              onRecibirProductos={onRecibirSubOrden || ((id) => handleSubOrdenAction(id, 'recibida'))}
+              onRecibirProductos={(id) => handleSubOrdenAction(id, 'recibida')}
               onRegistrarPago={onPagarSubOrden || (onRegistrarPago ? () => onRegistrarPago() : undefined)}
               trackingDraft={trackingDraft[sub.id] || { tracking: sub.numeroTracking || '', courier: sub.courier || '' }}
               onTrackingChange={(draft) => setTrackingDraft(prev => ({ ...prev, [sub.id]: draft }))}
@@ -955,82 +951,15 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       )}
 
-      {/* Progreso de recepción por producto */}
-      {(orden.estado === 'recibida_parcial' || tieneRecepcionesParciales) && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold text-slate-900">Progreso de Recepción</h4>
-            <span className="text-sm font-medium text-slate-600">
-              {totalRecibido}/{totalOrdenado} unidades ({totalOrdenado > 0 ? ((totalRecibido / totalOrdenado) * 100).toFixed(0) : 0}%)
-            </span>
-          </div>
-          <div className="w-full bg-slate-200 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all ${totalRecibido >= totalOrdenado ? 'bg-emerald-500' : 'bg-amber-500'}`}
-              style={{ width: `${totalOrdenado > 0 ? (totalRecibido / totalOrdenado) * 100 : 0}%` }}
-            />
-          </div>
-          <div className="space-y-2">
-            {orden.productos.map(p => {
-              const recibido = p.cantidadRecibida || 0;
-              const pct = p.cantidad > 0 ? (recibido / p.cantidad) * 100 : 0;
-              return (
-                <div key={p.productoId} className="flex items-center gap-3 text-sm">
-                  <div className="w-40 truncate text-slate-700" title={p.nombreComercial}>{p.nombreComercial}</div>
-                  <div className="flex-1 bg-slate-200 rounded-full h-1.5">
-                    <div
-                      className={`h-1.5 rounded-full ${pct >= 100 ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                      style={{ width: `${Math.min(pct, 100)}%` }}
-                    />
-                  </div>
-                  <div className="w-24 text-right text-slate-600">
-                    <span className={recibido >= p.cantidad ? 'text-emerald-600 font-medium' : ''}>
-                      {recibido}/{p.cantidad}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Historial de recepciones */}
-          {orden.recepcionesParciales && orden.recepcionesParciales.length > 0 && (
-            <div className="border rounded-lg">
-              <button
-                onClick={() => setShowHistory(!showHistory)}
-                className="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-slate-500" />
-                  <span>Historial de recepciones ({orden.recepcionesParciales.length})</span>
-                </div>
-                {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </button>
-              {showHistory && (
-                <div className="border-t divide-y">
-                  {orden.recepcionesParciales.map(rec => (
-                    <div key={rec.id} className="px-4 py-3 text-sm">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-slate-900">Recepción #{rec.numero}</span>
-                        <span className="text-xs text-slate-500">{formatDate(rec.fecha)}</span>
-                      </div>
-                      <div className="text-slate-600">
-                        {rec.totalUnidadesRecepcion} unidades: {rec.productosRecibidos.map(pr => {
-                          const prod = orden.productos.find(p => p.productoId === pr.productoId);
-                          return `${prod?.nombreComercial || pr.productoId} (${pr.cantidadRecibida})`;
-                        }).join(', ')}
-                      </div>
-                      {rec.observaciones && (
-                        <div className="text-xs text-slate-500 mt-1">{rec.observaciones}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+      {/* S40 Bloque E: Envíos de esta OC — fuente canónica de recepción */}
+      {!(orden.estado === 'borrador' || orden.estado === 'cancelada') && (
+        <EnviosDeOC ordenCompraId={orden.id} />
       )}
+
+      {/* S40 Bloque E: UI "Progreso de Recepción" + "Historial de recepciones" eliminados.
+          El progreso de recepción se muestra ahora por envío en EnviosDeOC (arriba).
+          Si una OC legacy tiene recepcionesParciales[], su data sigue en el doc pero no
+          se visualiza desde la UI nueva. Reportes y contabilidad siguen leyéndola. */}
 
       </> /* fin del contenido oculto durante confirmación */}
 
@@ -1061,27 +990,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </Button>
         )}
 
-        {/* Botón de recibir orden — ocultar si hay sub-ordenes (se hace por sub-orden) */}
-        {!(orden.subOrdenes?.length) && (['en_transito', 'enviada', 'recibida_parcial'].includes(orden.estado)) && onRecibirOrden && (
-          <Button
-            variant={orden.estado === 'recibida_parcial' ? 'warning' : 'primary'}
-            onClick={onRecibirOrden}
-          >
-            <Box className="h-4 w-4 mr-2" />
-            {orden.estado === 'recibida_parcial' ? 'Recibir Más Productos' : 'Recibir Productos'}
-          </Button>
-        )}
-
-        {/* Botón revertir recepciones */}
-        {(['recibida_parcial', 'recibida', 'en_proceso', 'completada'].includes(orden.estado)) && onRevertirRecepciones && (orden.recepcionesParciales?.length ?? 0) > 0 && (
-          <Button
-            variant="danger"
-            onClick={onRevertirRecepciones}
-          >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Revertir Recepciones
-          </Button>
-        )}
+        {/* S40 Bloque E: botones "Recibir Productos" y "Revertir Recepciones" eliminados.
+            La recepción canónica se hace desde el Envío asociado (ver EnviosDeOC arriba).
+            La reversión, si se requiere, se hace vía scripts administrativos. */}
       </div>
       )}
     </div>

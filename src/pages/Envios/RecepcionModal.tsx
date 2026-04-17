@@ -10,6 +10,7 @@ import {
   X as XIcon,
   Calendar,
   Trash2,
+  ShieldAlert,
 } from "lucide-react";
 import { Modal, Button, Badge } from "../../components/common";
 import { BarcodeScanner } from "../../components/common/BarcodeScanner";
@@ -21,7 +22,27 @@ interface RecepcionModalProps {
   transferencia: Envio;
   productosMap: Map<string, Producto>;
   onClose: () => void;
-  onConfirm: (data: RecepcionEnvioFormData) => Promise<void>;
+  /**
+   * S40: onConfirm puede recibir opcionalmente los gastos de liberación aduanera pagados
+   * en esta recepción. Si vienen, el caller debe crear el CostoLanded correspondiente.
+   */
+  onConfirm: (
+    data: RecepcionEnvioFormData,
+    extras?: { gastosAduanaPEN?: number; gastosAduanaDescripcion?: string }
+  ) => Promise<void>;
+}
+
+/**
+ * S40 — ¿El envío cruza frontera hacia Perú? Determina si aplica el flujo de aduana.
+ * - Envío con destino Perú Y origen fuera de Perú → cruza frontera
+ * - Envío interna_origen (no va a Perú) → no aplica aduana
+ */
+function envioCruzaFronteraPeru(envio: Envio): boolean {
+  if (envio.destinoCasillaPais !== 'Peru') return false;
+  if (envio.origenTipo === 'proveedor') {
+    return (envio.origenProveedorPais || 'USA') !== 'Peru';
+  }
+  return (envio.origenCasillaPais || 'USA') !== 'Peru';
 }
 
 // ---- Helpers ----
@@ -69,6 +90,14 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
       || u.estadoEnvio === 'retenida'
   );
   const recepcionNumero = (transferencia.recepciones?.length ?? 0) + 1;
+
+  // S40: ¿Aplica aduana en este envío?
+  const cruzaFronteraPeru = useMemo(() => envioCruzaFronteraPeru(transferencia), [transferencia]);
+  // Hay unidades previamente retenidas que podrían liberarse en esta recepción
+  const tienePreviasRetenidas = useMemo(
+    () => (transferencia.unidades ?? []).some(u => u.estadoEnvio === 'retenida'),
+    [transferencia]
+  );
 
   const productosAgrupados = useMemo(() => {
     const map = new Map<string, typeof unidadesPendientes>();
@@ -141,12 +170,24 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
   const [showRecepcionScanner, setShowRecepcionScanner] = useState(false);
   const [productosExpandidos, setProductosExpandidos] = useState<Set<string>>(new Set());
 
+  // S40: Gastos de liberación aduanera pagados en esta recepción (opcional)
+  const [gastosAduanaPEN, setGastosAduanaPEN] = useState<string>('');
+  const [descripcionGastosAduana, setDescripcionGastosAduana] = useState<string>('');
+
   const totalARecibir = Object.values(cantidadRecibir).reduce((s, v) => s + v, 0);
   const totalDanadas = Object.values(cantidadDanada).reduce((s, v) => s + v, 0);
   const totalPerdidas = Object.values(cantidadPerdida).reduce((s, v) => s + v, 0);
-  const totalRetenidas = Object.values(cantidadRetenida).reduce((s, v) => s + v, 0);
+  // S40: si no cruza frontera, las retenidas son 0 aunque estén en el estado (defensa)
+  const totalRetenidas = cruzaFronteraPeru
+    ? Object.values(cantidadRetenida).reduce((s, v) => s + v, 0)
+    : 0;
   const totalProcesadas = totalARecibir + totalDanadas + totalPerdidas + totalRetenidas;
   const totalPendiente = unidadesPendientes.length;
+
+  // S40: ¿Mostrar bloque de gastos de liberación aduanera?
+  // Aplica si el envío cruza frontera a Perú Y hay retenidas (en esta recepción o previas
+  // que potencialmente se liberen al recibir ahora).
+  const mostrarBloqueAduana = cruzaFronteraPeru && (totalRetenidas > 0 || tienePreviasRetenidas);
 
   // Validar: cada producto con cantidad > 0 debe tener lotes que sumen = cantidad
   const productosConErrorLotes = productosAgrupados.filter(p => {
@@ -344,13 +385,24 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
         }
       }
 
+      // S40: Parse gastos aduana si el bloque está visible
+      const gastosAduanaParsed = mostrarBloqueAduana && gastosAduanaPEN
+        ? parseFloat(gastosAduanaPEN.replace(',', '.'))
+        : undefined;
+      const extras = gastosAduanaParsed && gastosAduanaParsed > 0
+        ? {
+            gastosAduanaPEN: gastosAduanaParsed,
+            gastosAduanaDescripcion: descripcionGastosAduana || undefined,
+          }
+        : undefined;
+
       await onConfirm({
         envioId: transferencia.id,
         unidadesRecibidas,
         fechasVencimiento: Object.keys(fechasVencimiento).length > 0 ? fechasVencimiento : undefined,
         costoRecojoPEN: costoRecojoPEN ? parseFloat(costoRecojoPEN) : undefined,
         observaciones
-      });
+      }, extras);
     } finally {
       setSubmitting(false);
     }
@@ -532,11 +584,11 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                     </div>
                   </div>
 
-                  {/* S39: Contadores de dañadas/perdidas/retenidas — compactos */}
+                  {/* S39/S40: Contadores de dañadas/perdidas/retenidas — aduana solo si cruza frontera */}
                   {(() => {
                     const dan = cantidadDanada[prod.productoId] || 0;
                     const per = cantidadPerdida[prod.productoId] || 0;
-                    const ret = cantidadRetenida[prod.productoId] || 0;
+                    const ret = cruzaFronteraPeru ? (cantidadRetenida[prod.productoId] || 0) : 0;
                     const disponibles = prod.pendiente - cant;
                     const maxDan = disponibles - per - ret;
                     const maxPer = disponibles - dan - ret;
@@ -561,14 +613,16 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
                           </span>
                           <button type="button" onClick={(e) => { e.stopPropagation(); if (per < maxPer) setCantidadPerdida(p => ({ ...p, [prod.productoId]: per + 1 })); }} className="px-1 py-0.5 text-orange-400 hover:bg-orange-50 rounded text-xs">+</button>
                         </div>
-                        {/* Retenidas aduana */}
-                        <div className="flex items-center gap-1">
-                          <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadRetenida(p => ({ ...p, [prod.productoId]: Math.max(0, ret - 1) })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">−</button>
-                          <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${ret > 0 ? 'bg-amber-100 text-amber-700' : 'text-slate-400'}`}>
-                            {ret} aduana
-                          </span>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); if (ret < maxRet) setCantidadRetenida(p => ({ ...p, [prod.productoId]: ret + 1 })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">+</button>
-                        </div>
+                        {/* Retenidas aduana — solo si el envío cruza frontera a Perú */}
+                        {cruzaFronteraPeru && (
+                          <div className="flex items-center gap-1">
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setCantidadRetenida(p => ({ ...p, [prod.productoId]: Math.max(0, ret - 1) })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">−</button>
+                            <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${ret > 0 ? 'bg-amber-100 text-amber-700' : 'text-slate-400'}`}>
+                              {ret} aduana
+                            </span>
+                            <button type="button" onClick={(e) => { e.stopPropagation(); if (ret < maxRet) setCantidadRetenida(p => ({ ...p, [prod.productoId]: ret + 1 })); }} className="px-1 py-0.5 text-amber-400 hover:bg-amber-50 rounded text-xs">+</button>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
@@ -731,6 +785,49 @@ export const RecepcionModal: React.FC<RecepcionModalProps> = ({
             </div>
           </div>
         ) : null}
+
+        {/* S40: Gastos de liberación aduanera — solo si envío cruza frontera Y hay retenidas */}
+        {mostrarBloqueAduana && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2 mb-2">
+              <ShieldAlert className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <label className="block text-sm font-medium text-amber-800">
+                  Gastos de liberación aduanera (S/) — opcional
+                </label>
+                <p className="text-xs text-amber-600 mt-0.5">
+                  Tasas, aranceles o brokerage pagados a la aduana.
+                  Se registrará como <strong>Costo Landed categoría Aduana</strong> y se prorrateará entre las unidades del envío.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 pl-6">
+              <input
+                type="text"
+                inputMode="decimal"
+                value={gastosAduanaPEN}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === '' || /^\d*[.,]?\d*$/.test(v)) setGastosAduanaPEN(v);
+                }}
+                className="w-40 px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                placeholder="Ej: 85.00"
+              />
+              <input
+                type="text"
+                value={descripcionGastosAduana}
+                onChange={(e) => setDescripcionGastosAduana(e.target.value)}
+                className="flex-1 px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                placeholder="Descripción (ej: DUA simplificada, agente)"
+              />
+            </div>
+            {gastosAduanaPEN && parseFloat(gastosAduanaPEN.replace(',', '.')) > 0 && transferencia.unidades.length > 0 && (
+              <p className="text-xs text-amber-700 mt-2 pl-6">
+                ≈ S/ {(parseFloat(gastosAduanaPEN.replace(',', '.')) / transferencia.unidades.length).toFixed(2)} por unidad (prorrateado entre {transferencia.unidades.length} unidades)
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Observaciones */}
         <div>

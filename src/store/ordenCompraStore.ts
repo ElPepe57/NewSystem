@@ -45,26 +45,7 @@ interface OrdenCompraState {
     notas?: string;
     subOrdenId?: string;
   }, userId: string) => Promise<PagoOrdenCompra>;
-  recibirOrden: (id: string, userId: string) => Promise<{
-    unidadesGeneradas: string[];
-    unidadesReservadas: string[];
-    unidadesDisponibles: string[];
-    cotizacionVinculada?: string;
-  }>;
-  recibirOrdenParcial: (
-    id: string,
-    productosRecibidos: Array<{ productoId: string; cantidadRecibida: number; cantidadDanada?: number; cantidadPerdida?: number }>,
-    userId: string,
-    observaciones?: string,
-    subOrdenId?: string
-  ) => Promise<{
-    recepcionId: string;
-    unidadesGeneradas: string[];
-    unidadesReservadas: string[];
-    unidadesDisponibles: string[];
-    esRecepcionFinal: boolean;
-    cotizacionVinculada?: string;
-  }>;
+  // S40: recibirOrden y recibirOrdenParcial eliminados — la recepción se gestiona desde el Envío asociado.
   deleteOrden: (id: string) => Promise<void>;
   fetchStats: () => Promise<void>;
   setSelectedOrden: (orden: OrdenCompra | null) => void;
@@ -279,35 +260,7 @@ export const useOrdenCompraStore = create<OrdenCompraState>((set, get) => ({
     }
   },
 
-  recibirOrden: async (id: string, userId: string) => {
-    set({ loading: true, error: null });
-    try {
-      const resultado = await OrdenCompraService.recibirOrden(id, userId);
-      await get().fetchOrdenes();
-      await get().fetchStats();
-
-      set({ loading: false });
-      return resultado;
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
-
-  recibirOrdenParcial: async (id, productosRecibidos, userId, observaciones, subOrdenId) => {
-    set({ loading: true, error: null });
-    try {
-      const resultado = await OrdenCompraService.recibirOrdenParcial(id, productosRecibidos, userId, observaciones, subOrdenId);
-      await get().fetchOrdenes();
-      await get().fetchStats();
-
-      set({ loading: false });
-      return resultado;
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-      throw error;
-    }
-  },
+  // S40: recibirOrden + recibirOrdenParcial eliminados — flujo canónico vía Envío.
 
   deleteOrden: async (id: string) => {
     set({ loading: true, error: null });

@@ -269,9 +269,4 @@ export const useEnvioStore = create<EnvioState>((set, get) => ({
   clearError: () => set({ error: null }),
 }));
 
-/**
- * Alias legacy para migración progresiva.
- * Los componentes que importan useTransferenciaStore siguen funcionando
- * sin cambios mientras se migran gradualmente a useEnvioStore.
- */
-export const useTransferenciaStore = useEnvioStore;
+// S40 Bloque E: alias useTransferenciaStore eliminado — todos los consumidores migrados a useEnvioStore.

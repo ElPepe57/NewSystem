@@ -479,7 +479,7 @@ class SincronizacionService {
       const ocsSnap = await getDocs(collection(db, COLLECTIONS.ORDENES_COMPRA));
       const ocsIds = new Set(ocsSnap.docs.map(d => d.id));
 
-      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.ALMACENES));
+      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.CASILLAS));
       const almacenesIds = new Set(almacenesSnap.docs.map(d => d.id));
 
       // Obtener unidades
@@ -605,7 +605,7 @@ class SincronizacionService {
 
     try {
       // Obtener almacenes
-      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.ALMACENES));
+      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.CASILLAS));
 
       // Obtener unidades para recalcular stock por almacén
       const unidadesSnap = await getDocs(collection(db, COLLECTIONS.UNIDADES));
@@ -630,7 +630,7 @@ class SincronizacionService {
         const stockReal = stockPorAlmacen.get(almacenId) || 0;
 
         if (almacen.stockActual !== stockReal) {
-          batch.update(doc(db, COLLECTIONS.ALMACENES, almacenId), {
+          batch.update(doc(db, COLLECTIONS.CASILLAS, almacenId), {
             stockActual: stockReal,
             ultimaEdicion: serverTimestamp()
           });
@@ -668,7 +668,7 @@ class SincronizacionService {
 
     try {
       // Obtener almacenes y unidades existentes
-      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.ALMACENES));
+      const almacenesSnap = await getDocs(collection(db, COLLECTIONS.CASILLAS));
       const almacenesIds = new Set(almacenesSnap.docs.map(d => d.id));
 
       const unidadesSnap = await getDocs(collection(db, COLLECTIONS.UNIDADES));

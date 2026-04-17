@@ -5,6 +5,10 @@ import { useProductoStore } from '../../store/productoStore';
 import { formatCurrency } from '../../utils/format';
 import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
+// S40 Bloque F: secciones ejecutivas adicionales
+import { LogisticaAlertasSection } from '../../components/modules/reportes/LogisticaAlertasSection';
+import { ReclamosEjecutivoSection } from '../../components/modules/reportes/ReclamosEjecutivoSection';
+import { RankingProveedoresIntegridad } from '../../components/modules/reportes/RankingProveedoresIntegridad';
 
 export const TabLogistica: React.FC = () => {
   const [data, setData] = useState<ResumenLogistica | null>(null);
@@ -58,6 +62,9 @@ export const TabLogistica: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* S40 Bloque F: Alertas operativas (top de la vista) */}
+      <LogisticaAlertasSection />
+
       {/* KPIs Header */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <KPICard icon={<Truck className="h-5 w-5 text-sky-600" />} label="En transito" value={`${data.enviosEnTransito}`} sub={`${data.unidadesEnTransito} uds`} bg="bg-sky-50" />
@@ -67,6 +74,10 @@ export const TabLogistica: React.FC = () => {
         <KPICard icon={<Package className="h-5 w-5 text-teal-600" />} label="Peso total" value={`${data.pesoTotalTransportadoLb.toFixed(1)}`} sub="libras transportadas" bg="bg-teal-50" />
         <KPICard icon={<Scale className="h-5 w-5 text-teal-600" />} label="Costo/lb" value={data.costoPromedioPorLibraGlobal > 0 ? `$${data.costoPromedioPorLibraGlobal.toFixed(2)}` : '—'} sub="USD por libra" bg="bg-teal-50" />
       </div>
+
+      {/* S40 Bloque F: Reclamos ejecutivo + Ranking proveedores */}
+      <ReclamosEjecutivoSection />
+      <RankingProveedoresIntegridad />
 
       {/* Tabla de viajeros */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">

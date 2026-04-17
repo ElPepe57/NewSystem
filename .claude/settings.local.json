@@ -244,7 +244,21 @@
       "Bash(echo \"exit: $?\")",
       "Bash(C:/Users/josel/businessmn-v2/node_modules/.bin/tsc --noEmit -p C:/Users/josel/businessmn-v2/tsconfig.json)",
       "Bash(cmd /c \"node_modules\\\\.bin\\\\tsc --noEmit 2>&1\")",
-      "Bash(node_modules/.bin/tsc --noEmit --strict)"
+      "Bash(node_modules/.bin/tsc --noEmit --strict)",
+      "Bash(echo \"EXIT_CODE: $?\")",
+      "Bash(cmd /c \"npx tsc --noEmit 2>&1\")",
+      "Bash(awk 'NR>=330 && NR<=496' src/components/modules/ordenCompra/OCWizardV2/OCWizardV2.tsx)",
+      "Bash(awk 'NR>=330 && NR<=497' src/components/modules/ordenCompra/OCWizardV2/OCWizardV2.tsx)",
+      "Bash(awk 'NR>=489 && NR<=496' src/components/modules/ordenCompra/OCWizardV2/OCWizardV2.tsx)",
+      "Bash(awk 'NR>=330 && NR<=496 && /<div\\\\b/ {print NR\": \"$0}' src/components/modules/ordenCompra/OCWizardV2/OCWizardV2.tsx)",
+      "Bash(awk -F: 'NR>=1 && $1>=330 && $1<=496 {print}')",
+      "Bash(awk 'NR>=336 && NR<=412' src/components/modules/ordenCompra/OCWizardV2/OCWizardV2.tsx)",
+      "Bash(awk -F: '$1>=413 && $1<=496')",
+      "Bash(awk 'NR>=441 && NR<=480' src/components/modules/ordenCompra/OCWizardV2/OCWizardV2.tsx)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(gsutil ls *)",
+      "Bash(gcloud storage *)"
     ],
     "deny": [],
     "ask": []

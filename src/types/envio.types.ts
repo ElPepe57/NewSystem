@@ -38,10 +38,16 @@ export type ResponsableDano = 'viajero' | 'proveedor' | 'sin_responsable';
 
 /**
  * Incidencia registrada en un envio
+ *
+ * Subtipo 'aduana' cubre retenciones por autoridades aduaneras (solo aplica cuando el envío
+ * cruza frontera hacia Perú). El subtipo 'otro' permanece para casos no categorizados.
+ * NOTA: antes de S40 las incidencias de aduana se guardaban como tipo='otro' con descripción
+ * que empezaba con "Retenida en aduana" — los lectores legacy siguen funcionando porque
+ * la detección fallback se hace por descripción.
  */
 export interface IncidenciaEnvio {
   id: string;
-  tipo: 'faltante' | 'danada' | 'diferente' | 'otro';
+  tipo: 'faltante' | 'danada' | 'diferente' | 'aduana' | 'otro';
   unidadId?: string;
   sku?: string;
   productoId?: string;
@@ -60,6 +66,12 @@ export interface IncidenciaEnvio {
   responsable?: ResponsableDano;
   montoReclamoPEN?: number;
   estadoReclamo?: 'pendiente' | 'aceptado' | 'rechazado' | 'cobrado';
+
+  // S40 — Campos específicos de aduana (solo aplicables cuando tipo='aduana')
+  gastosLiberacionPEN?: number;        // Tasas/aranceles pagados al liberar (PEN)
+  fechaRetencion?: Timestamp;          // Cuando quedó retenida en aduana
+  fechaLiberacion?: Timestamp;         // Cuando se liberó
+  documentoLiberacion?: string;        // URL de evidencia (DUA, constancia, etc.)
 }
 
 /**

@@ -21,7 +21,11 @@ export type EstadoUnidad =
   | 'danada'              // Producto danado fisicamente
   | 'perdida'             // Producto extraviado o decomisado
   | 'retenida_aduana'     // Retenido en aduana (puede liberarse o decomisarse)
-  // Legacy (backward compat — eliminados en reingenieria, solo para docs pre-existentes)
+  // === LEGACY — NO USAR EN CÓDIGO NUEVO ===
+  // @deprecated S40 — estos estados NO se escriben en código nuevo. El tipo los mantiene
+  // únicamente para que TypeScript acepte lectura de docs legacy pre-S37 (migración defensiva).
+  // Usar MAPEO_ESTADOS_LEGACY para normalizar al leer docs antiguos.
+  // Post-cleanup S40 la BD no tiene unidades con estos estados.
   | 'recibida_origen'
   | 'recibida_usa'
   | 'en_transito_origen'
