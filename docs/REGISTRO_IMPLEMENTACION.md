@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-16 (Sesion 39 — S38-013 RESUELTO: 233 errores TypeScript → 0. Migración dead code eliminada, OC legacy fields borrados, Envio post-S37 sincronizado, Design System props extendidos con aliases, useConfirmDialog API migrada. 35 archivos modificados, 2 borrados. Go-live desbloqueado.)
+**Ultima actualizacion:** 2026-04-18 (Sesion 42 — Rework UX/UI Compras+Envios Tandas 9-10 FINALES. Vista Compras con search global + pills Todas/Activas/Completadas + dropdowns Proveedor/EstadoPago + KPI "Por pagar" (bg-red-50) + subtitulos alineados a mockup + footer "Cargar mas". Vista Envios con dashboard 2-col (Breakdown por tipo + Pipeline logistico horizontal) + pills Todas/Activas/ConIncidencias + dropdowns Tipos/Couriers + subtitulos alineados + footer "Cargar mas". tsc -b 0 errores, vite build 16.73s. Rework completo 10/10 tandas.)
 **Branch activo:** main
 
 ---
@@ -12,12 +12,12 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 15 de 17 |
-| Sesiones de trabajo registradas | 39 |
+| Sesiones de trabajo registradas | 42 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~488 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39: resolución completa 233 errores TypeScript) |
+| Fixes aplicados | ~564 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42: Tandas 9-10 finales rework UX/UI) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 202 (ultimo: 2026-04-15 Deploy 202, hosting vitaskinperu.web.app, build con vite directo) |
+| Deploys realizados | 203 (S42 commit + deploy pendientes; ultimo deployado: 2026-04-18 S41, commit 62e4187, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -166,6 +166,166 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - varianteLabel: removido de la columna SKU, integrado en el area descriptiva junto a los demas atributos (S20b)
   - Deploy functions + hosting: vitaskinperu.web.app (S20b)
 ```
+
+---
+
+## SESION 42 — 2026-04-18 — Rework UX/UI Tandas 9-10 FINALES: Dashboards ejecutivos Compras + Envios
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 16.73s
+- Archivos modificados: 2 (`src/pages/OrdenesCompra/OrdenesCompra.tsx`, `src/pages/Envios/Envios.tsx`)
+- Alcance: **Tandas 9 + 10 del ciclo correctivo S41-S42** — cerrando las 2 pantallas de vista ejecutiva
+- Commit: pendiente · Deploy: pendiente
+
+### Resumen ejecutivo
+S42 cierra el rework UX/UI iniciado en S41. Se ejecutaron las 2 tandas diferidas con edits quirurgicos sobre las paginas existentes (sin reescribir), alineando `/compras` y `/envios` a los mockups `rework-maestro-s40.html` (lineas 116-255 para Compras; 1948-2092 para Envios). La busqueda, pills filtro, KPIs enriquecidos con subtitulos exactos, y el dashboard 2-col breakdown+pipeline del mockup ahora existen en produccion. Build limpio 16.73s, 0 errores TS. Preview verificado: /compras y /envios renderizan con BD vacia mostrando subtitulos correctos (los conteos reales aparecen cuando hay datos).
+
+### Tanda 10 — Vista Compras (`src/pages/OrdenesCompra/OrdenesCompra.tsx`)
+
+**CAMBIO-465-S42 — Search global en header**
+- Input `<input placeholder="Buscar OC, proveedor, número...">` con icono `Search` dentro de `PageHeader.actions`
+- Visible solo en `md+` (oculto en mobile — Exportar/Nueva OC tienen prioridad)
+- Filtra por `numeroOrden`, `nombreProveedor`, `numeroTracking` (case-insensitive)
+
+**CAMBIO-466-S42 — KPIs alineados al mockup (6 cards)**
+- Orden nuevo: **Total OCs · Valor total · Borradores · En curso · Por pagar · Completadas**
+- Subtitulos exactos del mockup:
+  - "este mes" / "USD" / "sin confirmar"
+  - "X envíos activos" (calculado con envios en transito vinculados a OCs en despacho) o "envíos en tránsito / parcial" (fallback)
+  - "$X.XX pendiente" (monto agregado de OCs con estadoPago ∈ {pendiente,parcial}) o "sin pagos pendientes"
+  - "$X.XX" (monto acumulado completadas) o "todos los envíos recibidos"
+- KPI "Con sub-ordenes" ELIMINADO (no existe en mockup)
+- KPI "Por pagar" NUEVO con variant `danger` (bg-red-50)
+
+**CAMBIO-467-S42 — Pills filtro + dropdowns (reemplaza Toolbar basico)**
+- Pills: "Todas (N) · Activas (N) · Completadas (N)" con conteos live derivados de `ordenesLN`
+- Estado activo: `bg-teal-600 text-white`. Inactivo: `bg-slate-100`. Hover: `bg-slate-200`.
+- Dropdown "Todos los proveedores" (alimentado desde `proveedoresActivos`)
+- Dropdown "Todos los estados de pago" (pendiente/parcial/pagado)
+- Boton "Limpiar filtros" solo aparece si algun filtro esta activo
+
+**CAMBIO-468-S42 — Stats derivados para KPIs y pills**
+- `statsExtra = useMemo(...)`: calcula `montoPendienteUSD`, `ocsConPagoPendiente`, `montoCompletadasUSD`, `countActivas`, `countCompletadas`, `enviosActivosVinculados`
+- Logica: activos = `{confirmada,enviada,pagada,en_proceso,despachada,en_transito,recibida_parcial}`. Completadas = `{completada,recibida}`. Por pagar = `estado !== cancelada && estadoPago ∈ {pendiente,parcial} && (totalUSD - sum(historialPagos.montoUSD)) > 0.01`
+- Envios activos vinculados: se cuenta el cross-join con OCs en despacho (no todos los envios)
+
+**CAMBIO-469-S42 — Paginacion "Cargar mas"**
+- `itemsVisibles` state inicial 10, incrementa +10 por click
+- Footer visible solo cuando `ordenesFiltradas.length > itemsVisibles`: `"+ N OCs más · Cargar más"`
+- `useEffect` reset a 10 cuando cambian filtros (evita quedarse en "pagina 3" al cambiar de proveedor)
+
+**CAMBIO-470-S42 — Cleanup imports no usados**
+- Eliminados: `PipelineHeader`, `LineaDropdown`, `PipelineStage`, `Layers`
+- Agregado: `Search` (icono del search global)
+
+### Tanda 9 — Vista Envios (`src/pages/Envios/Envios.tsx`)
+
+**CAMBIO-471-S42 — KPIs alineados al mockup (6 cards)**
+- Orden: **Total · En tránsito · Pendientes · Incidencias · En reclamo · Valor landed**
+- Subtitulos exactos:
+  - "envíos activos" / "X unidades" (suma `totalUnidades` en_transito) o "en camino"
+  - "recepción parcial" / "sin resolver"
+  - "S/ X pendiente" (total reclamado) o "sin reclamos"
+  - "total prorrateado" (Valor landed)
+- Valor landed cambia de USD → PEN cuando hay TC disponible (`tipoCambioActual.tasaVenta`)
+- Variant "Valor landed" cambia de `brand` a `success` (emerald → consistente con mockup bg-emerald-50)
+
+**CAMBIO-472-S42 — Dashboard 2-col Breakdown + Pipeline**
+- Reemplaza el bloque anterior `StatDistribution x2 + PipelineHeader`
+- **Breakdown por tipo** (izquierda): 4 progress bars segun clasificacion heuristica:
+  - Proveedor → Casilla: `tipo='internacional_peru' && ordenCompraId && !esDDP` (dot sky-500)
+  - Casilla → Perú: `tipo='internacional_peru' && !ordenCompraId && !esDDP` (dot teal-500)
+  - Entre casillas origen: `tipo='interna_origen'` (dot purple-500)
+  - DDP directo: `esDDP === true` (dot amber-500)
+  - Porcentajes calculados sobre total global
+- **Pipeline logistico horizontal** (derecha): 4 boxes clickables con separadores `ChevronRight`
+  - Borrador (slate) · Confirmado (amber) · En tránsito (sky) · Recibida (emerald)
+  - Cada box filtra al hacer click (toggle `pipelineStage`)
+  - Footer con `completadasMes` + `Fill rate` calculado
+
+**CAMBIO-473-S42 — Pills filtro + dropdowns**
+- Pills: "Todas (N) · Activas (N) · Con incidencias (N)"
+  - Activas = `!recibida_completa && !cancelada`
+  - Con incidencias = misma logica que KPI (faltantes|danadas|aduana|perdida|incidencias[!resuelta])
+- Dropdown "Todos los tipos" (4 opciones del mockup: Proveedor→Casilla / Casilla→Perú / Entre casillas / DDP)
+- Dropdown "Todos los couriers" (alimentado dinamicamente desde `courier` unicos en envios)
+- Boton "Limpiar filtros"
+
+**CAMBIO-474-S42 — Search extendido + Paginacion**
+- Search ahora incluye `numeroTracking` y `ordenCompraNumero` ademas de los existentes (numero, origen, destino)
+- `itemsVisiblesEnv` state inicial 12, incremento +12
+- Footer "Cargar mas" con `useEffect` reset
+
+**CAMBIO-475-S42 — Cleanup imports**
+- Eliminados: `StatDistribution`, `PipelineHeader` (de `components/common`), `LineaDropdown`, `DespacharOCModal` (solo queda `type DespacharOCResult`)
+- Agregados: `ChevronRight`, `Search`
+
+### Archivos modificados S42 (2 total)
+
+- `src/pages/OrdenesCompra/OrdenesCompra.tsx` — Tanda 10 completa
+- `src/pages/Envios/Envios.tsx` — Tanda 9 completa
+
+### Metricas S42
+
+| Metrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 16.73s |
+| Archivos modificados | 2 |
+| Archivos creados | 0 |
+| Lineas agregadas | ~280 |
+| Lineas eliminadas | ~80 |
+| Balance neto | ~+200 lineas |
+| Cambios registrados | CAMBIO-465 a CAMBIO-475 (11 cambios) |
+| Tandas rework completadas | 10 de 10 ✅ |
+| Duracion estimada | ~2h |
+
+### Decisiones S42
+
+- **D-160 (T9):** Valor landed se muestra en PEN cuando hay TC disponible (`tasaVenta`), fallback USD. Razon: consistencia con mockup que dice "S/ 8,450" y con el hecho de que landing cost se reporta al negocio en moneda funcional (PEN).
+- **D-161 (T9):** Breakdown por tipo usa **heuristica basada en (tipo, ordenCompraId, esDDP)** porque el modelo actual no tiene un campo `tipoRuta` explicito. Si se vuelve insuficiente, se podria agregar `tipoRutaLogistica: 'proveedor_casilla' | 'casilla_peru' | 'entre_casillas' | 'ddp_directo'` al tipo Envio.
+- **D-162 (T10):** KPI "Por pagar" usa `historialPagos.montoUSD` como fuente de verdad (no `montoPendiente` del tipo). Razon: el campo `montoPendiente` es legacy y no siempre esta sincronizado. `historialPagos` es la fuente canonica post-S35.
+- **D-163 (T9/T10):** Footer "Cargar más" con increment +10/+12 en vez de paginacion paginada. Razon: alineado con mockup "+ 9 OCs más · Cargar más". UX mas amigable para listas < 100 items.
+- **D-164 (T10):** Search global omite campos del producto (nombreComercial). Razon: scope del search es OC-level (proveedor, numero, tracking). Busqueda por producto es responsabilidad del modulo Productos.
+
+### Deudas tecnicas declaradas S42
+
+1. **Breakdown por tipo heuristico:** depende de 3 campos (`tipo`, `ordenCompraId`, `esDDP`). Si aparece un envio creado manualmente desde proveedor sin OC vinculada, quedara clasificado como "Casilla → Perú" incorrectamente. Mitigacion futura: agregar `tipoRutaLogistica` al tipo Envio.
+2. **Valor landed simplificado:** usa TC actual para convertir valorEnTransito USD → PEN. No refleja TC historico de cada envio. Para reportes contables se debe usar el campo `tcCompra` de la OC origen, no el TC del dia.
+3. **Pills "Con incidencias" duplica logica:** existe en `enviosStatsExtra.countIncidencias` y en el filtro `pillFiltroEnv === 'incidencias'`. Extraer a helper `envioTieneIncidencia(e)` para evitar drift.
+4. **Paginacion sin virtualization:** si hay 500+ OCs y usuario hace click en "Cargar mas" muchas veces, la renderizacion puede degradarse. Solucion futura: virtualization con `react-window` cuando `itemsVisibles > 100`.
+
+### Pendientes post-S42
+
+**Nivel 2 auditoria mockup (divergencias Medio/Bajo) — evaluar con usuario:**
+- Wizard OC Paso 5 Confirmar: botones "Editar" por seccion (saltar al paso correspondiente)
+- Wizard OC Paso 4 Inteligencia: paradigma ejecutivo (4 KPIs grandes + tabla comparativa) vs actual (ScoreRing por producto)
+- Detalle Envio: header hero + 5 KPIs + tabs internos + sidebar sticky (CAMBIO-461-S41 parcial — reescribio el modal pero sin tabs internos)
+
+**Deudas tecnicas heredadas de S41 (7):**
+1. StepRuta "Viajero absorbe" sin modelo
+2. StepRuta almacen destino final Peru (2 envios)
+3. StepRuta "Crear nuevo proveedor" inline (alert() placeholder)
+4. productoEmoji.ts cross-module (mover a src/utils/)
+5. SubOrdenDetailModal totalPagado hardcodeado
+6. ConfirmarOCModal cargos por sub-orden sin tipo
+7. StepInteligencia paradigma ejecutivo
+
+**Tema diferido Red Logistica:**
+- Filtro colaboradores con/sin casilla en wizard OC (usuario dijo "luego revisamos red logistica")
+
+**Testing E2E pendiente:**
+- OC con deudor colaborador → confirmar → pago → verificar CxP + Tesoreria
+- Envio con incidencia aduana → liberar → verificar CostoLanded
+- Pills filtro en /compras y /envios con datos reales
+
+### Instrucciones arranque S43
+
+1. Leer este registro (seccion S42) y MEMORY.md
+2. Verificar con el usuario cual de los pendientes post-S42 priorizar (nivel 2 auditoria vs deudas tecnicas vs testing E2E)
+3. Si usuario pide mas rework UX/UI: leer `docs/AUDITORIA_REWORK_MOCKUP_S41.md` para pantallas pendientes de nivel 2
+4. Si usuario pide deudas tecnicas: abrir `productoEmoji.ts` y moverlo a `src/utils/` como primer win rapido
+5. Considerar commit de S42 + deploy como cierre del rework UX/UI completo antes de cualquier otro cambio
 
 ---
 
@@ -704,18 +864,232 @@ Contexto: El wizard OC V3 ya capturaba `configLogistica.deudorId/Tipo/Nombre` pe
 - Detalle del colaborador/proveedor en reportes gerenciales: Bloque 6 posterior si se requiere
 - Flujo de liquidacion con colaborador (pago al colaborador cierra la CxP): funciona con el mismo `PagoUnificadoForm` modificado — testing E2E en siguiente iteracion
 
-### Archivos finales (S41 Bloques 0 + 1A + 1B + 2 + plan correctivo + Bloque 5)
+### Fase 3 del plan correctivo — Tandas de alineacion a mockup (Tandas 1-8 de 10)
 
-### Proximos bloques
+Tras ejecutar los Bloques 0-2+5 y el plan correctivo Fases 1-2, el usuario evaluo el resultado contra los mockups y confirmo que aun habia divergencias importantes. Se ejecuto una auditoria sistematica seguida de 10 tandas correctivas planificadas. Se completaron 8 de 10 en esta sesion.
 
-**Bloque 3 — Detalle Envio (~2h)**
-- Modernizar `EnvioDetailModal`: header con RouteVisual horizontal grande + 5 KPIs + tabs (Productos / Recepciones / Costos / Incidencias / Timeline) + sidebar
+**Documento de auditoria creado:** `docs/AUDITORIA_REWORK_MOCKUP_S41.md`
+Matriz completa de divergencias seccion a seccion para los 2 mockups (9 flujos). Gravedad asignada Critico/Alto/Medio/Bajo. Conclusion: 0 de 9 flujos alineados al mockup al inicio de la auditoria.
 
-**Bloque 4 — Herramienta cleanup borradores** ✅ ejecutada en Bloque 1B (adelantada)
+---
 
-**Bloque 5 — Adaptaciones PagoUnificadoForm + CxP + Tesoreria** (DIFERIDO — post-rework)
+**CAMBIO-452-S41 — Tanda 1: StepRuta OC reescrito fiel al mockup (600 lineas)**
+- Archivo: `src/components/modules/ordenCompra/OCWizardV3/StepRuta.tsx`
+- Estructura fiel al mockup de 4 secciones secuenciales:
+  - Proveedor: cards ricas con logo+pais+tipo+"X OCs previas"
+  - Como llega: 2 cards grandes `Via casilla/DDP` + cards casilla transito con avatar + selector almacen destino
+  - Tramo 1 Salida: 3 tarjetas + panel morado deudor alternativo con aclaracion contable
+  - Tramo 2 Cruce Peru: 3 cards + Tramo 3 Ultima milla con 3 cards y paneles contextuales emerald/sky/purple
+- Componentes internos: Section, SectionTramo, ProveedorCard, TipoCardGrande/Medio/CompactoCenter/Pequeno, CasillaTransitoCard, AlmacenPeruCard, PanelRecojoEnOrigen
+- Deudas declaradas: opcion "Viajero absorbe" requiere ampliar `ultimaMilla` tipo en modelo; almacen destino final Peru vs casilla transito requiere campo `almacenFinalPeruId` nuevo; boton "Crear nuevo proveedor" inline es alert() placeholder
+- Decision **D-156 (implicita T1)**: sub-orden en estado 'borrador' se muestra visualmente como "Confirmada" (consistente con D-127)
 
-**Bloque 6 — Build + testing E2E + actualizar MEMORY.md**
+**CAMBIO-453-S41 — Tanda 1: productoEmoji.ts helper nuevo**
+- Archivo: `src/components/modules/ordenCompra/OCWizardV3/productoEmoji.ts`
+- Helper `getEmojiPorProducto(nombre, tipo, linea)` con 3 niveles de fallback: keyword en nombre (27 keywords) → tipo SKC (16 tipos) → linea SUP/SKC default
+- Exporta `EMOJI_MAP` con todas las reglas para tests
+
+**CAMBIO-454-S41 — Tanda 2: StepProductos OC reescrito con emoji + escaner**
+- Archivo: `src/components/modules/ordenCompra/OCWizardV3/StepProductos.tsx`
+- Header + Search inline + boton Escanear con BarcodeScanner
+- Tabla con emoji gradient + nombre + SKU + chip marca bg-sky-50 + descripcion rica bold
+- Stepper +/- cantidad visual (no input numerico raw)
+- Input precio USD/u con signo $
+- Subtotal teal-700 + trash por fila
+- Footer "+ Agregar otro producto" con borde dashed
+- Toggle sub-ordenes al final con aviso ambar y accion TOGGLE_SUBORDENES
+- Deuda: productoEmoji.ts es cross-module (deberia moverse a src/utils/)
+
+**CAMBIO-455-S41 — Tanda 3: EnvioStepRuta reescrito**
+- Archivo: `src/pages/Envios/EnvioWizardV2/EnvioStepRuta.tsx`
+- Nota aclaratoria Opcion A en sky con informacion de restricciones
+- 2 cards tipo ruta grandes con descripcion
+- Secciones A/B: cards casillas con avatar + "X unidades disponibles" (conteo async) 
+- Selector colaborador agrupado por tipo
+- Selector motivo envio
+
+**CAMBIO-456-S41 — Tanda 3: EnvioStepProductos cambio de modelo conceptual**
+- Archivo: `src/pages/Envios/EnvioWizardV2/EnvioStepProductos.tsx`
+- Cambio fundamental: de checkboxes por unidad individual a stepper cantidad agregada por producto
+- Sistema FIFO por `fechaVencimiento` asc: cuando usuario sube stepper, sistema selecciona primeras N unidades ordenadas
+- Header dinamico con nombres casillas origen/destino
+- Banner teal "X de Y seleccionadas" + botones Limpiar/Todas
+- Filas con emoji (via productoEmoji.ts) + chip marca + ratio M/N unidades seleccionadas
+
+**CAMBIO-457-S41 — Tanda 4: CompraCard accordion sub-ordenes (reescritura completa)**
+- Archivo: `src/components/modules/ordenCompra/CompraCard.tsx`
+- 2 variantes segun presencia de sub-ordenes: `CompraCardSimple` y `CompraCardConSubOrdenes`
+- `CompraCardSimple`: layout 5-col con `PipelineDots4` (4-etapas) siempre visible
+- `CompraCardConSubOrdenes`: header con pills + chip "X sub-ordenes" + grid 5-col incluyendo Deudor con badge ambar si colaborador
+- Seccion "DESGLOSE DEL PROVEEDOR" (bg-slate-50) con sub-ordenes anidadas
+- `SubOrdenExpandible` interno: colapsada con mini-pipeline `PipelineDots3` siempre visible + pills; expandida con grid 2-col Productos+Cargos + Total+ajuste + tracking envio
+- Footer OC con acciones globales: "Ver timeline completo" + "Registrar pago OC completa"
+- Componentes visuales extraidos: PipelineDots4, PipelineDots3, EstadoOCPill, EstadoPagoPill, EstadoSubOrdenPill, CargoRow
+- Nueva prop `onVerSubOrden` para abrir SubOrdenDetailModal
+
+**CAMBIO-458-S41 — Tanda 5: ConfirmarOCModal reescrito con matriz validacion (~900 lineas)**
+- Archivo: `src/components/modules/ordenCompra/ConfirmarOCModal.tsx`
+- Flujo 1: pregunta con toggle "Dividir en sub-ordenes?"
+- Flujo 2: 2 tablas matriz
+  - `MatrizProductos`: cols Producto / OC original / SUB-A/B/C inputs / Asignado / check. Fila roja completa si suma != cantidad. Icono check/alert por fila. Banner error detallado. Referencia proveedor por sub-orden. Boton "+ Agregar sub-orden"
+  - `MatrizCargos`: pills tipo (Cargo sky / Desc emerald / Imp purple) + cols inputs por sub-orden + validacion
+- `TotalesPorSubOrden`: grid 3-col con formula explicita "$60 + $4 - $2.70 + $3 = $64.30"
+- Reconciliacion: banner teal si cuadra, ambar si delta
+- Footer con boton disabled si hay errores de validacion
+- Deuda declarada: al guardar, cargos distribuidos se agregan en `shippingUSD/descuentoUSD/impuestoUSD` (campos agregados del modelo), no como arrays individuales. Tipo SubOrdenCompra no soporta `cargosSubOrden[]`
+
+**CAMBIO-459-S41 — Tanda 6: SubOrdenDetailModal nuevo componente standalone**
+- Archivo: `src/components/modules/ordenCompra/SubOrdenDetailModal.tsx` (nuevo)
+- Breadcrumb OC-XXX > SUB-XXX + titulo + pills estado/pago
+- `PipelineGrande3`: Confirmada emerald → En Transito teal ring-4 → Recibida slate con fechas
+- 4 KPIs: Total / Productos SKUs+und / Envio vinculado mono teal / Pagos tone
+- Tabla productos con SKU mono teal + descripcion rica
+- Cargos comerciales con desglose completo + ajuste proveedor + cobrado
+- Envio vinculado card teal con ruta + courier + tracking + despachado
+- Pagos ambar con deudor (badge colaborador si aplica)
+- Footer: "Volver a OC-XXX" + Editar cargos + Marcar recibida
+- Integrado en OrdenesCompra.tsx con state `subOrdenDetalle` + prop `onVerSubOrden` en CompraCard
+- Deuda declarada: `totalPagado: number = 0` hardcodeado — requiere filtrar `historialPagos.filter(p => p.subOrdenId === subOrden.id)` cuando se implemente pagos por sub-orden
+
+**CAMBIO-460-S41 — Tanda 7: DespacharEnvioModal nuevo para /envios (700 lineas)**
+- Archivo: `src/pages/Envios/DespacharEnvioModal.tsx` (nuevo)
+- Reemplaza uso de `DespacharOCModal` en Envios.tsx (el legacy se mantiene para OrdenesCompra.tsx)
+- Layout 2-col 40/60: resumen envio (izq bg-slate-50) + formulario (der)
+- Izquierda: ruta visual con flags+codigo+icono Truck central + contenido top 5 productos + info adicional (OC/sub-orden/proveedor/peso/recibido en casilla)
+- 3 cards tipo transporte: Viajero / Courier internacional / Courier externo
+- Selector colaborador con `ColaboradorRow`: avatar iniciales con color tematico (DHL rojo, FedEx morado, UPS ambar) + nombre + pill Activo/Inactivo + metricas (X envios · Y% a tiempo)
+- Crear inline: si search no encuentra resultados → boton border-dashed "Crear '{nombre}' como nuevo"
+- Tracking adaptativo: opcional viajero (bg-slate-50 disabled), obligatorio courier (validacion)
+- Fecha despacho obligatoria + nota opcional
+- Preview cambio estado: Confirmado → En Transito
+- Footer con validacion visible + boton "Despachar envio"
+- Compatible con handler `handleDespacharEnvioSubmit` existente (mismo shape que `DespacharOCResult`)
+- Decision **D-157**: DespacharEnvioModal es especifico para /envios; DespacharOCModal se mantiene para /compras (flujos con contexto OC diferente)
+
+**CAMBIO-461-S41 — Tanda 8: EnvioDetailModal reescritura completa (~1200 lineas)**
+- Archivo: `src/pages/Envios/EnvioDetailModal.tsx`
+- Modal `size="full"` + `contentPadding="none"` para layout full-height
+- Header hero (gradient slate-50→slate-100): icono sky + numero mono + estado pill + badge DDP + subtitulo con link a OC + botones Imprimir/Registrar recepcion/cerrar
+- `RutaGrande` componente: 3 nodos con badge estado por nodo + courier pildora central (sky si en transito)
+- 5 KPIs rapidos: Unidades / Recibidas / Pendientes / Incidencias (bg-red-50 si > 0) / Progreso con barra
+- Tabs internos con badges numerados: Productos / Recepciones / Costos landed / Incidencias (rojo si hay abiertas) / Timeline
+- Grid 2-col 1fr/320px con sidebar sticky
+- Sidebar: Courier+tracking copiable / Colaborador con avatar / OC vinculada card / Fechas grid 2-col / Acciones rapidas condicionales (Confirmar/Despachar/Recibir/Editar flete/Gestionar incidencias/Liberar aduana/Pago viajero/Sincronizar)
+- `TabProductos`: tabla con emoji + nombre + SKU + chip marca + cantidades Enviadas/Recibidas/Incidencias + progress bar por producto (condicional si hay recepciones)
+- `TabRecepciones`: timeline con iconos verde/amber por recepcion
+- `TabCostos`: desglose flete/peso/costo-por-lb + Total prorrateado + Historial pagos colaborador
+- `TabIncidencias`: lista consolidada con botones Gestionar/Liberar aduana
+- `TabTimeline`: cronologia de eventos con iconos + colores por etapa
+- Reutiliza `getEmojiPorProducto` del OCWizardV3 (cross-module — deuda pendiente mover a utils/)
+
+**CAMBIO-462-S41 — OrdenesCompra.tsx integra SubOrdenDetailModal**
+- Archivo: `src/pages/OrdenesCompra/OrdenesCompra.tsx`
+- State nuevo `subOrdenDetalle: { orden, subOrden } | null`
+- Prop `onVerSubOrden` pasada a cada `<CompraCard>`
+- Render `<SubOrdenDetailModal>` al final del JSX
+
+**CAMBIO-463-S41 — Envios.tsx integra DespacharEnvioModal**
+- Archivo: `src/pages/Envios/Envios.tsx`
+- Importa `DespacharEnvioModal` (nuevo) en vez de `DespacharOCModal`
+- Handler `handleDespacharEnvioSubmit` compatible con nuevo modal (mismo shape)
+
+**CAMBIO-464-S41 — docs/AUDITORIA_REWORK_MOCKUP_S41.md creado**
+- Documento de auditoria completo con matriz de divergencias
+- 9 flujos analizados, gravedad asignada por seccion
+- Sirve como fuente de verdad para Tandas 9-10 en S42
+
+### Fase 3 — Decisiones arquitecturales (Tandas 1-8)
+
+- **D-156 (implicita T1):** Sub-orden en estado 'borrador' se muestra visualmente como "Confirmada" (consistente con D-127: sub-ordenes nacen Confirmadas al confirmar OC)
+- **D-157 (T7):** DespacharEnvioModal separado de DespacharOCModal — flujos con contexto diferente. /envios tiene ruta visual 2-col sin contexto OC; /compras tiene contexto OC + sub-orden
+- **D-158 (T3):** FIFO seleccion unidades en EnvioStepProductos: stepper cantidad selecciona primeras N unidades ordenadas por `fechaVencimiento` asc
+- **D-159 (T2):** productoEmoji.ts con 3 niveles de fallback (keyword nombre → tipo SKC → linea default). Helper puro sin side-effects, testeable
+
+### Archivos creados en Tandas 1-8
+
+**Creados nuevos (5):**
+- `src/components/modules/ordenCompra/OCWizardV3/productoEmoji.ts`
+- `src/components/modules/ordenCompra/SubOrdenDetailModal.tsx`
+- `src/pages/Envios/DespacharEnvioModal.tsx`
+- `docs/AUDITORIA_REWORK_MOCKUP_S41.md`
+- `docs/mockups/rework-subordenes-s41.html` (creado antes de Bloque 0 como mockup de validacion)
+
+**Reescritos/modificados en Tandas 1-8 (10):**
+- `src/components/modules/ordenCompra/OCWizardV3/StepRuta.tsx` (600 lineas desde cero)
+- `src/components/modules/ordenCompra/OCWizardV3/StepProductos.tsx` (con emoji + escaner + stepper)
+- `src/pages/Envios/EnvioWizardV2/EnvioStepRuta.tsx` (modernizado)
+- `src/pages/Envios/EnvioWizardV2/EnvioStepProductos.tsx` (modelo stepper FIFO)
+- `src/components/modules/ordenCompra/CompraCard.tsx` (accordion sub-ordenes)
+- `src/components/modules/ordenCompra/ConfirmarOCModal.tsx` (matriz validacion)
+- `src/pages/Envios/EnvioDetailModal.tsx` (reescritura completa)
+- `src/pages/OrdenesCompra/OrdenesCompra.tsx` (SubOrdenDetailModal integrado)
+- `src/pages/Envios/Envios.tsx` (DespacharEnvioModal integrado)
+
+---
+
+### Metricas finales S41
+
+| Metrica | Valor |
+|---------|-------|
+| Commit final | `62e4187` |
+| Deploy | vitaskinperu.web.app |
+| tsc -b | 0 errores |
+| vite build | 17.38s |
+| Archivos creados totales | 30+ |
+| Archivos eliminados | 11 (OCWizardV2 folder completo + CreateEnvioModal.tsx) |
+| Archivos modificados en total | 20+ |
+| Componentes nuevos totales | 30+ |
+| Lineas agregadas | ~9,000 |
+| Lineas eliminadas | ~3,200 |
+| Balance neto | ~+5,800 lineas |
+| Cambios registrados | CAMBIO-400 a CAMBIO-464 (65 cambios) |
+| Decisiones | D-124 a D-159 (36 decisiones) |
+| Bloques completados | 6 de 7 (0+1A+1B+2+4+plan correctivo+5 + Tandas 1-8) |
+| Tandas correctivas completadas | 8 de 10 |
+| Duracion acumulada estimada | ~16-18h |
+
+---
+
+### Deudas tecnicas declaradas en S41
+
+1. **StepRuta T1 — "Viajero absorbe" sin modelo:** opcion en Tramo 3 no existe en modelo V2. Requiere ampliar `ultimaMilla` tipo con nuevo valor. Boton muestra alert() placeholder
+2. **StepRuta T1 — almacen destino final Peru:** cuando es via casilla, el modelo usa `casillaDestinoId` unico. El flujo real puede implicar 2 envios (proveedor→casilla T1 + casilla→Peru interno). Requiere campo `almacenFinalPeruId` nuevo
+3. **StepRuta T1 — "Crear nuevo proveedor" inline:** muestra alert() placeholder. Requiere modal creacion inline
+4. **productoEmoji.ts cross-module:** archivo vive en OCWizardV3 pero se importa desde `pages/Envios/`. Debe moverse a `src/utils/` o al DS
+5. **SubOrdenDetailModal T6 — totalPagado hardcodeado:** `totalPagado = 0` literal. Requiere `orden.historialPagos.filter(p => p.subOrdenId === subOrden.id)` cuando pagos por sub-orden esten implementados
+6. **ConfirmarOCModal T5 — cargos por sub-orden:** al guardar, los cargos distribuidos van a `shippingUSD/descuentoUSD/impuestoUSD` (campos agregados). El tipo `SubOrdenCompra` no soporta arrays `cargosSubOrden[]` — si se necesita granularidad se debe ampliar el tipo
+7. **StepInteligencia — paradigma ejecutivo pendiente:** mockup pide 4 KPIs grandes + tabla comparativa. Actualmente se mantiene el componente V2 migrado (ScoreRing SVG + cards 6 metricas). Requiere decision con usuario antes de redisenar
+
+---
+
+### Pendientes para S42
+
+**Tanda 9 — Vista Envios dashboard breakdown:**
+- `src/pages/Envios/Envios.tsx`: agregar dashboard 2-col (breakdown por tipo con progress bars + pipeline horizontal) segun mockup lineas 2001-2069
+- Ajustar subtitulos KPIs al copy exacto del mockup (ej: "138 unidades" en En Transito, "recepcion parcial" en Pendientes)
+- KPI "Valor landed" a PEN vs USD segun decision con usuario
+- Pills filtro "Todas (X) · Activas · Con incidencias" + dropdowns adicionales
+- Footer "Cargar mas"
+
+**Tanda 10 — Vista Compras mejoras:**
+- `src/pages/OrdenesCompra/OrdenesCompra.tsx`: agregar search global en header + pills filtro rapidos ("Todas (X) · Activas (Y) · Completadas (Z)") + dropdowns filtros adicionales (Proveedor/Estado pago/Linea) + KPI "Por pagar" (bg-red-50) con "$X pendiente" + subtitulos KPIs al copy exacto mockup + footer "Cargar mas"
+- Evaluar si conservar KPI "Con sub-ordenes" (no esta en el mockup original)
+
+**Tema pendiente Red Logistica:**
+- Al seleccionar colaborador (ej: Angie Price) en wizard OC, mensaje "no tiene casilla" confuso. Aclarado textualmente pero queda decidir: filtrar solo colaboradores con casilla configurada vs mostrar todos con separador "Sin casilla configurada". El usuario dijo "luego ya revisamos lo de la red logistica" — diferido a S42
+
+**Post-Tandas 9-10 (evaluar con usuario):**
+- Nivel 2 auditoria mockup (divergencias Medio/Bajo)
+- Deudas tecnicas 1-7 arriba listadas
+- Testing E2E completo: OC con deudor colaborador → confirmar → pago → verificar CxP + Tesoreria
+- Migracion productoEmoji.ts a src/utils/
+
+**Instrucciones arranque S42:**
+1. Leer este registro (seccion S41) y MEMORY.md
+2. Leer `docs/AUDITORIA_REWORK_MOCKUP_S41.md` secciones 7 (Vista Envios) y 1 (Vista Compras) para Tandas 9-10
+3. Abrir `docs/mockups/rework-maestro-s40.html` lineas 1948-2070 (Envios) y 128-255 (Compras)
+4. Ejecutar Tandas 9-10 con edits quirurgicos (no reescribir archivos completos)
+5. Build check + commit + deploy + registro
 
 ---
 

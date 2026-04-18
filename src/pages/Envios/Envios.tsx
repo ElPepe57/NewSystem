@@ -12,15 +12,14 @@ import {
   Package,
   Gavel,
   BarChart3,
+  ChevronRight,
+  Search,
 } from "lucide-react";
-import { LineaDropdown } from '../../components/common/LineaDropdown';
 import {
   Button,
   Card,
   ConfirmDialog,
   useConfirmDialog,
-  PipelineHeader,
-  StatDistribution,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
 import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader, DataTable, StatusBadge } from '../../design-system';
@@ -52,7 +51,7 @@ import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUni
 import { EditFleteModal } from "./EditFleteModal";
 import { EnvioDetailModal } from "./EnvioDetailModal";
 import { EnviosProveedorTab } from "./EnviosProveedorTab";
-import { DespacharOCModal, type DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
+import type { DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
 import { DespacharEnvioModal, type DespacharEnvioResult } from './DespacharEnvioModal';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useReclamoStore } from '../../store/reclamoStore';
@@ -137,6 +136,11 @@ export const Envios: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
+  // S42 Tanda 9 — Filtros extra alineados a mockup s40 líneas 2073-2092
+  const [pillFiltroEnv, setPillFiltroEnv] = useState<'todas' | 'activas' | 'incidencias'>('todas');
+  const [filtroCourier, setFiltroCourier] = useState('');
+  const [filtroTipoRuta, setFiltroTipoRuta] = useState('');
+  const [itemsVisiblesEnv, setItemsVisiblesEnv] = useState(12);
 
   const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
@@ -237,6 +241,65 @@ export const Envios: React.FC = () => {
     }, 0);
   }, [enviosEnTransito]);
 
+  // S42 Tanda 9 — Stats extras para KPIs alineados al mockup
+  const enviosStatsExtra = useMemo(() => {
+    // Unidades totales en tránsito (subtítulo de "En tránsito")
+    const unidadesEnTransito = enviosEnTransitoPorLinea.reduce(
+      (s, e) => s + (e.totalUnidades ?? e.unidades?.length ?? 0),
+      0
+    );
+
+    // Valor landed en PEN (prorrateado) — usa TC si está disponible, sino USD
+    const tc = tipoCambioActual?.tasaVenta ?? 0;
+    const valorLandedPEN = tc > 0 ? valorEnTransito * tc : valorEnTransito;
+
+    // Count activos (todos menos completadas/canceladas)
+    const countActivas = enviosPorLinea.filter(
+      e => !['recibida_completa', 'cancelada'].includes(e.estado)
+    ).length;
+
+    // Count con incidencias abiertas
+    const countIncidencias = enviosPorLinea.filter(e => {
+      if ((e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0) return true;
+      if (e.estado === 'retenida_aduana' || e.estado === 'perdida_total') return true;
+      if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
+      return false;
+    }).length;
+
+    return { unidadesEnTransito, valorLandedPEN, countActivas, countIncidencias, tc };
+  }, [enviosEnTransitoPorLinea, enviosPorLinea, tipoCambioActual, valorEnTransito]);
+
+  // S42 Tanda 9 — Breakdown por tipo de ruta (mockup líneas 2003-2036)
+  const breakdownPorTipo = useMemo(() => {
+    const total = enviosPorLinea.length || 1;
+    let proveedorACasilla = 0;
+    let casillaAPeru = 0;
+    let entreCasillas = 0;
+    let ddpDirecto = 0;
+    for (const e of enviosPorLinea) {
+      if ((e as any).esDDP === true) { ddpDirecto++; continue; }
+      if (e.tipo === 'interna_origen') { entreCasillas++; continue; }
+      // tipo === 'internacional_peru'
+      if (e.ordenCompraId) proveedorACasilla++;
+      else casillaAPeru++;
+    }
+    return [
+      { label: 'Proveedor → Casilla', value: proveedorACasilla, pct: Math.round((proveedorACasilla / total) * 100), dot: 'bg-sky-500', bar: 'bg-sky-500' },
+      { label: 'Casilla → Perú', value: casillaAPeru, pct: Math.round((casillaAPeru / total) * 100), dot: 'bg-teal-500', bar: 'bg-teal-500' },
+      { label: 'Entre casillas origen', value: entreCasillas, pct: Math.round((entreCasillas / total) * 100), dot: 'bg-purple-500', bar: 'bg-purple-500' },
+      { label: 'DDP directo', value: ddpDirecto, pct: Math.round((ddpDirecto / total) * 100), dot: 'bg-amber-500', bar: 'bg-amber-500' },
+    ];
+  }, [enviosPorLinea]);
+
+  // S42 Tanda 9 — Couriers únicos para dropdown filtro
+  const couriersUnicos = useMemo(() => {
+    const set = new Set<string>();
+    for (const e of enviosPorLinea) {
+      if (e.courier) set.add(e.courier);
+    }
+    return Array.from(set).sort();
+  }, [enviosPorLinea]);
+
   // Filtrar envios
   const enviosFiltrados = useMemo(() => {
     let lista = activeTab === 'en_transito'
@@ -277,15 +340,53 @@ export const Envios: React.FC = () => {
         const numeroEnvio = (e.numeroEnvio ?? '').toLowerCase();
         const origenNombre = (e.origenCasillaNombre ?? e.origenProveedorNombre ?? '').toLowerCase();
         const destinoNombre = (e.destinoCasillaNombre ?? '').toLowerCase();
+        const tracking = (e.numeroTracking ?? '').toLowerCase();
+        const ocNumero = ((e as any).ordenCompraNumero ?? '').toLowerCase();
         return numeroEnvio.includes(term) ||
                origenNombre.includes(term) ||
-               destinoNombre.includes(term);
+               destinoNombre.includes(term) ||
+               tracking.includes(term) ||
+               ocNumero.includes(term);
+      });
+    }
+
+    // S42 Tanda 9 — Pills filtro (mockup s40 líneas 2074-2077)
+    if (pillFiltroEnv === 'activas') {
+      lista = lista.filter(e => !['recibida_completa', 'cancelada'].includes(e.estado));
+    } else if (pillFiltroEnv === 'incidencias') {
+      lista = lista.filter(e => {
+        if ((e.totalUnidadesFaltantes || 0) > 0 || (e.totalUnidadesDanadas || 0) > 0) return true;
+        if (e.estado === 'retenida_aduana' || e.estado === 'perdida_total') return true;
+        if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
+        return false;
+      });
+    }
+
+    // Dropdown courier
+    if (filtroCourier) {
+      lista = lista.filter(e => e.courier === filtroCourier);
+    }
+
+    // Dropdown tipo de ruta (mockup líneas 2080-2085)
+    if (filtroTipoRuta) {
+      lista = lista.filter(e => {
+        const esDDP = (e as any).esDDP === true;
+        if (filtroTipoRuta === 'ddp_directo') return esDDP;
+        if (filtroTipoRuta === 'proveedor_casilla') return !esDDP && e.tipo === 'internacional_peru' && !!e.ordenCompraId;
+        if (filtroTipoRuta === 'casilla_peru') return !esDDP && e.tipo === 'internacional_peru' && !e.ordenCompraId;
+        if (filtroTipoRuta === 'entre_casillas') return e.tipo === 'interna_origen';
+        return true;
       });
     }
 
     return lista;
   }, [activeTab, enviosEnTransitoPorLinea, enviosPendientesPorLinea, enviosPorLinea,
-      pipelineStage, filtroTipo, filtroEstado, busqueda]);
+      pipelineStage, filtroTipo, filtroEstado, busqueda, pillFiltroEnv, filtroCourier, filtroTipoRuta]);
+
+  // S42 Tanda 9 — Reset paginación al cambiar filtros
+  useEffect(() => {
+    setItemsVisiblesEnv(12);
+  }, [activeTab, pipelineStage, filtroTipo, filtroEstado, busqueda, pillFiltroEnv, filtroCourier, filtroTipoRuta]);
 
   // Handlers de acciones
   const handleConfirmar = useCallback(async (id: string) => {
@@ -688,12 +789,44 @@ export const Envios: React.FC = () => {
         <TabRendimiento />
       ) : (
       <>
-      {/* StatCards interactivos */}
+      {/* S42 Tanda 9 — KPIs alineados al mockup (líneas 1948-1998) */}
       <DSKPIBar columns={6}>
-        <DSStatCard label="Total" value={enviosPorLinea.length} icon={ArrowRightLeft} variant="neutral" />
-        <DSStatCard label="En Transito" value={resumen?.enTransito || 0} icon={Truck} variant="info" onClick={() => setActiveTab('en_transito')} active={activeTab === 'en_transito'} />
-        <DSStatCard label="Pendientes" value={resumen?.pendientesRecepcion || 0} icon={Clock} variant="warning" onClick={() => setActiveTab('pendientes')} active={activeTab === 'pendientes'} />
-        <DSStatCard label="Incidencias" value={resumen?.enviosConIncidencias || 0} icon={AlertTriangle} variant={resumen?.enviosConIncidencias ? 'danger' : 'neutral'} onClick={() => setActiveTab('incidencias')} active={activeTab === 'incidencias'} />
+        <DSStatCard
+          label="Total"
+          value={enviosPorLinea.length}
+          icon={ArrowRightLeft}
+          variant="neutral"
+          subtitle="envíos activos"
+        />
+        <DSStatCard
+          label="En tránsito"
+          value={resumen?.enTransito || 0}
+          icon={Truck}
+          variant="info"
+          onClick={() => setActiveTab('en_transito')}
+          active={activeTab === 'en_transito'}
+          subtitle={enviosStatsExtra.unidadesEnTransito > 0
+            ? `${enviosStatsExtra.unidadesEnTransito} unidades`
+            : 'en camino'}
+        />
+        <DSStatCard
+          label="Pendientes"
+          value={resumen?.pendientesRecepcion || 0}
+          icon={Clock}
+          variant="warning"
+          onClick={() => setActiveTab('pendientes')}
+          active={activeTab === 'pendientes'}
+          subtitle="recepción parcial"
+        />
+        <DSStatCard
+          label="Incidencias"
+          value={resumen?.enviosConIncidencias || 0}
+          icon={AlertTriangle}
+          variant={resumen?.enviosConIncidencias ? 'danger' : 'neutral'}
+          onClick={() => setActiveTab('incidencias')}
+          active={activeTab === 'incidencias'}
+          subtitle="sin resolver"
+        />
         <DSStatCard
           label="En reclamo"
           value={resumenReclamos?.reclamosPendientes || 0}
@@ -701,39 +834,173 @@ export const Envios: React.FC = () => {
           variant={resumenReclamos && resumenReclamos.reclamosPendientes > 0 ? 'warning' : 'neutral'}
           onClick={() => setTabEnvios('reclamos')}
           subtitle={resumenReclamos && resumenReclamos.totalReclamadoPEN > 0
-            ? `S/ ${resumenReclamos.totalReclamadoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`
-            : undefined}
+            ? `S/ ${resumenReclamos.totalReclamadoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })} pendiente`
+            : 'sin reclamos'}
         />
-        <DSStatCard label="Valor USD" value={valorEnTransito > 0 ? `$${valorEnTransito.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '$0'} icon={DollarSign} variant="brand" />
+        <DSStatCard
+          label="Valor landed"
+          value={enviosStatsExtra.tc > 0
+            ? `S/ ${enviosStatsExtra.valorLandedPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`
+            : `$${valorEnTransito.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+          icon={DollarSign}
+          variant="success"
+          subtitle="total prorrateado"
+        />
       </DSKPIBar>
 
-      {/* Distribucion Visual */}
+      {/* S42 Tanda 9 — Dashboard 2-col: Breakdown por tipo + Pipeline logístico horizontal (mockup líneas 2000-2070) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <StatDistribution
-          title="Estado de Envios"
-          data={[
-            { label: 'Borrador', value: pipelineStages[0]?.count || 0, color: 'bg-slate-400' },
-            { label: 'Confirmado', value: pipelineStages[1]?.count || 0, color: 'bg-yellow-500' },
-            { label: 'En Transito', value: pipelineStages[2]?.count || 0, color: 'bg-sky-500' },
-            { label: 'Recibida', value: pipelineStages[3]?.count || 0, color: 'bg-emerald-500' },
-          ]}
-        />
-        <StatDistribution
-          title="Tipo de Envios"
-          data={[
-            { label: 'Internacional Peru', value: enviosPorLinea.filter(e => e.tipo === 'internacional_peru').length, color: 'bg-sky-500' },
-            { label: 'Interna Origen', value: enviosPorLinea.filter(e => e.tipo === 'interna_origen').length, color: 'bg-slate-500' },
-          ]}
-        />
+        {/* Breakdown por tipo */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-slate-800 mb-3">Distribución por tipo</h3>
+          <div className="space-y-2">
+            {breakdownPorTipo.map((item) => (
+              <div key={item.label}>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="flex items-center gap-1.5 text-slate-700">
+                    <span className={`w-2 h-2 rounded-full ${item.dot}`}></span>
+                    {item.label}
+                  </span>
+                  <span className="font-semibold text-slate-800">
+                    {item.value} <span className="text-slate-400 font-normal">({item.pct}%)</span>
+                  </span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div className={`${item.bar} h-2 rounded-full transition-all`} style={{ width: `${item.pct}%` }}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pipeline logístico horizontal */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-slate-800 mb-3">Pipeline logístico</h3>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setPipelineStage(pipelineStage === 'borrador' ? null : 'borrador')}
+              className={`flex-1 rounded-lg p-2 text-center transition-colors ${
+                pipelineStage === 'borrador' ? 'bg-slate-200 ring-2 ring-slate-400' : 'bg-slate-100 hover:bg-slate-200'
+              }`}
+            >
+              <FileText className="h-4 w-4 text-slate-600 mx-auto" />
+              <div className="text-[10px] text-slate-600 mt-0.5">Borrador</div>
+              <div className="text-sm font-bold text-slate-900">{pipelineStages[0]?.count || 0}</div>
+            </button>
+            <ChevronRight className="h-3 w-3 text-slate-300" />
+            <button
+              type="button"
+              onClick={() => setPipelineStage(pipelineStage === 'confirmado' ? null : 'confirmado')}
+              className={`flex-1 rounded-lg p-2 text-center border transition-colors ${
+                pipelineStage === 'confirmado' ? 'bg-amber-100 border-amber-300 ring-2 ring-amber-300' : 'bg-amber-50 border-amber-200 hover:bg-amber-100'
+              }`}
+            >
+              <Package className="h-4 w-4 text-amber-600 mx-auto" />
+              <div className="text-[10px] text-amber-700 mt-0.5">Confirmado</div>
+              <div className="text-sm font-bold text-slate-900">{pipelineStages[1]?.count || 0}</div>
+            </button>
+            <ChevronRight className="h-3 w-3 text-slate-300" />
+            <button
+              type="button"
+              onClick={() => setPipelineStage(pipelineStage === 'en_transito' ? null : 'en_transito')}
+              className={`flex-1 rounded-lg p-2 text-center border transition-colors ${
+                pipelineStage === 'en_transito' ? 'bg-sky-100 border-sky-300 ring-2 ring-sky-300' : 'bg-sky-50 border-sky-200 hover:bg-sky-100'
+              }`}
+            >
+              <Truck className="h-4 w-4 text-sky-600 mx-auto" />
+              <div className="text-[10px] text-sky-700 mt-0.5">En tránsito</div>
+              <div className="text-sm font-bold text-slate-900">{pipelineStages[2]?.count || 0}</div>
+            </button>
+            <ChevronRight className="h-3 w-3 text-slate-300" />
+            <button
+              type="button"
+              onClick={() => setPipelineStage(pipelineStage === 'recibida' ? null : 'recibida')}
+              className={`flex-1 rounded-lg p-2 text-center border transition-colors ${
+                pipelineStage === 'recibida' ? 'bg-emerald-100 border-emerald-300 ring-2 ring-emerald-300' : 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+              }`}
+            >
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 mx-auto" />
+              <div className="text-[10px] text-emerald-700 mt-0.5">Recibida</div>
+              <div className="text-sm font-bold text-slate-900">{pipelineStages[3]?.count || 0}</div>
+            </button>
+          </div>
+          {resumen?.completadasMes != null && (
+            <div className="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500 text-center">
+              Completadas este mes: <b className="text-slate-700">{resumen.completadasMes}</b>
+              {enviosPorLinea.length > 0 && (
+                <> · Fill rate: <b className="text-emerald-700">
+                  {Math.round(((pipelineStages[3]?.count || 0) / enviosPorLinea.length) * 100)}%
+                </b></>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Pipeline visual de estados */}
-      <PipelineHeader
-        stages={pipelineStages}
-        activeStage={pipelineStage}
-        onStageClick={setPipelineStage}
-        title="Flujo de Envios"
-      />
+      {/* S42 Tanda 9 — Pills filtros + dropdowns (mockup líneas 2072-2092) */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-slate-500">Filtrar:</span>
+        <button
+          type="button"
+          onClick={() => setPillFiltroEnv('todas')}
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+            pillFiltroEnv === 'todas' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          Todas <span className="ml-1 opacity-75">({enviosPorLinea.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setPillFiltroEnv('activas')}
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+            pillFiltroEnv === 'activas' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          Activas ({enviosStatsExtra.countActivas})
+        </button>
+        <button
+          type="button"
+          onClick={() => setPillFiltroEnv('incidencias')}
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+            pillFiltroEnv === 'incidencias' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          Con incidencias ({enviosStatsExtra.countIncidencias})
+        </button>
+        <span className="text-slate-300 mx-1">|</span>
+        <select
+          value={filtroTipoRuta}
+          onChange={(e) => setFiltroTipoRuta(e.target.value)}
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="">Todos los tipos</option>
+          <option value="proveedor_casilla">Proveedor → Casilla</option>
+          <option value="casilla_peru">Casilla → Perú</option>
+          <option value="entre_casillas">Entre casillas origen</option>
+          <option value="ddp_directo">DDP directo</option>
+        </select>
+        <select
+          value={filtroCourier}
+          onChange={(e) => setFiltroCourier(e.target.value)}
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="">Todos los couriers</option>
+          {couriersUnicos.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        <div className="flex-1" />
+        {(pillFiltroEnv !== 'todas' || filtroCourier || filtroTipoRuta) && (
+          <button
+            type="button"
+            onClick={() => { setPillFiltroEnv('todas'); setFiltroCourier(''); setFiltroTipoRuta(''); }}
+            className="text-xs text-slate-500 hover:text-slate-700"
+          >
+            Limpiar filtros
+          </button>
+        )}
+      </div>
 
       {/* Toolbar */}
       <Toolbar
@@ -811,20 +1078,37 @@ export const Envios: React.FC = () => {
           </div>
         </Card>
       ) : viewMode === 'card' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {enviosFiltrados.map(envio => (
-            <EnvioCard
-              key={envio.id}
-              envio={envio}
-              productosMap={productosMapGlobal}
-              onSelect={setSelectedEnvio}
-              onConfirmar={handleConfirmar}
-              onEnviar={handleEnviar}
-              onCancelar={handleCancelar}
-              onIniciarRecepcion={handleIniciarRecepcion}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {enviosFiltrados.slice(0, itemsVisiblesEnv).map(envio => (
+              <EnvioCard
+                key={envio.id}
+                envio={envio}
+                productosMap={productosMapGlobal}
+                onSelect={setSelectedEnvio}
+                onConfirmar={handleConfirmar}
+                onEnviar={handleEnviar}
+                onCancelar={handleCancelar}
+                onIniciarRecepcion={handleIniciarRecepcion}
+              />
+            ))}
+          </div>
+          {/* S42 Tanda 9 — Footer "Cargar más" (mockup sección final) */}
+          {enviosFiltrados.length > itemsVisiblesEnv && (
+            <div className="pt-2 text-center">
+              <span className="text-xs text-slate-500">
+                + {enviosFiltrados.length - itemsVisiblesEnv} envíos más ·{' '}
+              </span>
+              <button
+                type="button"
+                onClick={() => setItemsVisiblesEnv((n) => n + 12)}
+                className="text-xs font-medium text-teal-600 hover:text-teal-700 hover:underline"
+              >
+                Cargar más
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <Card padding="none">
           <DataTable

@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Layers } from 'lucide-react';
-import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
-import { LineaDropdown } from '../../components/common/LineaDropdown';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Search } from 'lucide-react';
+import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, KPIBar, StatCard, DataCard } from '../../design-system';
 import type { StatusVariant } from '../../design-system';
-import type { PipelineStage } from '../../components/common';
 import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
 import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
@@ -152,6 +150,12 @@ export const OrdenesCompra: React.FC = () => {
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
+  // S42 Tanda 10 — Filtros adicionales vista Compras (mockup s40 líneas 235-254)
+  const [busquedaGlobal, setBusquedaGlobal] = useState('');
+  const [pillFiltro, setPillFiltro] = useState<'todas' | 'activas' | 'completadas'>('todas');
+  const [filtroProveedor, setFiltroProveedor] = useState('');
+  const [filtroEstadoPago, setFiltroEstadoPago] = useState('');
+  const [itemsVisibles, setItemsVisibles] = useState(10);
   // Estado para edición
   const [ordenEditando, setOrdenEditando] = useState<OrdenCompra | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -226,13 +230,100 @@ export const OrdenesCompra: React.FC = () => {
     completada: ['completada', 'recibida'],
   };
 
-  // Órdenes filtradas
+  // S42 Tanda 10 — Stats derivados para KPIs enriquecidos (mockup s40 líneas 128-178)
+  const statsExtra = useMemo(() => {
+    const estadosActivos = ['confirmada', 'enviada', 'pagada', 'en_proceso', 'despachada', 'en_transito', 'recibida_parcial'];
+    const estadosCompletados = ['completada', 'recibida'];
+
+    let montoPendienteUSD = 0;
+    let ocsConPagoPendiente = 0;
+    let montoCompletadasUSD = 0;
+    let countActivas = 0;
+    let countCompletadas = 0;
+
+    for (const o of ordenesLN) {
+      if (estadosActivos.includes(o.estado)) countActivas++;
+      if (estadosCompletados.includes(o.estado)) {
+        countCompletadas++;
+        montoCompletadasUSD += (o.totalUSD || 0);
+      }
+      if (o.estado !== 'cancelada' && (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial')) {
+        const pagado = (o.historialPagos || []).reduce((s, p) => s + (p.montoUSD || 0), 0);
+        const pendiente = (o.totalUSD || 0) - pagado;
+        if (pendiente > 0.01) {
+          montoPendienteUSD += pendiente;
+          ocsConPagoPendiente++;
+        }
+      }
+    }
+
+    // Envíos activos vinculados a OCs en despacho
+    const ocIdsEnDespacho = new Set(
+      ordenesLN
+        .filter(o => ['en_proceso', 'despachada', 'en_transito', 'recibida_parcial'].includes(o.estado))
+        .map(o => o.id)
+    );
+    const enviosActivosVinculados = envios.filter(e =>
+      e.ordenCompraId && ocIdsEnDespacho.has(e.ordenCompraId) && ['en_transito', 'confirmado'].includes(e.estado)
+    ).length;
+
+    return {
+      montoPendienteUSD,
+      ocsConPagoPendiente,
+      montoCompletadasUSD,
+      countActivas,
+      countCompletadas,
+      enviosActivosVinculados,
+    };
+  }, [ordenesLN, envios]);
+
+  // Órdenes filtradas — aplica pipeline + pills + dropdowns + búsqueda global
   const ordenesFiltradas = useMemo(() => {
-    if (!filtroEstado) return ordenesLN;
-    const estadosValidos =
-      estadoFilterMapOpcionB[filtroEstado as EstadoPipelineCompras] || [filtroEstado];
-    return ordenesLN.filter((o) => estadosValidos.includes(o.estado));
-  }, [ordenesLN, filtroEstado]);
+    let lista = ordenesLN;
+
+    // Pipeline stage (si activo)
+    if (filtroEstado) {
+      const estadosValidos =
+        estadoFilterMapOpcionB[filtroEstado as EstadoPipelineCompras] || [filtroEstado];
+      lista = lista.filter((o) => estadosValidos.includes(o.estado));
+    }
+
+    // Pills filtro (todas / activas / completadas)
+    if (pillFiltro === 'activas') {
+      lista = lista.filter(o =>
+        ['confirmada', 'enviada', 'pagada', 'en_proceso', 'despachada', 'en_transito', 'recibida_parcial'].includes(o.estado)
+      );
+    } else if (pillFiltro === 'completadas') {
+      lista = lista.filter(o => ['completada', 'recibida'].includes(o.estado));
+    }
+
+    // Filtro por proveedor
+    if (filtroProveedor) {
+      lista = lista.filter(o => o.proveedorId === filtroProveedor);
+    }
+
+    // Filtro por estado de pago
+    if (filtroEstadoPago) {
+      lista = lista.filter(o => o.estadoPago === filtroEstadoPago);
+    }
+
+    // Búsqueda global (número OC, proveedor, tracking)
+    if (busquedaGlobal.trim()) {
+      const term = busquedaGlobal.trim().toLowerCase();
+      lista = lista.filter(o =>
+        (o.numeroOrden || '').toLowerCase().includes(term) ||
+        (o.nombreProveedor || '').toLowerCase().includes(term) ||
+        (o.numeroTracking || '').toLowerCase().includes(term)
+      );
+    }
+
+    return lista;
+  }, [ordenesLN, filtroEstado, pillFiltro, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
+
+  // Reset paginación cuando cambian filtros
+  useEffect(() => {
+    setItemsVisibles(10);
+  }, [filtroEstado, pillFiltro, filtroProveedor, filtroEstadoPago, busquedaGlobal]);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -741,10 +832,21 @@ export const OrdenesCompra: React.FC = () => {
       {/* Header */}
       <PageHeader
         title="Compras"
-        subtitle="Órdenes de compra, sub-órdenes y pipeline logístico"
+        subtitle="Órdenes de compra y proveedores"
         icon={Package}
         actions={
           <div className="flex items-center gap-2">
+            {/* S42 Tanda 10 — Search global (mockup líneas 116-125) */}
+            <div className="relative hidden md:block">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={busquedaGlobal}
+                onChange={(e) => setBusquedaGlobal(e.target.value)}
+                placeholder="Buscar OC, proveedor, número..."
+                className="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 w-60"
+              />
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -791,7 +893,7 @@ export const OrdenesCompra: React.FC = () => {
         </Card>
       )}
 
-      {/* KPIs — alineados al pipeline S41 (Borrador → Confirmada → En Despacho → Completada) */}
+      {/* S42 Tanda 10 — KPIs alineados al mockup (líneas 128-178): Total · Valor · Borradores · En curso · Por pagar · Completadas */}
       {stats && (
         <KPIBar columns={6}>
           <StatCard
@@ -799,38 +901,50 @@ export const OrdenesCompra: React.FC = () => {
             value={stats.totalOrdenes}
             icon={Package}
             variant="neutral"
+            subtitle="este mes"
+          />
+          <StatCard
+            label="Valor total"
+            value={`$${stats.valorTotalUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+            icon={DollarSign}
+            variant="info"
+            subtitle="USD"
           />
           <StatCard
             label="Borradores"
             value={stats.borradores}
             icon={Edit3}
             variant="neutral"
+            subtitle="sin confirmar"
             onClick={() => setFiltroEstado(filtroEstado === 'borrador' ? null : 'borrador')}
             active={filtroEstado === 'borrador'}
           />
           <StatCard
-            label="En Despacho"
+            label="En curso"
             value={stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)}
             icon={TrendingUp}
             variant="warning"
+            subtitle={statsExtra.enviosActivosVinculados > 0
+              ? `${statsExtra.enviosActivosVinculados} envíos activos`
+              : 'envíos en tránsito / parcial'}
+          />
+          <StatCard
+            label="Por pagar"
+            value={statsExtra.ocsConPagoPendiente}
+            icon={CreditCard}
+            variant="danger"
+            subtitle={statsExtra.montoPendienteUSD > 0
+              ? `$${statsExtra.montoPendienteUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} pendiente`
+              : 'sin pagos pendientes'}
           />
           <StatCard
             label="Completadas"
             value={stats.recibidas}
             icon={CheckCircle}
             variant="success"
-          />
-          <StatCard
-            label="Con sub-órdenes"
-            value={ordenesLN.filter(o => (o.subOrdenes?.length ?? 0) > 0).length}
-            icon={Layers}
-            variant="info"
-          />
-          <StatCard
-            label="Valor Total USD"
-            value={`$${stats.valorTotalUSD.toFixed(0)}`}
-            icon={DollarSign}
-            variant="brand"
+            subtitle={statsExtra.montoCompletadasUSD > 0
+              ? `$${statsExtra.montoCompletadasUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              : 'todos los envíos recibidos'}
           />
         </KPIBar>
       )}
@@ -842,6 +956,80 @@ export const OrdenesCompra: React.FC = () => {
         onStageClick={(s) => setFiltroEstado(s)}
         totalOCs={ordenesLN.length}
       />
+
+      {/* S42 Tanda 10 — Pills filtros rápidos + dropdowns (mockup líneas 236-250) */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-slate-500">Filtrar:</span>
+        <button
+          type="button"
+          onClick={() => setPillFiltro('todas')}
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+            pillFiltro === 'todas'
+              ? 'bg-teal-600 text-white'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          Todas <span className="ml-1 opacity-75">({ordenesLN.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setPillFiltro('activas')}
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+            pillFiltro === 'activas'
+              ? 'bg-teal-600 text-white'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          Activas ({statsExtra.countActivas})
+        </button>
+        <button
+          type="button"
+          onClick={() => setPillFiltro('completadas')}
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+            pillFiltro === 'completadas'
+              ? 'bg-teal-600 text-white'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          Completadas ({statsExtra.countCompletadas})
+        </button>
+        <span className="text-slate-300 mx-1">|</span>
+        <select
+          value={filtroProveedor}
+          onChange={(e) => setFiltroProveedor(e.target.value)}
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="">Todos los proveedores</option>
+          {proveedoresActivos.map((p) => (
+            <option key={p.id} value={p.id}>{p.nombre}</option>
+          ))}
+        </select>
+        <select
+          value={filtroEstadoPago}
+          onChange={(e) => setFiltroEstadoPago(e.target.value)}
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="">Todos los estados de pago</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="parcial">Parcial</option>
+          <option value="pagado">Pagado</option>
+        </select>
+        <div className="flex-1" />
+        {(pillFiltro !== 'todas' || filtroProveedor || filtroEstadoPago || busquedaGlobal) && (
+          <button
+            type="button"
+            onClick={() => {
+              setPillFiltro('todas');
+              setFiltroProveedor('');
+              setFiltroEstadoPago('');
+              setBusquedaGlobal('');
+            }}
+            className="text-xs text-slate-500 hover:text-slate-700"
+          >
+            Limpiar filtros
+          </button>
+        )}
+      </div>
 
       {/* Toolbar */}
       <Toolbar
@@ -872,27 +1060,44 @@ export const OrdenesCompra: React.FC = () => {
               </p>
             </div>
           ) : (
-            ordenesFiltradas.map((orden) => (
-              <CompraCard
-                key={orden.id}
-                orden={orden}
-                enviosAsociados={enviosPorOCIndex.get(orden.id) ?? []}
-                onView={() => handleViewDetails(orden)}
-                onRegistrarPago={() => {
-                  setSelectedOrdenLocal(orden);
-                  setSubOrdenPago(null);
-                  setIsPagoModalOpen(true);
-                }}
-                onRegistrarPagoSubOrden={(subOrdenId) => {
-                  setSelectedOrdenLocal(orden);
-                  setSubOrdenPago(subOrdenId);
-                  setIsPagoModalOpen(true);
-                }}
-                onVerSubOrden={(subOrdenId) =>
-                  setSubOrdenDetalle({ ordenId: orden.id, subOrdenId })
-                }
-              />
-            ))
+            <>
+              {ordenesFiltradas.slice(0, itemsVisibles).map((orden) => (
+                <CompraCard
+                  key={orden.id}
+                  orden={orden}
+                  enviosAsociados={enviosPorOCIndex.get(orden.id) ?? []}
+                  onView={() => handleViewDetails(orden)}
+                  onRegistrarPago={() => {
+                    setSelectedOrdenLocal(orden);
+                    setSubOrdenPago(null);
+                    setIsPagoModalOpen(true);
+                  }}
+                  onRegistrarPagoSubOrden={(subOrdenId) => {
+                    setSelectedOrdenLocal(orden);
+                    setSubOrdenPago(subOrdenId);
+                    setIsPagoModalOpen(true);
+                  }}
+                  onVerSubOrden={(subOrdenId) =>
+                    setSubOrdenDetalle({ ordenId: orden.id, subOrdenId })
+                  }
+                />
+              ))}
+              {/* S42 Tanda 10 — Footer "Cargar más" (mockup líneas 478-481) */}
+              {ordenesFiltradas.length > itemsVisibles && (
+                <div className="pt-2 text-center">
+                  <span className="text-xs text-slate-500">
+                    + {ordenesFiltradas.length - itemsVisibles} OCs más ·{' '}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setItemsVisibles((n) => n + 10)}
+                    className="text-xs font-medium text-teal-600 hover:text-teal-700 hover:underline"
+                  >
+                    Cargar más
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
