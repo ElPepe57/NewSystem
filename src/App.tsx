@@ -20,6 +20,7 @@ const Gastos = React.lazy(() => import('./pages/Gastos/Gastos').then(m => ({ def
 const Reportes = React.lazy(() => import('./pages/Reportes/Reportes').then(m => ({ default: m.Reportes })));
 const CTRUDashboard = React.lazy(() => import('./pages/CTRU/CTRUDashboard').then(m => ({ default: m.CTRUDashboard })));
 const Configuracion = React.lazy(() => import('./pages/Configuracion/Configuracion').then(m => ({ default: m.Configuracion })));
+const BorradoresWizardPanel = React.lazy(() => import('./pages/Configuracion/BorradoresWizardPanel').then(m => ({ default: m.BorradoresWizardPanel })));
 const Cotizaciones = React.lazy(() => import('./pages/Cotizaciones/Cotizaciones').then(m => ({ default: m.Cotizaciones })));
 const Requerimientos = React.lazy(() => import('./pages/Requerimientos/Requerimientos').then(m => ({ default: m.Requerimientos })));
 const Tesoreria = React.lazy(() => import('./pages/Tesoreria/Tesoreria').then(m => ({ default: m.Tesoreria })));
@@ -170,6 +171,7 @@ function App() {
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="auditoria" element={<Auditoria />} />
               <Route path="configuracion" element={<Configuracion />} />
+              <Route path="configuracion/borradores" element={<BorradoresWizardPanel />} />
 
               {/* Mercado Libre */}
               <Route path="mercado-libre" element={<MercadoLibre />} />

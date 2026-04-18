@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2 } from 'lucide-react';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Layers } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal } from '../../components/common';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { PageShell, PageHeader, Toolbar, KPIBar, StatCard, DataCard } from '../../design-system';
@@ -10,7 +10,12 @@ import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
 import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
-import { OCWizardV2 } from '../../components/modules/ordenCompra/OCWizardV2/OCWizardV2';
+import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
+import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
+import { PipelineCompras } from '../../components/modules/ordenCompra/PipelineCompras';
+import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras';
+import { SubOrdenDetailModal } from '../../components/modules/ordenCompra/SubOrdenDetailModal';
+import { useEnvioStore } from '../../store/envioStore';
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 // S40: RecepcionParcialModal eliminado — recepción ahora se gestiona desde el Envío (ver EnviosDeOC en OrdenCompraCard)
@@ -112,8 +117,29 @@ export const OrdenesCompra: React.FC = () => {
     fetchStats
   } = useOrdenCompraStore();
 
+  // S41 — envíos para mostrar lista asociada en CompraCard
+  const envios = useEnvioStore((s) => s.envios);
+  const fetchEnvios = useEnvioStore((s) => s.fetchEnvios);
+
+  // Índice envíos por ordenCompraId (O(1) lookup desde cards)
+  const enviosPorOCIndex = useMemo(() => {
+    const m = new Map<string, typeof envios>();
+    envios.forEach((e) => {
+      if (!e.ordenCompraId) return;
+      if (!m.has(e.ordenCompraId)) m.set(e.ordenCompraId, []);
+      m.get(e.ordenCompraId)!.push(e);
+    });
+    return m;
+  }, [envios]);
+
   // Filtrar órdenes por línea de negocio global
   const ordenesLN = useLineaFilter(ordenes, o => o.lineaNegocioId);
+
+  // S41 Tanda 6 — estado para SubOrdenDetailModal
+  const [subOrdenDetalle, setSubOrdenDetalle] = useState<{
+    ordenId: string;
+    subOrdenId: string;
+  } | null>(null);
 
   const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
   const [isWizardV2Open, setIsWizardV2Open] = useState(false);
@@ -166,33 +192,46 @@ export const OrdenesCompra: React.FC = () => {
   const { modalProps: actionModalProps, open: openActionModal } = useActionModal();
 
   // Pipeline stages para filtrado visual
-  const pipelineStages: PipelineStage[] = useMemo(() => {
-    // Contar estados nuevos (reingeniería) + legacy mapeados
-    const countEstado = (estados: string[]) => ordenesLN.filter(o => estados.includes(o.estado)).length;
+  // S41 — Pipeline Opción B: 4 estados (Borrador → Confirmada → En Despacho → Completada)
+  // Se deriva de los estados internos agrupándolos.
+  const pipelineComprasStages: PipelineComprasStage[] = useMemo(() => {
+    const countEstado = (estados: string[]) =>
+      ordenesLN.filter((o) => estados.includes(o.estado)).length;
 
     return [
-      { id: 'borrador', label: 'Borrador', count: countEstado(['borrador']), color: 'gray', icon: <FileText className="h-4 w-4" /> },
-      { id: 'confirmada', label: 'Confirmada', count: countEstado(['confirmada', 'enviada']), color: 'blue', icon: <Send className="h-4 w-4" /> },
-      { id: 'en_proceso', label: 'En Proceso', count: countEstado(['en_proceso', 'en_transito']), color: 'yellow', icon: <Truck className="h-4 w-4" /> },
-      { id: 'despachada', label: 'Despachada', count: countEstado(['despachada', 'recibida_parcial']), color: 'orange', icon: <PackageCheck className="h-4 w-4" /> },
-      { id: 'completada', label: 'Completada', count: countEstado(['completada', 'recibida']), color: 'green', icon: <CheckCircle className="h-4 w-4" /> },
+      { id: 'borrador', label: 'Borrador', count: countEstado(['borrador']) },
+      {
+        id: 'confirmada',
+        label: 'Confirmada',
+        count: countEstado(['confirmada', 'enviada', 'pagada']),
+      },
+      {
+        id: 'en_despacho',
+        label: 'En Despacho',
+        count: countEstado(['en_proceso', 'despachada', 'en_transito', 'recibida_parcial']),
+      },
+      {
+        id: 'completada',
+        label: 'Completada',
+        count: countEstado(['completada', 'recibida']),
+      },
     ];
   }, [ordenesLN]);
 
-  // Mapeo de estados legacy a nuevos para filtros del pipeline
-  const estadoFilterMap: Record<string, string[]> = {
+  // Mapeo pipeline Opción B → estados internos (para filtrado)
+  const estadoFilterMapOpcionB: Record<EstadoPipelineCompras, string[]> = {
     borrador: ['borrador'],
-    confirmada: ['confirmada', 'enviada'],
-    en_proceso: ['en_proceso', 'en_transito'],
-    despachada: ['despachada', 'recibida_parcial'],
+    confirmada: ['confirmada', 'enviada', 'pagada'],
+    en_despacho: ['en_proceso', 'despachada', 'en_transito', 'recibida_parcial'],
     completada: ['completada', 'recibida'],
   };
 
   // Órdenes filtradas
   const ordenesFiltradas = useMemo(() => {
     if (!filtroEstado) return ordenesLN;
-    const estadosValidos = estadoFilterMap[filtroEstado] || [filtroEstado];
-    return ordenesLN.filter(o => estadosValidos.includes(o.estado));
+    const estadosValidos =
+      estadoFilterMapOpcionB[filtroEstado as EstadoPipelineCompras] || [filtroEstado];
+    return ordenesLN.filter((o) => estadosValidos.includes(o.estado));
   }, [ordenesLN, filtroEstado]);
 
   // Cargar datos al montar
@@ -202,6 +241,7 @@ export const OrdenesCompra: React.FC = () => {
         await fetchOrdenes();
         await fetchProveedoresActivos();
         await fetchProductos();
+        await fetchEnvios(); // S41: para mostrar envíos asociados en CompraCard
         if (fetchStats && typeof fetchStats === 'function') {
           await fetchStats();
         }
@@ -701,7 +741,7 @@ export const OrdenesCompra: React.FC = () => {
       {/* Header */}
       <PageHeader
         title="Compras"
-        subtitle="Ordenes de compra y proveedores"
+        subtitle="Órdenes de compra, sub-órdenes y pipeline logístico"
         icon={Package}
         actions={
           <div className="flex items-center gap-2">
@@ -751,22 +791,56 @@ export const OrdenesCompra: React.FC = () => {
         </Card>
       )}
 
-      {/* KPIs */}
+      {/* KPIs — alineados al pipeline S41 (Borrador → Confirmada → En Despacho → Completada) */}
       {stats && (
-        <KPIBar columns={4}>
-          <StatCard label="Total Ordenes" value={stats.totalOrdenes} icon={Package} variant="neutral" />
-          <StatCard label="En Proceso" value={stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)} icon={TrendingUp} variant="warning" />
-          <StatCard label="Recibidas" value={stats.recibidas} icon={CheckCircle} variant="success" />
-          <StatCard label="Valor Total" value={`$${stats.valorTotalUSD.toFixed(0)}`} icon={DollarSign} variant="brand" />
+        <KPIBar columns={6}>
+          <StatCard
+            label="Total OCs"
+            value={stats.totalOrdenes}
+            icon={Package}
+            variant="neutral"
+          />
+          <StatCard
+            label="Borradores"
+            value={stats.borradores}
+            icon={Edit3}
+            variant="neutral"
+            onClick={() => setFiltroEstado(filtroEstado === 'borrador' ? null : 'borrador')}
+            active={filtroEstado === 'borrador'}
+          />
+          <StatCard
+            label="En Despacho"
+            value={stats.enviadas + stats.pagadas + stats.enTransito + (stats.recibidasParcial || 0)}
+            icon={TrendingUp}
+            variant="warning"
+          />
+          <StatCard
+            label="Completadas"
+            value={stats.recibidas}
+            icon={CheckCircle}
+            variant="success"
+          />
+          <StatCard
+            label="Con sub-órdenes"
+            value={ordenesLN.filter(o => (o.subOrdenes?.length ?? 0) > 0).length}
+            icon={Layers}
+            variant="info"
+          />
+          <StatCard
+            label="Valor Total USD"
+            value={`$${stats.valorTotalUSD.toFixed(0)}`}
+            icon={DollarSign}
+            variant="brand"
+          />
         </KPIBar>
       )}
 
-      {/* Pipeline de Estados */}
-      <PipelineHeader
-        stages={pipelineStages}
-        activeStage={filtroEstado}
-        onStageClick={setFiltroEstado}
-        title="Pipeline de Compras"
+      {/* Pipeline Opción B (S41) — 4 etapas Borrador → Confirmada → En Despacho → Completada */}
+      <PipelineCompras
+        stages={pipelineComprasStages}
+        activeStage={filtroEstado as EstadoPipelineCompras | null}
+        onStageClick={(s) => setFiltroEstado(s)}
+        totalOCs={ordenesLN.length}
       />
 
       {/* Toolbar */}
@@ -788,34 +862,35 @@ export const OrdenesCompra: React.FC = () => {
           />
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-3">
           {ordenesFiltradas.length === 0 ? (
-            <div className="col-span-full bg-white border border-slate-200 rounded-lg py-16 text-center">
+            <div className="bg-white border border-slate-200 rounded-lg py-16 text-center">
               <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
               <p className="text-sm font-medium text-slate-700">Sin resultados</p>
-              <p className="text-xs text-slate-500 mt-1">No se encontraron órdenes de compra.</p>
+              <p className="text-xs text-slate-500 mt-1">
+                No se encontraron órdenes de compra.
+              </p>
             </div>
           ) : (
-            ordenesFiltradas.map(orden => (
-              <DataCard
+            ordenesFiltradas.map((orden) => (
+              <CompraCard
                 key={orden.id}
-                code={orden.numeroOrden}
-                title={orden.nombreProveedor || 'Sin proveedor'}
-                subtitle={`${orden.productos?.length || 0} productos`}
-                status={{
-                  label: getEstadoLabel(orden.estado),
-                  variant: getEstadoVariant(orden.estado),
+                orden={orden}
+                enviosAsociados={enviosPorOCIndex.get(orden.id) ?? []}
+                onView={() => handleViewDetails(orden)}
+                onRegistrarPago={() => {
+                  setSelectedOrdenLocal(orden);
+                  setSubOrdenPago(null);
+                  setIsPagoModalOpen(true);
                 }}
-                stats={[
-                  { label: 'Total USD', value: `$${(orden.totalUSD || 0).toFixed(2)}` },
-                  { label: 'Total PEN', value: `S/${(orden.totalPEN || 0).toFixed(0)}` },
-                ]}
-                meta={[
-                  { icon: Calendar, text: formatFecha(orden.fechaCreacion) },
-                  { icon: Building2, text: orden.nombreProveedor || '-' },
-                ]}
-                onClick={() => handleViewDetails(orden)}
-                accentVariant={getEstadoVariant(orden.estado)}
+                onRegistrarPagoSubOrden={(subOrdenId) => {
+                  setSelectedOrdenLocal(orden);
+                  setSubOrdenPago(subOrdenId);
+                  setIsPagoModalOpen(true);
+                }}
+                onVerSubOrden={(subOrdenId) =>
+                  setSubOrdenDetalle({ ordenId: orden.id, subOrdenId })
+                }
               />
             ))
           )}
@@ -971,12 +1046,28 @@ export const OrdenesCompra: React.FC = () => {
               const yaPagado = pagosRelevantes.reduce((s, p) => s + p.montoUSD, 0);
               const pendiente = montoTotal - yaPagado;
 
+              // S41 Bloque 5 — Destinatario del pago: colaborador si adelantó, proveedor en caso contrario
+              const esDeudorAlternativo =
+                selectedOrden.deudorTipo === 'colaborador' && !!selectedOrden.deudorId;
+              const destinatarioPago = esDeudorAlternativo
+                ? {
+                    id: selectedOrden.deudorId!,
+                    nombre: selectedOrden.deudorNombre || 'Colaborador',
+                    tipo: 'colaborador' as const,
+                    proveedorOriginalNombre: selectedOrden.nombreProveedor,
+                  }
+                : {
+                    id: selectedOrden.proveedorId,
+                    nombre: selectedOrden.nombreProveedor,
+                    tipo: 'proveedor' as const,
+                  };
+
               return (
                 <PagoUnificadoForm
                   origen="orden_compra"
                   titulo={subOrdenActiva
                     ? `Pago Sub-orden — ${subOrdenActiva.referenciaProveedor || subOrdenActiva.id}`
-                    : `Pago ${selectedOrden.numeroOrden} — ${selectedOrden.nombreProveedor}`}
+                    : `Pago ${selectedOrden.numeroOrden}`}
                   montoTotal={montoTotal}
                   montoPendiente={Math.max(0, pendiente)}
                   monedaOriginal="USD"
@@ -989,6 +1080,7 @@ export const OrdenesCompra: React.FC = () => {
                     metodo: p.metodoPago,
                     referencia: p.referencia,
                   }))}
+                  destinatario={destinatarioPago}
                   onSubmit={handleSubmitPago}
                   onCancel={() => { setIsPagoModalOpen(false); setSubOrdenPago(null); }}
                   loading={isSubmitting}
@@ -1018,8 +1110,8 @@ export const OrdenesCompra: React.FC = () => {
       {/* Modal de Acciones con campos */}
       <ActionModal {...actionModalProps} />
 
-      {/* Wizard V2 — Nuevo flujo de creación (Acuerdos 40-41) */}
-      <OCWizardV2
+      {/* Wizard V3 — Rework S41: Ruta → Productos → Cargos → Inteligencia → Confirmar */}
+      <OCWizardV3
         isOpen={isWizardV2Open}
         onClose={() => setIsWizardV2Open(false)}
         onSubmit={handleCreateOrden}
@@ -1037,6 +1129,39 @@ export const OrdenesCompra: React.FC = () => {
           onConfirm={handleDespacharSubmit}
         />
       )}
+
+      {/* S41 Tanda 6 — Modal Detalle sub-orden standalone */}
+      {subOrdenDetalle && (() => {
+        const orden = ordenes.find((o) => o.id === subOrdenDetalle.ordenId);
+        if (!orden) return null;
+        const subOrden = orden.subOrdenes?.find(
+          (s) => s.id === subOrdenDetalle.subOrdenId
+        );
+        if (!subOrden) return null;
+        const envioVinculado = subOrden.envioId
+          ? envios.find((e) => e.id === subOrden.envioId)
+          : null;
+
+        return (
+          <SubOrdenDetailModal
+            isOpen={true}
+            orden={orden}
+            subOrden={subOrden}
+            envio={envioVinculado ?? null}
+            onClose={() => setSubOrdenDetalle(null)}
+            onBackToOC={() => {
+              setSubOrdenDetalle(null);
+              handleViewDetails(orden);
+            }}
+            onRegistrarPago={() => {
+              setSelectedOrdenLocal(orden);
+              setSubOrdenPago(subOrden.id);
+              setIsPagoModalOpen(true);
+              setSubOrdenDetalle(null);
+            }}
+          />
+        );
+      })()}
     </PageShell>
   );
 };

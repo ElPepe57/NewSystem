@@ -314,6 +314,19 @@ export interface OrdenCompra {
   observaciones?: string;
   documentos?: string[];      // URLs de facturas, etc.
 
+  // ========== S41 — Deudor alternativo (Bloque 5) ==========
+  // Si el colaborador adelanta el pago al proveedor (patron "Recojo en origen"),
+  // la CxP se dirige al colaborador, no al proveedor. Estos campos permiten
+  // distinguir quien es el acreedor real de la deuda comercial.
+  //
+  // Default (NO presente o deudorTipo='proveedor'): la deuda es con el proveedor
+  //   (deudorId = proveedorId, deudorNombre = nombreProveedor)
+  // Si deudorTipo='colaborador': la deuda es con el colaborador que adelanto
+  //   (deudorId = colaboradorId, deudorNombre = nombre del colaborador)
+  deudorId?: string;
+  deudorNombre?: string;
+  deudorTipo?: 'proveedor' | 'colaborador';
+
   // Inventario generado
   inventarioGenerado: boolean;
   unidadesGeneradas?: string[];  // IDs de las unidades creadas
@@ -418,6 +431,10 @@ export interface OrdenCompraFormData {
   courier?: string;
   observaciones?: string;
   requerimientoId?: string;   // Vinculación con requerimiento origen (singular)
+  // S41 — Deudor alternativo (Bloque 5). Ver OrdenCompra arriba para semantica.
+  deudorId?: string;
+  deudorNombre?: string;
+  deudorTipo?: 'proveedor' | 'colaborador';
   // Sub-órdenes (división de OC en órdenes separadas del proveedor)
   subOrdenes?: SubOrdenCompra[];
   // Soporte multi-requerimiento (OC consolidada)

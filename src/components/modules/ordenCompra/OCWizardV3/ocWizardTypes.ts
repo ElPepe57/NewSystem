@@ -3,7 +3,13 @@ import type {
   ProductoOrden, CargoOC, DescuentoOC, ImpuestoOC,
   SubOrdenCompra,
 } from '../../../../types/ordenCompra.types';
-import type { ConfigLogistica } from './WizardStepEntrega';
+import type { ConfigLogistica } from './configLogistica';
+import { emptyConfig } from './configLogistica';
+
+// Re-export for downstream consumers that import from this module
+export type { ConfigLogistica } from './configLogistica';
+export { emptyConfig, deriveModoFromConfig, getConsequences, getVisibilidadTramos } from './configLogistica';
+export type { SalidaProveedor, LlegadaPeru, UltimaMilla, QuienPagaProveedor } from './configLogistica';
 
 // ========== Delivery Config (derived from steps 0+1) ==========
 
@@ -102,26 +108,7 @@ export interface OCWizardState {
 
 export const initialWizardState: OCWizardState = {
   currentStep: 0,
-  configLogistica: {
-    proveedorId: '',
-    proveedorNombre: '',
-    paisOrigen: '',
-    salidaProveedor: null,
-    fleteProveedorIncluido: null,
-    costoShippingProveedor: null,
-    tipoShipping: null,
-    quienPagaProveedor: null,
-    deudorId: '',
-    deudorNombre: '',
-    deudorTipo: '',
-    llegadaPeru: null,
-    colaboradorId: '',
-    colaboradorNombre: '',
-    ultimaMilla: null,
-    requiereRecojo: false,
-    casillaDestinoId: '',
-    casillaDestinoNombre: '',
-  },
+  configLogistica: { ...emptyConfig },
   modoEntregaDetallado: null,
   quienPagaFlete: null,
   colaboradorId: '',

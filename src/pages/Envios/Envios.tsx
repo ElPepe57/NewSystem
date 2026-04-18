@@ -45,7 +45,7 @@ import { useToastStore } from "../../store/toastStore";
 
 // Sub-componentes
 import { EnvioCard } from "./EnvioCard";
-import { CreateEnvioModal } from "./CreateEnvioModal";
+import { EnvioWizardV2 } from "./EnvioWizardV2/EnvioWizardV2";
 import { RecepcionModal } from "./RecepcionModal";
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -53,6 +53,7 @@ import { EditFleteModal } from "./EditFleteModal";
 import { EnvioDetailModal } from "./EnvioDetailModal";
 import { EnviosProveedorTab } from "./EnviosProveedorTab";
 import { DespacharOCModal, type DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
+import { DespacharEnvioModal, type DespacharEnvioResult } from './DespacharEnvioModal';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useReclamoStore } from '../../store/reclamoStore';
 import { TabReclamos } from './TabReclamos';
@@ -837,13 +838,13 @@ export const Envios: React.FC = () => {
         </Card>
       )}
 
-      {/* Modal: Crear envio */}
-      <CreateEnvioModal
+      {/* Wizard V2 — Rework S41: Ruta → Productos → Confirmar (Opción A) */}
+      <EnvioWizardV2
         isOpen={showCreateModal}
         loading={loading}
-        almacenesOrigen={almacenesOrigen}
-        almacenesDestinoPeru={almacenesDestinoPeru}
-        viajeros={viajeros}
+        casillasOrigen={almacenesOrigen}
+        casillasDestinoPeru={almacenesDestinoPeru}
+        colaboradores={viajeros}
         productosMap={productosMapGlobal}
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCrearEnvio}
@@ -935,21 +936,14 @@ export const Envios: React.FC = () => {
         />
       )}
 
-      {/* S39: Despachar envío con courier */}
+      {/* S41 Tanda 7: Despachar envío V2 — layout 2-col + selector rico */}
       {envioParaDespachar && (
-        <DespacharOCModal
+        <DespacharEnvioModal
           isOpen={true}
           onClose={() => setEnvioParaDespachar(null)}
-          orden={{
-            id: envioParaDespachar.ordenCompraId || envioParaDespachar.id,
-            numeroOrden: envioParaDespachar.ordenCompraNumero || envioParaDespachar.numeroEnvio,
-            colaboradorTransporteId: envioParaDespachar.colaboradorId,
-            colaboradorTransporteNombre: envioParaDespachar.colaboradorNombre || envioParaDespachar.courier,
-            courier: envioParaDespachar.courier,
-            numeroTracking: envioParaDespachar.numeroTracking,
-          } as any}
-          tituloEstado="Marcar como Enviado"
+          envio={envioParaDespachar}
           colaboradores={colaboradores}
+          productosMap={productosMapGlobal}
           onConfirm={handleDespacharEnvioSubmit}
         />
       )}

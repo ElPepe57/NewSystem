@@ -214,6 +214,12 @@ export async function create(
     if (data.cargosOC && data.cargosOC.length > 0) nuevaOrden.cargosOC = data.cargosOC;
     if (data.descuentosOC && data.descuentosOC.length > 0) nuevaOrden.descuentosOC = data.descuentosOC;
     if (data.impuestosOC && data.impuestosOC.length > 0) nuevaOrden.impuestosOC = data.impuestosOC;
+    // S41 Bloque 5 — Deudor alternativo: persistir solo si difiere del proveedor default
+    if (data.deudorTipo === 'colaborador' && data.deudorId) {
+      nuevaOrden.deudorId = data.deudorId;
+      nuevaOrden.deudorNombre = data.deudorNombre ?? '';
+      nuevaOrden.deudorTipo = 'colaborador';
+    }
     if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
     if (data.tcCompra) {
       nuevaOrden.tcCompra = data.tcCompra;

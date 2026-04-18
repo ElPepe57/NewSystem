@@ -13,7 +13,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Card, Badge, Button } from "../../components/common";
 import type { Envio, EstadoEnvio, TipoEnvio } from "../../types/envio.types";
-import { StatusBadge } from '../../design-system';
+import { StatusBadge, RouteVisual } from '../../design-system';
+import type { RouteNode, RouteSegment } from '../../design-system';
 import type { Producto } from "../../types/producto.types";
 import { getDescripcionProducto } from "../../utils/producto.helpers";
 
@@ -148,31 +149,41 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
         </div>
       </div>
 
-      {/* S38-014: Ruta DE / VÍA / A — proveedor + courier + destino */}
-      <div className="grid grid-cols-3 gap-2 mb-4 p-3 bg-slate-50 rounded-lg items-start">
-        <div className="min-w-0">
-          <div className="text-[10px] uppercase text-slate-500 font-semibold tracking-wide">De</div>
-          <div className="font-medium text-slate-900 text-sm leading-tight truncate">{origen.nombre}</div>
-          {origen.codigo && <div className="text-[11px] text-slate-500 truncate">{origen.codigo}</div>}
-        </div>
-        <div className="min-w-0 text-center border-x border-slate-200 px-2">
-          <div className="text-[10px] uppercase text-slate-500 font-semibold tracking-wide">Vía</div>
-          {(envio.courier || envio.colaboradorNombre) ? (
-            <>
-              <div className="font-medium text-slate-900 text-sm leading-tight truncate">{envio.courier || envio.colaboradorNombre}</div>
-              <div className="text-[11px] text-slate-500">Courier</div>
-            </>
-          ) : (
-            <div className="text-sm text-slate-400 italic mt-1">Sin asignar</div>
-          )}
-        </div>
-        <div className="min-w-0 text-right">
-          <div className="text-[10px] uppercase text-slate-500 font-semibold tracking-wide">A</div>
-          <div className="font-medium text-slate-900 text-sm leading-tight truncate">{envio.destinoCasillaNombre}</div>
-          <div className="text-[11px] text-slate-500 truncate">
-            {envio.destinoCasillaPais ? `Casilla · ${envio.destinoCasillaPais}` : envio.destinoCasillaCodigo}
-          </div>
-        </div>
+      {/* S41 — Ruta visual con RouteVisual del DS */}
+      <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+        {(() => {
+          const paisOrigen = envio.origenProveedorPais ?? envio.origenCasillaPais;
+          const paisDestino = envio.destinoCasillaPais;
+          const nodes: RouteNode[] = [
+            {
+              tipo: envio.origenTipo === 'proveedor' ? 'proveedor' : 'casilla',
+              flag: getFlagByPais(paisOrigen),
+              nombre: origen.nombre.split(' ')[0],
+              codigo: origen.codigo,
+              subtexto: paisOrigen,
+              state: 'done',
+            },
+            {
+              tipo: 'destino',
+              flag: getFlagByPais(paisDestino),
+              nombre: envio.destinoCasillaNombre?.split(' ')[0],
+              subtexto: envio.destinoCasillaPais
+                ? `Casilla · ${envio.destinoCasillaPais}`
+                : envio.destinoCasillaCodigo,
+              state: envio.estado === 'recibida_completa' ? 'done'
+                : envio.estado === 'en_transito' ? 'active'
+                : 'pending',
+            },
+          ];
+          const segments: RouteSegment[] = [
+            {
+              label: envio.courier || envio.colaboradorNombre || 'Sin asignar',
+              subtexto: envio.numeroTracking ? `Tracking: ${envio.numeroTracking.slice(-8)}` : undefined,
+              state: envio.colaboradorId || envio.courier ? 'done' : 'pending',
+            },
+          ];
+          return <RouteVisual size="sm" nodes={nodes} segments={segments} />;
+        })()}
       </div>
 
       {/* Productos */}
@@ -357,3 +368,25 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
     </Card>
   );
 };
+
+// Helper: bandera emoji por país (S41)
+function getFlagByPais(pais?: string): string {
+  if (!pais) return '🌐';
+  const flags: Record<string, string> = {
+    USA: '🇺🇸',
+    'Estados Unidos': '🇺🇸',
+    CHINA: '🇨🇳',
+    China: '🇨🇳',
+    COREA: '🇰🇷',
+    Corea: '🇰🇷',
+    'Corea del Sur': '🇰🇷',
+    JAPÓN: '🇯🇵',
+    Japón: '🇯🇵',
+    MÉXICO: '🇲🇽',
+    México: '🇲🇽',
+    PERÚ: '🇵🇪',
+    Perú: '🇵🇪',
+    Peru: '🇵🇪',
+  };
+  return flags[pais] ?? '🌐';
+}

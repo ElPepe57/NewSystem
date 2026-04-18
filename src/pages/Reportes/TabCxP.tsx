@@ -74,7 +74,36 @@ export const TabCxP: React.FC = () => {
           <DataTable
             columns={[
               { key: 'oc', header: 'OC', render: (oc: OrdenCompra) => <span className="font-medium text-slate-900">{oc.numeroOrden}</span> },
-              { key: 'proveedor', header: 'Proveedor', render: (oc: OrdenCompra) => oc.nombreProveedor },
+              // S41 Bloque 5 — Columna "Acreedor" muestra deudor real (colaborador si adelantó)
+              {
+                key: 'acreedor',
+                header: 'Acreedor',
+                render: (oc: OrdenCompra) => {
+                  const esDeudorAlternativo =
+                    oc.deudorTipo === 'colaborador' && !!oc.deudorId;
+                  if (esDeudorAlternativo) {
+                    return (
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-slate-900">
+                            {oc.deudorNombre || 'Colaborador'}
+                          </span>
+                          <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[9px] rounded font-semibold uppercase tracking-wide">
+                            colaborador
+                          </span>
+                        </div>
+                        <span
+                          className="text-[10px] text-slate-500"
+                          title={`Adelantó pago a ${oc.nombreProveedor}`}
+                        >
+                          adelantó a {oc.nombreProveedor}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return <span className="text-slate-900">{oc.nombreProveedor}</span>;
+                },
+              },
               { key: 'total', header: 'Total USD', align: 'right' as const, render: (oc: OrdenCompra) => fmtUSD(oc.totalUSD) },
               { key: 'pendiente', header: 'Pendiente', align: 'right' as const, render: (oc: OrdenCompra) => {
                 const pagado = (oc.historialPagos || []).reduce((s, p) => s + (p.montoUSD || 0), 0);

@@ -172,6 +172,19 @@ export async function registrarPago(
     // Register in Tesorería (non-blocking)
     try {
       const esPagoCompleto = updates.estadoPago === 'pagado';
+
+      // S41 Bloque 5 — Deudor alternativo: el concepto del movimiento refleja al
+      // destinatario real del pago (colaborador si adelantó pago al proveedor,
+      // proveedor en caso contrario).
+      const esDeudorAlternativo =
+        orden.deudorTipo === 'colaborador' && !!orden.deudorId;
+      const destinatarioNombre = esDeudorAlternativo
+        ? orden.deudorNombre || 'Colaborador'
+        : orden.nombreProveedor;
+      const conceptoSufijo = esDeudorAlternativo
+        ? `${destinatarioNombre} (adelantó pago a ${orden.nombreProveedor})`
+        : destinatarioNombre;
+
       const movimientoData: any = {
         tipo: 'pago_orden_compra',
         moneda: monedaPago,
@@ -179,7 +192,7 @@ export async function registrarPago(
         tipoCambio,
         metodo: metodoPago,
         referencia,
-        concepto: `Pago ${esPagoCompleto ? 'completo' : 'parcial'} OC ${orden.numeroOrden} - ${orden.nombreProveedor}`,
+        concepto: `Pago ${esPagoCompleto ? 'completo' : 'parcial'} OC ${orden.numeroOrden} - ${conceptoSufijo}`,
         ordenCompraId: id,
         ordenCompraNumero: orden.numeroOrden,
         notas:

@@ -5,8 +5,8 @@ import type {
   ProductoOrden, CargoOC, DescuentoOC, ImpuestoOC,
   SubOrdenCompra,
 } from '../../../../types/ordenCompra.types';
-import { deriveModoFromConfig } from './WizardStepEntrega';
-import type { ConfigLogistica } from './WizardStepEntrega';
+import { deriveModoFromConfig } from './configLogistica';
+import type { ConfigLogistica } from './configLogistica';
 
 export type OCWizardAction =
   | { type: 'SET_STEP'; step: number }

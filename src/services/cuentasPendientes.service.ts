@@ -136,13 +136,21 @@ export const cuentasPendientesService = {
         const diasPendiente = calcularDiasPendiente(oc.fechaCreacion);
         const montoEquivalentePEN = montoPendiente * tc;
 
+        // S41 Bloque 5 — Deudor alternativo: si colaborador adelantó pago al proveedor,
+        // la CxP se dirige al colaborador, no al proveedor.
+        const esDeudorAlternativo = oc.deudorTipo === 'colaborador' && !!oc.deudorId;
+        const contraparteId = esDeudorAlternativo ? oc.deudorId! : oc.proveedorId;
+        const contraparteNombre = esDeudorAlternativo
+          ? oc.deudorNombre || 'Colaborador sin nombre'
+          : oc.nombreProveedor;
+
         pendientes.push({
           id: `oc-${oc.id}`,
           tipo: 'orden_compra_por_pagar',
           documentoId: oc.id,
           numeroDocumento: oc.numeroOrden,
-          contraparteNombre: oc.nombreProveedor,
-          contraparteId: oc.proveedorId,
+          contraparteNombre,
+          contraparteId,
           montoTotal: oc.totalUSD,
           montoPagado: oc.totalUSD - montoPendiente,
           montoPendiente,
@@ -154,7 +162,12 @@ export const cuentasPendientesService = {
           estadoDocumento: oc.estado,
           esVencido: diasPendiente > 30,
           esParcial: oc.estadoPago === 'parcial',
-          notas: oc.observaciones
+          notas: oc.observaciones,
+          // S41 — auditoría del deudor alternativo
+          ...(esDeudorAlternativo && {
+            esDeudorAlternativo: true,
+            proveedorOriginalNombre: oc.nombreProveedor,
+          }),
         });
       }
 

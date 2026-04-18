@@ -62,6 +62,21 @@ export interface PagoUnificadoFormProps {
   onSubmit: (datos: PagoUnificadoResult) => void | Promise<void>;
   onCancel: () => void;
   loading?: boolean;
+  /**
+   * S41 Bloque 5 — Destinatario visible del pago (override del default).
+   * Si se provee, se muestra un banner arriba del formulario indicando
+   * "Pagando a: {destinatarioNombre}" con tipo (proveedor/colaborador).
+   *
+   * Útil para OCs con deudor alternativo (colaborador adelantó pago al proveedor).
+   * Cuando no se provee, se asume proveedor (comportamiento histórico).
+   */
+  destinatario?: {
+    id: string;
+    nombre: string;
+    tipo: 'proveedor' | 'colaborador';
+    /** Solo para deudor alternativo — nombre del proveedor original (para contexto) */
+    proveedorOriginalNombre?: string;
+  };
 }
 
 // ============================================
@@ -109,6 +124,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
   origen, titulo, esIngreso = false,
   montoTotal, montoPendiente, monedaOriginal, tcDocumento,
   pagosAnteriores = [], onSubmit, onCancel, loading = false,
+  destinatario,
 }) => {
   const { getTCDelDia } = useTipoCambioStore();
   const toast = useToastStore();
@@ -303,6 +319,56 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* S41 Bloque 5 — Banner de destinatario (visible solo cuando se provee) */}
+      {destinatario && (
+        <div
+          className={`rounded-lg border p-3 ${
+            destinatario.tipo === 'colaborador'
+              ? 'bg-amber-50 border-amber-200'
+              : 'bg-slate-50 border-slate-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                destinatario.tipo === 'colaborador'
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              {destinatario.tipo === 'colaborador' ? '👤' : '🏢'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                {esIngreso ? 'Cobrando a' : 'Pagando a'}
+              </div>
+              <div className="text-sm font-semibold text-slate-900 truncate">
+                {destinatario.nombre}
+                <span
+                  className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                    destinatario.tipo === 'colaborador'
+                      ? 'bg-amber-200 text-amber-900'
+                      : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {destinatario.tipo}
+                </span>
+              </div>
+              {destinatario.tipo === 'colaborador' &&
+                destinatario.proveedorOriginalNombre && (
+                  <div className="text-[11px] text-amber-800 mt-0.5">
+                    Adelantó pago a{' '}
+                    <span className="font-medium">
+                      {destinatario.proveedorOriginalNombre}
+                    </span>
+                    . La CxP se liquida con el colaborador.
+                  </div>
+                )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
         <div className="flex items-center justify-between">

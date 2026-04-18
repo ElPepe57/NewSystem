@@ -1,0 +1,455 @@
+import React, { useReducer, useMemo, useRef } from 'react';
+import { WizardShell } from '../../../../design-system';
+import type { WizardStep } from '../../../../design-system';
+import type { OrdenCompraFormData } from '../../../../types/ordenCompra.types';
+import { ocWizardReducer } from './ocWizardReducer';
+import { initialWizardState, deriveDeliveryConfig } from './ocWizardTypes';
+import type { OCWizardAction } from './ocWizardReducer';
+import type { OCWizardState } from './ocWizardTypes';
+import { StepRuta } from './StepRuta';
+import { StepProductos } from './StepProductos';
+import { StepCargos } from './StepCargos';
+import { StepInteligencia } from './StepInteligencia';
+import { StepConfirm } from './StepConfirm';
+import { OCWizardPreview } from './OCWizardPreview';
+import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
+import { DraftBanner, formatFechaRelativa } from '../../../../design-system';
+
+// ════════════════════════════════════════════════════════════════════════════
+// Types
+// ════════════════════════════════════════════════════════════════════════════
+
+interface OCWizardV3Props {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: OrdenCompraFormData) => void;
+  isSubmitting?: boolean;
+  /** Pre-link a un único requerimiento */
+  requerimientoId?: string;
+  requerimientoNumero?: string;
+  /** Pre-link a múltiples requerimientos */
+  requerimientoIds?: string[];
+  requerimientoNumeros?: string[];
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Step definitions — Nuevo orden S41 (mockup maestro)
+//   1. Ruta        (proveedor + 3 tramos + deudor alternativo)
+//   2. Productos   (separado de ruta — antes iba junto)
+//   3. Cargos      (cargos + descuentos + impuestos comerciales)
+//   4. Inteligencia (score viabilidad — fórmula mantenida)
+//   5. Confirmar   (preview editable + TC + observaciones)
+// ════════════════════════════════════════════════════════════════════════════
+
+const STEPS: WizardStep[] = [
+  { id: 'ruta', label: 'Ruta', description: 'Proveedor y tramos logísticos' },
+  { id: 'productos', label: 'Productos', description: 'Items de la compra' },
+  { id: 'cargos', label: 'Cargos', description: 'Shipping, descuentos, impuestos' },
+  { id: 'inteligencia', label: 'Inteligencia', description: 'Viabilidad y margen' },
+  { id: 'confirmar', label: 'Confirmar', description: 'Revisar y crear' },
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// Validation por paso
+// ════════════════════════════════════════════════════════════════════════════
+
+function isStepValid(stepIndex: number, state: ReturnType<typeof ocWizardReducer>): boolean {
+  const s = state;
+
+  switch (stepIndex) {
+    case 0: {
+      // Paso Ruta: proveedor + tramos 1,2,3 + casilla destino
+      const cfg = s.configLogistica;
+      const needsColaborador =
+        cfg.llegadaPeru === 'viajero' || cfg.llegadaPeru === 'courier_internacional';
+      return (
+        !!cfg.proveedorId &&
+        !!cfg.salidaProveedor &&
+        !!cfg.llegadaPeru &&
+        !!cfg.casillaDestinoId &&
+        // Si tramo 2 requiere colaborador → debe estar asignado
+        (!needsColaborador || !!cfg.colaboradorId)
+      );
+    }
+    case 1:
+      // Paso Productos: al menos 1 producto con costo
+      return s.productos.length > 0 && s.productos.every((p) => p.costoUnitario > 0 && p.cantidad > 0);
+    case 2: {
+      // Paso Cargos: todos los items con concepto lleno
+      const allCargosNamed = s.cargosOC.every((c) => c.concepto.trim().length > 0);
+      const allDescNamed = s.descuentosOC.every((d) => d.concepto.trim().length > 0);
+      const allImpNamed = s.impuestosOC.every((i) => i.concepto.trim().length > 0);
+      return allCargosNamed && allDescNamed && allImpNamed;
+    }
+    case 3:
+      // Paso Inteligencia: siempre válido (informativo)
+      return true;
+    case 4:
+      // Paso Confirmar: TC obligatorio
+      return s.tcCompra > 0;
+    default:
+      return true;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// OCWizardV3 — Main export
+// ════════════════════════════════════════════════════════════════════════════
+
+/**
+ * OCWizardV3 — Wizard Nueva OC rework S41.
+ *
+ * Cambios respecto a V2:
+ * - Usa WizardShell del design system (stepper + preview panel + footer)
+ * - Orden de pasos: Ruta → Productos → Cargos → Inteligencia → Confirmar
+ *   (V2 era: Entrega → Flete → Inteligencia → Cargos → Confirmar)
+ * - Productos separados de la configuración de ruta
+ * - Paso "Flete" eliminado (se derivaba automáticamente; ahora vive en Ruta)
+ * - Cargos ANTES de Inteligencia (el score ya ve los cargos finales)
+ * - Preview panel lateral con resumen en vivo
+ * - Deudor alternativo capturado en paso Ruta (data lista para futuro)
+ *
+ * NOTA: El wizard V2 (OCWizardV2) se mantiene intacto hasta que V3 sea validado
+ * en producción. Consumidores se migran en Bloque 2 (Vistas).
+ */
+export const OCWizardV3: React.FC<OCWizardV3Props> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  isSubmitting = false,
+  requerimientoId,
+  requerimientoNumero,
+  requerimientoIds,
+  requerimientoNumeros,
+}) => {
+  const [state, dispatch] = useReducer(ocWizardReducer, initialWizardState);
+  const submittedRef = useRef(false);
+  const [currentStep, setCurrentStep] = React.useState(0);
+  const [draftAceptado, setDraftAceptado] = React.useState(false);
+
+  // ─── Autoguardado 2 capas ────────────────────────────────────────────────
+  const {
+    borradorExistente,
+    continuarBorrador,
+    descartarBorrador,
+    clearDraft,
+    lastSavedAt,
+  } = useWizardAutosave<OCWizardState>({
+    tipo: 'oc',
+    state,
+    pasoActual: currentStep,
+    enabled: isOpen && !submittedRef.current,
+    buildResumen: (s) => {
+      const prov = s.configLogistica.proveedorNombre || s.proveedorNombre;
+      const total = s.productos.reduce(
+        (sum, p) => sum + (p.costoUnitario || 0) * (p.cantidad || 0),
+        0
+      );
+      if (!prov && total === 0) return undefined;
+      return prov ? `OC ${prov} · $${total.toFixed(2)}` : `OC en progreso · $${total.toFixed(2)}`;
+    },
+    buildMonto: (s) =>
+      s.productos.reduce(
+        (sum, p) => sum + (p.costoUnitario || 0) * (p.cantidad || 0),
+        0
+      ),
+  });
+
+  const handleContinuarDraft = () => {
+    const draft = continuarBorrador();
+    if (draft) {
+      // Restaurar estado paso a paso usando SET_* actions
+      // Para simplicidad: hacemos replace completo con RESET + assign manual
+      dispatch({ type: 'RESET' } as OCWizardAction);
+      // Reproducir state restaurado — usamos dispatches atómicas
+      if (draft.proveedorId) {
+        dispatch({
+          type: 'SET_PROVEEDOR',
+          id: draft.proveedorId,
+          nombre: draft.proveedorNombre,
+        } as OCWizardAction);
+      }
+      if (draft.configLogistica) {
+        dispatch({ type: 'SET_CONFIG_LOGISTICA', config: draft.configLogistica } as OCWizardAction);
+      }
+      if (draft.productos && draft.productos.length > 0) {
+        dispatch({ type: 'SET_PRODUCTOS', productos: draft.productos } as OCWizardAction);
+      }
+      (draft.cargosOC || []).forEach((c) => dispatch({ type: 'ADD_CARGO', cargo: c } as OCWizardAction));
+      (draft.descuentosOC || []).forEach((d) =>
+        dispatch({ type: 'ADD_DESCUENTO', descuento: d } as OCWizardAction)
+      );
+      (draft.impuestosOC || []).forEach((i) =>
+        dispatch({ type: 'ADD_IMPUESTO', impuesto: i } as OCWizardAction)
+      );
+      if (draft.tcCompra) dispatch({ type: 'SET_TC', tc: draft.tcCompra } as OCWizardAction);
+      if (draft.observaciones) {
+        dispatch({ type: 'SET_OBSERVACIONES', text: draft.observaciones } as OCWizardAction);
+      }
+      // Restaurar paso
+      setCurrentStep((borradorExistente?.pasoActual as number) ?? 0);
+    }
+    setDraftAceptado(true);
+  };
+
+  const handleDescartarDraft = async () => {
+    await descartarBorrador();
+    setDraftAceptado(true);
+  };
+
+  // ─── Auto-fetch TC del día al abrir ──────────────────────────────────────
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const fetchTC = async () => {
+      try {
+        const { useTipoCambioStore } = await import('../../../../store/tipoCambioStore');
+        const tc = await useTipoCambioStore.getState().getTCDelDia();
+        if (tc?.venta && state.tcCompra === 0) {
+          dispatch({ type: 'SET_TC', tc: tc.venta } as OCWizardAction);
+        }
+      } catch {
+        /* silent */
+      }
+    };
+    fetchTC();
+  }, [isOpen]);
+
+  // ─── Totales en vivo ─────────────────────────────────────────────────────
+  const subtotal = useMemo(
+    () => state.productos.reduce((s, p) => s + (p.costoUnitario || 0) * (p.cantidad || 0), 0),
+    [state.productos]
+  );
+  const totalCargos = useMemo(
+    () => state.cargosOC.reduce((s, c) => s + (c.montoUSD || 0), 0),
+    [state.cargosOC]
+  );
+  const totalDescuentos = useMemo(
+    () => state.descuentosOC.reduce((s, d) => s + (d.montoUSD || 0), 0),
+    [state.descuentosOC]
+  );
+  const totalImpuestos = useMemo(
+    () => state.impuestosOC.reduce((s, i) => s + (i.montoUSD || 0), 0),
+    [state.impuestosOC]
+  );
+  const grandTotal = subtotal + totalCargos - totalDescuentos + totalImpuestos;
+
+  // ─── Auto-sync shipping (del tramo 1) al paso Cargos ─────────────────────
+  // Si en paso Ruta se marcó "shipping pagado aparte", se agrega como cargo
+  React.useEffect(() => {
+    const cfg = state.configLogistica;
+    if (
+      cfg.fleteProveedorIncluido === false &&
+      cfg.costoShippingProveedor &&
+      cfg.costoShippingProveedor > 0
+    ) {
+      const shippingId = '__shipping_proveedor__';
+      const alreadyExists = state.cargosOC.some((c) => c.id === shippingId);
+      const label =
+        cfg.tipoShipping === 'internacional'
+          ? 'Shipping internacional'
+          : cfg.tipoShipping === 'local'
+            ? 'Shipping local'
+            : 'Shipping proveedor';
+      if (!alreadyExists) {
+        dispatch({
+          type: 'ADD_CARGO',
+          cargo: {
+            id: shippingId,
+            concepto: label,
+            montoUSD: cfg.costoShippingProveedor,
+            metodoProrrateo: 'por_valor',
+          },
+        } as OCWizardAction);
+      } else {
+        const existing = state.cargosOC.find((c) => c.id === shippingId);
+        if (existing && existing.montoUSD !== cfg.costoShippingProveedor) {
+          dispatch({
+            type: 'UPDATE_CARGO',
+            cargo: { ...existing, concepto: label, montoUSD: cfg.costoShippingProveedor },
+          } as OCWizardAction);
+        }
+      }
+    }
+  }, [
+    state.configLogistica.costoShippingProveedor,
+    state.configLogistica.tipoShipping,
+    state.configLogistica.fleteProveedorIncluido,
+  ]);
+
+  // ─── Handlers ────────────────────────────────────────────────────────────
+  const canProceed = isStepValid(currentStep, state);
+
+  const handleNext = () => {
+    if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1);
+  };
+
+  const handlePrev = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
+
+  const handleClose = () => {
+    dispatch({ type: 'RESET' } as OCWizardAction);
+    setCurrentStep(0);
+    setDraftAceptado(false);
+    onClose();
+  };
+
+  const handleSubmit = () => {
+    if (submittedRef.current || isSubmitting) return;
+    submittedRef.current = true;
+
+    const config = deriveDeliveryConfig(state.modoEntregaDetallado, state.quienPagaFlete);
+
+    const formData: OrdenCompraFormData = {
+      proveedorId: state.proveedorId || state.configLogistica.proveedorId,
+      productos: state.productos.map((p) => ({
+        productoId: p.productoId,
+        sku: p.sku,
+        marca: p.marca,
+        nombreComercial: p.nombreComercial,
+        presentacion: p.presentacion,
+        contenido: p.contenido,
+        dosaje: p.dosaje,
+        sabor: p.sabor,
+        pesoLibras: p.pesoLibras,
+        cantidad: p.cantidad,
+        costoUnitario: p.costoUnitario,
+        subtotal: p.cantidad * p.costoUnitario,
+        viajeroId: p.viajeroId,
+        viajeroNombre: p.viajeroNombre,
+      })),
+      subtotalUSD: subtotal,
+      totalUSD: grandTotal,
+      tcCompra: state.tcCompra,
+      ...(totalImpuestos > 0 && { impuestoCompraUSD: totalImpuestos }),
+      ...(totalDescuentos > 0 && { descuentoUSD: totalDescuentos }),
+      modoEntrega: config.modoEntrega,
+      modoEntregaDetallado: state.modoEntregaDetallado || undefined,
+      fleteIncluidoEnPrecio: config.fleteIncluidoEnPrecio,
+      almacenDestino: state.configLogistica.casillaDestinoId || '',
+      colaboradorTransporteId: state.configLogistica.colaboradorId || undefined,
+      colaboradorTransporteNombre: state.configLogistica.colaboradorNombre || undefined,
+      paisOrigen: state.paisOrigen || undefined,
+      observaciones: state.observaciones || undefined,
+      ...(state.cargosOC.length > 0 && { cargosOC: state.cargosOC }),
+      ...(state.descuentosOC.length > 0 && { descuentosOC: state.descuentosOC }),
+      ...(state.impuestosOC.length > 0 && { impuestosOC: state.impuestosOC }),
+      ...(requerimientoId && { requerimientoId }),
+      ...(requerimientoIds && requerimientoIds.length > 0 && { requerimientoIds }),
+      // S41 Bloque 5 — Deudor alternativo: solo se persiste si el colaborador adelantó
+      // el pago al proveedor (patrón "Recojo en origen" con quienPagaProveedor='recogedor_paga').
+      // Si deudorTipo='proveedor' o vacío, se omite (default implícito al proveedor de la OC).
+      ...(state.configLogistica.deudorTipo === 'colaborador' &&
+        state.configLogistica.deudorId && {
+          deudorId: state.configLogistica.deudorId,
+          deudorNombre: state.configLogistica.deudorNombre,
+          deudorTipo: 'colaborador' as const,
+        }),
+    };
+
+    onSubmit(formData);
+    // Limpiar borrador al confirmar (fire-and-forget, no bloquea el submit)
+    void clearDraft();
+  };
+
+  // Reset submission guard cuando se reabre
+  if (!isOpen) {
+    submittedRef.current = false;
+    return null;
+  }
+
+  // ─── Render paso actual ──────────────────────────────────────────────────
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return <StepRuta state={state} dispatch={dispatch} />;
+      case 1:
+        return <StepProductos state={state} dispatch={dispatch} />;
+      case 2:
+        return <StepCargos state={state} dispatch={dispatch} subtotalProductos={subtotal} />;
+      case 3:
+        return <StepInteligencia state={state} subtotal={subtotal} grandTotal={grandTotal} />;
+      case 4:
+        return (
+          <StepConfirm
+            state={state}
+            dispatch={dispatch}
+            subtotal={subtotal}
+            totalCargos={totalCargos}
+            totalDescuentos={totalDescuentos}
+            totalImpuestos={totalImpuestos}
+            grandTotal={grandTotal}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  const requerimientoBadge =
+    requerimientoIds && requerimientoIds.length > 1
+      ? `${requerimientoIds.length} requerimientos`
+      : requerimientoNumero || requerimientoId || '';
+
+  const subtitle = requerimientoBadge
+    ? `Desde requerimiento: ${requerimientoBadge}`
+    : 'Captura los datos de la orden paso a paso';
+
+  // ─── Render wizard ───────────────────────────────────────────────────────
+  const showDraftBanner = !!borradorExistente && !draftAceptado;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
+      {showDraftBanner && (
+        <div className="w-full max-w-7xl mx-auto mb-3 flex-shrink-0">
+          <DraftBanner
+            show={showDraftBanner}
+            descripcion={borradorExistente.resumen ?? 'OC sin terminar de sesión anterior'}
+            fechaLegible={formatFechaRelativa(borradorExistente.fechaActualizacion)}
+            pasoActual={`Paso ${(borradorExistente.pasoActual ?? 0) + 1} de ${STEPS.length}`}
+            onContinuar={handleContinuarDraft}
+            onDescartar={handleDescartarDraft}
+          />
+        </div>
+      )}
+      <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">
+        <WizardShell
+          title="Nueva Orden de Compra"
+          subtitle={subtitle}
+          steps={STEPS}
+          currentStep={currentStep}
+          onStepChange={(i) => {
+            // Permite regresar a pasos ya completados
+            if (i < currentStep) setCurrentStep(i);
+          }}
+          onCancel={handleClose}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          onConfirm={handleSubmit}
+          nextDisabled={!canProceed}
+          loading={isSubmitting}
+          confirmLabel={isSubmitting ? 'Guardando...' : 'Crear Orden'}
+          nextHint={
+            !canProceed
+              ? 'Completa los datos obligatorios para continuar'
+              : `Paso ${currentStep + 1} de ${STEPS.length}`
+          }
+          variant="page"
+          previewPanel={
+            <OCWizardPreview
+              state={state}
+              subtotal={subtotal}
+              totalCargos={totalCargos}
+              totalDescuentos={totalDescuentos}
+              totalImpuestos={totalImpuestos}
+              grandTotal={grandTotal}
+            />
+          }
+          className="h-full"
+        >
+          {renderStep()}
+        </WizardShell>
+      </div>
+    </div>
+  );
+};

@@ -30,3 +30,35 @@ export { StatusBadge } from './components/StatusBadge';
 // Forms
 export { FormModal } from './components/FormModal';
 export { FormField } from './components/FormField';
+
+// ─── S41 Rework — Infra reutilizable (Bloque 0) ──────────────────────────
+// Wizards multi-paso (Nueva OC, Nuevo Envío)
+export { WizardShell } from './components/WizardShell';
+export type { WizardStep } from './components/WizardShell';
+
+// Selector rico de entidades (proveedor, colaborador, casilla, etc.)
+export { EntityPicker } from './components/EntityPicker';
+export type { EntityPickerGroup } from './components/EntityPicker';
+
+// Visualización de ruta logística A→B→C
+export { RouteVisual } from './components/RouteVisual';
+export type {
+  RouteNode,
+  RouteSegment,
+  RouteNodeType,
+  RouteNodeState,
+} from './components/RouteVisual';
+
+// Cargos/descuentos/impuestos agregables dinámicamente
+export { DynamicChargesSection } from './components/DynamicChargesSection';
+export type {
+  ChargeKind,
+  DynamicChargeItem,
+} from './components/DynamicChargesSection';
+
+// Display consistente de producto con descripción rica
+export { ProductoDisplay } from './components/ProductoDisplay';
+export type { ProductoDisplayData } from './components/ProductoDisplay';
+
+// Banner de borrador de wizard (autoguardado 2 capas)
+export { DraftBanner, formatFechaRelativa } from './components/DraftBanner';

@@ -671,6 +671,10 @@ export interface PendienteFinanciero {
   // Metadata
   notas?: string;
   canal?: string;                // Para ventas: ML, directo, etc.
+
+  // S41 Bloque 5 — Deudor alternativo (solo para OCs donde colaborador adelantó pago)
+  esDeudorAlternativo?: boolean;
+  proveedorOriginalNombre?: string;  // Nombre del proveedor original (para auditoría)
 }
 
 /**

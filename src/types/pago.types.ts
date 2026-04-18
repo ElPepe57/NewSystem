@@ -160,7 +160,9 @@ export interface CuentaPorCobrarDetalle {
 }
 
 export interface CuentaPorPagarDetalle {
-  tipo: 'proveedor' | 'viajero' | 'gasto' | 'linea_credito';
+  // S41 Bloque 5 — tipo 'colaborador' agregado para soportar deudor alternativo
+  // cuando colaborador adelanta pago al proveedor (patron "Recojo en origen")
+  tipo: 'proveedor' | 'viajero' | 'gasto' | 'linea_credito' | 'colaborador';
   contraparteId: string;
   contraparteNombre: string;
   documentoId: string;
@@ -173,6 +175,10 @@ export interface CuentaPorPagarDetalle {
   diasPendiente: number;
   rango: '0-7' | '8-15' | '16-30' | '31-60' | '60+';
   urgencia: 'normal' | 'proximo' | 'vencido';
+  /** S41 — true si el deudor real es el colaborador que adelantó pago al proveedor */
+  esDeudorAlternativo?: boolean;
+  /** Proveedor original (para auditoría/display) cuando deudor es colaborador */
+  proveedorOriginalNombre?: string;
 }
 
 export interface ResumenLiquidez {
