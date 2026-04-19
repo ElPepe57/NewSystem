@@ -56,6 +56,10 @@ export { MapLegend } from './pieces/MapLegend';
 export { useGeocoder } from './hooks/useGeocoder';
 export type { GeocodeResult } from './hooks/useGeocoder';
 
+// Input components
+export { PlacesAutocompleteInput } from './PlacesAutocompleteInput';
+export type { PlaceSelectedResult } from './PlacesAutocompleteInput';
+
 // Types + presets
 export type { LatLng, MapPoint, MapRoute, LegendItem, MapInitialConfig } from './types';
 export { MAP_CENTERS, COUNTRY_COLORS } from './types';

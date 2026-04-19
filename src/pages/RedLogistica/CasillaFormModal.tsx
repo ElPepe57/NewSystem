@@ -15,8 +15,10 @@ import {
   MapProvider,
   MapContainer,
   MarkersLayer,
+  PlacesAutocompleteInput,
   COUNTRY_COLORS,
   type MapPoint,
+  type PlaceSelectedResult,
 } from '../../design-system/maps';
 
 interface Props {
@@ -41,6 +43,15 @@ const PAISES: { value: PaisCasilla; label: string }[] = [
   { value: 'Corea', label: 'Corea' },
   { value: 'Peru_local', label: 'Peru (local)' },
 ];
+
+// ISO 3166-1 alpha-2 para sesgo de Places Autocomplete
+const PAIS_ISO: Record<PaisCasilla, string> = {
+  USA: 'US',
+  Peru: 'PE',
+  China: 'CN',
+  Corea: 'KR',
+  Peru_local: 'PE',
+};
 
 const inputCls = 'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none';
 const labelCls = 'block text-xs font-medium text-slate-600 mb-1';
@@ -91,12 +102,11 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
     }
   }, [casilla, isOpen]);
 
-  // S42d — Geocoding on-blur de dirección: cuando el usuario termina de
-  // escribir la dirección, consultamos Google y guardamos coordenadas.
+  // S42d — Geocoding on-blur de dirección (fallback cuando el usuario no
+  // selecciona del autocomplete). Consulta Google y guarda coordenadas.
   const handleGeocode = async () => {
     const dir = form.direccion.trim();
     if (!dir) return;
-    // Construir query con ciudad + país para precisión
     const paisLabel = form.pais === 'Peru_local' ? 'Peru' : form.pais;
     const query = [dir, form.ciudad.trim(), paisLabel].filter(Boolean).join(', ');
     const result = await geocode(query);
@@ -106,6 +116,20 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
     } else {
       toast.warning('No se pudo geolocalizar la dirección');
     }
+  };
+
+  // S42f — Handler cuando el usuario selecciona una predicción del autocomplete.
+  // Rellena dirección formateada + ciudad + código postal + coordenadas de una sola vez.
+  // Solo sobreescribe ciudad/CP si están vacíos (respeta lo que el usuario ya tecleó).
+  const handlePlaceSelected = (place: PlaceSelectedResult) => {
+    setForm((prev) => ({
+      ...prev,
+      direccion: place.direccion,
+      ciudad: prev.ciudad.trim() || place.ciudad || place.distrito || '',
+      codigoPostal: prev.codigoPostal.trim() || place.codigoPostal || '',
+    }));
+    setCoordenadas(place.coordenadas);
+    toast.success('Dirección seleccionada');
   };
 
   const handleSubmit = async () => {
@@ -175,37 +199,39 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
           <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className={inputCls} placeholder="Ej: Casa California, Almacen Lima" />
         </div>
 
-        {/* Ubicacion */}
+        {/* Ubicacion — S42f: PlacesAutocompleteInput con dropdown de sugerencias */}
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
-            <label className={labelCls}>Direccion</label>
-            <div className="flex gap-1.5">
-              <input
-                type="text"
-                value={form.direccion}
-                onChange={e => { setForm({ ...form, direccion: e.target.value }); setCoordenadas(null); }}
-                onBlur={handleGeocode}
-                className={inputCls}
-                placeholder="123 Main St"
-              />
-              <button
-                type="button"
-                onClick={handleGeocode}
-                disabled={isGeocoding || !form.direccion.trim()}
-                className="flex-shrink-0 px-2.5 py-2 text-xs border border-slate-300 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 hover:text-teal-700 transition-colors"
-                title="Geolocalizar dirección"
-              >
-                {isGeocoding
-                  ? <Loader2 className="w-4 h-4 animate-spin" />
-                  : coordenadas
-                    ? <Check className="w-4 h-4 text-emerald-600" />
-                    : <MapPin className="w-4 h-4" />}
-              </button>
-            </div>
+            <label className={labelCls}>
+              Direccion
+              <span className="text-[10px] font-normal text-slate-400 ml-1">
+                (escribe y selecciona de la lista)
+              </span>
+            </label>
+            <PlacesAutocompleteInput
+              value={form.direccion}
+              onChange={(text) => { setForm({ ...form, direccion: text }); setCoordenadas(null); }}
+              onPlaceSelected={handlePlaceSelected}
+              placeholder="Ej: Jiron Ica 3625, Lima"
+              locationBias={PAIS_ISO[form.pais]}
+              iconType="pin"
+            />
             {coordenadas && (
               <p className="text-[10px] text-emerald-700 mt-1 flex items-center gap-1">
                 <Check className="w-3 h-3" /> Coordenadas: {coordenadas.lat.toFixed(4)}, {coordenadas.lng.toFixed(4)}
               </p>
+            )}
+            {!coordenadas && form.direccion.trim() && (
+              <button
+                type="button"
+                onClick={handleGeocode}
+                disabled={isGeocoding}
+                className="text-[10px] text-teal-600 hover:text-teal-800 hover:underline mt-1 flex items-center gap-1 disabled:opacity-40"
+              >
+                {isGeocoding
+                  ? <><Loader2 className="w-3 h-3 animate-spin" /> Geolocalizando…</>
+                  : <><MapPin className="w-3 h-3" /> Geolocalizar dirección manualmente</>}
+              </button>
             )}
           </div>
           <div>
@@ -213,10 +239,9 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
             <input
               type="text"
               value={form.ciudad}
-              onChange={e => { setForm({ ...form, ciudad: e.target.value }); setCoordenadas(null); }}
-              onBlur={handleGeocode}
+              onChange={e => setForm({ ...form, ciudad: e.target.value })}
               className={inputCls}
-              placeholder="Miami"
+              placeholder="Lima"
             />
           </div>
         </div>
