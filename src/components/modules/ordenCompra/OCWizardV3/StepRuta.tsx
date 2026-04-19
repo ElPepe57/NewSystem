@@ -376,12 +376,34 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
             ) : null
           }
         >
-          {/* S42x — Colapsable: si hay tipo de ruta seleccionado, muestra solo esa card */}
-          <div className={cn(
-            'grid gap-3 mb-4',
-            showTipoRutaGrid ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
-          )}>
-            {(showTipoRutaGrid || tipoRutaSeleccionado === 'via_casilla') && (
+          {/* S42x — Colapsable: si hay tipo de ruta seleccionado, muestra solo esa card.
+               S42y fix — en modo colapsado, el click de la card re-expande (no re-selecciona). */}
+          {!showTipoRutaGrid && tipoRutaSeleccionado ? (
+            // ═══ MODO COLAPSADO: solo la card seleccionada, click re-expande ═══
+            <div className="mb-4">
+              {tipoRutaSeleccionado === 'via_casilla' ? (
+                <TipoCardGrande
+                  icon={<Warehouse className="w-5 h-5 text-sky-600" />}
+                  iconBg="bg-sky-100"
+                  titulo="Vía casilla de tránsito"
+                  subtitulo="Proveedor → casilla (USA/CN) → Perú"
+                  selected
+                  onClick={() => setTipoRutaExpandedOverride(true)}
+                />
+              ) : (
+                <TipoCardGrande
+                  icon={<Plane className="w-5 h-5 text-amber-600" />}
+                  iconBg="bg-amber-100"
+                  titulo="Entrega directa a Perú"
+                  subtitulo="El proveedor despacha directo a Perú sin pasar por casilla intermedia"
+                  selected
+                  onClick={() => setTipoRutaExpandedOverride(true)}
+                />
+              )}
+            </div>
+          ) : (
+            // ═══ MODO EXPANDIDO: ambas cards, click selecciona + colapsa ═══
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               <TipoCardGrande
                 icon={<Warehouse className="w-5 h-5 text-sky-600" />}
                 iconBg="bg-sky-100"
@@ -389,7 +411,6 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                 subtitulo="Proveedor → casilla (USA/CN) → Perú"
                 selected={tipoRutaSeleccionado === 'via_casilla'}
                 onClick={() => {
-                  // S42 fix — click en "Vía casilla" activa el flujo vía casilla.
                   const cambio: Partial<ConfigLogistica> = {};
                   if (config.llegadaPeru === 'ddp_directo') {
                     cambio.llegadaPeru = null;
@@ -400,11 +421,9 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                     cambio.salidaProveedor = 'proveedor_envia';
                   }
                   if (Object.keys(cambio).length > 0) updateConfig(cambio);
-                  setTipoRutaExpandedOverride(false); // colapsar
+                  setTipoRutaExpandedOverride(false); // colapsar al seleccionar
                 }}
               />
-            )}
-            {(showTipoRutaGrid || tipoRutaSeleccionado === 'ddp') && (
               <TipoCardGrande
                 icon={<Plane className="w-5 h-5 text-amber-600" />}
                 iconBg="bg-amber-100"
@@ -413,11 +432,11 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                 selected={tipoRutaSeleccionado === 'ddp'}
                 onClick={() => {
                   updateConfig({ llegadaPeru: 'ddp_directo' });
-                  setTipoRutaExpandedOverride(false); // colapsar
+                  setTipoRutaExpandedOverride(false); // colapsar al seleccionar
                 }}
               />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Casilla de tránsito (solo si vía casilla) — S42s buscador + 1-col */}
           {tipoRutaSeleccionado === 'via_casilla' && (
