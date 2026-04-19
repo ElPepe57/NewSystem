@@ -100,6 +100,24 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     () => proveedores.find((p) => p.id === config.proveedorId),
     [proveedores, config.proveedorId]
   );
+  // S42v — Viajeros asociados a la casilla seleccionada (principal + secundarios)
+  // Útil para el Tramo 2 "Vía viajero": prioriza quienes ya usan esa casilla.
+  const viajerosAsociadosIds = useMemo(() => {
+    const ids = new Set<string>();
+    const casilla = casillasOrigen.find((c) => c.id === config.casillaDestinoId);
+    if (!casilla) return ids;
+    ids.add(casilla.colaboradorId);
+    casilla.colaboradoresSecundariosIds?.forEach((id) => ids.add(id));
+    return ids;
+  }, [casillasOrigen, config.casillaDestinoId]);
+  const viajerosDeCasilla = useMemo(
+    () => viajeros.filter((v) => viajerosAsociadosIds.has(v.id)),
+    [viajeros, viajerosAsociadosIds]
+  );
+  const viajerosOtros = useMemo(
+    () => viajeros.filter((v) => !viajerosAsociadosIds.has(v.id)),
+    [viajeros, viajerosAsociadosIds]
+  );
   const casillaSeleccionada = useMemo(
     () => casillasOrigen.find((c) => c.id === config.casillaDestinoId),
     [casillasOrigen, config.casillaDestinoId]
@@ -595,12 +613,12 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
               />
             </div>
 
-            {/* Selector colaborador/courier */}
+            {/* Selector colaborador/courier — S42v filtrado por tipo + casilla */}
             {(config.llegadaPeru === 'viajero' ||
               config.llegadaPeru === 'courier_internacional') && (
               <div className="mt-3">
                 <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  Colaborador / Courier{' '}
+                  {config.llegadaPeru === 'viajero' ? 'Viajero' : 'Courier internacional'}{' '}
                   <span className="text-slate-400 font-normal">
                     (opcional, puedes asignarlo después)
                   </span>
@@ -619,28 +637,44 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                 >
                   <option value="">Sin asignar — decidir después</option>
-                  {viajeros.length > 0 && (
+                  {/* Vía viajero: prioriza viajeros asociados a la casilla, resto como fallback */}
+                  {config.llegadaPeru === 'viajero' && (
                     <>
-                      <option disabled>─── Viajeros ───</option>
-                      {viajeros.map((v) => (
-                        <option key={v.id} value={v.id}>
-                          {v.nombre}
-                          {v.metricas?.enviosCompletados
-                            ? ` — ${v.metricas.enviosCompletados} envíos previos`
-                            : ''}
-                        </option>
-                      ))}
+                      {viajerosDeCasilla.length > 0 && (
+                        <>
+                          <option disabled>─── Asociados a esta casilla ───</option>
+                          {viajerosDeCasilla.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.nombre}
+                              {v.metricas?.enviosCompletados
+                                ? ` — ${v.metricas.enviosCompletados} envíos previos`
+                                : ''}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                      {viajerosOtros.length > 0 && (
+                        <>
+                          <option disabled>─── Otros viajeros ───</option>
+                          {viajerosOtros.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.nombre}
+                              {v.metricas?.enviosCompletados
+                                ? ` — ${v.metricas.enviosCompletados} envíos previos`
+                                : ''}
+                            </option>
+                          ))}
+                        </>
+                      )}
                     </>
                   )}
-                  {couriers.length > 0 && (
-                    <>
-                      <option disabled>─── Couriers externos ───</option>
-                      {couriers.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.nombre}
-                        </option>
-                      ))}
-                    </>
+                  {/* Courier internacional: servicios independientes (no asociados a casilla) */}
+                  {config.llegadaPeru === 'courier_internacional' && couriers.length > 0 && (
+                    couriers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nombre}
+                      </option>
+                    ))
                   )}
                 </select>
               </div>
