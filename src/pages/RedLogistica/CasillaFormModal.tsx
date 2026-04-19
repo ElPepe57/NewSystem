@@ -81,6 +81,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
     if (!user || !form.nombre.trim()) return;
     setLoading(true);
     try {
+      // S42c fix — omitir campos vacíos (Firestore rechaza undefined en updateDoc)
       const data: CasillaFormData = {
         nombre: form.nombre.trim(),
         tipo: form.tipo,
@@ -88,12 +89,12 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
         pais: form.pais,
         colaboradorId,
         esPrincipal: form.esPrincipal,
-        direccion: form.direccion || undefined,
-        ciudad: form.ciudad || undefined,
-        codigoPostal: form.codigoPostal || undefined,
-        capacidadUnidades: form.capacidadUnidades ? parseInt(form.capacidadUnidades) : undefined,
-        notas: form.notas || undefined,
-      };
+      } as CasillaFormData;
+      if (form.direccion.trim()) data.direccion = form.direccion.trim();
+      if (form.ciudad.trim()) data.ciudad = form.ciudad.trim();
+      if (form.codigoPostal.trim()) data.codigoPostal = form.codigoPostal.trim();
+      if (form.capacidadUnidades) data.capacidadUnidades = parseInt(form.capacidadUnidades);
+      if (form.notas.trim()) data.notas = form.notas.trim();
 
       if (casilla) {
         await casillaCrudService.actualizar(casilla.id, data, user.uid);

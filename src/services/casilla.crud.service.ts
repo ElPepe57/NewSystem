@@ -90,11 +90,14 @@ export const casillaCrudService = {
   },
 
   async actualizar(id: string, data: Partial<CasillaFormData>, userId: string): Promise<void> {
+    // S42c fix — defensa contra `undefined` en payload (Firestore lo rechaza).
     const updates: Record<string, unknown> = {
-      ...data,
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now(),
     };
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) updates[key] = value;
+    }
     await updateDoc(doc(db, COLL, id), updates);
   },
 

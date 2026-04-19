@@ -122,18 +122,20 @@ export const ColaboradorFormModal: React.FC<Props> = ({
     if (!user || !form.nombre.trim()) return;
     setLoading(true);
     try {
+      // S42c fix — omitir campos vacíos en lugar de enviarlos como `undefined`
+      // (Firestore rechaza undefined en updateDoc). Solo se incluyen keys con valor.
       const data: ColaboradorFormData = {
         nombre: form.nombre.trim(),
         tipo: form.tipo,
         estado: form.estado,
         pais: form.pais,
-        ciudad: form.ciudad || undefined,
-        direccion: form.direccion || undefined,
-        telefono: form.telefono || undefined,
-        email: form.email || undefined,
-        whatsapp: form.whatsapp || undefined,
-        notas: form.notas || undefined,
       } as any;
+      if (form.ciudad.trim()) (data as any).ciudad = form.ciudad.trim();
+      if (form.direccion.trim()) (data as any).direccion = form.direccion.trim();
+      if (form.telefono.trim()) (data as any).telefono = form.telefono.trim();
+      if (form.email.trim()) (data as any).email = form.email.trim();
+      if (form.whatsapp.trim()) (data as any).whatsapp = form.whatsapp.trim();
+      if (form.notas.trim()) (data as any).notas = form.notas.trim();
 
       // Construir tarifas según el tipo
       const tarifas: Record<string, number | string> = {};

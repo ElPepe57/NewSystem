@@ -73,11 +73,16 @@ export const colaboradorService = {
 
   async actualizar(id: string, data: Partial<ColaboradorFormData>, userId: string): Promise<void> {
     const ref = doc(db, COLL, id);
+    // S42c fix — Firestore rechaza `undefined` en updateDoc. Omitimos los campos
+    // con ese valor en lugar de propagarlos (defensa contra callers que pasan
+    // `campo: form.x || undefined` sin darse cuenta del side-effect).
     const updateData: Record<string, unknown> = {
-      ...data,
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now(),
     };
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) updateData[key] = value;
+    }
     await updateDoc(ref, updateData);
   },
 
