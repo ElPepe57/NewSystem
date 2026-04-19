@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-18 (Sesion 42 — Rework UX/UI Compras+Envios Tandas 9-10 FINALES. Vista Compras con search global + pills Todas/Activas/Completadas + dropdowns Proveedor/EstadoPago + KPI "Por pagar" (bg-red-50) + subtitulos alineados a mockup + footer "Cargar mas". Vista Envios con dashboard 2-col (Breakdown por tipo + Pipeline logistico horizontal) + pills Todas/Activas/ConIncidencias + dropdowns Tipos/Couriers + subtitulos alineados + footer "Cargar mas". tsc -b 0 errores, vite build 16.73s. Rework completo 10/10 tandas.)
+**Ultima actualizacion:** 2026-04-18 (Sesion 42b — Traducción DDP + fix seleccion "Vía casilla". 7 strings visibles de "DDP" reemplazados por "Entrega directa a Perú" en 5 archivos. Bug fix: click en card "Via casilla de transito" ahora activa el estado (default salidaProveedor='proveedor_envia') y expande secciones dependientes. Commit `5f007b4` · Deploy #205.)
 **Branch activo:** main
 
 ---
@@ -15,9 +15,9 @@
 | Sesiones de trabajo registradas | 42 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~564 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42: Tandas 9-10 finales rework UX/UI) |
+| Fixes aplicados | ~566 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b: traduccion DDP + fix seleccion Via casilla) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 203 (S42 commit + deploy pendientes; ultimo deployado: 2026-04-18 S41, commit 62e4187, hosting vitaskinperu.web.app) |
+| Deploys realizados | 205 (ultimo: 2026-04-18 S42b, commit `5f007b4`, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -175,7 +175,7 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
 - Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 16.73s
 - Archivos modificados: 2 (`src/pages/OrdenesCompra/OrdenesCompra.tsx`, `src/pages/Envios/Envios.tsx`)
 - Alcance: **Tandas 9 + 10 del ciclo correctivo S41-S42** — cerrando las 2 pantallas de vista ejecutiva
-- Commit: pendiente · Deploy: pendiente
+- Commit: `7d811d4` · Deploy: https://vitaskinperu.web.app (143 files, 125 uploaded)
 
 ### Resumen ejecutivo
 S42 cierra el rework UX/UI iniciado en S41. Se ejecutaron las 2 tandas diferidas con edits quirurgicos sobre las paginas existentes (sin reescribir), alineando `/compras` y `/envios` a los mockups `rework-maestro-s40.html` (lineas 116-255 para Compras; 1948-2092 para Envios). La busqueda, pills filtro, KPIs enriquecidos con subtitulos exactos, y el dashboard 2-col breakdown+pipeline del mockup ahora existen en produccion. Build limpio 16.73s, 0 errores TS. Preview verificado: /compras y /envios renderizan con BD vacia mostrando subtitulos correctos (los conteos reales aparecen cuando hay datos).
@@ -326,6 +326,127 @@ S42 cierra el rework UX/UI iniciado en S41. Se ejecutaron las 2 tandas diferidas
 3. Si usuario pide mas rework UX/UI: leer `docs/AUDITORIA_REWORK_MOCKUP_S41.md` para pantallas pendientes de nivel 2
 4. Si usuario pide deudas tecnicas: abrir `productoEmoji.ts` y moverlo a `src/utils/` como primer win rapido
 5. Considerar commit de S42 + deploy como cierre del rework UX/UI completo antes de cualquier otro cambio
+
+---
+
+## SESION 42b — 2026-04-18 — Traducción DDP + fix selección "Vía casilla de tránsito"
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 16.73s
+- Archivos modificados: 5
+- Commit: `5f007b4` · Deploy #205: https://vitaskinperu.web.app (143 files, 124 uploaded)
+
+### Resumen ejecutivo
+Sesión corta de cierre post-Tandas 9-10. Usuario reportó 2 issues al probar el wizard OC: (1) en la sección "¿Cómo llega la mercadería?" aparecía el término "DDP" que no es lenguaje usuario (debe ser invisible para el vendedor/comprador típico), y (2) al hacer click en el card "Vía casilla de tránsito" no se podía seleccionar — quedaba en hover pero sin checkmark ni expansión de secciones dependientes. Ambos issues corregidos en un solo commit.
+
+### CAMBIO-476-S42b — Traducción DDP a lenguaje usuario común
+
+Decisión de producto: el término Incoterm "DDP" (Delivered Duty Paid) no debe aparecer nunca en UI visible. Los usuarios típicos (vendedores, compradores, operadores) no manejan terminología Incoterms. Se mantiene el término en campos técnicos del modelo (`esDDP: boolean`, `ddp_directo` como id de enum) porque reestructurar el modelo + migrar documentos Firestore excede el alcance de esta correción.
+
+**Traducciones aplicadas (7 strings visibles en 5 archivos):**
+
+| Archivo | Antes | Después |
+|---|---|---|
+| `StepRuta.tsx:298` | "DDP — Directo a Perú" (título card) | "Entrega directa a Perú" |
+| `StepRuta.tsx:299` | "Proveedor despacha directo sin casilla intermedia" | "El proveedor despacha directo a Perú sin pasar por casilla intermedia" |
+| `EnvioDetailModal.tsx:217` | Chip "DDP" | Chip "Entrega directa" + tooltip explicativo |
+| `Envios.tsx:290` | Label breakdown "DDP directo" | "Entrega directa a Perú" |
+| `Envios.tsx:981` | Option dropdown "DDP directo" | "Entrega directa a Perú" |
+| `configLogistica.ts:183` | "…envía directo a Perú (DDP) — flete…" | "…envía directo a Perú — flete…" |
+| `OrdenesCompra.tsx:622,708` | Toast "…casilla Perú (en DDP) o la casilla…" | Toast "…almacén en Perú (si el proveedor entrega directo) o la casilla…" |
+
+**Campos técnicos preservados (NO son UI — siguen existiendo):**
+- Tipo `Envio.esDDP?: boolean` en `envio.types.ts`
+- Tipo `OrdenCompra.modoEntregaDetallado === 'ddp_directo'` en `ordenCompra.types.ts`
+- Campo `casillaDDP` en `configLogistica.ts:140` (derived state interno)
+- Enum `LlegadaPeru = 'ddp_directo' | …` en `configLogistica.ts:11`
+- Filtro interno `filtroTipoRuta === 'ddp_directo'` en `Envios.tsx:374`
+- Comentarios de código con `DDP` / `S38-009: DDP …` en services/types (referencia técnica para devs)
+
+### CAMBIO-477-S42b — Fix selección "Vía casilla de tránsito" (StepRuta.tsx:284-303)
+
+**Root cause detectado:**
+
+```typescript
+// ANTES — onClick roto:
+onClick={() => {
+  updateConfig({
+    llegadaPeru: config.llegadaPeru === 'ddp_directo' ? null : (config.llegadaPeru ?? null),
+  });
+  if (config.llegadaPeru === 'ddp_directo') {
+    updateConfig({ llegadaPeru: null, casillaDestinoId: '', casillaDestinoNombre: '' });
+  }
+}}
+```
+
+Dos bugs superpuestos:
+
+1. **No inicializaba ningún valor activador.** La derivada `tipoRutaSeleccionado` requiere que `salidaProveedor || llegadaPeru` sean truthy (y `llegadaPeru !== 'ddp_directo'`). Cuando ambos son null, `updateConfig({ llegadaPeru: null })` no cambia nada → el card queda sin checkmark y no se expanden las secciones dependientes.
+
+2. **Stale closure entre 2 llamadas consecutivas.** `updateConfig` usa `config` del closure (`const next = { ...config, ...partial }`). Al llamarse dos veces seguidas, la segunda llamada tenía `config` pre-primera-llamada, sobreescribiendo cambios.
+
+**Fix aplicado:**
+
+```typescript
+// DESPUÉS — un solo updateConfig, agrupado:
+onClick={() => {
+  const cambio: Partial<ConfigLogistica> = {};
+  // Si venía de DDP, limpiar destino y tipo
+  if (config.llegadaPeru === 'ddp_directo') {
+    cambio.llegadaPeru = null;
+    cambio.casillaDestinoId = '';
+    cambio.casillaDestinoNombre = '';
+  }
+  // Default sensato: proveedor envía (el Tramo 1 permite cambiar a recojo)
+  if (!config.salidaProveedor) {
+    cambio.salidaProveedor = 'proveedor_envia';
+  }
+  if (Object.keys(cambio).length > 0) updateConfig(cambio);
+}}
+```
+
+**Decisión D-165 (S42b):** al hacer click en "Vía casilla", setear `salidaProveedor='proveedor_envia'` como default inicial. Razón: es el caso más común (proveedor hace el envío hasta la casilla, cargo a cuenta del comprador). El usuario puede cambiarlo en el Tramo 1 a `'recojo_en_origen'` si un colaborador recoge la mercadería donde el proveedor. Alternativa descartada: agregar un state explícito `tipoRutaOverride` al componente — agregaba complejidad sin beneficio porque la derivada ya funciona con solo setear el default.
+
+**Verificación en preview (antes de commit):**
+- Click en card "Vía casilla" → card cambia a borde `teal-500`, fondo `bg-teal-50`, checkmark blanco sobre círculo `bg-teal-600`
+- Aparece sección "Casilla de tránsito (USA/China)" con empty hint o grid de cards
+- Aparece sección "Almacén destino final (Perú)"
+- Sin regresión en el flujo alternativo (click en "Entrega directa a Perú" → limpia `salidaProveedor` en downstream del `updateConfig` para DDP)
+
+### Archivos modificados S42b
+
+- `src/components/modules/ordenCompra/OCWizardV3/StepRuta.tsx` (fix selección + traducción card)
+- `src/components/modules/ordenCompra/OCWizardV3/configLogistica.ts` (traducción mensaje)
+- `src/pages/OrdenesCompra/OrdenesCompra.tsx` (traducción 2 toasts)
+- `src/pages/Envios/Envios.tsx` (traducción label breakdown + opción dropdown)
+- `src/pages/Envios/EnvioDetailModal.tsx` (traducción chip + tooltip)
+
+### Métricas S42b
+
+| Métrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 16.73s |
+| Archivos modificados | 5 |
+| Lineas agregadas | 21 |
+| Lineas eliminadas | 15 |
+| Balance neto | +6 lineas |
+| Cambios registrados | CAMBIO-476, CAMBIO-477 (2 cambios) |
+| Decisiones | D-165 (1 decisión) |
+| Duración | ~30 min |
+
+### Deudas técnicas declaradas S42b
+
+1. **Inconsistencia modelo vs. UI en términos Incoterms:** el modelo de datos mantiene `esDDP`/`ddp_directo` pero la UI ya no lo muestra. Si en algún momento se agrega un panel de "auditoría técnica" o se exportan datos crudos, aparecerá "DDP" al usuario. Mitigación futura: agregar una capa de traducción centralizada (`src/utils/incoterms-labels.ts`) que mapee valores enum → labels visibles.
+
+2. **Default `salidaProveedor='proveedor_envia'` silencioso:** el usuario que hace click en "Vía casilla" no ve que el sistema ya configuró un tramo por él. Si el caso real es "recojo_en_origen" (el colaborador va a recoger), debe ir al Tramo 1 a cambiarlo. Mitigación futura: hacer visual el default (banner "Configuramos: proveedor enviará a la casilla. Cambia si recoges en origen").
+
+### Pendientes post-S42b
+
+Sin cambios respecto a S42. Sigue vigente la lista de:
+- Nivel 2 auditoría mockup
+- 7 deudas S41 + 4 deudas S42 + 2 deudas S42b (total 13)
+- Testing E2E con datos reales
 
 ---
 
