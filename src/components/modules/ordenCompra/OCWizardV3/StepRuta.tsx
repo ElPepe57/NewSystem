@@ -1129,7 +1129,7 @@ const TipoCardGrande: React.FC<{
     type="button"
     onClick={onClick}
     className={cn(
-      'relative border-2 rounded-xl p-4 text-left transition-all',
+      'w-full relative border-2 rounded-xl p-4 text-left transition-all',
       selected
         ? 'border-teal-500 bg-teal-50 shadow-sm'
         : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50/30'
