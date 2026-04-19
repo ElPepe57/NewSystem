@@ -19,7 +19,9 @@ import type { Colaborador, TipoColaborador, SubtipoTransportistaLocal } from '..
 import type { Casilla } from '../../types/casilla.types';
 import { ColaboradorFormModal } from './ColaboradorFormModal';
 import { CasillaFormModal } from './CasillaFormModal';
+import { AsociarColaboradorModal } from './AsociarColaboradorModal';
 import { RedLogisticaMapa } from './RedLogisticaMapa';
+import { CasillaExpandible } from './vistas/CasillaExpandible';
 import { useAuthStore } from '../../store/authStore';
 import { formatCurrency } from '../../utils/format';
 
@@ -60,6 +62,9 @@ export const RedLogistica: React.FC = () => {
   const [casillaFormOpen, setCasillaFormOpen] = useState(false);
   const [casillaColabId, setCasillaColabId] = useState('');
   const [casillaEditing, setCasillaEditing] = useState<Casilla | null>(null);
+
+  // S42h — Modal para asociar colaboradores a una casilla existente
+  const [asociarCasilla, setAsociarCasilla] = useState<Casilla | null>(null);
 
   useEffect(() => {
     if (colaboradores.length === 0) fetchColaboradores();
@@ -201,6 +206,16 @@ export const RedLogistica: React.FC = () => {
     fetchCasillas();
   };
 
+  // S42h — Handler para asociar colaboradores a casilla
+  const handleAsociarColaborador = (casilla: Casilla) => {
+    setAsociarCasilla(casilla);
+  };
+
+  const handleAsociarSaved = () => {
+    setAsociarCasilla(null);
+    fetchCasillas();
+  };
+
   // ── Render ──
 
   return (
@@ -307,23 +322,26 @@ export const RedLogistica: React.FC = () => {
       <div className="space-y-4 mb-8">
         <Subgrupo
           titulo="Mis Almacenes"
-          subtitulo="Puntos de acopio propios del negocio"
+          subtitulo="Puntos de acopio propios del negocio · Vista por ubicación física"
           icon={Building2}
           colorAccent="teal"
           items={grupos.misAlmacenes}
           onNuevo={() => handleNuevoColaborador('empresa')}
-          nuevoLabel="Nuevo almacén"
+          nuevoLabel="Nueva empresa"
           expandedIds={expandedIds}
           toggleExpand={toggleExpand}
           onEditar={handleEditarColaborador}
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin almacenes propios. Agrega tu primer punto de acopio."
+          layoutMode="por-casilla"
+          onAsociarColaborador={handleAsociarColaborador}
+          colaboradoresMap={colaboradoresMap}
         />
 
         <Subgrupo
           titulo="Viajeros"
-          subtitulo="Personas que traen productos desde origen"
+          subtitulo="Casas de viajeros en países origen · Vista por ubicación física"
           icon={Plane}
           colorAccent="teal"
           items={grupos.viajeros}
@@ -335,11 +353,14 @@ export const RedLogistica: React.FC = () => {
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin viajeros. Agrega personas que trasladen productos."
+          layoutMode="por-casilla"
+          onAsociarColaborador={handleAsociarColaborador}
+          colaboradoresMap={colaboradoresMap}
         />
 
         <Subgrupo
           titulo="Couriers Internacionales"
-          subtitulo="Transporte internacional (DHL, FedEx, etc.)"
+          subtitulo="Servicios de transporte internacional · Tarifas por envío y peso"
           icon={Truck}
           colorAccent="amber"
           items={grupos.couriersIntl}
@@ -351,6 +372,7 @@ export const RedLogistica: React.FC = () => {
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin couriers internacionales. Agrega servicios como DHL o FedEx."
+          mostrarCasillas={false}
         />
       </div>
 
@@ -367,7 +389,7 @@ export const RedLogistica: React.FC = () => {
       <div className="space-y-4">
         <Subgrupo
           titulo="Internos — Partners"
-          subtitulo="Aliados estratégicos con tarifas preferentes"
+          subtitulo="Aliados estratégicos · Costo fijo + comisión por entrega"
           icon={Briefcase}
           colorAccent="sky"
           items={grupos.internos}
@@ -384,7 +406,7 @@ export const RedLogistica: React.FC = () => {
 
         <Subgrupo
           titulo="Externos — Terceros"
-          subtitulo="Servicios tercerizados (Shalom, Urbano, Cruz del Sur, etc.)"
+          subtitulo="Servicios tercerizados · Tarifas estándar por courier"
           icon={Truck}
           colorAccent="slate"
           items={grupos.externos}
@@ -439,6 +461,14 @@ export const RedLogistica: React.FC = () => {
         casilla={casillaEditing}
         colaboradorId={casillaColabId}
       />
+
+      {/* S42h — Modal asociar colaboradores a una casilla existente */}
+      <AsociarColaboradorModal
+        isOpen={!!asociarCasilla}
+        onClose={() => setAsociarCasilla(null)}
+        casilla={asociarCasilla}
+        onSaved={handleAsociarSaved}
+      />
     </PageShell>
   );
 };
@@ -491,12 +521,27 @@ interface SubgrupoProps {
   emptyMsg: string;
   /** Si es false, no se muestra la expansion de casillas (solo el colaborador) */
   mostrarCasillas?: boolean;
+  /** S42h — layoutMode: 'por-casilla' invierte la jerarquía (casilla como fila, colaboradores como dependientes) */
+  layoutMode?: 'por-casilla' | 'por-colaborador';
+  /** Solo aplica a layoutMode='por-casilla': handler para asociar otros colaboradores */
+  onAsociarColaborador?: (casilla: Casilla) => void;
+  /** Mapa id → colaborador para resolver principal y secundarios en vista por casilla */
+  colaboradoresMap?: Map<string, Colaborador>;
+  /** Label del botón "Nueva casilla" (para vista por casilla) */
+  nuevaCasillaLabel?: string;
+  /** Handler del botón "Nueva casilla" (para vista por casilla) */
+  onNuevaCasillaGlobal?: () => void;
 }
 
 const Subgrupo: React.FC<SubgrupoProps> = ({
   titulo, subtitulo, icon: Icon, colorAccent, items, onNuevo, nuevoLabel,
   expandedIds, toggleExpand, onEditar, onNuevaCasilla, onEditarCasilla, emptyMsg,
   mostrarCasillas = true,
+  layoutMode = 'por-colaborador',
+  onAsociarColaborador,
+  colaboradoresMap,
+  nuevaCasillaLabel,
+  onNuevaCasillaGlobal,
 }) => {
   const accentMap = {
     teal: 'text-teal-600 bg-teal-50',
@@ -504,6 +549,32 @@ const Subgrupo: React.FC<SubgrupoProps> = ({
     amber: 'text-amber-600 bg-amber-50',
     slate: 'text-slate-600 bg-slate-50',
   };
+
+  // S42h — Para layout por-casilla, aplanar casillas únicas con su principal + secundarios
+  const casillasDelSubgrupo = React.useMemo(() => {
+    if (layoutMode !== 'por-casilla') return [];
+    const seen = new Set<string>();
+    const out: Casilla[] = [];
+    items.forEach((item) => {
+      item.casillas.forEach((cas) => {
+        // Solo contar la casilla una vez y solo si el colaborador es el principal
+        // (evita duplicarla en la lista cuando aparece en un secundario)
+        if (cas.colaboradorId === item.colaborador.id && !seen.has(cas.id)) {
+          seen.add(cas.id);
+          out.push(cas);
+        }
+      });
+    });
+    // Ordenar por esPrincipal desc, luego por nombre
+    return out.sort((a, b) => {
+      if (a.esPrincipal !== b.esPrincipal) return a.esPrincipal ? -1 : 1;
+      return a.nombre.localeCompare(b.nombre);
+    });
+  }, [items, layoutMode]);
+
+  const countDisplay = layoutMode === 'por-casilla'
+    ? `${casillasDelSubgrupo.length} ${casillasDelSubgrupo.length === 1 ? 'casilla' : 'casillas'} · ${items.length} ${items.length === 1 ? 'colaborador' : 'colaboradores'}`
+    : `${items.length}`;
 
   return (
     <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
@@ -516,10 +587,19 @@ const Subgrupo: React.FC<SubgrupoProps> = ({
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-slate-900">{titulo}</h3>
             <span className="text-xs text-slate-500">·</span>
-            <span className="text-xs text-slate-500">{items.length}</span>
+            <span className="text-xs text-slate-500">{countDisplay}</span>
           </div>
           <p className="text-[11px] text-slate-500 mt-0.5">{subtitulo}</p>
         </div>
+        {/* En por-casilla: botón adicional "Nueva casilla" si hay handler */}
+        {layoutMode === 'por-casilla' && onNuevaCasillaGlobal && items.length > 0 && (
+          <button
+            onClick={onNuevaCasillaGlobal}
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors"
+          >
+            <MapPin className="w-3 h-3" /> {nuevaCasillaLabel ?? 'Nueva casilla'}
+          </button>
+        )}
         <button
           onClick={onNuevo}
           className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg border border-teal-200 transition-colors"
@@ -533,7 +613,22 @@ const Subgrupo: React.FC<SubgrupoProps> = ({
         <div className="px-4 py-6 text-center text-sm text-slate-400 italic">
           {emptyMsg}
         </div>
+      ) : layoutMode === 'por-casilla' ? (
+        // ═══ VISTA POR CASILLA ═══
+        <PorCasillaLayout
+          casillas={casillasDelSubgrupo}
+          items={items}
+          expandedIds={expandedIds}
+          toggleExpand={toggleExpand}
+          onEditarCasilla={onEditarCasilla}
+          onEditarColaborador={onEditar}
+          onAsociarColaborador={onAsociarColaborador}
+          onNuevaCasillaGlobal={onNuevaCasillaGlobal}
+          onNuevaCasillaParaColab={onNuevaCasilla}
+          colaboradoresMap={colaboradoresMap}
+        />
       ) : (
+        // ═══ VISTA POR COLABORADOR (default) ═══
         <div className="divide-y divide-slate-100">
           {items.map(({ colaborador, casillas: cas }) => (
             <ColaboradorRow
@@ -598,12 +693,56 @@ const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500">
+          <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 flex-wrap">
             <span>{PAIS_EMOJI[colaborador.pais] || ''} {colaborador.pais}</span>
             {colaborador.ciudad && <span>{colaborador.ciudad}</span>}
             {colaborador.telefono && <span>{colaborador.telefono}</span>}
-            {colaborador.tipo === 'transportista_local' && colaborador.tarifas?.costoFijo !== undefined && (
-              <span className="font-medium text-slate-700">S/ {colaborador.tarifas.costoFijo.toFixed(2)}/entrega</span>
+
+            {/* S42h — Métricas destacadas para couriers internacionales */}
+            {colaborador.tipo === 'courier_externo' && (
+              <>
+                {colaborador.tarifas?.tarifaBasePorEnvioUSD !== undefined && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-50 text-amber-700 border border-amber-200">
+                    Base: ${colaborador.tarifas.tarifaBasePorEnvioUSD.toFixed(2)}
+                  </span>
+                )}
+                {colaborador.tarifas?.tarifaPorKgUSD !== undefined && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-50 text-amber-700 border border-amber-200">
+                    ${colaborador.tarifas.tarifaPorKgUSD.toFixed(2)}/kg
+                  </span>
+                )}
+              </>
+            )}
+
+            {/* S42h — Métricas destacadas para transportistas locales */}
+            {colaborador.tipo === 'transportista_local' && (
+              <>
+                {colaborador.subtipoTransportista === 'interno' && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-sky-50 text-sky-700 border border-sky-200">
+                    Interno
+                  </span>
+                )}
+                {colaborador.subtipoTransportista === 'externo' && colaborador.courierExterno && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 capitalize">
+                    {colaborador.courierExterno}
+                  </span>
+                )}
+                {colaborador.tarifas?.costoFijo !== undefined && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-sky-50 text-sky-700 border border-sky-200">
+                    S/ {colaborador.tarifas.costoFijo.toFixed(2)}/entrega
+                  </span>
+                )}
+                {colaborador.tarifas?.comisionPorcentaje !== undefined && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-sky-50 text-sky-700 border border-sky-200">
+                    +{colaborador.tarifas.comisionPorcentaje}%
+                  </span>
+                )}
+                {colaborador.tarifas?.zonaCobertura && (
+                  <span className="text-[10px] text-slate-600">
+                    {colaborador.tarifas.zonaCobertura}
+                  </span>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -724,3 +863,114 @@ const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
 };
 
 export default RedLogistica;
+
+// ══════════════════════════════════════════════════════════════════
+// S42h — Layout "por casilla": casillas arriba, colaboradores huérfanos abajo
+// ══════════════════════════════════════════════════════════════════
+
+interface PorCasillaLayoutProps {
+  casillas: Casilla[];
+  items: ColabConCasillas[];
+  expandedIds: Set<string>;
+  toggleExpand: (id: string) => void;
+  onEditarCasilla: (casilla: Casilla) => void;
+  onEditarColaborador: (c: Colaborador) => void;
+  onAsociarColaborador?: (casilla: Casilla) => void;
+  onNuevaCasillaGlobal?: () => void;
+  onNuevaCasillaParaColab: (colaboradorId: string) => void;
+  colaboradoresMap?: Map<string, Colaborador>;
+}
+
+const PorCasillaLayout: React.FC<PorCasillaLayoutProps> = ({
+  casillas, items, expandedIds, toggleExpand, onEditarCasilla, onEditarColaborador,
+  onAsociarColaborador, onNuevaCasillaGlobal, onNuevaCasillaParaColab, colaboradoresMap,
+}) => {
+  // Colaboradores sin casilla propia (no tienen casillas donde ellos sean el principal)
+  const huerfanos = items.filter(({ colaborador, casillas: cas }) => {
+    return !cas.some((c) => c.colaboradorId === colaborador.id);
+  });
+
+  if (casillas.length === 0 && huerfanos.length === 0) {
+    return (
+      <div className="px-4 py-6 text-center text-sm text-slate-400 italic">
+        No hay casillas configuradas aún.
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Casillas */}
+      {casillas.length > 0 && (
+        <div className="divide-y divide-slate-100">
+          {casillas.map((casilla) => {
+            const principal = colaboradoresMap?.get(casilla.colaboradorId);
+            const secundarios = (casilla.colaboradoresSecundariosIds ?? [])
+              .map((id) => colaboradoresMap?.get(id))
+              .filter((c): c is Colaborador => !!c);
+            return (
+              <CasillaExpandible
+                key={casilla.id}
+                casilla={casilla}
+                colaboradorPrincipal={principal}
+                colaboradoresSecundarios={secundarios}
+                expanded={expandedIds.has(casilla.id)}
+                onToggleExpand={() => toggleExpand(casilla.id)}
+                onEditarCasilla={onEditarCasilla}
+                onEditarColaborador={onEditarColaborador}
+                onAsociarColaborador={(c) => onAsociarColaborador?.(c)}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Colaboradores sin casilla */}
+      {huerfanos.length > 0 && (
+        <div className="border-t-2 border-slate-100 bg-amber-50/30">
+          <div className="px-4 py-2 text-[11px] font-semibold text-amber-800 uppercase tracking-wide">
+            Sin casilla configurada
+          </div>
+          <div className="divide-y divide-slate-100">
+            {huerfanos.map(({ colaborador }) => (
+              <div
+                key={colaborador.id}
+                className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/60 transition-colors"
+              >
+                <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[11px] font-semibold flex-shrink-0">
+                  {colaborador.nombre.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-slate-800 truncate">{colaborador.nombre}</span>
+                    <span className="text-[10px] font-mono text-slate-400">{colaborador.codigo}</span>
+                    <StatusBadge variant={colaborador.estado === 'activo' ? 'success' : 'neutral'} size="sm">
+                      {colaborador.estado}
+                    </StatusBadge>
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    {PAIS_EMOJI[colaborador.pais] || ''} {colaborador.pais}
+                    {colaborador.telefono && <> · {colaborador.telefono}</>}
+                  </div>
+                </div>
+                <button
+                  onClick={() => onNuevaCasillaParaColab(colaborador.id)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg border border-teal-200 transition-colors"
+                >
+                  <Plus className="w-3 h-3" /> Agregar casilla
+                </button>
+                <button
+                  onClick={() => onEditarColaborador(colaborador)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"
+                  title="Editar colaborador"
+                >
+                  <Edit2 className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
