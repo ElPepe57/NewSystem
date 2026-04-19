@@ -75,20 +75,24 @@ export const RedLogistica: React.FC = () => {
 
   // S42g — Una casilla puede aparecer en varios colaboradores (principal + secundarios).
   // Para el principal se muestra tal cual; para secundarios se muestra con badge "Compartida".
+  // S42m fix — Indexar SOLO casillas activas. Las inactivas no se cuentan ni listan,
+  // alineado con el KPI global "Casillas activas" y evitando inconsistencias.
   const casillasMap = useMemo(() => {
     const map = new Map<string, Casilla[]>();
-    casillas.forEach(c => {
-      // Dueño principal
-      const arrPrincipal = map.get(c.colaboradorId) || [];
-      arrPrincipal.push(c);
-      map.set(c.colaboradorId, arrPrincipal);
-      // Colaboradores secundarios (casilla compartida)
-      c.colaboradoresSecundariosIds?.forEach((secId) => {
-        const arrSec = map.get(secId) || [];
-        arrSec.push(c);
-        map.set(secId, arrSec);
+    casillas
+      .filter(c => c.estado === 'activa')
+      .forEach(c => {
+        // Dueño principal
+        const arrPrincipal = map.get(c.colaboradorId) || [];
+        arrPrincipal.push(c);
+        map.set(c.colaboradorId, arrPrincipal);
+        // Colaboradores secundarios (casilla compartida)
+        c.colaboradoresSecundariosIds?.forEach((secId) => {
+          const arrSec = map.get(secId) || [];
+          arrSec.push(c);
+          map.set(secId, arrSec);
+        });
       });
-    });
     return map;
   }, [casillas]);
 
@@ -146,10 +150,20 @@ export const RedLogistica: React.FC = () => {
 
   // ── KPIs globales ──
 
-  const totalUnidades = casillas.reduce((s, c) => s + (c.unidadesActuales || 0), 0);
-  const totalValorUSD = casillas.reduce((s, c) => s + (c.valorInventarioUSD || 0), 0);
-  const totalCasillasActivas = casillas.filter(c => c.estado === 'activa').length;
-  const totalTransportistas = grupos.internos.length + grupos.externos.length + grupos.sinCategoria.length;
+  // S42m fix — KPIs alineados a casillas ACTIVAS (misma fuente de verdad que el listado).
+  const casillasActivas = useMemo(() => casillas.filter(c => c.estado === 'activa'), [casillas]);
+  const totalUnidades = casillasActivas.reduce((s, c) => s + (c.unidadesActuales || 0), 0);
+  const totalValorUSD = casillasActivas.reduce((s, c) => s + (c.valorInventarioUSD || 0), 0);
+  const totalCasillasActivas = casillasActivas.length;
+  // S42m fix — contar solo transportistas activos (alineado con KPI global)
+  const totalTransportistas = [
+    ...grupos.internos, ...grupos.externos, ...grupos.sinCategoria,
+  ].filter(i => i.colaborador.estado === 'activo').length;
+  // Colaboradores activos (excluye inactivos/suspendidos para el conteo visible)
+  const totalColaboradoresActivos = useMemo(
+    () => colaboradores.filter(c => c.estado === 'activo').length,
+    [colaboradores]
+  );
 
   // ── Toggle expand ──
 
@@ -222,13 +236,13 @@ export const RedLogistica: React.FC = () => {
     <PageShell>
       <PageHeader
         title="Red Logística"
-        subtitle={`${colaboradores.length} colaboradores, ${totalCasillasActivas} casillas activas`}
+        subtitle={`${totalColaboradoresActivos} colaboradores, ${totalCasillasActivas} casillas activas`}
         icon={Network}
       />
 
       {/* KPIs globales */}
       <KPIBar columns={4}>
-        <StatCard label="Colaboradores" value={colaboradores.length} icon={Users} />
+        <StatCard label="Colaboradores" value={totalColaboradoresActivos} icon={Users} />
         <StatCard label="Casillas activas" value={totalCasillasActivas} icon={MapPin} />
         <StatCard label="Unidades en red" value={totalUnidades} icon={Package} />
         <StatCard label="Valor inventario" value={formatCurrency(totalValorUSD, 'USD')} icon={DollarSign} />
@@ -572,9 +586,13 @@ const Subgrupo: React.FC<SubgrupoProps> = ({
     });
   }, [items, layoutMode]);
 
+  // S42m fix — contar solo colaboradores activos en los headers de subgrupo
+  // (alineado con el KPI global "Colaboradores"). Inactivos siguen visibles en el
+  // listado con badge "inactivo" pero no inflan el contador principal.
+  const itemsActivosCount = items.filter(i => i.colaborador.estado === 'activo').length;
   const countDisplay = layoutMode === 'por-casilla'
-    ? `${casillasDelSubgrupo.length} ${casillasDelSubgrupo.length === 1 ? 'casilla' : 'casillas'} · ${items.length} ${items.length === 1 ? 'colaborador' : 'colaboradores'}`
-    : `${items.length}`;
+    ? `${casillasDelSubgrupo.length} ${casillasDelSubgrupo.length === 1 ? 'casilla' : 'casillas'} · ${itemsActivosCount} ${itemsActivosCount === 1 ? 'colaborador' : 'colaboradores'}`
+    : `${itemsActivosCount}`;
 
   return (
     <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
@@ -853,10 +871,14 @@ const PorCasillaLayout: React.FC<PorCasillaLayoutProps> = ({
   casillas, items, expandedIds, toggleExpand, onEditarCasilla, onEditarColaborador,
   onAsociarColaborador, onNuevaCasillaGlobal, onNuevaCasillaParaColab, colaboradoresMap,
 }) => {
-  // S42i fix — Colaboradores SIN ninguna casilla (ni propia ni compartida).
-  // `cas` ya incluye casillas donde el colaborador es secundario (via casillasMap),
-  // así que si el array está vacío, realmente no tiene dirección física asociada.
-  const huerfanos = items.filter(({ casillas: cas }) => cas.length === 0);
+  // S42i fix — Colaboradores SIN ninguna casilla activa (ni propia ni compartida).
+  // `cas` ya incluye casillas donde el colaborador es secundario (via casillasMap).
+  // S42m — excluir colaboradores inactivos/suspendidos del listado de huérfanos
+  // (no tiene sentido ofrecer "Agregar casilla" a un colaborador inactivo).
+  const huerfanos = items.filter(
+    ({ colaborador, casillas: cas }) =>
+      cas.length === 0 && colaborador.estado === 'activo'
+  );
 
   if (casillas.length === 0 && huerfanos.length === 0) {
     return (
