@@ -1094,6 +1094,15 @@ const CasillaTransitoCard: React.FC<{
         {colaborador?.tipo === 'viajero' ? 'Casilla viajero' : 'Casilla'}
         {enviosPrevios > 0 && ` · ${enviosPrevios} envíos`}
       </div>
+      {/* S42p — Dirección de referencia de la casilla */}
+      {(casilla.direccion || casilla.ciudad) && (
+        <div className="mt-1.5 flex items-start gap-1 text-[11px] text-slate-500">
+          <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0 text-slate-400" />
+          <span className="truncate" title={[casilla.direccion, casilla.ciudad].filter(Boolean).join(', ')}>
+            {[casilla.direccion, casilla.ciudad].filter(Boolean).join(', ')}
+          </span>
+        </div>
+      )}
     </button>
   );
 };
@@ -1125,6 +1134,12 @@ const AlmacenPeruCard: React.FC<{
     <div className="text-xs font-medium text-slate-700 truncate">
       {almacen.nombre}
     </div>
+    {/* S42p — Dirección de referencia del almacén */}
+    {(almacen.direccion || almacen.ciudad) && (
+      <div className="text-[11px] text-slate-500 mt-1 truncate" title={[almacen.direccion, almacen.ciudad].filter(Boolean).join(', ')}>
+        {[almacen.direccion, almacen.ciudad].filter(Boolean).join(', ')}
+      </div>
+    )}
   </button>
 );
 
