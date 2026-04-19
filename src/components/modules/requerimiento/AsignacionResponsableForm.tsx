@@ -214,11 +214,7 @@ export const AsignacionResponsableForm: React.FC<Props> = ({
                 <div className="text-sm text-slate-500">
                   {viajeroSeleccionado.ciudad}, {viajeroSeleccionado.estado || 'USA'}
                 </div>
-                {viajeroSeleccionado.frecuenciaViaje && (
-                  <div className="text-sm text-slate-500">
-                    Frecuencia: {viajeroSeleccionado.frecuenciaViaje}
-                  </div>
-                )}
+                {/* S42j — Chip "Frecuencia de viaje" removido por no tener uso real en el negocio */}
               </div>
               <div className="text-right">
                 {viajeroSeleccionado.costoPromedioFlete && (

@@ -31,8 +31,10 @@ export type CourierExterno = 'olva' | 'mercado_envios' | 'urbano' | 'shalom' | '
  */
 export interface TarifasColaborador {
   // Viajero
-  tarifaPorLibraUSD?: number;         // Tarifa por libra de peso
-  tarifaFijaPorViajeUSD?: number;     // Tarifa fija por viaje (si aplica)
+  /** @deprecated S42j — Campo sin consumo en flete/pago/reportes. Se mantiene por retrocompat con datos existentes. */
+  tarifaPorLibraUSD?: number;
+  /** @deprecated S42j — Campo sin consumo en cálculos del negocio. */
+  tarifaFijaPorViajeUSD?: number;
 
   // Courier externo
   tarifaBasePorEnvioUSD?: number;     // Tarifa base por envio
@@ -96,7 +98,9 @@ export interface Colaborador {
   metricas?: MetricasColaborador;
 
   // Solo viajeros
+  /** @deprecated S42j — Campo sin uso real en el negocio (no participa en cálculos ni decisiones operativas). Se mantiene por retrocompat con datos existentes. */
   frecuenciaViaje?: 'semanal' | 'quincenal' | 'mensual' | 'bimestral' | 'variable';
+  /** @deprecated S42j — Campo sin consumo en flujo de trabajo. */
   proximoViaje?: Timestamp;
 
   // Solo transportistas locales
@@ -129,7 +133,9 @@ export interface ColaboradorFormData {
   ciudad?: string;
   direccion?: string;
   tarifas?: TarifasColaborador;
+  /** @deprecated S42j — sin uso real en el negocio. */
   frecuenciaViaje?: 'semanal' | 'quincenal' | 'mensual' | 'bimestral' | 'variable';
+  /** @deprecated S42j — sin consumo. */
   proximoViaje?: Date;
   notas?: string;
   // Solo transportistas locales

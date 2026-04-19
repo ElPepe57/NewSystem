@@ -59,9 +59,8 @@ export const ColaboradorFormModal: React.FC<Props> = ({
     email: '',
     whatsapp: '',
     notas: '',
-    // Viajero
-    frecuenciaViaje: '' as string,
-    tarifaPorLibraUSD: '',
+    // S42j — Sección "Configuración de viajero" (frecuenciaViaje + tarifaPorLibraUSD)
+    // eliminada. Sin uso real en el negocio.
     // Courier externo internacional
     tarifaBasePorEnvioUSD: '',
     tarifaPorKgUSD: '',
@@ -89,8 +88,6 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         email: colaborador.email || '',
         whatsapp: colaborador.whatsapp || '',
         notas: colaborador.notas || '',
-        frecuenciaViaje: colaborador.frecuenciaViaje || '',
-        tarifaPorLibraUSD: colaborador.tarifas?.tarifaPorLibraUSD?.toString() || '',
         tarifaBasePorEnvioUSD: colaborador.tarifas?.tarifaBasePorEnvioUSD?.toString() || '',
         tarifaPorKgUSD: colaborador.tarifas?.tarifaPorKgUSD?.toString() || '',
         subtipoTransportista: colaborador.subtipoTransportista || 'interno',
@@ -109,7 +106,6 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         estado: 'activo',
         pais: tipoPreseleccionado === 'transportista_local' ? 'Peru' : 'USA',
         ciudad: '', direccion: '', telefono: '', email: '', whatsapp: '', notas: '',
-        frecuenciaViaje: '', tarifaPorLibraUSD: '',
         tarifaBasePorEnvioUSD: '', tarifaPorKgUSD: '',
         subtipoTransportista: subtipoPreseleccionado || 'interno',
         courierExterno: 'otro',
@@ -138,11 +134,9 @@ export const ColaboradorFormModal: React.FC<Props> = ({
       if (form.notas.trim()) (data as any).notas = form.notas.trim();
 
       // Construir tarifas según el tipo
+      // S42j — Viajero ya no tiene campos adicionales (se removió "Configuración de viajero")
       const tarifas: Record<string, number | string> = {};
-      if (form.tipo === 'viajero') {
-        if (form.frecuenciaViaje) (data as any).frecuenciaViaje = form.frecuenciaViaje;
-        if (form.tarifaPorLibraUSD) tarifas.tarifaPorLibraUSD = parseFloat(form.tarifaPorLibraUSD);
-      } else if (form.tipo === 'courier_externo') {
+      if (form.tipo === 'courier_externo') {
         if (form.tarifaBasePorEnvioUSD) tarifas.tarifaBasePorEnvioUSD = parseFloat(form.tarifaBasePorEnvioUSD);
         if (form.tarifaPorKgUSD) tarifas.tarifaPorKgUSD = parseFloat(form.tarifaPorKgUSD);
       } else if (form.tipo === 'transportista_local') {
@@ -254,30 +248,9 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         </div>
 
         {/* ── Campos específicos por tipo ── */}
-
-        {/* Viajero */}
-        {form.tipo === 'viajero' && (
-          <div className="p-3 bg-teal-50/50 rounded-lg border border-teal-100 space-y-3">
-            <div className="text-xs font-medium text-teal-700">Configuración de viajero</div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={labelCls}>Frecuencia de viaje</label>
-                <select value={form.frecuenciaViaje} onChange={e => setForm({ ...form, frecuenciaViaje: e.target.value })} className={inputCls}>
-                  <option value="">Sin definir</option>
-                  <option value="semanal">Semanal</option>
-                  <option value="quincenal">Quincenal</option>
-                  <option value="mensual">Mensual</option>
-                  <option value="bimestral">Bimestral</option>
-                  <option value="variable">Variable</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Tarifa por libra (USD)</label>
-                <input type="number" step="0.01" value={form.tarifaPorLibraUSD} onChange={e => setForm({ ...form, tarifaPorLibraUSD: e.target.value })} className={inputCls} placeholder="5.00" />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* S42j — Sección "Configuración de viajero" eliminada: ningún campo era consumido
+             en cálculos del negocio (flete, pagos, reportes). Viajero = solo datos de
+             contacto estándar. */}
 
         {/* Courier internacional */}
         {form.tipo === 'courier_externo' && (
