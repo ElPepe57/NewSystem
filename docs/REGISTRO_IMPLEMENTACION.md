@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-18 (Sesion 42d — MapKit reutilizable (src/design-system/maps/) como capa generica sobre Google Maps: MapProvider/MapContainer/MarkersLayer/ClusterLayer/HeatmapLayer + MapTooltip/MapLegend + useGeocoder hook + types/presets. Primer consumidor: Red Logistica con toggle Lista/Mapa + geocoding on-blur en CasillaFormModal (boton 📍 + chip coords). Segundo consumidor: /mapa-ventas migrado de 172 → 80 lineas reutilizando el kit. Commits `edfd8b5` (S42c fix undefined) + `aefb4d2` (S42d MapKit). Deploys #206-207.)
+**Ultima actualizacion:** 2026-04-18 (Sesion 42f — MapKit ampliado con PlacesAutocompleteInput (dropdown de sugerencias tipo Google Places) + mini-mapa preview (S42e) en CasillaFormModal. Ahora al escribir "jiron ica" aparecen 5 sugerencias reales; al seleccionar una se autocompleta direccion + ciudad + codigo postal + coordenadas + mini-mapa en una sola interaccion. Commits `edfd8b5` (S42c) + `aefb4d2` (S42d) + `8211ff0` (S42e mini-mapa) + `1e334a8` (S42f autocomplete). Deploys #206-209.)
 **Branch activo:** main
 
 ---
@@ -15,9 +15,9 @@
 | Sesiones de trabajo registradas | 42 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~572 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d: MapKit + primeros 2 consumidores) |
+| Fixes aplicados | ~574 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e mini-mapa + 1 S42f PlacesAutocomplete) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 207 (ultimo: 2026-04-18 S42d, commit `aefb4d2`, hosting vitaskinperu.web.app) |
+| Deploys realizados | 209 (ultimo: 2026-04-18 S42f, commit `1e334a8`, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -326,6 +326,179 @@ S42 cierra el rework UX/UI iniciado en S41. Se ejecutaron las 2 tandas diferidas
 3. Si usuario pide mas rework UX/UI: leer `docs/AUDITORIA_REWORK_MOCKUP_S41.md` para pantallas pendientes de nivel 2
 4. Si usuario pide deudas tecnicas: abrir `productoEmoji.ts` y moverlo a `src/utils/` como primer win rapido
 5. Considerar commit de S42 + deploy como cierre del rework UX/UI completo antes de cualquier otro cambio
+
+---
+
+## SESION 42f — 2026-04-18 — PlacesAutocompleteInput helper + dropdown sugerencias en form
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 22.98s
+- Archivos creados: 1 (PlacesAutocompleteInput)
+- Archivos modificados: 2 (CasillaFormModal, MapKit index)
+- Commit: `1e334a8` · Deploy #209: https://vitaskinperu.web.app
+
+### Resumen ejecutivo
+Usuario probó el form post-S42e y reportó: "pero no me sale recomendación de direcciones" — esperaba dropdown de sugerencias tipo Google Places al escribir "jiron ica", no solo geocoding al final. El `GoogleMapsAddressInput` existente (usado por Ventas) tenía toda la lógica pero era un componente pesado con mapa embebido. Se extrajo la parte de autocomplete a un componente ligero en el MapKit, ampliando el helper con una herramienta más.
+
+### CAMBIO-482-S42f — PlacesAutocompleteInput en MapKit
+
+**Nuevo archivo:** `src/design-system/maps/PlacesAutocompleteInput.tsx` (~260 líneas)
+
+**API:**
+```tsx
+<PlacesAutocompleteInput
+  value={form.direccion}
+  onChange={(text) => setForm({...form, direccion: text})}
+  onPlaceSelected={(place) => {
+    // place = { direccion, coordenadas, placeId, pais, paisCodigo,
+    //          ciudad, provincia, distrito, codigoPostal }
+  }}
+  placeholder="Buscar dirección..."
+  locationBias="PE"           // ISO code — sesga resultados al país
+  minChars={3}                // default 3
+  debounceMs={300}            // default 300
+  iconType="pin"              // "pin" | "search"
+/>
+```
+
+**Características:**
+- `AutocompleteService.getPlacePredictions()` para sugerencias en vivo
+- `PlacesService.getDetails()` al seleccionar una predicción (obtiene lat/lng + address_components)
+- `extractAddressFields()` del hook existente (reutilizado) para normalizar campos PE/US/internacional
+- Session tokens de Google Maps para billing eficiente (agrupa predictions + getDetails en una sesión)
+- Navegación teclado: ↑↓ para moverse entre opciones, Enter para seleccionar, Escape para cerrar
+- Click-outside handler para cerrar dropdown
+- Loader2 animado mientras consulta predicciones o getDetails
+- Dropdown `z-50` con sombra, hover state, mainText en bold + secondaryText en gris
+
+**Decisión D-171:** extraer autocomplete de `GoogleMapsAddressInput` en vez de reutilizar el componente completo. Razones: (1) el componente original tiene mapa embebido que duplicaría el mini-mapa del S42e; (2) queda en el MapKit como helper reutilizable para otros consumidores (futuros: formularios de cliente, proveedor, ruta de entrega); (3) API específica para autocomplete simplifica la integración (el componente padre controla el state del form, el child solo dispara onPlaceSelected).
+
+**Decisión D-172:** `locationBias` acepta `string | string[]` con ISO codes (no el bounds del mapa como el original). Razón: la UX de un form de casilla es "elijo país explícitamente → quiero sugerencias de ese país". En el form, `locationBias={PAIS_ISO[form.pais]}` — cambia dinámicamente cuando el usuario cambia el dropdown de país.
+
+### CAMBIO-483-S42f — Integración en CasillaFormModal
+
+**Cambios:**
+- Nuevo mapping `PAIS_ISO` (USA→US, Peru→PE, China→CN, Corea→KR, Peru_local→PE)
+- Input manual de Dirección reemplazado por `<PlacesAutocompleteInput>`
+- `handlePlaceSelected` autocompleta dirección + ciudad + código postal **solo si están vacíos** (respeta lo que el usuario ya tecleó — evita sobrescribir entrada manual previa)
+- Chip verde "✓ Coordenadas: X, Y" aparece al instante tras seleccionar
+- Botón "Geolocalizar dirección manualmente" como fallback si el usuario escribió libre sin seleccionar del dropdown
+- Label de dirección: "Dirección (escribe y selecciona de la lista)" para guiar la UX
+- Mini-mapa preview del S42e sigue renderizando cuando hay coordenadas
+
+**Flujo UX resultante:**
+1. Usuario escribe "jiron ica" en Dirección
+2. Tras 300ms + 3 caracteres, aparece dropdown con 5 sugerencias
+3. Usuario selecciona "Jirón Ica 3625, San Martín de Porres, Lima, Perú"
+4. Dirección se formatea automáticamente, Ciudad se rellena (si vacía), CP se rellena (si vacío)
+5. Chip verde con coordenadas aparece
+6. Mini-mapa (200px) renderiza con marker en las coords seleccionadas
+7. Click en "Guardar cambios" persiste todo incluyendo coordenadas
+
+**Si el usuario teclea libre sin seleccionar:**
+- Link "📍 Geolocalizar dirección manualmente" visible
+- Ejecuta el `handleGeocode` original (construye query con dirección+ciudad+país y consulta Google)
+- Mismo efecto visual al éxito (chip + mini-mapa)
+
+### Archivos S42f (3)
+
+**Creado (1):**
+- `src/design-system/maps/PlacesAutocompleteInput.tsx` (~260 líneas)
+
+**Modificados (2):**
+- `src/design-system/maps/index.ts` (+3 líneas: export del componente + tipo)
+- `src/pages/RedLogistica/CasillaFormModal.tsx` (~30 líneas netas, integración + handler)
+
+### MapKit ahora exporta
+
+```ts
+// Core
+MapProvider, MapContainer, useMapInstance, useMapBoundsRegistry, useMapProvider
+
+// Layers
+MarkersLayer, ClusterLayer, HeatmapLayer
+
+// Pieces
+MapTooltip, MapLegend
+
+// Input components (nuevo S42f)
+PlacesAutocompleteInput, PlaceSelectedResult
+
+// Hooks
+useGeocoder, GeocodeResult
+
+// Types/presets
+LatLng, MapPoint<T>, MapRoute, LegendItem, MapInitialConfig,
+MAP_CENTERS, COUNTRY_COLORS
+```
+
+### Métricas S42f
+
+| Métrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 22.98s |
+| Archivos creados | 1 |
+| Archivos modificados | 2 |
+| Líneas agregadas | 358 |
+| Líneas eliminadas | 29 |
+| Balance neto | +329 |
+| Cambios registrados | CAMBIO-482, 483 (2) |
+| Decisiones | D-171, D-172 (2) |
+| Duración | ~45 min |
+
+---
+
+## SESION 42e — 2026-04-18 — Mini-mapa preview en CasillaFormModal
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 17.20s
+- Archivos modificados: 1 (CasillaFormModal)
+- Commit: `8211ff0` · Deploy #208
+
+### Resumen ejecutivo
+Usuario probó S42d y reportó que al guardar coordenadas solo aparecía el chip con números — faltaba feedback visual de que la ubicación geocodificada era correcta. Se agregó un mini-mapa (200px alto) debajo del chip de coordenadas cuando éstas existen. Demuestra la API declarativa del MapKit — solo ~25 líneas de integración para un caso no previsto originalmente.
+
+### CAMBIO-481b-S42e — Mini-mapa preview tras geocodificar
+
+```tsx
+{coordenadas && (
+  <div>
+    <label>Ubicación en mapa</label>
+    <div className="h-[200px] rounded-lg overflow-hidden border">
+      <MapProvider>
+        <MapContainer center={coordenadas} zoom={15} autoFit={false} minHeight="200px">
+          <MarkersLayer
+            points={[{ id: 'preview', coordenadas, nombre: form.nombre, ... }]}
+            colorBy={() => COUNTRY_COLORS[form.pais] ?? '#14B8A6'}
+            scaleBy={() => 10}
+          />
+        </MapContainer>
+      </MapProvider>
+    </div>
+    <p className="text-[10px] text-slate-500">
+      Si la ubicación es incorrecta, edita la dirección o ciudad y se recalculará automáticamente.
+    </p>
+  </div>
+)}
+```
+
+- Se muestra solo cuando hay coordenadas (condicional)
+- `autoFit={false}` porque ya estamos centrados en el punto (zoom 15 es cerca)
+- Color del marker según país (COUNTRY_COLORS del kit)
+- Al editar dirección/ciudad → `setCoordenadas(null)` → mini-mapa desaparece
+- Re-geocodificar → mini-mapa reaparece con nueva posición
+
+### Métricas S42e
+
+| Métrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 17.20s |
+| Líneas agregadas | 40 |
+| Líneas eliminadas | 1 |
+| Cambios registrados | CAMBIO-481b |
+| Duración | ~15 min |
 
 ---
 
