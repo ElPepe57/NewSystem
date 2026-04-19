@@ -43,8 +43,14 @@ export interface Casilla {
   pais: PaisCasilla;
 
   // Vinculo con colaborador
-  colaboradorId: string;              // Dueno de esta casilla
+  colaboradorId: string;              // Dueno PRINCIPAL de esta casilla
   colaboradorNombre: string;          // Desnormalizado
+
+  // S42g — Casillas compartidas: varios colaboradores pueden usar la misma
+  // dirección física (ej. Angie y su hermana viven en la misma casa). El
+  // `colaboradorId` sigue siendo el principal; estos son los secundarios.
+  colaboradoresSecundariosIds?: string[];
+  colaboradoresSecundariosNombres?: string[]; // Desnormalizado (mismo orden)
 
   // Es la casilla principal del colaborador?
   esPrincipal: boolean;
@@ -87,6 +93,7 @@ export interface CasillaFormData {
   estado: EstadoCasilla;
   pais: PaisCasilla;
   colaboradorId: string;
+  colaboradoresSecundariosIds?: string[];
   esPrincipal: boolean;
   direccion?: string;
   ciudad?: string;

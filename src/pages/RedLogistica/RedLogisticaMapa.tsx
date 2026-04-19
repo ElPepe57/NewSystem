@@ -109,12 +109,20 @@ export const RedLogisticaMapa: React.FC<RedLogisticaMapaProps> = ({ casillas, co
               renderTooltip={(p) => {
                 const c = p.metadata!;
                 const colab = c.colaborador;
+                // S42g — Si hay colaboradores secundarios, listarlos en el tooltip
+                const colaboradoresTexto = c.colaboradoresSecundariosNombres?.length
+                  ? `${colab?.nombre ?? c.colaboradorNombre} + ${c.colaboradoresSecundariosNombres.join(', ')}`
+                  : colab?.nombre ?? c.colaboradorNombre ?? '—';
                 return (
                   <MapTooltip
                     title={c.nombre}
-                    subtitle={TIPO_LABEL[c.tipo] ?? c.tipo}
+                    subtitle={
+                      c.colaboradoresSecundariosIds?.length
+                        ? `${TIPO_LABEL[c.tipo] ?? c.tipo} · Casilla compartida`
+                        : TIPO_LABEL[c.tipo] ?? c.tipo
+                    }
                     kpis={[
-                      { label: 'Colaborador', value: colab?.nombre ?? c.colaboradorNombre ?? '—' },
+                      { label: 'Colaboradores', value: colaboradoresTexto },
                       { label: 'País', value: c.pais === 'Peru_local' ? 'Perú' : c.pais },
                       { label: 'Ciudad', value: c.ciudad ?? '—' },
                       { label: 'Unidades', value: c.unidadesActuales ?? 0 },

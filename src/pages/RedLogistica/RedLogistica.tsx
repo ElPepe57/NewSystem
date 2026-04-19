@@ -68,12 +68,21 @@ export const RedLogistica: React.FC = () => {
 
   // ── Derived data ──
 
+  // S42g — Una casilla puede aparecer en varios colaboradores (principal + secundarios).
+  // Para el principal se muestra tal cual; para secundarios se muestra con badge "Compartida".
   const casillasMap = useMemo(() => {
     const map = new Map<string, Casilla[]>();
     casillas.forEach(c => {
-      const arr = map.get(c.colaboradorId) || [];
-      arr.push(c);
-      map.set(c.colaboradorId, arr);
+      // Dueño principal
+      const arrPrincipal = map.get(c.colaboradorId) || [];
+      arrPrincipal.push(c);
+      map.set(c.colaboradorId, arrPrincipal);
+      // Colaboradores secundarios (casilla compartida)
+      c.colaboradoresSecundariosIds?.forEach((secId) => {
+        const arrSec = map.get(secId) || [];
+        arrSec.push(c);
+        map.set(secId, arrSec);
+      });
     });
     return map;
   }, [casillas]);
@@ -649,26 +658,40 @@ const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {casillas.map(casilla => (
+              {casillas.map(casilla => {
+                // S42g — ¿Esta casilla se muestra porque es propia o porque comparte con el dueño?
+                const esCompartidaConEste = casilla.colaboradorId !== colaborador.id;
+                return (
                 <div
                   key={casilla.id}
                   className="flex items-center gap-3 px-4 pl-12 py-2 hover:bg-white/60 transition-colors"
                 >
                   <div className="flex-shrink-0 w-5">
-                    {casilla.esPrincipal && (
+                    {casilla.esPrincipal && !esCompartidaConEste && (
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                    )}
+                    {esCompartidaConEste && (
+                      <Users className="w-3.5 h-3.5 text-purple-500" />
                     )}
                   </div>
 
                   <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-slate-800 truncate">{casilla.nombre}</span>
                       <span className="text-[10px] font-mono text-slate-400">{casilla.codigo}</span>
                       <StatusBadge variant={casilla.estado === 'activa' ? 'success' : 'neutral'} size="sm">
                         {casilla.estado}
                       </StatusBadge>
+                      {esCompartidaConEste && (
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-purple-50 text-purple-700 border border-purple-200"
+                          title={`Casilla principal de ${casilla.colaboradorNombre}`}
+                        >
+                          Compartida · {casilla.colaboradorNombre}
+                        </span>
+                      )}
                     </div>
                     {casilla.direccion && (
                       <div className="text-[11px] text-slate-500 mt-0.5 truncate">
@@ -685,12 +708,13 @@ const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
                   <button
                     onClick={() => onEditarCasilla(casilla)}
                     className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex-shrink-0"
-                    title="Editar casilla"
+                    title={esCompartidaConEste ? `Editar (administrada por ${casilla.colaboradorNombre})` : 'Editar casilla'}
                   >
                     <Edit2 className="w-3 h-3" />
                   </button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

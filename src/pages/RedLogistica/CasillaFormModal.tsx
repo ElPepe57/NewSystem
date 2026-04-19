@@ -1,12 +1,13 @@
 /**
  * CasillaFormModal — Crear/editar casilla de un colaborador
  */
-import React, { useState, useEffect } from 'react';
-import { MapPin, Loader2, Check } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { MapPin, Loader2, Check, X, Users, Plus } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common/Button';
 import { useAlmacenStore } from '../../store/casillaStore';
 import { useAuthStore } from '../../store/authStore';
+import { useColaboradorStore } from '../../store/colaboradorStore';
 import { casillaCrudService } from '../../services/casilla.crud.service';
 import type { Casilla, TipoCasilla, PaisCasilla, CasillaFormData } from '../../types/casilla.types';
 import { useToastStore } from '../../store/toastStore';
@@ -64,6 +65,28 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
   const { geocode, isGeocoding } = useGeocoder();
   const [coordenadas, setCoordenadas] = useState<{ lat: number; lng: number } | null>(null);
 
+  // S42g — Colaboradores secundarios (comparten la misma dirección física)
+  const { colaboradores } = useColaboradorStore();
+  const [secundariosIds, setSecundariosIds] = useState<string[]>([]);
+  const [picker, setPicker] = useState('');
+
+  // Colaboradores disponibles: todos menos el principal y los ya seleccionados
+  const colaboradoresDisponibles = useMemo(
+    () =>
+      colaboradores.filter(
+        (c) =>
+          c.id !== colaboradorId &&
+          !secundariosIds.includes(c.id) &&
+          c.estado === 'activo'
+      ),
+    [colaboradores, colaboradorId, secundariosIds]
+  );
+
+  const secundariosData = useMemo(
+    () => secundariosIds.map((id) => colaboradores.find((c) => c.id === id)).filter(Boolean),
+    [secundariosIds, colaboradores]
+  );
+
   const [form, setForm] = useState({
     nombre: '',
     tipo: 'casilla_viajero' as TipoCasilla,
@@ -92,6 +115,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
         notas: casilla.notas || '',
       });
       setCoordenadas(casilla.coordenadas ?? null);
+      setSecundariosIds(casilla.colaboradoresSecundariosIds ?? []);
     } else {
       setForm({
         nombre: '', tipo: 'casilla_viajero', estado: 'activa', pais: 'USA',
@@ -99,7 +123,9 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
         esPrincipal: false, notas: '',
       });
       setCoordenadas(null);
+      setSecundariosIds([]);
     }
+    setPicker('');
   }, [casilla, isOpen]);
 
   // S42d — Geocoding on-blur de dirección (fallback cuando el usuario no
@@ -151,6 +177,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
       if (form.capacidadUnidades) data.capacidadUnidades = parseInt(form.capacidadUnidades);
       if (form.notas.trim()) data.notas = form.notas.trim();
       if (coordenadas) data.coordenadas = coordenadas;
+      if (secundariosIds.length > 0) data.colaboradoresSecundariosIds = secundariosIds;
 
       if (casilla) {
         await casillaCrudService.actualizar(casilla.id, data, user.uid);
@@ -299,6 +326,74 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
           />
           <span className="text-sm text-slate-700">Casilla principal de este colaborador</span>
         </label>
+
+        {/* S42g — Casillas compartidas: otros colaboradores que usan la misma dirección */}
+        <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/50">
+          <label className={`${labelCls} flex items-center gap-1.5`}>
+            <Users className="w-3.5 h-3.5" />
+            Otros colaboradores que comparten esta dirección
+            <span className="text-[10px] font-normal text-slate-400">(opcional)</span>
+          </label>
+
+          {/* Chips de secundarios seleccionados */}
+          {secundariosData.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {secundariosData.map((c) =>
+                c ? (
+                  <span
+                    key={c.id}
+                    className="inline-flex items-center gap-1 pl-2 pr-1 py-1 text-xs bg-white border border-teal-200 rounded-full text-teal-800"
+                  >
+                    {c.nombre}
+                    <button
+                      type="button"
+                      onClick={() => setSecundariosIds((ids) => ids.filter((x) => x !== c.id))}
+                      className="p-0.5 hover:bg-teal-50 rounded-full text-teal-600 hover:text-teal-800"
+                      title="Quitar"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ) : null
+              )}
+            </div>
+          )}
+
+          {/* Picker para agregar */}
+          <div className="flex gap-1.5">
+            <select
+              value={picker}
+              onChange={(e) => setPicker(e.target.value)}
+              className="flex-1 text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white"
+            >
+              <option value="">Seleccionar colaborador...</option>
+              {colaboradoresDisponibles.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre} · {c.tipo}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              disabled={!picker}
+              onClick={() => {
+                if (picker) {
+                  setSecundariosIds((ids) => [...ids, picker]);
+                  setPicker('');
+                }
+              }}
+              className="flex-shrink-0 px-3 py-1.5 text-xs bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" /> Agregar
+            </button>
+          </div>
+          {secundariosIds.length === 0 && (
+            <p className="text-[10px] text-slate-500 mt-1">
+              Útil si 2 o más colaboradores viven en la misma casa o comparten almacén. Aparecerá en el
+              listado de cada uno sin duplicar la dirección.
+            </p>
+          )}
+        </div>
 
         {/* Notas */}
         <div>

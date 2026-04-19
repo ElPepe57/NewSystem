@@ -81,8 +81,21 @@ export const casillaCrudService = {
     if (data.direccion) nuevaCasilla.direccion = data.direccion;
     if (data.ciudad) nuevaCasilla.ciudad = data.ciudad;
     if (data.codigoPostal) nuevaCasilla.codigoPostal = data.codigoPostal;
+    if ((data as any).coordenadas) nuevaCasilla.coordenadas = (data as any).coordenadas;
     if (data.capacidadUnidades) nuevaCasilla.capacidadUnidades = data.capacidadUnidades;
     if (data.notas) nuevaCasilla.notas = data.notas;
+
+    // S42g — Colaboradores secundarios (casilla compartida): desnormalizar nombres
+    if (data.colaboradoresSecundariosIds && data.colaboradoresSecundariosIds.length > 0) {
+      const { colaboradorService } = await import('./colaborador.service');
+      const nombres: string[] = [];
+      for (const cid of data.colaboradoresSecundariosIds) {
+        const col = await colaboradorService.getById(cid);
+        nombres.push(col?.nombre ?? cid);
+      }
+      nuevaCasilla.colaboradoresSecundariosIds = data.colaboradoresSecundariosIds;
+      nuevaCasilla.colaboradoresSecundariosNombres = nombres;
+    }
 
     const ref = await addDoc(collection(db, COLL), nuevaCasilla);
     logger.success(`Casilla ${codigo} creada para colaborador ${nuevaCasilla.colaboradorNombre || data.colaboradorId}`);
@@ -98,6 +111,26 @@ export const casillaCrudService = {
     for (const [key, value] of Object.entries(data)) {
       if (value !== undefined) updates[key] = value;
     }
+
+    // S42g — Si cambiaron los colaboradores secundarios, re-desnormalizar nombres
+    if (data.colaboradoresSecundariosIds !== undefined) {
+      const ids = data.colaboradoresSecundariosIds || [];
+      if (ids.length > 0) {
+        const { colaboradorService } = await import('./colaborador.service');
+        const nombres: string[] = [];
+        for (const cid of ids) {
+          const col = await colaboradorService.getById(cid);
+          nombres.push(col?.nombre ?? cid);
+        }
+        updates.colaboradoresSecundariosIds = ids;
+        updates.colaboradoresSecundariosNombres = nombres;
+      } else {
+        // Array vacío → limpiar ambos campos
+        updates.colaboradoresSecundariosIds = [];
+        updates.colaboradoresSecundariosNombres = [];
+      }
+    }
+
     await updateDoc(doc(db, COLL, id), updates);
   },
 

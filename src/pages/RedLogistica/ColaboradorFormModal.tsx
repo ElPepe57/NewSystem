@@ -175,7 +175,8 @@ export const ColaboradorFormModal: React.FC<Props> = ({
     }
   };
 
-  // Titulo contextual
+  // S42g — Titulo "Colaborador · [subtipo]" para mostrar el concepto paraguas
+  // sin perder el rol especifico (empresa/viajero/courier/transportista).
   const tituloPorTipo: Record<TipoColaborador, string> = {
     empresa: 'Almacén propio',
     viajero: 'Viajero',
@@ -183,8 +184,8 @@ export const ColaboradorFormModal: React.FC<Props> = ({
     transportista_local: 'Transportista local',
   };
   const tituloModal = colaborador
-    ? `Editar ${tituloPorTipo[colaborador.tipo]}`
-    : `Nuevo ${tituloPorTipo[form.tipo]}`;
+    ? `Editar Colaborador · ${tituloPorTipo[colaborador.tipo]}`
+    : `Nuevo Colaborador · ${tituloPorTipo[form.tipo]}`;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={tituloModal} size="lg">
