@@ -301,7 +301,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
             </div>
 
             {/* Lista cards proveedores */}
-            <div className="space-y-2 max-h-72 overflow-y-auto">
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
               {proveedoresFiltrados.length === 0 ? (
                 <div className="text-center py-6 text-sm text-slate-400 italic">
                   {searchProveedor ? 'Sin resultados' : 'No hay proveedores activos'}
@@ -432,7 +432,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                       className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
-                  <div className="space-y-2 max-h-72 overflow-y-auto">
+                  <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
                     {casillasOrigenFiltradas.length === 0 ? (
                       <div className="text-center py-6 text-sm text-slate-400 italic">
                         {searchCasilla ? 'Sin resultados' : 'No hay casillas disponibles'}
