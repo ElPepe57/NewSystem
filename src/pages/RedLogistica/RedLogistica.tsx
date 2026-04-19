@@ -9,10 +9,11 @@ import {
   Network, Plus, ChevronDown, ChevronRight, MapPin, Package,
   DollarSign, Star, Edit2, Plane, Truck, Building2, Users,
   Search, X, ShoppingCart, ShoppingBag, Briefcase,
-  List, Map as MapIcon,
+  List, Map as MapIcon, Trash2,
 } from 'lucide-react';
 import { PageShell, PageHeader, KPIBar, StatusBadge, StatCard } from '../../design-system';
-import { Button } from '../../components/common/Button';
+import { Button, useConfirmDialog, ConfirmDialog } from '../../components/common';
+import { useToastStore } from '../../store/toastStore';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useAlmacenStore } from '../../store/casillaStore';
 import type { Colaborador, TipoColaborador, SubtipoTransportistaLocal } from '../../types/colaborador.types';
@@ -44,8 +45,10 @@ interface ColabConCasillas {
 
 export const RedLogistica: React.FC = () => {
   const { user } = useAuthStore();
-  const { colaboradores, fetchColaboradores } = useColaboradorStore();
+  const { colaboradores, fetchColaboradores, eliminarColaborador } = useColaboradorStore();
   const { casillas, fetchCasillas } = useAlmacenStore();
+  const toast = useToastStore();
+  const { confirm, dialogProps } = useConfirmDialog();
 
   const [busqueda, setBusqueda] = useState('');
   const [filtroPais, setFiltroPais] = useState('');
@@ -192,6 +195,23 @@ export const RedLogistica: React.FC = () => {
     setTipoPreseleccionado(undefined);
     setSubtipoPreseleccionado(undefined);
     setColabFormOpen(true);
+  };
+
+  // S42n — Eliminar colaborador (con validación de dependencias en el service)
+  const handleEliminarColaborador = async (c: Colaborador) => {
+    const ok = await confirm({
+      title: `Eliminar colaborador`,
+      message: `¿Seguro que quieres eliminar a "${c.nombre}" (${c.codigo})? Esta acción no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    try {
+      await eliminarColaborador(c.id);
+      toast.success(`"${c.nombre}" eliminado`);
+    } catch (error: any) {
+      toast.error(error?.message ?? 'Error al eliminar', 'No se pudo eliminar');
+    }
   };
 
   const handleNuevaCasilla = (colaboradorId: string) => {
@@ -345,6 +365,7 @@ export const RedLogistica: React.FC = () => {
           expandedIds={expandedIds}
           toggleExpand={toggleExpand}
           onEditar={handleEditarColaborador}
+          onEliminar={handleEliminarColaborador}
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin almacenes propios. Agrega tu primer punto de acopio."
@@ -364,6 +385,7 @@ export const RedLogistica: React.FC = () => {
           expandedIds={expandedIds}
           toggleExpand={toggleExpand}
           onEditar={handleEditarColaborador}
+          onEliminar={handleEliminarColaborador}
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin viajeros. Agrega personas que trasladen productos."
@@ -383,6 +405,7 @@ export const RedLogistica: React.FC = () => {
           expandedIds={expandedIds}
           toggleExpand={toggleExpand}
           onEditar={handleEditarColaborador}
+          onEliminar={handleEliminarColaborador}
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin couriers internacionales. Agrega servicios como DHL o FedEx."
@@ -412,6 +435,7 @@ export const RedLogistica: React.FC = () => {
           expandedIds={expandedIds}
           toggleExpand={toggleExpand}
           onEditar={handleEditarColaborador}
+          onEliminar={handleEliminarColaborador}
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin partners internos. Agrega tus aliados estratégicos."
@@ -429,6 +453,7 @@ export const RedLogistica: React.FC = () => {
           expandedIds={expandedIds}
           toggleExpand={toggleExpand}
           onEditar={handleEditarColaborador}
+          onEliminar={handleEliminarColaborador}
           onNuevaCasilla={handleNuevaCasilla}
           onEditarCasilla={handleEditarCasilla}
           emptyMsg="Sin servicios externos. Agrega couriers como Shalom o Urbano."
@@ -448,6 +473,7 @@ export const RedLogistica: React.FC = () => {
             expandedIds={expandedIds}
             toggleExpand={toggleExpand}
             onEditar={handleEditarColaborador}
+            onEliminar={handleEliminarColaborador}
             onNuevaCasilla={handleNuevaCasilla}
             onEditarCasilla={handleEditarCasilla}
             emptyMsg=""
@@ -483,6 +509,9 @@ export const RedLogistica: React.FC = () => {
         casilla={asociarCasilla}
         onSaved={handleAsociarSaved}
       />
+
+      {/* S42n — Confirmación de eliminar colaborador */}
+      <ConfirmDialog {...dialogProps} />
     </PageShell>
   );
 };
@@ -530,6 +559,7 @@ interface SubgrupoProps {
   expandedIds: Set<string>;
   toggleExpand: (id: string) => void;
   onEditar: (c: Colaborador) => void;
+  onEliminar: (c: Colaborador) => void;
   onNuevaCasilla: (colaboradorId: string) => void;
   onEditarCasilla: (casilla: Casilla) => void;
   emptyMsg: string;
@@ -549,7 +579,7 @@ interface SubgrupoProps {
 
 const Subgrupo: React.FC<SubgrupoProps> = ({
   titulo, subtitulo, icon: Icon, colorAccent, items, onNuevo, nuevoLabel,
-  expandedIds, toggleExpand, onEditar, onNuevaCasilla, onEditarCasilla, emptyMsg,
+  expandedIds, toggleExpand, onEditar, onEliminar, onNuevaCasilla, onEditarCasilla, emptyMsg,
   mostrarCasillas = true,
   layoutMode = 'por-colaborador',
   onAsociarColaborador,
@@ -640,6 +670,7 @@ const Subgrupo: React.FC<SubgrupoProps> = ({
           toggleExpand={toggleExpand}
           onEditarCasilla={onEditarCasilla}
           onEditarColaborador={onEditar}
+          onEliminarColaborador={onEliminar}
           onAsociarColaborador={onAsociarColaborador}
           onNuevaCasillaGlobal={onNuevaCasillaGlobal}
           onNuevaCasillaParaColab={onNuevaCasilla}
@@ -656,6 +687,7 @@ const Subgrupo: React.FC<SubgrupoProps> = ({
               expanded={expandedIds.has(colaborador.id)}
               toggleExpand={toggleExpand}
               onEditar={onEditar}
+              onEliminar={onEliminar}
               onNuevaCasilla={onNuevaCasilla}
               onEditarCasilla={onEditarCasilla}
               mostrarCasillas={mostrarCasillas}
@@ -673,13 +705,14 @@ interface ColaboradorRowProps {
   expanded: boolean;
   toggleExpand: (id: string) => void;
   onEditar: (c: Colaborador) => void;
+  onEliminar: (c: Colaborador) => void;
   onNuevaCasilla: (colaboradorId: string) => void;
   onEditarCasilla: (casilla: Casilla) => void;
   mostrarCasillas: boolean;
 }
 
 const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
-  colaborador, casillas, expanded, toggleExpand, onEditar, onNuevaCasilla, onEditarCasilla, mostrarCasillas,
+  colaborador, casillas, expanded, toggleExpand, onEditar, onEliminar, onNuevaCasilla, onEditarCasilla, mostrarCasillas,
 }) => {
   const totalUds = casillas.reduce((s, c) => s + (c.unidadesActuales || 0), 0);
   const totalVal = casillas.reduce((s, c) => s + (c.valorInventarioUSD || 0), 0);
@@ -765,6 +798,14 @@ const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
               <Plus className="w-3.5 h-3.5" />
             </button>
           )}
+          {/* S42n — Botón eliminar con confirmación en el handler */}
+          <button
+            onClick={() => onEliminar(colaborador)}
+            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600"
+            title="Eliminar colaborador"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 
@@ -861,6 +902,7 @@ interface PorCasillaLayoutProps {
   toggleExpand: (id: string) => void;
   onEditarCasilla: (casilla: Casilla) => void;
   onEditarColaborador: (c: Colaborador) => void;
+  onEliminarColaborador: (c: Colaborador) => void;
   onAsociarColaborador?: (casilla: Casilla) => void;
   onNuevaCasillaGlobal?: () => void;
   onNuevaCasillaParaColab: (colaboradorId: string) => void;
@@ -868,7 +910,7 @@ interface PorCasillaLayoutProps {
 }
 
 const PorCasillaLayout: React.FC<PorCasillaLayoutProps> = ({
-  casillas, items, expandedIds, toggleExpand, onEditarCasilla, onEditarColaborador,
+  casillas, items, expandedIds, toggleExpand, onEditarCasilla, onEditarColaborador, onEliminarColaborador,
   onAsociarColaborador, onNuevaCasillaGlobal, onNuevaCasillaParaColab, colaboradoresMap,
 }) => {
   // S42i fix — Colaboradores SIN ninguna casilla activa (ni propia ni compartida).
@@ -955,6 +997,14 @@ const PorCasillaLayout: React.FC<PorCasillaLayoutProps> = ({
                   title="Editar colaborador"
                 >
                   <Edit2 className="w-3 h-3" />
+                </button>
+                {/* S42n — Eliminar colaborador huérfano */}
+                <button
+                  onClick={() => onEliminarColaborador(colaborador)}
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600"
+                  title="Eliminar colaborador"
+                >
+                  <Trash2 className="w-3 h-3" />
                 </button>
               </div>
             ))}

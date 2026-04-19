@@ -18,6 +18,7 @@ interface ColaboradorState {
   fetchActivos: () => Promise<void>;
   crearColaborador: (data: ColaboradorFormData, userId: string) => Promise<string>;
   actualizarColaborador: (id: string, data: Partial<ColaboradorFormData>, userId: string) => Promise<void>;
+  eliminarColaborador: (id: string) => Promise<void>;
   getByTipo: (tipo: TipoColaborador) => Colaborador[];
 }
 
@@ -69,6 +70,11 @@ export const useColaboradorStore = create<ColaboradorState>((set, get) => ({
 
   actualizarColaborador: async (id, data, userId) => {
     await colaboradorService.actualizar(id, data, userId);
+    await get().fetchColaboradores();
+  },
+
+  eliminarColaborador: async (id) => {
+    await colaboradorService.eliminar(id);
     await get().fetchColaboradores();
   },
 

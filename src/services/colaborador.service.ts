@@ -1,5 +1,5 @@
 import {
-  collection, addDoc, getDocs, getDoc, doc, updateDoc,
+  collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc,
   query, where, orderBy, Timestamp, writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -84,6 +84,60 @@ export const colaboradorService = {
       if (value !== undefined) updateData[key] = value;
     }
     await updateDoc(ref, updateData);
+  },
+
+  /**
+   * S42n — Elimina un colaborador.
+   * Valida dependencias antes de borrar:
+   * - No debe tener casillas donde sea principal
+   * - No debe figurar como secundario en ninguna casilla
+   * Si tiene dependencias, lanza Error con lista detallada.
+   *
+   * NOTA: no valida envíos/OCs históricas para permitir limpiar colaboradores
+   * que no tienen casilla. Si se requiere, agregar queries adicionales.
+   */
+  async eliminar(id: string): Promise<void> {
+    // 1. Validar que no sea principal de ninguna casilla
+    const qPrincipal = query(
+      collection(db, COLLECTIONS.CASILLAS),
+      where('colaboradorId', '==', id)
+    );
+    const snapPrincipal = await getDocs(qPrincipal);
+    if (!snapPrincipal.empty) {
+      const nombres = snapPrincipal.docs
+        .map(d => (d.data() as any).nombre ?? d.id)
+        .slice(0, 3)
+        .join(', ');
+      const total = snapPrincipal.size;
+      throw new Error(
+        `No se puede eliminar: es dueño principal de ${total} casilla${total > 1 ? 's' : ''} (${nombres}${total > 3 ? '…' : ''}). ` +
+        `Primero elimina o reasigna las casillas.`
+      );
+    }
+
+    // 2. Validar que no sea secundario en ninguna casilla
+    const qSecundario = query(
+      collection(db, COLLECTIONS.CASILLAS),
+      where('colaboradoresSecundariosIds', 'array-contains', id)
+    );
+    const snapSecundario = await getDocs(qSecundario);
+    if (!snapSecundario.empty) {
+      const nombres = snapSecundario.docs
+        .map(d => (d.data() as any).nombre ?? d.id)
+        .slice(0, 3)
+        .join(', ');
+      const total = snapSecundario.size;
+      throw new Error(
+        `No se puede eliminar: está asociado como colaborador secundario a ${total} casilla${total > 1 ? 's' : ''} (${nombres}${total > 3 ? '…' : ''}). ` +
+        `Primero quítalo de esas casillas.`
+      );
+    }
+
+    // 3. Sin dependencias: eliminar
+    const colab = await this.getById(id);
+    const ref = doc(db, COLL, id);
+    await deleteDoc(ref);
+    logger.success(`Colaborador ${colab?.codigo ?? id} eliminado: ${colab?.nombre ?? '—'}`);
   },
 
   async getViajeros(): Promise<Colaborador[]> {
