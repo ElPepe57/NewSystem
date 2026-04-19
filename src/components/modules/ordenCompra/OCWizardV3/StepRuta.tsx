@@ -88,6 +88,27 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     [casillas]
   );
 
+  // S42q — Selectores colapsables: al elegir una opción, el grid colapsa a solo
+  // la seleccionada + botón "Cambiar" para reexpandir. Mejora UX cuando la lista
+  // es larga (6-10 casillas visibles).
+  const [casillaExpandedOverride, setCasillaExpandedOverride] = useState(false);
+  const [almacenExpandedOverride, setAlmacenExpandedOverride] = useState(false);
+
+  const casillaSeleccionada = useMemo(
+    () => casillasOrigen.find((c) => c.id === config.casillaDestinoId),
+    [casillasOrigen, config.casillaDestinoId]
+  );
+  const almacenPeruSeleccionado = useMemo(
+    () =>
+      config.llegadaPeru === 'ddp_directo' && config.casillaDestinoId
+        ? almacenesPeru.find((a) => a.id === config.casillaDestinoId)
+        : null,
+    [almacenesPeru, config.casillaDestinoId, config.llegadaPeru]
+  );
+
+  const showCasillaGrid = !casillaSeleccionada || casillaExpandedOverride;
+  const showAlmacenGrid = !almacenPeruSeleccionado || almacenExpandedOverride;
+
   // ─── Search proveedor ───────────────────────────────────────────────────
   const [searchProveedor, setSearchProveedor] = useState('');
   const proveedoresFiltrados = useMemo(() => {
@@ -311,10 +332,22 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
           {/* Casilla de tránsito (solo si vía casilla) */}
           {tipoRutaSeleccionado === 'via_casilla' && (
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-slate-700 mb-2">
-                Casilla de tránsito{' '}
-                <span className="text-slate-400 font-normal">(USA/China)</span>
-              </label>
+              {/* S42q — Header colapsable: si hay selección y no está forzado expandir, muestra Cambiar */}
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Casilla de tránsito{' '}
+                  <span className="text-slate-400 font-normal">(USA/China)</span>
+                </label>
+                {casillaSeleccionada && !casillaExpandedOverride && (
+                  <button
+                    type="button"
+                    onClick={() => setCasillaExpandedOverride(true)}
+                    className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
+                  >
+                    Cambiar
+                  </button>
+                )}
+              </div>
               {casillasOrigen.length === 0 ? (
                 <EmptyHint>
                   No hay casillas de tránsito activas.{' '}
@@ -322,7 +355,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                     Crear una en Red Logística
                   </a>
                 </EmptyHint>
-              ) : (
+              ) : showCasillaGrid ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {casillasOrigen.map((c) => (
                     <CasillaTransitoCard
@@ -330,21 +363,45 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                       casilla={c}
                       colaborador={colaboradores.find((x) => x.id === c.colaboradorId)}
                       selected={config.casillaDestinoId === c.id}
-                      onClick={() => handleSelectCasillaTransito(c)}
+                      onClick={() => {
+                        handleSelectCasillaTransito(c);
+                        setCasillaExpandedOverride(false); // colapsar al seleccionar
+                      }}
                     />
                   ))}
                 </div>
-              )}
+              ) : casillaSeleccionada ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <CasillaTransitoCard
+                    casilla={casillaSeleccionada}
+                    colaborador={colaboradores.find((x) => x.id === casillaSeleccionada.colaboradorId)}
+                    selected
+                    onClick={() => setCasillaExpandedOverride(true)}
+                  />
+                </div>
+              ) : null}
             </div>
           )}
 
           {/* Almacén destino final Perú */}
           {tipoRutaSeleccionado && (
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-2">
-                Almacén destino final{' '}
-                <span className="text-slate-400 font-normal">(Perú)</span>
-              </label>
+              {/* S42q — Header colapsable */}
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Almacén destino final{' '}
+                  <span className="text-slate-400 font-normal">(Perú)</span>
+                </label>
+                {almacenPeruSeleccionado && !almacenExpandedOverride && (
+                  <button
+                    type="button"
+                    onClick={() => setAlmacenExpandedOverride(true)}
+                    className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
+                  >
+                    Cambiar
+                  </button>
+                )}
+              </div>
               {almacenesPeru.length === 0 ? (
                 <EmptyHint>
                   No hay almacenes Perú activos.{' '}
@@ -352,6 +409,14 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                     Crear uno en Red Logística
                   </a>
                 </EmptyHint>
+              ) : tipoRutaSeleccionado === 'ddp' && !showAlmacenGrid && almacenPeruSeleccionado ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <AlmacenPeruCard
+                    almacen={almacenPeruSeleccionado}
+                    selected
+                    onClick={() => setAlmacenExpandedOverride(true)}
+                  />
+                </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {almacenesPeru.map((a) => (
@@ -363,7 +428,10 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                           ? config.casillaDestinoId === a.id
                           : false
                       }
-                      onClick={() => handleSelectAlmacenPeru(a)}
+                      onClick={() => {
+                        handleSelectAlmacenPeru(a);
+                        setAlmacenExpandedOverride(false); // colapsar al seleccionar (solo DDP usa este campo realmente)
+                      }}
                     />
                   ))}
                 </div>
