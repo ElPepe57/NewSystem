@@ -51,6 +51,11 @@ export interface ConfigLogistica {
   // ─── Tramo 3: Última milla ───
   ultimaMilla: UltimaMilla | null;
   requiereRecojo: boolean;
+  // S42aa — Si ultimaMilla='colaborador_local': ¿quién paga el transporte local?
+  // 'yo_pague'       = Yo pago al recoger (gasto directo)
+  // 'recogedor_paga' = Colaborador adelanta (genera CxP)
+  quienPagaTransporteLocal: QuienPagaProveedor | null;
+  costoTransporteLocalPEN: number | null;
 }
 
 export const emptyConfig: ConfigLogistica = {
@@ -72,6 +77,8 @@ export const emptyConfig: ConfigLogistica = {
   casillaDestinoNombre: '',
   ultimaMilla: null,
   requiereRecojo: false,
+  quienPagaTransporteLocal: null,
+  costoTransporteLocalPEN: null,
 };
 
 // ════════════════════════════════════════════════════════════════════════════

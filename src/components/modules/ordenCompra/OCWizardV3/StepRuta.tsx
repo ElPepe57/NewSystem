@@ -97,6 +97,10 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
   const [tipoRutaExpandedOverride, setTipoRutaExpandedOverride] = useState(false);
   const [casillaExpandedOverride, setCasillaExpandedOverride] = useState(false);
   const [almacenExpandedOverride, setAlmacenExpandedOverride] = useState(false);
+  // S42ab — Colapsable también en los 3 Tramos (Salida, Cruce, Última milla)
+  const [tramo1ExpandedOverride, setTramo1ExpandedOverride] = useState(false);
+  const [tramo2ExpandedOverride, setTramo2ExpandedOverride] = useState(false);
+  const [tramo3ExpandedOverride, setTramo3ExpandedOverride] = useState(false);
 
   const proveedorSeleccionado = useMemo(
     () => proveedores.find((p) => p.id === config.proveedorId),
@@ -577,40 +581,82 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
       {/* ═══════════════════════════════════════════════════ */}
       {/* TRAMO 1 — Salida del proveedor                       */}
       {/* ═══════════════════════════════════════════════════ */}
-      {config.proveedorId && tipoRutaSeleccionado === 'via_casilla' && (
-        <SectionTramo
-          numero={1}
-          titulo="Salida del proveedor"
-          subtitulo="¿Cómo sale la mercadería del proveedor?"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-            <TipoCardMedio
-              icon={<Truck className="w-4 h-4 text-sky-600" />}
-              titulo="Proveedor envía"
-              subtitulo="El proveedor despacha a la casilla"
-              selected={config.salidaProveedor === 'proveedor_envia'}
-              onClick={() => updateConfig({ salidaProveedor: 'proveedor_envia' })}
-            />
-            <TipoCardMedio
-              icon={<UserCheck className="w-4 h-4 text-purple-600" />}
-              titulo="Recojo en origen"
-              subtitulo="Colaborador recoge del proveedor"
-              selected={config.salidaProveedor === 'recojo_en_origen'}
-              onClick={() => updateConfig({ salidaProveedor: 'recojo_en_origen' })}
-            />
-          </div>
+      {config.proveedorId && tipoRutaSeleccionado === 'via_casilla' && (() => {
+        const showTramo1 = !config.salidaProveedor || tramo1ExpandedOverride;
+        return (
+          <SectionTramo
+            numero={1}
+            titulo="Salida del proveedor"
+            subtitulo="¿Cómo sale la mercadería del proveedor?"
+            headerRight={
+              config.salidaProveedor && !tramo1ExpandedOverride ? (
+                <button
+                  type="button"
+                  onClick={() => setTramo1ExpandedOverride(true)}
+                  className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
+                >
+                  Cambiar
+                </button>
+              ) : null
+            }
+          >
+            {showTramo1 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <TipoCardMedio
+                  icon={<Truck className="w-4 h-4 text-sky-600" />}
+                  titulo="Proveedor envía"
+                  subtitulo="El proveedor despacha a la casilla"
+                  selected={config.salidaProveedor === 'proveedor_envia'}
+                  onClick={() => {
+                    updateConfig({ salidaProveedor: 'proveedor_envia' });
+                    setTramo1ExpandedOverride(false);
+                  }}
+                />
+                <TipoCardMedio
+                  icon={<UserCheck className="w-4 h-4 text-purple-600" />}
+                  titulo="Recojo en origen"
+                  subtitulo="Colaborador recoge del proveedor"
+                  selected={config.salidaProveedor === 'recojo_en_origen'}
+                  onClick={() => {
+                    updateConfig({ salidaProveedor: 'recojo_en_origen' });
+                    setTramo1ExpandedOverride(false);
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="mb-3">
+                {config.salidaProveedor === 'proveedor_envia' ? (
+                  <TipoCardMedio
+                    icon={<Truck className="w-4 h-4 text-sky-600" />}
+                    titulo="Proveedor envía"
+                    subtitulo="El proveedor despacha a la casilla"
+                    selected
+                    onClick={() => setTramo1ExpandedOverride(true)}
+                  />
+                ) : (
+                  <TipoCardMedio
+                    icon={<UserCheck className="w-4 h-4 text-purple-600" />}
+                    titulo="Recojo en origen"
+                    subtitulo="Colaborador recoge del proveedor"
+                    selected
+                    onClick={() => setTramo1ExpandedOverride(true)}
+                  />
+                )}
+              </div>
+            )}
 
-          {/* Panel morado — Recojo en origen + deudor alternativo */}
-          {config.salidaProveedor === 'recojo_en_origen' && (
-            <PanelRecojoEnOrigen
-              config={config}
-              viajeros={viajeros}
-              couriers={couriers}
-              onUpdate={updateConfig}
-            />
-          )}
-        </SectionTramo>
-      )}
+            {/* Panel morado — Recojo en origen + deudor alternativo */}
+            {config.salidaProveedor === 'recojo_en_origen' && (
+              <PanelRecojoEnOrigen
+                config={config}
+                viajeros={viajeros}
+                couriers={couriers}
+                onUpdate={updateConfig}
+              />
+            )}
+          </SectionTramo>
+        );
+      })()}
 
       {/* ═══════════════════════════════════════════════════ */}
       {/* TRAMO 2 — Cruce a Perú                               */}
@@ -619,37 +665,59 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
         tipoRutaSeleccionado === 'via_casilla' &&
         (config.salidaProveedor === 'proveedor_envia' ||
           (config.salidaProveedor === 'recojo_en_origen' &&
-            config.quienPagaProveedor)) && (
+            config.quienPagaProveedor)) && (() => {
+          // S42ab — Tramo 2 colapsable
+          const tramo2Options: Record<string, { icon: React.ReactNode; titulo: string; subtitulo: string; value: LlegadaPeru }> = {
+            viajero: { icon: <UserCheck className="w-5 h-5 text-blue-600" />, titulo: 'Vía viajero', subtitulo: 'Colaborador transporta', value: 'viajero' },
+            courier_internacional: { icon: <Truck className="w-5 h-5 text-orange-600" />, titulo: 'Courier internacional', subtitulo: 'FedEx, DHL, UPS', value: 'courier_internacional' },
+            ya_en_peru: { icon: <Plane className="w-5 h-5 text-amber-600" />, titulo: 'Ya está en Perú', subtitulo: 'Sin cruce internacional', value: 'ya_en_peru' },
+          };
+          const tramo2Sel = config.llegadaPeru && tramo2Options[config.llegadaPeru];
+          const showTramo2 = !tramo2Sel || tramo2ExpandedOverride;
+          return (
           <SectionTramo
             numero={2}
             titulo="Cruce a Perú"
             subtitulo="¿Cómo llega la mercadería desde la casilla hasta Perú?"
+            headerRight={
+              tramo2Sel && !tramo2ExpandedOverride ? (
+                <button
+                  type="button"
+                  onClick={() => setTramo2ExpandedOverride(true)}
+                  className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
+                >
+                  Cambiar
+                </button>
+              ) : null
+            }
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-              <TipoCardCompactoCenter
-                icon={<UserCheck className="w-5 h-5 text-blue-600" />}
-                titulo="Vía viajero"
-                subtitulo="Colaborador transporta"
-                selected={config.llegadaPeru === 'viajero'}
-                onClick={() => updateConfig({ llegadaPeru: 'viajero' })}
-              />
-              <TipoCardCompactoCenter
-                icon={<Truck className="w-5 h-5 text-orange-600" />}
-                titulo="Courier internacional"
-                subtitulo="FedEx, DHL, UPS"
-                selected={config.llegadaPeru === 'courier_internacional'}
-                onClick={() =>
-                  updateConfig({ llegadaPeru: 'courier_internacional' })
-                }
-              />
-              <TipoCardCompactoCenter
-                icon={<Plane className="w-5 h-5 text-amber-600" />}
-                titulo="Ya está en Perú"
-                subtitulo="Sin cruce internacional"
-                selected={config.llegadaPeru === 'ya_en_peru'}
-                onClick={() => updateConfig({ llegadaPeru: 'ya_en_peru' })}
-              />
-            </div>
+            {showTramo2 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                {Object.values(tramo2Options).map((opt) => (
+                  <TipoCardCompactoCenter
+                    key={opt.value}
+                    icon={opt.icon}
+                    titulo={opt.titulo}
+                    subtitulo={opt.subtitulo}
+                    selected={config.llegadaPeru === opt.value}
+                    onClick={() => {
+                      updateConfig({ llegadaPeru: opt.value });
+                      setTramo2ExpandedOverride(false);
+                    }}
+                  />
+                ))}
+              </div>
+            ) : tramo2Sel ? (
+              <div className="mb-3">
+                <TipoCardCompactoCenter
+                  icon={tramo2Sel.icon}
+                  titulo={tramo2Sel.titulo}
+                  subtitulo={tramo2Sel.subtitulo}
+                  selected
+                  onClick={() => setTramo2ExpandedOverride(true)}
+                />
+              </div>
+            ) : null}
 
             {/* Selector colaborador/courier — S42w: SOLO los asociados a la casilla */}
             {(config.llegadaPeru === 'viajero' ||
@@ -704,51 +772,93 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
               </div>
             )}
           </SectionTramo>
-        )}
+          );
+        })()}
 
       {/* ═══════════════════════════════════════════════════ */}
       {/* TRAMO 3 — Última milla en Perú                       */}
       {/* ═══════════════════════════════════════════════════ */}
       {config.proveedorId &&
         config.llegadaPeru &&
-        config.llegadaPeru !== 'ddp_directo' && (
+        config.llegadaPeru !== 'ddp_directo' && (() => {
+          // S42ab — Tramo 3 colapsable
+          const tramo3Options: Record<string, { icon: React.ReactNode; titulo: string; subtitulo: string; value: UltimaMilla; onClick: () => void }> = {
+            yo_recojo: {
+              icon: <Car className="w-5 h-5 text-emerald-600" />,
+              titulo: 'Yo recojo',
+              subtitulo: 'Voy por la mercadería · gasto movilidad',
+              value: 'yo_recojo',
+              onClick: () => {
+                updateConfig({ ultimaMilla: 'yo_recojo' });
+                setTramo3ExpandedOverride(false);
+              },
+            },
+            entrega_domicilio: {
+              icon: <Warehouse className="w-5 h-5 text-sky-600" />,
+              titulo: 'Colaborador local',
+              subtitulo: 'De mi red logística',
+              value: 'entrega_domicilio',
+              onClick: () => {
+                updateConfig({ ultimaMilla: 'entrega_domicilio' });
+                setTramo3ExpandedOverride(false);
+              },
+            },
+          };
+          const tramo3Sel = config.ultimaMilla && tramo3Options[config.ultimaMilla];
+          const showTramo3 = !tramo3Sel || tramo3ExpandedOverride;
+          return (
           <SectionTramo
             numero={3}
             titulo="Última milla en Perú"
             subtitulo="¿Cómo llega al almacén destino una vez en Perú?"
+            headerRight={
+              tramo3Sel && !tramo3ExpandedOverride ? (
+                <button
+                  type="button"
+                  onClick={() => setTramo3ExpandedOverride(true)}
+                  className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
+                >
+                  Cambiar
+                </button>
+              ) : null
+            }
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-              <TipoCardCompactoCenter
-                icon={<Car className="w-5 h-5 text-emerald-600" />}
-                titulo="Yo recojo"
-                subtitulo="Voy por la mercadería · gasto movilidad"
-                selected={config.ultimaMilla === 'yo_recojo'}
-                onClick={() => updateConfig({ ultimaMilla: 'yo_recojo' })}
-              />
-              <TipoCardCompactoCenter
-                icon={<Warehouse className="w-5 h-5 text-sky-600" />}
-                titulo="Colaborador local"
-                subtitulo="De mi red logística"
-                selected={config.ultimaMilla === 'entrega_domicilio'}
-                onClick={() =>
-                  updateConfig({ ultimaMilla: 'entrega_domicilio' })
-                }
-              />
-              <TipoCardCompactoCenter
-                icon={<UserCheck className="w-5 h-5 text-purple-600" />}
-                titulo="Viajero absorbe"
-                subtitulo="Si su servicio lo incluye"
-                // Note: V2 model no tiene 'viajero_absorbe' distinto;
-                // lo asimilamos a 'entrega_domicilio' con flag implícito
-                selected={false}
-                onClick={() => {
-                  // eslint-disable-next-line no-alert
-                  alert(
-                    'Opción "Viajero absorbe" — requiere ampliación del modelo. Usa "Colaborador local" por ahora.'
-                  );
-                }}
-              />
-            </div>
+            {showTramo3 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                {Object.values(tramo3Options).map((opt) => (
+                  <TipoCardCompactoCenter
+                    key={opt.value}
+                    icon={opt.icon}
+                    titulo={opt.titulo}
+                    subtitulo={opt.subtitulo}
+                    selected={config.ultimaMilla === opt.value}
+                    onClick={opt.onClick}
+                  />
+                ))}
+                <TipoCardCompactoCenter
+                  icon={<UserCheck className="w-5 h-5 text-purple-600" />}
+                  titulo="Viajero absorbe"
+                  subtitulo="Si su servicio lo incluye"
+                  selected={false}
+                  onClick={() => {
+                    // eslint-disable-next-line no-alert
+                    alert(
+                      'Opción "Viajero absorbe" — requiere ampliación del modelo. Usa "Colaborador local" por ahora.'
+                    );
+                  }}
+                />
+              </div>
+            ) : tramo3Sel ? (
+              <div className="mb-3">
+                <TipoCardCompactoCenter
+                  icon={tramo3Sel.icon}
+                  titulo={tramo3Sel.titulo}
+                  subtitulo={tramo3Sel.subtitulo}
+                  selected
+                  onClick={() => setTramo3ExpandedOverride(true)}
+                />
+              </div>
+            ) : null}
 
             {/* Panel emerald — Yo recojo */}
             {config.ultimaMilla === 'yo_recojo' && (
@@ -813,6 +923,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                   </select>
                 </div>
 
+                {/* S42aa — Selector "¿Quién paga el transporte local?" ahora conectado al modelo */}
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-700 mb-2">
                     ¿Quién paga el transporte local?
@@ -822,17 +933,15 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                       icon={<DollarSign className="w-3.5 h-3.5 text-emerald-600" />}
                       titulo="Yo pago al recoger"
                       subtitulo="Gasto directo cuando llega"
-                      selected={false}
-                      onClick={() => {
-                        /* flag informativo — no altera modelo V2 */
-                      }}
+                      selected={config.quienPagaTransporteLocal === 'yo_pague'}
+                      onClick={() => updateConfig({ quienPagaTransporteLocal: 'yo_pague' })}
                     />
                     <TipoCardPequeno
                       icon={<UserCheck className="w-3.5 h-3.5 text-amber-600" />}
                       titulo="Colaborador adelanta (CxP)"
                       subtitulo="Él paga agencia/aduana/taxi y me genera deuda"
-                      selected={true}
-                      onClick={() => {}}
+                      selected={config.quienPagaTransporteLocal === 'recogedor_paga'}
+                      onClick={() => updateConfig({ quienPagaTransporteLocal: 'recogedor_paga' })}
                     />
                   </div>
                 </div>
@@ -852,6 +961,11 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                       type="number"
                       step="0.01"
                       placeholder="35.00"
+                      value={config.costoTransporteLocalPEN ?? ''}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        updateConfig({ costoTransporteLocalPEN: v === '' ? null : parseFloat(v) });
+                      }}
                       className="w-full pl-9 pr-3 py-2 border border-sky-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white tabular-nums"
                     />
                   </div>
@@ -859,7 +973,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
               </div>
             )}
           </SectionTramo>
-        )}
+          );
+        })()}
     </div>
   );
 };
@@ -1024,14 +1139,18 @@ const SectionTramo: React.FC<{
   titulo: string;
   subtitulo?: string;
   children: React.ReactNode;
-}> = ({ numero, titulo, subtitulo, children }) => (
+  headerRight?: React.ReactNode;
+}> = ({ numero, titulo, subtitulo, children, headerRight }) => (
   <section className="border-t border-slate-100 pt-5">
-    <h3 className="text-sm font-semibold text-slate-800 mb-1 flex items-center gap-1.5">
-      <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 text-[10px] flex items-center justify-center font-bold">
-        {numero}
-      </span>
-      {titulo}
-    </h3>
+    <div className="flex items-center justify-between mb-1">
+      <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+        <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 text-[10px] flex items-center justify-center font-bold">
+          {numero}
+        </span>
+        {titulo}
+      </h3>
+      {headerRight}
+    </div>
     {subtitulo && <p className="text-xs text-slate-500 mb-3">{subtitulo}</p>}
     {children}
   </section>
@@ -1170,7 +1289,7 @@ const TipoCardMedio: React.FC<{
     type="button"
     onClick={onClick}
     className={cn(
-      'relative border-2 rounded-xl p-3 text-left transition-all',
+      'w-full relative border-2 rounded-xl p-3 text-left transition-all',
       selected
         ? 'border-teal-500 bg-teal-50 shadow-sm'
         : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50/30'
