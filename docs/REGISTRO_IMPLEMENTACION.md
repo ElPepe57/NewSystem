@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-19 (Sesion 42g — Colaborador + subtipo en títulos de form ("Editar Colaborador · Viajero") + casillas compartidas entre colaboradores (Casilla.colaboradoresSecundariosIds). Dueño del almacén sigue siendo único (colaboradorId), pero ahora N colaboradores pueden compartir la misma dirección física sin duplicar casillas. UI: multi-select con chips en CasillaFormModal, badge morado "Compartida · [principal]" en listing, tooltip del mapa lista todos. 0 migración (opt-in). Commits `edfd8b5` (S42c) + `aefb4d2` (S42d) + `8211ff0` (S42e) + `1e334a8` (S42f) + `ef3fa8f` (S42g). Deploys #206-210.)
+**Ultima actualizacion:** 2026-04-19 (Sesion 42h — Vistas especializadas por sección en Red Logística. Mis Almacenes + Viajeros invierten la jerarquía: casilla (lugar físico) como fila principal, colaboradores como dependientes asociados. Couriers + Transportistas mantienen vista por colaborador pero con badges de tarifas destacadas. Componentes nuevos: CasillaExpandible + AsociarColaboradorModal + PorCasillaLayout (incluye sección "Sin casilla configurada" para huérfanos). Subgrupo ampliado con layoutMode prop. Commits S42c-h: `edfd8b5` → `2bccd75`. Deploys #206-211.)
 **Branch activo:** main
 
 ---
@@ -15,9 +15,9 @@
 | Sesiones de trabajo registradas | 42 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~576 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g: titulo Colaborador + casillas compartidas) |
+| Fixes aplicados | ~579 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g + 3 S42h: vistas especializadas por seccion) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 210 (ultimo: 2026-04-19 S42g, commit `ef3fa8f`, hosting vitaskinperu.web.app) |
+| Deploys realizados | 211 (ultimo: 2026-04-19 S42h, commit `2bccd75`, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -326,6 +326,139 @@ S42 cierra el rework UX/UI iniciado en S41. Se ejecutaron las 2 tandas diferidas
 3. Si usuario pide mas rework UX/UI: leer `docs/AUDITORIA_REWORK_MOCKUP_S41.md` para pantallas pendientes de nivel 2
 4. Si usuario pide deudas tecnicas: abrir `productoEmoji.ts` y moverlo a `src/utils/` como primer win rapido
 5. Considerar commit de S42 + deploy como cierre del rework UX/UI completo antes de cualquier otro cambio
+
+---
+
+## SESION 42h — 2026-04-19 — Vistas especializadas por sección en Red Logística
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 16.16s
+- Archivos creados: 2
+- Archivos modificados: 1 (RedLogistica.tsx — refactor mayor)
+- Commit: `2bccd75` · Deploy #211: https://vitaskinperu.web.app
+
+### Resumen ejecutivo
+Usuario propuso: "¿Cada sección no podría trabajar con su propia lógica mejor?" — observación profunda que reconoce que las secciones de Red Logística tienen **naturaleza de negocio distinta**. Mis Almacenes y Viajeros son fundamentalmente sobre **lugares físicos** (dirección, inventario, capacidad); Couriers Internacionales y Transportistas Locales son sobre **servicios con tarifas** (cost por kg, costo por entrega, comisión). Implementar una vista universal fuerza al usuario a adaptar su mentalidad al modelo técnico. Con vistas especializadas, cada sección contesta la pregunta real del usuario sin fricción.
+
+### CAMBIO-486-S42h — CasillaExpandible (vista por casilla)
+
+Nuevo componente `src/pages/RedLogistica/vistas/CasillaExpandible.tsx` (210 líneas).
+
+**Header colapsado (fila principal):**
+- Chevron expandir/colapsar
+- Icono casilla con bandera del país
+- Nombre + código + badge "Principal" (si `esPrincipal`) + badge morado "Compartida · N" (si tiene secundarios) + StatusBadge
+- Dirección + ciudad + tipo de colaborador en segunda línea
+- Métricas: uds actuales / capacidad + valor inventario USD
+- Botón editar casilla
+
+**Contenido expandido:**
+- Lista de colaboradores asociados:
+  - Principal: ⭐ Star amarilla + avatar inicial + nombre + código + tipo + badge "Principal" (amarillo)
+  - Secundarios: 👥 Users morado + mismo layout + badge "Comparte" (morado)
+  - Cada uno con teléfono/email si existen + botón editar
+- Botón "Asociar otro colaborador" al final (abre AsociarColaboradorModal)
+
+### CAMBIO-487-S42h — AsociarColaboradorModal (asociar multi a casilla existente)
+
+Nuevo componente `src/pages/RedLogistica/AsociarColaboradorModal.tsx` (160 líneas).
+
+**Flujo UX:**
+1. Usuario está en casilla expandida → click "Asociar otro colaborador"
+2. Abre modal con contexto (card teal arriba: "Casilla destino: [nombre]")
+3. Muestra dirección + principal + secundarios ya asociados
+4. Lista scrollable con checkboxes de colaboradores activos (excluye principal y ya asociados)
+5. Cada opción: checkbox + avatar inicial + nombre + tipo/país/ciudad
+6. Chips de selección abajo (removibles con X)
+7. Botón "Asociar (N)" actualiza `colaboradoresSecundariosIds` de la casilla
+
+**Ventaja sobre CasillaFormModal:** UI simple para el caso específico "agregar más gente a una casilla" sin mostrar todos los campos de dirección/coordenadas/capacidad.
+
+### CAMBIO-488-S42h — Subgrupo ampliado con `layoutMode`
+
+Refactor de `Subgrupo` en `RedLogistica.tsx`:
+
+**Nueva prop `layoutMode: 'por-casilla' | 'por-colaborador'` (default: 'por-colaborador'):**
+
+**`por-casilla`** — renderiza `<PorCasillaLayout>`:
+- Deriva casillas únicas desde items filtrados (1 casilla por principal)
+- Ordena por `esPrincipal` desc, luego alfabético
+- Renderiza cada una como `<CasillaExpandible>` con:
+  - Principal desde `colaboradoresMap.get(casilla.colaboradorId)`
+  - Secundarios mapeados desde `colaboradoresSecundariosIds`
+- **Sección "Sin casilla configurada"** al final:
+  - Fondo amber-50 para diferenciar visualmente
+  - Lista colaboradores que no tienen casilla propia (huérfanos)
+  - Cada uno con avatar + nombre + país + teléfono + botón "Agregar casilla" + editar
+  - Resuelve la pregunta "¿qué colaboradores aún no tienen casilla?"
+
+**`por-colaborador`** (default) — preserva comportamiento previo con `<ColaboradorRow>`.
+
+Header de Subgrupo ahora muestra "X casillas · Y colaboradores" en modo por-casilla; solo "N" en modo por-colaborador.
+
+### CAMBIO-489-S42h — ColaboradorRow enriquecido con métricas de tarifas
+
+Para **Couriers Internacionales**, badges ambar:
+- `Base: $X.XX` (`tarifaBasePorEnvioUSD`)
+- `$X.XX/kg` (`tarifaPorKgUSD`)
+
+Para **Transportistas Locales**, badges sky:
+- Subtipo "Interno" o nombre del courier ("olva", "shalom", etc.)
+- `S/ X.XX/entrega` (`costoFijo`)
+- `+X%` (`comisionPorcentaje`)
+- Zona de cobertura como texto gris
+
+Esto sustituye la línea suelta que antes mostraba solo costo fijo al final. Ahora el usuario ve de un vistazo quién cobra qué.
+
+### CAMBIO-490-S42h — Subtítulos de subgrupos alineados
+
+- **Mis Almacenes:** "Puntos de acopio propios del negocio · Vista por ubicación física"
+- **Viajeros:** "Casas de viajeros en países origen · Vista por ubicación física"
+- **Couriers Internacionales:** "Servicios de transporte internacional · Tarifas por envío y peso"
+- **Internos:** "Aliados estratégicos · Costo fijo + comisión por entrega"
+- **Externos:** "Servicios tercerizados · Tarifas estándar por courier"
+
+Cada subtítulo ahora comunica qué dimensión de negocio domina la sección.
+
+### Decisiones S42h
+
+- **D-175:** vistas especializadas por sección en vez de toggle global único. Razón: diferentes secciones contestan diferentes preguntas del negocio. Un toggle global (por casilla ↔ por colaborador) fuerza al usuario a elegir una cada vez; vistas especializadas ya "saben" qué perspectiva es natural para cada sección.
+- **D-176:** huérfanos (colaboradores sin casilla) aparecen al final del subgrupo con fondo amber-50. Razón: en vista por casilla, los colaboradores sin ubicación física serían invisibles si no se muestran aparte. La sección amber los hace prominentes con CTA "Agregar casilla".
+- **D-177:** AsociarColaboradorModal separado de CasillaFormModal en vez de reutilizar. Razón: el caso de uso "agregar más gente a casilla" requiere solo seleccionar colaboradores; reutilizar CasillaFormModal mostraría 15 campos irrelevantes. UX más limpia con modal dedicado.
+- **D-178:** sección "Sin casilla configurada" colapsa automáticamente si no hay huérfanos. Razón: mantener el layout limpio cuando todo está en orden.
+
+### Archivos S42h (3)
+
+**Creados (2):**
+- `src/pages/RedLogistica/vistas/CasillaExpandible.tsx` (~210 líneas)
+- `src/pages/RedLogistica/AsociarColaboradorModal.tsx` (~160 líneas)
+
+**Modificado (1):**
+- `src/pages/RedLogistica/RedLogistica.tsx` (+290 líneas netas: nuevo PorCasillaLayout, handlers, enriquecimiento ColaboradorRow, activación layoutMode en 2 secciones)
+
+### Métricas S42h
+
+| Métrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 16.16s |
+| Archivos creados | 2 |
+| Archivos modificados | 1 |
+| Líneas agregadas | 664 |
+| Líneas eliminadas | 10 |
+| Balance neto | +654 |
+| Cambios registrados | CAMBIO-486 a 490 (5) |
+| Decisiones | D-175 a D-178 (4) |
+| Duración | ~2h |
+
+### Pendientes post-S42h
+
+1. **Badge en CasillaFormModal cuando hay secundarios:** al editar casilla compartida, mostrar arriba un banner teal "Esta casilla es compartida con X colaboradores" para contextualizar el scope del cambio.
+2. **Visualización de capacidad:** la progress bar `X/Y uds` podría ser visual (barra teal) en vez de solo texto. Fácil win de UX.
+3. **Filtrado por tipo de casilla:** hoy el filtro global es por país; útil agregar "solo almacenes propios" o "solo casillas de viajero".
+4. **Permisos diferenciados en casilla compartida:** un colaborador secundario puede editar la casilla principal desde su vista. Decisión pendiente: restringir a solo lectura para secundarios, o mantener libertad (con auditoría).
+5. **Drag to reorder:** permitir arrastrar principal a secundario o viceversa. Complejidad alta, no prioritario.
+6. **Agrupar casillas por país en el listado:** dentro de "Viajeros", si hay 6 casas en 3 países, agruparlas visualmente con separador.
 
 ---
 
