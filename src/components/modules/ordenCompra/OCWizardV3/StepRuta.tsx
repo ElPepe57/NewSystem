@@ -405,9 +405,15 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                 onClick={() => {
                   const cambio: Partial<ConfigLogistica> = {};
                   if (config.llegadaPeru === 'ddp_directo') {
-                    cambio.llegadaPeru = null;
                     cambio.casillaDestinoId = '';
                     cambio.casillaDestinoNombre = '';
+                  }
+                  // S42ae — llegadaPeru='viajero' default en vía casilla.
+                  // El cruce real a Perú se elige al crear envío 2 desde /envios.
+                  if (config.llegadaPeru !== 'viajero' &&
+                      config.llegadaPeru !== 'courier_internacional' &&
+                      config.llegadaPeru !== 'ya_en_peru') {
+                    cambio.llegadaPeru = 'viajero';
                   }
                   if (!config.salidaProveedor) {
                     cambio.salidaProveedor = 'proveedor_envia';
@@ -633,6 +639,30 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
               </div>
             )}
 
+            {/* S42ae — Disclaimer informativo para "Proveedor envía": recordatorio sobre el flete */}
+            {config.salidaProveedor === 'proveedor_envia' && (
+              <div className="flex items-start gap-2 p-3 bg-sky-50 border border-sky-200 rounded-lg text-xs text-sky-900">
+                <Info className="w-3.5 h-3.5 text-sky-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  Si el proveedor <strong>cobra flete</strong>, agrégalo en el paso 3{' '}
+                  <strong>Cargos</strong> como "Costo de envío del proveedor" para que se
+                  sume al total de la OC.
+                </div>
+              </div>
+            )}
+
+            {/* S42ae — Disclaimer para "Recojo en origen": disponibilidad inmediata */}
+            {config.salidaProveedor === 'recojo_en_origen' && (
+              <div className="flex items-start gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-900 mb-3">
+                <Info className="w-3.5 h-3.5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  Al confirmar la OC los productos quedan <strong>disponibles inmediatamente en la casilla</strong>
+                  {config.casillaDestinoNombre && <> <strong>{config.casillaDestinoNombre}</strong></>}
+                  {' '}(el colaborador ya tiene la mercadería físicamente).
+                </div>
+              </div>
+            )}
+
             {/* Panel morado — Recojo en origen + deudor alternativo */}
             {config.salidaProveedor === 'recojo_en_origen' && (
               <PanelRecojoEnOrigen
@@ -646,275 +676,13 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
         );
       })()}
 
-      {/* ═══════════════════════════════════════════════════ */}
-      {/* TRAMO 2 — Cruce a Perú                               */}
-      {/* ═══════════════════════════════════════════════════ */}
-      {config.proveedorId &&
-        tipoRutaSeleccionado === 'via_casilla' &&
-        (config.salidaProveedor === 'proveedor_envia' ||
-          (config.salidaProveedor === 'recojo_en_origen' &&
-            config.quienPagaProveedor)) && (() => {
-          // S42ab — Tramo 2 colapsable
-          const tramo2Options: Record<string, { icon: React.ReactNode; titulo: string; subtitulo: string; value: LlegadaPeru }> = {
-            viajero: { icon: <UserCheck className="w-5 h-5 text-blue-600" />, titulo: 'Vía viajero', subtitulo: 'Colaborador transporta', value: 'viajero' },
-            courier_internacional: { icon: <Truck className="w-5 h-5 text-orange-600" />, titulo: 'Courier internacional', subtitulo: 'FedEx, DHL, UPS', value: 'courier_internacional' },
-            ya_en_peru: { icon: <Plane className="w-5 h-5 text-amber-600" />, titulo: 'Ya está en Perú', subtitulo: 'Sin cruce internacional', value: 'ya_en_peru' },
-          };
-          const tramo2Sel = config.llegadaPeru && tramo2Options[config.llegadaPeru];
-          const showTramo2 = !tramo2Sel || tramo2ExpandedOverride;
-          return (
-          <SectionTramo
-            numero={2}
-            titulo="Cruce a Perú"
-            subtitulo="¿Cómo llega la mercadería desde la casilla hasta Perú?"
-            headerRight={
-              tramo2Sel && !tramo2ExpandedOverride ? (
-                <button
-                  type="button"
-                  onClick={() => setTramo2ExpandedOverride(true)}
-                  className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
-                >
-                  Cambiar
-                </button>
-              ) : null
-            }
-          >
-            {showTramo2 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-                {Object.values(tramo2Options).map((opt) => (
-                  <TipoCardCompactoCenter
-                    key={opt.value}
-                    icon={opt.icon}
-                    titulo={opt.titulo}
-                    subtitulo={opt.subtitulo}
-                    selected={config.llegadaPeru === opt.value}
-                    onClick={() => {
-                      updateConfig({ llegadaPeru: opt.value });
-                      setTramo2ExpandedOverride(false);
-                    }}
-                  />
-                ))}
-              </div>
-            ) : tramo2Sel ? (
-              <div className="mb-3">
-                <TipoCardCompactoCenter
-                  icon={tramo2Sel.icon}
-                  titulo={tramo2Sel.titulo}
-                  subtitulo={tramo2Sel.subtitulo}
-                  selected
-                  onClick={() => setTramo2ExpandedOverride(true)}
-                />
-              </div>
-            ) : null}
+      {/* S42ae — Tramo 2 "Cruce a Perú" eliminado del wizard.
+           Decisión logística: se toma al crear envío 2 (casilla → Perú) desde /envios
+           cuando la mercadería ya está en la casilla y se conoce el viajero/courier real. */}
 
-            {/* S42ad — Selector de viajero/courier eliminado del Tramo 2.
-                 La asignación del colaborador que transporta se decide al crear
-                 el envío 2 (casilla → Perú) desde /envios, cuando la mercadería
-                 ya está en la casilla y se sabe qué viajero viene próximo. */}
-          </SectionTramo>
-          );
-        })()}
-
-      {/* ═══════════════════════════════════════════════════ */}
-      {/* TRAMO 3 — Última milla en Perú                       */}
-      {/* ═══════════════════════════════════════════════════ */}
-      {config.proveedorId &&
-        config.llegadaPeru &&
-        config.llegadaPeru !== 'ddp_directo' && (() => {
-          // S42ab — Tramo 3 colapsable
-          const tramo3Options: Record<string, { icon: React.ReactNode; titulo: string; subtitulo: string; value: UltimaMilla; onClick: () => void }> = {
-            yo_recojo: {
-              icon: <Car className="w-5 h-5 text-emerald-600" />,
-              titulo: 'Yo recojo',
-              subtitulo: 'Voy por la mercadería · gasto movilidad',
-              value: 'yo_recojo',
-              onClick: () => {
-                updateConfig({ ultimaMilla: 'yo_recojo' });
-                setTramo3ExpandedOverride(false);
-              },
-            },
-            entrega_domicilio: {
-              icon: <Warehouse className="w-5 h-5 text-sky-600" />,
-              titulo: 'Colaborador local',
-              subtitulo: 'De mi red logística',
-              value: 'entrega_domicilio',
-              onClick: () => {
-                updateConfig({ ultimaMilla: 'entrega_domicilio' });
-                setTramo3ExpandedOverride(false);
-              },
-            },
-          };
-          const tramo3Sel = config.ultimaMilla && tramo3Options[config.ultimaMilla];
-          const showTramo3 = !tramo3Sel || tramo3ExpandedOverride;
-          return (
-          <SectionTramo
-            numero={3}
-            titulo="Última milla en Perú"
-            subtitulo="¿Cómo llega al almacén destino una vez en Perú?"
-            headerRight={
-              tramo3Sel && !tramo3ExpandedOverride ? (
-                <button
-                  type="button"
-                  onClick={() => setTramo3ExpandedOverride(true)}
-                  className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
-                >
-                  Cambiar
-                </button>
-              ) : null
-            }
-          >
-            {showTramo3 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
-                {Object.values(tramo3Options).map((opt) => (
-                  <TipoCardCompactoCenter
-                    key={opt.value}
-                    icon={opt.icon}
-                    titulo={opt.titulo}
-                    subtitulo={opt.subtitulo}
-                    selected={config.ultimaMilla === opt.value}
-                    onClick={opt.onClick}
-                  />
-                ))}
-                <TipoCardCompactoCenter
-                  icon={<UserCheck className="w-5 h-5 text-purple-600" />}
-                  titulo="Viajero absorbe"
-                  subtitulo="Si su servicio lo incluye"
-                  selected={false}
-                  onClick={() => {
-                    // eslint-disable-next-line no-alert
-                    alert(
-                      'Opción "Viajero absorbe" — requiere ampliación del modelo. Usa "Colaborador local" por ahora.'
-                    );
-                  }}
-                />
-              </div>
-            ) : tramo3Sel ? (
-              <div className="mb-3">
-                <TipoCardCompactoCenter
-                  icon={tramo3Sel.icon}
-                  titulo={tramo3Sel.titulo}
-                  subtitulo={tramo3Sel.subtitulo}
-                  selected
-                  onClick={() => setTramo3ExpandedOverride(true)}
-                />
-              </div>
-            ) : null}
-
-            {/* Panel emerald — Yo recojo */}
-            {config.ultimaMilla === 'yo_recojo' && (
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2">
-                <div className="flex items-start gap-2">
-                  <Info className="w-3.5 h-3.5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-emerald-900">
-                    <strong>Tú recoges personalmente</strong> en la agencia/aduana y llevas
-                    al almacén. Registra solo el <strong>gasto de movilidad</strong> (taxi,
-                    combustible, pasajes).
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                    Gasto de movilidad (S/){' '}
-                    <span className="text-slate-400 font-normal">
-                      — opcional, se confirma en recepción
-                    </span>
-                  </label>
-                  <div className="relative w-40">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-                      S/
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="15.00"
-                      className="w-full pl-9 pr-3 py-2 border border-emerald-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white tabular-nums"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Panel sky — Colaborador local */}
-            {config.ultimaMilla === 'entrega_domicilio' && (
-              <div className="p-4 bg-sky-50 border border-sky-200 rounded-xl space-y-3">
-                <div className="flex items-start gap-2">
-                  <Info className="w-3.5 h-3.5 text-sky-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-sky-900">
-                    Un <strong>proveedor registrado de tu red logística</strong> recoge y
-                    lleva al almacén.
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                    Colaborador de la red logística
-                  </label>
-                  <select className="w-full px-3 py-2 border border-sky-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
-                    <option value="">Seleccionar...</option>
-                    {colaboradores
-                      .filter((c) => c.tipo === 'transportista_local')
-                      .map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.nombre}
-                          {c.metricas?.enviosCompletados
-                            ? ` — ${c.metricas.enviosCompletados} entregas`
-                            : ''}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-
-                {/* S42aa — Selector "¿Quién paga el transporte local?" ahora conectado al modelo */}
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-2">
-                    ¿Quién paga el transporte local?
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <TipoCardPequeno
-                      icon={<DollarSign className="w-3.5 h-3.5 text-emerald-600" />}
-                      titulo="Yo pago al recoger"
-                      subtitulo="Gasto directo cuando llega"
-                      selected={config.quienPagaTransporteLocal === 'yo_pague'}
-                      onClick={() => updateConfig({ quienPagaTransporteLocal: 'yo_pague' })}
-                    />
-                    <TipoCardPequeno
-                      icon={<UserCheck className="w-3.5 h-3.5 text-amber-600" />}
-                      titulo="Colaborador adelanta (CxP)"
-                      subtitulo="Él paga agencia/aduana/taxi y me genera deuda"
-                      selected={config.quienPagaTransporteLocal === 'recogedor_paga'}
-                      onClick={() => updateConfig({ quienPagaTransporteLocal: 'recogedor_paga' })}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                    Costo estimado (S/){' '}
-                    <span className="text-slate-400 font-normal">
-                      — opcional, se confirma en recepción
-                    </span>
-                  </label>
-                  <div className="relative w-40">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-                      S/
-                    </span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="35.00"
-                      value={config.costoTransporteLocalPEN ?? ''}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        updateConfig({ costoTransporteLocalPEN: v === '' ? null : parseFloat(v) });
-                      }}
-                      className="w-full pl-9 pr-3 py-2 border border-sky-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white tabular-nums"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </SectionTramo>
-          );
-        })()}
+      {/* S42ae — Tramo 3 "Última milla en Perú" eliminado del wizard.
+           Decisión logística: se toma al crear envío 3 (última milla) desde /envios
+           o al registrar el gasto real al recibir la mercadería. */}
     </div>
   );
 };

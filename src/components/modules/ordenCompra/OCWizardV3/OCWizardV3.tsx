@@ -58,17 +58,16 @@ function isStepValid(stepIndex: number, state: ReturnType<typeof ocWizardReducer
 
   switch (stepIndex) {
     case 0: {
-      // Paso Ruta: proveedor + tramos 1,2,3 + casilla destino
+      // Paso Ruta: proveedor + tipo de ruta + casilla/almacén destino + tramo 1
+      // S42ae — Tramo 2 (cruce) y Tramo 3 (última milla) ya no se piden en la OC.
+      // El colaborador transportista se asigna al crear envío 2 desde /envios.
       const cfg = s.configLogistica;
-      const needsColaborador =
-        cfg.llegadaPeru === 'viajero' || cfg.llegadaPeru === 'courier_internacional';
       return (
         !!cfg.proveedorId &&
-        !!cfg.salidaProveedor &&
         !!cfg.llegadaPeru &&
         !!cfg.casillaDestinoId &&
-        // Si tramo 2 requiere colaborador → debe estar asignado
-        (!needsColaborador || !!cfg.colaboradorId)
+        // Tramo 1 solo aplica a vía casilla (DDP no requiere salidaProveedor)
+        (cfg.llegadaPeru === 'ddp_directo' || !!cfg.salidaProveedor)
       );
     }
     case 1:
