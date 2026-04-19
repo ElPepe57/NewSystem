@@ -458,8 +458,10 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
             </div>
           )}
 
-          {/* Almacén destino final Perú */}
-          {tipoRutaSeleccionado && (
+          {/* S42u — Almacén destino final Perú: SOLO aplica a "Entrega directa a Perú" (DDP).
+               En "Vía casilla" el destino del envío 1 es la casilla de tránsito, y el almacén
+               Perú final se decide después en el envío 2 (casilla → Perú) desde /envios. */}
+          {tipoRutaSeleccionado === 'ddp' && (
             <div>
               {/* S42q — Header colapsable */}
               <div className="flex items-center justify-between mb-2">
