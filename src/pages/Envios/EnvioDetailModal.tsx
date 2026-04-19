@@ -213,8 +213,8 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                       <span className="font-mono">{envio.numeroEnvio}</span>
                       {getEstadoBadgeNuevo(envio.estado)}
                       {esDDP && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
-                          <Truck className="w-3 h-3" /> DDP
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200" title="El proveedor entrega directo a Perú sin casilla intermedia">
+                          <Truck className="w-3 h-3" /> Entrega directa
                         </span>
                       )}
                     </h2>

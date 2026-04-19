@@ -282,21 +282,27 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
               subtitulo="Proveedor → casilla (USA/CN) → Perú"
               selected={tipoRutaSeleccionado === 'via_casilla'}
               onClick={() => {
-                // Si no hay llegadaPeru, setea a viajero por default (luego cambia)
-                updateConfig({
-                  llegadaPeru: config.llegadaPeru === 'ddp_directo' ? null : (config.llegadaPeru ?? null),
-                });
-                // Si ya estaba DDP, limpiar
+                // S42 fix — click en "Vía casilla" activa el flujo vía casilla.
+                // Un solo updateConfig para evitar stale closure entre llamadas.
+                const cambio: Partial<ConfigLogistica> = {};
+                // Si venía de DDP, limpiar destino y tipo
                 if (config.llegadaPeru === 'ddp_directo') {
-                  updateConfig({ llegadaPeru: null, casillaDestinoId: '', casillaDestinoNombre: '' });
+                  cambio.llegadaPeru = null;
+                  cambio.casillaDestinoId = '';
+                  cambio.casillaDestinoNombre = '';
                 }
+                // Default sensato: proveedor envía (el Tramo 1 permite cambiar a recojo)
+                if (!config.salidaProveedor) {
+                  cambio.salidaProveedor = 'proveedor_envia';
+                }
+                if (Object.keys(cambio).length > 0) updateConfig(cambio);
               }}
             />
             <TipoCardGrande
               icon={<Plane className="w-5 h-5 text-amber-600" />}
               iconBg="bg-amber-100"
-              titulo="DDP — Directo a Perú"
-              subtitulo="Proveedor despacha directo sin casilla intermedia"
+              titulo="Entrega directa a Perú"
+              subtitulo="El proveedor despacha directo a Perú sin pasar por casilla intermedia"
               selected={tipoRutaSeleccionado === 'ddp'}
               onClick={() => updateConfig({ llegadaPeru: 'ddp_directo' })}
             />

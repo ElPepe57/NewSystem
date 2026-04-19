@@ -287,7 +287,7 @@ export const Envios: React.FC = () => {
       { label: 'Proveedor → Casilla', value: proveedorACasilla, pct: Math.round((proveedorACasilla / total) * 100), dot: 'bg-sky-500', bar: 'bg-sky-500' },
       { label: 'Casilla → Perú', value: casillaAPeru, pct: Math.round((casillaAPeru / total) * 100), dot: 'bg-teal-500', bar: 'bg-teal-500' },
       { label: 'Entre casillas origen', value: entreCasillas, pct: Math.round((entreCasillas / total) * 100), dot: 'bg-purple-500', bar: 'bg-purple-500' },
-      { label: 'DDP directo', value: ddpDirecto, pct: Math.round((ddpDirecto / total) * 100), dot: 'bg-amber-500', bar: 'bg-amber-500' },
+      { label: 'Entrega directa a Perú', value: ddpDirecto, pct: Math.round((ddpDirecto / total) * 100), dot: 'bg-amber-500', bar: 'bg-amber-500' },
     ];
   }, [enviosPorLinea]);
 
@@ -978,7 +978,7 @@ export const Envios: React.FC = () => {
           <option value="proveedor_casilla">Proveedor → Casilla</option>
           <option value="casilla_peru">Casilla → Perú</option>
           <option value="entre_casillas">Entre casillas origen</option>
-          <option value="ddp_directo">DDP directo</option>
+          <option value="ddp_directo">Entrega directa a Perú</option>
         </select>
         <select
           value={filtroCourier}

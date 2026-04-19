@@ -180,7 +180,7 @@ export function getConsequences(config: ConfigLogistica): string[] {
   // Tramo 2
   if (config.llegadaPeru === 'ddp_directo') {
     items.push(
-      'El proveedor envía directo a Perú (DDP) — flete internacional incluido'
+      'El proveedor envía directo a Perú — flete internacional incluido'
     );
     items.push('Al confirmar: se crea envío automático (Proveedor → Almacén)');
   } else if (config.llegadaPeru === 'viajero') {
