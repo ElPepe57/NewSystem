@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-18 (Sesion 42b — Traducción DDP + fix seleccion "Vía casilla". 7 strings visibles de "DDP" reemplazados por "Entrega directa a Perú" en 5 archivos. Bug fix: click en card "Via casilla de transito" ahora activa el estado (default salidaProveedor='proveedor_envia') y expande secciones dependientes. Commit `5f007b4` · Deploy #205.)
+**Ultima actualizacion:** 2026-04-18 (Sesion 42d — MapKit reutilizable (src/design-system/maps/) como capa generica sobre Google Maps: MapProvider/MapContainer/MarkersLayer/ClusterLayer/HeatmapLayer + MapTooltip/MapLegend + useGeocoder hook + types/presets. Primer consumidor: Red Logistica con toggle Lista/Mapa + geocoding on-blur en CasillaFormModal (boton 📍 + chip coords). Segundo consumidor: /mapa-ventas migrado de 172 → 80 lineas reutilizando el kit. Commits `edfd8b5` (S42c fix undefined) + `aefb4d2` (S42d MapKit). Deploys #206-207.)
 **Branch activo:** main
 
 ---
@@ -15,9 +15,9 @@
 | Sesiones de trabajo registradas | 42 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~566 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b: traduccion DDP + fix seleccion Via casilla) |
+| Fixes aplicados | ~572 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d: MapKit + primeros 2 consumidores) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 205 (ultimo: 2026-04-18 S42b, commit `5f007b4`, hosting vitaskinperu.web.app) |
+| Deploys realizados | 207 (ultimo: 2026-04-18 S42d, commit `aefb4d2`, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -326,6 +326,278 @@ S42 cierra el rework UX/UI iniciado en S41. Se ejecutaron las 2 tandas diferidas
 3. Si usuario pide mas rework UX/UI: leer `docs/AUDITORIA_REWORK_MOCKUP_S41.md` para pantallas pendientes de nivel 2
 4. Si usuario pide deudas tecnicas: abrir `productoEmoji.ts` y moverlo a `src/utils/` como primer win rapido
 5. Considerar commit de S42 + deploy como cierre del rework UX/UI completo antes de cualquier otro cambio
+
+---
+
+## SESION 42d — 2026-04-18 — MapKit reutilizable + Red Logística con mapa + migración /mapa-ventas
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 15.61s
+- Archivos creados: 11 (MapKit completo + RedLogisticaMapa)
+- Archivos modificados: 4 (CasillaFormModal, RedLogistica, MapaCalorMapa, casilla.types)
+- Commit: `aefb4d2` · Deploy #207: https://vitaskinperu.web.app
+
+### Resumen ejecutivo
+Usuario pidió maps en Red Logística y que además el stack quede como "herramienta desarrollada que se pueda jalar cada que sea necesario". Se construyó **MapKit** en `src/design-system/maps/` — capa reutilizable encima de Google Maps con API declarativa (JSX layers + hooks). Primer consumidor: Red Logística con geocoding on-blur en CasillaFormModal + toggle Lista/Mapa + markers coloreados por país. Validación: `/mapa-ventas` (existente desde S29) migrado de 172 → 80 líneas reutilizando el kit, sin regresión visible.
+
+### CAMBIO-479-S42d — MapKit core (design-system/maps/)
+
+**Estructura:**
+
+```
+src/design-system/maps/
+├── index.ts                    # Barrel export + docstring con ejemplo
+├── MapProvider.tsx             # wraps useGoogleMaps + loading/error fallback
+├── MapContainer.tsx            # base: crea google.maps.Map, autoFit, ctx
+├── types.ts                    # MapPoint<T>, LatLng, MAP_CENTERS, COUNTRY_COLORS
+├── layers/
+│   ├── MarkersLayer.tsx        # puntos con colorBy/scaleBy + tooltip InfoWindow
+│   ├── ClusterLayer.tsx        # MarkerClusterer para alta densidad
+│   └── HeatmapLayer.tsx        # visualization.HeatmapLayer con gradient default
+├── pieces/
+│   ├── MapTooltip.tsx          # popup estándar (title + subtitle + kpis list)
+│   └── MapLegend.tsx           # leyenda overlay (top-right/left/bottom-*)
+└── hooks/
+    └── useGeocoder.ts          # dirección → {lat,lng} + pais/ciudad extraídos
+```
+
+**API declarativa (ejemplo real del registro):**
+
+```tsx
+<MapProvider>
+  <MapContainer center={MAP_CENTERS.AMERICAS} zoom={3}>
+    <MarkersLayer
+      points={casillasComoMapPoint}
+      colorBy={(p) => COUNTRY_COLORS[p.metadata!.pais] ?? '#64748B'}
+      scaleBy={(p) => 8 + Math.log10((p.metadata!.unidadesActuales ?? 0) + 1) * 2}
+      renderTooltip={(p) => (
+        <MapTooltip
+          title={p.metadata!.nombre}
+          subtitle={TIPO_LABEL[p.metadata!.tipo]}
+          kpis={[
+            { label: 'País', value: p.metadata!.pais },
+            { label: 'Unidades', value: p.metadata!.unidadesActuales ?? 0 },
+          ]}
+        />
+      )}
+    />
+    <MapLegend items={leyendaPorPais} title="Casillas por país" />
+  </MapContainer>
+</MapProvider>
+```
+
+**Tipo central `MapPoint<T>`:** cada feature escribe un adapter `dominio → MapPoint<Dominio>` y el kit se encarga del resto. Preserva el objeto original en `metadata` para tooltips/handlers.
+
+**Decisiones de diseño:**
+
+- **D-166:** API declarativa con layers como componentes (JSX) en vez de props. Razón: permite composición natural (heatmap + clusters al mismo tiempo), cada layer gestiona su propio lifecycle, y el usuario ve la estructura visual en el JSX.
+- **D-167:** `autoFit` centralizado en MapContainer via `registerBounds/unregisterBounds` context. Cada layer registra sus puntos; el container ajusta bounds al unión de todos. Si hay múltiples layers (ej. markers + rutas), el autoFit los considera a todos sin coordinación manual.
+- **D-168:** Tooltips renderizados con `createRoot` de React 18 dentro del container del InfoWindow. Permite JSX completo (no HTML string). Cleanup con `setTimeout` para evitar warning de unmount during render.
+- **D-169:** `useGeocoder` separado de componentes UI. Razón: permite geocoding programático en forms (botón "geolocalizar") sin cargar el componente de mapa completo. El hook usa `useGoogleMaps` por debajo y devuelve `{lat, lng}` + campos extraídos (país, ciudad, código postal).
+- **D-170:** Presets `MAP_CENTERS` y `COUNTRY_COLORS` exportados desde types.ts. Razón: centralizar valores compartidos evita que cada consumidor redefina los mismos centros geográficos o mapeos de color.
+
+### CAMBIO-480-S42d — Red Logística con mapa (primer consumidor)
+
+**Cambios en modelo:**
+- `Casilla.coordenadas?: {lat, lng}` agregado al tipo (retrocompat: opcional)
+- `CasillaFormData.coordenadas?: {lat, lng}` agregado al formulario
+
+**CasillaFormModal.tsx:**
+- Import `useGeocoder` del MapKit
+- State `coordenadas` local al form
+- Botón 📍 al lado del input Dirección con 3 estados visuales:
+  - `MapPin` gris (pending): dirección con texto pero sin geocode
+  - `Loader2` animado: geocoding en curso
+  - `Check` verde: coordenadas capturadas
+- `onBlur` en Dirección y Ciudad dispara `handleGeocode` automático
+- Chip `"✓ Coordenadas: lat, lng"` debajo del input cuando hay éxito
+- Editar el campo dirección/ciudad resetea `coordenadas` a null (forzar re-geocode con datos actualizados)
+- Submit incluye `coordenadas` en `data` si están presentes
+
+**RedLogisticaMapa.tsx (nuevo):**
+- Props: `casillas: Casilla[]`, `colaboradoresMap: Map<string, Colaborador>`
+- Adapter: `Casilla (con coordenadas + activa) → MapPoint<Casilla & {colaborador}>`
+- `MarkersLayer`:
+  - `colorBy` por país (`COUNTRY_COLORS` del kit, con handling de `Peru_local` → `Peru`)
+  - `scaleBy` logarítmico según `unidadesActuales` (8 a 14px)
+  - `renderTooltip` con MapTooltip mostrando: nombre, tipo, colaborador, país, ciudad, unidades, valor inventario
+- `MapLegend` con conteo de casillas por país (ordenado desc)
+- 3 empty states:
+  - `casillas.length === 0` → "Sin casillas activas"
+  - `casillas.length > 0 && puntos.length === 0` → "Casillas sin geolocalizar" con instrucción
+  - default → mapa renderizado
+
+**RedLogistica.tsx:**
+- State `viewMode: 'lista' | 'mapa'`
+- Toggle `<List> Lista | <Map> Mapa` en la barra de filtros (estilo tokens bg-slate-100)
+- Botones "Expandir todo / Colapsar" solo en modo lista
+- Contenido secciones Compras/Ventas envuelto en `{viewMode === 'lista' && (<>...</>)}` 
+- `{viewMode === 'mapa' && <RedLogisticaMapa casillas={casillas} colaboradoresMap={colaboradoresMap} />}` renderizado antes
+- `colaboradoresMap` nuevo useMemo para O(1) lookup desde el mapa
+
+### CAMBIO-481-S42d — Migración /mapa-ventas (validación del kit)
+
+**MapaCalorMapa.tsx reducido 172 → 80 líneas:**
+
+Antes:
+- Imports de google.maps + MarkerClusterer + useGoogleMaps
+- Refs para map, heatmap, clusterer, markers
+- 3 funciones render* (renderHeatmap, renderClusters, renderMarcadores)
+- useEffect de inicialización + useEffect de render por capa + clearLayers
+- ~110 líneas de lógica imperativa google.maps
+
+Después:
+- Adapter `VentaGeo → MapPoint<VentaGeo>` (10 líneas)
+- 3 layers condicionales `{capaActiva === 'heatmap' && <HeatmapLayer>}`, etc.
+- MapTooltip para marcadores (ya con título + subtítulo + KPIs)
+
+**Sin regresión funcional validada:**
+- 3 capas activables funcionan igual
+- `onClick` de clusters y markers dispara `setVentaSeleccionada` igual
+- Tooltip al click en marker muestra código, distrito/provincia, total PEN, cliente, productos
+
+### Archivos S42d (15 total)
+
+**Creados (11):**
+- `src/design-system/maps/index.ts` (62 líneas)
+- `src/design-system/maps/types.ts` (83 líneas)
+- `src/design-system/maps/MapProvider.tsx` (68 líneas)
+- `src/design-system/maps/MapContainer.tsx` (113 líneas)
+- `src/design-system/maps/layers/MarkersLayer.tsx` (119 líneas)
+- `src/design-system/maps/layers/ClusterLayer.tsx` (56 líneas)
+- `src/design-system/maps/layers/HeatmapLayer.tsx` (78 líneas)
+- `src/design-system/maps/pieces/MapTooltip.tsx` (34 líneas)
+- `src/design-system/maps/pieces/MapLegend.tsx` (39 líneas)
+- `src/design-system/maps/hooks/useGeocoder.ts` (82 líneas)
+- `src/pages/RedLogistica/RedLogisticaMapa.tsx` (128 líneas)
+
+**Modificados (4):**
+- `src/types/casilla.types.ts` (+7 líneas — campo coordenadas)
+- `src/pages/RedLogistica/CasillaFormModal.tsx` (geocoding on-blur + UI)
+- `src/pages/RedLogistica/RedLogistica.tsx` (toggle lista/mapa)
+- `src/pages/MapaCalor/MapaCalorMapa.tsx` (reescrito 172 → 80 líneas)
+
+### Métricas S42d
+
+| Métrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 15.61s |
+| Archivos creados | 11 |
+| Archivos modificados | 4 |
+| Líneas MapKit neto | ~770 |
+| Líneas ganadas en migración /mapa-ventas | -92 |
+| Cambios registrados | CAMBIO-479, 480, 481 (3) |
+| Decisiones | D-166 a D-170 (5) |
+| Duración | ~2.5h |
+
+### Pendientes post-S42d
+
+**Mejoras al MapKit (futuro):**
+1. `RouteLayer` (polilíneas origen→destino): declarada en `types.ts::MapRoute` pero no implementada. Casos: envíos activos en el mapa, ruta de transportistas locales.
+2. `useMapPoints` adapter genérico: hoy cada feature escribe su adapter. Podría ofrecer helpers tipo `fromCollection(coll, { idField, coordField, nameField })`.
+3. Dark mode del mapa: `cleanStyles` actualmente solo deshabilita POIs. Para dark mode se necesita array de styles custom.
+4. Export del MapKit desde `src/design-system/index.ts` principal (hoy solo vive en `src/design-system/maps/`). Decidir si se re-exporta o si el kit queda como sub-módulo.
+
+**Mejoras al form de Casilla:**
+5. Geocoding batch para casillas existentes: script one-off que recorra casillas sin `coordenadas` y ejecute geocode() usando dirección+ciudad+país existentes. Usuario reportará muchas "sin geolocalizar" hasta que se haga.
+6. Reverse geocoding: al capturar coords, opcionalmente autocompletar ciudad/codigoPostal desde Google (actualmente el hook ya los devuelve pero no se pobla back en el form).
+
+**Mejoras a RedLogisticaMapa:**
+7. Filtros por tipo colaborador (viajero/empresa/courier). Hoy solo filtra por país vía el filtro global.
+8. Mostrar nombre del colaborador junto al marker (etiqueta tipo label persistente).
+
+### Instrucciones arranque S43
+
+1. Leer secciones S42c + S42d del registro + MEMORY.md
+2. Decidir con usuario siguiente paso: testing E2E con datos reales / deudas S42d / otro modulo
+3. Si se quiere probar el MapKit real: crear 1-2 casillas con dirección válida, pulsar el botón 📍 para geocodificar, y abrir vista mapa
+4. Nuevos consumidores potenciales del MapKit: mapa de clientes (coordenadas ya existen desde TAREA-102), mapa de envíos activos con RouteLayer (requiere implementarlo)
+
+---
+
+## SESION 42c — 2026-04-18 — Fix bug Firestore `updateDoc() undefined` + análisis redundancia Colaborador/Casilla
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 24.06s
+- Archivos modificados: 4
+- Commit: `edfd8b5` · Deploy #206: https://vitaskinperu.web.app
+
+### Resumen ejecutivo
+Usuario reportó error al editar Colaborador tipo "empresa (almacén propio)" en Red Logística: `Function updateDoc() called with invalid data. Unsupported field value: undefined (found in field notas in document colaboradores/...)`. Además observó redundancia estructural entre el formulario de Colaborador y el de Casilla (ciudad/dirección/país duplicados). El bug se corrigió en 2 capas (forms + servicios). La redundancia se analizó y se dejó documentada con 3 opciones para decidir (Opción A ocultar campos UI fue recomendada pero no implementada — esperando decisión).
+
+### CAMBIO-478-S42c — Fix `updateDoc()` rechaza `undefined` en payload
+
+**Root cause:** Firestore `updateDoc()` lanza error cuando cualquier campo del payload es `undefined`. Los forms de Red Logística usaban patrón `campo: form.x || undefined` que genera exactamente ese valor prohibido. Los servicios hacían spread `...data` sin filtrar.
+
+**Fix en 4 archivos:**
+
+**1. `src/services/colaborador.service.ts::actualizar()`** — defensa central:
+```typescript
+const updateData: Record<string, unknown> = {
+  actualizadoPor: userId,
+  fechaActualizacion: Timestamp.now(),
+};
+for (const [key, value] of Object.entries(data)) {
+  if (value !== undefined) updateData[key] = value;
+}
+await updateDoc(ref, updateData);
+```
+
+**2. `src/services/casilla.crud.service.ts::actualizar()`** — mismo patrón defensivo.
+
+**3. `src/pages/RedLogistica/ColaboradorFormModal.tsx::handleSubmit()`** — construcción de payload limpia:
+```typescript
+const data: ColaboradorFormData = { nombre, tipo, estado, pais } as any;
+if (form.ciudad.trim()) (data as any).ciudad = form.ciudad.trim();
+if (form.direccion.trim()) (data as any).direccion = form.direccion.trim();
+// ...etc — solo agrega keys con valor real
+```
+
+**4. `src/pages/RedLogistica/CasillaFormModal.tsx::handleSubmit()`** — mismo patrón.
+
+### Análisis: redundancia Colaborador (tipo=empresa) vs Casilla
+
+**Diagnóstico:**
+
+| Campo | Colaborador | Casilla | ¿Redundante? |
+|---|---|---|---|
+| `nombre` | "Vitaskin Perú" (entidad jurídica) | "Almacén Jose Pinto" (lugar físico) | No — roles distintos |
+| `pais`, `ciudad`, `direccion` | Sí | Sí | **Sí, para tipo=empresa (100%)** |
+| `codigoPostal`, `capacidadUnidades`, `esPrincipal` | No existe | Sí | Exclusivo Casilla |
+| `telefono`, `email`, `whatsapp` | Sí | No existe | Exclusivo Colaborador |
+
+**Conclusión:**
+- Para **viajeros/couriers**: NO redundante (una persona tiene múltiples casillas en países distintos + dirección personal distinta de la de las casillas)
+- Para **empresa (almacén propio)**: SÍ redundante (Vitaskin Perú = el almacén principal)
+
+**3 opciones documentadas (NO implementadas, esperando decisión):**
+
+1. **A. Cosmético (~15 min):** Para tipo=empresa, ocultar `pais/ciudad/direccion` del form de Colaborador. Se piden solo en la Casilla. Sin migración de datos.
+2. **B. Auto-sync (~1h):** Al crear Colaborador tipo=empresa, crear automáticamente su casilla principal copiando los datos. Bidireccional.
+3. **C. Refactor modelo (~2-3h + migración):** Eliminar pais/ciudad/direccion del tipo Colaborador condicional a tipo. Afecta a muchos consumidores.
+
+**Recomendación dada al usuario:** Opción A como win rápido — los campos del Colaborador para tipo=empresa no se usan en ningún otro flujo del ERP (envíos y OCs apuntan a la casilla).
+
+### Archivos S42c (4)
+
+- `src/services/colaborador.service.ts`
+- `src/services/casilla.crud.service.ts`
+- `src/pages/RedLogistica/ColaboradorFormModal.tsx`
+- `src/pages/RedLogistica/CasillaFormModal.tsx`
+
+### Métricas S42c
+
+| Métrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 24.06s |
+| Archivos modificados | 4 |
+| Líneas agregadas | 25 |
+| Líneas eliminadas | 14 |
+| Cambios registrados | CAMBIO-478 (1) |
+| Decisiones | — (análisis documentado, sin decisión tomada) |
+| Duración | ~30 min |
 
 ---
 
