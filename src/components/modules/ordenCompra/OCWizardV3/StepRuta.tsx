@@ -114,10 +114,6 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     () => viajeros.filter((v) => viajerosAsociadosIds.has(v.id)),
     [viajeros, viajerosAsociadosIds]
   );
-  const viajerosOtros = useMemo(
-    () => viajeros.filter((v) => !viajerosAsociadosIds.has(v.id)),
-    [viajeros, viajerosAsociadosIds]
-  );
   const casillaSeleccionada = useMemo(
     () => casillasOrigen.find((c) => c.id === config.casillaDestinoId),
     [casillasOrigen, config.casillaDestinoId]
@@ -613,7 +609,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
               />
             </div>
 
-            {/* Selector colaborador/courier — S42v filtrado por tipo + casilla */}
+            {/* Selector colaborador/courier — S42w: SOLO los asociados a la casilla */}
             {(config.llegadaPeru === 'viajero' ||
               config.llegadaPeru === 'courier_internacional') && (
               <div className="mt-3">
@@ -623,60 +619,46 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                     (opcional, puedes asignarlo después)
                   </span>
                 </label>
-                <select
-                  value={config.colaboradorId}
-                  onChange={(e) => {
-                    const id = e.target.value;
-                    const todos = [...viajeros, ...couriers];
-                    const sel = todos.find((c) => c.id === id);
-                    updateConfig({
-                      colaboradorId: id,
-                      colaboradorNombre: sel?.nombre ?? '',
-                    });
-                  }}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
-                >
-                  <option value="">Sin asignar — decidir después</option>
-                  {/* Vía viajero: prioriza viajeros asociados a la casilla, resto como fallback */}
-                  {config.llegadaPeru === 'viajero' && (
-                    <>
-                      {viajerosDeCasilla.length > 0 && (
-                        <>
-                          <option disabled>─── Asociados a esta casilla ───</option>
-                          {viajerosDeCasilla.map((v) => (
-                            <option key={v.id} value={v.id}>
-                              {v.nombre}
-                              {v.metricas?.enviosCompletados
-                                ? ` — ${v.metricas.enviosCompletados} envíos previos`
-                                : ''}
-                            </option>
-                          ))}
-                        </>
-                      )}
-                      {viajerosOtros.length > 0 && (
-                        <>
-                          <option disabled>─── Otros viajeros ───</option>
-                          {viajerosOtros.map((v) => (
-                            <option key={v.id} value={v.id}>
-                              {v.nombre}
-                              {v.metricas?.enviosCompletados
-                                ? ` — ${v.metricas.enviosCompletados} envíos previos`
-                                : ''}
-                            </option>
-                          ))}
-                        </>
-                      )}
-                    </>
-                  )}
-                  {/* Courier internacional: servicios independientes (no asociados a casilla) */}
-                  {config.llegadaPeru === 'courier_internacional' && couriers.length > 0 && (
-                    couriers.map((c) => (
+                {config.llegadaPeru === 'viajero' && viajerosDeCasilla.length === 0 ? (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
+                    Esta casilla no tiene viajeros asociados aún.{' '}
+                    <a href="/red-logistica" target="_blank" rel="noreferrer" className="underline font-medium">
+                      Asocia uno en Red Logística
+                    </a>{' '}
+                    o déjalo sin asignar por ahora.
+                  </div>
+                ) : (
+                  <select
+                    value={config.colaboradorId}
+                    onChange={(e) => {
+                      const id = e.target.value;
+                      const todos = [...viajeros, ...couriers];
+                      const sel = todos.find((c) => c.id === id);
+                      updateConfig({
+                        colaboradorId: id,
+                        colaboradorNombre: sel?.nombre ?? '',
+                      });
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  >
+                    <option value="">Sin asignar — decidir después</option>
+                    {/* Vía viajero: SOLO viajeros asociados a la casilla (principal + secundarios) */}
+                    {config.llegadaPeru === 'viajero' && viajerosDeCasilla.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.nombre}
+                        {v.metricas?.enviosCompletados
+                          ? ` — ${v.metricas.enviosCompletados} envíos previos`
+                          : ''}
+                      </option>
+                    ))}
+                    {/* Courier internacional: servicios independientes */}
+                    {config.llegadaPeru === 'courier_internacional' && couriers.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.nombre}
                       </option>
-                    ))
-                  )}
-                </select>
+                    ))}
+                  </select>
+                )}
               </div>
             )}
           </SectionTramo>
