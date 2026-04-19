@@ -1321,7 +1321,7 @@ const TipoCardCompactoCenter: React.FC<{
     type="button"
     onClick={onClick}
     className={cn(
-      'relative border-2 rounded-xl p-3 text-center transition-all',
+      'w-full relative border-2 rounded-xl p-3 text-center transition-all',
       selected
         ? 'border-teal-500 bg-teal-50 shadow-sm'
         : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50/30'
@@ -1353,7 +1353,7 @@ const TipoCardPequeno: React.FC<{
     onClick={onClick}
     disabled={disabled}
     className={cn(
-      'relative border-2 rounded-xl p-3 text-left transition-all',
+      'w-full relative border-2 rounded-xl p-3 text-left transition-all',
       disabled && 'opacity-50 cursor-not-allowed',
       !disabled && selected && 'border-teal-500 bg-teal-50 shadow-sm',
       !disabled &&
