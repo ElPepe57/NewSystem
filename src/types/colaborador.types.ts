@@ -37,14 +37,20 @@ export interface TarifasColaborador {
   tarifaFijaPorViajeUSD?: number;
 
   // Courier externo
-  tarifaBasePorEnvioUSD?: number;     // Tarifa base por envio
-  tarifaPorKgUSD?: number;            // Tarifa por kg
+  /** @deprecated S42l — Campo sin consumo en flete/pagos. Retrocompat con datos existentes. */
+  tarifaBasePorEnvioUSD?: number;
+  /** @deprecated S42l — Campo sin consumo. */
+  tarifaPorKgUSD?: number;
 
   // Transportista local
-  tarifaEntregaPEN?: number;          // Tarifa por entrega local
-  zonaCobertura?: string;             // Descripcion de zona de cobertura
-  comisionPorcentaje?: number;        // % sobre el valor de la venta
-  costoFijo?: number;                 // Costo fijo por entrega (PEN)
+  /** @deprecated S42l — Sin uso en cálculos. */
+  tarifaEntregaPEN?: number;
+  /** @deprecated S42l — Sin uso. */
+  zonaCobertura?: string;
+  /** @deprecated S42l — Sin uso. */
+  comisionPorcentaje?: number;
+  /** @deprecated S42l — Sin uso. */
+  costoFijo?: number;
 }
 
 /**
@@ -104,10 +110,13 @@ export interface Colaborador {
   proximoViaje?: Timestamp;
 
   // Solo transportistas locales
-  subtipoTransportista?: SubtipoTransportistaLocal;  // interno | externo
-  courierExterno?: CourierExterno;                   // solo si subtipo='externo'
-  dni?: string;                                      // solo internos
-  licencia?: string;                                 // solo internos
+  subtipoTransportista?: SubtipoTransportistaLocal;  // interno | externo (activo en UI)
+  /** @deprecated S42l — Sin uso en UI. */
+  courierExterno?: CourierExterno;
+  /** @deprecated S42l — Dato personal no requerido para flujo operativo. */
+  dni?: string;
+  /** @deprecated S42l — Sin uso. */
+  licencia?: string;
 
   // Notas
   notas?: string;
@@ -138,10 +147,13 @@ export interface ColaboradorFormData {
   /** @deprecated S42j — sin consumo. */
   proximoViaje?: Date;
   notas?: string;
-  // Solo transportistas locales
+  // Solo transportistas locales (subtipo sigue en UI; resto @deprecated S42l)
   subtipoTransportista?: SubtipoTransportistaLocal;
+  /** @deprecated S42l */
   courierExterno?: CourierExterno;
+  /** @deprecated S42l */
   dni?: string;
+  /** @deprecated S42l */
   licencia?: string;
 }
 

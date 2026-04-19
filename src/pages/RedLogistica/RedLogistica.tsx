@@ -360,7 +360,7 @@ export const RedLogistica: React.FC = () => {
 
         <Subgrupo
           titulo="Couriers Internacionales"
-          subtitulo="Servicios de transporte internacional · Tarifas por envío y peso"
+          subtitulo="Servicios de transporte internacional (DHL, FedEx, etc.)"
           icon={Truck}
           colorAccent="amber"
           items={grupos.couriersIntl}
@@ -389,7 +389,7 @@ export const RedLogistica: React.FC = () => {
       <div className="space-y-4">
         <Subgrupo
           titulo="Internos — Partners"
-          subtitulo="Aliados estratégicos · Costo fijo + comisión por entrega"
+          subtitulo="Aliados estratégicos con acuerdos preferentes"
           icon={Briefcase}
           colorAccent="sky"
           items={grupos.internos}
@@ -406,7 +406,7 @@ export const RedLogistica: React.FC = () => {
 
         <Subgrupo
           titulo="Externos — Terceros"
-          subtitulo="Servicios tercerizados · Tarifas estándar por courier"
+          subtitulo="Servicios tercerizados (Shalom, Urbano, Olva, etc.)"
           icon={Truck}
           colorAccent="slate"
           items={grupos.externos}
@@ -698,51 +698,19 @@ const ColaboradorRow: React.FC<ColaboradorRowProps> = ({
             {colaborador.ciudad && <span>{colaborador.ciudad}</span>}
             {colaborador.telefono && <span>{colaborador.telefono}</span>}
 
-            {/* S42h — Métricas destacadas para couriers internacionales */}
-            {colaborador.tipo === 'courier_externo' && (
-              <>
-                {colaborador.tarifas?.tarifaBasePorEnvioUSD !== undefined && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-50 text-amber-700 border border-amber-200">
-                    Base: ${colaborador.tarifas.tarifaBasePorEnvioUSD.toFixed(2)}
-                  </span>
-                )}
-                {colaborador.tarifas?.tarifaPorKgUSD !== undefined && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-amber-50 text-amber-700 border border-amber-200">
-                    ${colaborador.tarifas.tarifaPorKgUSD.toFixed(2)}/kg
-                  </span>
-                )}
-              </>
-            )}
-
-            {/* S42h — Métricas destacadas para transportistas locales */}
-            {colaborador.tipo === 'transportista_local' && (
-              <>
-                {colaborador.subtipoTransportista === 'interno' && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-sky-50 text-sky-700 border border-sky-200">
-                    Interno
-                  </span>
-                )}
-                {colaborador.subtipoTransportista === 'externo' && colaborador.courierExterno && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 capitalize">
-                    {colaborador.courierExterno}
-                  </span>
-                )}
-                {colaborador.tarifas?.costoFijo !== undefined && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-sky-50 text-sky-700 border border-sky-200">
-                    S/ {colaborador.tarifas.costoFijo.toFixed(2)}/entrega
-                  </span>
-                )}
-                {colaborador.tarifas?.comisionPorcentaje !== undefined && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded bg-sky-50 text-sky-700 border border-sky-200">
-                    +{colaborador.tarifas.comisionPorcentaje}%
-                  </span>
-                )}
-                {colaborador.tarifas?.zonaCobertura && (
-                  <span className="text-[10px] text-slate-600">
-                    {colaborador.tarifas.zonaCobertura}
-                  </span>
-                )}
-              </>
+            {/* S42l — Badges de tarifas/métricas retirados. Se eliminaron las secciones de
+                 configuración detallada (S42j+k) por no tener uso en cálculos. El único
+                 identificador estructural que queda es el subtipo del transportista local. */}
+            {colaborador.tipo === 'transportista_local' && colaborador.subtipoTransportista && (
+              <span
+                className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded ${
+                  colaborador.subtipoTransportista === 'interno'
+                    ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                    : 'bg-slate-100 text-slate-700 border border-slate-200'
+                }`}
+              >
+                {colaborador.subtipoTransportista === 'interno' ? 'Partner interno' : 'Tercero'}
+              </span>
             )}
           </div>
         </div>

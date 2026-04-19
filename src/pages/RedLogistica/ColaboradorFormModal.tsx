@@ -7,7 +7,7 @@ import { Button } from '../../components/common/Button';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import type { Colaborador, TipoColaborador, ColaboradorFormData, SubtipoTransportistaLocal, CourierExterno } from '../../types/colaborador.types';
+import type { Colaborador, TipoColaborador, ColaboradorFormData, SubtipoTransportistaLocal } from '../../types/colaborador.types';
 
 interface Props {
   isOpen: boolean;
@@ -27,14 +27,6 @@ const TIPOS: { value: TipoColaborador; label: string }[] = [
   { value: 'transportista_local', label: 'Transportista local' },
 ];
 
-const COURIERS: { value: CourierExterno; label: string }[] = [
-  { value: 'olva', label: 'Olva Courier' },
-  { value: 'mercado_envios', label: 'Mercado Envíos' },
-  { value: 'urbano', label: 'Urbano' },
-  { value: 'shalom', label: 'Shalom' },
-  { value: 'otro', label: 'Otro' },
-];
-
 const PAISES = ['USA', 'Peru', 'China', 'Corea'];
 
 const inputCls = 'w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none';
@@ -48,6 +40,9 @@ export const ColaboradorFormModal: React.FC<Props> = ({
   const { crearColaborador, actualizarColaborador } = useColaboradorStore();
   const [loading, setLoading] = useState(false);
 
+  // S42l — Form solo con datos de contacto estándar (sin secciones de configuración por tipo)
+  // Se mantiene `subtipoTransportista` porque el listado en /red-logistica separa
+  // "Internos — Partners" vs "Externos — Terceros" usando este campo.
   const [form, setForm] = useState({
     nombre: '',
     tipo: 'viajero' as TipoColaborador,
@@ -59,24 +54,11 @@ export const ColaboradorFormModal: React.FC<Props> = ({
     email: '',
     whatsapp: '',
     notas: '',
-    // S42j — Sección "Configuración de viajero" (frecuenciaViaje + tarifaPorLibraUSD)
-    // eliminada. Sin uso real en el negocio.
-    // Courier externo internacional
-    tarifaBasePorEnvioUSD: '',
-    tarifaPorKgUSD: '',
-    // Transportista local
     subtipoTransportista: 'interno' as SubtipoTransportistaLocal,
-    courierExterno: 'otro' as CourierExterno,
-    costoFijo: '',
-    comisionPorcentaje: '',
-    dni: '',
-    licencia: '',
-    zonaCobertura: '',
   });
 
   useEffect(() => {
     if (colaborador) {
-      // Modo edicion
       setForm({
         nombre: colaborador.nombre || '',
         tipo: colaborador.tipo,
@@ -88,28 +70,16 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         email: colaborador.email || '',
         whatsapp: colaborador.whatsapp || '',
         notas: colaborador.notas || '',
-        tarifaBasePorEnvioUSD: colaborador.tarifas?.tarifaBasePorEnvioUSD?.toString() || '',
-        tarifaPorKgUSD: colaborador.tarifas?.tarifaPorKgUSD?.toString() || '',
         subtipoTransportista: colaborador.subtipoTransportista || 'interno',
-        courierExterno: colaborador.courierExterno || 'otro',
-        costoFijo: colaborador.tarifas?.costoFijo?.toString() || '',
-        comisionPorcentaje: colaborador.tarifas?.comisionPorcentaje?.toString() || '',
-        dni: colaborador.dni || '',
-        licencia: colaborador.licencia || '',
-        zonaCobertura: colaborador.tarifas?.zonaCobertura || '',
       });
     } else {
-      // Modo crear: usar preselecciones si llegaron
       setForm({
         nombre: '',
         tipo: tipoPreseleccionado || 'viajero',
         estado: 'activo',
         pais: tipoPreseleccionado === 'transportista_local' ? 'Peru' : 'USA',
         ciudad: '', direccion: '', telefono: '', email: '', whatsapp: '', notas: '',
-        tarifaBasePorEnvioUSD: '', tarifaPorKgUSD: '',
         subtipoTransportista: subtipoPreseleccionado || 'interno',
-        courierExterno: 'otro',
-        costoFijo: '', comisionPorcentaje: '', dni: '', licencia: '', zonaCobertura: '',
       });
     }
   }, [colaborador, isOpen, tipoPreseleccionado, subtipoPreseleccionado]);
@@ -134,25 +104,11 @@ export const ColaboradorFormModal: React.FC<Props> = ({
       if (form.notas.trim()) (data as any).notas = form.notas.trim();
 
       // Construir tarifas según el tipo
-      // S42j — Viajero ya no tiene campos adicionales (se removió "Configuración de viajero")
-      const tarifas: Record<string, number | string> = {};
-      if (form.tipo === 'courier_externo') {
-        if (form.tarifaBasePorEnvioUSD) tarifas.tarifaBasePorEnvioUSD = parseFloat(form.tarifaBasePorEnvioUSD);
-        if (form.tarifaPorKgUSD) tarifas.tarifaPorKgUSD = parseFloat(form.tarifaPorKgUSD);
-      } else if (form.tipo === 'transportista_local') {
+      // S42l — Ya no se construyen tarifas ni campos detallados.
+      // Solo se preserva subtipoTransportista (requerido para separar Internos/Externos en el listado).
+      if (form.tipo === 'transportista_local') {
         (data as any).subtipoTransportista = form.subtipoTransportista;
-        if (form.subtipoTransportista === 'externo') {
-          (data as any).courierExterno = form.courierExterno;
-        }
-        if (form.subtipoTransportista === 'interno') {
-          if (form.dni) (data as any).dni = form.dni;
-          if (form.licencia) (data as any).licencia = form.licencia;
-        }
-        if (form.costoFijo) tarifas.costoFijo = parseFloat(form.costoFijo);
-        if (form.comisionPorcentaje) tarifas.comisionPorcentaje = parseFloat(form.comisionPorcentaje);
-        if (form.zonaCobertura) tarifas.zonaCobertura = form.zonaCobertura;
       }
-      if (Object.keys(tarifas).length > 0) (data as any).tarifas = tarifas;
 
       if (colaborador) {
         await actualizarColaborador(colaborador.id, data, user.uid);
@@ -207,6 +163,22 @@ export const ColaboradorFormModal: React.FC<Props> = ({
           </div>
         </div>
 
+        {/* S42l — Subtipo solo para transportista local (distingue Internos vs Externos en listado) */}
+        {form.tipo === 'transportista_local' && (
+          <div>
+            <label className={labelCls}>Subtipo</label>
+            <select
+              value={form.subtipoTransportista}
+              onChange={e => setForm({ ...form, subtipoTransportista: e.target.value as SubtipoTransportistaLocal })}
+              className={inputCls}
+              disabled={!!subtipoPreseleccionado && !colaborador}
+            >
+              <option value="interno">Interno · Partner estratégico</option>
+              <option value="externo">Externo · Servicio tercero</option>
+            </select>
+          </div>
+        )}
+
         {/* Nombre */}
         <div>
           <label className={labelCls}>Nombre</label>
@@ -247,105 +219,14 @@ export const ColaboradorFormModal: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* ── Campos específicos por tipo ── */}
-        {/* S42j — Sección "Configuración de viajero" eliminada: ningún campo era consumido
-             en cálculos del negocio (flete, pagos, reportes). Viajero = solo datos de
-             contacto estándar. */}
-
-        {/* Courier internacional */}
-        {form.tipo === 'courier_externo' && (
-          <div className="p-3 bg-amber-50/50 rounded-lg border border-amber-100 space-y-3">
-            <div className="text-xs font-medium text-amber-700">Configuración de courier internacional</div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={labelCls}>Tarifa base por envío (USD)</label>
-                <input type="number" step="0.01" value={form.tarifaBasePorEnvioUSD} onChange={e => setForm({ ...form, tarifaBasePorEnvioUSD: e.target.value })} className={inputCls} />
-              </div>
-              <div>
-                <label className={labelCls}>Tarifa por kg (USD)</label>
-                <input type="number" step="0.01" value={form.tarifaPorKgUSD} onChange={e => setForm({ ...form, tarifaPorKgUSD: e.target.value })} className={inputCls} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Transportista local */}
-        {form.tipo === 'transportista_local' && (
-          <div className="p-3 bg-sky-50/50 rounded-lg border border-sky-100 space-y-3">
-            <div className="text-xs font-medium text-sky-700">Configuración de transportista local</div>
-
-            {/* Subtipo interno/externo */}
-            <div>
-              <label className={labelCls}>¿Es interno o externo?</label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, subtipoTransportista: 'interno' })}
-                  className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                    form.subtipoTransportista === 'interno'
-                      ? 'bg-sky-100 border-sky-400 text-sky-800 font-medium'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                  disabled={!!subtipoPreseleccionado && !colaborador}
-                >
-                  Interno · Partner estratégico
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, subtipoTransportista: 'externo' })}
-                  className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
-                    form.subtipoTransportista === 'externo'
-                      ? 'bg-sky-100 border-sky-400 text-sky-800 font-medium'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                  disabled={!!subtipoPreseleccionado && !colaborador}
-                >
-                  Externo · Servicio tercero
-                </button>
-              </div>
-            </div>
-
-            {/* Si externo: selector de courier */}
-            {form.subtipoTransportista === 'externo' && (
-              <div>
-                <label className={labelCls}>Courier / Empresa</label>
-                <select value={form.courierExterno} onChange={e => setForm({ ...form, courierExterno: e.target.value as CourierExterno })} className={inputCls}>
-                  {COURIERS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                </select>
-              </div>
-            )}
-
-            {/* Si interno: DNI y licencia */}
-            {form.subtipoTransportista === 'interno' && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>DNI</label>
-                  <input type="text" value={form.dni} onChange={e => setForm({ ...form, dni: e.target.value })} className={inputCls} />
-                </div>
-                <div>
-                  <label className={labelCls}>Licencia</label>
-                  <input type="text" value={form.licencia} onChange={e => setForm({ ...form, licencia: e.target.value })} className={inputCls} />
-                </div>
-              </div>
-            )}
-
-            {/* Costos */}
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className={labelCls}>Costo fijo (S/)</label>
-                <input type="number" step="0.01" value={form.costoFijo} onChange={e => setForm({ ...form, costoFijo: e.target.value })} className={inputCls} placeholder="15.00" />
-              </div>
-              <div>
-                <label className={labelCls}>Comisión (%)</label>
-                <input type="number" step="0.01" value={form.comisionPorcentaje} onChange={e => setForm({ ...form, comisionPorcentaje: e.target.value })} className={inputCls} placeholder="5" />
-              </div>
-              <div>
-                <label className={labelCls}>Zona de cobertura</label>
-                <input type="text" value={form.zonaCobertura} onChange={e => setForm({ ...form, zonaCobertura: e.target.value })} className={inputCls} placeholder="Lima Norte" />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* S42l — Secciones "Configuración" específicas por tipo eliminadas:
+             - Viajero (S42j): frecuencia + tarifa por libra
+             - Courier internacional: tarifa base + tarifa por kg
+             - Transportista local: subtipo + DNI + licencia + costo fijo + comisión + zona
+             Ningún campo era consumido en cálculos del negocio (flete, pagos,
+             reportes). El colaborador queda con solo datos de contacto estándar
+             independientemente del tipo. Si en el futuro aparece un caso de uso
+             real para cualquiera, los campos siguen en el modelo @deprecated. */}
 
         {/* Notas */}
         <div>
