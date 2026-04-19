@@ -116,6 +116,21 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
   const showCasillaGrid = !casillaSeleccionada || casillaExpandedOverride;
   const showAlmacenGrid = !almacenPeruSeleccionado || almacenExpandedOverride;
 
+  // ─── Search casilla de tránsito (S42s) ────────────────────────────────
+  const [searchCasilla, setSearchCasilla] = useState('');
+  const casillasOrigenFiltradas = useMemo(() => {
+    if (!searchCasilla.trim()) return casillasOrigen;
+    const q = searchCasilla.toLowerCase().trim();
+    return casillasOrigen.filter(
+      (c) =>
+        c.nombre.toLowerCase().includes(q) ||
+        (c.codigo?.toLowerCase().includes(q)) ||
+        (c.ciudad?.toLowerCase().includes(q)) ||
+        (c.direccion?.toLowerCase().includes(q)) ||
+        (c.colaboradorNombre?.toLowerCase().includes(q))
+    );
+  }, [casillasOrigen, searchCasilla]);
+
   // ─── Search proveedor ───────────────────────────────────────────────────
   const [searchProveedor, setSearchProveedor] = useState('');
   const proveedoresFiltrados = useMemo(() => {
@@ -367,10 +382,10 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
             />
           </div>
 
-          {/* Casilla de tránsito (solo si vía casilla) */}
+          {/* Casilla de tránsito (solo si vía casilla) — S42s buscador + 1-col */}
           {tipoRutaSeleccionado === 'via_casilla' && (
             <div className="mb-4">
-              {/* S42q — Header colapsable: si hay selección y no está forzado expandir, muestra Cambiar */}
+              {/* Header colapsable */}
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-semibold text-slate-700">
                   Casilla de tránsito{' '}
@@ -386,6 +401,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                   </button>
                 )}
               </div>
+
               {casillasOrigen.length === 0 ? (
                 <EmptyHint>
                   No hay casillas de tránsito activas.{' '}
@@ -393,23 +409,9 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                     Crear una en Red Logística
                   </a>
                 </EmptyHint>
-              ) : showCasillaGrid ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {casillasOrigen.map((c) => (
-                    <CasillaTransitoCard
-                      key={c.id}
-                      casilla={c}
-                      colaborador={colaboradores.find((x) => x.id === c.colaboradorId)}
-                      selected={config.casillaDestinoId === c.id}
-                      onClick={() => {
-                        handleSelectCasillaTransito(c);
-                        setCasillaExpandedOverride(false); // colapsar al seleccionar
-                      }}
-                    />
-                  ))}
-                </div>
-              ) : casillaSeleccionada ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              ) : !showCasillaGrid && casillaSeleccionada ? (
+                /* Colapsado: solo la seleccionada, 1-col */
+                <div className="space-y-2">
                   <CasillaTransitoCard
                     casilla={casillaSeleccionada}
                     colaborador={colaboradores.find((x) => x.id === casillaSeleccionada.colaboradorId)}
@@ -417,7 +419,42 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                     onClick={() => setCasillaExpandedOverride(true)}
                   />
                 </div>
-              ) : null}
+              ) : (
+                /* Expandido: search + lista 1-col (igual patrón que Proveedor) */
+                <>
+                  <div className="relative mb-3">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={searchCasilla}
+                      onChange={(e) => setSearchCasilla(e.target.value)}
+                      placeholder="Buscar por nombre, código, ciudad o dirección..."
+                      className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div className="space-y-2 max-h-72 overflow-y-auto">
+                    {casillasOrigenFiltradas.length === 0 ? (
+                      <div className="text-center py-6 text-sm text-slate-400 italic">
+                        {searchCasilla ? 'Sin resultados' : 'No hay casillas disponibles'}
+                      </div>
+                    ) : (
+                      casillasOrigenFiltradas.map((c) => (
+                        <CasillaTransitoCard
+                          key={c.id}
+                          casilla={c}
+                          colaborador={colaboradores.find((x) => x.id === c.colaboradorId)}
+                          selected={config.casillaDestinoId === c.id}
+                          onClick={() => {
+                            handleSelectCasillaTransito(c);
+                            setCasillaExpandedOverride(false); // colapsar al seleccionar
+                            setSearchCasilla(''); // limpiar búsqueda
+                          }}
+                        />
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
