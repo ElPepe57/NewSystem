@@ -106,20 +106,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     () => proveedores.find((p) => p.id === config.proveedorId),
     [proveedores, config.proveedorId]
   );
-  // S42v — Viajeros asociados a la casilla seleccionada (principal + secundarios)
-  // Útil para el Tramo 2 "Vía viajero": prioriza quienes ya usan esa casilla.
-  const viajerosAsociadosIds = useMemo(() => {
-    const ids = new Set<string>();
-    const casilla = casillasOrigen.find((c) => c.id === config.casillaDestinoId);
-    if (!casilla) return ids;
-    ids.add(casilla.colaboradorId);
-    casilla.colaboradoresSecundariosIds?.forEach((id) => ids.add(id));
-    return ids;
-  }, [casillasOrigen, config.casillaDestinoId]);
-  const viajerosDeCasilla = useMemo(
-    () => viajeros.filter((v) => viajerosAsociadosIds.has(v.id)),
-    [viajeros, viajerosAsociadosIds]
-  );
+  // S42ad — Memos viajerosAsociadosIds + viajerosDeCasilla eliminados.
+  // Se usaban para el selector de viajero del Tramo 2 (ahora removido).
   const casillaSeleccionada = useMemo(
     () => casillasOrigen.find((c) => c.id === config.casillaDestinoId),
     [casillasOrigen, config.casillaDestinoId]
@@ -719,58 +707,10 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
               </div>
             ) : null}
 
-            {/* Selector colaborador/courier — S42w: SOLO los asociados a la casilla */}
-            {(config.llegadaPeru === 'viajero' ||
-              config.llegadaPeru === 'courier_internacional') && (
-              <div className="mt-3">
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">
-                  {config.llegadaPeru === 'viajero' ? 'Viajero' : 'Courier internacional'}{' '}
-                  <span className="text-slate-400 font-normal">
-                    (opcional, puedes asignarlo después)
-                  </span>
-                </label>
-                {config.llegadaPeru === 'viajero' && viajerosDeCasilla.length === 0 ? (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
-                    Esta casilla no tiene viajeros asociados aún.{' '}
-                    <a href="/red-logistica" target="_blank" rel="noreferrer" className="underline font-medium">
-                      Asocia uno en Red Logística
-                    </a>{' '}
-                    o déjalo sin asignar por ahora.
-                  </div>
-                ) : (
-                  <select
-                    value={config.colaboradorId}
-                    onChange={(e) => {
-                      const id = e.target.value;
-                      const todos = [...viajeros, ...couriers];
-                      const sel = todos.find((c) => c.id === id);
-                      updateConfig({
-                        colaboradorId: id,
-                        colaboradorNombre: sel?.nombre ?? '',
-                      });
-                    }}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  >
-                    <option value="">Sin asignar — decidir después</option>
-                    {/* Vía viajero: SOLO viajeros asociados a la casilla (principal + secundarios) */}
-                    {config.llegadaPeru === 'viajero' && viajerosDeCasilla.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.nombre}
-                        {v.metricas?.enviosCompletados
-                          ? ` — ${v.metricas.enviosCompletados} envíos previos`
-                          : ''}
-                      </option>
-                    ))}
-                    {/* Courier internacional: servicios independientes */}
-                    {config.llegadaPeru === 'courier_internacional' && couriers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nombre}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            )}
+            {/* S42ad — Selector de viajero/courier eliminado del Tramo 2.
+                 La asignación del colaborador que transporta se decide al crear
+                 el envío 2 (casilla → Perú) desde /envios, cuando la mercadería
+                 ya está en la casilla y se sabe qué viajero viene próximo. */}
           </SectionTramo>
           );
         })()}
