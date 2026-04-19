@@ -10,7 +10,14 @@ import { useAuthStore } from '../../store/authStore';
 import { casillaCrudService } from '../../services/casilla.crud.service';
 import type { Casilla, TipoCasilla, PaisCasilla, CasillaFormData } from '../../types/casilla.types';
 import { useToastStore } from '../../store/toastStore';
-import { useGeocoder } from '../../design-system/maps';
+import {
+  useGeocoder,
+  MapProvider,
+  MapContainer,
+  MarkersLayer,
+  COUNTRY_COLORS,
+  type MapPoint,
+} from '../../design-system/maps';
 
 interface Props {
   isOpen: boolean;
@@ -213,6 +220,38 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
             />
           </div>
         </div>
+
+        {/* S42e — Mini-mapa preview: feedback visual de la geocodificación */}
+        {coordenadas && (
+          <div>
+            <label className={labelCls}>Ubicación en mapa</label>
+            <div className="h-[200px] rounded-lg overflow-hidden border border-slate-200">
+              <MapProvider>
+                <MapContainer
+                  center={coordenadas}
+                  zoom={15}
+                  autoFit={false}
+                  minHeight="200px"
+                  cleanStyles
+                >
+                  <MarkersLayer<{ nombre: string; pais: string }>
+                    points={[{
+                      id: 'preview',
+                      coordenadas,
+                      nombre: form.nombre || 'Casilla',
+                      metadata: { nombre: form.nombre, pais: form.pais },
+                    } as MapPoint<{ nombre: string; pais: string }>]}
+                    colorBy={() => COUNTRY_COLORS[form.pais === 'Peru_local' ? 'Peru' : form.pais] ?? '#14B8A6'}
+                    scaleBy={() => 10}
+                  />
+                </MapContainer>
+              </MapProvider>
+            </div>
+            <p className="text-[10px] text-slate-500 mt-1">
+              Si la ubicación es incorrecta, edita la dirección o ciudad y se recalculará automáticamente.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>
