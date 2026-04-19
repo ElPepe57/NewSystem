@@ -885,10 +885,10 @@ const PorCasillaLayout: React.FC<PorCasillaLayoutProps> = ({
   casillas, items, expandedIds, toggleExpand, onEditarCasilla, onEditarColaborador,
   onAsociarColaborador, onNuevaCasillaGlobal, onNuevaCasillaParaColab, colaboradoresMap,
 }) => {
-  // Colaboradores sin casilla propia (no tienen casillas donde ellos sean el principal)
-  const huerfanos = items.filter(({ colaborador, casillas: cas }) => {
-    return !cas.some((c) => c.colaboradorId === colaborador.id);
-  });
+  // S42i fix — Colaboradores SIN ninguna casilla (ni propia ni compartida).
+  // `cas` ya incluye casillas donde el colaborador es secundario (via casillasMap),
+  // así que si el array está vacío, realmente no tiene dirección física asociada.
+  const huerfanos = items.filter(({ casillas: cas }) => cas.length === 0);
 
   if (casillas.length === 0 && huerfanos.length === 0) {
     return (
