@@ -9,6 +9,7 @@ import {
   Network, Plus, ChevronDown, ChevronRight, MapPin, Package,
   DollarSign, Star, Edit2, Plane, Truck, Building2, Users,
   Search, X, ShoppingCart, ShoppingBag, Briefcase,
+  List, Map as MapIcon,
 } from 'lucide-react';
 import { PageShell, PageHeader, KPIBar, StatusBadge, StatCard } from '../../design-system';
 import { Button } from '../../components/common/Button';
@@ -18,6 +19,7 @@ import type { Colaborador, TipoColaborador, SubtipoTransportistaLocal } from '..
 import type { Casilla } from '../../types/casilla.types';
 import { ColaboradorFormModal } from './ColaboradorFormModal';
 import { CasillaFormModal } from './CasillaFormModal';
+import { RedLogisticaMapa } from './RedLogisticaMapa';
 import { useAuthStore } from '../../store/authStore';
 import { formatCurrency } from '../../utils/format';
 
@@ -46,6 +48,8 @@ export const RedLogistica: React.FC = () => {
   const [busqueda, setBusqueda] = useState('');
   const [filtroPais, setFiltroPais] = useState('');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  // S42d — Toggle lista / mapa (MapKit)
+  const [viewMode, setViewMode] = useState<'lista' | 'mapa'>('lista');
 
   // Modals
   const [colabFormOpen, setColabFormOpen] = useState(false);
@@ -73,6 +77,12 @@ export const RedLogistica: React.FC = () => {
     });
     return map;
   }, [casillas]);
+
+  const colaboradoresMap = useMemo(() => {
+    const map = new Map<string, Colaborador>();
+    colaboradores.forEach(c => map.set(c.id, c));
+    return map;
+  }, [colaboradores]);
 
   /** Aplica filtros de busqueda y pais a la lista completa */
   const colabsFiltrados = useMemo(() => {
@@ -230,15 +240,50 @@ export const RedLogistica: React.FC = () => {
           <option value="Corea">Corea</option>
         </select>
 
-        <div className="flex gap-1 ml-auto">
-          <button onClick={expandAll} className="text-xs text-teal-600 hover:text-teal-800 px-2 py-1">
-            Expandir todo
+        {/* S42d — Toggle Lista / Mapa */}
+        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+          <button
+            type="button"
+            onClick={() => setViewMode('lista')}
+            className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 ${
+              viewMode === 'lista' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+            title="Vista lista"
+          >
+            <List className="w-3.5 h-3.5" />
+            Lista
           </button>
-          <button onClick={collapseAll} className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1">
-            Colapsar
+          <button
+            type="button"
+            onClick={() => setViewMode('mapa')}
+            className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 ${
+              viewMode === 'mapa' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+            title="Vista mapa"
+          >
+            <MapIcon className="w-3.5 h-3.5" />
+            Mapa
           </button>
         </div>
+
+        {viewMode === 'lista' && (
+          <div className="flex gap-1 ml-auto">
+            <button onClick={expandAll} className="text-xs text-teal-600 hover:text-teal-800 px-2 py-1">
+              Expandir todo
+            </button>
+            <button onClick={collapseAll} className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1">
+              Colapsar
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* S42d — Vista Mapa */}
+      {viewMode === 'mapa' && (
+        <RedLogisticaMapa casillas={casillas} colaboradoresMap={colaboradoresMap} />
+      )}
+
+      {viewMode === 'lista' && (<>
 
       {/* ═══════════════════════════════════════════════════════════ */}
       {/* SECCIÓN COMPRAS */}
@@ -365,6 +410,8 @@ export const RedLogistica: React.FC = () => {
           />
         )}
       </div>
+
+      </>)}
 
       {/* Modals */}
       <ColaboradorFormModal

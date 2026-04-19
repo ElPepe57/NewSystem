@@ -1,12 +1,20 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
+/**
+ * MapaCalorMapa — vista de mapa para /mapa-ventas.
+ * S42d: migrado al MapKit (src/design-system/maps). Reduce 172 → ~80 líneas.
+ */
+import { useMemo } from 'react';
+import {
+  MapProvider,
+  MapContainer,
+  MarkersLayer,
+  ClusterLayer,
+  HeatmapLayer,
+  MapTooltip,
+  MAP_CENTERS,
+  type MapPoint,
+} from '../../design-system/maps';
 import { useMapaCalorStore } from '../../store/mapaCalorStore';
-import { useGoogleMaps } from '../../hooks/useGoogleMaps';
-import type { VentaGeo, CapaMapa } from '../../types/mapaCalor.types';
-
-// Perú completo como vista default
-const DEFAULT_CENTER = { lat: -9.19, lng: -75.0152 };
-const DEFAULT_ZOOM = 6;
+import type { VentaGeo } from '../../types/mapaCalor.types';
 
 const LINEA_COLORS: Record<string, string> = {
   'Z50CnuaBdD5x0w7XGRv8': '#10B981', // Suplementos — verde
@@ -15,158 +23,57 @@ const LINEA_COLORS: Record<string, string> = {
 const DEFAULT_COLOR = '#F59E0B'; // Dorado para mixto/otro
 
 export function MapaCalorMapa() {
-  const { isLoaded } = useGoogleMaps();
-  const { ventasGeo, capaActiva, zonas, setZonaSeleccionada, setVentaSeleccionada } = useMapaCalorStore();
+  const { ventasGeo, capaActiva, setVentaSeleccionada } = useMapaCalorStore();
 
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const heatmapRef = useRef<google.maps.visualization.HeatmapLayer | null>(null);
-  const clustererRef = useRef<MarkerClusterer | null>(null);
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-
-  // Inicializar mapa
-  useEffect(() => {
-    if (!isLoaded || !mapRef.current || mapInstanceRef.current) return;
-
-    mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-      center: DEFAULT_CENTER,
-      zoom: DEFAULT_ZOOM,
-      mapId: 'mapa-calor-ventas',
-      disableDefaultUI: false,
-      zoomControl: true,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: true,
-      gestureHandling: 'greedy',
-      styles: [
-        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-        { featureType: 'transit', stylers: [{ visibility: 'off' }] }
-      ]
-    });
-  }, [isLoaded]);
-
-  // Limpiar capas
-  const clearLayers = useCallback(() => {
-    heatmapRef.current?.setMap(null);
-    heatmapRef.current = null;
-
-    clustererRef.current?.clearMarkers();
-    clustererRef.current = null;
-
-    markersRef.current.forEach(m => (m as any).map = null);
-    markersRef.current = [];
-  }, []);
-
-  // Renderizar capa activa
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map || !isLoaded) return;
-
-    clearLayers();
-
-    if (ventasGeo.length === 0) return;
-
-    // Auto-fit bounds
-    const bounds = new google.maps.LatLngBounds();
-    ventasGeo.forEach(v => bounds.extend(v.coordenadas));
-    map.fitBounds(bounds, 50);
-
-    switch (capaActiva) {
-      case 'heatmap':
-        renderHeatmap(map, ventasGeo);
-        break;
-      case 'clusters':
-        renderClusters(map, ventasGeo);
-        break;
-      case 'marcadores':
-        renderMarcadores(map, ventasGeo);
-        break;
-    }
-  }, [ventasGeo, capaActiva, isLoaded, clearLayers]);
-
-  // === HEATMAP ===
-  const renderHeatmap = (map: google.maps.Map, ventas: VentaGeo[]) => {
-    const ticketPromedio = ventas.reduce((s, v) => s + v.totalPEN, 0) / ventas.length || 1;
-
-    const data = ventas.map(v => ({
-      location: new google.maps.LatLng(v.coordenadas.lat, v.coordenadas.lng),
-      weight: Math.max(v.totalPEN / ticketPromedio, 0.1)
-    }));
-
-    heatmapRef.current = new google.maps.visualization.HeatmapLayer({
-      data,
-      map,
-      radius: 30,
-      opacity: 0.7,
-      gradient: [
-        'rgba(0, 0, 0, 0)',
-        'rgba(0, 0, 255, 0.3)',
-        'rgba(0, 255, 255, 0.5)',
-        'rgba(0, 255, 0, 0.7)',
-        'rgba(255, 255, 0, 0.8)',
-        'rgba(255, 165, 0, 0.9)',
-        'rgba(255, 0, 0, 1)'
-      ]
-    });
-  };
-
-  // === CLUSTERS ===
-  const renderClusters = (map: google.maps.Map, ventas: VentaGeo[]) => {
-    const markers = ventas.map(v => {
-      const marker = new google.maps.Marker({
-        position: v.coordenadas,
-        title: `${v.codigo} — S/ ${v.totalPEN.toFixed(2)}`
-      });
-      marker.addListener('click', () => setVentaSeleccionada(v));
-      return marker;
-    });
-
-    clustererRef.current = new MarkerClusterer({
-      map,
-      markers,
-    });
-  };
-
-  // === MARCADORES INDIVIDUALES ===
-  const renderMarcadores = (map: google.maps.Map, ventas: VentaGeo[]) => {
-    ventas.forEach(v => {
-      const color = LINEA_COLORS[v.lineaNegocioId] || DEFAULT_COLOR;
-
-      const marker = new google.maps.Marker({
-        position: v.coordenadas,
-        map,
-        title: `${v.codigo} — S/ ${v.totalPEN.toFixed(2)}`,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: color,
-          fillOpacity: 0.85,
-          strokeColor: '#fff',
-          strokeWeight: 2,
-          scale: 8,
-        }
-      });
-
-      marker.addListener('click', () => setVentaSeleccionada(v));
-      markersRef.current.push(marker as any);
-    });
-  };
-
-  if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center h-full bg-slate-100 rounded-lg">
-        <div className="text-center text-slate-500">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto mb-2" />
-          <p className="text-sm">Cargando mapa...</p>
-        </div>
-      </div>
-    );
-  }
+  // Adapter: VentaGeo -> MapPoint
+  const puntos = useMemo<MapPoint<VentaGeo>[]>(
+    () =>
+      ventasGeo.map((v) => ({
+        id: v.id,
+        coordenadas: v.coordenadas,
+        nombre: `${v.codigo} — S/ ${v.totalPEN.toFixed(2)}`,
+        categoria: v.lineaNegocioId,
+        peso: v.totalPEN, // para heatmap weight
+        metadata: v,
+      })),
+    [ventasGeo]
+  );
 
   return (
-    <div
-      ref={mapRef}
-      className="w-full h-full rounded-lg"
-      style={{ minHeight: '400px' }}
-    />
+    <MapProvider>
+      <MapContainer
+        center={MAP_CENTERS.PERU}
+        zoom={6}
+        mapId="mapa-calor-ventas"
+        autoFit
+        minHeight="400px"
+      >
+        {capaActiva === 'heatmap' && <HeatmapLayer points={puntos} />}
+        {capaActiva === 'clusters' && (
+          <ClusterLayer points={puntos} onClick={(p) => setVentaSeleccionada(p.metadata!)} />
+        )}
+        {capaActiva === 'marcadores' && (
+          <MarkersLayer<VentaGeo>
+            points={puntos}
+            colorBy={(p) => LINEA_COLORS[p.categoria ?? ''] ?? DEFAULT_COLOR}
+            onClick={(p) => setVentaSeleccionada(p.metadata!)}
+            renderTooltip={(p) => {
+              const v = p.metadata!;
+              return (
+                <MapTooltip
+                  title={v.codigo}
+                  subtitle={v.distrito ? `${v.distrito}${v.provincia ? `, ${v.provincia}` : ''}` : undefined}
+                  kpis={[
+                    { label: 'Total', value: `S/ ${v.totalPEN.toFixed(2)}` },
+                    { label: 'Cliente', value: v.clienteNombre ?? '—' },
+                    { label: 'Productos', value: v.productos.length },
+                  ]}
+                />
+              );
+            }}
+          />
+        )}
+      </MapContainer>
+    </MapProvider>
   );
 }

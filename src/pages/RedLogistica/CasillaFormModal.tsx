@@ -2,6 +2,7 @@
  * CasillaFormModal — Crear/editar casilla de un colaborador
  */
 import React, { useState, useEffect } from 'react';
+import { MapPin, Loader2, Check } from 'lucide-react';
 import { Modal } from '../../components/common/Modal';
 import { Button } from '../../components/common/Button';
 import { useAlmacenStore } from '../../store/casillaStore';
@@ -9,6 +10,7 @@ import { useAuthStore } from '../../store/authStore';
 import { casillaCrudService } from '../../services/casilla.crud.service';
 import type { Casilla, TipoCasilla, PaisCasilla, CasillaFormData } from '../../types/casilla.types';
 import { useToastStore } from '../../store/toastStore';
+import { useGeocoder } from '../../design-system/maps';
 
 interface Props {
   isOpen: boolean;
@@ -41,6 +43,9 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
   const toast = useToastStore();
   const [loading, setLoading] = useState(false);
 
+  const { geocode, isGeocoding } = useGeocoder();
+  const [coordenadas, setCoordenadas] = useState<{ lat: number; lng: number } | null>(null);
+
   const [form, setForm] = useState({
     nombre: '',
     tipo: 'casilla_viajero' as TipoCasilla,
@@ -68,14 +73,33 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
         esPrincipal: casilla.esPrincipal || false,
         notas: casilla.notas || '',
       });
+      setCoordenadas(casilla.coordenadas ?? null);
     } else {
       setForm({
         nombre: '', tipo: 'casilla_viajero', estado: 'activa', pais: 'USA',
         direccion: '', ciudad: '', codigoPostal: '', capacidadUnidades: '',
         esPrincipal: false, notas: '',
       });
+      setCoordenadas(null);
     }
   }, [casilla, isOpen]);
+
+  // S42d — Geocoding on-blur de dirección: cuando el usuario termina de
+  // escribir la dirección, consultamos Google y guardamos coordenadas.
+  const handleGeocode = async () => {
+    const dir = form.direccion.trim();
+    if (!dir) return;
+    // Construir query con ciudad + país para precisión
+    const paisLabel = form.pais === 'Peru_local' ? 'Peru' : form.pais;
+    const query = [dir, form.ciudad.trim(), paisLabel].filter(Boolean).join(', ');
+    const result = await geocode(query);
+    if (result) {
+      setCoordenadas(result.coordenadas);
+      toast.success('Dirección geolocalizada');
+    } else {
+      toast.warning('No se pudo geolocalizar la dirección');
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user || !form.nombre.trim()) return;
@@ -95,6 +119,7 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
       if (form.codigoPostal.trim()) data.codigoPostal = form.codigoPostal.trim();
       if (form.capacidadUnidades) data.capacidadUnidades = parseInt(form.capacidadUnidades);
       if (form.notas.trim()) data.notas = form.notas.trim();
+      if (coordenadas) data.coordenadas = coordenadas;
 
       if (casilla) {
         await casillaCrudService.actualizar(casilla.id, data, user.uid);
@@ -147,11 +172,45 @@ export const CasillaFormModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ca
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
             <label className={labelCls}>Direccion</label>
-            <input type="text" value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} className={inputCls} placeholder="123 Main St" />
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={form.direccion}
+                onChange={e => { setForm({ ...form, direccion: e.target.value }); setCoordenadas(null); }}
+                onBlur={handleGeocode}
+                className={inputCls}
+                placeholder="123 Main St"
+              />
+              <button
+                type="button"
+                onClick={handleGeocode}
+                disabled={isGeocoding || !form.direccion.trim()}
+                className="flex-shrink-0 px-2.5 py-2 text-xs border border-slate-300 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 hover:text-teal-700 transition-colors"
+                title="Geolocalizar dirección"
+              >
+                {isGeocoding
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : coordenadas
+                    ? <Check className="w-4 h-4 text-emerald-600" />
+                    : <MapPin className="w-4 h-4" />}
+              </button>
+            </div>
+            {coordenadas && (
+              <p className="text-[10px] text-emerald-700 mt-1 flex items-center gap-1">
+                <Check className="w-3 h-3" /> Coordenadas: {coordenadas.lat.toFixed(4)}, {coordenadas.lng.toFixed(4)}
+              </p>
+            )}
           </div>
           <div>
             <label className={labelCls}>Ciudad</label>
-            <input type="text" value={form.ciudad} onChange={e => setForm({ ...form, ciudad: e.target.value })} className={inputCls} placeholder="Miami" />
+            <input
+              type="text"
+              value={form.ciudad}
+              onChange={e => { setForm({ ...form, ciudad: e.target.value }); setCoordenadas(null); }}
+              onBlur={handleGeocode}
+              className={inputCls}
+              placeholder="Miami"
+            />
           </div>
         </div>
 

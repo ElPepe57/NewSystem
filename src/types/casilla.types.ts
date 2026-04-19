@@ -53,6 +53,11 @@ export interface Casilla {
   direccion?: string;
   ciudad?: string;
   codigoPostal?: string;
+  // S42d: coordenadas para MapKit (geocoding automatico via GoogleMapsAddressInput)
+  coordenadas?: {
+    lat: number;
+    lng: number;
+  };
 
   // Capacidad
   capacidadUnidades?: number;
@@ -86,6 +91,7 @@ export interface CasillaFormData {
   direccion?: string;
   ciudad?: string;
   codigoPostal?: string;
+  coordenadas?: { lat: number; lng: number };
   capacidadUnidades?: number;
   notas?: string;
 }
