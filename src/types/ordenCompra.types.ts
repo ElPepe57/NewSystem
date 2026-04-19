@@ -262,6 +262,11 @@ export interface OrdenCompra {
   quienPagaFlete?: QuienPagaFlete;
   colaboradorTransporteId?: string;    // viajero o courier asignado
   colaboradorTransporteNombre?: string;
+  // S42af — Recojo en origen: el colaborador ya tiene la mercadería al momento
+  // de confirmar la OC (recogió del proveedor). El envío nace en estado
+  // 'recibida_completa' y el inventario de la casilla destino se actualiza
+  // inmediatamente, no después.
+  recojoEnOrigen?: boolean;
 
   // Origen y línea de negocio
   paisOrigen?: string;             // País de origen del proveedor ('USA', 'China', 'Corea', 'Peru')
@@ -419,6 +424,8 @@ export interface OrdenCompraFormData {
   quienPagaFlete?: QuienPagaFlete;
   colaboradorTransporteId?: string;
   colaboradorTransporteNombre?: string;
+  // S42af — Recojo en origen (disponibilidad inmediata en casilla)
+  recojoEnOrigen?: boolean;
   cargosOC?: CargoOC[];
   descuentosOC?: DescuentoOC[];
   impuestosOC?: ImpuestoOC[];

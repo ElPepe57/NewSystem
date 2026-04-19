@@ -344,6 +344,13 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
           deudorNombre: state.configLogistica.deudorNombre,
           deudorTipo: 'colaborador' as const,
         }),
+      // S42af — Recojo en origen: el colaborador ya tiene la mercadería al
+      // confirmar la OC. Al procesar confirmarOC() el envío 1 nace en
+      // 'recibida_completa' y el inventario de la casilla destino se actualiza
+      // inmediatamente.
+      ...(state.configLogistica.salidaProveedor === 'recojo_en_origen' && {
+        recojoEnOrigen: true,
+      }),
     };
 
     onSubmit(formData);

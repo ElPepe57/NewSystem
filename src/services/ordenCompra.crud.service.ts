@@ -19,7 +19,8 @@ import {
   where,
   orderBy,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { logger } from '../lib/logger';
@@ -34,6 +35,7 @@ import { almacenService } from './casilla.service';
 import { requerimientoService } from './requerimiento.service';
 import { actividadService } from './actividad.service';
 import { metricasService } from './metricas.service';
+import { COLLECTIONS } from '../config/collections';
 import { ORDENES_COLLECTION, PROVEEDORES_COLLECTION, generateNumeroOrden } from './ordenCompra.shared';
 import { getProveedorById } from './ordenCompra.proveedores.service';
 import { buildProductoSnapshot } from '../utils/producto.helpers';
@@ -219,6 +221,10 @@ export async function create(
       nuevaOrden.deudorId = data.deudorId;
       nuevaOrden.deudorNombre = data.deudorNombre ?? '';
       nuevaOrden.deudorTipo = 'colaborador';
+    }
+    // S42af — Flag "Recojo en origen" (al confirmar, envío y unidades nacen recibidos)
+    if (data.recojoEnOrigen) {
+      nuevaOrden.recojoEnOrigen = true;
     }
     if (descuento > 0) nuevaOrden.descuentoUSD = descuento;
     if (data.tcCompra) {
@@ -892,8 +898,90 @@ export async function confirmarOC(
     logger.success(`OC ${orden.numeroOrden} confirmada: ${unidadIds.length} unidades pedida + Envio T1 creado (${envioResult.numeroEnvio})`);
   }
 
+  // S42af — Recojo en origen: el colaborador ya tiene la mercadería al confirmar.
+  // El envío nace en 'recibida_completa', unidades en 'disponible' en la casilla
+  // destino, e inventario de la casilla actualizado.
+  if (orden.recojoEnOrigen) {
+    await aplicarRecojoEnOrigen(orden, destinoCasillaId, unidadIds, userId);
+  }
+
   return {
     unidadesCreadas: unidadIds.length,
     envioId,
   };
+}
+
+/**
+ * S42af — Helper para "Recojo en origen": marca envío(s) como recibidos
+ * completos, unidades como disponibles en la casilla destino, y actualiza
+ * el inventario (unidadesActuales + totalUnidadesRecibidas + valorInventarioUSD).
+ *
+ * Se llama al final de confirmarOC cuando orden.recojoEnOrigen === true.
+ */
+async function aplicarRecojoEnOrigen(
+  orden: OrdenCompra,
+  destinoCasillaId: string,
+  unidadIds: string[],
+  userId: string
+): Promise<void> {
+  const { casillaCrudService } = await import('./casilla.crud.service');
+  const { envioCrudService } = await import('./envio.crud.service');
+  const now = Timestamp.now();
+
+  // 1. Obtener nombre de la casilla para desnormalizar en unidades
+  const casillaDestino = await casillaCrudService.getById(destinoCasillaId);
+  const casillaNombre = casillaDestino?.nombre ?? destinoCasillaId;
+
+  // 2. Marcar todas las unidades como 'disponible' en la casilla destino
+  const unidadesBatch = writeBatch(db);
+  for (const uid of unidadIds) {
+    unidadesBatch.update(doc(db, 'unidades', uid), {
+      estado: 'disponible',
+      casillaActualId: destinoCasillaId,
+      casillaActualNombre: casillaNombre,
+      fechaRecepcion: now,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    });
+  }
+  await unidadesBatch.commit();
+
+  // 3. Actualizar envío(s): buscar todos los envíos de esta OC y marcarlos recibidos
+  const enviosDeOC = await envioCrudService.getByOrdenCompra(orden.id);
+  for (const envio of enviosDeOC) {
+    const envioRef = doc(db, COLLECTIONS.ENVIOS, envio.id);
+    const totalUnidades = envio.unidades?.length ?? 0;
+    await updateDoc(envioRef, {
+      estado: 'recibida_completa',
+      fechaRecepcion: now,
+      totalUnidadesRecibidas: totalUnidades,
+      // Marcar todas las unidadesDetalle como 'recibida'
+      ...(envio.unidades && envio.unidades.length > 0 && {
+        unidades: envio.unidades.map((u) => ({
+          ...u,
+          estadoEnvio: 'recibida',
+          fechaRecepcion: now,
+        })),
+      }),
+      notas: [envio.notas, 'Recibido automáticamente al confirmar OC (Recojo en origen)']
+        .filter(Boolean).join(' · '),
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    });
+  }
+
+  // 4. Actualizar inventario de la casilla destino
+  const cantidadTotal = unidadIds.length;
+  await casillaCrudService.incrementarUnidadesRecibidas(destinoCasillaId, cantidadTotal);
+
+  // Sumar valor de inventario (costo unitario × cantidad, en USD)
+  const valorTotalUSD = orden.productos.reduce(
+    (sum, prod) => sum + prod.costoUnitario * prod.cantidad,
+    0
+  );
+  await casillaCrudService.actualizarValorInventario(destinoCasillaId, valorTotalUSD);
+
+  logger.success(
+    `Recojo en origen aplicado: ${cantidadTotal} unidades disponibles en ${casillaNombre}, valor +$${valorTotalUSD.toFixed(2)}, ${enviosDeOC.length} envío(s) marcado(s) como recibidos`
+  );
 }
