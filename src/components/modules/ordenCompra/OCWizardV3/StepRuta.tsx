@@ -91,9 +91,15 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
   // S42q — Selectores colapsables: al elegir una opción, el grid colapsa a solo
   // la seleccionada + botón "Cambiar" para reexpandir. Mejora UX cuando la lista
   // es larga (6-10 casillas visibles).
+  // S42r — Mismo patrón aplicado al proveedor (lista puede tener 10+ entradas)
+  const [proveedorExpandedOverride, setProveedorExpandedOverride] = useState(false);
   const [casillaExpandedOverride, setCasillaExpandedOverride] = useState(false);
   const [almacenExpandedOverride, setAlmacenExpandedOverride] = useState(false);
 
+  const proveedorSeleccionado = useMemo(
+    () => proveedores.find((p) => p.id === config.proveedorId),
+    [proveedores, config.proveedorId]
+  );
   const casillaSeleccionada = useMemo(
     () => casillasOrigen.find((c) => c.id === config.casillaDestinoId),
     [casillasOrigen, config.casillaDestinoId]
@@ -106,6 +112,7 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     [almacenesPeru, config.casillaDestinoId, config.llegadaPeru]
   );
 
+  const showProveedorList = !proveedorSeleccionado || proveedorExpandedOverride;
   const showCasillaGrid = !casillaSeleccionada || casillaExpandedOverride;
   const showAlmacenGrid = !almacenPeruSeleccionado || almacenExpandedOverride;
 
@@ -239,50 +246,81 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
       {/* ═══════════════════════════════════════════════════ */}
       {/* SECCIÓN 1 — Proveedor                                */}
       {/* ═══════════════════════════════════════════════════ */}
-      <Section numero={1} titulo="¿A quién le compras?" subtitulo="Selecciona el proveedor o registra uno nuevo.">
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            value={searchProveedor}
-            onChange={(e) => setSearchProveedor(e.target.value)}
-            placeholder="Buscar proveedor por nombre, código o país..."
-            className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
-
-        {/* Lista cards proveedores */}
-        <div className="space-y-2 max-h-72 overflow-y-auto">
-          {proveedoresFiltrados.length === 0 ? (
-            <div className="text-center py-6 text-sm text-slate-400 italic">
-              {searchProveedor ? 'Sin resultados' : 'No hay proveedores activos'}
-            </div>
-          ) : (
-            proveedoresFiltrados.map((p) => (
-              <ProveedorCard
-                key={p.id}
-                proveedor={p}
-                selected={config.proveedorId === p.id}
-                onClick={() => handleSelectProveedor(p)}
+      <Section
+        numero={1}
+        titulo="¿A quién le compras?"
+        subtitulo="Selecciona el proveedor o registra uno nuevo."
+        headerRight={
+          proveedorSeleccionado && !proveedorExpandedOverride ? (
+            <button
+              type="button"
+              onClick={() => setProveedorExpandedOverride(true)}
+              className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
+            >
+              Cambiar
+            </button>
+          ) : null
+        }
+      >
+        {/* S42r — Colapsable: si hay proveedor seleccionado y no se forzó expandir, solo muestra la card */}
+        {!showProveedorList && proveedorSeleccionado ? (
+          <div className="space-y-2">
+            <ProveedorCard
+              proveedor={proveedorSeleccionado}
+              selected
+              onClick={() => setProveedorExpandedOverride(true)}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Search */}
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={searchProveedor}
+                onChange={(e) => setSearchProveedor(e.target.value)}
+                placeholder="Buscar proveedor por nombre, código o país..."
+                className="w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
-            ))
-          )}
+            </div>
 
-          {/* Botón crear nuevo */}
-          <button
-            type="button"
-            onClick={() => {
-              // TODO: abrir modal de crear proveedor inline
-              // eslint-disable-next-line no-alert
-              alert('Crear proveedor inline — pendiente de conectar al modal');
-            }}
-            className="w-full border-2 border-dashed border-slate-300 rounded-xl p-3 text-sm text-slate-500 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Crear nuevo proveedor
-          </button>
-        </div>
+            {/* Lista cards proveedores */}
+            <div className="space-y-2 max-h-72 overflow-y-auto">
+              {proveedoresFiltrados.length === 0 ? (
+                <div className="text-center py-6 text-sm text-slate-400 italic">
+                  {searchProveedor ? 'Sin resultados' : 'No hay proveedores activos'}
+                </div>
+              ) : (
+                proveedoresFiltrados.map((p) => (
+                  <ProveedorCard
+                    key={p.id}
+                    proveedor={p}
+                    selected={config.proveedorId === p.id}
+                    onClick={() => {
+                      handleSelectProveedor(p);
+                      setProveedorExpandedOverride(false); // colapsar al seleccionar
+                    }}
+                  />
+                ))
+              )}
+
+              {/* Botón crear nuevo */}
+              <button
+                type="button"
+                onClick={() => {
+                  // TODO: abrir modal de crear proveedor inline
+                  // eslint-disable-next-line no-alert
+                  alert('Crear proveedor inline — pendiente de conectar al modal');
+                }}
+                className="w-full border-2 border-dashed border-slate-300 rounded-xl p-3 text-sm text-slate-500 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Crear nuevo proveedor
+              </button>
+            </div>
+          </>
+        )}
       </Section>
 
       {/* ═══════════════════════════════════════════════════ */}
@@ -866,7 +904,9 @@ const Section: React.FC<{
   titulo: string;
   subtitulo?: string;
   children: React.ReactNode;
-}> = ({ numero, titulo, subtitulo, children }) => (
+  /** S42r — Slot opcional del header derecho (botón "Cambiar", etc.) */
+  headerRight?: React.ReactNode;
+}> = ({ numero, titulo, subtitulo, children, headerRight }) => (
   <section>
     <div className="flex items-center justify-between mb-1">
       <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
@@ -875,6 +915,7 @@ const Section: React.FC<{
         </span>
         {titulo}
       </h3>
+      {headerRight}
     </div>
     {subtitulo && <p className="text-xs text-slate-500 mb-3">{subtitulo}</p>}
     {children}
