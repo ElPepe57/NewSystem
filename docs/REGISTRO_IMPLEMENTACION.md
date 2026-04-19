@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-18 (Sesion 42f — MapKit ampliado con PlacesAutocompleteInput (dropdown de sugerencias tipo Google Places) + mini-mapa preview (S42e) en CasillaFormModal. Ahora al escribir "jiron ica" aparecen 5 sugerencias reales; al seleccionar una se autocompleta direccion + ciudad + codigo postal + coordenadas + mini-mapa en una sola interaccion. Commits `edfd8b5` (S42c) + `aefb4d2` (S42d) + `8211ff0` (S42e mini-mapa) + `1e334a8` (S42f autocomplete). Deploys #206-209.)
+**Ultima actualizacion:** 2026-04-19 (Sesion 42g — Colaborador + subtipo en títulos de form ("Editar Colaborador · Viajero") + casillas compartidas entre colaboradores (Casilla.colaboradoresSecundariosIds). Dueño del almacén sigue siendo único (colaboradorId), pero ahora N colaboradores pueden compartir la misma dirección física sin duplicar casillas. UI: multi-select con chips en CasillaFormModal, badge morado "Compartida · [principal]" en listing, tooltip del mapa lista todos. 0 migración (opt-in). Commits `edfd8b5` (S42c) + `aefb4d2` (S42d) + `8211ff0` (S42e) + `1e334a8` (S42f) + `ef3fa8f` (S42g). Deploys #206-210.)
 **Branch activo:** main
 
 ---
@@ -15,9 +15,9 @@
 | Sesiones de trabajo registradas | 42 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~574 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e mini-mapa + 1 S42f PlacesAutocomplete) |
+| Fixes aplicados | ~576 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g: titulo Colaborador + casillas compartidas) |
 | Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 209 (ultimo: 2026-04-18 S42f, commit `1e334a8`, hosting vitaskinperu.web.app) |
+| Deploys realizados | 210 (ultimo: 2026-04-19 S42g, commit `ef3fa8f`, hosting vitaskinperu.web.app) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -326,6 +326,143 @@ S42 cierra el rework UX/UI iniciado en S41. Se ejecutaron las 2 tandas diferidas
 3. Si usuario pide mas rework UX/UI: leer `docs/AUDITORIA_REWORK_MOCKUP_S41.md` para pantallas pendientes de nivel 2
 4. Si usuario pide deudas tecnicas: abrir `productoEmoji.ts` y moverlo a `src/utils/` como primer win rapido
 5. Considerar commit de S42 + deploy como cierre del rework UX/UI completo antes de cualquier otro cambio
+
+---
+
+## SESION 42g — 2026-04-19 — Título "Colaborador · subtipo" + casillas compartidas entre colaboradores
+
+### Metadata
+- Build: `npx tsc -b` ✅ 0 errores | `npx vite build` ✅ 15.57s
+- Archivos creados: 1 (casilla.helpers.ts)
+- Archivos modificados: 6 (casilla.types, casilla.crud.service, ColaboradorFormModal, CasillaFormModal, RedLogistica, RedLogisticaMapa)
+- Commit: `ef3fa8f` · Deploy #210: https://vitaskinperu.web.app
+
+### Resumen ejecutivo
+Usuario planteó dos observaciones al probar la vista: (1) "¿Por qué dice 'Editar Viajero' y no 'Editar Colaborador'?" — el modelo técnico (Colaborador con subtipos) se ocultaba en UI; (2) "¿Qué pasa si un colaborador usa la misma casa/almacén?" — el modelo actual no soportaba casillas compartidas (1 casilla → 1 colaborador), forzando duplicación de direcciones. Ambos cerrados con decisiones del usuario: Opción B (título "Editar Colaborador · Viajero") + Opción A (campo `colaboradoresSecundariosIds` en Casilla).
+
+### CAMBIO-484-S42g — Título del modal con concepto paraguas
+
+**Cambio simple en `ColaboradorFormModal.tsx`:**
+
+```typescript
+// Antes
+const tituloModal = colaborador
+  ? `Editar ${tituloPorTipo[colaborador.tipo]}`      // "Editar Viajero"
+  : `Nuevo ${tituloPorTipo[form.tipo]}`;
+
+// Después
+const tituloModal = colaborador
+  ? `Editar Colaborador · ${tituloPorTipo[colaborador.tipo]}`   // "Editar Colaborador · Viajero"
+  : `Nuevo Colaborador · ${tituloPorTipo[form.tipo]}`;
+```
+
+**Decisión D-173:** mantener el concepto paraguas visible pero respetar la semántica del rol (viajero/courier/empresa/transportista). El usuario entiende que todos son colaboradores pero sigue viendo el tipo exacto que está editando.
+
+### CAMBIO-485-S42g — Casillas compartidas (modelo + UI + mapa)
+
+**Ampliación del modelo (`casilla.types.ts`):**
+
+```typescript
+interface Casilla {
+  colaboradorId: string;                          // SIN CAMBIOS (dueño principal)
+  colaboradorNombre: string;                       // SIN CAMBIOS
+  colaboradoresSecundariosIds?: string[];          // NUEVO (opcional)
+  colaboradoresSecundariosNombres?: string[];      // NUEVO (desnorm)
+  // ...resto sin cambios
+}
+```
+
+**Decisión D-174:** mantener `colaboradorId` como "dueño principal" en vez de cambiarlo a `colaboradoresIds: string[]`. Razones:
+- **0 migración de datos:** `colaboradoresSecundariosIds` empieza undefined en casillas existentes → comportamiento idéntico al anterior
+- **0 riesgo de romper consumidores:** todos los lookups `c.colaboradorId === x` siguen funcionando
+- **Semántica clara:** siempre hay UN dueño administrativo + N que usan la dirección
+- **Auditable:** fácil responder "¿quién es el responsable de esta casilla?" (el principal)
+
+**Helpers nuevos (`src/utils/casilla.helpers.ts`):**
+```typescript
+casillaPerteneceA(casilla, colaboradorId): boolean
+casillasDelColaborador(casillas, colaboradorId): Casilla[]
+esCasillaCompartida(casilla, colaboradorId): boolean
+todosLosColaboradoresDeCasilla(casilla): string[]
+```
+
+Reutilizables por cualquier feature futuro que filtre casillas por colaborador (reportes, analytics).
+
+**UI `CasillaFormModal.tsx`:**
+- Nueva sección "Otros colaboradores que comparten esta dirección" (opcional)
+- Multi-select con chips removibles + dropdown picker + botón "Agregar"
+- Dropdown excluye al colaborador principal y a los ya seleccionados
+- Solo muestra colaboradores activos
+- Helper text explica el caso: "Útil si 2 o más colaboradores viven en la misma casa o comparten almacén"
+
+**Servicio `casilla.crud.service.ts`:**
+- `crear()`: si llega `colaboradoresSecundariosIds`, busca los colaboradores en el service y desnormaliza los nombres
+- `actualizar()`: mismo tratamiento; si el array viene vacío, limpia ambos campos; si es undefined, no toca los campos (retrocompat)
+
+**Vista `RedLogistica.tsx`:**
+- `casillasMap` (indexa casillas por colaboradorId) ahora agrega la casilla al array del principal Y al array de cada secundario
+- Resultado: una casilla compartida aparece en los grupos de TODOS los colaboradores asociados
+- En el listado de casillas, cuando la casilla está siendo mostrada en el grupo de un secundario (detectado via `casilla.colaboradorId !== colaborador.id`):
+  - Icono cambia de `Star` (dueño principal) a `Users` (morado — compartida)
+  - Badge morado "Compartida · [nombre del principal]" junto al nombre
+  - Tooltip del botón "Editar" indica "administrada por [principal]"
+
+**Vista `RedLogisticaMapa.tsx`:**
+- Tooltip del marker ahora lista todos los colaboradores: `"Principal + Secundario1, Secundario2"`
+- Subtítulo incluye "· Casilla compartida" cuando hay secundarios
+- 1 marker por casilla (ya no hay marcadores apilados en misma dirección como habría pasado con duplicación)
+
+### Flujo end-to-end de casilla compartida
+
+1. Angie Price ya tiene su casilla "Angie's House" con coordenadas
+2. Se crea un nuevo colaborador "Isabel (Amiga de Angie)"
+3. Abres editar casilla "Angie's House" de Angie
+4. Vas a "Otros colaboradores que comparten esta dirección"
+5. Seleccionas "Isabel" del dropdown → clic "Agregar" → aparece chip
+6. Guardas cambios
+7. Resultado en listado Red Logística:
+   - Angie Price (viajero) → expandir → "Angie's House" con Star amarilla (principal)
+   - Isabel (viajero) → expandir → "Angie's House" con icono Users morado + badge "Compartida · Angie Price"
+8. Resultado en mapa:
+   - 1 marker en las coordenadas
+   - Click → tooltip muestra "Colaboradores: Angie Price + Isabel"
+   - Subtítulo: "Casilla de viajero · Casilla compartida"
+
+### Archivos S42g (7)
+
+**Creado (1):**
+- `src/utils/casilla.helpers.ts` (46 líneas)
+
+**Modificados (6):**
+- `src/types/casilla.types.ts` (+9 líneas — 2 campos nuevos)
+- `src/services/casilla.crud.service.ts` (+26 líneas — desnormalización)
+- `src/pages/RedLogistica/ColaboradorFormModal.tsx` (+2 líneas — título)
+- `src/pages/RedLogistica/CasillaFormModal.tsx` (+75 líneas — UI multi-select)
+- `src/pages/RedLogistica/RedLogistica.tsx` (+35 líneas — indexación + badge)
+- `src/pages/RedLogistica/RedLogisticaMapa.tsx` (+15 líneas — tooltip)
+
+### Métricas S42g
+
+| Métrica | Valor |
+|---------|-------|
+| tsc -b | 0 errores |
+| vite build | 15.57s |
+| Archivos creados | 1 |
+| Archivos modificados | 6 |
+| Líneas agregadas | 226 |
+| Líneas eliminadas | 16 |
+| Cambios registrados | CAMBIO-484, 485 (2) |
+| Decisiones | D-173, D-174 (2) |
+| Duración | ~1h |
+
+### Pendientes post-S42g
+
+**Mejoras a casillas compartidas (futuro):**
+1. **Permisos diferenciados:** hoy cualquier colaborador secundario puede editar la casilla desde su vista. Opcional: permitir editar solo al principal, y en secundario solo mostrar info readonly.
+2. **Notificaciones:** si llega un envío a una casilla compartida, notificar a todos los colaboradores asociados (no solo al principal).
+3. **Sincronización bidireccional de coordenadas:** si el principal edita la dirección, los secundarios deben re-verla (ya lo hacen porque la dirección es un solo campo en Firestore, pero no está testeado).
+4. **Analytics por ubicación vs por colaborador:** si 3 viajeros comparten casa en Lima, hoy las métricas de ventas/envíos siguen atadas al colaborador. Para analizar por "ubicación física" se necesita una dimensión adicional (ver Opción E descartada: entidad `Ubicacion` separada).
+5. **UI indicadora de compartición en form:** al abrir una casilla que ya tiene secundarios, no se indica visualmente que "esta casilla es compartida con X otros". Actualmente solo se listan en la sección multi-select. Podría añadirse un banner teal arriba del form cuando hay secundarios.
 
 ---
 
