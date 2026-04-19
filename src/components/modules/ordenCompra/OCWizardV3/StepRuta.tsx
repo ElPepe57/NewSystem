@@ -93,6 +93,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
   // es larga (6-10 casillas visibles).
   // S42r — Mismo patrón aplicado al proveedor (lista puede tener 10+ entradas)
   const [proveedorExpandedOverride, setProveedorExpandedOverride] = useState(false);
+  // S42x — También al tipo de ruta (2 cards grandes)
+  const [tipoRutaExpandedOverride, setTipoRutaExpandedOverride] = useState(false);
   const [casillaExpandedOverride, setCasillaExpandedOverride] = useState(false);
   const [almacenExpandedOverride, setAlmacenExpandedOverride] = useState(false);
 
@@ -168,6 +170,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
       : config.salidaProveedor || config.llegadaPeru
         ? 'via_casilla'
         : null;
+
+  const showTipoRutaGrid = !tipoRutaSeleccionado || tipoRutaExpandedOverride;
 
   // ─── Handlers ───────────────────────────────────────────────────────────
   const updateConfig = (partial: Partial<ConfigLogistica>) => {
@@ -360,40 +364,59 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
           numero={2}
           titulo="¿Cómo llega la mercadería?"
           subtitulo="Define la ruta anticipada. Al confirmar la OC se creará automáticamente el envío proveedor → destino."
+          headerRight={
+            tipoRutaSeleccionado && !tipoRutaExpandedOverride ? (
+              <button
+                type="button"
+                onClick={() => setTipoRutaExpandedOverride(true)}
+                className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline"
+              >
+                Cambiar
+              </button>
+            ) : null
+          }
         >
-          {/* 2 cards grandes: Vía casilla / DDP */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-            <TipoCardGrande
-              icon={<Warehouse className="w-5 h-5 text-sky-600" />}
-              iconBg="bg-sky-100"
-              titulo="Vía casilla de tránsito"
-              subtitulo="Proveedor → casilla (USA/CN) → Perú"
-              selected={tipoRutaSeleccionado === 'via_casilla'}
-              onClick={() => {
-                // S42 fix — click en "Vía casilla" activa el flujo vía casilla.
-                // Un solo updateConfig para evitar stale closure entre llamadas.
-                const cambio: Partial<ConfigLogistica> = {};
-                // Si venía de DDP, limpiar destino y tipo
-                if (config.llegadaPeru === 'ddp_directo') {
-                  cambio.llegadaPeru = null;
-                  cambio.casillaDestinoId = '';
-                  cambio.casillaDestinoNombre = '';
-                }
-                // Default sensato: proveedor envía (el Tramo 1 permite cambiar a recojo)
-                if (!config.salidaProveedor) {
-                  cambio.salidaProveedor = 'proveedor_envia';
-                }
-                if (Object.keys(cambio).length > 0) updateConfig(cambio);
-              }}
-            />
-            <TipoCardGrande
-              icon={<Plane className="w-5 h-5 text-amber-600" />}
-              iconBg="bg-amber-100"
-              titulo="Entrega directa a Perú"
-              subtitulo="El proveedor despacha directo a Perú sin pasar por casilla intermedia"
-              selected={tipoRutaSeleccionado === 'ddp'}
-              onClick={() => updateConfig({ llegadaPeru: 'ddp_directo' })}
-            />
+          {/* S42x — Colapsable: si hay tipo de ruta seleccionado, muestra solo esa card */}
+          <div className={cn(
+            'grid gap-3 mb-4',
+            showTipoRutaGrid ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
+          )}>
+            {(showTipoRutaGrid || tipoRutaSeleccionado === 'via_casilla') && (
+              <TipoCardGrande
+                icon={<Warehouse className="w-5 h-5 text-sky-600" />}
+                iconBg="bg-sky-100"
+                titulo="Vía casilla de tránsito"
+                subtitulo="Proveedor → casilla (USA/CN) → Perú"
+                selected={tipoRutaSeleccionado === 'via_casilla'}
+                onClick={() => {
+                  // S42 fix — click en "Vía casilla" activa el flujo vía casilla.
+                  const cambio: Partial<ConfigLogistica> = {};
+                  if (config.llegadaPeru === 'ddp_directo') {
+                    cambio.llegadaPeru = null;
+                    cambio.casillaDestinoId = '';
+                    cambio.casillaDestinoNombre = '';
+                  }
+                  if (!config.salidaProveedor) {
+                    cambio.salidaProveedor = 'proveedor_envia';
+                  }
+                  if (Object.keys(cambio).length > 0) updateConfig(cambio);
+                  setTipoRutaExpandedOverride(false); // colapsar
+                }}
+              />
+            )}
+            {(showTipoRutaGrid || tipoRutaSeleccionado === 'ddp') && (
+              <TipoCardGrande
+                icon={<Plane className="w-5 h-5 text-amber-600" />}
+                iconBg="bg-amber-100"
+                titulo="Entrega directa a Perú"
+                subtitulo="El proveedor despacha directo a Perú sin pasar por casilla intermedia"
+                selected={tipoRutaSeleccionado === 'ddp'}
+                onClick={() => {
+                  updateConfig({ llegadaPeru: 'ddp_directo' });
+                  setTipoRutaExpandedOverride(false); // colapsar
+                }}
+              />
+            )}
           </div>
 
           {/* Casilla de tránsito (solo si vía casilla) — S42s buscador + 1-col */}
