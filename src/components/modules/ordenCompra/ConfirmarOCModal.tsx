@@ -207,6 +207,28 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
 
   const hayErroresProductos = validacionPorProducto.some((v) => !v.valido);
 
+  // S42as — Helper dual para impuestos:
+  //   - modo 'porcentaje' → auto-calculado sobre base gravable de cada sub-orden
+  //     (subtotal productos + cargos − descuentos). Readonly visualmente.
+  //   - modo 'fijo' → distribución manual via el input (como hoy).
+  const getMontoImpuestoSub = (subId: string, impuesto: typeof impuestos[number]): number => {
+    if (impuesto.modo !== 'porcentaje' || !impuesto.porcentaje) {
+      // Modo fijo: leer del estado distribucion
+      return distribucion[subId]?.[impuesto.id] ?? 0;
+    }
+    // Modo porcentaje: calcular sobre base gravable de ESTA sub-orden
+    const asig = asignacion[subId] ?? {};
+    const dist = distribucion[subId] ?? {};
+    const subtotalProds = productos.reduce(
+      (s, p, idx) => s + (asig[idx] ?? 0) * (p.costoUnitario || 0),
+      0
+    );
+    const sumCargosSub = cargos.reduce((s, c) => s + (dist[c.id] ?? 0), 0);
+    const sumDescSub = descuentos.reduce((s, d) => s + (dist[d.id] ?? 0), 0);
+    const baseGravable = Math.max(0, subtotalProds + sumCargosSub - sumDescSub);
+    return Number(((baseGravable * impuesto.porcentaje) / 100).toFixed(2));
+  };
+
   const validacionPorCargo = useMemo(() => {
     const items: Array<{
       id: string;
@@ -248,8 +270,10 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
       });
     });
     impuestos.forEach((i) => {
+      // S42as — Impuestos porcentuales usan getMontoImpuestoSub (auto-calculado);
+      // los de modo fijo siguen leyendo de distribucion.
       const distribuido = subOrdenIds.reduce(
-        (s, id) => s + (distribucion[id]?.[i.id] ?? 0),
+        (s, id) => s + getMontoImpuestoSub(id, i),
         0
       );
       items.push({
@@ -259,11 +283,15 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
         montoOC: i.montoUSD,
         distribuido,
         delta: distribuido - i.montoUSD,
-        valido: Math.abs(distribuido - i.montoUSD) < 0.01,
+        // Para impuestos %: tolerancia de 0.05 por redondeos acumulados en toFixed(2).
+        valido: i.modo === 'porcentaje'
+          ? Math.abs(distribuido - i.montoUSD) < 0.05
+          : Math.abs(distribuido - i.montoUSD) < 0.01,
       });
     });
     return items;
-  }, [cargos, descuentos, impuestos, distribucion, subOrdenIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cargos, descuentos, impuestos, distribucion, subOrdenIds, asignacion, productos]);
 
   const hayErroresCargos = tieneCargos && validacionPorCargo.some((v) => !v.valido);
 
@@ -286,11 +314,15 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
       let sumCargos = 0;
       let sumDesc = 0;
       let sumImp = 0;
+      // Cargos + descuentos: leen de dist directo. Impuestos fijos también.
       Object.entries(dist).forEach(([id, monto]) => {
         const tipo = cargoPorId.get(id);
         if (tipo === 'cargo') sumCargos += monto;
         else if (tipo === 'descuento') sumDesc += monto;
-        else if (tipo === 'impuesto') sumImp += monto;
+      });
+      // S42as — Impuestos: usar helper dual (% auto / fijo manual).
+      impuestos.forEach((i) => {
+        sumImp += getMontoImpuestoSub(subId, i);
       });
 
       const total = subtotalProductos + sumCargos - sumDesc + sumImp;
@@ -339,7 +371,8 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
       let sumImp = 0;
       cargos.forEach((c) => (sumCargos += dist[c.id] ?? 0));
       descuentos.forEach((d) => (sumDesc += dist[d.id] ?? 0));
-      impuestos.forEach((i) => (sumImp += dist[i.id] ?? 0));
+      // S42as — Impuestos dual: % auto-calculado, fijo desde dist[]
+      impuestos.forEach((i) => (sumImp += getMontoImpuestoSub(subId, i)));
 
       const totalSub = subtotalProductos + sumCargos - sumDesc + sumImp;
 
@@ -470,6 +503,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                   distribucion={distribucion}
                   onChangeDistribucion={handleSetDistribucion}
                   validaciones={validacionPorCargo}
+                  getMontoImpuestoSub={getMontoImpuestoSub}
                 />
               )}
 
@@ -761,7 +795,11 @@ const MatrizCargos: React.FC<{
   distribucion: DistribucionCargos;
   onChangeDistribucion: (subId: string, cargoId: string, monto: number) => void;
   validaciones: ValidacionCargo[];
-}> = ({ subOrdenIds, distribucion, onChangeDistribucion, validaciones }) => {
+  /** S42as — Helper dual para impuestos: auto-calcula % sobre base gravable. */
+  getMontoImpuestoSub: (subId: string, impuesto: ImpuestoOC) => number;
+}> = ({ impuestos, subOrdenIds, distribucion, onChangeDistribucion, validaciones, getMontoImpuestoSub }) => {
+  // Mapa rápido para buscar el impuesto original por ID (saber si es % o fijo)
+  const impuestosMap = new Map(impuestos.map((i) => [i.id, i]));
   const hayError = validaciones.some((v) => !v.valido);
 
   return (
@@ -800,39 +838,67 @@ const MatrizCargos: React.FC<{
           <tbody>
             {validaciones.map((v) => {
               const signoMonto = v.tipo === 'descuento' ? '−$' : '$';
+              // S42as — Dual: detectar si este item es impuesto con modo porcentaje
+              const impuestoRef = v.tipo === 'impuesto' ? impuestosMap.get(v.id) : undefined;
+              const esImpuestoPct = impuestoRef?.modo === 'porcentaje';
               return (
                 <tr key={v.id} className="border-t border-slate-100">
                   <td className="p-2">
                     <TipoPill tipo={v.tipo} />
                     <span className="ml-1.5 font-medium">{v.concepto}</span>
+                    {esImpuestoPct && (
+                      <span
+                        className="ml-1.5 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-semibold border border-purple-200"
+                        title={`Auto-calculado: ${impuestoRef?.porcentaje ?? 0}% sobre (subtotal + cargos − descuentos) de cada sub-orden`}
+                      >
+                        auto @ {impuestoRef?.porcentaje ?? 0}%
+                      </span>
+                    )}
                   </td>
                   <td className="p-2 text-right text-slate-500 tabular-nums">
                     {signoMonto}
                     {v.montoOC.toFixed(2)}
                   </td>
-                  {subOrdenIds.map((subId) => (
-                    <td key={subId} className="p-2 text-right">
-                      <input
-                        type="number"
-                        value={distribucion[subId]?.[v.id] ?? 0}
-                        onChange={(e) =>
-                          onChangeDistribucion(
-                            subId,
-                            v.id,
-                            Number(e.target.value) || 0
-                          )
-                        }
-                        step="0.01"
-                        min={0}
-                        className={cn(
-                          'w-20 text-right border rounded px-1 py-0.5 bg-white tabular-nums',
-                          v.valido
-                            ? 'border-slate-200 focus:border-teal-500'
-                            : 'border-red-300 focus:border-red-500'
-                        )}
-                      />
-                    </td>
-                  ))}
+                  {subOrdenIds.map((subId) => {
+                    // Impuesto %: celda readonly con valor auto-calculado
+                    if (esImpuestoPct && impuestoRef) {
+                      const montoAuto = getMontoImpuestoSub(subId, impuestoRef);
+                      return (
+                        <td key={subId} className="p-2 text-right">
+                          <div
+                            className="w-20 ml-auto text-right border rounded px-1 py-0.5 bg-purple-50 border-purple-200 tabular-nums text-purple-900 font-medium"
+                            title={`${impuestoRef.porcentaje}% sobre la base gravable de esta sub-orden`}
+                          >
+                            {montoAuto.toFixed(2)}
+                          </div>
+                        </td>
+                      );
+                    }
+                    // Cargo, descuento, o impuesto fijo: input editable normal
+                    return (
+                      <td key={subId} className="p-2 text-right">
+                        <input
+                          type="number"
+                          value={distribucion[subId]?.[v.id] ?? 0}
+                          onChange={(e) =>
+                            onChangeDistribucion(
+                              subId,
+                              v.id,
+                              Number(e.target.value) || 0
+                            )
+                          }
+                          step="0.01"
+                          min={0}
+                          className={cn(
+                            'w-20 text-right border rounded px-1 py-0.5 bg-white tabular-nums',
+                            v.valido
+                              ? 'border-slate-200 focus:border-teal-500'
+                              : 'border-red-300 focus:border-red-500'
+                          )}
+                        />
+                      </td>
+                    );
+                  })}
                   <td
                     className={cn(
                       'p-2 text-right font-semibold tabular-nums',
