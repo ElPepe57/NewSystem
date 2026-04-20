@@ -29,6 +29,7 @@ import { useColaboradorStore } from '../../store/colaboradorStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
+import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { formatFecha } from '../../utils/dateFormatters';
 
 // Interface para datos de requerimiento que viene del navigation state
@@ -86,6 +87,14 @@ export const OrdenesCompra: React.FC = () => {
 
   // S38-011: Colaboradores (couriers + transportistas locales) para el modal de despacho
   const { colaboradores, fetchColaboradores } = useColaboradorStore();
+  // S42al — Líneas de negocio para dropdown de filtro (mockup S40 L248-250)
+  const lineasActivas = useLineaNegocioStore((s) => s.lineasActivas);
+  const lineaFiltroGlobal = useLineaNegocioStore((s) => s.lineaFiltroGlobal);
+  const setLineaFiltroGlobal = useLineaNegocioStore((s) => s.setLineaFiltroGlobal);
+  const fetchLineasActivas = useLineaNegocioStore((s) => s.fetchLineasActivas);
+  useEffect(() => {
+    if (lineasActivas.length === 0) fetchLineasActivas();
+  }, [lineasActivas.length, fetchLineasActivas]);
   useEffect(() => {
     if (colaboradores.length === 0) fetchColaboradores();
   }, []);
@@ -1014,14 +1023,32 @@ export const OrdenesCompra: React.FC = () => {
           <option value="parcial">Parcial</option>
           <option value="pagado">Pagado</option>
         </select>
+        {/* S42al — Dropdown de líneas de negocio (mockup S40 L248-250) */}
+        <select
+          value={lineaFiltroGlobal ?? ''}
+          onChange={(e) => setLineaFiltroGlobal(e.target.value || null)}
+          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="">Todas las líneas</option>
+          {lineasActivas.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.nombre}
+            </option>
+          ))}
+        </select>
         <div className="flex-1" />
-        {(pillFiltro !== 'todas' || filtroProveedor || filtroEstadoPago || busquedaGlobal) && (
+        {(pillFiltro !== 'todas' ||
+          filtroProveedor ||
+          filtroEstadoPago ||
+          lineaFiltroGlobal ||
+          busquedaGlobal) && (
           <button
             type="button"
             onClick={() => {
               setPillFiltro('todas');
               setFiltroProveedor('');
               setFiltroEstadoPago('');
+              setLineaFiltroGlobal(null);
               setBusquedaGlobal('');
             }}
             className="text-xs text-slate-500 hover:text-slate-700"
@@ -1080,6 +1107,8 @@ export const OrdenesCompra: React.FC = () => {
                   onVerSubOrden={(subOrdenId) =>
                     setSubOrdenDetalle({ ordenId: orden.id, subOrdenId })
                   }
+                  onVerEnvio={(envioId) => navigate(`/envios?envioId=${envioId}`)}
+                  onVerEnvios={() => navigate(`/envios?ordenCompraId=${orden.id}`)}
                 />
               ))}
               {/* S42 Tanda 10 — Footer "Cargar más" (mockup líneas 478-481) */}

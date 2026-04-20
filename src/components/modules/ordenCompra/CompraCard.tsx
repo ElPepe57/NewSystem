@@ -71,6 +71,7 @@ export const CompraCard: React.FC<CompraCardProps> = ({
         onView={onView}
         onRegistrarPago={onRegistrarPago}
         onVerEnvios={onVerEnvios}
+        onVerEnvio={onVerEnvio}
         className={className}
       />
     );
@@ -100,8 +101,13 @@ const CompraCardSimple: React.FC<{
   onView: () => void;
   onRegistrarPago?: () => void;
   onVerEnvios?: () => void;
+  onVerEnvio?: (envioId: string) => void;
   className?: string;
-}> = ({ orden, enviosAsociados, onView, onRegistrarPago, onVerEnvios, className }) => {
+}> = ({ orden, enviosAsociados, onView, onRegistrarPago, onVerEnvios, onVerEnvio, className }) => {
+  // S42al — Layout alineado al mockup S40 L260-321 (vista /compras cards).
+  // Estructura 5-col con dividers verticales + columna "Envíos asociados"
+  // dedicada + columna derecha con monto + estadoPago + saldo + botones
+  // icono laterales.
   const estadoDerivado = calcularEstadoDerivadoOC(
     orden.subOrdenes ?? [],
     orden.estado
@@ -112,100 +118,363 @@ const CompraCardSimple: React.FC<{
     0
   );
   const saldoPendiente = Math.max(0, orden.totalUSD - totalPagado);
-  const envioPrincipal = enviosAsociados[0];
+  const porcentajePagado =
+    orden.totalUSD > 0 ? Math.round((totalPagado / orden.totalUSD) * 100) : 0;
+
+  const resumen = resumenProductos(orden);
+  const enviosVisibles = enviosAsociados.slice(0, 3);
+  const enviosRestantes = enviosAsociados.length - enviosVisibles.length;
+
+  // Primer envío para derivar la casilla intermedia de la mini-ruta
+  const envioConCasilla = enviosAsociados.find(
+    (e) => e.destinoCasillaNombre || e.destinoCasillaCodigo
+  );
 
   return (
     <div
       className={cn(
-        'bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
+        'bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
+        estadoPago === 'pagado' && estadoDerivado === 'recibida' && 'opacity-80',
         className
       )}
       onClick={onView}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-lg font-semibold text-slate-800 font-mono">
+      <div className="flex items-start gap-4">
+        {/* ─── Columna 1: Número + estado + fecha ─── */}
+        <div className="flex-shrink-0">
+          <div className="font-mono font-bold text-slate-900">
             {orden.numeroOrden}
-          </span>
-          <EstadoOCPill estado={estadoDerivado} />
-          <EstadoPagoPill estado={estadoPago} />
-          <span className="text-xs text-slate-400">· Sin sub-órdenes</span>
-        </div>
-        <div className="text-right flex-shrink-0">
-          <div className="text-xs text-slate-400">Total USD</div>
-          <div className="text-lg font-semibold text-slate-800 tabular-nums">
-            ${orden.totalUSD.toFixed(2)}
           </div>
-        </div>
-      </div>
-
-      {/* Grid 5-col */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs">
-        <div>
-          <div className="text-slate-400 mb-1">Proveedor</div>
-          <div className="font-medium text-slate-700 flex items-center gap-1">
-            <span>{getFlag(orden.paisOrigen)}</span>
-            <span className="truncate">{orden.nombreProveedor}</span>
+          <div className="mt-1">
+            <EstadoOCPill estado={estadoDerivado} />
           </div>
-        </div>
-        <div>
-          <div className="text-slate-400 mb-1">Productos</div>
-          <div className="font-medium text-slate-700 truncate">
-            {resumenProductos(orden)}
-          </div>
-        </div>
-        <div>
-          <div className="text-slate-400 mb-1">Pipeline</div>
-          <PipelineDots4 estado={estadoDerivado} />
-        </div>
-        <div>
-          <div className="text-slate-400 mb-1">Envío</div>
-          <div className="font-medium text-slate-700 font-mono truncate">
-            {envioPrincipal?.numeroEnvio ?? '—'}
-          </div>
-        </div>
-        <div>
-          <div className="text-slate-400 mb-1">Fecha</div>
-          <div className="font-medium text-slate-700">
+          <div className="text-[10px] text-slate-400 mt-1">
             {formatFechaRelativa(orden.fechaCreacion as any)}
           </div>
         </div>
-      </div>
 
-      {/* Acciones (inline, solo si aplican) */}
-      {(onRegistrarPago || onVerEnvios) && (
-        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-          {onRegistrarPago && estadoPago !== 'pagado' && (
-            <ActionButton
-              icon={<DollarSign className="w-4 h-4" />}
-              label="Pago"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRegistrarPago();
-              }}
-              variant="emerald"
-            />
-          )}
-          {onVerEnvios && enviosAsociados.length > 0 && (
-            <ActionButton
-              icon={<Truck className="w-4 h-4" />}
-              label={`Envíos (${enviosAsociados.length})`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onVerEnvios();
-              }}
-              variant="sky"
-            />
-          )}
-          {saldoPendiente > 0 && (
-            <span className="ml-2 text-xs text-amber-700 tabular-nums">
-              ${saldoPendiente.toFixed(2)} pendiente
+        {/* Divider */}
+        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+
+        {/* ─── Columna 2: Proveedor + productos + mini-ruta ─── */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-base">{getFlag(orden.paisOrigen)}</span>
+            <span className="font-semibold text-slate-900 truncate">
+              {orden.nombreProveedor}
             </span>
+          </div>
+          <div className="text-xs text-slate-600 mb-2 truncate">{resumen}</div>
+          {/* Mini-ruta: Proveedor → (Casilla) → Perú */}
+          <MiniRuta
+            paisOrigen={orden.paisOrigen}
+            nombreOrigen={orden.nombreProveedor}
+            paisCasilla={envioConCasilla?.destinoCasillaPais}
+            nombreCasilla={
+              envioConCasilla?.destinoCasillaCodigo ||
+              envioConCasilla?.destinoCasillaNombre
+            }
+          />
+        </div>
+
+        {/* Divider */}
+        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+
+        {/* ─── Columna 3: Envíos asociados ─── */}
+        <div className="flex-shrink-0 w-full md:w-56">
+          <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
+            Envíos asociados
+          </div>
+          {enviosVisibles.length === 0 ? (
+            <div className="text-[11px] text-slate-400 italic">
+              Sin envíos generados
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {enviosVisibles.map((env) => (
+                <MiniEnvioCard
+                  key={env.id}
+                  envio={env}
+                  onClick={
+                    onVerEnvio
+                      ? (e) => {
+                          e.stopPropagation();
+                          onVerEnvio(env.id);
+                        }
+                      : undefined
+                  }
+                />
+              ))}
+              {enviosRestantes > 0 && (
+                <div className="text-[10px] text-slate-400 italic pl-1">
+                  + {enviosRestantes} más
+                </div>
+              )}
+            </div>
           )}
         </div>
-      )}
+
+        {/* Divider */}
+        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+
+        {/* ─── Columna 4: Monto + estado pago + saldo ─── */}
+        <div className="flex-shrink-0 w-full md:w-32 text-right">
+          <div className="text-lg font-bold text-slate-900 tabular-nums">
+            ${orden.totalUSD.toFixed(2)}
+          </div>
+          <div className="text-[10px] text-slate-500 mb-1">Total USD</div>
+          <EstadoPagoPillConPorcentaje
+            estado={estadoPago}
+            porcentaje={porcentajePagado}
+          />
+          {saldoPendiente > 0 && estadoPago !== 'pagado' && (
+            <div
+              className={cn(
+                'text-[10px] mt-0.5 tabular-nums',
+                estadoPago === 'parcial' ? 'text-amber-700' : 'text-red-700'
+              )}
+            >
+              {estadoPago === 'parcial'
+                ? `$ ${saldoPendiente.toFixed(2)} pendiente`
+                : 'Pendiente pago'}
+            </div>
+          )}
+          {estadoPago === 'pagado' && (
+            <div className="text-[10px] text-emerald-700 mt-0.5">100%</div>
+          )}
+        </div>
+
+        {/* ─── Columna 5: Acciones icono verticales ─── */}
+        <div className="flex-shrink-0 flex md:flex-col gap-1">
+          <IconAction
+            title="Ver detalle"
+            onClick={(e) => {
+              e.stopPropagation();
+              onView();
+            }}
+            icon={<Eye className="w-4 h-4" />}
+            tone="teal"
+          />
+          <IconAction
+            title="Registrar pago"
+            onClick={
+              estadoPago === 'pagado'
+                ? undefined
+                : (e) => {
+                    e.stopPropagation();
+                    onRegistrarPago?.();
+                  }
+            }
+            icon={<DollarSign className="w-4 h-4" />}
+            tone="emerald"
+            disabled={estadoPago === 'pagado' || !onRegistrarPago}
+          />
+          <IconAction
+            title={
+              enviosAsociados.length > 0
+                ? `Ver envíos (${enviosAsociados.length})`
+                : 'Sin envíos'
+            }
+            onClick={
+              enviosAsociados.length > 0 && onVerEnvios
+                ? (e) => {
+                    e.stopPropagation();
+                    onVerEnvios();
+                  }
+                : undefined
+            }
+            icon={<Truck className="w-4 h-4" />}
+            tone="sky"
+            disabled={enviosAsociados.length === 0 || !onVerEnvios}
+          />
+        </div>
+      </div>
     </div>
+  );
+};
+
+// ─── Helpers internos de CompraCardSimple ───────────────────────────────────
+
+/**
+ * Mini-ruta visual con banderas: Proveedor → Casilla → Perú.
+ * Si no hay casilla disponible, muestra solo 2 nodos (Proveedor → Perú).
+ */
+const MiniRuta: React.FC<{
+  paisOrigen?: string;
+  nombreOrigen: string;
+  paisCasilla?: string;
+  nombreCasilla?: string;
+}> = ({ paisOrigen, nombreOrigen, paisCasilla, nombreCasilla }) => {
+  // Primer token del nombre para que no desborde
+  const nombreOrigenCorto = nombreOrigen.split(' ')[0] || nombreOrigen;
+  const nombreCasillaCorto = nombreCasilla
+    ? nombreCasilla.split(' ')[0] || nombreCasilla
+    : null;
+
+  return (
+    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
+      <span className="text-sm">{getFlag(paisOrigen)}</span>
+      <span className="truncate max-w-[80px]">{nombreOrigenCorto}</span>
+      <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
+      {nombreCasillaCorto && (
+        <>
+          <span className="text-sm">{getFlag(paisCasilla)}</span>
+          <span className="truncate max-w-[80px] font-mono">
+            {nombreCasillaCorto}
+          </span>
+          <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
+        </>
+      )}
+      <span className="text-sm">🇵🇪</span>
+      <span>Perú</span>
+    </div>
+  );
+};
+
+/**
+ * Mini-card de envío clickeable — fondo según estado del envío.
+ */
+const MiniEnvioCard: React.FC<{
+  envio: Envio;
+  onClick?: (e: React.MouseEvent) => void;
+}> = ({ envio, onClick }) => {
+  const estadoConf = ESTADO_ENVIO_MINI_CONF[envio.estado] ?? {
+    bg: 'bg-slate-50 border-slate-200 hover:border-slate-400',
+    label: envio.estado,
+    badgeVariant: 'neutral' as const,
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className={cn(
+        'flex items-center justify-between text-xs p-1.5 rounded border w-full transition-colors',
+        estadoConf.bg,
+        onClick ? 'cursor-pointer' : 'cursor-default'
+      )}
+    >
+      <span className="font-mono text-slate-700 truncate">
+        {envio.numeroEnvio}
+      </span>
+      <StatusBadge variant={estadoConf.badgeVariant} size="sm">
+        {estadoConf.label}
+      </StatusBadge>
+    </button>
+  );
+};
+
+const ESTADO_ENVIO_MINI_CONF: Record<
+  string,
+  {
+    bg: string;
+    label: string;
+    badgeVariant: 'neutral' | 'info' | 'warning' | 'success' | 'danger';
+  }
+> = {
+  borrador: {
+    bg: 'bg-slate-50 border-slate-200 hover:border-slate-400',
+    label: 'Borrador',
+    badgeVariant: 'neutral',
+  },
+  confirmado: {
+    bg: 'bg-sky-50 border-sky-200 hover:border-sky-400',
+    label: 'Confirmado',
+    badgeVariant: 'info',
+  },
+  en_transito: {
+    bg: 'bg-sky-50 border-sky-200 hover:border-sky-400',
+    label: 'En tránsito',
+    badgeVariant: 'info',
+  },
+  recibida_parcial: {
+    bg: 'bg-amber-50 border-amber-200 hover:border-amber-400',
+    label: 'Parcial',
+    badgeVariant: 'warning',
+  },
+  recibida_completa: {
+    bg: 'bg-emerald-50 border-emerald-200 hover:border-emerald-400',
+    label: 'Completo',
+    badgeVariant: 'success',
+  },
+  retenida_aduana: {
+    bg: 'bg-red-50 border-red-200 hover:border-red-400',
+    label: 'Aduana',
+    badgeVariant: 'danger',
+  },
+  perdida_total: {
+    bg: 'bg-red-50 border-red-200 hover:border-red-400',
+    label: 'Perdida',
+    badgeVariant: 'danger',
+  },
+  cancelada: {
+    bg: 'bg-slate-50 border-slate-200',
+    label: 'Cancelada',
+    badgeVariant: 'danger',
+  },
+};
+
+/**
+ * Badge de estado de pago con porcentaje cuando es parcial.
+ * Refleja el mockup: "Pago parcial 50%" vs "Pagado" vs "Sin pago".
+ */
+const EstadoPagoPillConPorcentaje: React.FC<{
+  estado: string;
+  porcentaje: number;
+}> = ({ estado, porcentaje }) => {
+  if (estado === 'pagado') {
+    return (
+      <StatusBadge variant="success" size="sm">
+        Pagado
+      </StatusBadge>
+    );
+  }
+  if (estado === 'parcial') {
+    return (
+      <StatusBadge variant="warning" size="sm">
+        Pago parcial {porcentaje}%
+      </StatusBadge>
+    );
+  }
+  return (
+    <StatusBadge variant="danger" size="sm">
+      Sin pago
+    </StatusBadge>
+  );
+};
+
+/**
+ * Botón icono pequeño para la columna 5 de acciones.
+ * Tonos (teal / emerald / sky) alineados al mockup L315-319.
+ */
+const IconAction: React.FC<{
+  title: string;
+  onClick?: (e: React.MouseEvent) => void;
+  icon: React.ReactNode;
+  tone: 'teal' | 'emerald' | 'sky';
+  disabled?: boolean;
+}> = ({ title, onClick, icon, tone, disabled }) => {
+  const toneHover = {
+    teal: 'hover:text-teal-600 hover:bg-teal-50',
+    emerald: 'hover:text-emerald-600 hover:bg-emerald-50',
+    sky: 'hover:text-sky-600 hover:bg-sky-50',
+  }[tone];
+
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'p-1.5 rounded text-slate-400 transition-colors',
+        !disabled && toneHover,
+        disabled && 'opacity-40 cursor-not-allowed'
+      )}
+    >
+      {icon}
+    </button>
   );
 };
 
