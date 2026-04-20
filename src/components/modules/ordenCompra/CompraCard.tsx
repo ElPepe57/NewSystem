@@ -165,15 +165,17 @@ const CompraCardSimple: React.FC<{
             </span>
           </div>
           <div className="text-xs text-slate-600 mb-2 truncate">{resumen}</div>
-          {/* Mini-ruta: Proveedor → (Casilla) → Perú */}
+          {/* S42bi — Mini-ruta: DDP → Proveedor→Perú; resto → Proveedor→Casilla */}
           <MiniRuta
             paisOrigen={orden.paisOrigen}
             nombreOrigen={orden.nombreProveedor}
             paisCasilla={envioConCasilla?.destinoCasillaPais}
             nombreCasilla={
               envioConCasilla?.destinoCasillaCodigo ||
-              envioConCasilla?.destinoCasillaNombre
+              envioConCasilla?.destinoCasillaNombre ||
+              orden.nombreAlmacenDestino
             }
+            esDDP={orden.modoEntregaDetallado === 'ddp_directo'}
           />
         </div>
 
@@ -304,29 +306,41 @@ const MiniRuta: React.FC<{
   nombreOrigen: string;
   paisCasilla?: string;
   nombreCasilla?: string;
-}> = ({ paisOrigen, nombreOrigen, paisCasilla, nombreCasilla }) => {
+  /** S42bi — Si es DDP (proveedor entrega directo a Perú), la ruta es
+   *  Proveedor → Perú (sin casilla intermedia). Si no, la OC termina en
+   *  la casilla (el tramo casilla→Perú es otro envío separado). */
+  esDDP?: boolean;
+}> = ({ paisOrigen, nombreOrigen, paisCasilla, nombreCasilla, esDDP }) => {
   // Primer token del nombre para que no desborde
   const nombreOrigenCorto = nombreOrigen.split(' ')[0] || nombreOrigen;
   const nombreCasillaCorto = nombreCasilla
     ? nombreCasilla.split(' ')[0] || nombreCasilla
     : null;
 
+  // S42bi — Caso DDP: ruta directa Proveedor → Perú (sin casilla intermedia)
+  if (esDDP) {
+    return (
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
+        <span className="text-sm">{getFlag(paisOrigen)}</span>
+        <span className="truncate max-w-[80px]">{nombreOrigenCorto}</span>
+        <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
+        <span className="text-sm">🇵🇪</span>
+        <span>Perú</span>
+      </div>
+    );
+  }
+
+  // S42bi — Caso default: la OC termina en la casilla. El tramo casilla→Perú
+  // es otro envío independiente que se gestiona desde /envios.
   return (
     <div className="flex items-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
       <span className="text-sm">{getFlag(paisOrigen)}</span>
       <span className="truncate max-w-[80px]">{nombreOrigenCorto}</span>
       <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
-      {nombreCasillaCorto && (
-        <>
-          <span className="text-sm">{getFlag(paisCasilla)}</span>
-          <span className="truncate max-w-[80px] font-mono">
-            {nombreCasillaCorto}
-          </span>
-          <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
-        </>
-      )}
-      <span className="text-sm">🇵🇪</span>
-      <span>Perú</span>
+      <span className="text-sm">{getFlag(paisCasilla || paisOrigen)}</span>
+      <span className="truncate max-w-[80px] font-mono">
+        {nombreCasillaCorto || 'Casilla'}
+      </span>
     </div>
   );
 };
@@ -559,9 +573,22 @@ const CompraCardConSubOrdenes: React.FC<{
           </div>
           <div>
             <div className="text-slate-400 mb-1">Ruta</div>
+            {/* S42bi — Ruta correcta según tipo de entrega:
+                DDP → Proveedor → Perú (sin casilla intermedia)
+                Resto → Proveedor → Casilla (la OC termina ahí) */}
             <div className="font-medium text-slate-700 text-[11px]">
-              {getFlag(orden.paisOrigen)} →{' '}
-              {orden.nombreAlmacenDestino?.slice(0, 10) || 'Casilla'} → 🇵🇪
+              {orden.modoEntregaDetallado === 'ddp_directo' ? (
+                <>
+                  {getFlag(orden.paisOrigen)} → 🇵🇪
+                </>
+              ) : (
+                <>
+                  {getFlag(orden.paisOrigen)} →{' '}
+                  <span className="font-mono">
+                    {orden.nombreAlmacenDestino?.slice(0, 14) || 'Casilla'}
+                  </span>
+                </>
+              )}
             </div>
           </div>
           <div>
