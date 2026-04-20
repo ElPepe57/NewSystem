@@ -94,7 +94,12 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
   const ajusteProveedor = subOrden.totalUSD - totalCalculado;
   const tieneAjuste = Math.abs(ajusteProveedor) > 0.01;
 
-  const totalPagado: number = 0; // TODO: filtrar historialPagos de OC por subOrdenId cuando tengamos ese campo
+  // S42be — Fix: totalPagado real filtrando historialPagos por subOrdenId.
+  // El campo PagoOC.subOrdenId ya existe desde S38 (ordenCompra.types.ts:194).
+  // El TODO declarado en S41 queda resuelto.
+  const totalPagado = (orden.historialPagos ?? [])
+    .filter((p) => p.subOrdenId === subOrden.id)
+    .reduce((s, p) => s + (p.montoUSD || 0), 0);
   const saldoPendiente = Math.max(0, subOrden.totalUSD - totalPagado);
   const deudorNombre =
     orden.deudorTipo === 'colaborador' && orden.deudorNombre
@@ -187,14 +192,14 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
           />
           <KpiCell
             label="Pagos"
-            value={
+            value={`$${totalPagado.toFixed(2)} / $${subOrden.totalUSD.toFixed(2)}`}
+            tone={
               estadoPago === 'pagado'
-                ? `$${subOrden.totalUSD.toFixed(2)} / $${subOrden.totalUSD.toFixed(
-                    2
-                  )}`
-                : `$${totalPagado.toFixed(2)} / $${subOrden.totalUSD.toFixed(2)}`
+                ? 'success'
+                : totalPagado > 0
+                  ? 'warning'
+                  : 'danger'
             }
-            tone={estadoPago === 'pagado' ? 'success' : 'warning'}
           />
         </div>
 
@@ -595,7 +600,7 @@ const PipelineGrande3: React.FC<{
 const KpiCell: React.FC<{
   label: string;
   value: string;
-  tone: 'default' | 'teal' | 'warning' | 'success' | 'muted';
+  tone: 'default' | 'teal' | 'warning' | 'success' | 'muted' | 'danger';
   mono?: boolean;
 }> = ({ label, value, tone, mono }) => {
   const toneClass = {
@@ -604,6 +609,7 @@ const KpiCell: React.FC<{
     warning: 'text-amber-600',
     success: 'text-emerald-700',
     muted: 'text-slate-400',
+    danger: 'text-red-600',
   }[tone];
 
   return (
