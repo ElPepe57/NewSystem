@@ -253,41 +253,101 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   const totalOrdenado = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
   const totalRecibido = orden.productos.reduce((sum, p) => sum + (p.cantidadRecibida || 0), 0);
 
+  // S42an — Derivados para KPIs (fila debajo del pipeline, estilo mockup S41)
+  const totalSKUs = orden.productos.length;
+  const totalUnidades = orden.productos.reduce((s, p) => s + (p.cantidad || 0), 0);
+  const totalPagadoUSD = (orden.historialPagos || []).reduce(
+    (s, p) => s + (p.montoUSD || 0),
+    0
+  );
+  const subOrdenesCount = orden.subOrdenes?.length ?? 0;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-5">
+      {/* S42an — Header estilo mockup S41 SubOrdenDetailModal:
+           breadcrumb pequeño + título + nombre proveedor + pills a la derecha. */}
+      <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
-          <div className="flex items-center space-x-3">
-            <Package className="h-8 w-8 text-teal-600" />
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">{orden.numeroOrden}</h2>
-              <p className="text-sm text-slate-600">{orden.nombreProveedor}</p>
-            </div>
+          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1 font-mono">
+            <Package className="w-3.5 h-3.5" />
+            <span>{orden.numeroOrden}</span>
           </div>
+          <h2 className="text-xl font-semibold text-slate-900">
+            Orden de compra {orden.numeroOrden}
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {orden.nombreProveedor}
+            {orden.paisOrigen && (
+              <span className="ml-2 text-slate-400">· {orden.paisOrigen}</span>
+            )}
+          </p>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <StatusBadge variant={estadoInfo.variant as any} dot size="md">
+        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+          <StatusBadge variant={estadoInfo.variant as any} dot size="sm">
             {estadoInfo.label}
           </StatusBadge>
-          <StatusBadge variant={estadoPagoInfo.variant as any} icon={CreditCard}>
+          <StatusBadge variant={estadoPagoInfo.variant as any} size="sm">
             {estadoPagoInfo.label}
           </StatusBadge>
         </div>
       </div>
 
-      {/* Timeline de Estado — solo si NO hay sub-ordenes */}
+      {/* S42an — Pipeline horizontal grande con fechas (estilo mockup S41 L149-167).
+           Reemplaza el StatusTimeline viejo. 5 nodos para OC: Borrador →
+           Confirmada → En Proceso → Despachada → Completada. Cada nodo muestra
+           su fecha si está completado, "—" si pendiente. */}
       {!(orden.subOrdenes?.length) && (
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <StatusTimeline
-            steps={timelineSteps}
-            nextAction={nextAction}
-            orientation="horizontal"
-            showDates={true}
-            compact={false}
-          />
-        </div>
+        <PipelineGrandeOC
+          estadoActual={orden.estado}
+          fechaBorrador={orden.fechaCreacion}
+          fechaConfirmada={orden.fechaEnviada}
+          fechaProceso={undefined}
+          fechaDespachada={undefined}
+          fechaCompletada={undefined}
+        />
       )}
+
+      {/* S42an — Fila de 4 KPIs (estilo mockup S41 L171-199):
+           Total | Productos | Sub-órdenes | Pagos. */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-slate-200 rounded-xl overflow-hidden bg-white">
+        <KpiCell
+          label="Total OC"
+          value={`$${orden.totalUSD.toFixed(2)}`}
+          subtitle={orden.tcCompra ? `≈ S/ ${(orden.totalUSD * orden.tcCompra).toFixed(2)}` : 'USD'}
+          tone="default"
+        />
+        <KpiCell
+          label="Productos"
+          value={`${totalSKUs} SKUs`}
+          subtitle={`${totalUnidades} unidad${totalUnidades !== 1 ? 'es' : ''}`}
+          tone="default"
+        />
+        <KpiCell
+          label="Sub-órdenes"
+          value={subOrdenesCount > 0 ? String(subOrdenesCount) : '—'}
+          subtitle={subOrdenesCount > 0 ? 'divisiones' : 'sin dividir'}
+          tone={subOrdenesCount > 0 ? 'teal' : 'muted'}
+        />
+        <KpiCell
+          label="Pagos"
+          value={`$${totalPagadoUSD.toFixed(2)} / $${orden.totalUSD.toFixed(2)}`}
+          subtitle={
+            estadoPagoInfo.variant === 'success'
+              ? 'pagado'
+              : estadoPagoInfo.variant === 'warning'
+                ? 'parcial'
+                : 'pendiente'
+          }
+          tone={
+            estadoPagoInfo.variant === 'success'
+              ? 'emerald'
+              : estadoPagoInfo.variant === 'warning'
+                ? 'amber'
+                : 'red'
+          }
+          last
+        />
+      </div>
 
       {/* Sub-órdenes como interfaz operativa principal */}
       {orden.estado !== 'borrador' && orden.subOrdenes && orden.subOrdenes.length > 0 && (
@@ -994,6 +1054,161 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             La recepción canónica se hace desde el Envío asociado (ver EnviosDeOC arriba).
             La reversión, si se requiere, se hace vía scripts administrativos. */}
       </div>
+      )}
+    </div>
+  );
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// S42an — Componentes internos alineados al estilo mockup S41 SubOrdenDetailModal
+// ════════════════════════════════════════════════════════════════════════════
+
+/**
+ * PipelineGrandeOC — pipeline horizontal con 5 nodos + fechas debajo.
+ * Refleja el estilo del PipelineGrande3 de SubOrdenDetailModal pero con
+ * 5 etapas propias de una OC: Borrador → Confirmada → En Proceso → Despachada → Completada.
+ */
+const PipelineGrandeOC: React.FC<{
+  estadoActual: EstadoOrden;
+  fechaBorrador?: any;
+  fechaConfirmada?: any;
+  fechaProceso?: any;
+  fechaDespachada?: any;
+  fechaCompletada?: any;
+}> = ({
+  estadoActual,
+  fechaBorrador,
+  fechaConfirmada,
+  fechaProceso,
+  fechaDespachada,
+  fechaCompletada,
+}) => {
+  // Mapeo: qué índice del pipeline (0-4) corresponde al estado actual.
+  // Acomoda aliases legacy como 'enviada' → "Confirmada" y 'en_transito' /
+  // 'recibida_parcial' / 'despachada' → "Despachada".
+  const indexActual = (() => {
+    if (estadoActual === 'borrador') return 0;
+    if (estadoActual === 'enviada') return 1; // legacy: "confirmada"
+    if (estadoActual === 'en_proceso') return 2;
+    if (
+      estadoActual === 'despachada' ||
+      estadoActual === 'en_transito' ||
+      estadoActual === 'recibida_parcial'
+    )
+      return 3;
+    if (estadoActual === 'recibida' || estadoActual === 'completada') return 4;
+    return 0;
+  })();
+
+  const steps = [
+    { label: 'Borrador', fecha: fechaBorrador },
+    { label: 'Confirmada', fecha: fechaConfirmada },
+    { label: 'En Proceso', fecha: fechaProceso },
+    { label: 'Despachada', fecha: fechaDespachada },
+    { label: 'Completada', fecha: fechaCompletada },
+  ];
+
+  const fmt = (d: any): string => {
+    if (!d) return '—';
+    try {
+      const date = typeof d?.toDate === 'function' ? d.toDate() : new Date(d);
+      return date.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+    } catch {
+      return '—';
+    }
+  };
+
+  return (
+    <div className="flex items-start justify-between gap-2">
+      {steps.map((step, i) => {
+        const completado = i < indexActual;
+        const activo = i === indexActual;
+        const pendiente = i > indexActual;
+        const isLast = i === steps.length - 1;
+
+        return (
+          <React.Fragment key={step.label}>
+            <div className="flex flex-col items-center flex-shrink-0 min-w-0">
+              <div
+                className={cn(
+                  'w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors',
+                  completado && 'bg-emerald-500 text-white',
+                  activo && 'bg-white border-2 border-teal-500 text-teal-700 ring-4 ring-teal-100',
+                  pendiente && 'bg-slate-100 text-slate-400 border border-slate-200'
+                )}
+              >
+                {completado ? <CheckCircle2 className="w-5 h-5" /> : i + 1}
+              </div>
+              <div
+                className={cn(
+                  'text-xs font-semibold mt-2 text-center',
+                  completado && 'text-slate-700',
+                  activo && 'text-teal-700',
+                  pendiente && 'text-slate-400'
+                )}
+              >
+                {step.label}
+              </div>
+              <div
+                className={cn(
+                  'text-[10px] mt-0.5 tabular-nums',
+                  (completado || activo) ? 'text-slate-500' : 'text-slate-300'
+                )}
+              >
+                {fmt(step.fecha)}
+              </div>
+            </div>
+            {!isLast && (
+              <div
+                className={cn(
+                  'flex-1 h-0.5 mt-5 rounded-full transition-colors',
+                  i < indexActual ? 'bg-emerald-400' : 'bg-slate-200'
+                )}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
+
+/**
+ * KpiCell — celda de un KPI dentro de la fila de 4 KPIs superiores.
+ * Con border-right entre celdas (excepto la última) para replicar el
+ * divisor visual del mockup S41 L171-199.
+ */
+const KpiCell: React.FC<{
+  label: string;
+  value: string;
+  subtitle?: string;
+  tone?: 'default' | 'teal' | 'amber' | 'emerald' | 'red' | 'muted';
+  last?: boolean;
+}> = ({ label, value, subtitle, tone = 'default', last = false }) => {
+  const valueColor = {
+    default: 'text-slate-900',
+    teal: 'text-teal-700',
+    amber: 'text-amber-700',
+    emerald: 'text-emerald-700',
+    red: 'text-red-700',
+    muted: 'text-slate-400',
+  }[tone];
+
+  return (
+    <div
+      className={cn(
+        'px-4 py-3',
+        !last && 'md:border-r border-slate-200'
+      )}
+    >
+      <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+        {label}
+      </div>
+      <div className={cn('text-lg font-bold tabular-nums', valueColor)}>
+        {value}
+      </div>
+      {subtitle && (
+        <div className="text-[11px] text-slate-500 mt-0.5">{subtitle}</div>
       )}
     </div>
   );
