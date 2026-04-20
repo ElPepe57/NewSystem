@@ -301,15 +301,15 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           estadoActual={orden.estado}
           fechaBorrador={orden.fechaCreacion}
           fechaConfirmada={orden.fechaEnviada}
-          fechaProceso={undefined}
           fechaDespachada={undefined}
-          fechaCompletada={undefined}
+          fechaCompletada={orden.fechaRecibida}
         />
       )}
 
-      {/* S42an — Fila de 4 KPIs (estilo mockup S41 L171-199):
-           Total | Productos | Sub-órdenes | Pagos. */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-slate-200 rounded-xl overflow-hidden bg-white">
+      {/* S42ao — Fila de 4 KPIs alineada al mockup S41 L171-199:
+           container bg-slate-50, sin borders visibles entre celdas, valores
+           centrados. Replica fielmente el patrón del SubOrdenDetailModal. */}
+      <div className="grid grid-cols-2 md:grid-cols-4 bg-slate-50 rounded-xl py-4 px-2">
         <KpiCell
           label="Total OC"
           value={`$${orden.totalUSD.toFixed(2)}`}
@@ -318,8 +318,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         />
         <KpiCell
           label="Productos"
-          value={`${totalSKUs} SKUs`}
-          subtitle={`${totalUnidades} unidad${totalUnidades !== 1 ? 'es' : ''}`}
+          value={`${totalSKUs} SKU${totalSKUs !== 1 ? 's' : ''} · ${totalUnidades} und`}
+          subtitle=""
           tone="default"
         />
         <KpiCell
@@ -330,7 +330,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         />
         <KpiCell
           label="Pagos"
-          value={`$${totalPagadoUSD.toFixed(2)} / $${orden.totalUSD.toFixed(2)}`}
+          value={`$${totalPagadoUSD.toFixed(0)} / $${orden.totalUSD.toFixed(0)}`}
           subtitle={
             estadoPagoInfo.variant === 'success'
               ? 'pagado'
@@ -674,318 +674,165 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       {/* Resto del contenido — oculto durante confirmación */}
       {modoConfirmacion === 'idle' && <>
 
-      {/* Información General */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="flex items-center mb-2">
-            <Calendar className="h-5 w-5 text-slate-600 mr-2" />
-            <h4 className="font-semibold text-slate-900">Fechas</h4>
-          </div>
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-600">Creación:</span>
-              <span className="text-slate-900">{formatDate(orden.fechaCreacion)}</span>
-            </div>
-            {orden.fechaEnviada && (
-              <div className="flex justify-between">
-                <span className="text-slate-600">Enviada:</span>
-                <span className="text-slate-900">{formatDate(orden.fechaEnviada)}</span>
-              </div>
-            )}
-            {orden.fechaPago && (
-              <div className="flex justify-between">
-                <span className="text-slate-600">Pagada:</span>
-                <span className="text-slate-900">{formatDate(orden.fechaPago)}</span>
-              </div>
-            )}
-            {orden.fechaPrimeraRecepcion && (
-              <div className="flex justify-between">
-                <span className="text-slate-600">Primera recepción:</span>
-                <span className="text-slate-900">{formatDate(orden.fechaPrimeraRecepcion)}</span>
-              </div>
-            )}
-            {orden.fechaRecibida && (
-              <div className="flex justify-between">
-                <span className="text-slate-600">Recibida completa:</span>
-                <span className="text-slate-900">{formatDate(orden.fechaRecibida)}</span>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* S42ao — Cards Fechas+Totales eliminadas: las fechas ya están debajo
+          de cada nodo del pipeline arriba, y los totales están en los KPIs +
+          la sección "Cargos comerciales" que viene abajo. Mantener aquí sería
+          redundante. */}
+      {/* Fin del bloque legacy oculto con {false} */}
 
-        <div className="bg-teal-50 p-4 rounded-lg">
-          <div className="flex items-center mb-2">
-            <DollarSign className="h-5 w-5 text-teal-600 mr-2" />
-            <h4 className="font-semibold text-slate-900">Totales</h4>
-          </div>
-          <div className="space-y-2">
-            {/* Desglose financiero en orden lógico */}
-            <div className="flex justify-between">
-              <span className="text-slate-600">Subtotal Productos:</span>
-              <span className="font-semibold">${orden.subtotalUSD.toFixed(2)}</span>
-            </div>
-            {orden.descuentoUSD && orden.descuentoUSD > 0 && (
-              <div className="flex justify-between text-sm text-emerald-600">
-                <span>Descuento:</span>
-                <span className="font-medium">-${orden.descuentoUSD.toFixed(2)}</span>
-              </div>
-            )}
-            {orden.descuentoUSD && orden.descuentoUSD > 0 && (orden.impuestoCompraUSD) && (orden.impuestoCompraUSD)! > 0 && (
-              <div className="flex justify-between text-sm text-slate-500">
-                <span>Base imponible:</span>
-                <span>${(orden.subtotalUSD - (orden.descuentoUSD || 0)).toFixed(2)}</span>
-              </div>
-            )}
-            {(orden.impuestoCompraUSD) && (orden.impuestoCompraUSD)! > 0 && (
-              <div className="flex justify-between text-sm text-amber-700">
-                <span>Tax / Impuesto ({(((orden.impuestoCompraUSD)! / Math.max(orden.subtotalUSD - (orden.descuentoUSD || 0), 1)) * 100).toFixed(2)}%):</span>
-                <span className="font-medium">${(orden.impuestoCompraUSD)!.toFixed(2)}</span>
-              </div>
-            )}
-            {(orden.costoEnvioProveedorUSD) && (orden.costoEnvioProveedorUSD)! > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Gastos de Envío:</span>
-                <span>${(orden.costoEnvioProveedorUSD)!.toFixed(2)}</span>
-              </div>
-            )}
-            {(orden.otrosGastosCompraUSD) && (orden.otrosGastosCompraUSD)! > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Otros Gastos:</span>
-                <span>${(orden.otrosGastosCompraUSD)!.toFixed(2)}</span>
-              </div>
-            )}
-            {/* TC referencial */}
-            {(orden.tcReferencial || orden.tcCompra) && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">TC Referencial:</span>
-                <span className="font-medium text-slate-900">S/ {(orden.tcReferencial || orden.tcCompra || 0).toFixed(3)}</span>
-              </div>
-            )}
-            {/* Modo de entrega */}
-            {orden.modoEntregaDetallado && (() => {
-              const modoInfo: Record<string, { label: string; desc: string }> = {
-                ddp_directo:    { label: 'Envío directo del proveedor', desc: 'El proveedor envía a Perú con flete incluido' },
-                via_viajero:    { label: 'Traído por viajero',          desc: 'Una persona lo trae desde el origen' },
-                via_courier:    { label: 'Courier internacional',       desc: 'DHL/FedEx contratado por nosotros' },
-                recojo_propio:  { label: 'Recojo en origen',            desc: 'Lo recogemos del proveedor' },
-              };
-              const info = modoInfo[orden.modoEntregaDetallado] || { label: orden.modoEntregaDetallado, desc: '' };
-              return (
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Modo entrega:</span>
-                  <span className="font-medium text-slate-900 text-right" title={info.desc}>
-                    {info.label}
-                    {info.desc && <span className="block text-xs text-slate-500 font-normal">{info.desc}</span>}
-                  </span>
-                </div>
-              );
-            })()}
-            {orden.colaboradorTransporteNombre && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Transportista:</span>
-                <span className="font-medium text-slate-900">{orden.colaboradorTransporteNombre}</span>
-              </div>
-            )}
-            <div className="border-t border-teal-200 pt-2">
-              <div className="flex justify-between">
-                <span className="font-semibold text-slate-900">Total USD:</span>
-                <span className="text-xl font-bold text-teal-600">${orden.totalUSD.toFixed(2)}</span>
-              </div>
-            </div>
-            {/* Total PEN estimado */}
-            {(orden.tcReferencial || orden.tcCompra) && !orden.totalPEN && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Estimado PEN:</span>
-                <span className="font-medium text-slate-700">S/ {(orden.totalUSD * (orden.tcReferencial || orden.tcCompra || 0)).toFixed(2)}</span>
-              </div>
-            )}
-            {orden.totalPEN && (
-              <div className="flex justify-between">
-                <span className="text-sm text-slate-600">Total PEN (TC {orden.tcPago?.toFixed(3)}):</span>
-                <span className="text-lg font-semibold text-slate-900">S/ {orden.totalPEN.toFixed(2)}</span>
-              </div>
-            )}
-            {/* Indicador FX: tcReferencial vs tcPago */}
-            {orden.tcReferencial && orden.tcPago && orden.tcReferencial !== orden.tcPago && (
-              <div className="flex justify-between items-center text-xs bg-slate-50 rounded px-2 py-1">
-                <span className="text-slate-500">TC Ref: {orden.tcReferencial.toFixed(3)} → Pago: {orden.tcPago.toFixed(3)}</span>
-                <span className={`font-medium ${orden.tcPago > orden.tcReferencial ? 'text-red-600' : 'text-emerald-600'}`}>
-                  {orden.tcPago > orden.tcReferencial ? '+' : ''}{((orden.tcPago - orden.tcReferencial) / orden.tcReferencial * 100).toFixed(2)}% FX
-                </span>
-              </div>
-            )}
-            {orden.diferenciaCambiaria && Math.abs(orden.diferenciaCambiaria) > 0 && (
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-600">Diferencia Cambiaria:</span>
-                <span className={`font-semibold flex items-center ${
-                  orden.diferenciaCambiaria > 0 ? 'text-red-600' : 'text-emerald-600'
-                }`}>
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  S/ {Math.abs(orden.diferenciaCambiaria).toFixed(2)}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Sub-órdenes eliminadas de aquí — ahora están arriba, justo después del header */}
-
-      {/* Productos con Costo Real */}
+      {/* S42ao — Tabla Productos limpia alineada al mockup S41 L518-569:
+          5 columnas (SKU | Producto | Cant | Precio | Subtotal). Los
+          desgloses prorrateados viejos (Desc/Tax/Envío/Otros/Costo Unit)
+          quedan absorbidos en la sección "Cargos comerciales" de abajo. */}
       <div>
-        <h4 className="font-semibold text-slate-900 mb-3">Productos ({orden.productos.length})</h4>
-
-        {/* Calcular desglose de costos por producto */}
-        {(() => {
-          const tc = orden.tcCompra || orden.tcPago || 0;
-          const totalUnidades = orden.productos.reduce((sum, p) => sum + p.cantidad, 0);
-          const costoBaseTotal = orden.productos.reduce((sum, p) => sum + (p.costoUnitario * p.cantidad), 0);
-
-          // Componentes de costo
-          const impuestoTotal = orden.impuestoCompraUSD ?? 0;
-          const envioTotal = orden.costoEnvioProveedorUSD ?? 0;
-          const otrosTotal = orden.otrosGastosCompraUSD ?? 0;
-          const descuentoTotal = orden.descuentoUSD || 0;
-
-          // Impuesto: uniforme por unidad
-          const impuestoPorUnidad = totalUnidades > 0 ? impuestoTotal / totalUnidades : 0;
-          // Envío, otros, descuento: proporcional al costo base
-          const costosProrrateo = envioTotal + otrosTotal - descuentoTotal;
-
-          const hasImpuesto = impuestoTotal > 0;
-          const hasEnvio = envioTotal > 0;
-          const hasOtros = otrosTotal > 0;
-          const hasDescuento = descuentoTotal > 0;
-
-          return (
-            <div className="bg-white border border-slate-200 rounded-lg overflow-x-auto">
-              <table className="min-w-[600px] w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 min-w-[200px]">Producto</th>
-                    <th className="px-2 py-2 text-center text-xs font-medium text-slate-500">Cant.</th>
-                    <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">Precio</th>
-                    {hasDescuento && <th className="px-2 py-2 text-right text-xs font-medium text-emerald-600">Desc.</th>}
-                    {hasImpuesto && <th className="px-2 py-2 text-right text-xs font-medium text-amber-600">Tax</th>}
-                    {hasEnvio && <th className="px-2 py-2 text-right text-xs font-medium text-sky-600">Envío</th>}
-                    {hasOtros && <th className="px-2 py-2 text-right text-xs font-medium text-slate-500">Otros</th>}
-                    <th className="px-3 py-2 text-right text-xs font-medium text-teal-700 bg-teal-50">Costo Unit.</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {orden.productos.map((producto, index) => {
-                    // Proporcional al costo base de este producto
-                    const proporcion = costoBaseTotal > 0 ? producto.costoUnitario / costoBaseTotal : 0;
-                    const envioPorUd = envioTotal * proporcion;
-                    const otrosPorUd = otrosTotal * proporcion;
-                    const descuentoPorUd = descuentoTotal * proporcion;
-                    const totalAdicional = impuestoPorUnidad + envioPorUd + otrosPorUd - descuentoPorUd;
-                    const costoRealUnitario = producto.costoUnitario + totalAdicional;
-                    const costoRealUnitarioPEN = costoRealUnitario * tc;
-
-                    return (
-                      <tr key={index} className="hover:bg-slate-50">
-                        <td className="px-3 py-2.5">
-                          <div className="text-sm font-semibold text-slate-900">{producto.nombreComercial}</div>
-                          <div className="flex items-center gap-1 mt-1">
-                            <span className="inline-flex px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-mono text-slate-500">{producto.sku}</span>
-                            {producto.marca && <span className="inline-flex px-1.5 py-0.5 rounded bg-teal-50 text-[10px] text-teal-700">{producto.marca}</span>}
-                            {producto.presentacion && <span className="inline-flex px-1.5 py-0.5 rounded bg-slate-50 text-[10px] text-slate-600">{producto.presentacion}</span>}
-                          </div>
-                          {(producto.contenido || producto.dosaje || producto.sabor || producto.pesoLibras) && (
-                            <div className="flex items-center gap-1 mt-1">
-                              {producto.contenido && <span className="inline-flex px-1.5 py-0.5 rounded bg-sky-50 text-[10px] text-sky-700">{producto.contenido}</span>}
-                              {producto.dosaje && <span className="inline-flex px-1.5 py-0.5 rounded bg-purple-50 text-[10px] text-purple-700">{producto.dosaje}</span>}
-                              {producto.sabor && <span className="inline-flex px-1.5 py-0.5 rounded bg-amber-50 text-[10px] text-amber-700">{producto.sabor}</span>}
-                              {producto.pesoLibras ? <span className="inline-flex px-1.5 py-0.5 rounded bg-slate-50 text-[10px] text-slate-600">{producto.pesoLibras} lb</span> : null}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-2 py-3 text-center">
-                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-sm font-semibold text-slate-700">
-                            {producto.cantidad}
-                          </span>
-                        </td>
-                        <td className="px-2 py-3 text-right text-sm text-slate-700 tabular-nums">
-                          ${producto.costoUnitario.toFixed(2)}
-                        </td>
-                        {hasDescuento && (
-                          <td className="px-2 py-3 text-right text-[11px] text-emerald-600 tabular-nums">
-                            -${descuentoPorUd.toFixed(2)}
-                          </td>
-                        )}
-                        {hasImpuesto && (
-                          <td className="px-2 py-3 text-right text-[11px] text-amber-600 tabular-nums">
-                            +${impuestoPorUnidad.toFixed(2)}
-                          </td>
-                        )}
-                        {hasEnvio && (
-                          <td className="px-2 py-3 text-right text-[11px] text-sky-600 tabular-nums">
-                            +${envioPorUd.toFixed(2)}
-                          </td>
-                        )}
-                        {hasOtros && (
-                          <td className="px-2 py-3 text-right text-[11px] text-slate-500 tabular-nums">
-                            +${otrosPorUd.toFixed(2)}
-                          </td>
-                        )}
-                        <td className="px-3 py-3 text-right bg-teal-50">
-                          <div className="text-sm font-bold text-teal-800 tabular-nums">${costoRealUnitario.toFixed(2)}</div>
-                          <div className="text-[10px] text-teal-600 tabular-nums">S/ {costoRealUnitarioPEN.toFixed(2)}</div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot className="bg-slate-50 border-t-2 border-slate-300">
-                  <tr>
-                    <td className="px-3 py-2 text-sm font-semibold text-slate-700">Total</td>
-                    <td className="px-2 py-2 text-center text-sm font-semibold text-slate-700">{totalUnidades}</td>
-                    <td className="px-2 py-2 text-right text-sm font-semibold text-slate-700 tabular-nums">${orden.subtotalUSD.toFixed(2)}</td>
-                    {hasDescuento && <td className="px-2 py-2 text-right text-[11px] font-semibold text-emerald-700 tabular-nums">-${descuentoTotal.toFixed(2)}</td>}
-                    {hasImpuesto && <td className="px-2 py-2 text-right text-[11px] font-semibold text-amber-700 tabular-nums">+${impuestoTotal.toFixed(2)}</td>}
-                    {hasEnvio && <td className="px-2 py-2 text-right text-[11px] font-semibold text-sky-700 tabular-nums">+${envioTotal.toFixed(2)}</td>}
-                    {hasOtros && <td className="px-2 py-2 text-right text-[11px] font-semibold text-slate-600 tabular-nums">+${otrosTotal.toFixed(2)}</td>}
-                    <td className="px-3 py-2 text-right bg-teal-100">
-                      <div className="text-base font-bold text-teal-900 tabular-nums">${orden.totalUSD.toFixed(2)}</div>
-                      <div className="text-[10px] font-semibold text-teal-700 tabular-nums">S/ {(orden.totalUSD * tc).toFixed(2)}</div>
+        <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
+          Productos ({orden.productos.length})
+        </div>
+        <div className="border border-slate-200 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50">
+              <tr className="text-left">
+                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide">SKU</th>
+                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide">Producto</th>
+                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Cant.</th>
+                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Precio</th>
+                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {orden.productos.map((p, idx) => {
+                const subtotal = (p.costoUnitario || 0) * (p.cantidad || 0);
+                const descripcion = getDescripcionProducto(p);
+                return (
+                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-4 py-3 align-top">
+                      <span className="text-sm font-mono text-teal-700">{p.sku || '—'}</span>
                     </td>
+                    <td className="px-4 py-3 align-top">
+                      <div className="font-medium text-slate-900">{p.nombreComercial || '—'}</div>
+                      {descripcion && (
+                        <div className="text-[11px] text-slate-500 mt-0.5">{descripcion}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-700">{p.cantidad}</td>
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-700">${(p.costoUnitario || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right tabular-nums font-semibold text-slate-900">${subtotal.toFixed(2)}</td>
                   </tr>
-                </tfoot>
-              </table>
-
-              {/* Leyenda explicativa */}
-              <div className="px-3 py-2 bg-sky-50 border-t border-sky-200">
-                <div className="text-[10px] text-sky-600">
-                  * Tax uniforme por unidad · Envío, otros y descuento prorrateados por costo base
-                </div>
-              </div>
-            </div>
-          );
-        })()}
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Tracking */}
-      {orden.numeroTracking && (
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="flex items-center mb-2">
-            <Truck className="h-5 w-5 text-slate-600 mr-2" />
-            <h4 className="font-semibold text-slate-900">Información de Envío</h4>
+      {/* S42ao — Cargos comerciales (estilo mockup S41 L858-1010):
+          desglose en lista vertical del subtotal + cargos/descuentos/impuestos
+          + total + ajuste proveedor + cobrado final. */}
+      <div>
+        <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
+          Cargos comerciales{' '}
+          <span className="normal-case font-normal text-slate-400">
+            (asignados por el proveedor a esta OC)
+          </span>
+        </div>
+        <div className="bg-slate-50 rounded-xl p-4 space-y-2 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-700">Subtotal productos</span>
+            <span className="font-semibold text-slate-900 tabular-nums">
+              ${orden.subtotalUSD.toFixed(2)}
+            </span>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-slate-600">Tracking:</span>
-              <span className="ml-2 font-mono text-slate-900">{orden.numeroTracking}</span>
+          {(orden.costoEnvioProveedorUSD ?? 0) > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-slate-700">+ Shipping internacional</span>
+              <span className="tabular-nums text-slate-900">
+                ${(orden.costoEnvioProveedorUSD ?? 0).toFixed(2)}
+              </span>
             </div>
-            {orden.courier && (
+          )}
+          {(orden.otrosGastosCompraUSD ?? 0) > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-slate-700">+ Otros cargos</span>
+              <span className="tabular-nums text-slate-900">
+                ${(orden.otrosGastosCompraUSD ?? 0).toFixed(2)}
+              </span>
+            </div>
+          )}
+          {(orden.descuentoUSD ?? 0) > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-slate-700">− Descuento</span>
+              <span className="tabular-nums text-emerald-700">
+                -${(orden.descuentoUSD ?? 0).toFixed(2)}
+              </span>
+            </div>
+          )}
+          {(orden.impuestoCompraUSD ?? 0) > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-slate-700">+ Impuestos</span>
+              <span className="tabular-nums text-slate-900">
+                ${(orden.impuestoCompraUSD ?? 0).toFixed(2)}
+              </span>
+            </div>
+          )}
+          <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
+            <span className="font-semibold text-slate-900">Total OC</span>
+            <span className="text-lg font-bold text-teal-700 tabular-nums">
+              ${orden.totalUSD.toFixed(2)}
+            </span>
+          </div>
+          {(orden.tcReferencial || orden.tcCompra) && (
+            <div className="flex items-center justify-between text-[11px] text-slate-500">
+              <span>Equivalente PEN (TC {(orden.tcReferencial || orden.tcCompra || 0).toFixed(3)})</span>
+              <span className="tabular-nums">
+                S/ {(orden.totalUSD * (orden.tcReferencial || orden.tcCompra || 0)).toFixed(2)}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* S42ao — Tracking / Envío vinculado (estilo mockup S41 L1075-1138):
+          card teal-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}
+      {orden.numeroTracking && (
+        <div>
+          <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
+            Información de envío
+          </div>
+          <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+              {orden.modoEntregaDetallado && (
+                <div>
+                  <div className="text-[11px] text-slate-500 mb-1">Modo</div>
+                  <div className="font-medium text-slate-800 text-xs">
+                    {orden.modoEntregaDetallado}
+                  </div>
+                </div>
+              )}
+              {orden.courier && (
+                <div>
+                  <div className="text-[11px] text-slate-500 mb-1">Courier</div>
+                  <div className="font-medium text-slate-800">{orden.courier}</div>
+                </div>
+              )}
               <div>
-                <span className="text-slate-600">Courier:</span>
-                <span className="ml-2 text-slate-900">{orden.courier}</span>
+                <div className="text-[11px] text-slate-500 mb-1">Tracking</div>
+                <div className="font-mono text-slate-800 text-xs break-all">
+                  {orden.numeroTracking}
+                </div>
               </div>
-            )}
+              {orden.fechaEnviada && (
+                <div>
+                  <div className="text-[11px] text-slate-500 mb-1">Despachado</div>
+                  <div className="font-medium text-slate-800">
+                    {formatDate(orden.fechaEnviada)}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
+
 
       {/* Almacén y observaciones */}
       {(orden.almacenDestino || orden.observaciones) && (
@@ -1064,47 +911,43 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 // ════════════════════════════════════════════════════════════════════════════
 
 /**
- * PipelineGrandeOC — pipeline horizontal con 5 nodos + fechas debajo.
- * Refleja el estilo del PipelineGrande3 de SubOrdenDetailModal pero con
- * 5 etapas propias de una OC: Borrador → Confirmada → En Proceso → Despachada → Completada.
+ * PipelineGrandeOC — pipeline horizontal con 4 nodos minimalistas + fechas debajo.
+ * Estilo fiel al mockup S41 SubOrdenDetailModal L149-167: círculos 32px con
+ * ícono (check / dot / dash), etiqueta pequeña y fecha tabular. Líneas finas
+ * entre nodos.
  */
 const PipelineGrandeOC: React.FC<{
   estadoActual: EstadoOrden;
   fechaBorrador?: any;
   fechaConfirmada?: any;
-  fechaProceso?: any;
   fechaDespachada?: any;
   fechaCompletada?: any;
 }> = ({
   estadoActual,
   fechaBorrador,
   fechaConfirmada,
-  fechaProceso,
   fechaDespachada,
   fechaCompletada,
 }) => {
-  // Mapeo: qué índice del pipeline (0-4) corresponde al estado actual.
-  // Acomoda aliases legacy como 'enviada' → "Confirmada" y 'en_transito' /
-  // 'recibida_parcial' / 'despachada' → "Despachada".
+  // Mapeo de estados a 4 etapas del pipeline:
+  //  0 = Borrador | 1 = Confirmada | 2 = En Despacho | 3 = Completada
   const indexActual = (() => {
     if (estadoActual === 'borrador') return 0;
-    if (estadoActual === 'enviada') return 1; // legacy: "confirmada"
-    if (estadoActual === 'en_proceso') return 2;
+    if (estadoActual === 'enviada' || estadoActual === 'en_proceso') return 1;
     if (
       estadoActual === 'despachada' ||
       estadoActual === 'en_transito' ||
       estadoActual === 'recibida_parcial'
     )
-      return 3;
-    if (estadoActual === 'recibida' || estadoActual === 'completada') return 4;
+      return 2;
+    if (estadoActual === 'recibida' || estadoActual === 'completada') return 3;
     return 0;
   })();
 
   const steps = [
     { label: 'Borrador', fecha: fechaBorrador },
     { label: 'Confirmada', fecha: fechaConfirmada },
-    { label: 'En Proceso', fecha: fechaProceso },
-    { label: 'Despachada', fecha: fechaDespachada },
+    { label: 'En Despacho', fecha: fechaDespachada },
     { label: 'Completada', fecha: fechaCompletada },
   ];
 
@@ -1119,7 +962,7 @@ const PipelineGrandeOC: React.FC<{
   };
 
   return (
-    <div className="flex items-start justify-between gap-2">
+    <div className="flex items-start justify-between gap-2 py-2">
       {steps.map((step, i) => {
         const completado = i < indexActual;
         const activo = i === indexActual;
@@ -1128,22 +971,26 @@ const PipelineGrandeOC: React.FC<{
 
         return (
           <React.Fragment key={step.label}>
-            <div className="flex flex-col items-center flex-shrink-0 min-w-0">
+            <div className="flex flex-col items-center flex-shrink-0">
               <div
                 className={cn(
-                  'w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors',
+                  'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
                   completado && 'bg-emerald-500 text-white',
-                  activo && 'bg-white border-2 border-teal-500 text-teal-700 ring-4 ring-teal-100',
-                  pendiente && 'bg-slate-100 text-slate-400 border border-slate-200'
+                  activo && 'bg-emerald-500 text-white',
+                  pendiente && 'bg-slate-200 text-slate-400'
                 )}
               >
-                {completado ? <CheckCircle2 className="w-5 h-5" /> : i + 1}
+                {completado && <CheckCircle2 className="w-4 h-4" strokeWidth={3} />}
+                {activo && (
+                  <span className="w-2 h-2 rounded-full bg-white" />
+                )}
+                {pendiente && <span className="text-xs">—</span>}
               </div>
               <div
                 className={cn(
-                  'text-xs font-semibold mt-2 text-center',
+                  'text-xs font-medium mt-2 text-center whitespace-nowrap',
                   completado && 'text-slate-700',
-                  activo && 'text-teal-700',
+                  activo && 'text-slate-900',
                   pendiente && 'text-slate-400'
                 )}
               >
@@ -1151,17 +998,19 @@ const PipelineGrandeOC: React.FC<{
               </div>
               <div
                 className={cn(
-                  'text-[10px] mt-0.5 tabular-nums',
-                  (completado || activo) ? 'text-slate-500' : 'text-slate-300'
+                  'text-[11px] mt-0.5 tabular-nums',
+                  completado && 'text-slate-500',
+                  activo && 'text-slate-500',
+                  pendiente && 'text-slate-300'
                 )}
               >
-                {fmt(step.fecha)}
+                {activo && !step.fecha ? `${fmt(fechaConfirmada)} → ?` : fmt(step.fecha)}
               </div>
             </div>
             {!isLast && (
               <div
                 className={cn(
-                  'flex-1 h-0.5 mt-5 rounded-full transition-colors',
+                  'flex-1 h-0.5 mt-4 rounded-full transition-colors',
                   i < indexActual ? 'bg-emerald-400' : 'bg-slate-200'
                 )}
               />
@@ -1184,7 +1033,7 @@ const KpiCell: React.FC<{
   subtitle?: string;
   tone?: 'default' | 'teal' | 'amber' | 'emerald' | 'red' | 'muted';
   last?: boolean;
-}> = ({ label, value, subtitle, tone = 'default', last = false }) => {
+}> = ({ label, value, subtitle, tone = 'default' }) => {
   const valueColor = {
     default: 'text-slate-900',
     teal: 'text-teal-700',
@@ -1195,20 +1044,13 @@ const KpiCell: React.FC<{
   }[tone];
 
   return (
-    <div
-      className={cn(
-        'px-4 py-3',
-        !last && 'md:border-r border-slate-200'
-      )}
-    >
-      <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-        {label}
-      </div>
-      <div className={cn('text-lg font-bold tabular-nums', valueColor)}>
+    <div className="px-2 py-1 text-center">
+      <div className="text-xs text-slate-500 mb-1">{label}</div>
+      <div className={cn('text-xl font-bold tabular-nums', valueColor)}>
         {value}
       </div>
       {subtitle && (
-        <div className="text-[11px] text-slate-500 mt-0.5">{subtitle}</div>
+        <div className="text-[11px] text-slate-400 mt-0.5">{subtitle}</div>
       )}
     </div>
   );
