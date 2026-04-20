@@ -163,10 +163,16 @@ export const EnviosDeOC: React.FC<EnviosDeOCProps> = ({
                       <Badge variant="default" size="sm">sub-orden</Badge>
                     )}
                   </div>
-                  {envio.colaboradorNombre && (
+                  {/* S42bg — BUG FIX consistente con EnvioDetailModal/EnvioCard:
+                      antes se mostraba `envio.colaboradorNombre` con icono
+                      Truck como si fuera transportador, pero el colaborador
+                      normalmente es el DUEÑO DE LA CASILLA DESTINO. El
+                      transportador real vive en `envio.courier` (seteado al
+                      despachar). Ahora solo se muestra si hay courier real. */}
+                  {envio.courier && (
                     <div className="text-xs text-slate-500 mt-0.5 truncate">
                       <Truck className="inline w-3 h-3 mr-0.5" />
-                      {envio.colaboradorNombre}
+                      {envio.courier}
                       {envio.numeroTracking && <span className="ml-1 font-mono text-slate-400">· {envio.numeroTracking}</span>}
                     </div>
                   )}
