@@ -6,12 +6,11 @@ import { StatusBadge, cn } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOrden } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
-import { calcularEstadoDerivadoOC, getCargosEfectivosOC } from '../../../utils/ordenCompra.helpers';
+import { calcularEstadoDerivadoOC, getCargosEfectivosOC, prorratearCargosOC } from '../../../utils/ordenCompra.helpers';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
 import { ConfirmarOCModal } from './ConfirmarOCModal';
-import { DesgloseCTRU } from '../ctru/DesgloseCTRU';
 import { Link } from 'react-router-dom';
 import { Calculator } from 'lucide-react';
 
@@ -459,50 +458,110 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           redundante. */}
       {/* Fin del bloque legacy oculto con {false} */}
 
-      {/* S42ao — Tabla Productos limpia alineada al mockup S41 L518-569:
-          5 columnas (SKU | Producto | Cant | Precio | Subtotal). Los
-          desgloses prorrateados viejos (Desc/Tax/Envío/Otros/Costo Unit)
-          quedan absorbidos en la sección "Cargos comerciales" de abajo. */}
-      <div>
-        <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
-          Productos ({orden.productos.length})
-        </div>
-        <div className="border border-slate-200 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr className="text-left">
-                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide">SKU</th>
-                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide">Producto</th>
-                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Cant.</th>
-                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Precio</th>
-                <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {orden.productos.map((p, idx) => {
-                const subtotal = (p.costoUnitario || 0) * (p.cantidad || 0);
-                const descripcion = getDescripcionProducto(p);
-                return (
-                  <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-4 py-3 align-top">
-                      <span className="text-sm font-mono text-teal-700">{p.sku || '—'}</span>
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <div className="font-medium text-slate-900">{p.nombreComercial || '—'}</div>
-                      {descripcion && (
-                        <div className="text-[11px] text-slate-500 mt-0.5">{descripcion}</div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-slate-700">{p.cantidad}</td>
-                    <td className="px-4 py-3 text-right tabular-nums text-slate-700">${(p.costoUnitario || 0).toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right tabular-nums font-semibold text-slate-900">${subtotal.toFixed(2)}</td>
+      {/* S42bd — Tabla Productos con CTRU comercial integrado.
+          En vez de una sección separada y pesada, el CTRU unitario se muestra
+          como una columna más, con fondo teal sutil para darle importancia
+          visual. Si la OC tiene sub-órdenes con cargos desiguales, el valor
+          es el promedio ponderado por cantidad entre sub-órdenes (y se marca
+          con un badge "~" para indicar que hay variación interna).
+          La OC muestra total CTRU landed en el módulo CTRU (link arriba). */}
+      {(() => {
+        // Pre-computar el prorrateo una sola vez
+        const desglose = prorratearCargosOC(orden);
+
+        // Mapa productoId → lista de CTRU comerciales (uno por bloque donde aparezca)
+        const ctrusPorProducto = new Map<string, Array<{ ctru: number; cantidad: number }>>();
+        for (const bloque of desglose.bloques) {
+          for (const prod of bloque.productos) {
+            if (!ctrusPorProducto.has(prod.productoId)) {
+              ctrusPorProducto.set(prod.productoId, []);
+            }
+            ctrusPorProducto.get(prod.productoId)!.push({
+              ctru: prod.ctruComercialUnitario,
+              cantidad: prod.cantidad,
+            });
+          }
+        }
+
+        // Dado un productoId, calcular CTRU ponderado por cantidad
+        const getCTRUConsolidado = (productoId: string) => {
+          const entradas = ctrusPorProducto.get(productoId) ?? [];
+          if (entradas.length === 0) return { valor: 0, variaEntreBloques: false };
+          const totalCant = entradas.reduce((s, e) => s + e.cantidad, 0);
+          if (totalCant === 0) return { valor: entradas[0].ctru, variaEntreBloques: false };
+          const valor = entradas.reduce((s, e) => s + e.ctru * e.cantidad, 0) / totalCant;
+          // ¿Los CTRU son distintos entre bloques?
+          const variaEntreBloques =
+            entradas.length > 1 &&
+            entradas.some((e) => Math.abs(e.ctru - entradas[0].ctru) > 0.01);
+          return { valor: Number(valor.toFixed(2)), variaEntreBloques };
+        };
+
+        return (
+          <div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-2 flex-wrap">
+              <span>Productos ({orden.productos.length})</span>
+              <span className="normal-case font-normal text-slate-400">
+                · CTRU comercial = precio + cargos prorrateados por valor
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50">
+                  <tr className="text-left">
+                    <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide">SKU</th>
+                    <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide">Producto</th>
+                    <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Cant.</th>
+                    <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Precio</th>
+                    <th className="px-4 py-2 text-[11px] font-medium text-slate-500 uppercase tracking-wide text-right">Subtotal</th>
+                    <th className="px-4 py-2 text-[11px] font-medium text-teal-700 uppercase tracking-wide text-right bg-teal-50">CTRU/u</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {orden.productos.map((p, idx) => {
+                    const subtotal = (p.costoUnitario || 0) * (p.cantidad || 0);
+                    const descripcion = getDescripcionProducto(p);
+                    const ctru = getCTRUConsolidado(p.productoId);
+                    return (
+                      <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-4 py-3 align-top">
+                          <span className="text-sm font-mono text-teal-700">{p.sku || '—'}</span>
+                        </td>
+                        <td className="px-4 py-3 align-top">
+                          <div className="font-medium text-slate-900">{p.nombreComercial || '—'}</div>
+                          {descripcion && (
+                            <div className="text-[11px] text-slate-500 mt-0.5">{descripcion}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums text-slate-700">{p.cantidad}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-slate-700">${(p.costoUnitario || 0).toFixed(2)}</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-semibold text-slate-900">${subtotal.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-bold text-teal-900 bg-teal-50/40">
+                          {ctru.valor > 0 ? (
+                            <span className="inline-flex items-baseline gap-1 justify-end">
+                              {ctru.variaEntreBloques && (
+                                <span
+                                  className="text-[10px] text-amber-600 font-semibold"
+                                  title="Este producto aparece en varias sub-órdenes con cargos diferentes. Se muestra el promedio ponderado por cantidad. Ver desglose detallado por sub-orden en /ctru."
+                                >
+                                  ~
+                                </span>
+                              )}
+                              ${ctru.valor.toFixed(2)}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* S42az — Cargos comerciales usando getCargosEfectivosOC.
           Fuente de verdad automática:
@@ -589,43 +648,21 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         );
       })()}
 
-      {/* S42bc — Desglose CTRU comercial (proyección antes de confirmar,
-          snapshot después). Este bloque SIEMPRE se muestra porque el prorrateo
-          de cargos a cada producto es útil en cualquier estado:
-            - Borrador: proyección de cómo quedarán los CTRU al confirmar.
-            - Confirmada/recibida: snapshot del prorrateo comercial (antes del
-              landed logístico que se calcula al recibir).
-          El histórico post-recepción (con aduana + flete + GA/GO) vive en
-          /ctru → tab "Por Lote/OC". Link condicional abajo solo si la OC ya
-          tiene unidades (para no mandar al usuario a una vista vacía). */}
-      <div>
-        <DesgloseCTRU
-          orden={orden}
-          titulo={
-            orden.estado === 'borrador'
-              ? 'Proyección CTRU por producto'
-              : 'Desglose comercial del CTRU'
-          }
-          subtitulo={
-            orden.estado === 'borrador'
-              ? 'Comercial — así quedarán los CTRU al confirmar la OC'
-              : 'Comercial — antes del landed cost logístico'
-          }
-        />
-        {/* Link al módulo CTRU solo si la OC ya tiene unidades reales */}
-        {orden.estado !== 'borrador' && orden.estado !== 'cancelada' && (
-          <Link
-            to={`/ctru?tab=lote&ocId=${orden.id}`}
-            className="mt-3 inline-flex items-center gap-2 text-xs text-teal-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 transition-colors w-fit"
-          >
-            <Calculator className="w-3.5 h-3.5" />
-            <span>
-              Ver CTRU landed histórico de esta OC en el módulo CTRU
-              <span className="text-slate-500 ml-1">→</span>
-            </span>
-          </Link>
-        )}
-      </div>
+      {/* S42bd — Link discreto al módulo CTRU (solo cuando hay datos allá).
+          El CTRU comercial por producto se muestra como columna en la tabla
+          de Productos, no como sección aparte (evita saturar el detalle). */}
+      {orden.estado !== 'borrador' && orden.estado !== 'cancelada' && (
+        <Link
+          to={`/ctru?tab=lote&ocId=${orden.id}`}
+          className="inline-flex items-center gap-2 text-xs text-teal-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 transition-colors w-fit"
+        >
+          <Calculator className="w-3.5 h-3.5" />
+          <span>
+            Ver CTRU landed histórico de esta OC en el módulo CTRU
+            <span className="text-slate-500 ml-1">→</span>
+          </span>
+        </Link>
+      )}
 
       {/* S42ao — Tracking / Envío vinculado (estilo mockup S41 L1075-1138):
           card teal-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}
