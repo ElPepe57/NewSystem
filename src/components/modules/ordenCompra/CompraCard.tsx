@@ -311,18 +311,14 @@ const MiniRuta: React.FC<{
    *  la casilla (el tramo casilla→Perú es otro envío separado). */
   esDDP?: boolean;
 }> = ({ paisOrigen, nombreOrigen, paisCasilla, nombreCasilla, esDDP }) => {
-  // Primer token del nombre para que no desborde
-  const nombreOrigenCorto = nombreOrigen.split(' ')[0] || nombreOrigen;
-  const nombreCasillaCorto = nombreCasilla
-    ? nombreCasilla.split(' ')[0] || nombreCasilla
-    : null;
+  // S42bj — Sin truncate/slice: nombres completos, wrap natural si no cabe.
 
   // S42bi — Caso DDP: ruta directa Proveedor → Perú (sin casilla intermedia)
   if (esDDP) {
     return (
       <div className="flex items-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
         <span className="text-sm">{getFlag(paisOrigen)}</span>
-        <span className="truncate max-w-[80px]">{nombreOrigenCorto}</span>
+        <span>{nombreOrigen}</span>
         <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
         <span className="text-sm">🇵🇪</span>
         <span>Perú</span>
@@ -335,12 +331,10 @@ const MiniRuta: React.FC<{
   return (
     <div className="flex items-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
       <span className="text-sm">{getFlag(paisOrigen)}</span>
-      <span className="truncate max-w-[80px]">{nombreOrigenCorto}</span>
+      <span>{nombreOrigen}</span>
       <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
       <span className="text-sm">{getFlag(paisCasilla || paisOrigen)}</span>
-      <span className="truncate max-w-[80px] font-mono">
-        {nombreCasillaCorto || 'Casilla'}
-      </span>
+      <span className="font-mono">{nombreCasilla || 'Casilla'}</span>
     </div>
   );
 };
@@ -575,17 +569,21 @@ const CompraCardConSubOrdenes: React.FC<{
             <div className="text-slate-400 mb-1">Ruta</div>
             {/* S42bi — Ruta correcta según tipo de entrega:
                 DDP → Proveedor → Perú (sin casilla intermedia)
-                Resto → Proveedor → Casilla (la OC termina ahí) */}
-            <div className="font-medium text-slate-700 text-[11px]">
+                Resto → Proveedor → Casilla (la OC termina ahí)
+                S42bj — Sin slice: nombre completo, wrap natural. */}
+            <div className="font-medium text-slate-700 text-[11px] flex items-center gap-1 flex-wrap">
               {orden.modoEntregaDetallado === 'ddp_directo' ? (
                 <>
-                  {getFlag(orden.paisOrigen)} → 🇵🇪
+                  <span>{getFlag(orden.paisOrigen)}</span>
+                  <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                  <span>🇵🇪</span>
                 </>
               ) : (
                 <>
-                  {getFlag(orden.paisOrigen)} →{' '}
+                  <span>{getFlag(orden.paisOrigen)}</span>
+                  <ChevronRight className="w-3 h-3 text-slate-400 flex-shrink-0" />
                   <span className="font-mono">
-                    {orden.nombreAlmacenDestino?.slice(0, 14) || 'Casilla'}
+                    {orden.nombreAlmacenDestino || 'Casilla'}
                   </span>
                 </>
               )}
