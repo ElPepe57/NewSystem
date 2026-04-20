@@ -11,6 +11,7 @@ import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
 import { ConfirmarOCModal } from './ConfirmarOCModal';
+import { DesgloseCTRU } from '../ctru/DesgloseCTRU';
 import { Link } from 'react-router-dom';
 import { Calculator } from 'lucide-react';
 
@@ -588,20 +589,43 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         );
       })()}
 
-      {/* S42bb — El desglose CTRU detallado vive en /ctru → tab "Por Lote/OC"
-          (modulo guardián del cálculo). Aquí dejamos solo un link de acceso
-          rápido para que el usuario pueda auditar el prorrateo de cargos al
-          CTRU sin salirse del flujo. */}
-      <Link
-        to={`/ctru?tab=lote&ocId=${orden.id}`}
-        className="inline-flex items-center gap-2 text-xs text-teal-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 transition-colors w-fit"
-      >
-        <Calculator className="w-3.5 h-3.5" />
-        <span>
-          Ver desglose CTRU de esta OC en el módulo CTRU
-          <span className="text-slate-500 ml-1">→</span>
-        </span>
-      </Link>
+      {/* S42bc — Desglose CTRU comercial (proyección antes de confirmar,
+          snapshot después). Este bloque SIEMPRE se muestra porque el prorrateo
+          de cargos a cada producto es útil en cualquier estado:
+            - Borrador: proyección de cómo quedarán los CTRU al confirmar.
+            - Confirmada/recibida: snapshot del prorrateo comercial (antes del
+              landed logístico que se calcula al recibir).
+          El histórico post-recepción (con aduana + flete + GA/GO) vive en
+          /ctru → tab "Por Lote/OC". Link condicional abajo solo si la OC ya
+          tiene unidades (para no mandar al usuario a una vista vacía). */}
+      <div>
+        <DesgloseCTRU
+          orden={orden}
+          titulo={
+            orden.estado === 'borrador'
+              ? 'Proyección CTRU por producto'
+              : 'Desglose comercial del CTRU'
+          }
+          subtitulo={
+            orden.estado === 'borrador'
+              ? 'Comercial — así quedarán los CTRU al confirmar la OC'
+              : 'Comercial — antes del landed cost logístico'
+          }
+        />
+        {/* Link al módulo CTRU solo si la OC ya tiene unidades reales */}
+        {orden.estado !== 'borrador' && orden.estado !== 'cancelada' && (
+          <Link
+            to={`/ctru?tab=lote&ocId=${orden.id}`}
+            className="mt-3 inline-flex items-center gap-2 text-xs text-teal-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 transition-colors w-fit"
+          >
+            <Calculator className="w-3.5 h-3.5" />
+            <span>
+              Ver CTRU landed histórico de esta OC en el módulo CTRU
+              <span className="text-slate-500 ml-1">→</span>
+            </span>
+          </Link>
+        )}
+      </div>
 
       {/* S42ao — Tracking / Envío vinculado (estilo mockup S41 L1075-1138):
           card teal-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}

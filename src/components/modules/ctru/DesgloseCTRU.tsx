@@ -26,7 +26,13 @@ import type { OrdenCompra } from '../../../types/ordenCompra.types';
  * para auditar antes de recibir el envío. El CTRU landed (con aduana, flete,
  * etc.) se calcula al recibir.
  */
-export const DesgloseCTRU: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
+export const DesgloseCTRU: React.FC<{
+  orden: OrdenCompra;
+  /** Título custom (default "Desglose CTRU por producto"). */
+  titulo?: string;
+  /** Subtítulo custom (default explica que es comercial antes del landed). */
+  subtitulo?: string;
+}> = ({ orden, titulo, subtitulo }) => {
   const desglose = prorratearCargosOC(orden);
   const tieneMultiplesBloques = desglose.bloques.length > 1;
 
@@ -34,9 +40,9 @@ export const DesgloseCTRU: React.FC<{ orden: OrdenCompra }> = ({ orden }) => {
     <div>
       <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-2 flex-wrap">
         <Calculator className="w-3.5 h-3.5" />
-        <span>Desglose CTRU por producto</span>
+        <span>{titulo ?? 'Desglose CTRU por producto'}</span>
         <span className="normal-case font-normal text-slate-400">
-          (comercial — antes del landed cost logístico)
+          ({subtitulo ?? 'comercial — antes del landed cost logístico'})
         </span>
         {desglose.fuente === 'subOrdenes' && (
           <span
