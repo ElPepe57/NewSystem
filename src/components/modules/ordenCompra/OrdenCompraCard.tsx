@@ -276,29 +276,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   );
   const subOrdenesCount = orden.subOrdenes?.length ?? 0;
 
-  // S42av — Si la vista interna es 'confirmar', renderizamos el ConfirmarOCModal
-  // embedded (sin overlay, inline) y NO mostramos el resto del detalle. El
-  // botón cerrar del confirmador (X) vuelve a la vista de detalle.
-  if (vistaInterna === 'confirmar' && onConfirmarConSubOrdenes) {
-    return (
-      <ConfirmarOCModal
-        isOpen={true}
-        embedded
-        orden={orden}
-        onClose={() => setVistaInterna('detalle')}
-        onConfirmar={async (subOrdenes) => {
-          setConfirmandoSubs(true);
-          try {
-            await onConfirmarConSubOrdenes(subOrdenes);
-            setVistaInterna('detalle');
-          } finally {
-            setConfirmandoSubs(false);
-          }
-        }}
-        isSubmitting={confirmandoSubs}
-      />
-    );
-  }
+  // S42aw — Ya NO hacemos early return cuando vistaInterna='confirmar'.
+  // Mantenemos header + pipeline + KPIs siempre visibles (identidad de la
+  // OC persiste). Solo reemplazamos desde el banner CTA hacia abajo.
 
   return (
     <div className="space-y-5">
@@ -343,6 +323,29 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           fechaCompletada={orden.fechaRecibida}
         />
       )}
+
+      {/* S42aw — Cuerpo dinámico: muestra banner+productos+cargos+envío
+          cuando vista='detalle', o el ConfirmarOCModal embedded cuando
+          vista='confirmar'. Header+pipeline+KPIs (arriba) se mantienen
+          fijos en ambos modos para preservar la identidad de la OC. */}
+      {vistaInterna === 'confirmar' && onConfirmarConSubOrdenes ? (
+        <ConfirmarOCModal
+          isOpen={true}
+          embedded
+          orden={orden}
+          onClose={() => setVistaInterna('detalle')}
+          onConfirmar={async (subOrdenes) => {
+            setConfirmandoSubs(true);
+            try {
+              await onConfirmarConSubOrdenes(subOrdenes);
+              setVistaInterna('detalle');
+            } finally {
+              setConfirmandoSubs(false);
+            }
+          }}
+          isSubmitting={confirmandoSubs}
+        />
+      ) : (<>
 
       {/* S42ap — Banner CTA de próxima acción (restaurado después de S42an/ao
           que lo había eliminado al quitar StatusTimeline). Usa el nextAction
@@ -605,6 +608,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </div>
         </div>
       )}
+
+      </>)}
+      {/* S42aw — Fin del cuerpo dinámico (detalle vs confirmar) */}
 
 
       {/* Almacén y observaciones */}

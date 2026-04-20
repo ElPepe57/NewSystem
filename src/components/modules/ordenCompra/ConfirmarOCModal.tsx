@@ -479,20 +479,23 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
   if (!isOpen) return null;
 
   // ═══ Render ═══════════════════════════════════════════════════════════
-  // S42av — Contenido del modal. Se envuelve en overlay fixed solo si
-  // !embedded. Cuando embedded=true se renderiza inline (ej. dentro del
-  // modal de Detalles de Orden para dar sensación de flujo integrado).
+  // S42av/aw — Contenido del modal. Overlay fijo solo si !embedded.
+  //   embedded=false → modal autónomo con header (breadcrumb + X)
+  //   embedded=true  → inline dentro de otro modal; se omite el header
+  //                    interno porque el contenedor superior ya identifica
+  //                    la OC (evita duplicar título + 2 botones X).
   const contenido = (
     <div className={cn(
       embedded
-        ? 'bg-white'
+        ? ''
         : 'max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200'
     )}>
-        {/* ─── Header interno ─── */}
+        {/* ─── Header + toggle superior (en embedded solo el toggle) ─── */}
         <div className={cn(
-          'px-6 py-4 bg-slate-50',
-          !embedded && 'border-b border-slate-200'
+          'px-6 py-4',
+          embedded ? 'bg-white border border-slate-200 rounded-xl' : 'bg-slate-50 border-b border-slate-200'
         )}>
+          {!embedded && (
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs text-slate-500">Confirmar orden</div>
@@ -502,17 +505,17 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                 <span className="tabular-nums">${orden.totalUSD.toFixed(2)}</span>
               </div>
             </div>
-            {/* Botón cerrar: cuando embedded, actúa como "volver a detalles"; cuando no, cierra el modal */}
             <button
               type="button"
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600"
-              aria-label={embedded ? 'Volver a detalles' : 'Cerrar'}
-              title={embedded ? 'Volver a detalles' : 'Cerrar'}
+              aria-label="Cerrar"
+              title="Cerrar"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
+          )}
 
           {/* Toggle ¿Dividir? */}
           <div className="mt-3 flex items-center gap-3 flex-wrap">
