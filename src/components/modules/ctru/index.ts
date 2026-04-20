@@ -6,3 +6,5 @@ export { ExpenseTrendChart } from './ExpenseTrendChart';
 export { ProductoCTRUTable } from './ProductoCTRUTable';
 export { ProductoCTRUDetail } from './ProductoCTRUDetail';
 export { LoteOCTable } from './LoteOCTable';
+export { DesgloseCTRU } from './DesgloseCTRU';
+export { DesgloseCTRUPorOC } from './DesgloseCTRUPorOC';

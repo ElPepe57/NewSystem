@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Search, Truck } from 'lucide-react';
 import { Card } from '../../common';
@@ -6,15 +6,27 @@ import { formatCurrency } from '../../common/Charts';
 import { DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
 import type { LoteOCDetalle } from '../../../store/ctruStore';
+import { DesgloseCTRUPorOC } from './DesgloseCTRUPorOC';
 
 interface LoteOCTableProps {
   lotes: LoteOCDetalle[];
+  /** S42bb — Si se pasa, auto-expande la fila de esa OC al montarse
+   *  (útil para deep-links desde el detalle de OC). */
+  autoExpandId?: string | null;
 }
 
-export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes }) => {
+export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes, autoExpandId }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(autoExpandId ?? null);
   const expandedKeys = useMemo(() => new Set(expandedId ? [expandedId] : []), [expandedId]);
+
+  // Si el deep-link cambia (p.ej. el usuario navega desde otra OC), reflejarlo
+  useEffect(() => {
+    if (autoExpandId && autoExpandId !== expandedId) {
+      setExpandedId(autoExpandId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoExpandId]);
 
   const filtered = useMemo(() => {
     if (!searchTerm) return lotes;
@@ -237,6 +249,16 @@ export const LoteOCTable: React.FC<LoteOCTableProps> = ({ lotes }) => {
                       />
                     );
                   })()}
+
+                  {/* S42bb — Desglose de cargos comerciales prorrateados al CTRU.
+                      Se carga bajo demanda al expandir la fila (cache interno por
+                      ordenCompraId). Muestra cómo el proveedor asignó cargos/desc/
+                      imp a la OC o sub-órdenes, y el prorrateo por valor a cada
+                      producto. Vive aquí en lugar del detalle de OC porque CTRU
+                      es el módulo natural para auditar el cálculo histórico. */}
+                  <div className="mt-4">
+                    <DesgloseCTRUPorOC ordenCompraId={lote.ordenCompraId} />
+                  </div>
                 </div>
               );
             }}

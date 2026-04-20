@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Calculator,
   Package,
@@ -41,6 +42,19 @@ export const CTRUDashboard: React.FC = () => {
   const [tabActiva, setTabActiva] = useState<TabActiva>('resumen');
   const [productoSeleccionado, setProductoSeleccionado] = useState<CTRUProductoDetalle | null>(null);
   const [vistaCosto, setVistaCosto] = useState<'contable' | 'gerencial'>('contable');
+
+  // S42bb — Deep-link desde otras partes del sistema (ej. detalle de OC):
+  // `/ctru?tab=lote&ocId=XXX` abre directamente la vista Por Lote/OC y
+  // auto-expande la fila de esa OC. Útil para auditar cargos sin perder
+  // contexto.
+  const [searchParams] = useSearchParams();
+  const tabInicialDeURL = searchParams.get('tab');
+  const ocIdDeURL = searchParams.get('ocId');
+  useEffect(() => {
+    if (tabInicialDeURL === 'lote' || tabInicialDeURL === 'catalogo' || tabInicialDeURL === 'resumen') {
+      setTabActiva(tabInicialDeURL as TabActiva);
+    }
+  }, [tabInicialDeURL]);
 
   // Filtrar productos por línea de negocio global
   const productosFiltrados = useLineaFilter(productosDetalle, p => p.lineaNegocioId);
@@ -221,7 +235,7 @@ export const CTRUDashboard: React.FC = () => {
 
         {/* Tab: Por Lote/OC */}
         {tabActiva === 'lote' && (
-          <LoteOCTable lotes={lotesOC} />
+          <LoteOCTable lotes={lotesOC} autoExpandId={ocIdDeURL} />
         )}
       </div>
 

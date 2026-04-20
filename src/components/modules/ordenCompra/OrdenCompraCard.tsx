@@ -11,7 +11,8 @@ import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
 import { ConfirmarOCModal } from './ConfirmarOCModal';
-import { DesgloseCTRU } from './DesgloseCTRU';
+import { Link } from 'react-router-dom';
+import { Calculator } from 'lucide-react';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
@@ -587,13 +588,20 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         );
       })()}
 
-      {/* S42ba — Desglose CTRU por producto (prorrateo de cargos del proveedor).
-          Read-only, usa el helper prorratearCargosOC() que aplica la regla del
-          usuario: cargos se quedan como el proveedor los asignó a cada bloque
-          (OC o sub-orden), y dentro de cada bloque se reparten proporcional al
-          valor del producto. Si hay sub-órdenes con cargos desiguales, los
-          productos del mismo SKU en distintas sub-órdenes tendrán CTRU distinto. */}
-      <DesgloseCTRU orden={orden} />
+      {/* S42bb — El desglose CTRU detallado vive en /ctru → tab "Por Lote/OC"
+          (modulo guardián del cálculo). Aquí dejamos solo un link de acceso
+          rápido para que el usuario pueda auditar el prorrateo de cargos al
+          CTRU sin salirse del flujo. */}
+      <Link
+        to={`/ctru?tab=lote&ocId=${orden.id}`}
+        className="inline-flex items-center gap-2 text-xs text-teal-700 hover:text-teal-900 hover:bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 transition-colors w-fit"
+      >
+        <Calculator className="w-3.5 h-3.5" />
+        <span>
+          Ver desglose CTRU de esta OC en el módulo CTRU
+          <span className="text-slate-500 ml-1">→</span>
+        </span>
+      </Link>
 
       {/* S42ao — Tracking / Envío vinculado (estilo mockup S41 L1075-1138):
           card teal-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}
