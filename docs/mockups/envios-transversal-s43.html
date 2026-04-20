@@ -40,7 +40,7 @@
 <div class="bg-white border-b border-slate-200 px-6 py-3 sticky top-[73px] z-10">
   <div class="max-w-7xl mx-auto flex gap-2 flex-wrap">
     <button onclick="showTab('vista')" class="tab-btn tab-active px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="vista">1 · Vista /envios</button>
-    <button onclick="showTab('arbol')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="arbol">2 · ¿Qué tipo de envío crear?</button>
+    <button onclick="showTab('arbol')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="arbol">2 · ¿Cómo nace un envío?</button>
     <button onclick="showTab('wizard')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="wizard">3 · Wizard T2 completo (5 pasos)</button>
     <button onclick="showTab('detalle')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="detalle">4 · Detalle de envío</button>
     <button onclick="showTab('subenvios')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="subenvios">5 · Sub-envios T1 (Amazon)</button>
@@ -823,163 +823,156 @@
 <section id="arbol" class="section space-y-4">
 
   <div class="bg-white rounded-lg border border-slate-200 p-6">
-    <h2 class="text-lg font-bold text-slate-900 mb-1">🌳 ¿Qué tipo de envío tengo que crear?</h2>
-    <p class="text-sm text-slate-600 mb-6">Flujo guiado para que el usuario responda preguntas simples y el sistema decida automáticamente el tipo correcto (A-J).</p>
+    <h2 class="text-lg font-bold text-slate-900 mb-1">🌳 ¿Cómo se crea un envío?</h2>
+    <p class="text-sm text-slate-600 mb-6">Los envíos se crean de dos formas: <strong>automáticamente</strong> (vienen de otro documento como OC/Venta/Devolución) o <strong>manualmente</strong> (movimiento logístico independiente desde /envios).</p>
 
-    <!-- Pregunta raíz -->
-    <div class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-lg p-5 mb-4">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-full bg-teal-600 text-white font-bold flex items-center justify-center flex-shrink-0">?</div>
-        <div>
-          <div class="font-bold text-slate-900">¿El envío viene de una OC nueva que estoy confirmando?</div>
-          <div class="text-xs text-slate-600 mt-1">Si vienes del Wizard de Compras, la mayoría de envíos se crean automáticamente al confirmar.</div>
-        </div>
+    <!-- ─────────────── RUTA AUTOMÁTICA ─────────────── -->
+    <div class="mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-xl">🤖</span>
+        <h3 class="font-bold text-slate-900">Ruta 1 — Automática · Sin preguntas al usuario</h3>
       </div>
-    </div>
+      <p class="text-xs text-slate-600 mb-4 pl-8">El sistema usa los datos que ya fueron capturados en otro módulo. El usuario <strong>no interactúa</strong> con el módulo de envíos para crearlos — el envío aparece como consecuencia de otra acción.</p>
 
-    <!-- Rama 1: SI viene de OC -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="grid grid-cols-3 gap-3 pl-8">
 
-      <!-- SI -->
-      <div class="border-2 border-teal-500 rounded-lg overflow-hidden">
-        <div class="bg-teal-50 px-4 py-2 border-b border-teal-200">
-          <div class="flex items-center gap-2">
-            <span class="text-teal-700 font-bold">SÍ</span>
-            <span class="text-sm text-slate-700">Vengo de confirmar una OC</span>
-          </div>
-        </div>
-        <div class="p-4 space-y-3">
-
-          <div class="text-xs font-medium text-slate-600">→ El Wizard OC paso "Ruta" te pregunta:</div>
-
-          <!-- Sub-pregunta: modo de entrega -->
-          <div class="border border-slate-200 rounded p-3 bg-slate-50/50">
-            <div class="text-xs font-medium text-slate-700 mb-2">¿Modo de entrega?</div>
-
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between p-2 bg-white border border-slate-200 rounded text-xs">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg">🇵🇪</span>
-                  <span class="text-slate-700">DDP directo a Perú</span>
-                </div>
+        <!-- Desde OC -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 border-b border-slate-200">Desde una OC (Compras)</div>
+          <div class="p-3 space-y-2 text-xs">
+            <div class="text-slate-700">Al confirmar OC, <code class="bg-slate-100 px-1 rounded">confirmarOC()</code> lee <code class="bg-slate-100 px-1 rounded">orden.modoEntregaDetallado</code> y crea el envío automáticamente:</div>
+            <div class="space-y-1 mt-2">
+              <div class="flex items-center justify-between p-1.5 bg-slate-50 rounded">
+                <span><code class="text-slate-700">ddp_directo</code></span>
                 <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded font-bold">→ Caso B</span>
               </div>
-              <div class="flex items-center justify-between p-2 bg-white border border-slate-200 rounded text-xs">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg">📦</span>
-                  <span class="text-slate-700">Vía casilla internacional</span>
-                </div>
+              <div class="flex items-center justify-between p-1.5 bg-slate-50 rounded">
+                <span><code class="text-slate-700">via_viajero</code> / <code class="text-slate-700">via_courier</code></span>
                 <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-bold">→ Caso A</span>
               </div>
-              <div class="flex items-center justify-between p-2 bg-white border border-slate-200 rounded text-xs">
-                <div class="flex items-center gap-2">
-                  <span class="text-lg">👤</span>
-                  <span class="text-slate-700">Compra directa del colaborador</span>
-                </div>
+              <div class="flex items-center justify-between p-1.5 bg-slate-50 rounded">
+                <span><code class="text-slate-700">recojo_en_origen</code></span>
                 <span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-bold">→ Caso D</span>
               </div>
             </div>
-          </div>
-
-          <!-- Sub-sub-pregunta D -->
-          <div class="border border-amber-200 rounded p-3 bg-amber-50/50">
-            <div class="text-xs font-medium text-amber-900 mb-2">Si elige <strong>Caso D</strong>, pregunta adicional:</div>
-            <div class="text-xs text-amber-800 mb-2">¿Quién paga al proveedor?</div>
-            <div class="space-y-1">
-              <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                <span>El colaborador con su plata</span>
-                <span class="font-mono text-violet-700">D1</span>
-              </div>
-              <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                <span>Yo pago, colaborador solo recoge</span>
-                <span class="font-mono text-violet-700">D2</span>
-              </div>
+            <div class="text-slate-500 italic text-[10px] mt-2 pt-2 border-t border-slate-100">
+              La OC ya trae: proveedor, casilla destino, colaborador transporte, D1/D2. <strong>No se pregunta nada.</strong>
             </div>
           </div>
+        </div>
 
-          <div class="text-xs text-slate-500 italic border-t border-slate-100 pt-2">
-            ✨ El envío se crea automáticamente al confirmar la OC, no hay que ir a /envios.
+        <!-- Desde Venta -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 border-b border-slate-200">Desde una Venta</div>
+          <div class="p-3 space-y-2 text-xs">
+            <div class="text-slate-700">Al confirmar venta, se crea envío de despacho hacia el cliente.</div>
+            <div class="space-y-1 mt-2">
+              <div class="flex items-center justify-between p-1.5 bg-slate-50 rounded">
+                <span>Venta confirmada</span>
+                <span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded font-bold">→ Caso F</span>
+              </div>
+            </div>
+            <div class="text-slate-500 italic text-[10px] mt-2 pt-2 border-t border-slate-100">
+              La venta ya trae: almacén origen, cliente, dirección entrega, courier. El envío F se crea silencioso.
+            </div>
+          </div>
+        </div>
+
+        <!-- Desde Devolucion -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 border-b border-slate-200">Desde una Devolución</div>
+          <div class="p-3 space-y-2 text-xs">
+            <div class="text-slate-700">Al abrir devolución en Ventas, se crea envío de retorno.</div>
+            <div class="space-y-1 mt-2">
+              <div class="flex items-center justify-between p-1.5 bg-slate-50 rounded">
+                <span>Devolución abierta</span>
+                <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold">→ Caso G</span>
+              </div>
+            </div>
+            <div class="text-slate-500 italic text-[10px] mt-2 pt-2 border-t border-slate-100">
+              Hereda: cliente origen, venta original, almacén destino, política de flete.
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- NO -->
-      <div class="border-2 border-slate-300 rounded-lg overflow-hidden">
-        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200">
-          <div class="flex items-center gap-2">
-            <span class="text-slate-700 font-bold">NO</span>
-            <span class="text-sm text-slate-700">Es un movimiento logístico independiente</span>
-          </div>
-        </div>
-        <div class="p-4 space-y-3">
+      <!-- Banner corrección -->
+      <div class="ml-8 mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900">
+        <strong>✓ Principio:</strong> si la info ya está en la OC/Venta/Devolución, no se vuelve a preguntar. El sistema infiere el tipo (A/B/D/F/G) y hereda todos los campos automáticamente. El usuario ve el envío aparecer en /envios como resultado, <strong>no lo crea desde ahí</strong>.
+      </div>
+    </div>
 
-          <div class="text-xs font-medium text-slate-600">→ Abres /envios y click "Nuevo envío". El wizard te pregunta:</div>
+    <!-- Separador -->
+    <div class="border-t border-slate-200 my-6"></div>
 
-          <!-- Pregunta: origen -->
-          <div class="border border-slate-200 rounded p-3 bg-slate-50/50">
-            <div class="text-xs font-medium text-slate-700 mb-2">¿Desde dónde salen las unidades?</div>
-            <div class="space-y-1.5">
+    <!-- ─────────────── RUTA MANUAL ─────────────── -->
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-xl">✋</span>
+        <h3 class="font-bold text-slate-900">Ruta 2 — Manual · El usuario responde preguntas simples</h3>
+      </div>
+      <p class="text-xs text-slate-600 mb-4 pl-8">Solo para <strong>movimientos logísticos independientes</strong> — aquellos que no nacen de una OC/Venta/Devolución. El usuario abre <code class="bg-slate-100 px-1 rounded">/envios</code>, click "Nuevo envío", y responde un mini-wizard:</p>
 
-              <!-- Casilla intl -->
-              <div class="border border-slate-200 rounded bg-white">
-                <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
-                  <span class="text-lg">📦</span>
-                  <span class="font-medium text-slate-900">Casilla internacional</span>
-                </div>
-                <div class="p-2 space-y-1 bg-slate-50">
-                  <div class="text-xs text-slate-600 mb-1">¿Hacia dónde?</div>
-                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                    <span>Almacén Perú</span>
-                    <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-bold">→ Caso C</span>
-                  </div>
-                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                    <span>Otra casilla internacional</span>
-                    <span class="px-2 py-0.5 bg-violet-100 text-violet-800 rounded font-bold">→ Caso J</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Almacén propio -->
-              <div class="border border-slate-200 rounded bg-white">
-                <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
-                  <span class="text-lg">🏠</span>
-                  <span class="font-medium text-slate-900">Almacén propio</span>
-                </div>
-                <div class="p-2 space-y-1 bg-slate-50">
-                  <div class="text-xs text-slate-600 mb-1">¿Hacia dónde?</div>
-                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                    <span>Otro almacén propio</span>
-                    <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-bold">→ Caso E</span>
-                  </div>
-                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                    <span>Cliente final</span>
-                    <span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded font-bold">→ Caso F</span>
-                  </div>
-                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                    <span>Almacén de tercero (marketing/samples)</span>
-                    <span class="px-2 py-0.5 bg-fuchsia-100 text-fuchsia-800 rounded font-bold">→ Caso I</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Cliente (devolucion) -->
-              <div class="border border-slate-200 rounded bg-white">
-                <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
-                  <span class="text-lg">🛍️</span>
-                  <span class="font-medium text-slate-900">Cliente (devolución)</span>
-                </div>
-                <div class="p-2 space-y-1 bg-slate-50">
-                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
-                    <span>Vuelve a almacén propio</span>
-                    <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold">→ Caso G</span>
-                  </div>
-                </div>
-              </div>
+      <div class="pl-8 max-w-2xl">
+        <div class="border-2 border-slate-300 rounded-lg overflow-hidden">
+          <div class="bg-slate-100 px-4 py-2 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-700 font-bold">Wizard de "Nuevo envío" manual</span>
             </div>
           </div>
+          <div class="p-4 space-y-3">
 
-          <div class="text-xs text-slate-500 italic border-t border-slate-100 pt-2">
-            ✨ El wizard específico para cada caso tiene pasos distintos (el más complejo es C).
+            <div class="text-xs font-medium text-slate-600 mb-3">El wizard te pregunta dos cosas: <strong>¿desde dónde?</strong> y <strong>¿hacia dónde?</strong></div>
+
+            <!-- Pregunta: origen -->
+            <div class="border border-slate-200 rounded p-3 bg-slate-50/50">
+              <div class="text-xs font-medium text-slate-700 mb-2">¿Desde dónde salen las unidades?</div>
+              <div class="space-y-2">
+
+                <!-- Casilla intl -->
+                <div class="border border-slate-200 rounded bg-white">
+                  <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
+                    <span class="text-lg">📦</span>
+                    <span class="font-medium text-slate-900">Casilla internacional</span>
+                  </div>
+                  <div class="p-2 space-y-1 bg-slate-50">
+                    <div class="text-xs text-slate-600 mb-1">¿Hacia dónde?</div>
+                    <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                      <span>Almacén Perú</span>
+                      <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-bold">→ Caso C</span>
+                    </div>
+                    <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                      <span>Otra casilla internacional</span>
+                      <span class="px-2 py-0.5 bg-violet-100 text-violet-800 rounded font-bold">→ Caso J</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Almacén propio -->
+                <div class="border border-slate-200 rounded bg-white">
+                  <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
+                    <span class="text-lg">🏠</span>
+                    <span class="font-medium text-slate-900">Almacén propio</span>
+                  </div>
+                  <div class="p-2 space-y-1 bg-slate-50">
+                    <div class="text-xs text-slate-600 mb-1">¿Hacia dónde?</div>
+                    <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                      <span>Otro almacén propio</span>
+                      <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-bold">→ Caso E</span>
+                    </div>
+                    <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                      <span>Almacén de tercero (marketing/samples)</span>
+                      <span class="px-2 py-0.5 bg-fuchsia-100 text-fuchsia-800 rounded font-bold">→ Caso I</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-500 italic border-t border-slate-100 pt-2 mt-3">
+              ✨ Solo 4 casos aplican manualmente: <strong>C / E / I / J</strong>. El resto (A, B, D, F, G) nacen de otros módulos.
+            </div>
           </div>
         </div>
       </div>
@@ -987,43 +980,63 @@
 
     <!-- Resumen visual: los 9 casos -->
     <div class="border border-slate-200 rounded-lg overflow-hidden">
-      <div class="bg-slate-800 text-white px-4 py-2 text-sm font-medium">Los 9 casos de un vistazo</div>
-      <div class="p-4 grid grid-cols-3 gap-3 text-xs">
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-slate-900">A · Proveedor → Casilla</div>
-          <div class="text-slate-500">Auto al confirmar OC no-DDP</div>
+      <div class="bg-slate-800 text-white px-4 py-2 text-sm font-medium">Los 9 casos clasificados por origen de creación</div>
+      <div class="p-4 grid grid-cols-2 gap-4 text-xs">
+
+        <!-- Automaticos -->
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">🤖</span>
+            <span class="font-bold text-slate-900">Automáticos (heredan datos del documento origen)</span>
+          </div>
+          <div class="space-y-1.5">
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-slate-900">A · Proveedor → Casilla</div>
+              <div class="text-slate-600">Al confirmar OC con <code>modoEntregaDetallado=via_viajero/via_courier</code></div>
+            </div>
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-slate-900">B · DDP directo</div>
+              <div class="text-slate-600">Al confirmar OC con <code>modoEntregaDetallado=ddp_directo</code></div>
+            </div>
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-amber-700">D · Recojo del colaborador</div>
+              <div class="text-slate-600">Al confirmar OC con <code>recojoEnOrigen=true</code> (D1 o D2)</div>
+            </div>
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-orange-700">F · Despacho venta</div>
+              <div class="text-slate-600">Al confirmar venta (hereda cliente, dirección, almacén)</div>
+            </div>
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-yellow-700">G · Devolución</div>
+              <div class="text-slate-600">Al abrir devolución (hereda venta original)</div>
+            </div>
+          </div>
         </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-slate-900">B · DDP directo</div>
-          <div class="text-slate-500">Auto al confirmar OC DDP</div>
-        </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-teal-700">C · Casilla → Perú</div>
-          <div class="text-slate-500">Manual con Wizard T2 (5 pasos)</div>
-        </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-amber-700">D · Recojo directo</div>
-          <div class="text-slate-500">Auto (D1 o D2 según deudor)</div>
-        </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-slate-900">E · Traslado interno</div>
-          <div class="text-slate-500">Manual (absorbe Transferencias)</div>
-        </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-orange-700">F · Despacho venta</div>
-          <div class="text-slate-500">Auto al confirmar venta</div>
-        </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-yellow-700">G · Devolución</div>
-          <div class="text-slate-500">Auto/manual desde venta</div>
-        </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-fuchsia-700">I · A terceros</div>
-          <div class="text-slate-500">Manual con bloqueo stock</div>
-        </div>
-        <div class="border border-slate-200 rounded p-2">
-          <div class="font-bold text-violet-700">J · Entre casillas</div>
-          <div class="text-slate-500">Manual · preferente mismo país</div>
+
+        <!-- Manuales -->
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">✋</span>
+            <span class="font-bold text-slate-900">Manuales (wizard en /envios)</span>
+          </div>
+          <div class="space-y-1.5">
+            <div class="border-2 border-teal-200 rounded p-2 bg-teal-50">
+              <div class="font-bold text-teal-700">C · Casilla → Perú</div>
+              <div class="text-slate-600">Wizard T2 (5 pasos) · consolida N OCs · el más complejo</div>
+            </div>
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-slate-900">E · Traslado interno</div>
+              <div class="text-slate-600">Entre almacenes propios · absorbe módulo Transferencias</div>
+            </div>
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-fuchsia-700">I · A terceros</div>
+              <div class="text-slate-600">Almacén propio → tercero (marketing/samples) · bloquea stock</div>
+            </div>
+            <div class="border border-slate-200 rounded p-2 bg-slate-50">
+              <div class="font-bold text-violet-700">J · Entre casillas</div>
+              <div class="text-slate-600">Casilla intl → casilla intl · preferente mismo país</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1031,7 +1044,7 @@
 
   <!-- Nota -->
   <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 text-xs text-sky-900">
-    <strong>💡 Principio de diseño:</strong> el usuario nunca tiene que saber de memoria los códigos A-J. Responde preguntas simples ("¿de dónde a dónde?") y el sistema decide el tipo. Los códigos solo aparecen en reportes y auditoría.
+    <strong>💡 Principio de diseño:</strong> el usuario nunca tiene que saber de memoria los códigos A-J. Los 5 casos automáticos (A/B/D/F/G) ni siquiera se crean desde /envios — aparecen solos cuando confirmas una OC/Venta/Devolución. Los 4 casos manuales (C/E/I/J) sí usan un mini-wizard corto en /envios.
   </div>
 </section>
 
