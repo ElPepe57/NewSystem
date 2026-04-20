@@ -1,4 +1,4 @@
-import React, { useMemo, useId } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { Plus, Trash2, Percent, DollarSign } from 'lucide-react';
 import { cn } from '../utils';
 
@@ -120,8 +120,6 @@ export const DynamicChargesSection: React.FC<DynamicChargesSectionProps> = ({
   className,
 }) => {
   const config = KIND_CONFIG[kind];
-  const listId = useId();
-  const datalistId = `concepts-${listId}`;
 
   // ─── Totales ─────────────────────────────────────────────────────────────
   const total = useMemo(
@@ -191,14 +189,8 @@ export const DynamicChargesSection: React.FC<DynamicChargesSectionProps> = ({
         )}
       </div>
 
-      {/* Datalist con sugerencias */}
-      {conceptosSugeridos.length > 0 && (
-        <datalist id={datalistId}>
-          {conceptosSugeridos.map((c) => (
-            <option key={c} value={c} />
-          ))}
-        </datalist>
-      )}
+      {/* S42ag — Datalist nativo reemplazado por dropdown custom en ItemRow
+           (el <datalist> se posicionaba fuera del modal en ciertos navegadores). */}
 
       {/* Lista de items */}
       {items.length === 0 ? (
@@ -216,7 +208,7 @@ export const DynamicChargesSection: React.FC<DynamicChargesSectionProps> = ({
               onUpdate={handleUpdate}
               onRemove={handleRemove}
               disabled={disabled}
-              datalistId={conceptosSugeridos.length > 0 ? datalistId : undefined}
+              conceptosSugeridos={conceptosSugeridos}
               baseCalculoPorcentaje={baseCalculoPorcentaje}
             />
           ))}
@@ -249,7 +241,7 @@ interface ItemRowProps {
   onUpdate: (id: string, patch: Partial<DynamicChargeItem>) => void;
   onRemove: (id: string) => void;
   disabled: boolean;
-  datalistId?: string;
+  conceptosSugeridos: string[];
   baseCalculoPorcentaje: number;
 }
 
@@ -260,11 +252,35 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onUpdate,
   onRemove,
   disabled,
-  datalistId,
+  conceptosSugeridos,
   baseCalculoPorcentaje,
 }) => {
   const isImpuesto = kind === 'impuesto';
   const modo = item.modo ?? 'fijo';
+
+  // S42ag — Dropdown custom (reemplaza <datalist> nativo que se posicionaba
+  // fuera del modal en ciertos navegadores).
+  const [showDropdown, setShowDropdown] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Filtrar sugerencias según lo que el usuario ya escribió (case-insensitive)
+  const sugerenciasFiltradas = useMemo(() => {
+    const q = (item.concepto || '').trim().toLowerCase();
+    if (!q) return conceptosSugeridos;
+    return conceptosSugeridos.filter((s) => s.toLowerCase().includes(q));
+  }, [conceptosSugeridos, item.concepto]);
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    if (!showDropdown) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
 
   return (
     <div className="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg hover:border-slate-300 transition-colors">
@@ -273,16 +289,42 @@ const ItemRow: React.FC<ItemRowProps> = ({
         {config.pillLabel}
       </span>
 
-      {/* Concepto input */}
-      <input
-        type="text"
-        value={item.concepto}
-        onChange={(e) => onUpdate(item.id, { concepto: e.target.value })}
-        placeholder="Concepto..."
-        list={datalistId}
-        disabled={disabled}
-        className="flex-1 min-w-0 px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 disabled:bg-slate-50"
-      />
+      {/* Concepto input + dropdown custom */}
+      <div ref={wrapperRef} className="flex-1 min-w-0 relative">
+        <input
+          type="text"
+          value={item.concepto}
+          onChange={(e) => {
+            onUpdate(item.id, { concepto: e.target.value });
+            if (!showDropdown && conceptosSugeridos.length > 0) setShowDropdown(true);
+          }}
+          onFocus={() => {
+            if (conceptosSugeridos.length > 0) setShowDropdown(true);
+          }}
+          placeholder="Concepto..."
+          disabled={disabled}
+          className="w-full px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 disabled:bg-slate-50"
+        />
+        {showDropdown && !disabled && sugerenciasFiltradas.length > 0 && (
+          <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            {sugerenciasFiltradas.map((sug) => (
+              <button
+                key={sug}
+                type="button"
+                onMouseDown={(e) => {
+                  // onMouseDown evita blur previo
+                  e.preventDefault();
+                  onUpdate(item.id, { concepto: sug });
+                  setShowDropdown(false);
+                }}
+                className="w-full text-left px-3 py-1.5 text-sm text-slate-700 hover:bg-teal-50 hover:text-teal-900 transition-colors"
+              >
+                {sug}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Toggle %/$ solo para impuestos */}
       {isImpuesto && !disabled && (

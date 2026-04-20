@@ -222,6 +222,11 @@ export const StepCargos: React.FC<StepCargosProps> = ({
   const totalImpuestos = state.impuestosOC.reduce((s, i) => s + (i.montoUSD || 0), 0);
   const totalOC = subtotalProductos + totalCargos - totalDescuentos + totalImpuestos;
 
+  // S42ag fix — base del cálculo de impuestos = subtotal NETO (con descuentos aplicados)
+  // Antes: impuesto % se aplicaba sobre subtotalProductos bruto → incorrecto contablemente.
+  // Ahora: se aplica sobre la base gravable real (subtotal - descuentos).
+  const baseGravableImpuestos = Math.max(0, subtotalProductos + totalCargos - totalDescuentos);
+
   // ─── Render ──────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
@@ -262,7 +267,7 @@ export const StepCargos: React.FC<StepCargosProps> = ({
           items={impuestosItems}
           onChange={handleImpuestosChange}
           conceptosSugeridos={CONCEPTOS_IMPUESTO}
-          baseCalculoPorcentaje={subtotalProductos}
+          baseCalculoPorcentaje={baseGravableImpuestos}
         />
       </div>
 
