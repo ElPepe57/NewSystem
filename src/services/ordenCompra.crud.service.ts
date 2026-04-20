@@ -755,7 +755,20 @@ export async function confirmarOC(
   if (orden.subOrdenes && orden.subOrdenes.length > 0) {
     ocUpdate.subOrdenes = orden.subOrdenes;
   }
-  batch.update(ocRef, ocUpdate);
+  // S42ay — Firestore rechaza `undefined` en WriteBatch.update(). Limpiamos
+  // recursivamente antes de enviar por si algún consumer cuela un undefined.
+  const cleanUndefined = (obj: unknown): unknown => {
+    if (Array.isArray(obj)) return obj.map(cleanUndefined);
+    if (obj && typeof obj === 'object' && !(obj instanceof Date)) {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+        if (v !== undefined) out[k] = cleanUndefined(v);
+      }
+      return out;
+    }
+    return obj;
+  };
+  batch.update(ocRef, cleanUndefined(ocUpdate) as Record<string, unknown>);
 
   await batch.commit();
 

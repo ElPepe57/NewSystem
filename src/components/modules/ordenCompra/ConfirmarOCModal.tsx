@@ -456,17 +456,20 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
 
       const totalSub = subtotalProductos + sumCargos - sumDesc + sumImp;
 
+      // S42ay — Spread condicional: no incluir propiedades con valor `undefined`
+      // porque Firestore rechaza `Unsupported field value: undefined` al hacer
+      // WriteBatch.update(). Solo agregamos shipping/descuento/impuesto si > 0.
       return {
-        id: `SUB-${orden.numeroOrden}-${String.fromCharCode(65 + subIdx)}`, // SUB-OC-A, SUB-OC-B, etc.
+        id: `SUB-${orden.numeroOrden}-${String.fromCharCode(65 + subIdx)}`,
         referenciaProveedor: refsProveedor[subId] ?? '',
         productos: productosSub,
         subtotalProductosUSD: subtotalProductos,
-        shippingUSD: sumCargos > 0 ? sumCargos : undefined,
-        descuentoUSD: sumDesc > 0 ? sumDesc : undefined,
-        impuestoUSD: sumImp > 0 ? sumImp : undefined,
+        ...(sumCargos > 0 ? { shippingUSD: sumCargos } : {}),
+        ...(sumDesc > 0 ? { descuentoUSD: sumDesc } : {}),
+        ...(sumImp > 0 ? { impuestoUSD: sumImp } : {}),
         totalUSD: totalSub,
-        estado: 'borrador',
-        estadoPago: 'pendiente',
+        estado: 'borrador' as const,
+        estadoPago: 'pendiente' as const,
       };
     });
 
