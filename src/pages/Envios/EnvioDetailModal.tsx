@@ -297,9 +297,15 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               enTransito={envio.estado === 'en_transito'}
               destinoNombre={envio.destinoCasillaNombre || 'Destino'}
               destinoSubtitulo={
-                envio.destinoCasillaPais
-                  ? `Casilla · ${envio.destinoCasillaPais}`
-                  : envio.destinoCasillaCodigo || 'Casilla'
+                // S42bk — Incluir código + país en el subtítulo (similar a
+                // como el origen muestra "Proveedor · USA"). Así el nodo
+                // destino tiene la misma densidad informativa.
+                [
+                  envio.destinoCasillaCodigo,
+                  envio.destinoCasillaPais
+                    ? `Casilla · ${envio.destinoCasillaPais}`
+                    : 'Casilla',
+                ].filter(Boolean).join(' · ')
               }
               destinoPais={envio.destinoCasillaPais}
               destinoEstado={

@@ -245,22 +245,32 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
         {(() => {
           const paisOrigen = envio.origenProveedorPais ?? envio.origenCasillaPais;
           const paisDestino = envio.destinoCasillaPais;
+          // S42bk — Nombres completos (sin .split(' ')[0] que recortaba a la
+          // primera palabra). El nodo destino ahora muestra código + país
+          // como subtítulo para que tenga la misma densidad informativa que
+          // el origen, consistente con el feedback del usuario sobre "Casa"
+          // solo no es suficiente.
+          const destinoSubtexto = [
+            envio.destinoCasillaCodigo,
+            envio.destinoCasillaPais ? `Casilla · ${envio.destinoCasillaPais}` : 'Casilla',
+          ].filter(Boolean).join(' · ');
           const nodes: RouteNode[] = [
             {
               tipo: envio.origenTipo === 'proveedor' ? 'proveedor' : 'casilla',
               flag: getFlagByPais(paisOrigen),
-              nombre: origen.nombre.split(' ')[0],
+              nombre: origen.nombre,
               codigo: origen.codigo,
-              subtexto: paisOrigen,
+              subtexto: envio.origenTipo === 'proveedor'
+                ? `Proveedor${paisOrigen ? ` · ${paisOrigen}` : ''}`
+                : `Casilla${paisOrigen ? ` · ${paisOrigen}` : ''}`,
               state: 'done',
             },
             {
               tipo: 'destino',
               flag: getFlagByPais(paisDestino),
-              nombre: envio.destinoCasillaNombre?.split(' ')[0],
-              subtexto: envio.destinoCasillaPais
-                ? `Casilla · ${envio.destinoCasillaPais}`
-                : envio.destinoCasillaCodigo,
+              nombre: envio.destinoCasillaNombre || 'Casilla',
+              codigo: envio.destinoCasillaCodigo,
+              subtexto: destinoSubtexto || undefined,
               state: envio.estado === 'recibida_completa' ? 'done'
                 : envio.estado === 'en_transito' ? 'active'
                 : 'pending',
