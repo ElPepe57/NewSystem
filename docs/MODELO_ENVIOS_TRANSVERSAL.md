@@ -12,7 +12,7 @@
 
 1. [Proposito y alcance](#1-proposito-y-alcance)
 2. [Los 9 flujos logisticos canonicos](#2-los-9-flujos-logisticos-canonicos)
-3. [Las 14 decisiones cerradas (no re-deliberables)](#3-las-14-decisiones-cerradas-no-re-deliberables)
+3. [Las 15 decisiones cerradas (no re-deliberables)](#3-las-15-decisiones-cerradas-no-re-deliberables)
 4. [Modelo de datos propuesto](#4-modelo-de-datos-propuesto)
 5. [Flujos por caso](#5-flujos-por-caso)
 6. [Wizard de Envio T2 (Casilla Intl -> Peru)](#6-wizard-de-envio-t2-casilla-intl---peru)
@@ -88,7 +88,7 @@ Seguir forzando el modelo actual genera tres problemas:
 
 ---
 
-## 3. Las 14 decisiones cerradas (no re-deliberables)
+## 3. Las 15 decisiones cerradas (no re-deliberables)
 
 Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 con el usuario. Son **input inmutable para S44+**.
 
@@ -108,6 +108,7 @@ Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 co
 | D-12 | Fee de recepcion es un `costoLanded` del envio, NO envio separado | Simplicidad del modelo logistico |
 | D-13 | Wizard T2: 5 pasos (Origen / Picking / Transporte / Costos / Confirmar) | UX alineada con Wizard OC V3 ya existente |
 | D-14 | Se reutiliza `Unidad.reservadaPara` existente (no crear campo nuevo) | Ya implementado para cotizaciones con adelanto pagado |
+| D-15 | Estado inicial del envio por tipo (NO regla unificada): A/B/F/G nacen `confirmado`, D nace `recibida_completa`, C/E/I/J nacen `borrador` | Los auto-creados tienen compromiso implicito en el documento origen; los manuales necesitan ser editables hasta despachar. Ver seccion 8.1 para la tabla completa. |
 
 ---
 
@@ -286,7 +287,7 @@ export interface SubOrdenCompra {
 **Comportamiento:**
 1. OC confirma (estado `confirmada`)
 2. Crea N unidades en estado `pedida`
-3. **Auto-crea 1 envio tipo A en estado `borrador`** por cada sub-orden (o 1 envio si no hay sub-ordenes)
+3. **Auto-crea 1 envio tipo A en estado `confirmado`** por cada sub-orden (o 1 envio si no hay sub-ordenes). La OC confirmada implica compromiso del proveedor, asi que el envio nace ya confirmado (no pasa por borrador).
 4. El envio tiene `origenTipo='proveedor'`, `destinoTipo='casilla_colaborador'`
 5. Hereda cargos de la OC/sub-orden como costos landed del envio
 
@@ -307,6 +308,7 @@ export interface SubOrdenCompra {
 **Comportamiento:**
 - Identico a A, pero con `destinoTipo='almacen_propio'` (almacen en Peru)
 - `tipoRutaLogistica = 'B_proveedor_almacen_ddp'`
+- **Nace en estado `confirmado`** (no borrador) al confirmar OC
 - El proveedor gestiona todo el flete internacional hasta Peru
 - El **courier del proveedor** es responsable de reclamos (daños, perdidas, aduana)
 
@@ -326,7 +328,7 @@ export interface SubOrdenCompra {
 4. Picking manual: el usuario elige cuantas unidades de cada producto incluir (stepper +/-)
 5. Asigna colaborador transportador (viajero o courier intl)
 6. Define costos landed segun la tarifa del colaborador (ver seccion 10.3)
-7. Confirma: se crea envio C en estado `borrador`
+7. Confirma: se crea envio C en estado `borrador` (editable hasta despachar — regla casos manuales)
 8. Al despachar: transita a `en_transito`
 9. Al recibir en Peru: unidades pasan a `disponible_peru` y se prorratean costos landed al CTRU
 
@@ -376,9 +378,9 @@ export interface SubOrdenCompra {
 **Disparador:** Venta confirmada (desde modulo Ventas).
 
 **Comportamiento:**
-1. Al confirmar venta, se crea envio F en estado `borrador`
+1. Al confirmar venta, se crea envio F en estado `confirmado` (la venta ya es compromiso con el cliente)
 2. Vinculado a la venta por `ventaId`
-3. Unidades pasan de `disponible_peru` a `en_transito_cliente`
+3. Unidades pasan de `disponible_peru` a `en_transito_cliente` cuando el envio transita a `en_transito` (courier recoge)
 4. Courier local (colaborador tipo courier_local o manual)
 5. Al entregarse: unidades pasan a `vendida`
 6. **El documento de venta sigue viviendo en /ventas** (factura, cobro, cliente) — solo el lado logistico se maneja aqui
@@ -387,13 +389,15 @@ export interface SubOrdenCompra {
 
 ### 5.7 Caso G — Cliente -> Almacen (devolucion)
 
-**Disparador:** Devolucion abierta (desde modulo Ventas o desde /envios si es post-venta indirecta).
+**Disparador:** Devolucion abierta (desde modulo Ventas — se solicita desde la venta original).
 
 **Comportamiento:**
-1. Crear envio G vinculado a venta original (`ventaId`) y opcionalmente al envio F (`envioOrigenId`)
-2. `origenTipo='cliente'`, `destinoTipo='almacen_propio'`
-3. Flete de retorno: puede ser 0 (cliente lo paga) o costo para nosotros (politica generosa)
-4. Al recibir: **unidades entran en estado `devuelto_pendiente_revision`** (no vuelven a `disponible` automaticamente)
+1. Al abrir devolucion se crea envio G en estado `confirmado` (acuerdo de devolucion = compromiso con cliente)
+2. Vinculado a venta original (`ventaId`) y opcionalmente al envio F (`envioOrigenId`)
+3. `origenTipo='cliente'`, `destinoTipo='almacen_propio'`
+4. Flete de retorno: puede ser 0 (cliente lo paga) o costo para nosotros (politica generosa)
+5. Cuando el cliente despacha: transita a `en_transito`
+6. Al recibir: **unidades entran en estado `devuelto_pendiente_revision`** (no vuelven a `disponible` automaticamente)
 5. Un paso de QA posterior (modulo Calidad o manual) decide:
    - -> `disponible_peru` (apto para re-venta)
    - -> `devuelto_merma` (descarte contable)
@@ -471,7 +475,7 @@ El caso C es el mas complejo operativamente. Requiere un wizard dedicado.
 
 **Paso 5 — Confirmar**
 - Preview visual completo
-- Boton "Confirmar envio" -> crea envio en estado `borrador`
+- Boton "Guardar borrador" -> crea envio en estado `borrador` (editable)
 - Opcion "Despachar inmediatamente" -> crea en `en_transito` directo
 
 ### 6.3 Validaciones del wizard
@@ -537,21 +541,52 @@ En el detalle del envio T1, seccion "Tandas del proveedor":
 
 ## 8. Reglas de negocio por tipo de envio
 
-### 8.1 Estados validos por tipo
+### 8.1 Estado inicial al crear (decision cerrada S43)
+
+El estado inicial depende del **origen de creacion** del envio. Esta regla es resultado de la deliberacion S43 con el usuario (no es regla unificada — patron por tipo):
+
+| Tipo | Estado inicial | Origen | Razon |
+|---|---|---|---|
+| **A** Proveedor→Casilla | `confirmado` | Auto al confirmar OC | OC confirmada = compromiso del proveedor |
+| **B** DDP directo | `confirmado` | Auto al confirmar OC | OC confirmada = compromiso del proveedor |
+| **C** Casilla→Peru | `borrador` | Wizard manual en /envios | Editable hasta que el usuario decida |
+| **D** Recojo origen | `recibida_completa` | Auto al confirmar OC | Logistica instantanea: unidades ya estan en la casilla |
+| **E** Almacen→Almacen interno | `borrador` | Wizard manual | Editable antes de despachar |
+| **F** Despacho venta | `confirmado` | Auto al confirmar venta | Venta confirmada = compromiso con cliente |
+| **G** Devolucion | `confirmado` | Auto al abrir devolucion en Ventas | Acuerdo con cliente = compromiso |
+| **I** A tercero | `borrador` | Wizard manual | Editable antes de despachar |
+| **J** Casilla↔Casilla | `borrador` | Wizard manual | Editable antes de despachar |
+
+**Patron observable:**
+- **Auto-creados (A/B/D/F/G):** nacen en `confirmado` (o `recibida_completa` en D) — el documento origen ya implica compromiso
+- **Manuales (C/E/I/J):** nacen en `borrador` — el usuario tiene tiempo de editar antes de despachar
+
+**Implicancia en UX:**
+- Los envios `borrador` solo aparecen para los 4 casos manuales. Nunca aparece un envio `borrador` que venga de una OC/Venta/Devolucion confirmada.
+- El boton "Confirmar envio" en UI solo se muestra para envios en estado `borrador` (casos C/E/I/J).
+
+**Herramienta de cleanup:** se extiende `BorradoresWizardPanel` (existente desde S41 en `/configuracion/borradores`) para tambien listar envios tipo `borrador` que no transitaron en X dias, con accion "Eliminar" o "Confirmar".
+
+### 8.2 Estados validos por tipo (ciclo completo)
 
 | Tipo | borrador | confirmado | en_transito | recibida_parcial | recibida_completa | retenida_aduana | perdida_total | cancelada |
 |---|---|---|---|---|---|---|---|---|
-| A | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| B | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| C | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| D | (skip) | (skip) | (skip) | (skip) | ✓ (auto) | - | - | ✓ |
-| E | ✓ | ✓ | ✓ | ✓ | ✓ | - | - | ✓ |
-| F | ✓ | ✓ | ✓ | - | ✓ | - | - | ✓ |
-| G | ✓ | ✓ | ✓ | - | ✓ (-> pendiente_revision) | - | - | ✓ |
-| I | ✓ | ✓ | ✓ | - | ✓ | - | - | ✓ |
-| J | ✓ | ✓ | ✓ | ✓ | ✓ | - | - | ✓ |
+| A | - | ✓ (inicial) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| B | - | ✓ (inicial) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| C | ✓ (inicial) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| D | - | - | - | - | ✓ (inicial, auto) | - | - | ✓ |
+| E | ✓ (inicial) | ✓ | ✓ | ✓ | ✓ | - | - | ✓ |
+| F | - | ✓ (inicial) | ✓ | - | ✓ | - | - | ✓ |
+| G | - | ✓ (inicial) | ✓ | - | ✓ (→pendiente_revision) | - | - | ✓ |
+| I | ✓ (inicial) | ✓ | ✓ | - | ✓ | - | - | ✓ |
+| J | ✓ (inicial) | ✓ | ✓ | ✓ | ✓ | - | - | ✓ |
 
-### 8.2 Quien puede crear cada tipo
+Leyenda:
+- **✓ (inicial):** estado en que nace el envio
+- **-** (guion): estado no aplicable para ese tipo
+- **✓** sin anotacion: estado alcanzable durante el ciclo de vida
+
+### 8.3 Quien puede crear cada tipo
 
 | Tipo | Disparador | Modulo origen |
 |---|---|---|
@@ -559,15 +594,17 @@ En el detalle del envio T1, seccion "Tandas del proveedor":
 | C | Manual con Wizard T2 | Envios |
 | E | Manual | Envios (absorbe Transferencias) |
 | F | Automatico en venta confirmada | Ventas (absorbe componente logistico) |
-| G | Manual o automatico al abrir devolucion | Ventas (absorbe componente logistico) |
+| G | Automatico al abrir devolucion desde la venta | Ventas (absorbe componente logistico) |
 | I | Manual | Envios |
 | J | Manual | Envios |
 
-### 8.3 Transiciones de estado prohibidas
+### 8.4 Transiciones de estado prohibidas
 
-- D no puede ir a `borrador` (nace en `recibida_completa`)
+- **A, B, D, F, G nunca pueden estar en `borrador`** (son auto-creados en estados posteriores)
+- D no puede transitar a otro estado (nace en `recibida_completa` terminal)
 - F, G, I no pueden ser `recibida_parcial` (son atomicos)
 - Ningun envio puede ir de `recibida_completa` a otro estado (excepto `cancelada` con auditoria especial)
+- C, E, I, J: solo pueden estar en `borrador` antes de su primera transicion; una vez en `confirmado` no pueden regresar
 
 ---
 
@@ -736,29 +773,38 @@ Los envios que generan pagos a colaboradores (C, E, G, I, J) deben:
 
 ### S44 — Core inbound (A, B, C, D) + desacoplar sub-orden-envio
 
-**Objetivo:** refactor del tramo OC -> Envio para soportar sub-envios T1 + Wizard T2 + caso D con dos variantes.
+**Objetivo:** refactor del tramo OC -> Envio para soportar sub-envios T1 + Wizard T2 + caso D con dos variantes + estado inicial correcto por tipo.
 
 **Entregables:**
 - Tipo `Envio` actualizado con `tipoRutaLogistica`, `origenTipo`, `destinoTipo`, `subEnvios[]`
 - Migracion de envios existentes via scripts
-- `confirmarOC()` crea envio T1 sin sub-envios (nacimiento simple)
+- **Cambio estado inicial por tipo (seccion 8.1):**
+  - `confirmarOC()` crea envio T1 (A/B) en estado `confirmado` directo (antes `borrador`)
+  - Caso D sigue naciendo en `recibida_completa` (sin cambio)
+  - Wizards manuales (C/E/I/J) nacen en `borrador` (sin cambio — es el flujo natural del wizard)
+  - **Requerimiento tecnico:** agregar parametro `estadoInicial?: EstadoEnvio` a `envioCrudService.crear()` con default `'borrador'`. `confirmarOC()` pasa `'confirmado'` explicito.
+- `confirmarOC()` crea envio T1 sin sub-envios (nacimiento simple — los sub-envios se crean retroactivamente al recibir tandas)
 - UI para crear sub-envios al recibir tandas parciales (timeline visual)
 - Wizard T2 completo (5 pasos)
 - Picking con priorizacion pre-ventas
 - `DespacharEnvioModal` actualizado con labels dinamicos (ya esta en S42bl)
 - Validacion UI/UX del caso D2 (deudor=proveedor con recojoEnOrigen)
+- **Migracion de envios existentes en estado `borrador` que vienen de OC confirmadas:** script que transiciona a `confirmado` para cumplir la nueva regla (valida con usuario antes de correr)
+- **Extension de `BorradoresWizardPanel`** (existente desde S41) para listar envios tipo `borrador` con filtros por tipo (C/E/I/J) y accion "Eliminar" / "Confirmar"
 - UAT con usuario antes de cerrar
 
 **Archivos impactados (estimado):**
 - `src/types/envio.types.ts`
 - `src/types/unidad.types.ts`
 - `src/types/ordenCompra.types.ts`
-- `src/services/envio.crud.service.ts`
-- `src/services/ordenCompra.crud.service.ts` (funcion `confirmarOC`)
+- `src/services/envio.crud.service.ts` (crear() acepta estadoInicial)
+- `src/services/ordenCompra.crud.service.ts` (funcion `confirmarOC` pasa 'confirmado')
 - `src/pages/Envios/WizardT2/*` (NUEVO)
 - `src/pages/Envios/SubEnviosTimeline.tsx` (NUEVO)
 - `src/components/modules/ordenCompra/OCWizardV3/StepRuta.tsx` (D1 vs D2)
+- `src/pages/Configuracion/BorradoresWizardPanel.tsx` (extension: filtro por tipo envio)
 - `scripts/migracion-s44/*` (NUEVO)
+  - `01-migrar-envios-borrador-a-confirmado.mjs` (envios A/B/D/F/G pre-S44 en borrador)
 
 ### S45 — Caso J (Casilla-Casilla)
 
@@ -893,7 +939,7 @@ De las 22, 4 tienen `reservadaPara` (cotizaciones con adelanto).
 - Paso 2: checkbox "Incluir todas las prioritarias" (4 unidades resaltadas verde) + stepper agrega 10 mas -> total 14 unidades
 - Paso 3: colaborador viajero "Juan Perez", fecha estimada llegada: 25-abr
 - Paso 4: preset "Por peso" $8/libra, fee recepcion $15 total
-- Paso 5: confirma -> crea `ENV-2026-200` tipo `C_casilla_almacen`, estado `borrador`
+- Paso 5: confirma -> crea `ENV-2026-200` tipo `C_casilla_almacen`, estado `borrador` (caso manual, editable)
 
 ### Paso 7 — Despacho y recepcion
 

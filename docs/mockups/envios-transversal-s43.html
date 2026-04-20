@@ -793,9 +793,10 @@
       <div class="p-4 bg-sky-50 border border-sky-200 rounded-lg mb-5">
         <div class="text-sm font-medium text-sky-900 mb-2">✨ Al confirmar se creará:</div>
         <ul class="text-xs text-sky-800 space-y-1 pl-4 list-disc">
-          <li>Envío <strong>ENV-2026-200</strong> tipo <strong>C (Casilla → Perú)</strong> en estado <strong>borrador</strong></li>
+          <li>Envío <strong>ENV-2026-200</strong> tipo <strong>C (Casilla → Perú)</strong> en estado <strong>borrador</strong> <span class="text-sky-600">(caso manual — editable hasta despachar)</span></li>
           <li>14 unidades cambian de estado: <code class="bg-white px-1 rounded">recibida_usa</code> → <code class="bg-white px-1 rounded">asignada_envio</code></li>
           <li>CxP al colaborador Juan Pérez por $163.00 (pendiente de pago)</li>
+          <li>Al confirmar desde /envios: estado <code class="bg-white px-1 rounded">borrador</code> → <code class="bg-white px-1 rounded">confirmado</code></li>
           <li>Al despachar: unidades pasan a <code class="bg-white px-1 rounded">en_transito_peru</code></li>
           <li>Al recibir: CTRU landed se aplica a cada unidad prorrateado</li>
         </ul>
@@ -1045,6 +1046,129 @@
   <!-- Nota -->
   <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 text-xs text-sky-900">
     <strong>💡 Principio de diseño:</strong> el usuario nunca tiene que saber de memoria los códigos A-J. Los 5 casos automáticos (A/B/D/F/G) ni siquiera se crean desde /envios — aparecen solos cuando confirmas una OC/Venta/Devolución. Los 4 casos manuales (C/E/I/J) sí usan un mini-wizard corto en /envios.
+  </div>
+
+  <!-- ─────────────── TABLA ESTADO INICIAL POR TIPO ─────────────── -->
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h3 class="font-bold text-slate-900 mb-1">Estado inicial al crear — decision cerrada S43</h3>
+    <p class="text-xs text-slate-600 mb-4">El estado en el que nace cada envío depende del <strong>origen de creación</strong>. No es regla unificada — es patrón por tipo.</p>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Auto-creados nacen en confirmado -->
+      <div class="border-2 border-teal-200 rounded-lg overflow-hidden">
+        <div class="bg-teal-50 px-4 py-2 border-b border-teal-200">
+          <div class="flex items-center gap-2">
+            <span class="text-teal-700 font-bold text-sm">🤖 Auto-creados</span>
+            <span class="text-xs text-teal-600">(hay compromiso en el documento origen)</span>
+          </div>
+        </div>
+        <div class="p-3 space-y-2 text-xs">
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">A · Proveedor → Casilla</div>
+              <div class="text-slate-500">OC confirmada = compromiso proveedor</div>
+            </div>
+            <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded font-bold">confirmado</span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">B · DDP directo</div>
+              <div class="text-slate-500">OC confirmada = compromiso proveedor</div>
+            </div>
+            <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded font-bold">confirmado</span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-amber-50 rounded border border-amber-200">
+            <div>
+              <div class="font-medium text-slate-900">D · Recojo origen</div>
+              <div class="text-slate-500">Logística instantánea (ya en casilla)</div>
+            </div>
+            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">recibida_completa</span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">F · Despacho venta</div>
+              <div class="text-slate-500">Venta confirmada = compromiso cliente</div>
+            </div>
+            <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded font-bold">confirmado</span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">G · Devolución</div>
+              <div class="text-slate-500">Acuerdo en venta original</div>
+            </div>
+            <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded font-bold">confirmado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manuales nacen en borrador -->
+      <div class="border-2 border-slate-200 rounded-lg overflow-hidden">
+        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200">
+          <div class="flex items-center gap-2">
+            <span class="text-slate-700 font-bold text-sm">✋ Manuales (wizard)</span>
+            <span class="text-xs text-slate-500">(editable hasta despachar)</span>
+          </div>
+        </div>
+        <div class="p-3 space-y-2 text-xs">
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">C · Casilla → Perú</div>
+              <div class="text-slate-500">Wizard T2 — picking editable</div>
+            </div>
+            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold">borrador</span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">E · Almacén → Almacén interno</div>
+              <div class="text-slate-500">Ajustar antes de despachar</div>
+            </div>
+            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold">borrador</span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">I · A tercero</div>
+              <div class="text-slate-500">Ajustar antes de despachar</div>
+            </div>
+            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold">borrador</span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+            <div>
+              <div class="font-medium text-slate-900">J · Casilla ↔ Casilla</div>
+              <div class="text-slate-500">Ajustar antes de despachar</div>
+            </div>
+            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold">borrador</span>
+          </div>
+        </div>
+        <!-- Cleanup tool -->
+        <div class="px-3 pb-3">
+          <div class="p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-900">
+            🧹 <strong>Cleanup:</strong> Panel <code class="bg-amber-100 px-1 rounded">/configuracion/borradores</code> (existente desde S41) se extiende para listar envíos en estado <code class="bg-amber-100 px-1 rounded">borrador</code> con filtros por tipo + acciones "Eliminar" / "Confirmar".
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flujo de transiciones -->
+    <div class="mt-5 pt-5 border-t border-slate-200">
+      <h4 class="text-sm font-medium text-slate-700 mb-3">Flujo de transiciones después del estado inicial</h4>
+
+      <div class="flex items-center gap-2 text-xs flex-wrap">
+        <div class="px-3 py-2 bg-yellow-100 text-yellow-900 rounded font-medium">borrador</div>
+        <span class="text-slate-400">→</span>
+        <div class="px-3 py-2 bg-sky-100 text-sky-900 rounded font-medium">confirmado</div>
+        <span class="text-slate-400">→</span>
+        <div class="px-3 py-2 bg-blue-100 text-blue-900 rounded font-medium">en_transito</div>
+        <span class="text-slate-400">→</span>
+        <div class="px-3 py-2 bg-emerald-100 text-emerald-900 rounded font-medium">recibida_parcial / recibida_completa</div>
+      </div>
+
+      <div class="mt-3 text-xs text-slate-600 space-y-1">
+        <div>• <strong>Casos manuales (C/E/I/J):</strong> recorren todo el flujo empezando en borrador</div>
+        <div>• <strong>Casos auto (A/B/F/G):</strong> saltan el borrador, arrancan en confirmado</div>
+        <div>• <strong>Caso D:</strong> salta todo el flujo, arranca directo en recibida_completa</div>
+        <div>• Estados laterales: <code class="bg-slate-100 px-1 rounded">retenida_aduana</code> (B, rara vez A), <code class="bg-slate-100 px-1 rounded">perdida_total</code>, <code class="bg-slate-100 px-1 rounded">cancelada</code> (todos)</div>
+      </div>
+    </div>
   </div>
 </section>
 
