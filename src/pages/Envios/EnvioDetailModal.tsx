@@ -133,7 +133,19 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
         ? `Proveedor · ${envio.origenProveedorPais}`
         : 'Proveedor'
       : envio.origenCasillaCodigo || 'Casilla';
-  const courierNombre = envio.courier || envio.colaboradorNombre || null;
+  // S42bg — BUG FIX: antes era `envio.courier || envio.colaboradorNombre`.
+  // Mezclaba dos conceptos distintos:
+  //   - envio.courier: transportador explícito (FedEx, DHL, viajero real) —
+  //     se setea al DESPACHAR el envío.
+  //   - envio.colaboradorNombre: colaborador registrado al crear la OC —
+  //     normalmente es el DUEÑO de la casilla destino (no transportador).
+  // Si el envío no se ha despachado aún, courier=undefined y el fallback
+  // mostraba al dueño de la casilla como si fuera un paso intermedio de
+  // la ruta (semánticamente incorrecto).
+  // Ahora: solo se muestra en el segmento de la ruta cuando hay un
+  // transportador real. El colaborador (si existe) sigue visible en la
+  // sidebar "COLABORADOR".
+  const courierNombre = envio.courier || null;
 
   // ─── Handlers ───────────────────────────────────────────────────────────
   const handleLiberarAduana = async (data: {
@@ -280,7 +292,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               }
               courierNombre={courierNombre}
               courierSubtitulo={
-                envio.colaboradorId ? 'Colaborador registrado' : courierNombre ? 'Courier' : 'Sin asignar'
+                courierNombre ? 'Transportador' : 'Sin despachar'
               }
               enTransito={envio.estado === 'en_transito'}
               destinoNombre={envio.destinoCasillaNombre || 'Destino'}

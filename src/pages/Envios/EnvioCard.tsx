@@ -266,11 +266,16 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
                 : 'pending',
             },
           ];
+          // S42bg — BUG FIX: antes `envio.courier || envio.colaboradorNombre`.
+          // El colaboradorNombre NO es transportador — normalmente es el dueño
+          // de la casilla destino (para envíos proveedor→casilla). Solo el
+          // courier explícito (seteado al despachar) debe aparecer en el
+          // segmento de la ruta.
           const segments: RouteSegment[] = [
             {
-              label: envio.courier || envio.colaboradorNombre || 'Sin asignar',
+              label: envio.courier || 'Sin despachar',
               subtexto: envio.numeroTracking ? `Tracking: ${envio.numeroTracking.slice(-8)}` : undefined,
-              state: envio.colaboradorId || envio.courier ? 'done' : 'pending',
+              state: envio.courier ? 'done' : 'pending',
             },
           ];
           return <RouteVisual size="sm" nodes={nodes} segments={segments} />;
