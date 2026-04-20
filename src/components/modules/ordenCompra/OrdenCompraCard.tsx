@@ -306,6 +306,38 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         />
       )}
 
+      {/* S42ap — Banner CTA de próxima acción (restaurado después de S42an/ao
+          que lo había eliminado al quitar StatusTimeline). Usa el nextAction
+          ya calculado que resuelve label/description/buttonText/onClick según
+          el estado. En borrador muestra "Confirmar OC" y dispara el flujo
+          inline de pregunta / división en sub-órdenes. */}
+      {nextAction && nextAction.buttonText && nextAction.onClick && modoConfirmacion === 'idle' && (
+        <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-white border border-teal-200 flex items-center justify-center flex-shrink-0">
+              <Send className="w-5 h-5 text-teal-600" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-teal-900">
+                {nextAction.label}
+              </div>
+              {nextAction.description && (
+                <div className="text-xs text-teal-700 mt-0.5">
+                  {nextAction.description}
+                </div>
+              )}
+            </div>
+          </div>
+          <Button
+            variant={nextAction.variant === 'primary' ? 'primary' : 'secondary'}
+            onClick={nextAction.onClick}
+            className="flex-shrink-0"
+          >
+            {nextAction.buttonText}
+          </Button>
+        </div>
+      )}
+
       {/* S42ao — Fila de 4 KPIs alineada al mockup S41 L171-199:
            container bg-slate-50, sin borders visibles entre celdas, valores
            centrados. Replica fielmente el patrón del SubOrdenDetailModal. */}
