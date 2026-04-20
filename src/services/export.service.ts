@@ -3,6 +3,7 @@ const getXLSX = () => import('xlsx');
 import type { Producto } from '../types/producto.types';
 import type { Venta } from '../types/venta.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
+import type { Envio } from '../types/envio.types';
 import type { Gasto } from '../types/gasto.types';
 import type { InventarioProducto } from '../types/inventario.types';
 
@@ -108,6 +109,44 @@ export const exportService = {
       'Estado': g.estado,
       'Proveedor': g.proveedor || '',
       'N° Comprobante': g.numeroComprobante || ''
+    }));
+
+    await this.downloadExcel(data, filename);
+  },
+
+  /**
+   * S42bf — Exporta envíos a Excel (auditoría mockup S40: botón "Exportar"
+   * en header de /envios).
+   */
+  async exportEnvios(envios: Envio[], filename = 'envios'): Promise<void> {
+    const data = envios.map(e => ({
+      'N° Envío': e.numeroEnvio,
+      'Fecha Creación': (e.fechaCreacion as any)?.toDate?.().toLocaleDateString('es-PE') || '',
+      'Estado': e.estado,
+      'Tipo': e.tipo,
+      'Origen': e.origenTipo === 'proveedor'
+        ? e.origenProveedorNombre || '—'
+        : e.origenCasillaNombre || '—',
+      'País Origen': e.origenProveedorPais || e.origenCasillaPais || '',
+      'Destino': e.destinoCasillaNombre || '—',
+      'País Destino': e.destinoCasillaPais || '',
+      'OC Asociada': e.ordenCompraNumero || '',
+      'Sub-orden': e.subOrdenId || '',
+      'Courier': e.courier || '',
+      'Tracking': e.numeroTracking || '',
+      'Colaborador': e.colaboradorNombre || '',
+      'Total Unidades': e.totalUnidades || 0,
+      'Unidades Dañadas': e.totalUnidadesDanadas || 0,
+      'Unidades Faltantes': e.totalUnidadesFaltantes || 0,
+      'Costos Landed USD': (e.costosLanded || []).reduce((s, c) => s + (c.monto || 0), 0),
+      'Fecha Salida': (e.fechaSalida as any)?.toDate?.().toLocaleDateString('es-PE') || '',
+      'Fecha Última Recepción': (() => {
+        const ultima = (e.recepciones || [])[e.recepciones?.length ? e.recepciones.length - 1 : -1];
+        return (ultima?.fechaRecepcion as any)?.toDate?.().toLocaleDateString('es-PE') || '';
+      })(),
+      'Días en Tránsito': e.diasEnTransito || 0,
+      'Incidencias Abiertas': (e.incidencias || []).filter(i => !i.resuelta).length,
+      'DDP': (e as any).esDDP ? 'Sí' : 'No',
     }));
 
     await this.downloadExcel(data, filename);

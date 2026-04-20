@@ -9,6 +9,7 @@ import {
   Package,
   ScanLine,
   AlertTriangle,
+  Clock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, Badge, Button } from "../../components/common";
@@ -149,6 +150,96 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
         </div>
       </div>
 
+      {/* S42bf — Banner de estado destacado (mockup S40 L2133-2140).
+          Prioridad: incidencia abierta > en_transito > recibida_parcial >
+          recibida_completa > borrador/confirmado "Pendiente despachar". */}
+      {(() => {
+        const incidenciasAbiertas = (envio.incidencias || []).filter(i => !i.resuelta);
+        const tieneIncidencia =
+          incidenciasAbiertas.length > 0 ||
+          (envio.totalUnidadesFaltantes || 0) > 0 ||
+          (envio.totalUnidadesDanadas || 0) > 0 ||
+          envio.estado === 'retenida_aduana' ||
+          envio.estado === 'perdida_total';
+
+        if (tieneIncidencia) {
+          const count = incidenciasAbiertas.length || 1;
+          const resumenInc = getResumenIncidencias(envio);
+          return (
+            <div className="mb-3 flex items-start gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
+              <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 text-xs text-red-800">
+                <div className="font-semibold">
+                  {count === 1 ? '1 incidencia abierta' : `${count} incidencias abiertas`}
+                </div>
+                {resumenInc && <div className="mt-0.5 opacity-90">{resumenInc.tooltip}</div>}
+              </div>
+            </div>
+          );
+        }
+
+        if (envio.estado === 'en_transito' && fechaSalida) {
+          return (
+            <div className="mb-3 flex items-center justify-between px-3 py-2 bg-sky-50 border border-sky-200 rounded-lg text-xs">
+              <div className="flex items-center gap-2 text-sky-800">
+                <Truck className="w-4 h-4 text-sky-600" />
+                <span className="font-semibold">
+                  En camino desde {fechaSalida.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
+                </span>
+              </div>
+              {envio.diasEnTransito && (
+                <span className="text-sky-700 font-medium">{envio.diasEnTransito} días</span>
+              )}
+            </div>
+          );
+        }
+
+        if (envio.estado === 'recibida_parcial') {
+          const recibidas = envio.totalUnidadesRecibidas ?? (envio.unidades ?? []).filter(u => u.estadoEnvio === 'recibida').length;
+          const danadas = envio.totalUnidadesDanadas ?? (envio.unidades ?? []).filter(u => u.estadoEnvio === 'danada').length;
+          const procesadas = recibidas + danadas;
+          const totalU = envio.totalUnidades;
+          const pct = totalU > 0 ? Math.round((procesadas / totalU) * 100) : 0;
+          return (
+            <div className="mb-3 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-purple-800 font-semibold">
+                  <Package className="w-4 h-4 text-purple-600" />
+                  Recepción parcial · {procesadas}/{totalU} unidades
+                </div>
+                <span className="text-purple-700 font-medium tabular-nums">{pct}%</span>
+              </div>
+              <div className="mt-1.5 h-1.5 bg-purple-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-purple-500 rounded-full transition-all"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        }
+
+        if (envio.estado === 'recibida_completa') {
+          return (
+            <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 font-semibold">
+              <CheckCircle className="w-4 h-4 text-emerald-600" />
+              Envío recibido completo
+            </div>
+          );
+        }
+
+        if (envio.estado === 'borrador' || envio.estado === 'confirmado') {
+          return (
+            <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 font-semibold">
+              <Clock className="w-4 h-4 text-amber-600" />
+              Pendiente despachar
+            </div>
+          );
+        }
+
+        return null;
+      })()}
+
       {/* S41 — Ruta visual con RouteVisual del DS */}
       <div className="mb-4 p-3 bg-slate-50 rounded-lg">
         {(() => {
@@ -244,21 +335,9 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
         </div>
       </div>
 
-      {/* En transito */}
-      {envio.estado === 'en_transito' && fechaSalida && (
-        <div className="flex items-center justify-between p-2 bg-sky-50 rounded-lg text-sm">
-          <div className="flex items-center text-sky-700">
-            <Truck className="h-4 w-4 mr-2" />
-            En camino desde {fechaSalida.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
-          </div>
-          {envio.diasEnTransito && (
-            <span className="text-sky-600 font-medium">{envio.diasEnTransito} dias</span>
-          )}
-        </div>
-      )}
-
-      {/* Progreso recepcion parcial */}
-      {envio.estado === 'recibida_parcial' && (() => {
+      {/* S42bf — Boxes duplicados de en_transito y recibida_parcial ELIMINADOS.
+          Ahora el estado se muestra en el banner superior unificado. */}
+      {false && envio.estado === 'recibida_parcial' && (() => {
         const recibidas = envio.totalUnidadesRecibidas ?? (envio.unidades ?? []).filter(u => u.estadoEnvio === 'recibida').length;
         const danadas = envio.totalUnidadesDanadas ?? (envio.unidades ?? []).filter(u => u.estadoEnvio === 'danada').length;
         const procesadas = recibidas + danadas;

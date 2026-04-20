@@ -14,7 +14,9 @@ import {
   BarChart3,
   ChevronRight,
   Search,
+  Download,
 } from "lucide-react";
+import { exportService } from "../../services/export.service";
 import {
   Button,
   Card,
@@ -724,6 +726,16 @@ export const Envios: React.FC = () => {
               className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             >
               <RefreshCw className="h-5 w-5" />
+            </Button>
+            {/* S42bf — Botón Exportar (auditoría mockup S40 L1934) */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportService.exportEnvios(enviosPorLinea)}
+              disabled={enviosPorLinea.length === 0}
+            >
+              <Download className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Exportar</span>
             </Button>
             <Button variant="primary" size="sm" onClick={() => setShowCreateModal(true)}>
               <Plus className="h-4 w-4 mr-2" />
