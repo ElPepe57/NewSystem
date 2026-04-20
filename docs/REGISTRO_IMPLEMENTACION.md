@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-19 (Sesion 42h — Vistas especializadas por sección en Red Logística. Mis Almacenes + Viajeros invierten la jerarquía: casilla (lugar físico) como fila principal, colaboradores como dependientes asociados. Couriers + Transportistas mantienen vista por colaborador pero con badges de tarifas destacadas. Componentes nuevos: CasillaExpandible + AsociarColaboradorModal + PorCasillaLayout (incluye sección "Sin casilla configurada" para huérfanos). Subgrupo ampliado con layoutMode prop. Commits S42c-h: `edfd8b5` → `2bccd75`. Deploys #206-211.)
+**Ultima actualizacion:** 2026-04-20 (Sesion 42 CIERRE FORMAL — S42 a S42bl completo. Commit inicial S42: `7d811d4`. Commit final S42bl: `6fd0823`. 39 sub-sesiones. Bloques: (1) Rework UX/UI cierre mockups, (2) CTRU arquitectural, (3) Envios+Red Logistica fixes, (4) Modelo Envios Transversal aprobado con 14 decisiones. Proxima sesion: S43 = solo spec+mockups MODELO_ENVIOS_TRANSVERSAL.md. Deuda urgente: DEUDA-CTRU-001.)
 **Branch activo:** main
 
 ---
@@ -15,9 +15,9 @@
 | Sesiones de trabajo registradas | 42 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
-| Fixes aplicados | ~579 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g + 3 S42h: vistas especializadas por seccion) |
-| Tareas criticas pendientes | 3 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion) |
-| Deploys realizados | 211 (ultimo: 2026-04-19 S42h, commit `2bccd75`, hosting vitaskinperu.web.app) |
+| Fixes aplicados | ~650 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g + 3 S42h + ~71 S42i→S42bl) |
+| Tareas criticas pendientes | 4 (TAREA-097: calibracion proyecciones, TAREA-098: reportes completo, TAREA-099: trazabilidad ubicacion, DEUDA-CTRU-001: revision CTRU completa post-mockups) |
+| Deploys realizados | 211+ (ultimo verificado: 2026-04-19 S42h, commit `2bccd75`. S42i→S42bl sin deploy dedicado verificado.) |
 | Modulo Pool USD / Rendimiento Cambiario | INTEGRADO con OC + Gastos + Snapshot mensual + carga retroactiva + metaPEN (Sesion 10) |
 | Modulo Ventas a Socios | COMPLETO — flujo subsidio + oportunidad + alertas anomalia + KPIs + motivo obligatorio (Sesion 14) |
 | TAREA-014 God files | RESUELTO — 6/6 completados (Tesoreria S9, Maestros S11, Transferencias S13, MercadoLibre S13, Cotizaciones S14, Requerimientos S14) |
@@ -1162,6 +1162,298 @@ Sin cambios respecto a S42. Sigue vigente la lista de:
 - Nivel 2 auditoría mockup
 - 7 deudas S41 + 4 deudas S42 + 2 deudas S42b (total 13)
 - Testing E2E con datos reales
+
+---
+
+## SESION 42 CIERRE COMPLETO — 2026-04-20 — Alineacion visual S42a→S42bl + Deliberacion modelo Envios transversal
+
+### Metadata de cierre
+
+| Campo | Valor |
+|-------|-------|
+| Commit inicial S42 | `7d811d4` (S42 — Tandas 9-10) |
+| Commit final S42bl | `6fd0823` (DespacharEnvioModal etiquetas dinamicas) |
+| Sub-sesiones | S42 + S42a→S42bl (39 sub-sesiones, algunas agrupadas en commit) |
+| Ultimo deploy verificado | #211 (commit `2bccd75`, S42h) |
+| tsc -b ultimo | 0 errores |
+| vite build ultimo | 25.05s (S42bl) |
+| Decisiones registradas | D-160 a D-178 (19 decisiones) |
+| Cambios registrados | CAMBIO-465 a CAMBIO-490 (26 cambios principales) |
+| Duracion total estimada | ~15h distribuidas en multiples conversaciones |
+
+---
+
+### Resumen ejecutivo de la sesion S42 completa
+
+S42 fue la sesion mas extensa del proyecto hasta la fecha. Comenzo como las "Tandas 9-10" del rework UX/UI (cierre del ciclo iniciado en S41) y evoluciono en multiples direcciones: alineacion profunda de la vista `/compras` con el mockup, refactor del detalle de OC, unificacion del flujo ConfirmarOC embebido en el detalle, correcciones al modelo CTRU, construccion del MapKit reutilizable, Red Logistica con mapa y vistas especializadas, y una deliberacion arquitectural final que definio el modelo de Envios Transversal para S43+.
+
+La sesion se puede dividir en 4 bloques tematicos:
+
+**Bloque 1 — Rework UX/UI (S42 + S42a→S42r):** Vista `/compras` y `/envios` alineadas al mockup. Wizard OC StepRuta simplificado a decisiones no-especulativas. Paso Inteligencia alineado. CompraCard simplificada. Detalle OC con header hero + pipeline grande + 4 KPIs. ConfirmarOCModal unificado como flujo embedded.
+
+**Bloque 2 — CTRU y modelo de cargos (S42az→S42bd):** Tres huecos arquitecturales corregidos en ConfirmarOCModal (redondeo en ultima sub-orden + 0 explicito + fuente de verdad `getCargosEfectivosOC()`). Prorrateo CTRU correcto por sub-orden. DesgloseCTRU movido al modulo CTRU con deep-link. CTRU comercial integrado como columna en detalle OC.
+
+**Bloque 3 — Envios y Red Logistica (S42b→S42n, S42be→S42bl):** Fix DDP a lenguaje usuario. Fix seleccion "Via casilla". MapKit reutilizable. Red Logistica con mapa + vistas especializadas por seccion. Fix courier vs colaborador. Fix destino OC (no hardcodear Peru). Fix nombres sin truncar. Labels dinamicos en DespacharEnvioModal.
+
+**Bloque 4 — Deliberacion arquitectural (al cierre de S42):** Modelo de Envios Transversal aprobado con 14 decisiones cerradas. Plan S43+ con 6 fases de implementacion.
+
+---
+
+### Lista cronologica de sub-sesiones con commits
+
+| Sub-sesion | Commit | Descripcion |
+|-----------|--------|-------------|
+| S42 | `7d811d4` | Tandas 9-10: /compras y /envios alineados a mockup (Deploy #204) |
+| S42b | `5f007b4` | Traduccion DDP + fix seleccion "Via casilla" (Deploy #205) |
+| S42c | `edfd8b5` | Fix updateDoc() undefined en Colaborador/Casilla (Deploy #206) |
+| S42d | `aefb4d2` | MapKit reutilizable + Red Logistica mapa + migracion /mapa-ventas (Deploy #207) |
+| S42e | `8211ff0` | Mini-mapa preview en CasillaFormModal (Deploy #208) |
+| S42f | `1e334a8` | PlacesAutocompleteInput helper + dropdown sugerencias (Deploy #209) |
+| S42g | `ef3fa8f` | Titulo "Colaborador · subtipo" + casillas compartidas (Deploy #210) |
+| S42h | `2bccd75` | Vistas especializadas por seccion en Red Logistica (Deploy #211) |
+| S42i | `5e84922` | Fix: colaboradores secundarios no aparecen como "sin casilla" |
+| S42j | `ecf3922` | Eliminar seccion "Configuracion de viajero" (dead fields) |
+| S42k | `107be33` | Eliminar seccion duplicada "Otros colaboradores" de CasillaFormModal |
+| S42l | `b5c5033` | Eliminar secciones de configuracion detallada por tipo |
+| S42m | `2ceb9d7` | Contadores casillas/colaboradores alineados a estado activo |
+| S42n | `a2b66fb` | Boton eliminar colaborador con validacion de dependencias |
+| S42o | `7537a2b` | Script reset Red Logistica para etapa testeo |
+| S42p | `1464e15` | Direccion de referencia en cards de casilla del Wizard OC |
+| S42q | `6c29e66` | Selectores colapsables en Wizard OC (Casilla + Almacen) |
+| S42r | `394fd09` | Colapsable para selector de Proveedor |
+| S42s | `772a50c` | Buscador + layout 1-col en selector Casilla de transito |
+| S42t | `80839961` + `ed23a1b` | Fix padding scrollable + ancho cards Casilla/Almacen |
+| S42u | `a944b09` | "Almacen destino final" solo en modo Entrega directa (DDP) |
+| S42v | `aeba445` | Selector viajero Tramo 2 prioriza asociados a la casilla |
+| S42w | `b013864` | Selector Tramo 2 muestra SOLO viajeros de la casilla |
+| S42x | `8c2b0f9` | Colapsable para "Como llega la mercaderia?" |
+| S42y | `cb06590` | Fix: card tipo ruta colapsada no reexpandia al click |
+| S42z | `1894b3b` | Fix: TipoCardGrande w-full al colapsar |
+| S42ab/aa | `9d8c048` | Colapsable en los 3 Tramos + fix selector quien paga local |
+| S42ac | `8f45e44` | w-full en TipoCardCompactoCenter + TipoCardPequeno |
+| S42ad | `bbfe044` | Eliminar selector viajero del Tramo 2 Cruce a Peru |
+| S42ae | `d85acd4` | Simplificar Wizard OC a decisiones no-especulativas |
+| S42af | `ee726d8` | Recojo en origen: envio recibido + inventario casilla al confirmar OC |
+| S42ag/ah | `38ff2e0` + `a9dbe7c` | Fix dropdown conceptos + impuesto sobre subtotal bruto + TC auto + codigo casilla |
+| S42ai | `34649b3` | TC readonly puro + ruta OC termina en casilla (no Peru hardcoded) |
+| S42aj | `88ecd5f` | Eliminar tab "Envios Proveedor" → pill Tramo 1 en Operaciones |
+| S42ak | `c36dfed` | Paso 4 Inteligencia alineado a mockup S40 |
+| S42al/al.1 | `3f36f9d` + `597e37d` | CompraCardSimple alineada a mockup + bg-slate-50 |
+| S42am | `2bfdf1d` | Default vista card + toggle inline |
+| S42an | `c97326z` | Header + pipeline grande + 4 KPIs estilo mockup S41 en detalle OC |
+| S42ao | `223686a` | Alineacion completa al mockup S41 sub-orden en detalle OC |
+| S42ap | `ddff622` | Restaurar banner CTA "Confirmar OC" perdido en S42an/ao |
+| S42aq | `602848f` | Unificar ConfirmarOCModal en un solo flujo |
+| S42ar | `bcd36b4` | Fix hooks despues de if(!isOpen) rompia al abrir |
+| S42as | `eb293e9` | Impuestos dual (% auto / fijo manual) por sub-orden |
+| S42at | `313d995` | Toggle %/$ interactivo por impuesto en el modal |
+| S42au | `c5e93c4` | % editable en vivo en modal confirmacion |
+| S42av | `180975a` | Flujo embedded dentro del modal de Detalles |
+| S42aw | `549ff2d` | Header+pipeline+KPIs persisten al confirmar |
+| S42ax | `49da4eb` | Flujo realmente integrado al detalle |
+| S42ay | `f66e0d9` | Fix Firestore rechaza undefined al confirmar OC |
+| S42az | `de8dc5f` | 3 huecos reales: redondeo + 0 explicito + fuente verdad getCargosEfectivosOC() |
+| S42ba | `c783e60` | Prorrateo CTRU correcto por sub-orden (Regla Ejemplo 3) |
+| S42bb | `f6a4889` | DesgloseCTRU movido a modulo CTRU con deep-link desde OC |
+| S42bc | `e6f7a09` | Desglose inline en OC como proyeccion + link CTRU condicional |
+| S42bd | `67442f9` | CTRU comercial integrado como columna en detalle OC (sin seccion extra) |
+| S42be | `66d1cd5` | totalPagado real filtrando historialPagos por subOrdenId en SubOrdenDetailModal |
+| S42bf | `f163337` | Boton Exportar + banner estado unificado en EnvioCard |
+| S42bg | `32bd028` | Fix colaborador casilla destino NO es transportador en la ruta |
+| S42bh | `dcb08b6` | EnviosDeOC muestra courier real, no colaborador |
+| S42bi | `9237935` | Ruta de OC refleja destino real, no Peru forzado |
+| S42bj | `4517f4d` | Nombres de ruta completos, sin slice/truncate artificial |
+| S42bk | `43f4887` | Nodo destino con densidad informativa completa |
+| S42bl | `6fd0823` | Etiquetas dinamicas en DespacharEnvioModal segun tramo |
+
+---
+
+### Archivos principales modificados en S42 (excluyendo S42-S42h ya documentados)
+
+**Modulo OC / Wizard:**
+- `src/components/modules/ordenCompra/OCWizardV3/StepRuta.tsx` — simplificacion a decisiones no-especulativas, colapsables en 5 secciones, selector casilla con buscador, viajeros filtrados por casilla
+- `src/components/modules/ordenCompra/OCWizardV3/configLogistica.ts` — traduccion DDP, logica recojo en origen
+- `src/components/modules/ordenCompra/ConfirmarOCModal.tsx` — unificacion flujo embedded, impuestos dual %/$, 3 huecos arquitecturales corregidos (getCargosEfectivosOC, 0 explicito, redondeo ultima)
+- `src/components/modules/ordenCompra/SubOrdenDetailModal.tsx` — totalPagado real desde historialPagos filtrado por subOrdenId, KPI tri-estado
+- `src/components/modules/ordenCompra/CompraCard.tsx` / `OrdenCompraCard.tsx` — MiniRuta condicional, nombres sin truncar, CTRU como columna
+
+**Nuevos helpers:**
+- `src/utils/ordenCompra.helpers.ts` — `getCargosEfectivosOC()` (fuente unica de verdad para cargos efectivos) + `prorratearCargosOC()` (distribucion proporcional entre sub-ordenes)
+
+**Modulo CTRU:**
+- `src/components/modules/ctru/DesgloseCTRU.tsx` — movido desde modulo ordenCompra, componente standalone
+- `src/components/modules/ctru/DesgloseCTRUPorOC.tsx` — wrapper con fetch, renderiza DesgloseCTRU
+- `src/components/modules/ctru/LoteOCTable.tsx` — prop `autoExpandId` para deep-link
+- `src/pages/CTRU/CTRUDashboard.tsx` — soporte `?tab=lote&ocId=X` para deep-link desde detalle OC
+
+**Modulo Envios:**
+- `src/pages/Envios/DespacharEnvioModal.tsx` — helper `tramoContexto` para labels dinamicos segun tipo de envio (Tramo1/Tramo2/DDP/interno), texto confirmacion adaptado al origen real
+- `src/pages/Envios/EnvioDetailModal.tsx` — destino enriquecido, colaborador vs courier distinguidos
+- `src/pages/Envios/EnvioCard.tsx` — destino con densidad completa, banner estado unificado
+- `src/pages/Envios/EnviosDeOC.tsx` — muestra courier real (no colaborador casilla destino)
+- `src/pages/Envios/Envios.tsx` — boton Exportar, pill Tramo 1 reemplaza tab "Envios Proveedor"
+
+**Red Logistica (S42i-S42r):**
+- `src/pages/RedLogistica/ColaboradorFormModal.tsx` — limpieza de secciones muertas (viajero, tipo-especificas)
+- `src/pages/RedLogistica/CasillaFormModal.tsx` — limpieza de seccion duplicada "Otros colaboradores"
+- `src/pages/RedLogistica/RedLogistica.tsx` — fix secundarios en seccion huerfanos, contadores activos, boton eliminar
+- Scripts: `scripts/reset-red-logistica.mjs`, `scripts/delete-colaborador.mjs`
+
+**Vista /compras:**
+- `src/pages/OrdenesCompra/OrdenesCompra.tsx` — default vista card, toggle inline
+
+---
+
+### Decisiones arquitecturales clave S42 (nuevas en S42i+)
+
+| ID | Decision | Razon |
+|----|---------|-------|
+| D-179 | Simplificar StepRuta a solo decisiones no-especulativas (S42ae) | Preguntar al usuario sobre cosas que no sabe aun (tramo 2, courier) bloqueaba el flujo. Solo preguntar lo que el usuario tiene informacion hoy. |
+| D-180 | Recojo en origen = OC recibida inmediatamente + inventario en casilla al confirmar (S42af) | Si el colaborador recoge en mano, no hay un "envio en transito" real. El inventario ya esta en la casilla. |
+| D-181 | getCargosEfectivosOC() como unica fuente de verdad para cargos en ConfirmarOCModal (S42az) | Tres consumidores distintos calculaban cargos de forma diferente causando divergencias. Una funcion pura en helpers resuelve la inconsistencia. |
+| D-182 | 0 explicito en ultima sub-orden para redondeo (S42az) | Si cargos prorrateados dejan centavos de diferencia en la ultima sub-orden, persistir el 0 explicito en lugar de recalcular. |
+| D-183 | DesgloseCTRU vive en modulo CTRU, no en ordenCompra (S42bb) | Separacion de responsabilidades: la logica de visualizacion CTRU es del modulo CTRU. OC solo hace deep-link. |
+| D-184 | CTRU en detalle OC como columna adicional en tabla de productos, no como seccion separada (S42bd) | Reduce scroll y muestra CTRU contextualizado por producto sin salir del detalle OC. |
+| D-185 | totalPagado en SubOrdenDetailModal viene de filtrar historialPagos por subOrdenId (S42be) | El campo totalPagado en el tipo estaba hardcodeado a 0. La fuente real son los registros de pago filtrados. |
+| D-186 | Colaborador de la casilla destino no es el courier del envio (S42bg/bh) | Confusion arquitectural: el colaborador que "tiene" la casilla destino es el receptor, no quien transporta. El courier es un campo separado. |
+| D-187 | Ruta de OC termina en la casilla, no en Peru hardcodeado (S42ai/bi) | El nodo final de un envio T1 es la casilla del colaborador (USA/China/etc). Peru solo aplica en DDP o en el T2. |
+| D-188 | Nombres en nodos de ruta sin truncar artificialmente (S42bj) | El truncado escondia informacion clave (proveedor, casilla). El layout debe adaptarse al contenido, no al reves. |
+| D-189 | Labels en DespacharEnvioModal son dinamicos segun tipo de envio (S42bl) | Preguntar "Como viaja a Peru?" en un envio T1 (proveedor→casilla USA) es semanticamente incorrecto. |
+
+---
+
+### Deudas tecnicas abiertas al cierre de S42
+
+**URGENTE — Pendiente de S43+:**
+
+1. **DEUDA-CTRU-001 (URGENTE):** Revision completa del CTRU post-mockups. El usuario declaro explicitamente: "Mejor hay que dejar como una tarea pendiente urgente, revisar el CTRU cuando terminemos toda la implementacion de los mockups." Incluye:
+   - Estado `'pedida'` en `RELEVANT_STATES` del `ctruStore` (posible inclusion incorrecta)
+   - Auditoria de consumers legacy v1 del CTRU
+   - Validacion end-to-end F1/F2/F3 (fuentes de verdad: getCTRU, getCTRU_Real, ctruDinamico)
+   - Lotes mixtos por producto (un producto con unidades de 2 OCs distintas)
+
+2. **DEUDA-ENVIOS-001:** Modelo sub-envios dentro de T1 no implementado. El proveedor puede hacer N entregas parciales dentro de una sola sub-orden (caso Amazon con 3 fechas). Actualmente solo se modela 1 envio por sub-orden.
+
+3. **DEUDA-ENVIOS-002:** Consolidacion T2 (casilla→Peru) no implementada. Actualmente cada OC genera su propio envio. El caso real es picking manual de N OCs hacia un envio T2.
+
+4. **DEUDA-UI-001:** Wizard OC StepRuta "Viajero absorbe costo" sin modelo. El alert() placeholder sigue ahi.
+
+5. **DEUDA-UI-002:** StepRuta almacen destino final Peru para modo "Via casilla" — el picker de almacen Peru usa el mismo componente que la casilla de transito pero deberia mostrar solo almacenes Peru.
+
+6. **DEUDA-UI-003:** "Crear nuevo proveedor" inline en StepRuta sigue siendo alert() placeholder.
+
+7. **DEUDA-UI-004:** `productoEmoji.ts` cross-module (OCWizardV3 y Envios importan desde rutas distintas). Mover a `src/utils/productoEmoji.ts`.
+
+8. **DEUDA-UI-005:** ConfirmarOCModal cargos por sub-orden sin arrays tipados (usa `as any` en algun tramo del reducer).
+
+9. **DEUDA-MODELO-001:** `tipoRutaLogistica` no existe en el tipo Envio. El breakdown de tipos en /envios usa heuristica fragil basada en (tipo, ordenCompraId, esDDP). Agregar campo canonico.
+
+10. **DEUDA-DATOS-001:** Valor landed usa TC del dia, no TC historico de cada envio. Para reportes contables se necesita `tcCompra` de la OC origen.
+
+11. **DEUDA-UI-006:** "Con incidencias" en /envios duplica logica en dos lugares. Extraer a helper `envioTieneIncidencia(e)`.
+
+12. **DEUDA-PERF-001:** Paginacion sin virtualization. Si hay 500+ items y usuario hace "Cargar mas" muchas veces, puede degradar rendering.
+
+13. **DEUDA-MODELO-002:** Redundancia Colaborador tipo=empresa vs Casilla en campos pais/ciudad/direccion. Opcion A (ocultar en UI) recomendada pero no implementada.
+
+14. **DEUDA-MAPKIT-001:** RouteLayer (polilineas origen-destino) declarado en types.ts pero no implementado. Caso de uso: envios activos en el mapa.
+
+15. **DEUDA-MAPKIT-002:** Geocoding batch para casillas existentes sin coordenadas.
+
+16. **DEUDA-MAPKIT-003:** Export del MapKit desde `src/design-system/index.ts` principal pendiente.
+
+17. **DEUDA-RED-001 (S42h):** Banner en CasillaFormModal cuando casilla es compartida.
+
+18. **DEUDA-RED-002 (S42h):** Progress bar visual de capacidad (actualmente solo texto).
+
+19. **DEUDA-RED-003 (S42g):** Permisos diferenciados secundarios en casilla compartida.
+
+20. **DEUDA-INCOTERM-001 (S42b):** Capa de traduccion centralizada Incoterms (`src/utils/incoterms-labels.ts`) para evitar que valores enum aparezcan en exports/auditoria.
+
+21. **DEUDA-UX-001 (S42b):** Default silencioso `salidaProveedor='proveedor_envia'` en "Via casilla" — agregar banner explicativo visible para el usuario.
+
+---
+
+### Plan aprobado S43+ — Modelo de Envios Transversal
+
+El usuario y el equipo cerraron las siguientes 14 decisiones de modelo antes del fin de S42. Estas decisiones NO deben re-deliberarse en S43+.
+
+**Decisiones cerradas:**
+
+1. **Envios = modulo transversal hub logistico.** Absorbe todos los movimientos fisicos: T1 (proveedor→casilla), T2 (casilla→Peru), Caso E (entre casillas), Caso F (venta con envio), Caso G (devolucion), Caso I (almacen tercero), Caso J (casilla→casilla).
+
+2. **OC genera solo el tramo T1 que le corresponde.** Proveedor→casilla (o DDP proveedor→Peru). El T2 (casilla→Peru) se crea manualmente en el modulo Envios.
+
+3. **Sub-envios dentro del T1.** El proveedor puede despachar en N tandas la misma sub-orden (caso Amazon 3 fechas de entrega). Cada "tanda" es un sub-envio con su propio tracking y fecha.
+
+4. **T2 consolida unidades de N OCs.** El picking es manual por casilla, no por OC. El operador selecciona "estas N unidades de estas M OCs van en el envio T2".
+
+5. **Priorizacion de pre-ventas en picking T2.** Las unidades con `reservadaPara` (cotizacion con adelanto pagado) se sugieren como prioridad en el picking del T2.
+
+6. **Caso D tiene 2 variantes:** D1 (colaborador compra directo, deudor=colaborador) y D2 (yo pago, colaborador solo recoge, deudor=proveedor). Ambas usan `recojoEnOrigen=true` logisticamente.
+
+7. **Caso G (devolucion).** Las unidades entran en estado `devuelto_pendiente_revision` hasta que el operador decide: reintegrar a inventario, dar de baja, o abrir reclamo.
+
+8. **Casos I y J unificados como "Envios entre nodos"** con distinto `destinoTipo`. El wizard detecta si es hacia Peru (T2) o entre casillas (I/J).
+
+9. **Caso J preferentemente intra-pais.** Casilla→casilla dentro del mismo pais. Cruces internacionales se pueden hacer pero son caso de uso secundario.
+
+10. **Caso I bloqueado por Opcion B.** Unidades en almacen tercero no aparecen en listados de stock vendible hasta que llegan a Peru.
+
+11. **Responsabilidad de reclamos segun tipo de envio.** En DDP (B) el responsable default es el courier del proveedor. En T1 es el viajero/courier propio. En T2 es el transportista local.
+
+12. **Fee de recepcion = costoLanded del envio.** No se crea un envio separado. El costo de recepcion/almacenamiento va como cargo en el costoLanded del envio T2.
+
+13. **Wizard T2 con 5 pasos:** Origen (casilla) → Picking (unidades con priorizacion pre-ventas) → Transporte (courier + tracking) → Costos (landed) → Confirmar.
+
+14. **Campo `Unidad.reservadaPara` ya existe** y se usa para priorizacion en el picking del T2.
+
+**Plan de fases S43+:**
+
+| Fase | Sesion | Contenido |
+|------|--------|-----------|
+| Spec + Mockups | S43 | Solo documentacion. Crear `docs/MODELO_ENVIOS_TRANSVERSAL.md` + mockups HTML. Sin codigo. |
+| Core inbound | S44 | Desacoplar sub-orden↔envio, sub-envios T1, consolidacion T2, wizard T2 |
+| Caso J | S45 | Casilla→Casilla, preferente mismo pais |
+| Absorber Transferencias | S46 | Caso E unificado bajo Envios |
+| Absorber Ventas logistica | S47 | Caso F + Caso G (devolucion) |
+| Almacenes terceros | S48 | Caso I |
+
+---
+
+### Instrucciones arranque S43
+
+**LEER ANTES DE CODEAR:**
+1. Esta seccion completa del REGISTRO_IMPLEMENTACION.md
+2. MEMORY.md (entrada S42 cerrada)
+3. Las 14 decisiones de modelo listadas arriba (NO re-deliberar)
+
+**PRIMERA TAREA S43 — Solo documentacion, sin codigo:**
+Crear `docs/MODELO_ENVIOS_TRANSVERSAL.md` con:
+- Diagrama de los 9 tipos de envio (A-J) y su mapeo al modelo
+- Esquema de tipos TypeScript propuesto (Envio, SubEnvio, EnvioT2, PickingItem)
+- Flujo del wizard T2 (5 pasos con pantallas mockup)
+- Reglas de negocio por tipo de envio
+- Estrategia de migracion de datos (envios existentes → nuevo modelo)
+
+**SEGUNDA TAREA S43 — Mockups HTML:**
+Crear `docs/mockups/envios-transversal-s43.html` con:
+- Vista `/envios` post-modelo-nuevo (con pills T1/T2/Entre casillas/DDP)
+- Wizard T2 (5 pasos completos)
+- Sub-envios dentro de un T1 (expansion inline)
+- Modal de picking T2 con priorizacion pre-ventas
+
+**PREREQUISITOS antes de codear S44:**
+- Validacion del usuario del spec y mockups
+- Confirmacion de estrategia de migracion de envios existentes
+- Decision sobre `tipoRutaLogistica` canonico en tipo Envio
+- Auditoria CTRU (DEUDA-CTRU-001) puede hacerse en paralelo con S43 spec
+
+**NOTAS DE ZONA DE RIESGO:**
+- getCargosEfectivosOC() es nueva y aun no probada en todos los casos edge (sub-ordenes con descuento a nivel OC + descuento por sub-orden combinados)
+- DesgloseCTRU movido al modulo CTRU: si algun consumer del modulo OC hace import directo del path antiguo, falla silenciosamente
+- StepRuta simplificado: el caso "recojo en origen" ahora confirma OC inmediatamente. Si el colaborador en realidad no recoge, no hay mecanismo de reversion (tendria que cancelar la OC)
+- SubOrdenDetailModal totalPagado ahora viene de historialPagos.filter(subOrdenId). Si un pago no tiene subOrdenId (pagos legacy), no aparece en el total.
 
 ---
 

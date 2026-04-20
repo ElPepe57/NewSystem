@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S43 — Mockup Envios Transversal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tab-active { background-color: #0f766e; color: white; }
+  .tab-inactive { background-color: #f1f5f9; color: #475569; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .ruta-node { position: relative; }
+  .ruta-connector {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, #94a3b8 50%, transparent 50%);
+    background-size: 8px 2px;
+    background-repeat: repeat-x;
+  }
+  @keyframes pulse-prio { 0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); } }
+  .prio-pulse { animation: pulse-prio 2s infinite; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-20">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <h1 class="text-lg font-bold text-slate-900">S43 — Modelo Envios Transversal</h1>
+      <p class="text-xs text-slate-500">Mockups de validacion · Hub logistico del ERP · Solo spec, sin codigo</p>
+    </div>
+    <a href="../MODELO_ENVIOS_TRANSVERSAL.md" class="text-xs text-teal-700 hover:underline">Ver spec completo →</a>
+  </div>
+</header>
+
+<!-- Tabs de navegacion -->
+<div class="bg-white border-b border-slate-200 px-6 py-3 sticky top-[73px] z-10">
+  <div class="max-w-7xl mx-auto flex gap-2 flex-wrap">
+    <button onclick="showTab('vista')" class="tab-btn tab-active px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="vista">1 · Vista /envios</button>
+    <button onclick="showTab('wizard')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="wizard">2 · Wizard T2 (Casilla→Peru)</button>
+    <button onclick="showTab('subenvios')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="subenvios">3 · Sub-envios T1 (Amazon)</button>
+    <button onclick="showTab('picking')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="picking">4 · Picking priorizado</button>
+    <button onclick="showTab('casos')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="casos">5 · Casos D/E/F/G/I/J</button>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-6 py-6">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 1 — VISTA /ENVIOS REDISEÑADA
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="vista" class="section active space-y-4">
+
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h2 class="text-xl font-bold text-slate-900 mb-1">📦 Envios</h2>
+    <p class="text-sm text-slate-500 mb-4">Hub logistico · Todos los movimientos fisicos del negocio</p>
+
+    <!-- KPIs enriquecidos -->
+    <div class="grid grid-cols-6 gap-3 mb-6">
+      <div class="bg-slate-50 rounded-lg p-3">
+        <div class="text-xs text-slate-500">Total activos</div>
+        <div class="text-2xl font-bold text-slate-900">34</div>
+        <div class="text-xs text-slate-400 mt-1">envios en curso</div>
+      </div>
+      <div class="bg-blue-50 rounded-lg p-3">
+        <div class="text-xs text-blue-700">En transito</div>
+        <div class="text-2xl font-bold text-blue-900">12</div>
+        <div class="text-xs text-blue-600 mt-1">287 uds</div>
+      </div>
+      <div class="bg-amber-50 rounded-lg p-3">
+        <div class="text-xs text-amber-700">Pendientes recepcion</div>
+        <div class="text-2xl font-bold text-amber-900">8</div>
+        <div class="text-xs text-amber-600 mt-1">recepcion parcial</div>
+      </div>
+      <div class="bg-red-50 rounded-lg p-3">
+        <div class="text-xs text-red-700">Incidencias</div>
+        <div class="text-2xl font-bold text-red-900">3</div>
+        <div class="text-xs text-red-600 mt-1">sin resolver</div>
+      </div>
+      <div class="bg-fuchsia-50 rounded-lg p-3">
+        <div class="text-xs text-fuchsia-700">En reclamo</div>
+        <div class="text-2xl font-bold text-fuchsia-900">2</div>
+        <div class="text-xs text-fuchsia-600 mt-1">S/ 1,240 pend.</div>
+      </div>
+      <div class="bg-teal-50 rounded-lg p-3">
+        <div class="text-xs text-teal-700">Valor landed</div>
+        <div class="text-2xl font-bold text-teal-900">S/ 48.2k</div>
+        <div class="text-xs text-teal-600 mt-1">total prorrateado</div>
+      </div>
+    </div>
+
+    <!-- Pills por TIPO DE RUTA (nuevo) -->
+    <div class="mb-4">
+      <div class="text-xs font-medium text-slate-600 mb-2">Filtrar por tipo de ruta logistica</div>
+      <div class="flex flex-wrap gap-2">
+        <button class="px-3 py-1.5 bg-teal-700 text-white rounded-lg text-xs font-medium">Todos (34)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">🏭→📦 Proveedor-Casilla · A (12)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">🏭→🇵🇪 DDP Directo · B (3)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">📦→🇵🇪 Casilla-Peru · C (7)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">🏭→👤 Recojo directo · D (2)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">🏠↔🏠 Traslado interno · E (4)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">🏠→🛍️ Despacho venta · F (3)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">🛍️→🏠 Devolucion · G (1)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">🏠→🏢 Terceros · I (1)</button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">📦↔📦 Casilla-Casilla · J (1)</button>
+      </div>
+    </div>
+
+    <!-- Boton principal -->
+    <div class="flex gap-2 mb-4">
+      <button class="px-4 py-2 bg-teal-700 text-white rounded-lg text-sm font-medium hover:bg-teal-800">+ Nuevo envio</button>
+      <button class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50">Exportar</button>
+    </div>
+
+    <!-- Lista de envios (mix de tipos) -->
+    <div class="space-y-2">
+
+      <!-- Envio C (Casilla-Peru, destaca por ser el mas complejo) -->
+      <div class="bg-white border-2 border-teal-200 rounded-lg p-4 hover:border-teal-400 cursor-pointer">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-bold text-slate-900">ENV-2026-200</span>
+              <span class="text-xs px-2 py-0.5 bg-teal-100 text-teal-800 rounded">📦→🇵🇪 Casilla-Peru · C</span>
+              <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">En transito</span>
+              <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded">🎯 4 pre-vendidas</span>
+            </div>
+            <!-- Ruta visual -->
+            <div class="flex items-center gap-2 text-sm">
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇺🇸</span>
+                <div>
+                  <div class="font-medium text-slate-900">Casilla Felicita</div>
+                  <div class="text-xs text-slate-500">Miami, FL · Casilla Intl</div>
+                </div>
+              </div>
+              <div class="flex-1 relative px-2">
+                <div class="ruta-connector"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="bg-white px-2 text-xs text-slate-500">✈️ Juan Perez (viajero)</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇵🇪</span>
+                <div>
+                  <div class="font-medium text-slate-900">Almacen Lima</div>
+                  <div class="text-xs text-slate-500">Lima Centro · Almacen propio</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500">Valor landed</div>
+            <div class="font-bold text-slate-900">S/ 4,820</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between gap-2 text-xs border-t border-slate-100 pt-2">
+          <div class="text-slate-600">
+            <span class="font-medium">14 unidades</span> · 3 OCs (Amazon, iHerb, Vitacost) · 4 productos
+          </div>
+          <div class="text-slate-500">Recep. estimada: 25-abr</div>
+        </div>
+      </div>
+
+      <!-- Envio A (Proveedor-Casilla) -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4 hover:border-teal-300 cursor-pointer">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-bold text-slate-900">ENV-2026-123</span>
+              <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded">🏭→📦 Proveedor-Casilla · A</span>
+              <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Recibido completo</span>
+              <span class="text-xs px-2 py-0.5 bg-violet-100 text-violet-800 rounded">3 sub-envios</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇺🇸</span>
+                <div>
+                  <div class="font-medium text-slate-900">Amazon</div>
+                  <div class="text-xs text-slate-500">Proveedor</div>
+                </div>
+              </div>
+              <div class="flex-1 relative px-2">
+                <div class="ruta-connector"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="bg-white px-2 text-xs text-slate-500">🚚 Courier del proveedor</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇺🇸</span>
+                <div>
+                  <div class="font-medium text-slate-900">Casilla Felicita</div>
+                  <div class="text-xs text-slate-500">Miami, FL</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500">OC vinculada</div>
+            <div class="font-mono text-xs text-teal-700 hover:underline">OC-2026-001</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between gap-2 text-xs border-t border-slate-100 pt-2">
+          <div class="text-slate-600">
+            <span class="font-medium">7/7 unidades recibidas</span> · 3 tandas de despacho · ver timeline
+          </div>
+          <div class="text-slate-500">Ultimo recibo: 01-abr</div>
+        </div>
+      </div>
+
+      <!-- Envio B (DDP) -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4 hover:border-teal-300 cursor-pointer">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-bold text-slate-900">ENV-2026-198</span>
+              <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded">🏭→🇵🇪 DDP Directo · B</span>
+              <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">En transito</span>
+              <span class="text-xs px-2 py-0.5 bg-orange-100 text-orange-800 rounded">Retenido aduana</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇨🇳</span>
+                <div>
+                  <div class="font-medium text-slate-900">Shenzhen Labs</div>
+                  <div class="text-xs text-slate-500">Proveedor · China</div>
+                </div>
+              </div>
+              <div class="flex-1 relative px-2">
+                <div class="ruta-connector"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="bg-white px-2 text-xs text-slate-500">✈️ DHL (del proveedor)</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇵🇪</span>
+                <div>
+                  <div class="font-medium text-slate-900">Almacen Lima</div>
+                  <div class="text-xs text-slate-500">Direct to Peru</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500">Responsable reclamo</div>
+            <div class="text-xs font-medium text-orange-700">Courier del proveedor</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Envio D (Recojo directo) -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4 hover:border-teal-300 cursor-pointer">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-bold text-slate-900">ENV-2026-189</span>
+              <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded">🏭→👤 Recojo directo · D</span>
+              <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Recibido</span>
+              <span class="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded">D2 · Yo pago</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇺🇸</span>
+                <span class="font-medium text-slate-900">Amazon</span>
+              </div>
+              <div class="flex-1 relative px-2">
+                <div class="ruta-connector"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="bg-white px-2 text-xs text-slate-500">👤 Felicita recoge</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇺🇸</span>
+                <span class="font-medium text-slate-900">Casilla Felicita</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-xs text-slate-500 border-t border-slate-100 pt-2">
+          D2 · Yo pague al proveedor, Felicita solo recogio · CxP al proveedor
+        </div>
+      </div>
+
+      <!-- Envio E (Traslado interno) -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4 hover:border-teal-300 cursor-pointer">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-bold text-slate-900">ENV-2026-212</span>
+              <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded">🏠↔🏠 Traslado interno · E</span>
+              <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Recibido</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇵🇪</span>
+                <span class="font-medium text-slate-900">Almacen Lima</span>
+              </div>
+              <div class="flex-1 relative px-2">
+                <div class="ruta-connector"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="bg-white px-2 text-xs text-slate-500">🚚 Transporte local</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-lg">🇵🇪</span>
+                <span class="font-medium text-slate-900">Deposito Callao</span>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500">Costo op.</div>
+            <div class="font-bold text-slate-900">S/ 45</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Leyenda -->
+  <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 text-xs text-sky-900">
+    <div class="font-medium mb-1">💡 Cambios clave vs version actual</div>
+    <ul class="list-disc pl-5 space-y-0.5">
+      <li>Pills por <strong>tipo de ruta logistica</strong> (A-J) en vez de por estado</li>
+      <li>KPI "Valor landed" nuevo (suma prorrateada)</li>
+      <li>Cards muestran ruta visual con nodos tipados (proveedor / casilla / almacen / cliente / tercero)</li>
+      <li>Sub-envios se indican con badge "3 sub-envios" cuando el T1 tiene tandas</li>
+      <li>Caso D diferenciado con badge D1/D2 segun deudor</li>
+      <li>Priorizacion visual de pre-vendidas en cards de tipo C</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 2 — WIZARD T2 (Casilla -> Peru), 5 PASOS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="wizard" class="section space-y-4">
+
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <!-- Header del wizard -->
+    <div class="bg-gradient-to-r from-teal-700 to-teal-800 text-white px-6 py-4">
+      <h2 class="text-lg font-bold">Nuevo envio — Casilla a Peru (T2)</h2>
+      <p class="text-xs text-teal-100">Consolida unidades de la casilla internacional para enviarlas a Peru</p>
+    </div>
+
+    <!-- Stepper -->
+    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-teal-700 text-white text-xs font-bold flex items-center justify-center">1</div>
+          <span class="text-sm font-medium text-teal-700">Origen</span>
+        </div>
+        <div class="flex-1 h-0.5 bg-teal-300"></div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-teal-700 text-white text-xs font-bold flex items-center justify-center">2</div>
+          <span class="text-sm font-medium text-teal-700">Picking</span>
+        </div>
+        <div class="flex-1 h-0.5 bg-slate-300"></div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">3</div>
+          <span class="text-sm text-slate-500">Transporte</span>
+        </div>
+        <div class="flex-1 h-0.5 bg-slate-300"></div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">4</div>
+          <span class="text-sm text-slate-500">Costos</span>
+        </div>
+        <div class="flex-1 h-0.5 bg-slate-300"></div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">5</div>
+          <span class="text-sm text-slate-500">Confirmar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paso 1: Origen (collapsed) -->
+    <div class="px-6 py-3 border-b border-slate-100 bg-emerald-50/50">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-600">✓</span>
+          <span class="text-sm font-medium text-slate-700">Paso 1: Origen</span>
+          <span class="text-xs text-slate-500">· Casilla Felicita (Miami, FL) · 🇺🇸</span>
+        </div>
+        <button class="text-xs text-teal-700 hover:underline">Editar</button>
+      </div>
+    </div>
+
+    <!-- Paso 2: Picking (expanded, con priorizacion pre-ventas) -->
+    <div class="p-6">
+      <div class="mb-4">
+        <h3 class="text-base font-bold text-slate-900">Paso 2 — Seleccionar unidades a enviar</h3>
+        <p class="text-sm text-slate-600 mt-1">La casilla tiene <strong>22 unidades disponibles</strong> de 3 OCs distintas · <strong>4 pre-vendidas</strong> recomendadas.</p>
+      </div>
+
+      <!-- Banner priorizacion -->
+      <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-2">
+        <span class="text-lg">🎯</span>
+        <div class="flex-1 text-xs text-emerald-900">
+          <strong>4 unidades estan pre-vendidas</strong> (cotizaciones con adelanto pagado). Se recomienda incluirlas en este envio.
+          <label class="inline-flex items-center gap-1 ml-2 cursor-pointer">
+            <input type="checkbox" checked class="w-3 h-3">
+            <span class="font-medium">Incluir todas las prioritarias automaticamente</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Lista agrupada por producto -->
+      <div class="space-y-3">
+
+        <!-- Producto 1 -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">💊</span>
+              <div>
+                <div class="font-medium text-slate-900">NOW Ashwagandha KSM-66</div>
+                <div class="text-xs text-slate-500">SKU: NOW-ASH-90 · Procedencia: OC-2026-001 (Amazon)</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-xs text-slate-600">Disponibles: <strong>3</strong></div>
+              <div class="flex items-center gap-2">
+                <button class="w-6 h-6 bg-slate-200 rounded hover:bg-slate-300">−</button>
+                <span class="w-10 text-center font-bold">2</span>
+                <button class="w-6 h-6 bg-slate-200 rounded hover:bg-slate-300">+</button>
+              </div>
+            </div>
+          </div>
+          <!-- Detalle por unidad -->
+          <div class="divide-y divide-slate-100">
+            <div class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 prio-pulse">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" checked class="w-4 h-4">
+                <span class="text-sm text-slate-900">Unidad #UN-8823</span>
+                <span class="text-xs px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 Reservada · COT-145</span>
+              </div>
+              <span class="text-xs text-slate-500">Recibida: 29-mar</span>
+            </div>
+            <div class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 prio-pulse">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" checked class="w-4 h-4">
+                <span class="text-sm text-slate-900">Unidad #UN-8824</span>
+                <span class="text-xs px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 Reservada · COT-145</span>
+              </div>
+              <span class="text-xs text-slate-500">Recibida: 29-mar</span>
+            </div>
+            <div class="px-4 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" class="w-4 h-4">
+                <span class="text-sm text-slate-600">Unidad #UN-8825</span>
+              </div>
+              <span class="text-xs text-slate-500">Recibida: 29-mar · Stock normal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto 2 -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">🧪</span>
+              <div>
+                <div class="font-medium text-slate-900">WellnessLabs NAD+ 1500mg</div>
+                <div class="text-xs text-slate-500">SKU: WL-NAD-60 · Procedencia: OC-2026-001 + OC-2026-002</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-xs text-slate-600">Disponibles: <strong>5</strong></div>
+              <div class="flex items-center gap-2">
+                <button class="w-6 h-6 bg-slate-200 rounded hover:bg-slate-300">−</button>
+                <span class="w-10 text-center font-bold">3</span>
+                <button class="w-6 h-6 bg-slate-200 rounded hover:bg-slate-300">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="divide-y divide-slate-100">
+            <div class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 prio-pulse">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" checked class="w-4 h-4">
+                <span class="text-sm text-slate-900">Unidad #UN-9001</span>
+                <span class="text-xs px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 Reservada · COT-123</span>
+              </div>
+              <span class="text-xs text-slate-500">Recibida: 29-mar · OC-001</span>
+            </div>
+            <div class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 prio-pulse">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" checked class="w-4 h-4">
+                <span class="text-sm text-slate-900">Unidad #UN-9002</span>
+                <span class="text-xs px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 Reservada · COT-178</span>
+              </div>
+              <span class="text-xs text-slate-500">Recibida: 29-mar · OC-001</span>
+            </div>
+            <div class="px-4 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" checked class="w-4 h-4">
+                <span class="text-sm text-slate-900">Unidad #UN-9003</span>
+              </div>
+              <span class="text-xs text-slate-500">Recibida: 02-abr · OC-002 (iHerb)</span>
+            </div>
+            <div class="px-4 py-2 flex items-center justify-between opacity-60">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" class="w-4 h-4">
+                <span class="text-sm text-slate-600">Unidad #UN-9004</span>
+              </div>
+              <span class="text-xs text-slate-500">Stock normal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Placeholder: mas productos -->
+        <div class="border border-dashed border-slate-300 rounded-lg p-3 text-center text-xs text-slate-500">
+          + 2 productos adicionales (CoQ10, Myo-Inositol) con 14 unidades mas disponibles...
+        </div>
+      </div>
+
+      <!-- Resumen -->
+      <div class="mt-4 p-3 bg-teal-50 border border-teal-200 rounded-lg flex items-center justify-between">
+        <div class="text-sm">
+          <span class="text-teal-900 font-bold">14 unidades seleccionadas</span>
+          <span class="text-teal-700"> · 4 productos · <strong>4 prioritarias incluidas ✓</strong></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-sm hover:bg-slate-50">Atras</button>
+          <button class="px-4 py-1.5 bg-teal-700 text-white rounded text-sm font-medium hover:bg-teal-800">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paso 4 preview (costos) -->
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-3">Paso 4 (preview) — Costos landed</h3>
+
+    <!-- Presets de tarifa -->
+    <div class="mb-4">
+      <div class="text-xs font-medium text-slate-600 mb-2">Metodo de tarifa del colaborador</div>
+      <div class="grid grid-cols-4 gap-2">
+        <label class="border-2 border-teal-500 bg-teal-50 rounded-lg p-3 cursor-pointer">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-900">Por peso</span>
+            <span class="w-4 h-4 rounded-full bg-teal-500"></span>
+          </div>
+          <div class="text-xs text-slate-600 mt-1">$X/libra</div>
+        </label>
+        <label class="border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-slate-300">
+          <div class="text-sm font-medium text-slate-700">Estandar</div>
+          <div class="text-xs text-slate-500 mt-1">$X/unidad</div>
+        </label>
+        <label class="border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-slate-300">
+          <div class="text-sm font-medium text-slate-700">Monto total</div>
+          <div class="text-xs text-slate-500 mt-1">$X fijo</div>
+        </label>
+        <label class="border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-slate-300">
+          <div class="text-sm font-medium text-slate-700">Variable</div>
+          <div class="text-xs text-slate-500 mt-1">tabla A/B/C</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Inputs -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="text-xs font-medium text-slate-600">Tarifa por libra (USD)</label>
+        <input type="text" value="8.00" class="mt-1 w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        <div class="text-xs text-slate-500 mt-1">Peso total estimado: 18.5 lb · Total: $148.00</div>
+      </div>
+      <div>
+        <label class="text-xs font-medium text-slate-600">Fee de recepcion en destino (opcional)</label>
+        <input type="text" value="15.00" class="mt-1 w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        <div class="text-xs text-slate-500 mt-1">Se prorratea al valor total</div>
+      </div>
+    </div>
+
+    <!-- Preview CTRU landed -->
+    <div class="p-3 bg-slate-50 rounded-lg">
+      <div class="text-xs font-medium text-slate-700 mb-2">Preview CTRU landed por producto</div>
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-600">
+            <th class="text-left py-1">Producto</th>
+            <th class="text-right">Uds</th>
+            <th class="text-right">CTRU base</th>
+            <th class="text-right">+ Landed</th>
+            <th class="text-right">CTRU final</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-900">
+          <tr class="border-b border-slate-100">
+            <td class="py-1">NOW Ashwagandha</td>
+            <td class="text-right">2</td>
+            <td class="text-right">$18.50</td>
+            <td class="text-right text-teal-700">+$4.82</td>
+            <td class="text-right font-bold">$23.32</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="py-1">WellnessLabs NAD+</td>
+            <td class="text-right">3</td>
+            <td class="text-right">$42.00</td>
+            <td class="text-right text-teal-700">+$11.23</td>
+            <td class="text-right font-bold">$53.23</td>
+          </tr>
+          <tr>
+            <td class="py-1 text-slate-500">... +2 productos</td>
+            <td colspan="4"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 3 — SUB-ENVIOS T1 (Timeline Amazon)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="subenvios" class="section space-y-4">
+
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-6 py-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-lg font-bold">ENV-2026-123</span>
+        <span class="text-xs px-2 py-0.5 bg-slate-700 rounded">🏭→📦 Proveedor-Casilla · A</span>
+        <span class="text-xs px-2 py-0.5 bg-emerald-500/30 text-emerald-100 rounded">Recibido completo</span>
+      </div>
+      <p class="text-xs text-slate-300">Detalle del envio · Amazon OC-2026-001 #113-7465331-5293821 · Sub-orden con 3 tandas de despacho</p>
+    </div>
+
+    <!-- Ruta -->
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🇺🇸</span>
+          <div>
+            <div class="font-bold text-slate-900">Amazon</div>
+            <div class="text-xs text-slate-500">Proveedor · Nevada, USA</div>
+          </div>
+        </div>
+        <div class="flex-1 h-0.5 bg-slate-300 relative">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="bg-slate-50 px-2 text-xs text-slate-500">🚚 Courier del proveedor (3 tandas)</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🇺🇸</span>
+          <div>
+            <div class="font-bold text-slate-900">Casilla Felicita</div>
+            <div class="text-xs text-slate-500">Miami, FL · Casilla Intl</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-4 gap-0 border-b border-slate-200">
+      <div class="p-4 border-r border-slate-200">
+        <div class="text-xs text-slate-500">Total unidades</div>
+        <div class="text-2xl font-bold text-slate-900">7/7</div>
+      </div>
+      <div class="p-4 border-r border-slate-200">
+        <div class="text-xs text-slate-500">Sub-envios</div>
+        <div class="text-2xl font-bold text-violet-700">3</div>
+      </div>
+      <div class="p-4 border-r border-slate-200">
+        <div class="text-xs text-slate-500">Valor en factura</div>
+        <div class="text-2xl font-bold text-slate-900">$309.92</div>
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-500">Responsable reclamo</div>
+        <div class="text-sm font-bold text-slate-700">Proveedor</div>
+      </div>
+    </div>
+
+    <!-- Timeline sub-envios -->
+    <div class="p-6">
+      <h3 class="text-sm font-bold text-slate-900 mb-4">📅 Tandas de despacho del proveedor</h3>
+
+      <div class="relative">
+        <!-- Linea vertical del timeline -->
+        <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+
+        <!-- Sub-envio 1 -->
+        <div class="relative pl-10 pb-5">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">1</div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 1</span>
+                <span class="text-xs text-slate-500 ml-2">Entregado el 30 marzo 2026</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Entregado</span>
+                <span class="text-xs font-mono text-slate-500">TBA12345</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-700">
+              <span class="text-lg">💊</span>
+              <span>1 unidad · NOW Ashwagandha KSM-66 · 90 capsulas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-envio 2 -->
+        <div class="relative pl-10 pb-5">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">2</div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 2</span>
+                <span class="text-xs text-slate-500 ml-2">Entregado el 29 marzo 2026</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Entregado</span>
+                <span class="text-xs font-mono text-slate-500">TBA67890</span>
+              </div>
+            </div>
+            <div class="space-y-1 text-sm text-slate-700">
+              <div class="flex items-center gap-2"><span>🫐</span> 1 unidad · Longjack</div>
+              <div class="flex items-center gap-2"><span>🧪</span> 2 unidades · WellnessLabs NAD+</div>
+              <div class="flex items-center gap-2"><span>🌸</span> 1 unidad · Carlyle Myo-Inositol</div>
+              <div class="flex items-center gap-2"><span>❤️</span> 1 unidad · NatureBell CoQ10 200mg</div>
+              <div class="flex items-center gap-2"><span>💪</span> 1 unidad · Life Extension CoQ10 Ubiquinol</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-envio 3 -->
+        <div class="relative pl-10">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">3</div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 3</span>
+                <span class="text-xs text-slate-500 ml-2">Entregado el 1 abril 2026</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Entregado</span>
+                <span class="text-xs font-mono text-slate-500">TBA11111</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-700">
+              <span class="text-lg">🌺</span>
+              <span>1 unidad · Micro Ingredients Myo-Inositol & D-Chiro</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Boton agregar tanda (si estuviera incompleto) -->
+      <button class="mt-4 w-full border-2 border-dashed border-slate-300 text-slate-500 rounded-lg py-2 text-sm hover:border-teal-400 hover:text-teal-600 transition-colors opacity-50 cursor-not-allowed">
+        + Agregar tanda (no disponible — envio completo)
+      </button>
+    </div>
+  </div>
+
+  <!-- Leyenda -->
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-900">
+    <div class="font-medium mb-1">📌 Cambio de modelo</div>
+    <p>El envio T1 ya no es un "paquete unico". Cuando el proveedor despacha la sub-orden en N tandas (caso Amazon con fechas 29/30-mar/01-abr), cada tanda se registra como un <code class="bg-amber-100 px-1 rounded">SubEnvioT1</code> con su tracking y fecha propia. El envio padre se considera "recibido completo" cuando todas sus sub-tandas estan entregadas.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 4 — PICKING con priorizacion pre-ventas (detalle)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="picking" class="section space-y-4">
+
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-1">🎯 Picking priorizado — detalle del algoritmo</h2>
+    <p class="text-sm text-slate-600 mb-4">Como el sistema sugiere que unidades incluir en un envio T2</p>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Leyenda de prioridades -->
+      <div class="border border-slate-200 rounded-lg p-4">
+        <h3 class="font-medium text-slate-900 mb-3">Orden de prioridad</h3>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+            <div>
+              <div class="font-medium text-slate-900">Pre-vendidas (reservada_para = cotizacion)</div>
+              <div class="text-xs text-slate-600">Cotizaciones con adelanto PAGADO. El sistema las recomienda siempre al principio del picking.</div>
+              <div class="text-xs text-emerald-700 mt-1">💡 Campo <code class="bg-slate-100 px-1 rounded">Unidad.reservadaPara</code> (ya existe)</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+            <div>
+              <div class="font-medium text-slate-900">Stock antiguo (FIFO por fechaRecepcion)</div>
+              <div class="text-xs text-slate-600">Entre unidades no reservadas, priorizar las que llegaron primero a la casilla.</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-slate-400 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+            <div>
+              <div class="font-medium text-slate-900">Stock reciente</div>
+              <div class="text-xs text-slate-600">El resto, ordenado por fechaRecepcion descendente.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Override explicito -->
+      <div class="border border-slate-200 rounded-lg p-4">
+        <h3 class="font-medium text-slate-900 mb-3">Override del usuario</h3>
+        <div class="space-y-3 text-sm">
+          <p class="text-slate-700">El sistema <strong>NO bloquea</strong> al usuario si decide no incluir pre-vendidas. Pero muestra advertencias:</p>
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded">
+            <div class="flex items-start gap-2">
+              <span class="text-amber-600">⚠️</span>
+              <div class="text-xs text-amber-900">
+                <strong>Hay 5 unidades pre-vendidas no incluidas.</strong>
+                <br>Cotizaciones afectadas: COT-123, COT-145, COT-178 (adelanto pagado).
+                <br>Si continuas, estos clientes seguiran esperando.
+              </div>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button class="text-xs px-3 py-1 bg-amber-600 text-white rounded">Agregar prioritarias</button>
+              <button class="text-xs px-3 py-1 bg-white border border-amber-300 text-amber-800 rounded">Entiendo, continuar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Caso edge: sin pre-ventas -->
+  <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 text-xs text-sky-900">
+    <strong>Caso edge:</strong> si la casilla no tiene NINGUNA unidad pre-vendida, el wizard salta el banner y ordena solo por FIFO. El picker se siente natural, sin ruido innecesario.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 5 — CASOS D/E/F/G/I/J (vistas resumidas)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="casos" class="section space-y-4">
+
+  <!-- Caso D1 vs D2 -->
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-3">Caso D — Compra directa del colaborador (D1 vs D2)</h3>
+    <p class="text-sm text-slate-600 mb-4">Wizard OC · Paso "Ruta" · Seccion "Modo de entrega"</p>
+
+    <div class="border border-slate-200 rounded-lg p-4 mb-4">
+      <div class="flex items-center gap-2 mb-3">
+        <input type="radio" checked class="w-4 h-4">
+        <span class="font-medium text-slate-900">Compra directa del colaborador</span>
+      </div>
+      <p class="text-xs text-slate-600 mb-3 pl-6">El colaborador compra al proveedor y recoge los productos. Las unidades nacen directamente en su casilla.</p>
+
+      <div class="pl-6 space-y-2">
+        <div class="text-xs font-medium text-slate-700">¿Quien paga al proveedor?</div>
+        <label class="flex items-start gap-2 p-2 border border-slate-200 rounded cursor-pointer hover:bg-slate-50">
+          <input type="radio" name="paga" checked class="w-4 h-4 mt-0.5">
+          <div>
+            <div class="text-sm font-medium text-slate-900">El colaborador paga con su dinero · <span class="text-violet-700">D1</span></div>
+            <div class="text-xs text-slate-600">Yo le reembolso al colaborador. CxP a favor del colaborador.</div>
+            <div class="text-xs text-amber-700 mt-1">⚠️ deudorTipo = colaborador</div>
+          </div>
+        </label>
+        <label class="flex items-start gap-2 p-2 border border-teal-300 bg-teal-50 rounded cursor-pointer">
+          <input type="radio" name="paga" class="w-4 h-4 mt-0.5">
+          <div>
+            <div class="text-sm font-medium text-slate-900">Yo pago directo al proveedor, el colaborador solo recoge · <span class="text-violet-700">D2</span></div>
+            <div class="text-xs text-slate-600">CxP al proveedor como OC normal. El colaborador es solo el logistico.</div>
+            <div class="text-xs text-teal-700 mt-1">✓ deudorTipo = proveedor</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="text-xs text-slate-500 italic">
+      💡 En ambos casos el flujo logistico es identico: recojoEnOrigen=true, unidades nacen en la casilla del colaborador, envio tipo D se crea en estado recibida_completa al instante.
+    </div>
+  </div>
+
+  <!-- Caso G: devolucion con QA -->
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-3">Caso G — Devolucion Cliente → Almacen (con QA)</h3>
+
+    <div class="flex items-center gap-3 overflow-x-auto py-2">
+      <!-- Nodo 1 -->
+      <div class="flex-shrink-0 p-3 bg-slate-100 rounded-lg min-w-[140px]">
+        <div class="text-lg mb-1">🛍️</div>
+        <div class="text-xs font-bold text-slate-900">Cliente</div>
+        <div class="text-xs text-slate-500">Devuelve producto</div>
+      </div>
+      <span class="text-slate-400">→</span>
+      <!-- Nodo 2 -->
+      <div class="flex-shrink-0 p-3 bg-amber-50 border border-amber-200 rounded-lg min-w-[160px]">
+        <div class="text-lg mb-1">📦</div>
+        <div class="text-xs font-bold text-amber-900">Almacen (pendiente revision)</div>
+        <div class="text-xs text-amber-700">Estado unidad: devuelto_pendiente_revision</div>
+      </div>
+      <span class="text-slate-400">→</span>
+      <!-- Nodo 3 (rama) -->
+      <div class="flex-shrink-0 space-y-2">
+        <div class="p-2 bg-emerald-50 border border-emerald-200 rounded text-xs text-emerald-900">
+          <strong>✓ Apto</strong> → disponible_peru
+        </div>
+        <div class="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-900">
+          <strong>✗ Merma</strong> → devuelto_merma (descarte)
+        </div>
+        <div class="p-2 bg-violet-50 border border-violet-200 rounded text-xs text-violet-900">
+          <strong>🎁 Regalo</strong> → muestras (caso I)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Caso I + J comparativo -->
+  <div class="grid grid-cols-2 gap-4">
+    <!-- Caso I -->
+    <div class="bg-white rounded-lg border border-slate-200 p-6">
+      <h3 class="text-base font-bold text-slate-900 mb-2">Caso I — Almacen de terceros</h3>
+      <div class="text-xs text-slate-600 mb-3">Muestras, influencers, agentes de marketing</div>
+
+      <div class="space-y-2 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-xs flex items-center justify-center">📦</span>
+          <span class="text-slate-700">Origen: almacen propio (Lima)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-fuchsia-100 text-fuchsia-700 text-xs flex items-center justify-center">🏢</span>
+          <span class="text-slate-700">Destino: almacen tercero (ej. Agencia Marketing X)</span>
+        </div>
+        <div class="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-900">
+          <strong>🔒 Bloqueo Opcion B:</strong> unidades NO aparecen en listados de stock vendible mientras estan en el tercero.
+        </div>
+        <div class="text-xs text-slate-500 mt-2">
+          El tercero se crea como colaborador tipo Marketing/Agente con un almacen tipo "tercero".
+        </div>
+      </div>
+    </div>
+
+    <!-- Caso J -->
+    <div class="bg-white rounded-lg border border-slate-200 p-6">
+      <h3 class="text-base font-bold text-slate-900 mb-2">Caso J — Casilla Intl ↔ Casilla Intl</h3>
+      <div class="text-xs text-slate-600 mb-3">Reubicacion entre casillas · <strong>preferente intra-pais</strong></div>
+
+      <div class="space-y-2 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🇺🇸</span>
+          <span class="text-slate-700">Felicita Miami</span>
+          <span class="text-slate-400">→</span>
+          <span class="text-lg">🇺🇸</span>
+          <span class="text-slate-700">Wendy Orlando</span>
+          <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Preferido ✓</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🇺🇸</span>
+          <span class="text-slate-700">Felicita USA</span>
+          <span class="text-slate-400">→</span>
+          <span class="text-lg">🇨🇳</span>
+          <span class="text-slate-700">Liu China</span>
+          <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded">⚠️ Requiere confirmacion</span>
+        </div>
+        <div class="text-xs text-slate-500 mt-2">
+          J1: Mismo colaborador (2 casillas suyas)<br>
+          J2: Colaboradores distintos
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Caso E y F resumido -->
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-3">Casos E y F (modulos absorbidos)</h3>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🏠↔🏠</span>
+          <span class="font-bold text-slate-900">Caso E · Traslado interno</span>
+        </div>
+        <p class="text-xs text-slate-600 mb-2">Absorbe el modulo actual <code class="bg-slate-100 px-1 rounded">/transferencias</code> en S46.</p>
+        <ul class="text-xs text-slate-700 space-y-1">
+          <li>✓ Almacen Lima → Deposito Callao</li>
+          <li>✓ Costo operativo registrado como gasto</li>
+          <li>✓ Historico de transferencias migra a envios tipo E</li>
+        </ul>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-lg">🏠→🛍️</span>
+          <span class="font-bold text-slate-900">Caso F · Despacho venta</span>
+        </div>
+        <p class="text-xs text-slate-600 mb-2">Absorbe el lado logistico de <code class="bg-slate-100 px-1 rounded">/ventas</code> en S47.</p>
+        <ul class="text-xs text-slate-700 space-y-1">
+          <li>✓ Al confirmar venta → auto-crea envio F</li>
+          <li>✓ Venta sigue viviendo en /ventas (factura, cobro)</li>
+          <li>✓ Logistica se gestiona desde /envios</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<!-- Footer informativo -->
+<footer class="bg-white border-t border-slate-200 mt-8 px-6 py-4">
+  <div class="max-w-7xl mx-auto text-xs text-slate-500 flex items-center justify-between">
+    <div>Mockup S43 · Validacion pre-implementacion · No codear antes de aprobacion</div>
+    <div>Spec completo: <a href="../MODELO_ENVIOS_TRANSVERSAL.md" class="text-teal-700 hover:underline">MODELO_ENVIOS_TRANSVERSAL.md</a></div>
+  </div>
+</footer>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('tab-active');
+      b.classList.add('tab-inactive');
+    });
+    document.querySelector(`[data-tab="${id}"]`).classList.add('tab-active');
+    document.querySelector(`[data-tab="${id}"]`).classList.remove('tab-inactive');
+  }
+</script>
+</body>
+</html>
