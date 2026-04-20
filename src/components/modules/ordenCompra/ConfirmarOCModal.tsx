@@ -428,6 +428,38 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
   const handleConfirmarConSubOrdenes = async () => {
     if (!puedeConfirmar) return;
 
+    // S42az — Pre-calcular el impuesto por sub-orden para impuestos en modo
+    // porcentaje, ABSORBIENDO el delta de redondeo en la ÚLTIMA sub-orden.
+    // Ejemplo: impuesto 3% = $6.05 OC original. Dividido en 3 sub-órdenes
+    // por el round2 cada una da $1.99 → suma $5.97 (falta $0.08). La última
+    // sub-orden ajusta a $6.05 − 1.99 − 1.99 = $2.07 para que la suma exacta
+    // coincida con la OC padre. Para impuestos fijos y cargos/descuentos
+    // (distribución manual) no aplica — el usuario distribuye exacto.
+    const impuestoPorSubOrden: Record<string, number> = {};
+    impuestos.forEach((imp) => {
+      const modoEfectivo = getModoEfectivo(imp);
+      if (modoEfectivo === 'porcentaje') {
+        // Calcular para las primeras N-1 sub-órdenes con el helper normal
+        const montosPrevios = subOrdenIds.slice(0, -1).map((sId) => ({
+          sId,
+          monto: getMontoImpuestoSub(sId, imp),
+        }));
+        const sumaPrevios = montosPrevios.reduce((s, m) => s + m.monto, 0);
+        const ultimoSubId = subOrdenIds[subOrdenIds.length - 1];
+        // La última absorbe: impuestoTotalOC − suma de los previos
+        const montoUltimo = Number((imp.montoUSD - sumaPrevios).toFixed(2));
+        montosPrevios.forEach((m) => {
+          impuestoPorSubOrden[`${m.sId}:${imp.id}`] = m.monto;
+        });
+        impuestoPorSubOrden[`${ultimoSubId}:${imp.id}`] = Math.max(0, montoUltimo);
+      } else {
+        // Modo fijo: distribución manual ya suma exacto (la validación lo asegura)
+        subOrdenIds.forEach((sId) => {
+          impuestoPorSubOrden[`${sId}:${imp.id}`] = getMontoImpuestoSub(sId, imp);
+        });
+      }
+    });
+
     const subOrdenesFinales: SubOrdenCompra[] = subOrdenIds.map((subId, subIdx) => {
       const asig = asignacion[subId] ?? {};
       const dist = distribucion[subId] ?? {};
@@ -451,22 +483,31 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
       let sumImp = 0;
       cargos.forEach((c) => (sumCargos += dist[c.id] ?? 0));
       descuentos.forEach((d) => (sumDesc += dist[d.id] ?? 0));
-      // S42as — Impuestos dual: % auto-calculado, fijo desde dist[]
-      impuestos.forEach((i) => (sumImp += getMontoImpuestoSub(subId, i)));
+      // S42az — Usar el impuesto pre-calculado (con delta absorbido en la última)
+      impuestos.forEach((i) => {
+        sumImp += impuestoPorSubOrden[`${subId}:${i.id}`] ?? 0;
+      });
 
-      const totalSub = subtotalProductos + sumCargos - sumDesc + sumImp;
+      // Redondear a 2 decimales para evitar floats tipo 123.45000000001
+      const round2 = (n: number) => Number(n.toFixed(2));
+      sumCargos = round2(sumCargos);
+      sumDesc = round2(sumDesc);
+      sumImp = round2(sumImp);
+      const totalSub = round2(subtotalProductos + sumCargos - sumDesc + sumImp);
 
-      // S42ay — Spread condicional: no incluir propiedades con valor `undefined`
-      // porque Firestore rechaza `Unsupported field value: undefined` al hacer
-      // WriteBatch.update(). Solo agregamos shipping/descuento/impuesto si > 0.
+      // S42az — Persistir SIEMPRE los 3 campos con valor numérico (incluye 0).
+      // Semántica del modelo: si la propiedad existe, es un number válido;
+      // 0 significa explícitamente "esta sub-orden no tiene este cargo".
+      // Evita ambigüedad entre "ausente" vs "cero" y los consumers pueden leer
+      // sin chequeos defensivos `?? 0`.
       return {
         id: `SUB-${orden.numeroOrden}-${String.fromCharCode(65 + subIdx)}`,
         referenciaProveedor: refsProveedor[subId] ?? '',
         productos: productosSub,
-        subtotalProductosUSD: subtotalProductos,
-        ...(sumCargos > 0 ? { shippingUSD: sumCargos } : {}),
-        ...(sumDesc > 0 ? { descuentoUSD: sumDesc } : {}),
-        ...(sumImp > 0 ? { impuestoUSD: sumImp } : {}),
+        subtotalProductosUSD: round2(subtotalProductos),
+        shippingUSD: sumCargos,
+        descuentoUSD: sumDesc,
+        impuestoUSD: sumImp,
         totalUSD: totalSub,
         estado: 'borrador' as const,
         estadoPago: 'pendiente' as const,

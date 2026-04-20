@@ -6,7 +6,7 @@ import { StatusBadge, cn } from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOrden } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
-import { calcularEstadoDerivadoOC } from '../../../utils/ordenCompra.helpers';
+import { calcularEstadoDerivadoOC, getCargosEfectivosOC } from '../../../utils/ordenCompra.helpers';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
@@ -501,71 +501,90 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       </div>
 
-      {/* S42ao — Cargos comerciales (estilo mockup S41 L858-1010):
-          desglose en lista vertical del subtotal + cargos/descuentos/impuestos
-          + total + ajuste proveedor + cobrado final. */}
-      <div>
-        <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">
-          Cargos comerciales{' '}
-          <span className="normal-case font-normal text-slate-400">
-            (asignados por el proveedor a esta OC)
-          </span>
-        </div>
-        <div className="bg-slate-50 rounded-xl p-4 space-y-2 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-slate-700">Subtotal productos</span>
-            <span className="font-semibold text-slate-900 tabular-nums">
-              ${orden.subtotalUSD.toFixed(2)}
-            </span>
+      {/* S42az — Cargos comerciales usando getCargosEfectivosOC.
+          Fuente de verdad automática:
+          - Si OC tiene sub-órdenes → se agregan desde cada sub-orden (realidad)
+          - Si no → se leen de la OC padre (borrador = realidad)
+          Un badge indica de dónde vienen los números. */}
+      {(() => {
+        const efectivos = getCargosEfectivosOC(orden);
+        const tcRef = orden.tcReferencial || orden.tcCompra || 0;
+        return (
+          <div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-2 flex-wrap">
+              <span>
+                Cargos comerciales{' '}
+                <span className="normal-case font-normal text-slate-400">
+                  (asignados por el proveedor a esta OC)
+                </span>
+              </span>
+              {efectivos.fuente === 'subOrdenes' && (
+                <span
+                  className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-semibold border border-teal-200 normal-case"
+                  title="Valores agregados desde las sub-órdenes (reflejan cómo el proveedor realmente subdividió la orden)"
+                >
+                  Agregado de sub-órdenes
+                </span>
+              )}
+            </div>
+            <div className="bg-slate-50 rounded-xl p-4 space-y-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-700">Subtotal productos</span>
+                <span className="font-semibold text-slate-900 tabular-nums">
+                  ${efectivos.subtotalProductos.toFixed(2)}
+                </span>
+              </div>
+              {efectivos.cargos > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-700">+ Cargos (shipping/otros)</span>
+                  <span className="tabular-nums text-slate-900">
+                    ${efectivos.cargos.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {efectivos.descuentos > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-700">− Descuento</span>
+                  <span className="tabular-nums text-emerald-700">
+                    -${efectivos.descuentos.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {efectivos.impuestos > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-700">+ Impuestos</span>
+                  <span className="tabular-nums text-slate-900">
+                    ${efectivos.impuestos.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
+                <span className="font-semibold text-slate-900">Total OC</span>
+                <span className="text-lg font-bold text-teal-700 tabular-nums">
+                  ${efectivos.total.toFixed(2)}
+                </span>
+              </div>
+              {tcRef > 0 && (
+                <div className="flex items-center justify-between text-[11px] text-slate-500">
+                  <span>Equivalente PEN (TC {tcRef.toFixed(3)})</span>
+                  <span className="tabular-nums">
+                    S/ {(efectivos.total * tcRef).toFixed(2)}
+                  </span>
+                </div>
+              )}
+              {/* S42az — Reconciliación: si hay sub-órdenes, mostrar el delta vs OC padre */}
+              {efectivos.fuente === 'subOrdenes' && Math.abs(efectivos.total - orden.totalUSD) > 0.01 && (
+                <div className="border-t border-amber-200 pt-2 mt-2 flex items-center justify-between text-[11px] text-amber-700">
+                  <span>OC padre (borrador original)</span>
+                  <span className="tabular-nums">
+                    ${orden.totalUSD.toFixed(2)} · Δ ${(efectivos.total - orden.totalUSD).toFixed(2)}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-          {(orden.costoEnvioProveedorUSD ?? 0) > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-slate-700">+ Shipping internacional</span>
-              <span className="tabular-nums text-slate-900">
-                ${(orden.costoEnvioProveedorUSD ?? 0).toFixed(2)}
-              </span>
-            </div>
-          )}
-          {(orden.otrosGastosCompraUSD ?? 0) > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-slate-700">+ Otros cargos</span>
-              <span className="tabular-nums text-slate-900">
-                ${(orden.otrosGastosCompraUSD ?? 0).toFixed(2)}
-              </span>
-            </div>
-          )}
-          {(orden.descuentoUSD ?? 0) > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-slate-700">− Descuento</span>
-              <span className="tabular-nums text-emerald-700">
-                -${(orden.descuentoUSD ?? 0).toFixed(2)}
-              </span>
-            </div>
-          )}
-          {(orden.impuestoCompraUSD ?? 0) > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-slate-700">+ Impuestos</span>
-              <span className="tabular-nums text-slate-900">
-                ${(orden.impuestoCompraUSD ?? 0).toFixed(2)}
-              </span>
-            </div>
-          )}
-          <div className="border-t border-slate-200 pt-2 flex items-center justify-between">
-            <span className="font-semibold text-slate-900">Total OC</span>
-            <span className="text-lg font-bold text-teal-700 tabular-nums">
-              ${orden.totalUSD.toFixed(2)}
-            </span>
-          </div>
-          {(orden.tcReferencial || orden.tcCompra) && (
-            <div className="flex items-center justify-between text-[11px] text-slate-500">
-              <span>Equivalente PEN (TC {(orden.tcReferencial || orden.tcCompra || 0).toFixed(3)})</span>
-              <span className="tabular-nums">
-                S/ {(orden.totalUSD * (orden.tcReferencial || orden.tcCompra || 0)).toFixed(2)}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
+        );
+      })()}
 
       {/* S42ao — Tracking / Envío vinculado (estilo mockup S41 L1075-1138):
           card teal-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}
