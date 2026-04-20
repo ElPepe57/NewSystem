@@ -171,11 +171,11 @@ const EmptyHint: React.FC<{ text: string }> = ({ text }) => (
   <div className="text-xs text-slate-400 italic">{text}</div>
 );
 
-// S42ah — Construye los nodos de la ruta según el escenario logístico.
-// Misma regla que StepConfirm:
-//   - ddp_directo           → Proveedor → Perú
-//   - viajero / courier_intl → Proveedor → Casilla → Perú
-//   - default                → Proveedor → Casilla
+// S42ai — La ruta en la OC describe SOLO lo que esta OC cubre.
+//   - ddp_directo → Proveedor → Perú (2 nodos, proveedor entrega directo)
+//   - todo lo demás → Proveedor → Casilla (la OC termina en la casilla)
+// El tramo posterior casilla→Perú es un envío independiente que se gestiona
+// desde /envios — no es responsabilidad de esta OC.
 function buildPreviewNodes(
   cfg: ConfigLogistica
 ): React.ComponentProps<typeof RouteVisual>['nodes'] {
@@ -185,24 +185,26 @@ function buildPreviewNodes(
     nombre: cfg.proveedorNombre.split(' ')[0] || 'Proveedor',
     state: 'done' as const,
   };
-  const nodoCasilla = {
-    tipo: 'casilla' as const,
-    codigo: cfg.casillaDestinoCodigo || undefined,
-    nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
-    state: 'done' as const,
-  };
-  const nodoPeru = {
-    flag: '🇵🇪',
-    tipo: 'destino' as const,
-    nombre: 'Perú',
-    state: 'done' as const,
-  };
-
-  if (cfg.llegadaPeru === 'ddp_directo') return [nodoProveedor, nodoPeru];
-  if (cfg.llegadaPeru === 'viajero' || cfg.llegadaPeru === 'courier_internacional') {
-    return [nodoProveedor, nodoCasilla, nodoPeru];
+  if (cfg.llegadaPeru === 'ddp_directo') {
+    return [
+      nodoProveedor,
+      {
+        flag: '🇵🇪',
+        tipo: 'destino' as const,
+        nombre: 'Perú',
+        state: 'done' as const,
+      },
+    ];
   }
-  return [nodoProveedor, nodoCasilla];
+  return [
+    nodoProveedor,
+    {
+      tipo: 'casilla' as const,
+      codigo: cfg.casillaDestinoCodigo || undefined,
+      nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
+      state: 'done' as const,
+    },
+  ];
 }
 
 // Helper: bandera emoji por país
