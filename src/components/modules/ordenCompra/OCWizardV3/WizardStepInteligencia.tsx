@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import {
-  TrendingUp, TrendingDown, Minus, AlertTriangle,
-  DollarSign, Package, Layers, BarChart3,
-} from 'lucide-react';
+import { Layers, AlertTriangle } from 'lucide-react';
 import { cn } from '../../../../design-system';
-import type { StatusVariant } from '../../../../design-system';
 import type { ProductoOrden } from '../../../../types/ordenCompra.types';
 import { OrdenCompraService } from '../../../../services/ordenCompra.service';
 import { useProductoStore } from '../../../../store/productoStore';
+import { getEmojiPorProducto } from './productoEmoji';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -32,50 +29,8 @@ interface WizardStepInteligenciaProps {
   descuentosOC?: Array<{ montoUSD: number }>;
 }
 
-// ─── Score Ring (SVG) ─────────────────────────────────────────────
-
-const ScoreRing: React.FC<{ score: number; size?: number }> = ({ score, size = 52 }) => {
-  const sw = 4;
-  const r = (size - sw) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (score / 100) * circ;
-  const color = score >= 70 ? '#10b981' : score >= 45 ? '#f59e0b' : score > 0 ? '#ef4444' : '#cbd5e1';
-  const textColor = score >= 70 ? 'text-emerald-700' : score >= 45 ? 'text-amber-700' : score > 0 ? 'text-red-700' : 'text-slate-400';
-
-  return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e2e8f0" strokeWidth={sw} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={sw}
-          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
-          className="transition-all duration-700 ease-out" />
-      </svg>
-      <span className={cn('absolute text-xs font-bold', textColor)}>{score > 0 ? score : '—'}</span>
-    </div>
-  );
-};
-
-// ─── Delta display ────────────────────────────────────────────────
-
-const Delta: React.FC<{ current: number; reference: number; label: string }> = ({ current, reference, label }) => {
-  if (reference <= 0 || current <= 0) return null;
-  const diff = ((current - reference) / reference) * 100;
-  const isDown = diff < 0;
-  const isFlat = Math.abs(diff) < 0.5;
-
-  return (
-    <span className={cn(
-      'inline-flex items-center gap-0.5 text-[10px] font-medium',
-      isFlat ? 'text-slate-400' : isDown ? 'text-emerald-600' : 'text-red-600',
-    )}>
-      {isFlat ? <Minus className="w-3 h-3" /> : isDown ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
-      {isFlat ? '=' : `${isDown ? '' : '+'}${diff.toFixed(1)}%`}
-      <span className="text-slate-400 ml-0.5">vs {label}</span>
-    </span>
-  );
-};
-
 // ─── Compute product score (numeric only) ─────────────────────────
+// Lógica intacta desde S41 — 40% precio / 30% margen / 20% carga / 10% inv.
 
 function computeScore(
   prod: ProductoOrden,
@@ -88,29 +43,28 @@ function computeScore(
   let weight = 0;
   const mejorProv = inv?.precioUSAMin > 0 ? inv.precioUSAMin : null;
 
-  // 1. Price vs best provider (40%) — most important: are you getting the best deal?
+  // 1. Price vs best provider (40%)
   if (mejorProv && prod.costoUnitario > 0) {
     const diff = ((prod.costoUnitario - mejorProv) / mejorProv) * 100;
-    // Strict: even 3% over best = significant penalty
     const s = diff <= -5 ? 95 : diff <= 0 ? 85 : diff <= 2 ? 65 : diff <= 5 ? 45 : diff <= 10 ? 25 : 10;
     total += s * 40;
     weight += 40;
   } else if (hist.promedio && hist.promedio > 0 && prod.costoUnitario > 0) {
-    // Fallback: vs historical average
     const diff = ((prod.costoUnitario - hist.promedio) / hist.promedio) * 100;
     const s = diff <= -5 ? 90 : diff <= 0 ? 75 : diff <= 5 ? 50 : diff <= 10 ? 30 : 10;
     total += s * 40;
     weight += 40;
   }
 
-  // 2. Margin with charges (30%) — is the business viable at this price?
+  // 2. Margin with charges (30%)
   const ctruConCargos = prod.costoUnitario > 0 && tcCompra > 0
     ? (prod.costoUnitario + costoAdicionalPorUnidadUSD) * tcCompra
     : null;
-  const precioVenta = inv?.precioPERUMin > 0 ? inv.precioPERUMin * 0.95 : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
+  const precioVenta = inv?.precioPERUMin > 0
+    ? inv.precioPERUMin * 0.95
+    : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
   if (ctruConCargos && precioVenta && precioVenta > 0) {
     const margenReal = ((precioVenta - ctruConCargos) / precioVenta) * 100;
-    // Stricter thresholds
     const s = margenReal >= 60 ? 90 : margenReal >= 45 ? 75 : margenReal >= 30 ? 60 : margenReal >= 15 ? 35 : margenReal >= 0 ? 15 : 5;
     total += s * 30;
     weight += 30;
@@ -120,16 +74,15 @@ function computeScore(
     weight += 30;
   }
 
-  // 3. Charge burden (20%) — how much do extra costs eat into margins?
+  // 3. Charge burden (20%)
   if (prod.costoUnitario > 0) {
     const chargeRatio = costoAdicionalPorUnidadUSD > 0 ? (costoAdicionalPorUnidadUSD / prod.costoUnitario) * 100 : 0;
-    // No charges = 70 (neutral, not perfect — you still have logistics costs ahead)
     const s = chargeRatio === 0 ? 70 : chargeRatio <= 5 ? 65 : chargeRatio <= 10 ? 55 : chargeRatio <= 20 ? 40 : chargeRatio <= 35 ? 25 : 10;
     total += s * 20;
     weight += 20;
   }
 
-  // 4. Viability from research (10%) — lower weight, just a reference
+  // 4. Viability from research (10%)
   if (inv?.puntuacionViabilidad > 0) {
     total += inv.puntuacionViabilidad * 10;
     weight += 10;
@@ -138,7 +91,22 @@ function computeScore(
   return weight > 0 ? Math.round(total / weight) : 0;
 }
 
+// ─── Score label (para KPI 1) ─────────────────────────────────────
+
+function scoreLabelAndTone(score: number): { label: string; tone: 'emerald' | 'amber' | 'red' | 'slate' } {
+  if (score === 0) return { label: 'Sin datos suficientes', tone: 'slate' };
+  if (score >= 85) return { label: 'Excelente · comprar', tone: 'emerald' };
+  if (score >= 70) return { label: 'Bueno · comprar', tone: 'emerald' };
+  if (score >= 55) return { label: 'Aceptable · revisar', tone: 'amber' };
+  if (score >= 40) return { label: 'Dudoso · revisar', tone: 'amber' };
+  return { label: 'No recomendable', tone: 'red' };
+}
+
 // ─── Main Component ───────────────────────────────────────────────
+// S42ak — UI alineada al mockup S40 L1160-1252:
+//   Header + 4 KPI cards horizontales + Tabla "Análisis por producto"
+// Toda la lógica de cálculo (intel hook, invMap, analysis, computeScore)
+// se mantiene intacta desde S41 — solo cambia la presentación.
 
 export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
   productos, tcCompra, costoShippingUSD = 0, cargosOC = [], descuentosOC = [],
@@ -147,7 +115,6 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
   const { productos: catalogo } = useProductoStore();
 
   // Total costos adicionales (cargos - descuentos) prorrateados por unidad
-  // Nota: costoShippingUSD ya está incluido en cargosOC (auto-sincronizado)
   const totalUnidadesCalc = productos.reduce((s, p) => s + (p.cantidad || 0), 0);
   const totalCargosUSD = cargosOC.reduce((s, c) => s + (c.montoUSD || 0), 0);
   const totalDescuentosUSD = descuentosOC.reduce((s, d) => s + (d.montoUSD || 0), 0);
@@ -158,7 +125,10 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
   useEffect(() => {
     productos.forEach(async (p) => {
       if (!p.productoId || intel[p.productoId]) return;
-      setIntel(prev => ({ ...prev, [p.productoId]: { precioHistorico: { ultimoPrecio: null, promedio: null, minimo: null, maximo: null, totalCompras: 0 }, loading: true } }));
+      setIntel(prev => ({
+        ...prev,
+        [p.productoId]: { precioHistorico: { ultimoPrecio: null, promedio: null, minimo: null, maximo: null, totalCompras: 0 }, loading: true },
+      }));
       try {
         const hist = await OrdenCompraService.getPreciosHistoricos(p.productoId);
         const precios = hist.map(h => h.costoUnitarioUSD).filter(x => x > 0);
@@ -176,7 +146,10 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
           },
         }));
       } catch {
-        setIntel(prev => ({ ...prev, [p.productoId]: { precioHistorico: { ultimoPrecio: null, promedio: null, minimo: null, maximo: null, totalCompras: 0 }, loading: false } }));
+        setIntel(prev => ({
+          ...prev,
+          [p.productoId]: { precioHistorico: { ultimoPrecio: null, promedio: null, minimo: null, maximo: null, totalCompras: 0 }, loading: false },
+        }));
       }
     });
   }, [productos]);
@@ -203,7 +176,7 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
     const inversion = (prod.costoUnitario || 0) * (prod.cantidad || 0);
     const mejorPrecioProveedor = inv?.precioUSAMin > 0 ? inv.precioUSAMin : null;
     return { prod, hist, inv, loading, score, ctru, ctruBase, inversion, mejorPrecioProveedor };
-  }), [productos, intel, invMap, tcCompra]);
+  }), [productos, intel, invMap, tcCompra, costoAdicionalPorUnidad]);
 
   // Aggregates
   const totalUds = productos.reduce((s, p) => s + (p.cantidad || 0), 0);
@@ -213,6 +186,73 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
     : 0;
   const alertas = analysis.filter(a => !a.loading && a.score > 0 && a.score < 45).length;
 
+  // ─── Agregados para los 4 KPIs del mockup ────────────────────────
+  // Todos ponderados por inversión (USD) o unidades según corresponda.
+  const kpis = useMemo(() => {
+    let inversionActualUSD = 0;
+    let inversionHistoricaUSD = 0;
+    let pvpSum = 0;
+    let pvpWeight = 0;
+    let ctruSum = 0;
+    let ctruWeight = 0;
+    let margenSum = 0;
+    let margenWeight = 0;
+    let huboHistorico = false;
+
+    analysis.forEach(({ prod, hist, inv, ctru }) => {
+      const uds = prod.cantidad || 0;
+      const costoAct = prod.costoUnitario || 0;
+      const inversionAct = costoAct * uds;
+      inversionActualUSD += inversionAct;
+
+      if (hist.promedio && hist.promedio > 0) {
+        inversionHistoricaUSD += hist.promedio * uds;
+        huboHistorico = true;
+      } else {
+        inversionHistoricaUSD += inversionAct;
+      }
+
+      const pvp = inv?.precioPERUMin > 0
+        ? inv.precioPERUMin * 0.95
+        : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
+
+      if (pvp && uds > 0) {
+        pvpSum += pvp * uds;
+        pvpWeight += uds;
+      }
+
+      if (ctru && ctru > 0 && uds > 0) {
+        ctruSum += ctru * uds;
+        ctruWeight += uds;
+      }
+
+      if (pvp && ctru && pvp > 0 && ctru > 0 && inversionAct > 0) {
+        const margen = ((pvp - ctru) / pvp) * 100;
+        margenSum += margen * inversionAct;
+        margenWeight += inversionAct;
+      } else if (inv?.margenEstimado > 0 && inversionAct > 0) {
+        margenSum += inv.margenEstimado * inversionAct;
+        margenWeight += inversionAct;
+      }
+    });
+
+    const precioVsHistoricoPct = huboHistorico && inversionHistoricaUSD > 0
+      ? ((inversionActualUSD - inversionHistoricaUSD) / inversionHistoricaUSD) * 100
+      : null;
+    const precioActualProm = totalUds > 0 ? inversionActualUSD / totalUds : 0;
+    const precioHistoricoProm = huboHistorico && totalUds > 0 ? inversionHistoricaUSD / totalUds : null;
+
+    return {
+      precioVsHistoricoPct,
+      precioActualProm,
+      precioHistoricoProm,
+      pvpPromedio: pvpWeight > 0 ? pvpSum / pvpWeight : null,
+      ctruPromedio: ctruWeight > 0 ? ctruSum / ctruWeight : null,
+      margenPromedio: margenWeight > 0 ? margenSum / margenWeight : null,
+    };
+  }, [analysis, totalUds]);
+
+  // ─── Empty state ─────────────────────────────────────────────────
   if (productos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 space-y-3">
@@ -222,209 +262,225 @@ export const WizardStepInteligencia: React.FC<WizardStepInteligenciaProps> = ({
     );
   }
 
+  const scoreMeta = scoreLabelAndTone(avgScore);
+
+  // ─── Render ──────────────────────────────────────────────────────
   return (
-    <div className="space-y-5">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold text-slate-900">Inteligencia Comercial</h2>
-        <p className="text-sm text-slate-500 mt-1">Análisis de precios, márgenes e histórico de compra</p>
-      </div>
-
-      <div className="max-w-3xl mx-auto space-y-4">
-
-        {/* ─── Order Summary Banner ─── */}
+    <div className="space-y-4">
+      {/* KPI Grid 4 cols — mockup L1174-1195 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* KPI 1 — Score de viabilidad */}
         <div className={cn(
-          'rounded-2xl p-5 border',
-          avgScore >= 70 ? 'bg-emerald-50/60 border-emerald-200' :
-          avgScore >= 45 ? 'bg-amber-50/60 border-amber-200' :
-          avgScore > 0 ? 'bg-red-50/60 border-red-200' :
-          'bg-slate-50 border-slate-200',
+          'p-4 border rounded-xl text-center',
+          scoreMeta.tone === 'emerald' && 'bg-emerald-50 border-emerald-200',
+          scoreMeta.tone === 'amber' && 'bg-amber-50 border-amber-200',
+          scoreMeta.tone === 'red' && 'bg-red-50 border-red-200',
+          scoreMeta.tone === 'slate' && 'bg-slate-50 border-slate-200',
         )}>
-          <div className="flex items-center gap-5">
-            <ScoreRing score={avgScore} size={60} />
-            <div className="flex-1">
-              <h3 className="text-base font-bold text-slate-900">
-                {avgScore >= 70 ? 'Compra favorable' : avgScore >= 45 ? 'Compra con observaciones' : avgScore > 0 ? 'Revisar antes de continuar' : 'Sin datos suficientes'}
-              </h3>
-              <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-sm">
-                <span className="tabular-nums"><span className="text-slate-500">Inversión:</span> <strong>${totalUSD.toFixed(2)}</strong></span>
-                <span className="tabular-nums"><span className="text-slate-500">Productos:</span> <strong>{productos.length}</strong> ({totalUds} uds)</span>
-                {alertas > 0 && (
-                  <span className="text-red-600 flex items-center gap-1">
-                    <AlertTriangle className="w-3.5 h-3.5" /> {alertas} alerta{alertas > 1 ? 's' : ''}
-                  </span>
-                )}
-              </div>
-              {/* Charge impact detail */}
-              {costosAdicionalesUSD > 0 && (
-                <div className="mt-3 pt-3 border-t border-current/10 text-xs space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-600">Costo productos</span>
-                    <span className="font-semibold tabular-nums">${totalUSD.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-amber-700">
-                    <span>+ Cargos adicionales</span>
-                    <span className="font-semibold tabular-nums">+${costosAdicionalesUSD.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between font-bold">
-                    <span className="text-slate-800">Costo total de la orden</span>
-                    <span className="tabular-nums">${(totalUSD + costosAdicionalesUSD).toFixed(2)}</span>
-                  </div>
-                  <p className="text-amber-600 text-[10px] mt-1">
-                    Los cargos representan el {((costosAdicionalesUSD / totalUSD) * 100).toFixed(0)}% del valor de productos — encarece el CTRU en +${costoAdicionalPorUnidad.toFixed(2)}/ud
-                  </p>
-                </div>
-              )}
-            </div>
+          <div className={cn(
+            'text-[10px] font-semibold uppercase mb-1',
+            scoreMeta.tone === 'emerald' && 'text-emerald-700',
+            scoreMeta.tone === 'amber' && 'text-amber-700',
+            scoreMeta.tone === 'red' && 'text-red-700',
+            scoreMeta.tone === 'slate' && 'text-slate-500',
+          )}>
+            Score de viabilidad
+          </div>
+          <div className={cn(
+            'text-3xl font-bold',
+            scoreMeta.tone === 'emerald' && 'text-emerald-700',
+            scoreMeta.tone === 'amber' && 'text-amber-700',
+            scoreMeta.tone === 'red' && 'text-red-700',
+            scoreMeta.tone === 'slate' && 'text-slate-400',
+          )}>
+            {avgScore > 0 ? avgScore : '—'}
+          </div>
+          <div className={cn(
+            'text-[11px] mt-1',
+            scoreMeta.tone === 'emerald' && 'text-emerald-600',
+            scoreMeta.tone === 'amber' && 'text-amber-600',
+            scoreMeta.tone === 'red' && 'text-red-600',
+            scoreMeta.tone === 'slate' && 'text-slate-500',
+          )}>
+            {scoreMeta.label}
           </div>
         </div>
 
-        {/* ─── Product Cards ─── */}
-        {analysis.map(({ prod, hist, inv, loading, score, ctru, ctruBase, inversion, mejorPrecioProveedor }) => (
-          <div
-            key={prod.productoId}
-            className={cn(
-              'bg-white border rounded-2xl overflow-hidden',
-              !loading && score > 0 && score < 45 ? 'border-red-200' : 'border-slate-200',
-            )}
-          >
-            {/* Header */}
-            <div className="flex items-center gap-3 px-5 pt-4 pb-2">
-              <ScoreRing score={score} size={44} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] text-slate-400">{prod.sku}</span>
-                  {loading && <div className="w-14 h-3 bg-slate-100 rounded animate-pulse" />}
-                </div>
-                <h4 className="font-semibold text-slate-900 text-sm">{prod.nombreComercial}</h4>
-                <p className="text-[11px] text-slate-400">
-                  {[prod.marca, prod.presentacion, prod.contenido, prod.dosaje, prod.sabor, prod.pesoLibras ? `${prod.pesoLibras} lb` : null].filter(Boolean).join(' · ')}
-                </p>
-              </div>
-            </div>
-
-            {/* Numbers Grid */}
-            <div className="px-5 py-3">
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-slate-100 rounded-xl overflow-hidden">
-                {/* Precio actual */}
-                <div className="bg-white p-3 text-center">
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">Precio</p>
-                  <p className="text-sm font-bold tabular-nums text-slate-900 mt-1">
-                    {prod.costoUnitario > 0 ? `$${prod.costoUnitario.toFixed(2)}` : '—'}
-                  </p>
-                </div>
-
-                {/* Mejor precio proveedor */}
-                <div className="bg-white p-3 text-center">
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">Mejor prov.</p>
-                  <p className={cn(
-                    'text-sm font-bold tabular-nums mt-1',
-                    mejorPrecioProveedor && prod.costoUnitario > 0
-                      ? prod.costoUnitario <= mejorPrecioProveedor ? 'text-emerald-700' : 'text-red-700'
-                      : 'text-slate-900',
-                  )}>
-                    {mejorPrecioProveedor ? `$${mejorPrecioProveedor.toFixed(2)}` : '—'}
-                  </p>
-                </div>
-
-                {/* Promedio histórico */}
-                <div className="bg-white p-3 text-center">
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">Hist. prom.</p>
-                  <p className="text-sm font-bold tabular-nums text-slate-900 mt-1">
-                    {hist.promedio ? `$${hist.promedio.toFixed(2)}` : '—'}
-                  </p>
-                  {hist.totalCompras > 0 && (
-                    <p className="text-[9px] text-slate-400">{hist.totalCompras} compra{hist.totalCompras > 1 ? 's' : ''}</p>
-                  )}
-                </div>
-
-                {/* CTRU estimado (incluye cargos prorrateados) */}
-                <div className={cn('p-3 text-center', costoAdicionalPorUnidad > 0 ? 'bg-amber-50' : 'bg-white')}>
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">CTRU est.</p>
-                  <p className={cn('text-sm font-bold tabular-nums mt-1', costoAdicionalPorUnidad > 0 ? 'text-amber-800' : 'text-slate-900')}>
-                    {ctru ? `S/${ctru.toFixed(2)}` : '—'}
-                  </p>
-                  {costoAdicionalPorUnidad > 0 && ctruBase !== null && (
-                    <p className="text-[9px] text-amber-500">
-                      +S/{(costoAdicionalPorUnidad * tcCompra).toFixed(0)} cargos
-                    </p>
-                  )}
-                </div>
-
-                {/* Margen — calculado: (precioVenta - CTRU) / precioVenta */}
-                {(() => {
-                  // Precio de venta = competidor más barato - 5%
-                  const precioCompetidor = inv?.precioPERUMin > 0 ? inv.precioPERUMin : null;
-                  const precioVenta = precioCompetidor ? precioCompetidor * 0.95 : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
-                  const margen = precioVenta && ctru && ctru > 0 ? ((precioVenta - ctru) / precioVenta) * 100 : (inv?.margenEstimado > 0 ? inv.margenEstimado : null);
-                  const utilidad = precioVenta && ctru ? precioVenta - ctru : null;
-
-                  const margenColor = margen !== null && margen >= 30 ? 'emerald' : margen !== null && margen >= 15 ? 'amber' : margen !== null && margen > 0 ? 'red' : null;
-
-                  return (
-                    <div className={cn('p-3 text-center', margenColor ? `bg-${margenColor}-50` : 'bg-white')}>
-                      <p className="text-[9px] text-slate-400 uppercase tracking-wide">Utilidad</p>
-                      <p className={cn(
-                        'text-sm font-bold tabular-nums mt-1',
-                        margenColor ? `text-${margenColor}-700` : 'text-slate-900',
-                      )}>
-                        {utilidad !== null ? `S/${utilidad.toFixed(0)}` : margen !== null ? `${margen.toFixed(0)}%` : '—'}
-                      </p>
-                      {margen !== null && utilidad !== null && (
-                        <p className={cn('text-[9px]', margenColor ? `text-${margenColor}-500` : 'text-slate-400')}>
-                          {margen.toFixed(0)}%
-                          {precioCompetidor ? ' (comp -5%)' : ''}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })()}
-
-                {/* Inversión */}
-                <div className="bg-white p-3 text-center">
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">Inversión</p>
-                  <p className="text-sm font-bold tabular-nums text-slate-900 mt-1">
-                    ${inversion.toFixed(2)}
-                  </p>
-                  <p className="text-[9px] text-slate-400">{prod.cantidad} uds</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Deltas row */}
-            {prod.costoUnitario > 0 && !loading && (
-              <div className="px-5 pb-3 flex flex-wrap gap-x-4 gap-y-1">
-                {hist.promedio && <Delta current={prod.costoUnitario} reference={hist.promedio} label="promedio" />}
-                {hist.ultimoPrecio && <Delta current={prod.costoUnitario} reference={hist.ultimoPrecio} label="última compra" />}
-                {hist.minimo && hist.minimo !== hist.promedio && <Delta current={prod.costoUnitario} reference={hist.minimo} label="mínimo" />}
-                {mejorPrecioProveedor && <Delta current={prod.costoUnitario} reference={mejorPrecioProveedor} label="mejor prov." />}
-              </div>
-            )}
-
-            {/* Alert if significantly above historical */}
-            {!loading && hist.promedio && prod.costoUnitario > 0 && ((prod.costoUnitario - hist.promedio) / hist.promedio) > 0.10 && (
-              <div className="mx-5 mb-4 flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-red-700">
-                  Precio {(((prod.costoUnitario - hist.promedio) / hist.promedio) * 100).toFixed(0)}% por encima del promedio histórico (${ hist.promedio.toFixed(2)}). Verifica antes de continuar.
-                </p>
-              </div>
-            )}
-
-            {/* Viability bar if available */}
-            {inv?.puntuacionViabilidad > 0 && (
-              <div className="px-5 pb-4 flex items-center gap-3">
-                <span className="text-[9px] text-slate-400 uppercase tracking-wide w-14">Viabilidad</span>
-                <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className={cn('h-full rounded-full transition-all duration-500', inv.puntuacionViabilidad >= 60 ? 'bg-emerald-500' : inv.puntuacionViabilidad >= 40 ? 'bg-amber-500' : 'bg-red-500')}
-                    style={{ width: `${inv.puntuacionViabilidad}%` }}
-                  />
-                </div>
-                <span className="text-[10px] font-semibold text-slate-600 w-8 text-right">{inv.puntuacionViabilidad}</span>
-              </div>
-            )}
+        {/* KPI 2 — Precio vs histórico */}
+        <div className="p-4 bg-white border border-slate-200 rounded-xl">
+          <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
+            Precio vs histórico
           </div>
-        ))}
+          <div className={cn(
+            'text-xl font-bold',
+            kpis.precioVsHistoricoPct === null && 'text-slate-400',
+            kpis.precioVsHistoricoPct !== null && kpis.precioVsHistoricoPct < -0.5 && 'text-emerald-700',
+            kpis.precioVsHistoricoPct !== null && kpis.precioVsHistoricoPct > 0.5 && 'text-amber-700',
+            kpis.precioVsHistoricoPct !== null && Math.abs(kpis.precioVsHistoricoPct) <= 0.5 && 'text-slate-600',
+          )}>
+            {kpis.precioVsHistoricoPct === null
+              ? '—'
+              : `${kpis.precioVsHistoricoPct > 0 ? '+' : ''}${kpis.precioVsHistoricoPct.toFixed(1)}%`}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">
+            {kpis.precioHistoricoProm !== null
+              ? `$ ${kpis.precioActualProm.toFixed(2)} vs $ ${kpis.precioHistoricoProm.toFixed(2)} (prom compras)`
+              : 'Sin histórico previo'}
+          </div>
+        </div>
+
+        {/* KPI 3 — Margen proyectado */}
+        <div className="p-4 bg-white border border-slate-200 rounded-xl">
+          <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
+            Margen proyectado
+          </div>
+          <div className={cn(
+            'text-xl font-bold',
+            kpis.margenPromedio === null && 'text-slate-400',
+            kpis.margenPromedio !== null && kpis.margenPromedio >= 45 && 'text-teal-700',
+            kpis.margenPromedio !== null && kpis.margenPromedio >= 30 && kpis.margenPromedio < 45 && 'text-amber-700',
+            kpis.margenPromedio !== null && kpis.margenPromedio < 30 && 'text-red-700',
+          )}>
+            {kpis.margenPromedio !== null ? `${kpis.margenPromedio.toFixed(0)}%` : '—'}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">
+            {kpis.ctruPromedio !== null && kpis.pvpPromedio !== null
+              ? `S/ ${kpis.ctruPromedio.toFixed(0)} → S/ ${kpis.pvpPromedio.toFixed(0)} PVP sugerido`
+              : 'Sin datos de PVP'}
+          </div>
+        </div>
+
+        {/* KPI 4 — CTRU estimado */}
+        <div className="p-4 bg-white border border-slate-200 rounded-xl">
+          <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
+            CTRU estimado
+          </div>
+          <div className="text-xl font-bold text-slate-900">
+            {kpis.ctruPromedio !== null ? `S/ ${kpis.ctruPromedio.toFixed(2)}` : '—'}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">
+            {costosAdicionalesUSD > 0
+              ? `incl. cargos prorrateados (+S/ ${(costoAdicionalPorUnidad * tcCompra).toFixed(2)}/ud)`
+              : 'sin cargos adicionales'}
+          </div>
+        </div>
+      </div>
+
+      {/* Tabla "Análisis por producto" — mockup L1197-1251 */}
+      <div className="border border-slate-200 rounded-xl overflow-hidden">
+        <div className="bg-slate-50 px-4 py-2 border-b border-slate-200">
+          <span className="text-xs font-semibold text-slate-700">Análisis por producto</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-xs text-slate-500">
+              <tr>
+                <th className="px-4 py-2 text-left font-medium">Producto</th>
+                <th className="px-4 py-2 text-right font-medium">Precio actual</th>
+                <th className="px-4 py-2 text-right font-medium">Mejor histórico</th>
+                <th className="px-4 py-2 text-right font-medium">Diferencia</th>
+                <th className="px-4 py-2 text-right font-medium">Margen esperado</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {analysis.map(({ prod, hist, inv, loading, ctru }) => {
+                const emoji = getEmojiPorProducto(prod).emoji;
+                const mejorHist = hist.minimo && hist.minimo > 0 ? hist.minimo : null;
+                const diffPct =
+                  mejorHist && prod.costoUnitario > 0
+                    ? ((prod.costoUnitario - mejorHist) / mejorHist) * 100
+                    : null;
+                const pvp = inv?.precioPERUMin > 0
+                  ? inv.precioPERUMin * 0.95
+                  : (inv?.precioSugeridoCalculado > 0 ? inv.precioSugeridoCalculado : null);
+                const margen = pvp && ctru && pvp > 0 && ctru > 0
+                  ? ((pvp - ctru) / pvp) * 100
+                  : (inv?.margenEstimado > 0 ? inv.margenEstimado : null);
+
+                return (
+                  <tr key={prod.productoId} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{emoji}</span>
+                        <span className="font-medium text-slate-800">
+                          {prod.nombreComercial || prod.sku || '—'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-2 text-right font-semibold text-slate-900 tabular-nums">
+                      {prod.costoUnitario > 0 ? `$ ${prod.costoUnitario.toFixed(2)}` : '—'}
+                    </td>
+                    <td className="px-4 py-2 text-right text-slate-600 tabular-nums">
+                      {loading ? (
+                        <span className="inline-block w-14 h-3 bg-slate-100 rounded animate-pulse" />
+                      ) : mejorHist ? (
+                        <>
+                          $ {mejorHist.toFixed(2)}
+                          {hist.totalCompras > 0 && (
+                            <span className="text-[11px] text-slate-400 ml-1">
+                              ({hist.totalCompras}c)
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-slate-400 italic">—</span>
+                      )}
+                    </td>
+                    <td className={cn(
+                      'px-4 py-2 text-right tabular-nums',
+                      diffPct === null && 'text-slate-400 italic',
+                      diffPct !== null && diffPct < -0.5 && 'text-emerald-700',
+                      diffPct !== null && diffPct > 0.5 && 'text-amber-700',
+                      diffPct !== null && Math.abs(diffPct) <= 0.5 && 'text-slate-500',
+                    )}>
+                      {diffPct === null
+                        ? (loading ? <span className="inline-block w-10 h-3 bg-slate-100 rounded animate-pulse" /> : 'primera vez')
+                        : `${diffPct > 0 ? '+' : ''}${diffPct.toFixed(1)}%`}
+                    </td>
+                    <td className={cn(
+                      'px-4 py-2 text-right font-semibold tabular-nums',
+                      margen === null && 'text-slate-400',
+                      margen !== null && margen >= 45 && 'text-emerald-700',
+                      margen !== null && margen >= 30 && margen < 45 && 'text-amber-700',
+                      margen !== null && margen < 30 && 'text-red-700',
+                    )}>
+                      {margen !== null ? `${margen.toFixed(0)}%` : '—'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Footer alertas */}
+      {alertas > 0 && (
+        <div className="flex items-center gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>
+            {alertas} producto{alertas > 1 ? 's' : ''} con score bajo ({'<'}45). Revisa antes de continuar.
+          </span>
+        </div>
+      )}
+
+      {/* Resumen inversión total (footer informativo) */}
+      <div className="text-xs text-slate-500 flex items-center gap-4 px-1">
+        <span>
+          Inversión total: <strong className="text-slate-700 tabular-nums">${totalUSD.toFixed(2)}</strong>
+        </span>
+        <span>·</span>
+        <span>
+          {productos.length} producto{productos.length > 1 ? 's' : ''} · {totalUds} unidad{totalUds !== 1 ? 'es' : ''}
+        </span>
+        {costosAdicionalesUSD > 0 && (
+          <>
+            <span>·</span>
+            <span className="text-amber-700">
+              +${costosAdicionalesUSD.toFixed(2)} en cargos adicionales
+            </span>
+          </>
+        )}
       </div>
     </div>
   );

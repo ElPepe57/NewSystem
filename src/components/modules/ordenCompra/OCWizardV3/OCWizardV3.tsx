@@ -374,7 +374,7 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
       case 2:
         return <StepCargos state={state} dispatch={dispatch} subtotalProductos={subtotal} />;
       case 3:
-        return <StepInteligencia state={state} subtotal={subtotal} grandTotal={grandTotal} />;
+        return <StepInteligencia state={state} subtotal={subtotal} grandTotal={grandTotal} onSaltar={handleNext} />;
       case 4:
         return (
           <StepConfirm
