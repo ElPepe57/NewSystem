@@ -99,6 +99,40 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
   if (!isOpen) return null;
 
   // ─── Derivados ──────────────────────────────────────────────────────────
+  // S42bl — Etiquetas dinámicas según el tipo de envío.
+  // Un envío puede ser:
+  //   - Tramo 1 (proveedor → casilla USA): "¿Cómo entrega el proveedor?"
+  //   - Tramo 2 / casilla → Perú (via viajero/courier): "¿Cómo viaja a Perú?"
+  //   - DDP directo (proveedor → Perú): "¿Cómo entrega directo a Perú?"
+  //   - Entre casillas (interna_origen): "¿Cómo se mueve entre casillas?"
+  const tramoContexto = ((): { pregunta: string; tomaDesde: string } => {
+    const esDDP = (envio as any).esDDP === true;
+    if (esDDP) {
+      return {
+        pregunta: '¿Cómo entrega el proveedor directo a Perú?',
+        tomaDesde: 'la mercadería del proveedor',
+      };
+    }
+    if (envio.origenTipo === 'proveedor') {
+      // Tramo 1: proveedor → casilla destino (normalmente en USA/CN/etc)
+      return {
+        pregunta: '¿Cómo entrega el proveedor?',
+        tomaDesde: 'la mercadería del proveedor',
+      };
+    }
+    // Origen es casilla → puede ser casilla→Perú o entre casillas
+    if (envio.destinoCasillaPais === 'Perú' || envio.destinoCasillaPais === 'Peru') {
+      return {
+        pregunta: '¿Cómo viaja a Perú?',
+        tomaDesde: 'la mercadería de la casilla',
+      };
+    }
+    return {
+      pregunta: '¿Cómo se mueve entre casillas?',
+      tomaDesde: 'la mercadería de la casilla origen',
+    };
+  })();
+
   const tipoColaboradorFiltro = TIPO_A_COLABORADOR[tipoTransporte];
   const colaboradoresFiltrados = useMemo(() => {
     const base = colaboradores.filter(
@@ -322,7 +356,7 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
             {/* ─── Tipo de transporte ─── */}
             <div>
               <label className="text-xs font-medium text-slate-700 mb-2 block">
-                ¿Cómo viaja a Perú? <span className="text-red-500">*</span>
+                {tramoContexto.pregunta} <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <TipoTransporteCard
@@ -478,7 +512,7 @@ export const DespacharEnvioModal: React.FC<DespacharEnvioModalProps> = ({
               <div className="text-xs text-slate-500 mt-1">
                 Cuando{' '}
                 {colaboradorSeleccionado?.nombre || nombreNuevo || 'el courier'}{' '}
-                efectivamente toma la mercadería de la casilla.
+                efectivamente toma {tramoContexto.tomaDesde}.
               </div>
             </div>
 
