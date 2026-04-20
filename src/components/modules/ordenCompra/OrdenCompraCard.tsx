@@ -14,7 +14,11 @@ import { EnviosDeOC } from './EnviosDeOC';
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
   onCambiarEstado?: (nuevoEstado: EstadoOrden) => void;
+  /** Confirma la OC — lo llama ConfirmarOCModal al dar OK, con o sin sub-órdenes. */
   onConfirmarConSubOrdenes?: (subOrdenes?: SubOrdenCompra[]) => void;
+  /** S42aq — Abre el ConfirmarOCModal (único flujo de confirmación).
+   *  El padre (OrdenesCompra.tsx) lo conecta a setIsConfirmarModalOpen(true). */
+  onSolicitarConfirmacion?: () => void;
   onRegistrarPago?: () => void;
   onPagarSubOrden?: (subOrdenId: string) => void;
   onRefresh?: () => void;
@@ -44,15 +48,12 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   orden,
   onCambiarEstado,
   onConfirmarConSubOrdenes,
+  onSolicitarConfirmacion,
   onRegistrarPago,
   onPagarSubOrden,
   onRefresh
 }) => {
   const [showHistory, setShowHistory] = useState(false);
-  const [modoConfirmacion, setModoConfirmacion] = useState<'idle' | 'pregunta' | 'subordenes'>('idle');
-  const [subOrdenes, setSubOrdenes] = useState<SubOrdenCompra[]>([]);
-  // asignacion[productoIdx][subOrdenId] = cantidad asignada
-  const [asignacion, setAsignacion] = useState<Record<number, Record<string, number>>>({});
   // Sub-orden lifecycle state: trackingDraft[subId] = { tracking, courier }
   const [trackingDraft, setTrackingDraft] = useState<Record<string, { tracking: string; courier: string }>>({});
   const [subOrdenLoading, setSubOrdenLoading] = useState<Record<string, boolean>>({});
@@ -174,13 +175,15 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       borrador: {
         label: 'Confirmar OC',
         description: 'Confirma la orden, crea unidades pedidas y envío automático',
-        buttonText: (onConfirmarConSubOrdenes || onCambiarEstado) ? 'Confirmar' : undefined,
-        onClick: (onConfirmarConSubOrdenes || onCambiarEstado)
+        buttonText: (onSolicitarConfirmacion || onConfirmarConSubOrdenes || onCambiarEstado) ? 'Confirmar' : undefined,
+        // S42aq — Flujo unificado: delega al ConfirmarOCModal via onSolicitarConfirmacion.
+        // Fallback a onConfirmarConSubOrdenes directo (1 solo producto) o onCambiarEstado legacy.
+        onClick: (onSolicitarConfirmacion || onConfirmarConSubOrdenes || onCambiarEstado)
           ? () => {
-              if (onConfirmarConSubOrdenes && orden.productos.length >= 2) {
-                setModoConfirmacion('pregunta');
+              if (onSolicitarConfirmacion) {
+                onSolicitarConfirmacion();
               } else if (onConfirmarConSubOrdenes) {
-                onConfirmarConSubOrdenes(); // single product, no sub-orders needed
+                onConfirmarConSubOrdenes();
               } else if (onCambiarEstado) {
                 onCambiarEstado('confirmada');
               }
@@ -311,7 +314,7 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           ya calculado que resuelve label/description/buttonText/onClick según
           el estado. En borrador muestra "Confirmar OC" y dispara el flujo
           inline de pregunta / división en sub-órdenes. */}
-      {nextAction && nextAction.buttonText && nextAction.onClick && modoConfirmacion === 'idle' && (
+      {nextAction && nextAction.buttonText && nextAction.onClick && (
         <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="w-10 h-10 rounded-full bg-white border border-teal-200 flex items-center justify-center flex-shrink-0">
@@ -405,306 +408,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         </div>
       )}
 
-      {/* Confirmación con sub-órdenes — aparece justo debajo de la timeline */}
-      {modoConfirmacion !== 'idle' && (
-        <div className="border border-teal-200 bg-teal-50/50 rounded-xl p-5 space-y-4">
-          {modoConfirmacion === 'pregunta' && (
-            <>
-              <h4 className="font-semibold text-slate-900">¿Esta orden fue subdividida por el proveedor?</h4>
-              <p className="text-xs text-slate-500">Si el proveedor envió con múltiples referencias (ej: varias órdenes de Amazon), divídela en sub-órdenes.</p>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => { setModoConfirmacion('idle'); onConfirmarConSubOrdenes?.(); }}
-                  className="px-4 py-4 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-900 hover:border-teal-500 hover:bg-teal-50 transition-all text-center"
-                >
-                  <Package className="w-6 h-6 mx-auto mb-2 text-slate-400" />
-                  No, es una sola orden
-                  <p className="text-[10px] text-slate-400 mt-1 font-normal">Confirma y crea 1 envío</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const id1 = `SUB-${Date.now()}-a`;
-                    const id2 = `SUB-${Date.now()}-b`;
-                    // Init: all quantities to sub-orden 1
-                    const init: Record<number, Record<string, number>> = {};
-                    orden.productos.forEach((p, i) => { init[i] = { [id1]: p.cantidad, [id2]: 0 }; });
-                    setAsignacion(init);
-                    setSubOrdenes([
-                      { id: id1, referenciaProveedor: '', productos: [...orden.productos], totalUSD: orden.totalUSD },
-                      { id: id2, referenciaProveedor: '', productos: [], totalUSD: 0 },
-                    ]);
-                    setModoConfirmacion('subordenes');
-                  }}
-                  className="px-4 py-4 bg-white border-2 border-slate-200 rounded-xl text-sm font-medium text-slate-900 hover:border-teal-500 hover:bg-teal-50 transition-all text-center"
-                >
-                  <Layers className="w-6 h-6 mx-auto mb-2 text-slate-400" />
-                  Sí, dividir
-                  <p className="text-[10px] text-slate-400 mt-1 font-normal">Asigna productos a sub-envíos</p>
-                </button>
-              </div>
-              <button onClick={() => setModoConfirmacion('idle')} className="text-xs text-slate-400 hover:text-slate-600">Cancelar</button>
-            </>
-          )}
 
-          {modoConfirmacion === 'subordenes' && (
-            (() => {
-              const rebuildSubs = (newA: Record<number, Record<string, number>>) => {
-                setSubOrdenes(prev => prev.map(sub => {
-                  const prods: ProductoOrden[] = [];
-                  let subtotalProds = 0;
-                  orden.productos.forEach((p, idx) => {
-                    const qty = newA[idx]?.[sub.id] || 0;
-                    if (qty > 0) {
-                      prods.push({ ...p, cantidad: qty, subtotal: qty * p.costoUnitario });
-                      subtotalProds += qty * p.costoUnitario;
-                    }
-                  });
-                  const totalUSD = subtotalProds - (sub.descuentoUSD || 0) + (sub.shippingUSD || 0) + (sub.impuestoUSD || 0);
-                  return { ...sub, productos: prods, subtotalProductosUSD: subtotalProds, totalUSD };
-                }));
-              };
-
-              const updateQty = (prodIdx: number, subId: string, qty: number) => {
-                const newA = { ...asignacion };
-                if (!newA[prodIdx]) newA[prodIdx] = {};
-                newA[prodIdx] = { ...newA[prodIdx], [subId]: Math.max(0, qty) };
-                setAsignacion(newA);
-                rebuildSubs(newA);
-              };
-
-              const qtyValid = orden.productos.every((p, idx) => {
-                const totalAssigned = Object.values(asignacion[idx] || {}).reduce((s, v) => s + v, 0);
-                return totalAssigned === p.cantidad;
-              });
-              const refsValid = subOrdenes.every(s => s.referenciaProveedor.trim().length > 0);
-              const hasProducts = subOrdenes.every(s => s.productos.length > 0);
-              const isValid = qtyValid && refsValid && hasProducts;
-
-              // Cost distribution
-              const totalOC = orden.totalUSD || 0;
-              const subtotalProds = orden.subtotalUSD || orden.productos.reduce((s, p) => s + p.costoUnitario * p.cantidad, 0);
-              const costosExtra = totalOC - subtotalProds; // tax + shipping + otros - descuento
-
-              return (
-                <>
-                  <h4 className="font-semibold text-slate-900">Dividir en sub-órdenes</h4>
-                  <p className="text-xs text-slate-500">Asigna cantidades de cada producto y la referencia de cada sub-orden</p>
-
-                  {/* Sub-orden cards — each contains reference + product assignments */}
-                  <div className="space-y-4">
-                    {subOrdenes.map((sub, sIdx) => {
-                      const subUnits = sub.productos.reduce((s, p) => s + p.cantidad, 0);
-                      const totalUnitsOC = orden.productos.reduce((s, p) => s + p.cantidad, 0);
-                      const proportion = totalUnitsOC > 0 ? subUnits / totalUnitsOC : 0;
-                      const costosProporcion = costosExtra * proportion;
-                      const missingRef = sub.referenciaProveedor.trim().length === 0;
-
-                      return (
-                        <div key={sub.id} className={cn('bg-white border rounded-xl p-4 space-y-3', missingRef ? 'border-amber-300' : 'border-slate-200')}>
-                          {/* Header */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold text-teal-700">Sub-orden {sIdx + 1}</span>
-                            <span className="text-sm font-bold tabular-nums">${sub.totalUSD.toFixed(2)}</span>
-                          </div>
-
-                          {/* Reference — obligatory */}
-                          <div>
-                            <label className="text-[10px] text-slate-500 block mb-0.5">
-                              Referencia proveedor <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              key={`ref-${sub.id}`}
-                              type="text"
-                              value={sub.referenciaProveedor}
-                              onChange={e => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, referenciaProveedor: e.target.value } : s))}
-                              placeholder="Número de orden / factura (obligatorio)"
-                              className={cn('w-full text-xs border rounded-lg px-3 py-2 focus:ring-1 focus:ring-teal-500', missingRef ? 'border-amber-300 bg-amber-50' : 'border-slate-200')}
-                            />
-                            {missingRef && <p className="text-[10px] text-amber-600 mt-0.5">Referencia obligatoria</p>}
-                          </div>
-
-                          {/* Product quantities — vertical layout */}
-                          <div className="space-y-1.5">
-                            <p className="text-[10px] text-slate-400 uppercase tracking-wide">Productos</p>
-                            {orden.productos.map((prod, idx) => {
-                              const qty = asignacion[idx]?.[sub.id] || 0;
-                              return (
-                                <div key={idx} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-1.5">
-                                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    <span className="text-xs text-slate-700 truncate">{prod.nombreComercial}</span>
-                                    <span className="text-[10px] text-slate-400">${prod.costoUnitario.toFixed(2)}/ud</span>
-                                  </div>
-                                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      max={prod.cantidad}
-                                      value={qty}
-                                      onChange={e => updateQty(idx, sub.id, parseInt(e.target.value) || 0)}
-                                      className="w-12 px-1 py-1 text-xs text-center border border-slate-200 rounded focus:ring-1 focus:ring-teal-500"
-                                    />
-                                    <span className="text-[10px] text-slate-400">/{prod.cantidad}</span>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          {/* Costos individuales */}
-                          {(() => {
-                            const subProd = sub.subtotalProductosUSD || sub.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
-                            const updateSubCost = (field: 'descuentoUSD' | 'shippingUSD' | 'impuestoUSD', val: number) => {
-                              setSubOrdenes(prev => prev.map(s => {
-                                if (s.id !== sub.id) return s;
-                                const sp = s.subtotalProductosUSD || s.productos.reduce((sum, p) => sum + p.costoUnitario * p.cantidad, 0);
-                                const updated = { ...s, [field]: val };
-                                updated.totalUSD = sp - (updated.descuentoUSD || 0) + (updated.shippingUSD || 0) + (updated.impuestoUSD || 0);
-                                return updated;
-                              }));
-                            };
-                            return (
-                              <div className="space-y-2">
-                                <p className="text-[10px] text-slate-400 uppercase tracking-wide">Costos de esta sub-orden</p>
-                                {/* Descuento */}
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] text-emerald-600 w-16 flex-shrink-0">Descuento</span>
-                                  <div className="relative flex-1">
-                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
-                                    <input type="number" step="0.01" min="0" value={sub.descuentoUSD || ''} onChange={e => updateSubCost('descuentoUSD', parseFloat(e.target.value) || 0)} placeholder="0.00" className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
-                                  </div>
-                                </div>
-                                {/* Shipping */}
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] text-sky-600 w-16 flex-shrink-0">Shipping</span>
-                                  <div className="relative flex-1">
-                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
-                                    <input type="number" step="0.01" min="0" value={sub.shippingUSD || ''} onChange={e => updateSubCost('shippingUSD', parseFloat(e.target.value) || 0)} placeholder="0.00" className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
-                                  </div>
-                                </div>
-                                {/* Tax — toggle %/$ */}
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] text-amber-600 w-16 flex-shrink-0">Tax</span>
-                                  <div className="flex rounded border border-slate-200 overflow-hidden flex-shrink-0">
-                                    <button type="button" onClick={() => { const pct = subProd > 0 && (sub.impuestoUSD || 0) > 0 ? ((sub.impuestoUSD || 0) / subProd * 100) : 0; setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, _taxMode: '%', _taxPct: Math.round(pct * 10) / 10 } as any : s)); }} className={cn('px-1.5 py-1 text-[10px] font-medium', (sub as any)._taxMode === '%' ? 'bg-amber-100 text-amber-700' : 'text-slate-400')}>%</button>
-                                    <button type="button" onClick={() => setSubOrdenes(prev => prev.map(s => s.id === sub.id ? { ...s, _taxMode: '$' } as any : s))} className={cn('px-1.5 py-1 text-[10px] font-medium', (sub as any)._taxMode !== '%' ? 'bg-amber-100 text-amber-700' : 'text-slate-400')}>$</button>
-                                  </div>
-                                  {(sub as any)._taxMode === '%' ? (
-                                    <div className="flex items-center gap-1 flex-1">
-                                      <div className="relative flex-1">
-                                        <input type="number" step="0.1" min="0" max="100" value={(sub as any)._taxPct || ''} onChange={e => { const pct = parseFloat(e.target.value) || 0; const baseImponible = subProd - (sub.descuentoUSD || 0); const monto = Math.round(baseImponible * pct / 100 * 100) / 100; setSubOrdenes(prev => prev.map(s => s.id === sub.id ? (() => { const u = { ...s, impuestoUSD: monto, _taxPct: pct, _taxMode: '%' } as any; u.totalUSD = (u.subtotalProductosUSD || subProd) - (u.descuentoUSD || 0) + (u.shippingUSD || 0) + monto; return u; })() : s)); }} placeholder="0.0" className="w-full pr-6 pl-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
-                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">%</span>
-                                      </div>
-                                      <span className="text-[10px] text-slate-500 tabular-nums w-16 text-right">= ${(sub.impuestoUSD || 0).toFixed(2)}</span>
-                                    </div>
-                                  ) : (
-                                    <div className="relative flex-1">
-                                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">$</span>
-                                      <input type="number" step="0.01" min="0" value={sub.impuestoUSD || ''} onChange={e => updateSubCost('impuestoUSD', parseFloat(e.target.value) || 0)} placeholder="0.00" className="w-full pl-5 pr-2 py-1.5 text-xs border border-slate-200 rounded-lg text-right focus:ring-1 focus:ring-teal-500 tabular-nums" />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })()}
-
-                          {/* Summary */}
-                          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                            <p className="text-[10px] text-slate-400">{sub.productos.length} productos · {subUnits} uds</p>
-                            <div className="text-right text-[10px] text-slate-500 tabular-nums">
-                              {sub.subtotalProductosUSD ? `Prod: $${sub.subtotalProductosUSD.toFixed(2)}` : ''}
-                              {(sub.descuentoUSD || 0) > 0 && <span className="text-emerald-600 ml-2">-${sub.descuentoUSD?.toFixed(2)}</span>}
-                              {(sub.shippingUSD || 0) > 0 && <span className="text-sky-600 ml-2">+${sub.shippingUSD?.toFixed(2)}</span>}
-                              {(sub.impuestoUSD || 0) > 0 && <span className="text-amber-600 ml-2">+${sub.impuestoUSD?.toFixed(2)}</span>}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newId = `SUB-${Date.now()}`;
-                        setSubOrdenes(prev => [...prev, { id: newId, referenciaProveedor: '', productos: [], totalUSD: 0 }]);
-                        setAsignacion(prev => {
-                          const newA = { ...prev };
-                          orden.productos.forEach((_, i) => { newA[i] = { ...newA[i], [newId]: 0 }; });
-                          return newA;
-                        });
-                      }}
-                      className="text-xs text-teal-600 hover:text-teal-700 flex items-center gap-1"
-                    >
-                      <Plus className="w-3 h-3" /> Agregar sub-orden
-                    </button>
-                  </div>
-
-                  {/* Validation warnings */}
-                  {!qtyValid && (
-                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      Todas las unidades deben estar asignadas
-                    </div>
-                  )}
-                  {qtyValid && !refsValid && (
-                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      Todas las sub-órdenes requieren referencia del proveedor
-                    </div>
-                  )}
-                  {qtyValid && refsValid && !hasProducts && (
-                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      Cada sub-orden debe tener al menos 1 producto
-                    </div>
-                  )}
-
-                  {/* Validator: sums must match OC totals */}
-                  {(() => {
-                    const ocDesc = orden.descuentoUSD || 0;
-                    const ocTax = orden.impuestoCompraUSD ?? 0;
-                    const sumDesc = subOrdenes.reduce((s, so) => s + (so.descuentoUSD || 0), 0);
-                    const sumShip = subOrdenes.reduce((s, so) => s + (so.shippingUSD || 0), 0);
-                    const sumTax = subOrdenes.reduce((s, so) => s + (so.impuestoUSD || 0), 0);
-                    const descMatch = Math.abs(sumDesc - ocDesc) < 0.02;
-                    const taxMatch = Math.abs(sumTax - ocTax) < 0.02;
-                    const sumTotal = subOrdenes.reduce((s, so) => s + so.totalUSD, 0);
-                    const ocTotal = orden.totalUSD;
-                    const totalMatch = Math.abs(sumTotal - ocTotal) < 0.05;
-
-                    return (
-                      <div className="bg-slate-50 rounded-lg px-3 py-2 space-y-1">
-                        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Validación vs OC original</p>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[10px] tabular-nums">
-                          <span className="text-slate-500">Descuento OC: ${ocDesc.toFixed(2)}</span>
-                          <span className={descMatch ? 'text-emerald-600' : 'text-red-600'}>Suma sub: ${sumDesc.toFixed(2)} {descMatch ? '✓' : '✗'}</span>
-                          <span className="text-slate-500">Tax OC: ${ocTax.toFixed(2)}</span>
-                          <span className={taxMatch ? 'text-emerald-600' : 'text-red-600'}>Suma sub: ${sumTax.toFixed(2)} {taxMatch ? '✓' : '✗'}</span>
-                          <span className="text-slate-500">Shipping sub-órdenes:</span>
-                          <span className="text-sky-600">${sumShip.toFixed(2)}</span>
-                          <span className="text-slate-700 font-semibold">Total OC: ${ocTotal.toFixed(2)}</span>
-                          <span className={cn('font-semibold', totalMatch ? 'text-emerald-600' : 'text-red-600')}>Suma sub: ${sumTotal.toFixed(2)} {totalMatch ? '✓' : '✗'}</span>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  <div className="flex gap-3">
-                    <Button variant="secondary" onClick={() => { setModoConfirmacion('idle'); setSubOrdenes([]); setAsignacion({}); }}>Cancelar</Button>
-                    <Button variant="primary" onClick={() => { setModoConfirmacion('idle'); onConfirmarConSubOrdenes?.(subOrdenes); }} disabled={!isValid}>
-                      Confirmar con {subOrdenes.length} sub-órdenes
-                </Button>
-              </div>
-            </>
-              );
-            })()
-          )}
-        </div>
-      )}
-
-      {/* Resto del contenido — oculto durante confirmación */}
-      {modoConfirmacion === 'idle' && <>
+      {/* S42aq — Wrapper {modoConfirmacion === 'idle'} eliminado: el flujo
+          inline se migró al ConfirmarOCModal (un solo modal para confirmar). */}
 
       {/* S42ao — Cards Fechas+Totales eliminadas: las fechas ya están debajo
           de cada nodo del pipeline arriba, y los totales están en los KPIs +
@@ -900,10 +606,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           Si una OC legacy tiene recepcionesParciales[], su data sigue en el doc pero no
           se visualiza desde la UI nueva. Reportes y contabilidad siguen leyéndola. */}
 
-      </> /* fin del contenido oculto durante confirmación */}
+      {/* S42aq — Fin del contenido. Wrappers modoConfirmacion eliminados. */}
 
       {/* Acciones */}
-      {modoConfirmacion === 'idle' && (
       <div className="flex items-center flex-wrap gap-3 pt-4 border-t">
         {/* Acciones de estado logístico — ocultar si hay sub-ordenes (estado se deriva) */}
         {!(orden.subOrdenes?.length) && getAccionesDisponibles().map(accion => (
@@ -933,7 +638,6 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             La recepción canónica se hace desde el Envío asociado (ver EnviosDeOC arriba).
             La reversión, si se requiere, se hace vía scripts administrativos. */}
       </div>
-      )}
     </div>
   );
 };

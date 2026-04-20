@@ -1281,6 +1281,9 @@ export const OrdenesCompra: React.FC = () => {
             orden={selectedOrden}
             onCambiarEstado={handleCambiarEstado}
             onConfirmarConSubOrdenes={handleConfirmarConSubOrdenes}
+            // S42aq — Flujo de confirmación unificado: el banner CTA abre
+            // el ConfirmarOCModal separado (con tabla asignación + validación)
+            onSolicitarConfirmacion={() => setIsConfirmarModalOpen(true)}
             onRegistrarPago={handleRegistrarPago}
             onPagarSubOrden={handlePagarSubOrden}
             onRefresh={() => { fetchOrdenes(); if (selectedOrden) refreshSelectedOrden(selectedOrden.id); }}
