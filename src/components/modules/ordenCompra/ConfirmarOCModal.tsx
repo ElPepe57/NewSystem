@@ -58,6 +58,10 @@ export interface ConfirmarOCModalProps {
   orden: OrdenCompra;
   onConfirmar: (subOrdenes?: SubOrdenCompra[]) => Promise<void>;
   isSubmitting: boolean;
+  /** S42av — Renderiza el contenido sin el overlay/wrapper fixed. Usado
+   *  cuando se embebe dentro de otro modal (ej. Detalles de Orden) para
+   *  evitar el efecto "modal sobre modal". */
+  embedded?: boolean;
 }
 
 // ─── Estado interno ─────────────────────────────────────────────────────────
@@ -80,6 +84,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
   orden,
   onConfirmar,
   isSubmitting,
+  embedded = false,
 }) => {
   // Flujo: 'question' pregunta inicial | 'dividir' edición de sub-órdenes
   const [flujo, setFlujo] = useState<'question' | 'dividir'>('question');
@@ -474,11 +479,20 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
   if (!isOpen) return null;
 
   // ═══ Render ═══════════════════════════════════════════════════════════
-  return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-        {/* ─── Header modal ─── */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+  // S42av — Contenido del modal. Se envuelve en overlay fixed solo si
+  // !embedded. Cuando embedded=true se renderiza inline (ej. dentro del
+  // modal de Detalles de Orden para dar sensación de flujo integrado).
+  const contenido = (
+    <div className={cn(
+      embedded
+        ? 'bg-white'
+        : 'max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200'
+    )}>
+        {/* ─── Header interno ─── */}
+        <div className={cn(
+          'px-6 py-4 bg-slate-50',
+          !embedded && 'border-b border-slate-200'
+        )}>
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs text-slate-500">Confirmar orden</div>
@@ -488,11 +502,13 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                 <span className="tabular-nums">${orden.totalUSD.toFixed(2)}</span>
               </div>
             </div>
+            {/* Botón cerrar: cuando embedded, actúa como "volver a detalles"; cuando no, cierra el modal */}
             <button
               type="button"
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600"
-              aria-label="Cerrar"
+              aria-label={embedded ? 'Volver a detalles' : 'Cerrar'}
+              title={embedded ? 'Volver a detalles' : 'Cerrar'}
             >
               <X className="w-5 h-5" />
             </button>
@@ -646,6 +662,15 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
           </div>
         </div>
       </div>
+  );
+
+  // S42av — Modo embedded: sin overlay fixed (se renderiza inline dentro
+  // de otro modal). Modo normal: overlay fixed full-screen como modal.
+  if (embedded) return contenido;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
+      {contenido}
     </div>
   );
 };

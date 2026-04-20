@@ -1281,9 +1281,9 @@ export const OrdenesCompra: React.FC = () => {
             orden={selectedOrden}
             onCambiarEstado={handleCambiarEstado}
             onConfirmarConSubOrdenes={handleConfirmarConSubOrdenes}
-            // S42aq — Flujo de confirmación unificado: el banner CTA abre
-            // el ConfirmarOCModal separado (con tabla asignación + validación)
-            onSolicitarConfirmacion={() => setIsConfirmarModalOpen(true)}
+            // S42av — onSolicitarConfirmacion ya no es necesario: el flujo
+            // de confirmación ahora vive embedded dentro del mismo modal de
+            // Detalles (ver OrdenCompraCard: vistaInterna === 'confirmar').
             onRegistrarPago={handleRegistrarPago}
             onPagarSubOrden={handlePagarSubOrden}
             onRefresh={() => { fetchOrdenes(); if (selectedOrden) refreshSelectedOrden(selectedOrden.id); }}
@@ -1356,20 +1356,10 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* S40: Modal Recepción Parcial eliminado — la recepción se gestiona desde el Envío asociado (ver EnviosDeOC en OrdenCompraCard) */}
 
-      {/* Modal Confirmar OC — S42ar: montaje condicional (isOpen debe ser true
-          para instanciar el componente). ConfirmarOCModal.tsx tiene hooks
-          useMemo después de `if (!isOpen) return null`, lo que viola las reglas
-          de hooks cuando isOpen cambia en un componente ya montado. Al montar
-          solo cuando realmente se abre, se evita ese caso. */}
-      {selectedOrden && isConfirmarModalOpen && (
-        <ConfirmarOCModal
-          isOpen={true}
-          onClose={() => setIsConfirmarModalOpen(false)}
-          orden={selectedOrden}
-          onConfirmar={handleConfirmarConSubOrdenes}
-          isSubmitting={isSubmitting}
-        />
-      )}
+      {/* S42av — ConfirmarOCModal separado ELIMINADO. Ahora el flujo de
+          confirmación se renderiza embedded dentro del modal de "Detalles de
+          Orden" (ver OrdenCompraCard: vistaInterna === 'confirmar'). Esto
+          evita la sensación de "modal sobre modal" y da continuidad visual. */}
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />

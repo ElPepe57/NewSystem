@@ -10,6 +10,7 @@ import { calcularEstadoDerivadoOC } from '../../../utils/ordenCompra.helpers';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
+import { ConfirmarOCModal } from './ConfirmarOCModal';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
@@ -57,6 +58,13 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   // Sub-orden lifecycle state: trackingDraft[subId] = { tracking, courier }
   const [trackingDraft, setTrackingDraft] = useState<Record<string, { tracking: string; courier: string }>>({});
   const [subOrdenLoading, setSubOrdenLoading] = useState<Record<string, boolean>>({});
+  // S42av — Vista interna del detalle: 'detalle' muestra todo el detalle
+  // (pipeline + KPIs + productos + etc.); 'confirmar' reemplaza el cuerpo
+  // con el ConfirmarOCModal embedded para un flujo integrado (sin modal
+  // sobre modal).
+  const [vistaInterna, setVistaInterna] = useState<'detalle' | 'confirmar'>('detalle');
+  // Submit flag para pasarlo al embedded ConfirmarOCModal
+  const [confirmandoSubs, setConfirmandoSubs] = useState(false);
 
   const handleSubOrdenAction = useCallback(async (
     subOrdenId: string,
@@ -175,15 +183,18 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       borrador: {
         label: 'Confirmar OC',
         description: 'Confirma la orden, crea unidades pedidas y envío automático',
-        buttonText: (onSolicitarConfirmacion || onConfirmarConSubOrdenes || onCambiarEstado) ? 'Confirmar' : undefined,
-        // S42aq — Flujo unificado: delega al ConfirmarOCModal via onSolicitarConfirmacion.
-        // Fallback a onConfirmarConSubOrdenes directo (1 solo producto) o onCambiarEstado legacy.
-        onClick: (onSolicitarConfirmacion || onConfirmarConSubOrdenes || onCambiarEstado)
+        buttonText: (onConfirmarConSubOrdenes || onCambiarEstado) ? 'Confirmar' : undefined,
+        // S42av — Flujo integrado: al hacer click, cambia la vistaInterna a
+        // 'confirmar' y el ConfirmarOCModal se renderiza embedded en el mismo
+        // modal de Detalles de Orden. onSolicitarConfirmacion se conserva
+        // como fallback para compatibilidad (abre modal separado).
+        onClick: (onConfirmarConSubOrdenes || onSolicitarConfirmacion || onCambiarEstado)
           ? () => {
-              if (onSolicitarConfirmacion) {
+              if (onConfirmarConSubOrdenes) {
+                // Flujo integrado por default
+                setVistaInterna('confirmar');
+              } else if (onSolicitarConfirmacion) {
                 onSolicitarConfirmacion();
-              } else if (onConfirmarConSubOrdenes) {
-                onConfirmarConSubOrdenes();
               } else if (onCambiarEstado) {
                 onCambiarEstado('confirmada');
               }
@@ -264,6 +275,30 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
     0
   );
   const subOrdenesCount = orden.subOrdenes?.length ?? 0;
+
+  // S42av — Si la vista interna es 'confirmar', renderizamos el ConfirmarOCModal
+  // embedded (sin overlay, inline) y NO mostramos el resto del detalle. El
+  // botón cerrar del confirmador (X) vuelve a la vista de detalle.
+  if (vistaInterna === 'confirmar' && onConfirmarConSubOrdenes) {
+    return (
+      <ConfirmarOCModal
+        isOpen={true}
+        embedded
+        orden={orden}
+        onClose={() => setVistaInterna('detalle')}
+        onConfirmar={async (subOrdenes) => {
+          setConfirmandoSubs(true);
+          try {
+            await onConfirmarConSubOrdenes(subOrdenes);
+            setVistaInterna('detalle');
+          } finally {
+            setConfirmandoSubs(false);
+          }
+        }}
+        isSubmitting={confirmandoSubs}
+      />
+    );
+  }
 
   return (
     <div className="space-y-5">
