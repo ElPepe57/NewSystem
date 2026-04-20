@@ -8,6 +8,8 @@ import {
   AlertTriangle,
   Check,
   Loader2,
+  Percent,
+  DollarSign,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import type {
@@ -87,6 +89,12 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
   const [asignacion, setAsignacion] = useState<AsignacionProductos>({});
   const [distribucion, setDistribucion] = useState<DistribucionCargos>({});
   const [refsProveedor, setRefsProveedor] = useState<Record<string, string>>({});
+  // S42at — Override del modo de cada impuesto en el modal. Permite al usuario
+  // decidir aquí si quiere % auto o $ manual, independiente de cómo se creó
+  // en el wizard. Clave: impuesto.id → modo efectivo.
+  const [modoImpuestoOverride, setModoImpuestoOverride] = useState<
+    Record<string, 'porcentaje' | 'fijo'>
+  >({});
 
   // Reset al abrir
   useEffect(() => {
@@ -96,6 +104,7 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
       setAsignacion({});
       setDistribucion({});
       setRefsProveedor({});
+      setModoImpuestoOverride({});
     }
   }, [isOpen]);
 
@@ -207,16 +216,42 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
 
   const hayErroresProductos = validacionPorProducto.some((v) => !v.valido);
 
-  // S42as — Helper dual para impuestos:
-  //   - modo 'porcentaje' → auto-calculado sobre base gravable de cada sub-orden
-  //     (subtotal productos + cargos − descuentos). Readonly visualmente.
-  //   - modo 'fijo' → distribución manual via el input (como hoy).
+  // S42as — Helper dual para impuestos (actualizado en S42at con override):
+  //   - modo efectivo 'porcentaje' → auto-calculado sobre base gravable de la
+  //     sub-orden. Readonly visualmente.
+  //   - modo efectivo 'fijo' → distribución manual via el input.
+  //
+  // S42at — Modo efectivo = override del modal > modo original del impuesto.
+
+  // Modo efectivo de un impuesto (override o el original)
+  const getModoEfectivo = (impuesto: typeof impuestos[number]): 'porcentaje' | 'fijo' => {
+    return modoImpuestoOverride[impuesto.id] ?? impuesto.modo ?? 'fijo';
+  };
+
+  // Porcentaje efectivo de un impuesto (si está en modo %). Si no viene en el
+  // modelo (caso: impuesto creado en $ y el usuario lo cambia a % en el modal),
+  // se deriva: porcentaje = montoUSD / baseGravableOC × 100.
+  const getPorcentajeEfectivo = (impuesto: typeof impuestos[number]): number => {
+    if (impuesto.porcentaje && impuesto.porcentaje > 0) return impuesto.porcentaje;
+    // Derivar desde montoUSD vs base gravable de la OC total
+    const subtotalOC = productos.reduce(
+      (s, p) => s + (p.cantidad || 0) * (p.costoUnitario || 0),
+      0
+    );
+    const sumCargosOC = cargos.reduce((s, c) => s + c.montoUSD, 0);
+    const sumDescOC = descuentos.reduce((s, d) => s + d.montoUSD, 0);
+    const baseOC = Math.max(0.01, subtotalOC + sumCargosOC - sumDescOC);
+    return Number(((impuesto.montoUSD / baseOC) * 100).toFixed(4));
+  };
+
   const getMontoImpuestoSub = (subId: string, impuesto: typeof impuestos[number]): number => {
-    if (impuesto.modo !== 'porcentaje' || !impuesto.porcentaje) {
-      // Modo fijo: leer del estado distribucion
+    const modoEfectivo = getModoEfectivo(impuesto);
+    if (modoEfectivo !== 'porcentaje') {
+      // Modo fijo: leer del estado distribucion (manual)
       return distribucion[subId]?.[impuesto.id] ?? 0;
     }
     // Modo porcentaje: calcular sobre base gravable de ESTA sub-orden
+    const pct = getPorcentajeEfectivo(impuesto);
     const asig = asignacion[subId] ?? {};
     const dist = distribucion[subId] ?? {};
     const subtotalProds = productos.reduce(
@@ -226,7 +261,26 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
     const sumCargosSub = cargos.reduce((s, c) => s + (dist[c.id] ?? 0), 0);
     const sumDescSub = descuentos.reduce((s, d) => s + (dist[d.id] ?? 0), 0);
     const baseGravable = Math.max(0, subtotalProds + sumCargosSub - sumDescSub);
-    return Number(((baseGravable * impuesto.porcentaje) / 100).toFixed(2));
+    return Number(((baseGravable * pct) / 100).toFixed(2));
+  };
+
+  // Handler del toggle %/$ — al cambiar de $ a %, también pre-puebla la dist
+  // manual con los valores auto-calculados (para que si vuelve a $ tenga algo).
+  const handleToggleModoImpuesto = (
+    impuesto: typeof impuestos[number],
+    nuevoModo: 'porcentaje' | 'fijo'
+  ) => {
+    if (nuevoModo === 'fijo') {
+      // Al pasar de % a $, persistir los valores actuales auto-calculados en
+      // el estado distribucion para que queden como punto de partida editable.
+      const nuevaDist = { ...distribucion };
+      subOrdenIds.forEach((subId) => {
+        const montoAuto = getMontoImpuestoSub(subId, impuesto);
+        nuevaDist[subId] = { ...(nuevaDist[subId] ?? {}), [impuesto.id]: montoAuto };
+      });
+      setDistribucion(nuevaDist);
+    }
+    setModoImpuestoOverride((prev) => ({ ...prev, [impuesto.id]: nuevoModo }));
   };
 
   const validacionPorCargo = useMemo(() => {
@@ -270,8 +324,8 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
       });
     });
     impuestos.forEach((i) => {
-      // S42as — Impuestos porcentuales usan getMontoImpuestoSub (auto-calculado);
-      // los de modo fijo siguen leyendo de distribucion.
+      const modoEfectivo = getModoEfectivo(i);
+      // S42as/at — % usa helper auto; $ lee distribucion manual.
       const distribuido = subOrdenIds.reduce(
         (s, id) => s + getMontoImpuestoSub(id, i),
         0
@@ -283,15 +337,15 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
         montoOC: i.montoUSD,
         distribuido,
         delta: distribuido - i.montoUSD,
-        // Para impuestos %: tolerancia de 0.05 por redondeos acumulados en toFixed(2).
-        valido: i.modo === 'porcentaje'
+        // Para impuestos %: tolerancia 0.05 (redondeos). Para $: cuadre estricto.
+        valido: modoEfectivo === 'porcentaje'
           ? Math.abs(distribuido - i.montoUSD) < 0.05
           : Math.abs(distribuido - i.montoUSD) < 0.01,
       });
     });
     return items;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cargos, descuentos, impuestos, distribucion, subOrdenIds, asignacion, productos]);
+  }, [cargos, descuentos, impuestos, distribucion, subOrdenIds, asignacion, productos, modoImpuestoOverride]);
 
   const hayErroresCargos = tieneCargos && validacionPorCargo.some((v) => !v.valido);
 
@@ -336,7 +390,8 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
         total,
       };
     });
-  }, [subOrdenIds, asignacion, distribucion, productos, cargos, descuentos, impuestos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subOrdenIds, asignacion, distribucion, productos, cargos, descuentos, impuestos, modoImpuestoOverride]);
 
   const sumaSubOrdenes = totalesPorSubOrden.reduce((s, t) => s + t.total, 0);
   const totalOC = orden.totalUSD;
@@ -504,6 +559,9 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                   onChangeDistribucion={handleSetDistribucion}
                   validaciones={validacionPorCargo}
                   getMontoImpuestoSub={getMontoImpuestoSub}
+                  getModoEfectivoImpuesto={getModoEfectivo}
+                  getPorcentajeEfectivoImpuesto={getPorcentajeEfectivo}
+                  onToggleModoImpuesto={handleToggleModoImpuesto}
                 />
               )}
 
@@ -797,8 +855,24 @@ const MatrizCargos: React.FC<{
   validaciones: ValidacionCargo[];
   /** S42as — Helper dual para impuestos: auto-calcula % sobre base gravable. */
   getMontoImpuestoSub: (subId: string, impuesto: ImpuestoOC) => number;
-}> = ({ impuestos, subOrdenIds, distribucion, onChangeDistribucion, validaciones, getMontoImpuestoSub }) => {
-  // Mapa rápido para buscar el impuesto original por ID (saber si es % o fijo)
+  /** S42at — Modo efectivo del impuesto (override del modal o original). */
+  getModoEfectivoImpuesto: (impuesto: ImpuestoOC) => 'porcentaje' | 'fijo';
+  /** S42at — Porcentaje efectivo (derivado si no está en el modelo). */
+  getPorcentajeEfectivoImpuesto: (impuesto: ImpuestoOC) => number;
+  /** S42at — Cambia el modo del impuesto en el modal. */
+  onToggleModoImpuesto: (impuesto: ImpuestoOC, nuevoModo: 'porcentaje' | 'fijo') => void;
+}> = ({
+  impuestos,
+  subOrdenIds,
+  distribucion,
+  onChangeDistribucion,
+  validaciones,
+  getMontoImpuestoSub,
+  getModoEfectivoImpuesto,
+  getPorcentajeEfectivoImpuesto,
+  onToggleModoImpuesto,
+}) => {
+  // Mapa rápido para buscar el impuesto original por ID
   const impuestosMap = new Map(impuestos.map((i) => [i.id, i]));
   const hayError = validaciones.some((v) => !v.valido);
 
@@ -838,22 +912,61 @@ const MatrizCargos: React.FC<{
           <tbody>
             {validaciones.map((v) => {
               const signoMonto = v.tipo === 'descuento' ? '−$' : '$';
-              // S42as — Dual: detectar si este item es impuesto con modo porcentaje
+              // S42as/at — Dual con toggle: detectar modo efectivo actual
               const impuestoRef = v.tipo === 'impuesto' ? impuestosMap.get(v.id) : undefined;
-              const esImpuestoPct = impuestoRef?.modo === 'porcentaje';
+              const modoEfectivo = impuestoRef ? getModoEfectivoImpuesto(impuestoRef) : undefined;
+              const esImpuesto = !!impuestoRef;
+              const esImpuestoPct = esImpuesto && modoEfectivo === 'porcentaje';
+              const pctEfectivo = impuestoRef ? getPorcentajeEfectivoImpuesto(impuestoRef) : 0;
               return (
                 <tr key={v.id} className="border-t border-slate-100">
                   <td className="p-2">
-                    <TipoPill tipo={v.tipo} />
-                    <span className="ml-1.5 font-medium">{v.concepto}</span>
-                    {esImpuestoPct && (
-                      <span
-                        className="ml-1.5 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-semibold border border-purple-200"
-                        title={`Auto-calculado: ${impuestoRef?.porcentaje ?? 0}% sobre (subtotal + cargos − descuentos) de cada sub-orden`}
-                      >
-                        auto @ {impuestoRef?.porcentaje ?? 0}%
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <TipoPill tipo={v.tipo} />
+                      <span className="font-medium">{v.concepto}</span>
+                      {/* S42at — Toggle %/$ para impuestos: permite al usuario
+                          cambiar el modo en el modal (auto vs manual). */}
+                      {esImpuesto && impuestoRef && (
+                        <div
+                          className="inline-flex items-center bg-slate-100 rounded p-0.5 ml-1"
+                          title="Cambia entre cálculo automático por porcentaje o distribución manual por monto"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => onToggleModoImpuesto(impuestoRef, 'porcentaje')}
+                            className={cn(
+                              'px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors inline-flex items-center gap-0.5',
+                              modoEfectivo === 'porcentaje'
+                                ? 'bg-white text-purple-700 shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700'
+                            )}
+                          >
+                            <Percent className="w-2.5 h-2.5" />
+                            {modoEfectivo === 'porcentaje' && `${pctEfectivo}%`}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onToggleModoImpuesto(impuestoRef, 'fijo')}
+                            className={cn(
+                              'px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors inline-flex items-center',
+                              modoEfectivo === 'fijo'
+                                ? 'bg-white text-slate-800 shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700'
+                            )}
+                          >
+                            <DollarSign className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      )}
+                      {esImpuestoPct && (
+                        <span
+                          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-semibold border border-purple-200"
+                          title={`Auto-calculado: ${pctEfectivo}% sobre (subtotal + cargos − descuentos) de cada sub-orden`}
+                        >
+                          auto
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-2 text-right text-slate-500 tabular-nums">
                     {signoMonto}
