@@ -1356,10 +1356,14 @@ export const OrdenesCompra: React.FC = () => {
 
       {/* S40: Modal Recepción Parcial eliminado — la recepción se gestiona desde el Envío asociado (ver EnviosDeOC en OrdenCompraCard) */}
 
-      {/* Modal Confirmar OC */}
-      {selectedOrden && (
+      {/* Modal Confirmar OC — S42ar: montaje condicional (isOpen debe ser true
+          para instanciar el componente). ConfirmarOCModal.tsx tiene hooks
+          useMemo después de `if (!isOpen) return null`, lo que viola las reglas
+          de hooks cuando isOpen cambia en un componente ya montado. Al montar
+          solo cuando realmente se abre, se evita ese caso. */}
+      {selectedOrden && isConfirmarModalOpen && (
         <ConfirmarOCModal
-          isOpen={isConfirmarModalOpen}
+          isOpen={true}
           onClose={() => setIsConfirmarModalOpen(false)}
           orden={selectedOrden}
           onConfirmar={handleConfirmarConSubOrdenes}

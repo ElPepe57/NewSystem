@@ -99,7 +99,11 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // S42ar — Return temprano MOVIDO al final de todos los hooks (ver línea
+  // ~cerca del render). Antes estaba aquí y causaba "Rendered more hooks
+  // than during the previous render" cuando isOpen cambiaba de false → true
+  // en un componente ya montado, porque los useMemo de abajo se ejecutaban
+  // condicionalmente.
 
   // ─── Derivados ─────────────────────────────────────────────────────────
   const productos = orden.productos ?? [];
@@ -355,6 +359,11 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
 
     await onConfirmar(subOrdenesFinales);
   };
+
+  // S42ar — Return temprano AL FINAL de todos los hooks (antes estaba en
+  // línea ~102 y violaba las reglas de hooks cuando isOpen cambiaba de
+  // false → true en un componente ya montado).
+  if (!isOpen) return null;
 
   // ═══ Render ═══════════════════════════════════════════════════════════
   return (
