@@ -1077,7 +1077,9 @@ export const OrdenesCompra: React.FC = () => {
           />
         </Card>
       ) : (
-        <div className="space-y-3">
+        // S42al — Container con bg-slate-50 + padding para que las cards
+        // blancas contrasten visualmente (mockup S40 L258: `bg-slate-50 p-6 space-y-3`).
+        <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
           {ordenesFiltradas.length === 0 ? (
             <div className="bg-white border border-slate-200 rounded-lg py-16 text-center">
               <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
