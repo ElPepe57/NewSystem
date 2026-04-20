@@ -1,6 +1,8 @@
-import React from 'react';
-import { CheckCircle, AlertCircle, MapPin, Package, DollarSign, FileText } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { CheckCircle, AlertCircle, MapPin, Package, DollarSign, FileText, RefreshCw, Sparkles } from 'lucide-react';
 import { ProductoDisplay, RouteVisual } from '../../../../design-system';
+import { tipoCambioService } from '../../../../services/tipoCambio.service';
+import type { TCResuelto } from '../../../../types/tipoCambio.types';
 import type { OCWizardState } from './ocWizardTypes';
 import type { OCWizardAction } from './ocWizardReducer';
 
@@ -37,6 +39,110 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
   const cfg = state.configLogistica;
   const tcFaltante = !state.tcCompra || state.tcCompra <= 0;
 
+  // S42ah — Auto-carga del TC del día desde tipoCambioService.
+  // Se ejecuta una sola vez al montar el paso Confirmar. Si el usuario
+  // todavía no tocó el TC (tcCompra === 0), se autopobla con TC venta del
+  // día; si ya editó manualmente, se respeta su valor.
+  const [tcInfo, setTcInfo] = useState<TCResuelto | null>(null);
+  const [tcLoading, setTcLoading] = useState(false);
+  const [tcSource, setTcSource] = useState<'auto' | 'manual' | null>(null);
+
+  const cargarTCDelDia = React.useCallback(
+    async (force = false) => {
+      setTcLoading(true);
+      try {
+        const tc = await tipoCambioService.resolverTC();
+        setTcInfo(tc);
+        const tcActual = state.tcCompra || 0;
+        if (force || tcActual === 0) {
+          dispatch({ type: 'SET_TC', tc: tc.venta } as OCWizardAction);
+          setTcSource('auto');
+        } else if (Math.abs(tcActual - tc.venta) < 0.0001) {
+          setTcSource('auto');
+        } else {
+          setTcSource('manual');
+        }
+      } catch (err) {
+        // Silencioso: si falla, el usuario lo teclea como antes
+        // eslint-disable-next-line no-console
+        console.warn('[StepConfirm] No se pudo resolver TC del día:', err);
+      } finally {
+        setTcLoading(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch]
+  );
+
+  useEffect(() => {
+    cargarTCDelDia(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // S42ah — Nodos de la ruta en el resumen: construirlos según el escenario
+  // logístico real de la OC. Reglas:
+  //   - ddp_directo               → Proveedor → Perú (2 nodos, sin casilla intermedia)
+  //   - viajero / courier_internacional → Proveedor → Casilla → Perú (3 nodos)
+  //   - null / ya_en_peru / default → Proveedor → Casilla (2 nodos, ruta termina en casilla)
+  // Razón: una OC solo describe el tramo proveedor→casilla salvo que se
+  // declare explícitamente que hay un tramo final a Perú. El envío casilla→Perú
+  // se crea después desde /envios.
+  const rutaNodes: React.ComponentProps<typeof RouteVisual>['nodes'] = (() => {
+    const nodoProveedor = {
+      flag: getFlag(cfg.paisOrigen),
+      nombre: cfg.proveedorNombre.split(' ')[0] || 'Proveedor',
+      tipo: 'proveedor' as const,
+      state: 'done' as const,
+    };
+    const nodoCasilla = {
+      tipo: 'casilla' as const,
+      codigo: cfg.casillaDestinoCodigo || undefined,
+      nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
+      subtexto: cfg.casillaDestinoNombre,
+      state: 'done' as const,
+    };
+    const nodoPeru = {
+      flag: '🇵🇪',
+      nombre: 'Perú',
+      tipo: 'destino' as const,
+      subtexto: cfg.llegadaPeru === 'ddp_directo' ? cfg.casillaDestinoNombre || 'Almacén' : 'Almacén',
+      state: 'done' as const,
+    };
+
+    if (cfg.llegadaPeru === 'ddp_directo') {
+      // DDP: el proveedor entrega directo en Perú, no hay casilla intermedia.
+      return [nodoProveedor, nodoPeru];
+    }
+    if (cfg.llegadaPeru === 'viajero' || cfg.llegadaPeru === 'courier_internacional') {
+      // Vía colaborador: hay casilla de tránsito + llegada a Perú.
+      return [nodoProveedor, nodoCasilla, nodoPeru];
+    }
+    // Default (S42 simplificado): la OC solo cubre proveedor→casilla.
+    // El tramo casilla→Perú, si aplica, se gestiona luego en /envios.
+    return [nodoProveedor, nodoCasilla];
+  })();
+
+  const rutaSegments: React.ComponentProps<typeof RouteVisual>['segments'] = (() => {
+    const segSalida = {
+      label: cfg.salidaProveedor === 'recojo_en_origen' ? 'Recojo en origen' : 'Proveedor envía',
+      state: 'done' as const,
+    };
+    if (cfg.llegadaPeru === 'ddp_directo') {
+      return [segSalida]; // 1 segmento entre 2 nodos
+    }
+    if (cfg.llegadaPeru === 'viajero' || cfg.llegadaPeru === 'courier_internacional') {
+      return [
+        segSalida,
+        {
+          label: cfg.colaboradorNombre || cfg.llegadaPeru || 'Pendiente',
+          state: (cfg.colaboradorId ? 'done' : 'pending') as 'done' | 'pending',
+        },
+      ];
+    }
+    // Default: 1 segmento (proveedor → casilla)
+    return [segSalida];
+  })();
+
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -56,44 +162,13 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
             <span className="text-xs text-slate-400">{cfg.paisOrigen}</span>
           </div>
 
-          <RouteVisual
-            size="md"
-            nodes={[
-              {
-                flag: getFlag(cfg.paisOrigen),
-                nombre: cfg.proveedorNombre.split(' ')[0] || 'Proveedor',
-                tipo: 'proveedor',
-                state: 'done',
-              },
-              {
-                tipo: 'casilla',
-                codigo: cfg.casillaDestinoId,
-                nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
-                subtexto: cfg.casillaDestinoNombre,
-                state: 'done',
-              },
-              {
-                flag: '🇵🇪',
-                nombre: 'Perú',
-                tipo: 'destino',
-                subtexto: 'Almacén',
-                state: 'done',
-              },
-            ]}
-            segments={[
-              {
-                label: cfg.salidaProveedor === 'recojo_en_origen' ? 'Recojo en origen' : 'Proveedor envía',
-                state: 'done',
-              },
-              {
-                label: cfg.colaboradorNombre || cfg.llegadaPeru || 'Pendiente',
-                state: cfg.colaboradorId ? 'done' : 'pending',
-              },
-            ]}
-          />
+          <RouteVisual size="md" nodes={rutaNodes} segments={rutaSegments} />
 
           <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100">
-            <Field label="Colaborador" value={cfg.colaboradorNombre || '— Sin asignar —'} />
+            <Field
+              label="Colaborador"
+              value={cfg.colaboradorNombre || '— Sin asignar —'}
+            />
             <Field
               label="Deudor del pago"
               value={
@@ -164,23 +239,60 @@ export const StepConfirm: React.FC<StepConfirmProps> = ({
       <Section icon={<FileText className="w-4 h-4" />} title="Datos finales">
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">
-              Tipo de cambio del día (USD → PEN) <span className="text-red-500">*</span>
-            </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-medium text-slate-700">
+                Tipo de cambio del día (USD → PEN) <span className="text-red-500">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => cargarTCDelDia(true)}
+                disabled={tcLoading}
+                className="text-[11px] font-medium text-teal-600 hover:text-teal-800 hover:underline flex items-center gap-1 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3 h-3 ${tcLoading ? 'animate-spin' : ''}`} />
+                Actualizar del sistema
+              </button>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="number"
                 value={state.tcCompra || ''}
-                onChange={(e) =>
-                  dispatch({ type: 'SET_TC', tc: Number(e.target.value) || 0 } as OCWizardAction)
-                }
+                onChange={(e) => {
+                  dispatch({ type: 'SET_TC', tc: Number(e.target.value) || 0 } as OCWizardAction);
+                  setTcSource('manual');
+                }}
                 step="0.0001"
                 min={0}
                 placeholder="Ej: 3.7500"
                 className="w-40 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 tabular-nums"
               />
               <span className="text-xs text-slate-500">PEN por USD</span>
+              {tcSource === 'auto' && tcInfo && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 text-[10px] font-semibold border border-teal-200">
+                  <Sparkles className="w-3 h-3" />
+                  TC del día · {tcInfo.fuente}
+                </span>
+              )}
+              {tcSource === 'manual' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-semibold border border-amber-200">
+                  Manual
+                </span>
+              )}
             </div>
+            {tcInfo && tcSource === 'auto' && (
+              <div className="text-[11px] text-slate-500 mt-1">
+                Compra S/ {tcInfo.compra.toFixed(4)} · Venta S/ {tcInfo.venta.toFixed(4)}
+                {tcInfo.freshness === 'stale' && (
+                  <span className="ml-2 text-amber-600 font-medium">⚠ TC de hace &gt;24h</span>
+                )}
+                {tcInfo.freshness === 'expired' && (
+                  <span className="ml-2 text-red-600 font-medium">⚠ TC expirado (&gt;72h)</span>
+                )}
+                {tcInfo.esFallback && (
+                  <span className="ml-2 text-red-600 font-medium">⚠ Usando valor de emergencia</span>
+                )}
+              </div>
+            )}
             {tcFaltante && (
               <div className="flex items-center gap-1.5 text-xs text-red-600 mt-1">
                 <AlertCircle className="w-3.5 h-3.5" />

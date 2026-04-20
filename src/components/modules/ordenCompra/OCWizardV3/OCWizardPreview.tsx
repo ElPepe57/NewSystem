@@ -2,6 +2,7 @@ import React from 'react';
 import { Package, DollarSign, MapPin, Users, TrendingUp } from 'lucide-react';
 import { RouteVisual } from '../../../../design-system';
 import type { OCWizardState } from './ocWizardTypes';
+import type { ConfigLogistica } from './configLogistica';
 
 interface OCWizardPreviewProps {
   state: OCWizardState;
@@ -52,24 +53,7 @@ export const OCWizardPreview: React.FC<OCWizardPreviewProps> = ({
 
             {tienesCasilla && (
               <div className="mt-3">
-                <RouteVisual
-                  size="sm"
-                  nodes={[
-                    {
-                      flag: getFlag(cfg.paisOrigen),
-                      tipo: 'proveedor',
-                      nombre: cfg.proveedorNombre.split(' ')[0],
-                      state: 'done',
-                    },
-                    {
-                      tipo: 'casilla',
-                      codigo: cfg.casillaDestinoId,
-                      nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
-                      state: 'done',
-                    },
-                    { flag: '🇵🇪', tipo: 'destino', nombre: 'Perú', state: 'done' },
-                  ]}
-                />
+                <RouteVisual size="sm" nodes={buildPreviewNodes(cfg)} />
               </div>
             )}
 
@@ -186,6 +170,40 @@ const PreviewSection: React.FC<{
 const EmptyHint: React.FC<{ text: string }> = ({ text }) => (
   <div className="text-xs text-slate-400 italic">{text}</div>
 );
+
+// S42ah — Construye los nodos de la ruta según el escenario logístico.
+// Misma regla que StepConfirm:
+//   - ddp_directo           → Proveedor → Perú
+//   - viajero / courier_intl → Proveedor → Casilla → Perú
+//   - default                → Proveedor → Casilla
+function buildPreviewNodes(
+  cfg: ConfigLogistica
+): React.ComponentProps<typeof RouteVisual>['nodes'] {
+  const nodoProveedor = {
+    flag: getFlag(cfg.paisOrigen),
+    tipo: 'proveedor' as const,
+    nombre: cfg.proveedorNombre.split(' ')[0] || 'Proveedor',
+    state: 'done' as const,
+  };
+  const nodoCasilla = {
+    tipo: 'casilla' as const,
+    codigo: cfg.casillaDestinoCodigo || undefined,
+    nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
+    state: 'done' as const,
+  };
+  const nodoPeru = {
+    flag: '🇵🇪',
+    tipo: 'destino' as const,
+    nombre: 'Perú',
+    state: 'done' as const,
+  };
+
+  if (cfg.llegadaPeru === 'ddp_directo') return [nodoProveedor, nodoPeru];
+  if (cfg.llegadaPeru === 'viajero' || cfg.llegadaPeru === 'courier_internacional') {
+    return [nodoProveedor, nodoCasilla, nodoPeru];
+  }
+  return [nodoProveedor, nodoCasilla];
+}
 
 // Helper: bandera emoji por país
 function getFlag(pais?: string): string {

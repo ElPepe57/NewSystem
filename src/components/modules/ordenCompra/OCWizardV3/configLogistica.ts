@@ -47,6 +47,12 @@ export interface ConfigLogistica {
   colaboradorNombre: string;
   casillaDestinoId: string;
   casillaDestinoNombre: string;
+  /** S42ah — Código legible de la casilla (ej. CAS-001). Desnormalizado desde Casilla.codigo.
+   *  Se usa para mostrar en previews/confirmaciones en vez del Firestore ID. */
+  casillaDestinoCodigo?: string;
+  /** S42ah — País de la casilla destino. Sirve para decidir si la ruta termina en la
+   *  casilla (USA/China/Corea) o si llega hasta Perú (casilla doméstica PE). */
+  casillaDestinoPais?: string;
 
   // ─── Tramo 3: Última milla ───
   ultimaMilla: UltimaMilla | null;
@@ -75,6 +81,8 @@ export const emptyConfig: ConfigLogistica = {
   colaboradorNombre: '',
   casillaDestinoId: '',
   casillaDestinoNombre: '',
+  casillaDestinoCodigo: '',
+  casillaDestinoPais: '',
   ultimaMilla: null,
   requiereRecojo: false,
   quienPagaTransporteLocal: null,

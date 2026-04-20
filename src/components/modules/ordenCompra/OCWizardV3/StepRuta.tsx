@@ -229,6 +229,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
     updateConfig({
       casillaDestinoId: c.id,
       casillaDestinoNombre: c.nombre,
+      casillaDestinoCodigo: c.codigo,
+      casillaDestinoPais: c.pais,
       // Si la casilla tiene colaborador asociado, se pre-selecciona
       ...(c.colaboradorId && {
         colaboradorId: c.colaboradorId,
@@ -245,6 +247,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
       updateConfig({
         casillaDestinoId: a.id,
         casillaDestinoNombre: a.nombre,
+        casillaDestinoCodigo: a.codigo,
+        casillaDestinoPais: a.pais,
       });
     } else {
       // Para vía casilla, el almacén Perú se guarda aparte (no mapea directo al
@@ -407,6 +411,8 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                   if (config.llegadaPeru === 'ddp_directo') {
                     cambio.casillaDestinoId = '';
                     cambio.casillaDestinoNombre = '';
+                    cambio.casillaDestinoCodigo = '';
+                    cambio.casillaDestinoPais = '';
                   }
                   // S42ae — llegadaPeru='viajero' default en vía casilla.
                   // El cruce real a Perú se elige al crear envío 2 desde /envios.
