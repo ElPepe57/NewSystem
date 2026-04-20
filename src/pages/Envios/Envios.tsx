@@ -50,7 +50,6 @@ import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoF
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
 import { EditFleteModal } from "./EditFleteModal";
 import { EnvioDetailModal } from "./EnvioDetailModal";
-import { EnviosProveedorTab } from "./EnviosProveedorTab";
 import type { DespacharOCResult } from '../../components/modules/ordenCompra/DespacharOCModal';
 import { DespacharEnvioModal, type DespacharEnvioResult } from './DespacharEnvioModal';
 import { useColaboradorStore } from '../../store/colaboradorStore';
@@ -60,7 +59,7 @@ import { TabIncidencias } from './TabIncidencias';
 import { TabCostosLanded } from './TabCostosLanded';
 import { TabRendimiento } from './TabRendimiento';
 
-type TabEnvios = 'operaciones' | 'proveedor' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
+type TabEnvios = 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
 
 export const Envios: React.FC = () => {
   const [tabEnvios, setTabEnvios] = useState<TabEnvios>('operaciones');
@@ -137,7 +136,8 @@ export const Envios: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [pipelineStage, setPipelineStage] = useState<string | null>(null);
   // S42 Tanda 9 — Filtros extra alineados a mockup s40 líneas 2073-2092
-  const [pillFiltroEnv, setPillFiltroEnv] = useState<'todas' | 'activas' | 'incidencias'>('todas');
+  // S42aj — 'tramo1' reemplaza el tab "Envíos Proveedor" eliminado (origenTipo === 'proveedor')
+  const [pillFiltroEnv, setPillFiltroEnv] = useState<'todas' | 'activas' | 'incidencias' | 'tramo1'>('todas');
   const [filtroCourier, setFiltroCourier] = useState('');
   const [filtroTipoRuta, setFiltroTipoRuta] = useState('');
   const [itemsVisiblesEnv, setItemsVisiblesEnv] = useState(12);
@@ -266,7 +266,10 @@ export const Envios: React.FC = () => {
       return false;
     }).length;
 
-    return { unidadesEnTransito, valorLandedPEN, countActivas, countIncidencias, tc };
+    // S42aj — Count Tramo 1 (envíos del proveedor a casilla)
+    const countTramo1 = enviosPorLinea.filter(e => e.origenTipo === 'proveedor').length;
+
+    return { unidadesEnTransito, valorLandedPEN, countActivas, countIncidencias, countTramo1, tc };
   }, [enviosEnTransitoPorLinea, enviosPorLinea, tipoCambioActual, valorEnTransito]);
 
   // S42 Tanda 9 — Breakdown por tipo de ruta (mockup líneas 2003-2036)
@@ -351,6 +354,7 @@ export const Envios: React.FC = () => {
     }
 
     // S42 Tanda 9 — Pills filtro (mockup s40 líneas 2074-2077)
+    // S42aj — +tramo1 (envíos con origen=proveedor, reemplaza tab "Envíos Proveedor")
     if (pillFiltroEnv === 'activas') {
       lista = lista.filter(e => !['recibida_completa', 'cancelada'].includes(e.estado));
     } else if (pillFiltroEnv === 'incidencias') {
@@ -360,6 +364,8 @@ export const Envios: React.FC = () => {
         if (Array.isArray(e.incidencias) && e.incidencias.some(i => !i.resuelta)) return true;
         return false;
       });
+    } else if (pillFiltroEnv === 'tramo1') {
+      lista = lista.filter(e => e.origenTipo === 'proveedor');
     }
 
     // Dropdown courier
@@ -741,12 +747,8 @@ export const Envios: React.FC = () => {
           icon={ArrowRightLeft}
           label="Operaciones"
         />
-        <EnviosTabButton
-          active={tabEnvios === 'proveedor'}
-          onClick={() => setTabEnvios('proveedor')}
-          icon={Package}
-          label="Envíos Proveedor"
-        />
+        {/* S42aj — Tab "Envíos Proveedor" eliminado. El acceso queda como pill
+            "Tramo 1 (Proveedor)" dentro del tab Operaciones. */}
         <EnviosTabButton
           active={tabEnvios === 'incidencias'}
           onClick={() => setTabEnvios('incidencias')}
@@ -779,8 +781,6 @@ export const Envios: React.FC = () => {
 
       {tabEnvios === 'reclamos' ? (
         <TabReclamos />
-      ) : tabEnvios === 'proveedor' ? (
-        <EnviosProveedorTab />
       ) : tabEnvios === 'incidencias' ? (
         <TabIncidencias />
       ) : tabEnvios === 'costos' ? (
@@ -967,6 +967,18 @@ export const Envios: React.FC = () => {
           }`}
         >
           Con incidencias ({enviosStatsExtra.countIncidencias})
+        </button>
+        {/* S42aj — Pill que reemplaza el tab "Envíos Proveedor" */}
+        <button
+          type="button"
+          onClick={() => setPillFiltroEnv('tramo1')}
+          title="Envíos con origen proveedor (Tramo 1 — lo que el proveedor te envía a la casilla)"
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1 ${
+            pillFiltroEnv === 'tramo1' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+        >
+          <Package className="w-3 h-3" />
+          Tramo 1 · Proveedor ({enviosStatsExtra.countTramo1})
         </button>
         <span className="text-slate-300 mx-1">|</span>
         <select
