@@ -40,10 +40,13 @@
 <div class="bg-white border-b border-slate-200 px-6 py-3 sticky top-[73px] z-10">
   <div class="max-w-7xl mx-auto flex gap-2 flex-wrap">
     <button onclick="showTab('vista')" class="tab-btn tab-active px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="vista">1 · Vista /envios</button>
-    <button onclick="showTab('wizard')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="wizard">2 · Wizard T2 (Casilla→Peru)</button>
-    <button onclick="showTab('subenvios')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="subenvios">3 · Sub-envios T1 (Amazon)</button>
-    <button onclick="showTab('picking')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="picking">4 · Picking priorizado</button>
-    <button onclick="showTab('casos')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="casos">5 · Casos D/E/F/G/I/J</button>
+    <button onclick="showTab('arbol')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="arbol">2 · ¿Qué tipo de envío crear?</button>
+    <button onclick="showTab('wizard')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="wizard">3 · Wizard T2 completo (5 pasos)</button>
+    <button onclick="showTab('detalle')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="detalle">4 · Detalle de envío</button>
+    <button onclick="showTab('subenvios')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="subenvios">5 · Sub-envios T1 (Amazon)</button>
+    <button onclick="showTab('reclamos')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="reclamos">6 · Reclamos (aduana/pérdida)</button>
+    <button onclick="showTab('picking')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="picking">7 · Picking priorizado</button>
+    <button onclick="showTab('casos')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium transition-colors" data-tab="casos">8 · Casos D/E/F/G/I/J</button>
   </div>
 </div>
 
@@ -335,65 +338,87 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SECCION 2 — WIZARD T2 (Casilla -> Peru), 5 PASOS
+     SECCION 3 — WIZARD T2 (Casilla -> Peru), 5 PASOS COMPLETOS
      ═══════════════════════════════════════════════════════════════════ -->
-<section id="wizard" class="section space-y-4">
+<section id="wizard" class="section space-y-6">
 
-  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-    <!-- Header del wizard -->
-    <div class="bg-gradient-to-r from-teal-700 to-teal-800 text-white px-6 py-4">
-      <h2 class="text-lg font-bold">Nuevo envio — Casilla a Peru (T2)</h2>
-      <p class="text-xs text-teal-100">Consolida unidades de la casilla internacional para enviarlas a Peru</p>
-    </div>
+  <!-- Intro -->
+  <div class="bg-white rounded-lg border border-slate-200 p-4">
+    <h2 class="text-lg font-bold text-slate-900">Wizard completo — Nuevo envío Casilla → Perú (tipo C)</h2>
+    <p class="text-sm text-slate-600 mt-1">Los 5 pasos en secuencia. Abajo se muestra cada uno expandido para validacion.</p>
+  </div>
 
-    <!-- Stepper -->
-    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
-      <div class="flex items-center gap-2">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-teal-700 text-white text-xs font-bold flex items-center justify-center">1</div>
-          <span class="text-sm font-medium text-teal-700">Origen</span>
-        </div>
-        <div class="flex-1 h-0.5 bg-teal-300"></div>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-teal-700 text-white text-xs font-bold flex items-center justify-center">2</div>
-          <span class="text-sm font-medium text-teal-700">Picking</span>
-        </div>
-        <div class="flex-1 h-0.5 bg-slate-300"></div>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">3</div>
-          <span class="text-sm text-slate-500">Transporte</span>
-        </div>
-        <div class="flex-1 h-0.5 bg-slate-300"></div>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">4</div>
-          <span class="text-sm text-slate-500">Costos</span>
-        </div>
-        <div class="flex-1 h-0.5 bg-slate-300"></div>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center">5</div>
-          <span class="text-sm text-slate-500">Confirmar</span>
-        </div>
+  <!-- ────────────── PASO 1 — ORIGEN ────────────── -->
+  <div class="bg-white rounded-lg border-2 border-teal-500 overflow-hidden">
+    <div class="bg-teal-700 text-white px-6 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-white text-teal-700 flex items-center justify-center font-bold">1</div>
+        <h3 class="font-bold">Paso 1 — Origen</h3>
       </div>
     </div>
-
-    <!-- Paso 1: Origen (collapsed) -->
-    <div class="px-6 py-3 border-b border-slate-100 bg-emerald-50/50">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="text-emerald-600">✓</span>
-          <span class="text-sm font-medium text-slate-700">Paso 1: Origen</span>
-          <span class="text-xs text-slate-500">· Casilla Felicita (Miami, FL) · 🇺🇸</span>
-        </div>
-        <button class="text-xs text-teal-700 hover:underline">Editar</button>
-      </div>
-    </div>
-
-    <!-- Paso 2: Picking (expanded, con priorizacion pre-ventas) -->
     <div class="p-6">
-      <div class="mb-4">
-        <h3 class="text-base font-bold text-slate-900">Paso 2 — Seleccionar unidades a enviar</h3>
-        <p class="text-sm text-slate-600 mt-1">La casilla tiene <strong>22 unidades disponibles</strong> de 3 OCs distintas · <strong>4 pre-vendidas</strong> recomendadas.</p>
+      <p class="text-sm text-slate-600 mb-4">Selecciona la casilla internacional desde la que saldrá el envío.</p>
+
+      <label class="text-xs font-medium text-slate-700 block mb-2">Casilla de origen *</label>
+      <div class="border border-teal-400 rounded-lg p-4 bg-teal-50/50 mb-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🇺🇸</span>
+            <div>
+              <div class="font-bold text-slate-900">Casilla Felicita — Miami, FL</div>
+              <div class="text-xs text-slate-600">1234 Brickell Ave, Miami, FL 33131</div>
+            </div>
+          </div>
+          <button class="text-xs text-teal-700 hover:underline">Cambiar casilla</button>
+        </div>
       </div>
+
+      <!-- Preview del contenido de la casilla -->
+      <div class="grid grid-cols-4 gap-2 mb-4">
+        <div class="p-3 bg-slate-50 rounded text-center">
+          <div class="text-2xl font-bold text-slate-900">47</div>
+          <div class="text-xs text-slate-500">Unidades disponibles</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded text-center">
+          <div class="text-2xl font-bold text-slate-900">12</div>
+          <div class="text-xs text-slate-500">Productos</div>
+        </div>
+        <div class="p-3 bg-slate-50 rounded text-center">
+          <div class="text-2xl font-bold text-slate-900">5</div>
+          <div class="text-xs text-slate-500">OCs distintas</div>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded text-center">
+          <div class="text-2xl font-bold text-emerald-700">4</div>
+          <div class="text-xs text-emerald-600">🎯 Pre-vendidas</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs font-medium text-slate-700 block mb-1">Fecha estimada de salida</label>
+          <input type="date" value="2026-04-22" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-700 block mb-1">Fecha estimada de llegada</label>
+          <input type="date" value="2026-04-25" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-end">
+        <button class="px-4 py-2 bg-teal-700 text-white rounded text-sm font-medium">Siguiente → Picking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── PASO 2 — PICKING ────────────── -->
+  <div class="bg-white rounded-lg border-2 border-teal-500 overflow-hidden">
+    <div class="bg-teal-700 text-white px-6 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-white text-teal-700 flex items-center justify-center font-bold">2</div>
+        <h3 class="font-bold">Paso 2 — Picking (seleccionar unidades)</h3>
+      </div>
+    </div>
+    <div class="p-6">
 
       <!-- Banner priorizacion -->
       <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg flex items-start gap-2">
@@ -429,7 +454,6 @@
               </div>
             </div>
           </div>
-          <!-- Detalle por unidad -->
           <div class="divide-y divide-slate-100">
             <div class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 prio-pulse">
               <div class="flex items-center gap-2">
@@ -457,62 +481,9 @@
           </div>
         </div>
 
-        <!-- Producto 2 -->
-        <div class="border border-slate-200 rounded-lg overflow-hidden">
-          <div class="bg-slate-50 px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl">🧪</span>
-              <div>
-                <div class="font-medium text-slate-900">WellnessLabs NAD+ 1500mg</div>
-                <div class="text-xs text-slate-500">SKU: WL-NAD-60 · Procedencia: OC-2026-001 + OC-2026-002</div>
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="text-xs text-slate-600">Disponibles: <strong>5</strong></div>
-              <div class="flex items-center gap-2">
-                <button class="w-6 h-6 bg-slate-200 rounded hover:bg-slate-300">−</button>
-                <span class="w-10 text-center font-bold">3</span>
-                <button class="w-6 h-6 bg-slate-200 rounded hover:bg-slate-300">+</button>
-              </div>
-            </div>
-          </div>
-          <div class="divide-y divide-slate-100">
-            <div class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 prio-pulse">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" checked class="w-4 h-4">
-                <span class="text-sm text-slate-900">Unidad #UN-9001</span>
-                <span class="text-xs px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 Reservada · COT-123</span>
-              </div>
-              <span class="text-xs text-slate-500">Recibida: 29-mar · OC-001</span>
-            </div>
-            <div class="px-4 py-2 flex items-center justify-between bg-emerald-50/50 prio-pulse">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" checked class="w-4 h-4">
-                <span class="text-sm text-slate-900">Unidad #UN-9002</span>
-                <span class="text-xs px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 Reservada · COT-178</span>
-              </div>
-              <span class="text-xs text-slate-500">Recibida: 29-mar · OC-001</span>
-            </div>
-            <div class="px-4 py-2 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" checked class="w-4 h-4">
-                <span class="text-sm text-slate-900">Unidad #UN-9003</span>
-              </div>
-              <span class="text-xs text-slate-500">Recibida: 02-abr · OC-002 (iHerb)</span>
-            </div>
-            <div class="px-4 py-2 flex items-center justify-between opacity-60">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" class="w-4 h-4">
-                <span class="text-sm text-slate-600">Unidad #UN-9004</span>
-              </div>
-              <span class="text-xs text-slate-500">Stock normal</span>
-            </div>
-          </div>
-        </div>
-
         <!-- Placeholder: mas productos -->
         <div class="border border-dashed border-slate-300 rounded-lg p-3 text-center text-xs text-slate-500">
-          + 2 productos adicionales (CoQ10, Myo-Inositol) con 14 unidades mas disponibles...
+          + 3 productos adicionales (NAD+, CoQ10, Myo-Inositol) con 12 unidades más disponibles...
         </div>
       </div>
 
@@ -523,21 +494,109 @@
           <span class="text-teal-700"> · 4 productos · <strong>4 prioritarias incluidas ✓</strong></span>
         </div>
         <div class="flex items-center gap-2">
-          <button class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-sm hover:bg-slate-50">Atras</button>
-          <button class="px-4 py-1.5 bg-teal-700 text-white rounded text-sm font-medium hover:bg-teal-800">Siguiente →</button>
+          <button class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-sm">← Origen</button>
+          <button class="px-4 py-1.5 bg-teal-700 text-white rounded text-sm font-medium">Siguiente → Transporte</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Paso 4 preview (costos) -->
-  <div class="bg-white rounded-lg border border-slate-200 p-6">
-    <h3 class="text-base font-bold text-slate-900 mb-3">Paso 4 (preview) — Costos landed</h3>
+  <!-- ────────────── PASO 3 — TRANSPORTE ────────────── -->
+  <div class="bg-white rounded-lg border-2 border-teal-500 overflow-hidden">
+    <div class="bg-teal-700 text-white px-6 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-white text-teal-700 flex items-center justify-center font-bold">3</div>
+        <h3 class="font-bold">Paso 3 — Transporte</h3>
+      </div>
+    </div>
+    <div class="p-6">
 
-    <!-- Presets de tarifa -->
-    <div class="mb-4">
-      <div class="text-xs font-medium text-slate-600 mb-2">Metodo de tarifa del colaborador</div>
-      <div class="grid grid-cols-4 gap-2">
+      <p class="text-sm text-slate-600 mb-4">¿Cómo viajan las unidades desde la casilla hasta el almacén en Perú?</p>
+
+      <!-- Tipo de transporte (cards) -->
+      <label class="text-xs font-medium text-slate-700 block mb-2">Tipo de transporte *</label>
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <label class="border-2 border-teal-500 bg-teal-50 rounded-lg p-4 cursor-pointer">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="text-2xl mb-2">✈️</div>
+              <div class="font-bold text-slate-900">Viajero personal</div>
+              <div class="text-xs text-slate-600 mt-1">Persona de confianza que viaja a Perú y carga el equipaje con los productos</div>
+            </div>
+            <span class="w-5 h-5 rounded-full bg-teal-500 flex-shrink-0"></span>
+          </div>
+        </label>
+        <label class="border border-slate-200 rounded-lg p-4 cursor-pointer hover:border-slate-300">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="text-2xl mb-2">📦</div>
+              <div class="font-bold text-slate-700">Courier internacional</div>
+              <div class="text-xs text-slate-500 mt-1">DHL, FedEx, empresa de courier que se encarga del envío</div>
+            </div>
+            <span class="w-5 h-5 rounded-full border-2 border-slate-300 flex-shrink-0"></span>
+          </div>
+        </label>
+      </div>
+
+      <!-- Selector de colaborador -->
+      <label class="text-xs font-medium text-slate-700 block mb-2">Colaborador (viajero) *</label>
+      <div class="border border-slate-300 rounded-lg p-3 mb-5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-lg">👤</div>
+            <div>
+              <div class="font-medium text-slate-900">Juan Pérez</div>
+              <div class="text-xs text-slate-500">Viajero frecuente · 12 viajes · Tarifa: $8.00/libra</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Disponible</span>
+            <button class="text-xs text-teal-700 hover:underline">Cambiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campos adicionales -->
+      <div class="grid grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="text-xs font-medium text-slate-700 block mb-1">Número de tracking (opcional)</label>
+          <input type="text" placeholder="Ej. DHL12345ABC o #vuelo" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+          <div class="text-xs text-slate-500 mt-1">Útil si el viajero da número de asiento o si hay courier</div>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-700 block mb-1">Almacén de llegada</label>
+          <select class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+            <option>Almacén Lima Centro (principal)</option>
+            <option>Almacén Callao</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Alerta si falta info -->
+      <div class="p-3 bg-sky-50 border border-sky-200 rounded-lg text-xs text-sky-900 mb-4">
+        <strong>💡 Info del colaborador:</strong> Juan Pérez tiene tarifa configurada por peso ($8.00/libra). Se prellenará en el siguiente paso.
+      </div>
+
+      <div class="flex items-center justify-end gap-2">
+        <button class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-sm">← Picking</button>
+        <button class="px-4 py-1.5 bg-teal-700 text-white rounded text-sm font-medium">Siguiente → Costos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── PASO 4 — COSTOS ────────────── -->
+  <div class="bg-white rounded-lg border-2 border-teal-500 overflow-hidden">
+    <div class="bg-teal-700 text-white px-6 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-white text-teal-700 flex items-center justify-center font-bold">4</div>
+        <h3 class="font-bold">Paso 4 — Costos landed</h3>
+      </div>
+    </div>
+    <div class="p-6">
+
+      <!-- Presets de tarifa -->
+      <label class="text-xs font-medium text-slate-700 block mb-2">Método de tarifa del colaborador *</label>
+      <div class="grid grid-cols-4 gap-2 mb-5">
         <label class="border-2 border-teal-500 bg-teal-50 rounded-lg p-3 cursor-pointer">
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-slate-900">Por peso</span>
@@ -546,7 +605,7 @@
           <div class="text-xs text-slate-600 mt-1">$X/libra</div>
         </label>
         <label class="border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-slate-300">
-          <div class="text-sm font-medium text-slate-700">Estandar</div>
+          <div class="text-sm font-medium text-slate-700">Estándar</div>
           <div class="text-xs text-slate-500 mt-1">$X/unidad</div>
         </label>
         <label class="border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-slate-300">
@@ -558,60 +617,779 @@
           <div class="text-xs text-slate-500 mt-1">tabla A/B/C</div>
         </label>
       </div>
+
+      <!-- Inputs según preset -->
+      <div class="grid grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="text-xs font-medium text-slate-600 block mb-1">Tarifa por libra (USD)</label>
+          <input type="text" value="8.00" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+          <div class="text-xs text-slate-500 mt-1">Peso total estimado: 18.5 lb · <strong>Flete total: $148.00</strong></div>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-600 block mb-1">Tipo de cambio (para prorrateo PEN)</label>
+          <input type="text" value="3.78" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+          <div class="text-xs text-slate-500 mt-1">TC del día desde tesorería</div>
+        </div>
+      </div>
+
+      <!-- Costos adicionales -->
+      <div class="border border-slate-200 rounded-lg p-4 mb-5">
+        <div class="text-sm font-medium text-slate-700 mb-3">Costos adicionales (opcional)</div>
+
+        <label class="flex items-center gap-2 mb-3 cursor-pointer">
+          <input type="checkbox" checked class="w-4 h-4">
+          <span class="text-sm text-slate-900">Fee de recepción en destino</span>
+        </label>
+        <div class="grid grid-cols-3 gap-3 pl-6 mb-4">
+          <div>
+            <label class="text-xs text-slate-600">Método</label>
+            <select class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs">
+              <option>Monto total fijo</option>
+              <option>Por unidad</option>
+              <option>% del valor</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-600">Monto USD</label>
+            <input type="text" value="15.00" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs">
+          </div>
+          <div>
+            <label class="text-xs text-slate-600">Concepto</label>
+            <input type="text" value="Recepción aeropuerto" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs">
+          </div>
+        </div>
+
+        <label class="flex items-center gap-2 mb-3 cursor-pointer">
+          <input type="checkbox" class="w-4 h-4">
+          <span class="text-sm text-slate-900">Fee del colaborador casilla (si aplica)</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" class="w-4 h-4">
+          <span class="text-sm text-slate-900">Otros gastos (aduana pre-pagada, seguros, etc.)</span>
+        </label>
+      </div>
+
+      <!-- Preview CTRU landed -->
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg mb-4">
+        <div class="text-xs font-medium text-slate-700 mb-2">💡 Preview CTRU landed por producto</div>
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-600">
+              <th class="text-left py-1">Producto</th>
+              <th class="text-right">Uds</th>
+              <th class="text-right">CTRU base</th>
+              <th class="text-right">+ Landed prop.</th>
+              <th class="text-right">CTRU final</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-900">
+            <tr class="border-b border-slate-100">
+              <td class="py-1.5">NOW Ashwagandha</td>
+              <td class="text-right">2</td>
+              <td class="text-right">$18.50</td>
+              <td class="text-right text-teal-700">+$4.82</td>
+              <td class="text-right font-bold">$23.32</td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-1.5">WellnessLabs NAD+</td>
+              <td class="text-right">3</td>
+              <td class="text-right">$42.00</td>
+              <td class="text-right text-teal-700">+$11.23</td>
+              <td class="text-right font-bold">$53.23</td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-1.5">NatureBell CoQ10</td>
+              <td class="text-right">4</td>
+              <td class="text-right">$28.00</td>
+              <td class="text-right text-teal-700">+$7.89</td>
+              <td class="text-right font-bold">$35.89</td>
+            </tr>
+            <tr>
+              <td class="py-1.5">Myo-Inositol</td>
+              <td class="text-right">5</td>
+              <td class="text-right">$22.00</td>
+              <td class="text-right text-teal-700">+$6.12</td>
+              <td class="text-right font-bold">$28.12</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="border-t-2 border-slate-300 text-slate-700 font-bold">
+              <td class="pt-2">Total</td>
+              <td class="text-right">14</td>
+              <td class="text-right">$440.00</td>
+              <td class="text-right text-teal-700">+$163.00</td>
+              <td class="text-right">$603.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-end gap-2">
+        <button class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-sm">← Transporte</button>
+        <button class="px-4 py-1.5 bg-teal-700 text-white rounded text-sm font-medium">Siguiente → Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────── PASO 5 — CONFIRMAR ────────────── -->
+  <div class="bg-white rounded-lg border-2 border-teal-500 overflow-hidden">
+    <div class="bg-teal-700 text-white px-6 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-white text-teal-700 flex items-center justify-center font-bold">5</div>
+        <h3 class="font-bold">Paso 5 — Confirmar y crear envío</h3>
+      </div>
+    </div>
+    <div class="p-6">
+
+      <div class="text-sm text-slate-600 mb-4">Revisa los detalles antes de crear el envío.</div>
+
+      <!-- Ruta visual grande -->
+      <div class="bg-slate-50 rounded-lg p-5 mb-5">
+        <div class="flex items-center gap-4">
+          <div class="text-center">
+            <div class="text-4xl mb-1">🇺🇸</div>
+            <div class="font-bold text-slate-900 text-sm">Casilla Felicita</div>
+            <div class="text-xs text-slate-500">Miami, FL</div>
+          </div>
+          <div class="flex-1 relative">
+            <div class="ruta-connector"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div class="bg-white px-3 py-1 rounded shadow-sm border border-slate-200">
+                <span class="text-xs">✈️ Juan Pérez (viajero)</span>
+              </div>
+              <div class="mt-1 text-xs text-slate-500">Estimado: 22-abr → 25-abr</div>
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl mb-1">🇵🇪</div>
+            <div class="font-bold text-slate-900 text-sm">Almacén Lima Centro</div>
+            <div class="text-xs text-slate-500">Lima, Perú</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen en columnas -->
+      <div class="grid grid-cols-3 gap-4 mb-5">
+        <div class="border border-slate-200 rounded p-3">
+          <div class="text-xs text-slate-500 mb-1">Contenido</div>
+          <div class="font-bold text-slate-900">14 unidades</div>
+          <div class="text-xs text-slate-600">4 productos · 3 OCs</div>
+          <div class="text-xs text-emerald-700 mt-1">🎯 4 pre-vendidas</div>
+        </div>
+        <div class="border border-slate-200 rounded p-3">
+          <div class="text-xs text-slate-500 mb-1">Valor de productos</div>
+          <div class="font-bold text-slate-900">$440.00</div>
+          <div class="text-xs text-slate-600">CTRU base total</div>
+        </div>
+        <div class="border border-slate-200 rounded p-3">
+          <div class="text-xs text-slate-500 mb-1">Costos landed</div>
+          <div class="font-bold text-teal-700">$163.00</div>
+          <div class="text-xs text-slate-600">Flete $148 + Fee $15</div>
+          <div class="text-xs text-slate-500 mt-1">S/ 615.94 PEN</div>
+        </div>
+      </div>
+
+      <!-- Efectos al confirmar -->
+      <div class="p-4 bg-sky-50 border border-sky-200 rounded-lg mb-5">
+        <div class="text-sm font-medium text-sky-900 mb-2">✨ Al confirmar se creará:</div>
+        <ul class="text-xs text-sky-800 space-y-1 pl-4 list-disc">
+          <li>Envío <strong>ENV-2026-200</strong> tipo <strong>C (Casilla → Perú)</strong> en estado <strong>borrador</strong></li>
+          <li>14 unidades cambian de estado: <code class="bg-white px-1 rounded">recibida_usa</code> → <code class="bg-white px-1 rounded">asignada_envio</code></li>
+          <li>CxP al colaborador Juan Pérez por $163.00 (pendiente de pago)</li>
+          <li>Al despachar: unidades pasan a <code class="bg-white px-1 rounded">en_transito_peru</code></li>
+          <li>Al recibir: CTRU landed se aplica a cada unidad prorrateado</li>
+        </ul>
+      </div>
+
+      <!-- Responsable de reclamo -->
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded mb-5 flex items-center justify-between text-sm">
+        <span class="text-slate-700">Responsable de reclamos por defecto:</span>
+        <span class="font-medium text-slate-900">Viajero (Juan Pérez)</span>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex items-center justify-end gap-2">
+        <button class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-sm">← Costos</button>
+        <button class="px-4 py-1.5 bg-white border border-slate-300 text-slate-700 rounded text-sm">Guardar como borrador</button>
+        <button class="px-4 py-1.5 bg-teal-700 text-white rounded text-sm font-medium">✓ Crear y despachar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 2 — ARBOL DE DECISION (que tipo de envio crear)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="arbol" class="section space-y-4">
+
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h2 class="text-lg font-bold text-slate-900 mb-1">🌳 ¿Qué tipo de envío tengo que crear?</h2>
+    <p class="text-sm text-slate-600 mb-6">Flujo guiado para que el usuario responda preguntas simples y el sistema decida automáticamente el tipo correcto (A-J).</p>
+
+    <!-- Pregunta raíz -->
+    <div class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-lg p-5 mb-4">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full bg-teal-600 text-white font-bold flex items-center justify-center flex-shrink-0">?</div>
+        <div>
+          <div class="font-bold text-slate-900">¿El envío viene de una OC nueva que estoy confirmando?</div>
+          <div class="text-xs text-slate-600 mt-1">Si vienes del Wizard de Compras, la mayoría de envíos se crean automáticamente al confirmar.</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Inputs -->
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div>
-        <label class="text-xs font-medium text-slate-600">Tarifa por libra (USD)</label>
-        <input type="text" value="8.00" class="mt-1 w-full border border-slate-300 rounded px-3 py-2 text-sm">
-        <div class="text-xs text-slate-500 mt-1">Peso total estimado: 18.5 lb · Total: $148.00</div>
+    <!-- Rama 1: SI viene de OC -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+
+      <!-- SI -->
+      <div class="border-2 border-teal-500 rounded-lg overflow-hidden">
+        <div class="bg-teal-50 px-4 py-2 border-b border-teal-200">
+          <div class="flex items-center gap-2">
+            <span class="text-teal-700 font-bold">SÍ</span>
+            <span class="text-sm text-slate-700">Vengo de confirmar una OC</span>
+          </div>
+        </div>
+        <div class="p-4 space-y-3">
+
+          <div class="text-xs font-medium text-slate-600">→ El Wizard OC paso "Ruta" te pregunta:</div>
+
+          <!-- Sub-pregunta: modo de entrega -->
+          <div class="border border-slate-200 rounded p-3 bg-slate-50/50">
+            <div class="text-xs font-medium text-slate-700 mb-2">¿Modo de entrega?</div>
+
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between p-2 bg-white border border-slate-200 rounded text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">🇵🇪</span>
+                  <span class="text-slate-700">DDP directo a Perú</span>
+                </div>
+                <span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded font-bold">→ Caso B</span>
+              </div>
+              <div class="flex items-center justify-between p-2 bg-white border border-slate-200 rounded text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">📦</span>
+                  <span class="text-slate-700">Vía casilla internacional</span>
+                </div>
+                <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-bold">→ Caso A</span>
+              </div>
+              <div class="flex items-center justify-between p-2 bg-white border border-slate-200 rounded text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">👤</span>
+                  <span class="text-slate-700">Compra directa del colaborador</span>
+                </div>
+                <span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-bold">→ Caso D</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-sub-pregunta D -->
+          <div class="border border-amber-200 rounded p-3 bg-amber-50/50">
+            <div class="text-xs font-medium text-amber-900 mb-2">Si elige <strong>Caso D</strong>, pregunta adicional:</div>
+            <div class="text-xs text-amber-800 mb-2">¿Quién paga al proveedor?</div>
+            <div class="space-y-1">
+              <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                <span>El colaborador con su plata</span>
+                <span class="font-mono text-violet-700">D1</span>
+              </div>
+              <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                <span>Yo pago, colaborador solo recoge</span>
+                <span class="font-mono text-violet-700">D2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-500 italic border-t border-slate-100 pt-2">
+            ✨ El envío se crea automáticamente al confirmar la OC, no hay que ir a /envios.
+          </div>
+        </div>
       </div>
-      <div>
-        <label class="text-xs font-medium text-slate-600">Fee de recepcion en destino (opcional)</label>
-        <input type="text" value="15.00" class="mt-1 w-full border border-slate-300 rounded px-3 py-2 text-sm">
-        <div class="text-xs text-slate-500 mt-1">Se prorratea al valor total</div>
+
+      <!-- NO -->
+      <div class="border-2 border-slate-300 rounded-lg overflow-hidden">
+        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200">
+          <div class="flex items-center gap-2">
+            <span class="text-slate-700 font-bold">NO</span>
+            <span class="text-sm text-slate-700">Es un movimiento logístico independiente</span>
+          </div>
+        </div>
+        <div class="p-4 space-y-3">
+
+          <div class="text-xs font-medium text-slate-600">→ Abres /envios y click "Nuevo envío". El wizard te pregunta:</div>
+
+          <!-- Pregunta: origen -->
+          <div class="border border-slate-200 rounded p-3 bg-slate-50/50">
+            <div class="text-xs font-medium text-slate-700 mb-2">¿Desde dónde salen las unidades?</div>
+            <div class="space-y-1.5">
+
+              <!-- Casilla intl -->
+              <div class="border border-slate-200 rounded bg-white">
+                <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
+                  <span class="text-lg">📦</span>
+                  <span class="font-medium text-slate-900">Casilla internacional</span>
+                </div>
+                <div class="p-2 space-y-1 bg-slate-50">
+                  <div class="text-xs text-slate-600 mb-1">¿Hacia dónde?</div>
+                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                    <span>Almacén Perú</span>
+                    <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-bold">→ Caso C</span>
+                  </div>
+                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                    <span>Otra casilla internacional</span>
+                    <span class="px-2 py-0.5 bg-violet-100 text-violet-800 rounded font-bold">→ Caso J</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Almacén propio -->
+              <div class="border border-slate-200 rounded bg-white">
+                <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
+                  <span class="text-lg">🏠</span>
+                  <span class="font-medium text-slate-900">Almacén propio</span>
+                </div>
+                <div class="p-2 space-y-1 bg-slate-50">
+                  <div class="text-xs text-slate-600 mb-1">¿Hacia dónde?</div>
+                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                    <span>Otro almacén propio</span>
+                    <span class="px-2 py-0.5 bg-slate-200 text-slate-800 rounded font-bold">→ Caso E</span>
+                  </div>
+                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                    <span>Cliente final</span>
+                    <span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded font-bold">→ Caso F</span>
+                  </div>
+                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                    <span>Almacén de tercero (marketing/samples)</span>
+                    <span class="px-2 py-0.5 bg-fuchsia-100 text-fuchsia-800 rounded font-bold">→ Caso I</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cliente (devolucion) -->
+              <div class="border border-slate-200 rounded bg-white">
+                <div class="flex items-center gap-2 p-2 text-xs border-b border-slate-100">
+                  <span class="text-lg">🛍️</span>
+                  <span class="font-medium text-slate-900">Cliente (devolución)</span>
+                </div>
+                <div class="p-2 space-y-1 bg-slate-50">
+                  <div class="flex items-center justify-between p-1.5 bg-white rounded text-xs">
+                    <span>Vuelve a almacén propio</span>
+                    <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold">→ Caso G</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-500 italic border-t border-slate-100 pt-2">
+            ✨ El wizard específico para cada caso tiene pasos distintos (el más complejo es C).
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Preview CTRU landed -->
-    <div class="p-3 bg-slate-50 rounded-lg">
-      <div class="text-xs font-medium text-slate-700 mb-2">Preview CTRU landed por producto</div>
-      <table class="w-full text-xs">
-        <thead>
-          <tr class="border-b border-slate-200 text-slate-600">
-            <th class="text-left py-1">Producto</th>
+    <!-- Resumen visual: los 9 casos -->
+    <div class="border border-slate-200 rounded-lg overflow-hidden">
+      <div class="bg-slate-800 text-white px-4 py-2 text-sm font-medium">Los 9 casos de un vistazo</div>
+      <div class="p-4 grid grid-cols-3 gap-3 text-xs">
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-slate-900">A · Proveedor → Casilla</div>
+          <div class="text-slate-500">Auto al confirmar OC no-DDP</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-slate-900">B · DDP directo</div>
+          <div class="text-slate-500">Auto al confirmar OC DDP</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-teal-700">C · Casilla → Perú</div>
+          <div class="text-slate-500">Manual con Wizard T2 (5 pasos)</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-amber-700">D · Recojo directo</div>
+          <div class="text-slate-500">Auto (D1 o D2 según deudor)</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-slate-900">E · Traslado interno</div>
+          <div class="text-slate-500">Manual (absorbe Transferencias)</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-orange-700">F · Despacho venta</div>
+          <div class="text-slate-500">Auto al confirmar venta</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-yellow-700">G · Devolución</div>
+          <div class="text-slate-500">Auto/manual desde venta</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-fuchsia-700">I · A terceros</div>
+          <div class="text-slate-500">Manual con bloqueo stock</div>
+        </div>
+        <div class="border border-slate-200 rounded p-2">
+          <div class="font-bold text-violet-700">J · Entre casillas</div>
+          <div class="text-slate-500">Manual · preferente mismo país</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nota -->
+  <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 text-xs text-sky-900">
+    <strong>💡 Principio de diseño:</strong> el usuario nunca tiene que saber de memoria los códigos A-J. Responde preguntas simples ("¿de dónde a dónde?") y el sistema decide el tipo. Los códigos solo aparecen en reportes y auditoría.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 4 — DETALLE DE ENVIO (variantes: simple / con sub-envios / T2)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="detalle" class="section space-y-6">
+
+  <!-- Header explicativo -->
+  <div class="bg-white rounded-lg border border-slate-200 p-4">
+    <h2 class="text-lg font-bold text-slate-900">Detalle de envío — 3 variantes</h2>
+    <p class="text-sm text-slate-600 mt-1">Cómo se ve la vista expandida de un envío según su tipo y características.</p>
+  </div>
+
+  <!-- ────── VARIANTE A: Envio simple (tipo F, sin sub-envios) ────── -->
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3">
+      <div class="flex items-center gap-2 text-xs text-orange-100 mb-1">Variante 1</div>
+      <div class="flex items-center gap-2">
+        <span class="text-lg font-bold">ENV-2026-234</span>
+        <span class="text-xs px-2 py-0.5 bg-orange-500/50 rounded">🏠→🛍️ Despacho venta · F</span>
+        <span class="text-xs px-2 py-0.5 bg-emerald-500/30 text-emerald-100 rounded">Entregado</span>
+      </div>
+      <p class="text-xs text-orange-100 mt-1">Envío simple · 1 cliente · sin sub-envíos</p>
+    </div>
+
+    <!-- Ruta -->
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🇵🇪</span>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">Almacén Lima Centro</div>
+            <div class="text-xs text-slate-500">Nuestro almacén</div>
+          </div>
+        </div>
+        <div class="flex-1 h-0.5 bg-slate-300 relative">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="bg-slate-50 px-2 text-xs text-slate-500">🚚 Olva Courier · #OLV-98765</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🏡</span>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">María González</div>
+            <div class="text-xs text-slate-500">Arequipa, Perú</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-4 gap-0 border-b border-slate-200">
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Unidades</div>
+        <div class="text-xl font-bold text-slate-900">3/3</div>
+      </div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Venta vinculada</div>
+        <div class="text-sm font-mono text-teal-700">VT-2026-089</div>
+      </div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Costo flete</div>
+        <div class="text-xl font-bold text-slate-900">S/ 25</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-xs text-slate-500">Fecha entrega</div>
+        <div class="text-sm font-medium text-slate-900">19-abr</div>
+      </div>
+    </div>
+
+    <!-- Tabs del detalle -->
+    <div class="border-b border-slate-200 px-6">
+      <div class="flex gap-4 text-sm">
+        <div class="py-3 border-b-2 border-teal-600 text-teal-700 font-medium">Productos</div>
+        <div class="py-3 text-slate-500">Costos (1)</div>
+        <div class="py-3 text-slate-500">Historial</div>
+        <div class="py-3 text-slate-500">Incidencias (0)</div>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-6">
+      <table class="w-full text-sm">
+        <thead class="text-xs text-slate-500 border-b border-slate-200">
+          <tr>
+            <th class="text-left py-2">Producto</th>
             <th class="text-right">Uds</th>
-            <th class="text-right">CTRU base</th>
-            <th class="text-right">+ Landed</th>
-            <th class="text-right">CTRU final</th>
+            <th class="text-right">CTRU</th>
+            <th class="text-right">Estado</th>
           </tr>
         </thead>
-        <tbody class="text-slate-900">
+        <tbody>
           <tr class="border-b border-slate-100">
-            <td class="py-1">NOW Ashwagandha</td>
+            <td class="py-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">💊</span>
+                <div>
+                  <div class="font-medium text-slate-900">NOW Ashwagandha</div>
+                  <div class="text-xs text-slate-500">#UN-8823, #UN-8824 · OC-2026-001</div>
+                </div>
+              </div>
+            </td>
             <td class="text-right">2</td>
-            <td class="text-right">$18.50</td>
-            <td class="text-right text-teal-700">+$4.82</td>
-            <td class="text-right font-bold">$23.32</td>
-          </tr>
-          <tr class="border-b border-slate-100">
-            <td class="py-1">WellnessLabs NAD+</td>
-            <td class="text-right">3</td>
-            <td class="text-right">$42.00</td>
-            <td class="text-right text-teal-700">+$11.23</td>
-            <td class="text-right font-bold">$53.23</td>
+            <td class="text-right font-medium">$23.32</td>
+            <td class="text-right">
+              <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">vendida</span>
+            </td>
           </tr>
           <tr>
-            <td class="py-1 text-slate-500">... +2 productos</td>
-            <td colspan="4"></td>
+            <td class="py-2">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🧪</span>
+                <div>
+                  <div class="font-medium text-slate-900">WellnessLabs NAD+</div>
+                  <div class="text-xs text-slate-500">#UN-9001 · OC-2026-001</div>
+                </div>
+              </div>
+            </td>
+            <td class="text-right">1</td>
+            <td class="text-right font-medium">$53.23</td>
+            <td class="text-right">
+              <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">vendida</span>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
+  <!-- ────── VARIANTE B: Envio T1 con sub-envios (caso Amazon) ────── -->
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-6 py-3">
+      <div class="flex items-center gap-2 text-xs text-slate-300 mb-1">Variante 2</div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-lg font-bold">ENV-2026-123</span>
+        <span class="text-xs px-2 py-0.5 bg-slate-700 rounded">🏭→📦 Proveedor-Casilla · A</span>
+        <span class="text-xs px-2 py-0.5 bg-emerald-500/30 text-emerald-100 rounded">Recibido completo</span>
+        <span class="text-xs px-2 py-0.5 bg-violet-500/30 text-violet-100 rounded">3 sub-envios</span>
+      </div>
+      <p class="text-xs text-slate-300 mt-1">Amazon despachó la sub-orden en 3 tandas → ver <a href="#" onclick="showTab('subenvios'); return false;" class="underline text-teal-300">timeline completo</a></p>
+    </div>
+
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🇺🇸</span>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">Amazon</div>
+            <div class="text-xs text-slate-500">Proveedor</div>
+          </div>
+        </div>
+        <div class="flex-1 h-0.5 bg-slate-300 relative">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="bg-slate-50 px-2 text-xs text-slate-500">🚚 Courier proveedor (3 tandas)</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🇺🇸</span>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">Casilla Felicita</div>
+            <div class="text-xs text-slate-500">Miami, FL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-0 border-b border-slate-200">
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Unidades</div>
+        <div class="text-xl font-bold text-slate-900">7/7</div>
+      </div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Sub-envíos</div>
+        <div class="text-xl font-bold text-violet-700">3</div>
+      </div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">OC vinculada</div>
+        <div class="text-sm font-mono text-teal-700">OC-2026-001</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-xs text-slate-500">Responsable reclamo</div>
+        <div class="text-sm font-medium text-slate-900">Proveedor</div>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <div class="text-xs text-slate-500 text-center py-3">↑ Card header expandible. Al hacer click se despliegan las secciones detalladas abajo ↓</div>
+      <div class="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center text-xs text-slate-500">
+        Secciones internas: Tandas del proveedor (timeline) · Productos · Costos landed · Incidencias (0) · Historial<br>
+        <em>Ver Tab "Sub-envios T1" para el timeline completo.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────── VARIANTE C: Envio T2 consolidado (C) ────── -->
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-teal-700 to-teal-800 text-white px-6 py-3">
+      <div class="flex items-center gap-2 text-xs text-teal-100 mb-1">Variante 3 · La más rica informacionalmente</div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-lg font-bold">ENV-2026-200</span>
+        <span class="text-xs px-2 py-0.5 bg-teal-600 rounded">📦→🇵🇪 Casilla-Perú · C</span>
+        <span class="text-xs px-2 py-0.5 bg-blue-500/40 text-blue-100 rounded">En tránsito</span>
+        <span class="text-xs px-2 py-0.5 bg-amber-500/40 text-amber-100 rounded">🎯 4 pre-vendidas</span>
+      </div>
+      <p class="text-xs text-teal-100 mt-1">Envío consolidado con unidades de 3 OCs distintas</p>
+    </div>
+
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🇺🇸</span>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">Casilla Felicita</div>
+            <div class="text-xs text-slate-500">Miami, FL</div>
+          </div>
+        </div>
+        <div class="flex-1 h-0.5 bg-slate-300 relative">
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="bg-slate-50 px-2 text-xs text-slate-500">✈️ Juan Pérez (viajero)</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🇵🇪</span>
+          <div>
+            <div class="font-bold text-slate-900 text-sm">Almacén Lima Centro</div>
+            <div class="text-xs text-slate-500">Lima, Perú</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-5 gap-0 border-b border-slate-200">
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Unidades</div>
+        <div class="text-xl font-bold text-slate-900">14</div>
+      </div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">OCs consolidadas</div>
+        <div class="text-xl font-bold text-violet-700">3</div>
+      </div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">CTRU base</div>
+        <div class="text-lg font-bold text-slate-900">$440</div>
+      </div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">+ Landed</div>
+        <div class="text-lg font-bold text-teal-700">+$163</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-xs text-slate-500">Valor total</div>
+        <div class="text-lg font-bold text-slate-900">S/ 2,279</div>
+      </div>
+    </div>
+
+    <div class="border-b border-slate-200 px-6">
+      <div class="flex gap-4 text-sm">
+        <div class="py-3 border-b-2 border-teal-600 text-teal-700 font-medium">Productos (14)</div>
+        <div class="py-3 text-slate-500">Costos landed (3)</div>
+        <div class="py-3 text-slate-500">Historial</div>
+        <div class="py-3 text-slate-500">Incidencias (0)</div>
+        <div class="py-3 text-slate-500">Reclamos</div>
+      </div>
+    </div>
+
+    <!-- Tabla consolidada con columna OC origen -->
+    <div class="p-6">
+      <table class="w-full text-xs">
+        <thead class="text-slate-500 border-b border-slate-200">
+          <tr>
+            <th class="text-left py-2">Producto / Unidad</th>
+            <th class="text-left">OC origen</th>
+            <th class="text-right">CTRU base</th>
+            <th class="text-right">+ Landed</th>
+            <th class="text-right">CTRU final</th>
+            <th class="text-right">Reserva</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100 bg-emerald-50/30">
+            <td class="py-2">
+              <span class="mr-1">💊</span> NOW Ashwagandha · #UN-8823
+            </td>
+            <td class="text-slate-600"><span class="font-mono">OC-001</span> (Amazon)</td>
+            <td class="text-right">$18.50</td>
+            <td class="text-right text-teal-700">+$4.82</td>
+            <td class="text-right font-bold">$23.32</td>
+            <td class="text-right">
+              <span class="text-xs px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 COT-145</span>
+            </td>
+          </tr>
+          <tr class="border-b border-slate-100 bg-emerald-50/30">
+            <td class="py-2">
+              <span class="mr-1">💊</span> NOW Ashwagandha · #UN-8824
+            </td>
+            <td class="text-slate-600"><span class="font-mono">OC-001</span> (Amazon)</td>
+            <td class="text-right">$18.50</td>
+            <td class="text-right text-teal-700">+$4.82</td>
+            <td class="text-right font-bold">$23.32</td>
+            <td class="text-right">
+              <span class="text-xs px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 COT-145</span>
+            </td>
+          </tr>
+          <tr class="border-b border-slate-100 bg-emerald-50/30">
+            <td class="py-2">
+              <span class="mr-1">🧪</span> WellnessLabs NAD+ · #UN-9001
+            </td>
+            <td class="text-slate-600"><span class="font-mono">OC-001</span> (Amazon)</td>
+            <td class="text-right">$42.00</td>
+            <td class="text-right text-teal-700">+$11.23</td>
+            <td class="text-right font-bold">$53.23</td>
+            <td class="text-right">
+              <span class="text-xs px-1.5 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 COT-123</span>
+            </td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="py-2">
+              <span class="mr-1">🧪</span> WellnessLabs NAD+ · #UN-9003
+            </td>
+            <td class="text-slate-600"><span class="font-mono">OC-002</span> (iHerb)</td>
+            <td class="text-right">$42.00</td>
+            <td class="text-right text-teal-700">+$11.23</td>
+            <td class="text-right font-bold">$53.23</td>
+            <td class="text-right text-slate-400">—</td>
+          </tr>
+          <tr>
+            <td colspan="6" class="py-2 text-center text-slate-500 italic">+ 10 unidades más de OC-002 (iHerb) y OC-003 (Vitacost)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Seccion costos landed (colapsada) -->
+      <div class="mt-4 border-t border-slate-200 pt-4">
+        <div class="text-xs font-medium text-slate-700 mb-2">Costos landed del envío (prorrateo)</div>
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-xs p-2 bg-slate-50 rounded">
+            <span>Flete internacional (Juan Pérez · por peso)</span>
+            <span class="font-bold">$148.00</span>
+          </div>
+          <div class="flex items-center justify-between text-xs p-2 bg-slate-50 rounded">
+            <span>Fee recepción aeropuerto Lima</span>
+            <span class="font-bold">$15.00</span>
+          </div>
+          <div class="flex items-center justify-between text-xs p-2 bg-slate-50 rounded">
+            <span>Comisión colaborador casilla Felicita</span>
+            <span class="font-bold">$0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nota -->
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-900">
+    <strong>📌 Diferencia clave:</strong> la tabla de productos del envío T2 tiene columna <strong>"OC origen"</strong> porque consolida unidades de múltiples OCs. En envíos T1 (A/B/D) esta columna no aparece porque todas las unidades son de la misma OC.
+  </div>
 </section>
+
 
 <!-- ═══════════════════════════════════════════════════════════════════
      SECCION 3 — SUB-ENVIOS T1 (Timeline Amazon)
@@ -764,7 +1542,351 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SECCION 4 — PICKING con priorizacion pre-ventas (detalle)
+     SECCION 6 — RECLAMOS E INCIDENCIAS (aduana / pérdida / impuestos / daños)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="reclamos" class="section space-y-6">
+
+  <!-- Intro -->
+  <div class="bg-white rounded-lg border border-slate-200 p-4">
+    <h2 class="text-lg font-bold text-slate-900">🚨 Flujo de reclamos e incidencias</h2>
+    <p class="text-sm text-slate-600 mt-1">Cómo se gestionan los casos problemáticos de un envío: retenido en aduana, impuestos adicionales, productos dañados, pérdida total.</p>
+  </div>
+
+  <!-- Dashboard de incidencias -->
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h3 class="font-bold text-slate-900 mb-3">Panel de incidencias activas</h3>
+
+    <div class="grid grid-cols-4 gap-3 mb-5">
+      <div class="bg-red-50 rounded-lg p-3 border border-red-200">
+        <div class="text-xs text-red-700">Retenidos aduana</div>
+        <div class="text-2xl font-bold text-red-900">2</div>
+        <div class="text-xs text-red-600 mt-1">$670 en impuestos</div>
+      </div>
+      <div class="bg-orange-50 rounded-lg p-3 border border-orange-200">
+        <div class="text-xs text-orange-700">Productos dañados</div>
+        <div class="text-2xl font-bold text-orange-900">5</div>
+        <div class="text-xs text-orange-600 mt-1">3 envíos afectados</div>
+      </div>
+      <div class="bg-fuchsia-50 rounded-lg p-3 border border-fuchsia-200">
+        <div class="text-xs text-fuchsia-700">En reclamo</div>
+        <div class="text-2xl font-bold text-fuchsia-900">3</div>
+        <div class="text-xs text-fuchsia-600 mt-1">S/ 1,240 pend.</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+        <div class="text-xs text-slate-700">Pérdidas totales</div>
+        <div class="text-2xl font-bold text-slate-900">1</div>
+        <div class="text-xs text-slate-600 mt-1">Último: ENV-178</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Resolver retencion aduana -->
+  <div class="bg-white rounded-lg border-2 border-red-300 overflow-hidden">
+    <div class="bg-red-600 text-white px-6 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">⚠️</span>
+        <div>
+          <div class="font-bold">Resolver retención aduana · ENV-2026-198</div>
+          <div class="text-xs text-red-100">Shenzhen Labs → Almacén Lima (DDP) · Retenido desde 18-abr</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <!-- Resumen de la retencion -->
+      <div class="bg-slate-50 rounded-lg p-4 mb-5">
+        <div class="grid grid-cols-3 gap-3 text-sm">
+          <div>
+            <div class="text-xs text-slate-500">Envío</div>
+            <div class="font-bold text-slate-900">ENV-2026-198 (DDP)</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">Unidades afectadas</div>
+            <div class="font-bold text-slate-900">22 unidades · $1,230 CTRU</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">Responsable default</div>
+            <div class="font-bold text-orange-700">Courier del proveedor (DHL)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info de la retencion -->
+      <div class="mb-5">
+        <label class="text-xs font-medium text-slate-700 block mb-1">Fecha de retención</label>
+        <div class="flex gap-3">
+          <input type="date" value="2026-04-18" class="border border-slate-300 rounded px-3 py-2 text-sm">
+          <input type="text" value="Aduana Callao · Documento incompleto" placeholder="Motivo" class="flex-1 border border-slate-300 rounded px-3 py-2 text-sm">
+        </div>
+      </div>
+
+      <!-- Opciones de resolucion -->
+      <div class="space-y-3">
+
+        <!-- Opcion 1: Pagar impuesto y liberar -->
+        <label class="flex items-start gap-3 p-4 border-2 border-teal-400 bg-teal-50 rounded-lg cursor-pointer">
+          <input type="radio" name="resolucion" checked class="w-4 h-4 mt-1">
+          <div class="flex-1">
+            <div class="font-bold text-slate-900 mb-1">✓ Liberar pagando impuesto aduanero</div>
+            <div class="text-xs text-slate-700 mb-3">El envío continúa al almacén destino. El impuesto se registra como costoLanded y se prorratea al CTRU de las unidades.</div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="text-xs text-slate-600">Monto impuesto (USD)</label>
+                <input type="text" value="450.00" class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm">
+              </div>
+              <div>
+                <label class="text-xs text-slate-600">Método prorrateo</label>
+                <select class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm">
+                  <option>Por valor de productos</option>
+                  <option>Por peso</option>
+                  <option>Por cantidad</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs text-slate-600">¿Quién lo paga?</label>
+                <select class="w-full border border-slate-300 rounded px-2 py-1.5 text-sm">
+                  <option>Nosotros (absorbemos)</option>
+                  <option>Reclamar al proveedor (DHL)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-2 text-xs text-teal-800">
+              💡 Impacto: +$450 al CTRU del envío. Cada unidad absorbe ~$20.45 adicionales según método.
+            </div>
+          </div>
+        </label>
+
+        <!-- Opcion 2: Declarar perdida total -->
+        <label class="flex items-start gap-3 p-4 border border-slate-200 rounded-lg cursor-pointer hover:border-red-300">
+          <input type="radio" name="resolucion" class="w-4 h-4 mt-1">
+          <div class="flex-1">
+            <div class="font-bold text-slate-900 mb-1">✗ Declarar pérdida total</div>
+            <div class="text-xs text-slate-700 mb-2">No se paga el impuesto. Las 22 unidades se dan de baja del inventario. Se abre reclamo contra el responsable.</div>
+
+            <div class="text-xs space-y-1 pl-3 text-slate-600">
+              <div>• Unidades pasan a estado <code class="bg-slate-100 px-1 rounded">perdida_total</code></div>
+              <div>• Asiento contable: merma por $1,230 contra el envío</div>
+              <div>• Reclamo automático contra DHL (courier del proveedor)</div>
+              <div>• Se crea solicitud de reembolso al proveedor Shenzhen Labs</div>
+            </div>
+          </div>
+        </label>
+
+        <!-- Opcion 3: Reclamo previo -->
+        <label class="flex items-start gap-3 p-4 border border-slate-200 rounded-lg cursor-pointer hover:border-amber-300">
+          <input type="radio" name="resolucion" class="w-4 h-4 mt-1">
+          <div class="flex-1">
+            <div class="font-bold text-slate-900 mb-1">⏸️ Dejar en espera · abrir reclamo con proveedor</div>
+            <div class="text-xs text-slate-700 mb-2">Antes de pagar o dar por perdido, abrir disputa con el proveedor/courier por documentación faltante. El envío queda en estado "en disputa" hasta resolución.</div>
+          </div>
+        </label>
+
+      </div>
+
+      <div class="mt-5 flex items-center justify-end gap-2">
+        <button class="px-4 py-2 border border-slate-300 text-slate-700 rounded text-sm">Cancelar</button>
+        <button class="px-4 py-2 bg-red-600 text-white rounded text-sm font-medium">Confirmar resolución</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gestion de productos dañados -->
+  <div class="bg-white rounded-lg border-2 border-orange-300 overflow-hidden">
+    <div class="bg-orange-600 text-white px-6 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📦💥</span>
+        <div>
+          <div class="font-bold">Incidencia de daños · ENV-2026-200</div>
+          <div class="text-xs text-orange-100">Casilla Felicita → Almacén Lima · Reportado al recibir</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <p class="text-sm text-slate-700 mb-4">Selecciona las unidades afectadas y el tipo de incidencia por cada una.</p>
+
+      <div class="space-y-2">
+
+        <div class="border border-slate-200 rounded-lg p-3">
+          <div class="flex items-start gap-3">
+            <input type="checkbox" checked class="w-4 h-4 mt-1">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">💊</span>
+                <span class="font-medium text-slate-900">NOW Ashwagandha · #UN-8823</span>
+                <span class="text-xs px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded font-medium">🎯 Reservada · COT-145</span>
+              </div>
+              <div class="mt-2 grid grid-cols-3 gap-2">
+                <select class="border border-slate-300 rounded px-2 py-1.5 text-xs">
+                  <option selected>Empaque roto, producto útil</option>
+                  <option>Producto dañado, inservible</option>
+                  <option>Producto faltante (perdido)</option>
+                  <option>Fecha vencimiento pasada</option>
+                </select>
+                <select class="border border-slate-300 rounded px-2 py-1.5 text-xs">
+                  <option selected>Viajero (Juan Pérez)</option>
+                  <option>Nosotros (absorbemos)</option>
+                  <option>Colaborador casilla</option>
+                </select>
+                <input type="text" placeholder="Costo reclamado USD" value="18.50" class="border border-slate-300 rounded px-2 py-1.5 text-xs">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border border-red-200 bg-red-50/30 rounded-lg p-3">
+          <div class="flex items-start gap-3">
+            <input type="checkbox" checked class="w-4 h-4 mt-1">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🧪</span>
+                <span class="font-medium text-slate-900">WellnessLabs NAD+ · #UN-9003</span>
+              </div>
+              <div class="mt-2 grid grid-cols-3 gap-2">
+                <select class="border border-slate-300 rounded px-2 py-1.5 text-xs">
+                  <option>Empaque roto, producto útil</option>
+                  <option selected>Producto faltante (perdido)</option>
+                  <option>Producto dañado, inservible</option>
+                </select>
+                <select class="border border-slate-300 rounded px-2 py-1.5 text-xs">
+                  <option selected>Viajero (Juan Pérez)</option>
+                  <option>Colaborador casilla</option>
+                </select>
+                <input type="text" value="42.00" class="border border-slate-300 rounded px-2 py-1.5 text-xs">
+              </div>
+              <div class="mt-2 text-xs text-red-700">
+                ⚠️ Esta unidad se dará de baja (merma). Si el envío se reclama al viajero, se recupera ~$42.00
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Efecto consolidado -->
+      <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded">
+        <div class="text-xs font-medium text-slate-700 mb-2">Resumen de la incidencia</div>
+        <div class="grid grid-cols-4 gap-3 text-xs">
+          <div><span class="text-slate-500">Afectadas:</span> <strong>2 unidades</strong></div>
+          <div><span class="text-slate-500">Valor afectado:</span> <strong>$60.50</strong></div>
+          <div><span class="text-slate-500">A reclamar:</span> <strong class="text-teal-700">$42.00</strong></div>
+          <div><span class="text-slate-500">Merma:</span> <strong class="text-red-700">$42.00 (si no se recupera)</strong></div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center justify-end gap-2">
+        <button class="px-4 py-2 border border-slate-300 text-slate-700 rounded text-sm">Cancelar</button>
+        <button class="px-4 py-2 bg-amber-600 text-white rounded text-sm font-medium">Abrir reclamo · $42.00</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estados del reclamo -->
+  <div class="bg-white rounded-lg border border-slate-200 p-6">
+    <h3 class="font-bold text-slate-900 mb-3">Ciclo de vida de un reclamo</h3>
+
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="px-4 py-3 bg-amber-50 border-2 border-amber-300 rounded-lg text-center">
+        <div class="text-xs font-medium text-amber-900">1. Abierto</div>
+        <div class="text-xs text-amber-700">Incidencia reportada</div>
+      </div>
+      <span class="text-slate-400">→</span>
+      <div class="px-4 py-3 bg-blue-50 border-2 border-blue-300 rounded-lg text-center">
+        <div class="text-xs font-medium text-blue-900">2. En negociación</div>
+        <div class="text-xs text-blue-700">Disputa con responsable</div>
+      </div>
+      <span class="text-slate-400">→</span>
+      <div class="flex flex-col gap-1">
+        <div class="px-4 py-2 bg-emerald-50 border-2 border-emerald-300 rounded-lg text-center">
+          <div class="text-xs font-medium text-emerald-900">3a. Recuperado ✓</div>
+          <div class="text-xs text-emerald-700">Ingreso otros / reembolso</div>
+        </div>
+        <div class="px-4 py-2 bg-red-50 border-2 border-red-300 rounded-lg text-center">
+          <div class="text-xs font-medium text-red-900">3b. Pérdida asumida ✗</div>
+          <div class="text-xs text-red-700">Merma contable</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Efectos contables -->
+    <div class="mt-5 grid grid-cols-2 gap-4 text-xs">
+      <div class="p-3 bg-emerald-50 border border-emerald-200 rounded">
+        <div class="font-medium text-emerald-900 mb-1">Si recuperamos el monto:</div>
+        <ul class="text-emerald-800 pl-4 list-disc space-y-0.5">
+          <li>Asiento Tesorería: <code class="bg-white px-1 rounded">ingreso_otro</code></li>
+          <li>Unidades ya dadas de baja no regresan (merma ya aplicada)</li>
+          <li>CxC contra el responsable (si no pagó inmediato)</li>
+        </ul>
+      </div>
+      <div class="p-3 bg-red-50 border border-red-200 rounded">
+        <div class="font-medium text-red-900 mb-1">Si asumimos la pérdida:</div>
+        <ul class="text-red-800 pl-4 list-disc space-y-0.5">
+          <li>Asiento Gasto: <code class="bg-white px-1 rounded">gasto_merma_transferencia</code></li>
+          <li>Unidades quedan en estado <code class="bg-white px-1 rounded">perdida_total</code> o <code class="bg-white px-1 rounded">danada</code></li>
+          <li>Valor del CTRU se lleva a cuenta de pérdidas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matriz de responsables -->
+  <div class="bg-sky-50 border border-sky-200 rounded-lg p-4 text-xs">
+    <div class="font-bold text-sky-900 mb-2">📋 Matriz de responsabilidad por tipo de envío (sugerencia automática)</div>
+    <table class="w-full">
+      <thead class="text-sky-700">
+        <tr>
+          <th class="text-left py-1">Tipo</th>
+          <th class="text-left">Responsable daños</th>
+          <th class="text-left">Responsable pérdida</th>
+          <th class="text-left">Responsable aduana/impuestos</th>
+        </tr>
+      </thead>
+      <tbody class="text-sky-900">
+        <tr class="border-t border-sky-200">
+          <td class="py-1 font-medium">A (Prov→Casilla)</td>
+          <td>Proveedor</td>
+          <td>Proveedor</td>
+          <td>N/A (no cruza aduana)</td>
+        </tr>
+        <tr class="border-t border-sky-200">
+          <td class="py-1 font-medium">B (DDP)</td>
+          <td>Courier proveedor</td>
+          <td>Courier proveedor</td>
+          <td>Courier proveedor o proveedor</td>
+        </tr>
+        <tr class="border-t border-sky-200">
+          <td class="py-1 font-medium">C (Casilla→Perú)</td>
+          <td>Viajero/Courier intl</td>
+          <td>Viajero/Courier intl</td>
+          <td>Nosotros (absorbemos)</td>
+        </tr>
+        <tr class="border-t border-sky-200">
+          <td class="py-1 font-medium">D (Recojo directo)</td>
+          <td>Colaborador</td>
+          <td>Colaborador</td>
+          <td>N/A</td>
+        </tr>
+        <tr class="border-t border-sky-200">
+          <td class="py-1 font-medium">E/F/I/J</td>
+          <td>Nosotros / courier asignado</td>
+          <td>Courier / nosotros</td>
+          <td>Raro, manual</td>
+        </tr>
+        <tr class="border-t border-sky-200">
+          <td class="py-1 font-medium">G (Devolución)</td>
+          <td>Cliente / nosotros (política)</td>
+          <td>Cliente</td>
+          <td>N/A</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="mt-2 text-sky-700 italic">El usuario puede override el responsable al abrir el reclamo; esta tabla es solo sugerencia.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECCION 7 — PICKING con priorizacion pre-ventas (detalle)
      ═══════════════════════════════════════════════════════════════════ -->
 <section id="picking" class="section space-y-4">
 
@@ -837,41 +1959,156 @@
      ═══════════════════════════════════════════════════════════════════ -->
 <section id="casos" class="section space-y-4">
 
-  <!-- Caso D1 vs D2 -->
-  <div class="bg-white rounded-lg border border-slate-200 p-6">
-    <h3 class="text-base font-bold text-slate-900 mb-3">Caso D — Compra directa del colaborador (D1 vs D2)</h3>
-    <p class="text-sm text-slate-600 mb-4">Wizard OC · Paso "Ruta" · Seccion "Modo de entrega"</p>
+  <!-- Caso D1 vs D2 — CONTEXTUALIZADO EN EL WIZARD OC -->
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <!-- Header con ubicacion -->
+    <div class="bg-slate-100 px-6 py-3 border-b border-slate-200">
+      <div class="text-xs text-slate-500">📍 Ubicación · <strong>Wizard de Compras (Nueva OC)</strong> → Paso 1: "Ruta logística"</div>
+    </div>
 
-    <div class="border border-slate-200 rounded-lg p-4 mb-4">
-      <div class="flex items-center gap-2 mb-3">
-        <input type="radio" checked class="w-4 h-4">
-        <span class="font-medium text-slate-900">Compra directa del colaborador</span>
-      </div>
-      <p class="text-xs text-slate-600 mb-3 pl-6">El colaborador compra al proveedor y recoge los productos. Las unidades nacen directamente en su casilla.</p>
-
-      <div class="pl-6 space-y-2">
-        <div class="text-xs font-medium text-slate-700">¿Quien paga al proveedor?</div>
-        <label class="flex items-start gap-2 p-2 border border-slate-200 rounded cursor-pointer hover:bg-slate-50">
-          <input type="radio" name="paga" checked class="w-4 h-4 mt-0.5">
-          <div>
-            <div class="text-sm font-medium text-slate-900">El colaborador paga con su dinero · <span class="text-violet-700">D1</span></div>
-            <div class="text-xs text-slate-600">Yo le reembolso al colaborador. CxP a favor del colaborador.</div>
-            <div class="text-xs text-amber-700 mt-1">⚠️ deudorTipo = colaborador</div>
-          </div>
-        </label>
-        <label class="flex items-start gap-2 p-2 border border-teal-300 bg-teal-50 rounded cursor-pointer">
-          <input type="radio" name="paga" class="w-4 h-4 mt-0.5">
-          <div>
-            <div class="text-sm font-medium text-slate-900">Yo pago directo al proveedor, el colaborador solo recoge · <span class="text-violet-700">D2</span></div>
-            <div class="text-xs text-slate-600">CxP al proveedor como OC normal. El colaborador es solo el logistico.</div>
-            <div class="text-xs text-teal-700 mt-1">✓ deudorTipo = proveedor</div>
-          </div>
-        </label>
+    <!-- Mini-stepper del Wizard OC -->
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-200">
+      <div class="flex items-center gap-1 text-xs">
+        <div class="flex items-center gap-1">
+          <div class="w-6 h-6 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-[10px]">1</div>
+          <span class="font-medium text-teal-700">Ruta</span>
+        </div>
+        <span class="text-slate-300">·</span>
+        <div class="flex items-center gap-1 text-slate-400">
+          <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">2</div>
+          <span>Productos</span>
+        </div>
+        <span class="text-slate-300">·</span>
+        <div class="flex items-center gap-1 text-slate-400">
+          <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">3</div>
+          <span>Cargos</span>
+        </div>
+        <span class="text-slate-300">·</span>
+        <div class="flex items-center gap-1 text-slate-400">
+          <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">4</div>
+          <span>Inteligencia</span>
+        </div>
+        <span class="text-slate-300">·</span>
+        <div class="flex items-center gap-1 text-slate-400">
+          <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">5</div>
+          <span>Confirmar</span>
+        </div>
       </div>
     </div>
 
-    <div class="text-xs text-slate-500 italic">
-      💡 En ambos casos el flujo logistico es identico: recojoEnOrigen=true, unidades nacen en la casilla del colaborador, envio tipo D se crea en estado recibida_completa al instante.
+    <!-- Contenido del paso Ruta -->
+    <div class="p-6">
+      <h3 class="text-base font-bold text-slate-900 mb-1">Paso 1 — Ruta logística</h3>
+      <p class="text-sm text-slate-600 mb-4">Define cómo llegan los productos del proveedor hasta tu inventario.</p>
+
+      <!-- Subseccion: Modo de entrega (las 4 opciones) -->
+      <div class="mb-5">
+        <label class="text-xs font-medium text-slate-700 block mb-2">¿Cómo entrega el proveedor?</label>
+        <div class="grid grid-cols-2 gap-3">
+
+          <!-- Opcion 1: DDP directo -->
+          <label class="border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-slate-300">
+            <div class="flex items-start gap-2">
+              <input type="radio" name="modo" class="w-4 h-4 mt-0.5">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span>🇵🇪</span>
+                  <span class="font-medium text-slate-900 text-sm">Entrega directa a Perú (DDP)</span>
+                  <span class="text-[10px] px-1.5 py-0.5 bg-sky-100 text-sky-700 rounded">Caso B</span>
+                </div>
+                <div class="text-xs text-slate-600 mt-1">El proveedor gestiona todo el flete internacional hasta el almacén.</div>
+              </div>
+            </div>
+          </label>
+
+          <!-- Opcion 2: Via casilla -->
+          <label class="border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-slate-300">
+            <div class="flex items-start gap-2">
+              <input type="radio" name="modo" class="w-4 h-4 mt-0.5">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span>📦</span>
+                  <span class="font-medium text-slate-900 text-sm">Vía casilla internacional</span>
+                  <span class="text-[10px] px-1.5 py-0.5 bg-slate-200 text-slate-700 rounded">Caso A</span>
+                </div>
+                <div class="text-xs text-slate-600 mt-1">Llega a una casilla en USA/CN y luego lo mandamos a Perú.</div>
+              </div>
+            </div>
+          </label>
+
+          <!-- Opcion 3: Recojo en origen (Caso D) — SELECCIONADA -->
+          <label class="border-2 border-amber-500 bg-amber-50 rounded-lg p-3 cursor-pointer col-span-2">
+            <div class="flex items-start gap-2">
+              <input type="radio" name="modo" checked class="w-4 h-4 mt-0.5">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span>👤</span>
+                  <span class="font-bold text-slate-900 text-sm">Compra directa del colaborador (recojo en origen)</span>
+                  <span class="text-[10px] px-1.5 py-0.5 bg-amber-200 text-amber-900 rounded font-bold">Caso D · SELECCIONADO</span>
+                </div>
+                <div class="text-xs text-slate-700 mt-1">El colaborador compra al proveedor y recoge los productos. Las unidades nacen directamente en su casilla, sin tránsito del proveedor.</div>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Aqui aparece cuando se elige Caso D -->
+      <div class="border-2 border-amber-300 bg-amber-50/30 rounded-lg p-4 mb-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-amber-600">▼</span>
+          <span class="text-sm font-bold text-amber-900">Al seleccionar "Compra directa" aparece esta pregunta adicional:</span>
+        </div>
+
+        <label class="text-xs font-medium text-slate-700 block mb-2">¿Quién paga al proveedor?</label>
+        <div class="space-y-2">
+          <label class="flex items-start gap-2 p-3 border border-slate-200 bg-white rounded cursor-pointer hover:bg-slate-50">
+            <input type="radio" name="paga" checked class="w-4 h-4 mt-0.5">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-slate-900">El colaborador paga con su dinero</span>
+                <span class="text-[10px] px-1.5 py-0.5 bg-violet-100 text-violet-800 rounded font-bold">D1</span>
+              </div>
+              <div class="text-xs text-slate-600 mt-1">Yo le reembolso al colaborador. Se genera CxP a favor del colaborador.</div>
+              <div class="text-xs text-amber-700 mt-1">⚠️ En el paso 5 (Confirmar), la OC se creará con <code class="bg-amber-100 px-1 rounded">deudorTipo = colaborador</code></div>
+            </div>
+          </label>
+          <label class="flex items-start gap-2 p-3 border-2 border-teal-400 bg-teal-50 rounded cursor-pointer">
+            <input type="radio" name="paga" class="w-4 h-4 mt-0.5">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-slate-900">Yo pago directo al proveedor, el colaborador solo recoge</span>
+                <span class="text-[10px] px-1.5 py-0.5 bg-violet-100 text-violet-800 rounded font-bold">D2</span>
+              </div>
+              <div class="text-xs text-slate-600 mt-1">CxP al proveedor como OC normal. El colaborador es solo el logístico (no hay CxP hacia él).</div>
+              <div class="text-xs text-teal-700 mt-1">✓ <code class="bg-teal-100 px-1 rounded">deudorTipo = proveedor</code></div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sub-seccion: casilla destino (tambien aparece cuando Caso D) -->
+      <div class="border border-slate-200 rounded-lg p-3 mb-4">
+        <label class="text-xs font-medium text-slate-700 block mb-2">Casilla del colaborador (destino)</label>
+        <div class="flex items-center justify-between p-2 bg-slate-50 rounded">
+          <div class="flex items-center gap-2">
+            <span>🇺🇸</span>
+            <span class="text-sm font-medium">Casilla Felicita · Miami, FL</span>
+          </div>
+          <button class="text-xs text-teal-700 hover:underline">Cambiar</button>
+        </div>
+        <div class="text-xs text-slate-500 mt-1">Se asume que esta es la casilla de Felicita porque ella es el colaborador que recoge.</div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2">
+        <button class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-sm">Cancelar</button>
+        <button class="px-4 py-1.5 bg-teal-700 text-white rounded text-sm font-medium">Siguiente → Productos</button>
+      </div>
+    </div>
+
+    <!-- Info extra -->
+    <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 text-xs text-slate-600 italic">
+      💡 En ambos casos D1/D2 el flujo logístico es idéntico: <code class="bg-white px-1 rounded">recojoEnOrigen=true</code>, las unidades nacen en la casilla del colaborador, el envío tipo D se crea en estado <code class="bg-white px-1 rounded">recibida_completa</code> al instante. La diferencia D1/D2 vive SOLO en el lado financiero (quién es el deudor de la OC).
     </div>
   </div>
 
