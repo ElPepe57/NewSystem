@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Search } from 'lucide-react';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Search, LayoutGrid, List } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, KPIBar, StatCard, DataCard } from '../../design-system';
+import { PageShell, PageHeader, KPIBar, StatCard, DataCard } from '../../design-system';
 import type { StatusVariant } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
 import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
@@ -148,7 +148,9 @@ export const OrdenesCompra: React.FC = () => {
     subOrdenId: string;
   } | null>(null);
 
-  const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
+  // S42am — Default a vista card para que coincida con el diseño del mockup S40.
+  // La vista tabla se mantiene como opción pero no es el default.
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
   const [isWizardV2Open, setIsWizardV2Open] = useState(false);
   const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -1056,14 +1058,36 @@ export const OrdenesCompra: React.FC = () => {
             Limpiar filtros
           </button>
         )}
+        {/* S42am — Toggle vista tabla/card inline (mockup S40 L251-254).
+             Reemplaza el <Toolbar> separado que mostraba "N resultados" duplicando
+             los pills "Todas (N)". */}
+        <div className="flex items-center gap-1 ml-2 border-l border-slate-200 pl-2">
+          <button
+            type="button"
+            onClick={() => setViewMode('card')}
+            title="Vista tarjetas"
+            className={`p-1.5 rounded transition-colors ${
+              viewMode === 'card'
+                ? 'bg-slate-200 text-slate-900'
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('table')}
+            title="Vista tabla"
+            className={`p-1.5 rounded transition-colors ${
+              viewMode === 'table'
+                ? 'bg-slate-200 text-slate-900'
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
       </div>
-
-      {/* Toolbar */}
-      <Toolbar
-        resultCount={ordenesFiltradas.length}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      />
 
       {/* Lista de Ordenes */}
       {viewMode === 'table' ? (
