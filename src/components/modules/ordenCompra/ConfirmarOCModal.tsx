@@ -487,15 +487,12 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
   const contenido = (
     <div className={cn(
       embedded
-        ? ''
+        ? 'space-y-5'  // S42ax — Inline: secciones planas con espaciado consistente del detalle
         : 'max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200'
     )}>
-        {/* ─── Header + toggle superior (en embedded solo el toggle) ─── */}
-        <div className={cn(
-          'px-6 py-4',
-          embedded ? 'bg-white border border-slate-200 rounded-xl' : 'bg-slate-50 border-b border-slate-200'
-        )}>
-          {!embedded && (
+        {/* ─── Header interno (SOLO en modal autónomo) ─── */}
+        {!embedded && (
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-xs text-slate-500">Confirmar orden</div>
@@ -515,9 +512,8 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
               <X className="w-5 h-5" />
             </button>
           </div>
-          )}
 
-          {/* Toggle ¿Dividir? */}
+          {/* Toggle modal autónomo */}
           <div className="mt-3 flex items-center gap-3 flex-wrap">
             <span className="text-xs text-slate-500">¿Dividir en sub-órdenes?</span>
             <button
@@ -554,11 +550,66 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
             </button>
           </div>
         </div>
+        )}
+
+        {/* ─── S42ax Embedded: toggle como banner al nivel del banner CTA ─── */}
+        {embedded && (
+          <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-white border border-teal-200 flex items-center justify-center flex-shrink-0">
+                <Layers className="w-5 h-5 text-teal-600" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-teal-900">
+                  ¿Dividir en sub-órdenes?
+                </div>
+                <div className="text-xs text-teal-700 mt-0.5">
+                  Si el proveedor las separará en tandas, divide la OC para trackear cada envío por separado.
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setFlujo('question');
+                  setSubOrdenIds([]);
+                  setAsignacion({});
+                  setDistribucion({});
+                }}
+                disabled={isSubmitting}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
+                  flujo === 'question'
+                    ? 'bg-teal-600 text-white'
+                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+                )}
+              >
+                No, mantener única
+              </button>
+              <button
+                type="button"
+                onClick={() => (flujo === 'question' ? handleElegirSi() : undefined)}
+                disabled={isSubmitting}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
+                  flujo === 'dividir'
+                    ? 'bg-teal-600 text-white'
+                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+                )}
+              >
+                {flujo === 'dividir'
+                  ? `Sí, dividir en ${subOrdenIds.length}`
+                  : 'Sí, dividir'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ─── Cuerpo del modal ─── */}
-        <div className="p-6 space-y-6">
-          {/* Si no divide — explicación */}
-          {flujo === 'question' && (
+        <div className={cn(embedded ? 'space-y-5' : 'p-6 space-y-6')}>
+          {/* Si no divide — explicación (solo en modal autónomo) */}
+          {flujo === 'question' && !embedded && (
             <div className="py-8 text-center space-y-3">
               <Layers className="w-12 h-12 text-slate-300 mx-auto" />
               <div className="text-sm text-slate-700 max-w-xl mx-auto">
@@ -617,15 +668,20 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
           )}
         </div>
 
-        {/* ─── Footer ─── */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-wrap gap-3">
+        {/* ─── Footer — S42ax: embedded lo renderiza plano sin bg; autónomo con bg ─── */}
+        <div className={cn(
+          'flex items-center justify-between flex-wrap gap-3',
+          embedded
+            ? 'pt-2'
+            : 'px-6 py-4 border-t border-slate-200 bg-slate-50'
+        )}>
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
             className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50"
           >
-            Cancelar
+            {embedded ? 'Volver al detalle' : 'Cancelar'}
           </button>
 
           <div className="flex items-center gap-3">
