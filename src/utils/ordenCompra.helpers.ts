@@ -150,3 +150,213 @@ export function getCargosEfectivosOC(orden: OrdenCompra): CargosEfectivosOC {
     fuente: 'oc_padre',
   };
 }
+
+// ─── S42ba: Prorrateo de cargos al CTRU por producto ─────────────────────
+
+/**
+ * Detalle del prorrateo de un producto dentro de un bloque (OC o sub-orden).
+ */
+export interface ProrrateoProducto {
+  /** Identificador del producto (normalmente productoId o índice) */
+  productoId: string;
+  /** SKU para mostrar */
+  sku: string;
+  /** Nombre para mostrar */
+  nombre: string;
+  /** Unidades del producto en el bloque */
+  cantidad: number;
+  /** Precio unitario del proveedor (costo base) */
+  costoUnitario: number;
+  /** Valor total de la línea (cantidad × costoUnitario) */
+  subtotal: number;
+  /** % que representa este producto del subtotal del bloque (0-1) */
+  pctDelBloque: number;
+  /** Cargos asignados por valor (shipping, handling, etc.) */
+  cargoAsignado: number;
+  /** Descuentos asignados por valor (S&S, cupones) */
+  descuentoAsignado: number;
+  /** Impuestos asignados por valor */
+  impuestoAsignado: number;
+  /** Costo comercial por unidad: (subtotal + cargos − desc + imp) / cantidad */
+  ctruComercialUnitario: number;
+  /** Costo comercial total de la línea: ctruComercialUnitario × cantidad */
+  ctruComercialTotal: number;
+}
+
+/**
+ * Un bloque de prorrateo = OC completa (si no se dividió) o una sub-orden.
+ */
+export interface BloqueProrrateo {
+  /** ID del bloque. Para OC única: 'OC'. Para sub-orden: el id de la sub-orden */
+  id: string;
+  /** Label legible ("OC única" o "SUB-043-A") */
+  nombre: string;
+  /** Subtotal de productos en el bloque (suma de las líneas) */
+  subtotalProductos: number;
+  /** Total de cargos (shipping + otros) que el proveedor cobró a ESTE bloque */
+  cargos: number;
+  /** Total de descuentos del bloque */
+  descuentos: number;
+  /** Total de impuestos del bloque */
+  impuestos: number;
+  /** Total del bloque: subtotalProductos + cargos − descuentos + impuestos */
+  totalBloque: number;
+  /** Productos del bloque con su prorrateo calculado */
+  productos: ProrrateoProducto[];
+}
+
+/**
+ * Resultado global: todos los bloques + total acumulado de la OC.
+ */
+export interface DesgloseProrrateoOC {
+  /** Bloques a procesar. Si la OC no se dividió: 1 bloque. Si sí: N bloques */
+  bloques: BloqueProrrateo[];
+  /** Total OC = suma de totalBloque de todos los bloques */
+  totalOC: number;
+  /** Fuente de los datos: 'oc_padre' o 'subOrdenes' */
+  fuente: 'oc_padre' | 'subOrdenes';
+}
+
+/**
+ * S42ba — Calcula el prorrateo de cargos al CTRU por producto siguiendo la
+ * regla de negocio confirmada por el usuario:
+ *
+ * **Regla (Ejemplo 3 del modelo)**:
+ *   1. Los cargos/descuentos/impuestos se quedan como el proveedor los asignó
+ *      al bloque (OC completa o sub-orden).
+ *   2. Dentro de cada bloque, esos cargos se reparten a los productos de forma
+ *      **proporcional al valor del producto** (el que más cuesta absorbe más).
+ *   3. El CTRU comercial resultante de un producto en un bloque = (subtotal
+ *      línea + cargos_asignados − descuentos_asignados + impuestos_asignados)
+ *      / cantidad.
+ *   4. Dos unidades del mismo SKU PUEDEN tener CTRU distinto si vinieron de
+ *      sub-órdenes con cargos diferentes (refleja realidad comercial del
+ *      proveedor).
+ *
+ * **Nota**: este CTRU es el **comercial** (antes del landed cost logístico:
+ * aduana, flete viajero, recojo local). Esos se suman al recibir el envío.
+ *
+ * @param orden La OC a prorratear.
+ * @returns Desglose con los bloques y el detalle producto por producto.
+ */
+export function prorratearCargosOC(orden: OrdenCompra): DesgloseProrrateoOC {
+  const tieneSubOrdenes = !!orden.subOrdenes && orden.subOrdenes.length > 0;
+
+  const round2 = (n: number) => Number(n.toFixed(2));
+  const round4 = (n: number) => Number(n.toFixed(4));
+
+  /**
+   * Calcula el prorrateo de un bloque dado su lista de productos y los
+   * totales de cargos/desc/imp que el proveedor asignó a ESE bloque.
+   */
+  const prorratearBloque = (
+    bloqueId: string,
+    nombre: string,
+    productos: Array<{
+      productoId: string;
+      sku?: string;
+      nombreComercial?: string;
+      cantidad: number;
+      costoUnitario: number;
+    }>,
+    cargos: number,
+    descuentos: number,
+    impuestos: number
+  ): BloqueProrrateo => {
+    const subtotal = productos.reduce(
+      (s, p) => s + (p.cantidad || 0) * (p.costoUnitario || 0),
+      0
+    );
+
+    const items: ProrrateoProducto[] = productos.map((p) => {
+      const lineaSubtotal = (p.cantidad || 0) * (p.costoUnitario || 0);
+      const pct = subtotal > 0 ? lineaSubtotal / subtotal : 0;
+
+      const cargoAsignado = round2(cargos * pct);
+      const descuentoAsignado = round2(descuentos * pct);
+      const impuestoAsignado = round2(impuestos * pct);
+
+      const ctruComercialTotal = round2(
+        lineaSubtotal + cargoAsignado - descuentoAsignado + impuestoAsignado
+      );
+      const ctruComercialUnitario =
+        p.cantidad > 0 ? round4(ctruComercialTotal / p.cantidad) : 0;
+
+      return {
+        productoId: p.productoId,
+        sku: p.sku ?? p.productoId,
+        nombre: p.nombreComercial ?? p.sku ?? p.productoId,
+        cantidad: p.cantidad,
+        costoUnitario: p.costoUnitario,
+        subtotal: round2(lineaSubtotal),
+        pctDelBloque: round4(pct),
+        cargoAsignado,
+        descuentoAsignado,
+        impuestoAsignado,
+        ctruComercialUnitario,
+        ctruComercialTotal,
+      };
+    });
+
+    const totalBloque = round2(subtotal + cargos - descuentos + impuestos);
+
+    return {
+      id: bloqueId,
+      nombre,
+      subtotalProductos: round2(subtotal),
+      cargos: round2(cargos),
+      descuentos: round2(descuentos),
+      impuestos: round2(impuestos),
+      totalBloque,
+      productos: items,
+    };
+  };
+
+  // ─── Caso A: OC sin sub-órdenes → 1 solo bloque ───
+  if (!tieneSubOrdenes) {
+    const cargos =
+      (orden.cargosOC ?? []).reduce((s, c) => s + (c.montoUSD || 0), 0) ||
+      (orden.costoEnvioProveedorUSD ?? 0) + (orden.otrosGastosCompraUSD ?? 0);
+    const descuentos =
+      (orden.descuentosOC ?? []).reduce((s, d) => s + (d.montoUSD || 0), 0) ||
+      (orden.descuentoUSD ?? 0);
+    const impuestos =
+      (orden.impuestosOC ?? []).reduce((s, i) => s + (i.montoUSD || 0), 0) ||
+      (orden.impuestoCompraUSD ?? 0);
+
+    const bloque = prorratearBloque(
+      'OC',
+      'OC única',
+      orden.productos ?? [],
+      cargos,
+      descuentos,
+      impuestos
+    );
+
+    return {
+      bloques: [bloque],
+      totalOC: bloque.totalBloque,
+      fuente: 'oc_padre',
+    };
+  }
+
+  // ─── Caso B: OC con sub-órdenes → 1 bloque por sub-orden ───
+  const bloques = orden.subOrdenes!.map((sub) =>
+    prorratearBloque(
+      sub.id,
+      sub.id, // se podría mejorar con un label "SUB-043-A"
+      sub.productos ?? [],
+      sub.shippingUSD ?? 0,
+      sub.descuentoUSD ?? 0,
+      sub.impuestoUSD ?? 0
+    )
+  );
+
+  const totalOC = round2(bloques.reduce((s, b) => s + b.totalBloque, 0));
+
+  return {
+    bloques,
+    totalOC,
+    fuente: 'subOrdenes',
+  };
+}

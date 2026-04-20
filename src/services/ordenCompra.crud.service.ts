@@ -780,21 +780,101 @@ export async function confirmarOC(
     por_cantidad: 'fijo_por_unidad',
   };
 
-  // Helper: heredar cargosOC a un envio creado
-  const heredarCargos = async (targetEnvioId: string) => {
-    if (orden.cargosOC && orden.cargosOC.length > 0) {
-      for (const cargo of orden.cargosOC) {
-        await envioCrudService.agregarCostoLanded(targetEnvioId, {
-          categoriaCostoId: `cargo-oc-${cargo.id}`,
-          categoriaCostoNombre: cargo.concepto || 'Cargo OC',
-          monto: cargo.montoUSD,
-          moneda: 'USD',
-          montoPEN: cargo.montoUSD * (orden.tcReferencial || orden.tcCompra || 1),
-          tipoCambio: orden.tcReferencial || orden.tcCompra,
-          metodoProrrateo: (metodoProrrateoMap[cargo.metodoProrrateo] || 'total_por_valor') as any,
-          pagado: false,
-        }, userId);
+  // S42ba — Helper: heredar cargos comerciales al envío como costosLanded.
+  // La regla del usuario (Ejemplo 3): los cargos se asignan al bloque (OC o
+  // sub-orden) según lo que el proveedor cobró, y dentro del bloque se
+  // prorratean por valor a cada producto. Este helper se llama una vez por
+  // envío, con la info del bloque correspondiente.
+  //
+  // Sobre-carga:
+  // - Si `subOrden` se pasa → hereda los 3 consolidados (shipping, descuento,
+  //   impuesto) de ESA sub-orden, reflejando lo que el proveedor facturó en
+  //   esa tanda específica.
+  // - Si no → hereda los cargos originales granulares de la OC padre
+  //   (cargosOC[] + descuentosOC[] + impuestosOC[]) manteniendo concepto.
+  const tc = orden.tcReferencial || orden.tcCompra || 1;
+  const heredarCargos = async (
+    targetEnvioId: string,
+    subOrden?: import('../types/ordenCompra.types').SubOrdenCompra
+  ) => {
+    const items: Array<{
+      id: string;
+      concepto: string;
+      monto: number; // positivo = cargo/impuesto; negativo = descuento
+    }> = [];
+
+    if (subOrden) {
+      // ─── Bloque: sub-orden ───
+      if ((subOrden.shippingUSD ?? 0) > 0) {
+        items.push({
+          id: `sub-${subOrden.id}-shipping`,
+          concepto: `Cargos del proveedor · ${subOrden.id}`,
+          monto: subOrden.shippingUSD!,
+        });
       }
+      if ((subOrden.descuentoUSD ?? 0) > 0) {
+        items.push({
+          id: `sub-${subOrden.id}-descuento`,
+          concepto: `Descuento del proveedor · ${subOrden.id}`,
+          monto: -subOrden.descuentoUSD!, // negativo: reduce el CTRU
+        });
+      }
+      if ((subOrden.impuestoUSD ?? 0) > 0) {
+        items.push({
+          id: `sub-${subOrden.id}-impuesto`,
+          concepto: `Impuesto del proveedor · ${subOrden.id}`,
+          monto: subOrden.impuestoUSD!,
+        });
+      }
+    } else {
+      // ─── Bloque: OC única ─── (mantenemos conceptos granulares)
+      for (const c of orden.cargosOC ?? []) {
+        if (c.montoUSD > 0) {
+          items.push({
+            id: `cargo-oc-${c.id}`,
+            concepto: c.concepto || 'Cargo OC',
+            monto: c.montoUSD,
+          });
+        }
+      }
+      for (const d of orden.descuentosOC ?? []) {
+        if (d.montoUSD > 0) {
+          items.push({
+            id: `desc-oc-${d.id}`,
+            concepto: d.concepto || 'Descuento OC',
+            monto: -d.montoUSD,
+          });
+        }
+      }
+      for (const i of orden.impuestosOC ?? []) {
+        if (i.montoUSD > 0) {
+          items.push({
+            id: `imp-oc-${i.id}`,
+            concepto: i.concepto || 'Impuesto OC',
+            monto: i.montoUSD,
+          });
+        }
+      }
+    }
+
+    // Persistir todos los items como costosLanded del envío
+    for (const item of items) {
+      await envioCrudService.agregarCostoLanded(
+        targetEnvioId,
+        {
+          categoriaCostoId: item.id,
+          categoriaCostoNombre: item.concepto,
+          monto: item.monto,
+          moneda: 'USD',
+          montoPEN: item.monto * tc,
+          tipoCambio: tc,
+          // Método uniforme `total_por_valor` — refleja la regla del
+          // usuario: "el que más cuesta es el que más descuento absorbe".
+          metodoProrrateo: 'total_por_valor' as any,
+          pagado: false,
+        },
+        userId
+      );
     }
   };
 
@@ -847,7 +927,8 @@ export async function confirmarOC(
         esDDP, // S38-009: sin casilla intermedia, proveedor entrega directo a destino
       }, userId);
 
-      await heredarCargos(envioResult.id);
+      // S42ba — Heredar cargos de ESTA sub-orden específica (no los globales)
+      await heredarCargos(envioResult.id, subOrden);
 
       // Vincular unidades con su envio y sub-orden
       const linkBatch = createBatch(db);

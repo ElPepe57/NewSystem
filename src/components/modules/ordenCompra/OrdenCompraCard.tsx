@@ -11,6 +11,7 @@ import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
 import { ConfirmarOCModal } from './ConfirmarOCModal';
+import { DesgloseCTRU } from './DesgloseCTRU';
 
 interface OrdenCompraCardProps {
   orden: OrdenCompra;
@@ -585,6 +586,14 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
           </div>
         );
       })()}
+
+      {/* S42ba — Desglose CTRU por producto (prorrateo de cargos del proveedor).
+          Read-only, usa el helper prorratearCargosOC() que aplica la regla del
+          usuario: cargos se quedan como el proveedor los asignó a cada bloque
+          (OC o sub-orden), y dentro de cada bloque se reparten proporcional al
+          valor del producto. Si hay sub-órdenes con cargos desiguales, los
+          productos del mismo SKU en distintas sub-órdenes tendrán CTRU distinto. */}
+      <DesgloseCTRU orden={orden} />
 
       {/* S42ao — Tracking / Envío vinculado (estilo mockup S41 L1075-1138):
           card teal-50 con 4 columnas (Ruta / Courier / Tracking / Despachado). */}

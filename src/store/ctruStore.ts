@@ -11,6 +11,7 @@ import { timed } from '../lib/perf';
 import type { Unidad } from '../types/unidad.types';
 import type { Gasto } from '../types/gasto.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
+import { getCargosEfectivosOC } from '../utils/ordenCompra.helpers';
 import type { Venta } from '../types/venta.types';
 import type { Producto } from '../types/producto.types';
 
@@ -1101,10 +1102,16 @@ export const useCTRUStore = create<CTRUState>((set, get) => ({
 
         const totalUnidades = oc.productos.reduce((sum, p) => sum + p.cantidad, 0);
         if (totalUnidades > 0) {
+          // S42ba — Fuente de verdad: helper getCargosEfectivosOC. Si la OC
+          // tiene sub-órdenes con cargos desiguales (regla del Ejemplo 3),
+          // los totales vienen agregados desde ellas. Si no, de la OC padre.
+          // Esto reemplaza los campos legacy (impuestoCompraUSD, etc.) que
+          // ignoraban las sub-órdenes.
+          const efectivos = getCargosEfectivosOC(oc);
           ocCostBreakdownMap.set(oc.id!, {
-            impuestoPerUnit: (oc.impuestoCompraUSD ?? 0) / totalUnidades,
-            envioPerUnit: (oc.costoEnvioProveedorUSD ?? 0) / totalUnidades,
-            otrosPerUnit: (oc.otrosGastosCompraUSD ?? 0) / totalUnidades
+            impuestoPerUnit: efectivos.impuestos / totalUnidades,
+            envioPerUnit: efectivos.cargos / totalUnidades,
+            otrosPerUnit: 0, // Absorbido en `cargos` del helper (no hay separado)
           });
         }
       }
