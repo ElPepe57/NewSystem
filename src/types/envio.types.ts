@@ -562,6 +562,51 @@ export interface CrearEnvioJPayload {
 }
 
 /**
+ * S48 — Payload para crear un envío Caso E (Traslado interno Perú ↔ Perú)
+ * desde el Wizard E. Consumido por `envioCrudService.crearEnvioE()`.
+ *
+ * Diferencias vs. T2/J:
+ *   - Origen y destino son ambos almacenes Perú (casilla tipo='almacen_propio')
+ *   - Todo en PEN (no hay USD, no diferencial cambiario)
+ *   - No hay aduana, solo transporte local
+ *   - Motivo del traslado obligatorio (consolidacion / capacidad / costo_menor / otro)
+ *   - Colaborador transporte opcional (puede ser un transportista interno sin costo)
+ */
+export interface CrearEnvioEPayload {
+  /** ID del almacén Perú origen */
+  casillaOrigenId: string;
+  /** ID del almacén Perú destino */
+  casillaDestinoId: string;
+  /** Motivo del traslado interno (obligatorio) */
+  motivo: MotivoEnvioInterno;
+  /** Detalle adicional del motivo cuando es 'otro' */
+  motivoDetalle?: string;
+  /** Colaborador transporte (opcional — interno puede no tener costo) */
+  colaboradorTransporteId?: string;
+  /** Tracking/guía del transporte (opcional) */
+  numeroTracking?: string;
+  /** Notas internas */
+  notas?: string;
+  /** Unidades a trasladar */
+  unidades: Array<{
+    unidadId: string;
+    productoId: string;
+    sku: string;
+    codigoUnidad: string;
+    pesoLibras?: number;
+  }>;
+  /** Costos en PEN (flete local, combustible, peaje, etc.) — opcional */
+  costosPEN: Array<{
+    categoriaCostoId: string;
+    categoriaCostoNombre: string;
+    descripcion?: string;
+    montoPEN: number;
+    metodoProrrateo: MetodoProrrateo;
+    detalleVariado?: Record<string, number>;
+  }>;
+}
+
+/**
  * Filtros para busqueda de envios
  */
 export interface EnvioFiltros {

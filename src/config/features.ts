@@ -103,6 +103,22 @@ export const FEATURES = {
    *   3. true global tras validación end-to-end
    */
   WIZARD_J: false,
+
+  /**
+   * S48 — Wizard E (Traslado interno Almacén Perú ↔ Almacén Perú · caso E del
+   * Modelo Envíos Transversal). Absorbe el concepto legacy de Transferencias
+   * internas bajo el hub unificado de Envíos.
+   *
+   * Controla:
+   *   - Visibilidad del botón "Traslado interno" en la vista /envios
+   *   - Acceso a la ruta `/envios/nuevo-e`
+   *
+   * Diferencias clave vs. T2/J:
+   *   - Todo en PEN (sin USD ni diferencial cambiario)
+   *   - Sin aduana, solo transporte local
+   *   - Motivo obligatorio (consolidación / capacidad / costo menor / otro)
+   */
+  WIZARD_E: false,
 } as const;
 
 /**
@@ -159,6 +175,21 @@ export function isWizardJEnabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_WIZARD_J') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S48 — Helper análogo para el flag WIZARD_E (Traslado interno Perú ↔ Perú).
+ */
+export function isWizardEEnabled(): boolean {
+  if (FEATURES.WIZARD_E) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_WIZARD_E') === 'true';
     } catch {
       return false;
     }

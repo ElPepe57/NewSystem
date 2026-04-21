@@ -28,8 +28,11 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
   const esDDP = (envio as any).esDDP === true;
   const origen = envio.origenTipo;
   const hayOC = !!envio.ordenCompraId;
+  const origenPais = envio.origenCasillaPais;
   const destinoPais = envio.destinoCasillaPais;
   const recojoEnOrigen = (envio as any).recojoEnOrigen === true;
+  const origenEsPeru = origenPais === 'Peru' || origenPais === 'Peru_local';
+  const destinoEsPeru = destinoPais === 'Peru' || destinoPais === 'Peru_local';
 
   // D — Recojo directo: OC donde el colaborador recoge (unidades nacen en su casilla)
   if (hayOC && recojoEnOrigen) return 'D';
@@ -40,17 +43,23 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
   // A — Proveedor → Casilla (OC sin DDP, origen=proveedor)
   if (hayOC && origen === 'proveedor' && !esDDP) return 'A';
 
-  // C — Casilla → Perú (origen=casilla, destino es Perú)
-  if (origen === 'casilla' && (destinoPais === 'Peru' || destinoPais === 'Peru_local')) {
+  // S48 — E: Traslado interno Perú ↔ Perú (origen y destino ambos en Perú)
+  // Debe evaluarse ANTES que C para no clasificar Perú→Perú como C.
+  if (origen === 'casilla' && origenEsPeru && destinoEsPeru) {
+    return 'E';
+  }
+
+  // C — Casilla internacional → Perú (origen=casilla NO Perú, destino Perú)
+  if (origen === 'casilla' && !origenEsPeru && destinoEsPeru) {
     return 'C';
   }
 
-  // J — Casilla ↔ Casilla intl (origen=casilla, destino NO es Perú)
-  if (origen === 'casilla' && destinoPais && destinoPais !== 'Peru' && destinoPais !== 'Peru_local') {
+  // J — Casilla ↔ Casilla intl (origen=casilla intl, destino NO Perú)
+  if (origen === 'casilla' && !origenEsPeru && destinoPais && !destinoEsPeru) {
     return 'J';
   }
 
-  // E/F/G/I — requieren modelo S48+ (destinoTipo explícito)
+  // F/G/I — requieren destinoTipo explícito (S49+ para ventas y terceros)
   return null;
 }
 

@@ -11,6 +11,7 @@ import type {
   EstadoEnvio, CostoLanded, RecepcionEnvio, ResumenEnvios,
   CrearEnvioT2Payload,
   CrearEnvioJPayload,
+  CrearEnvioEPayload,
   SubEnvioT1, EstadoSubEnvio,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
@@ -625,6 +626,100 @@ export const envioCrudService = {
 
     logger.success(
       `[crearEnvioJ] Envío J creado: ${resultado.numeroEnvio} · variante ${variante} · ${unidades.length} uds · ${costos.length} costos${advertenciaCambioPais ? ' · ⚠ cambio país' : ''}`
+    );
+
+    return resultado;
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // S48 — Wizard E: Traslado interno Almacén Perú ↔ Almacén Perú
+  // Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §4 (Caso E, D-1 absorbe Transferencias)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * S48 — Crea un envío Caso E (traslado interno entre dos almacenes Perú).
+   *
+   * Diferencias clave vs. T2/J:
+   *   - origenCasillaPais === 'Peru' && destinoCasillaPais === 'Peru'
+   *   - Todo en PEN (costos.montoPEN directo, sin conversión USD)
+   *   - No hay aduana ni diferencial cambiario
+   *   - Motivo del traslado obligatorio
+   *
+   * Flujo:
+   *   1. Construye EnvioUnidad[] con estado 'pendiente'
+   *   2. Invoca `crear()` genérico con origenTipo='casilla', tipo='interna_origen',
+   *      motivo + motivoDetalle del traslado
+   *   3. Agrega costos landed vía `agregarCostoLanded()` con moneda='PEN' y
+   *      tipoCambio=1 (no conversión en Caso E)
+   *
+   * Retorna el envío creado con id + número.
+   */
+  async crearEnvioE(
+    payload: CrearEnvioEPayload,
+    userId: string
+  ): Promise<{ id: string; numeroEnvio: string }> {
+    const {
+      casillaOrigenId,
+      casillaDestinoId,
+      motivo,
+      motivoDetalle,
+      colaboradorTransporteId,
+      numeroTracking,
+      unidades,
+      costosPEN,
+      notas,
+    } = payload;
+
+    // 1. Armar EnvioUnidad[]
+    const unidadesDetalle: EnvioUnidad[] = unidades.map((u) => ({
+      unidadId: u.unidadId,
+      productoId: u.productoId,
+      sku: u.sku,
+      codigoUnidad: u.codigoUnidad,
+      estadoEnvio: 'pendiente' as const,
+      ...(u.pesoLibras ? { pesoLibras: u.pesoLibras } : {}),
+    }));
+
+    // 2. EnvioFormData con tipo='interna_origen' (motivo Perú→Perú)
+    const formData: EnvioFormData = {
+      origenTipo: 'casilla',
+      origenCasillaId: casillaOrigenId,
+      destinoCasillaId: casillaDestinoId,
+      colaboradorId: colaboradorTransporteId || undefined,
+      unidadesIds: unidades.map((u) => u.unidadId),
+      unidadesDetalle,
+      numeroTracking: numeroTracking || undefined,
+      tipo: 'interna_origen',
+      motivo,
+      ...(motivoDetalle ? { motivoDetalle } : {}),
+      ...(notas ? { notas } : {}),
+    };
+
+    // 3. Crear envío base (D-15: Caso E nace en 'borrador')
+    const resultado = await this.crear(formData, userId);
+
+    // 4. Agregar costos landed (todo en PEN, tipoCambio=1 implícito para Caso E)
+    for (const costo of costosPEN) {
+      await this.agregarCostoLanded(
+        resultado.id,
+        {
+          categoriaCostoId: costo.categoriaCostoId,
+          categoriaCostoNombre: costo.categoriaCostoNombre,
+          descripcion: costo.descripcion,
+          monto: costo.montoPEN,
+          moneda: 'PEN',
+          montoPEN: costo.montoPEN,
+          tipoCambio: 1,
+          metodoProrrateo: costo.metodoProrrateo,
+          ...(costo.detalleVariado ? { detalleVariado: costo.detalleVariado } : {}),
+          pagado: false,
+        },
+        userId
+      );
+    }
+
+    logger.success(
+      `[crearEnvioE] Envío E (traslado interno) creado: ${resultado.numeroEnvio} · motivo ${motivo} · ${unidades.length} uds · ${costosPEN.length} costos PEN`
     );
 
     return resultado;
