@@ -133,7 +133,7 @@ export const NuevoEnvioMenu: React.FC<NuevoEnvioMenuProps> = ({ onNuevoGenerico 
       {open && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-80 max-h-[32rem] overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-1"
+          className="absolute left-0 mt-2 w-80 max-h-[32rem] overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-1"
         >
           {/* Header */}
           <div className="px-3 py-2 border-b border-slate-100">
