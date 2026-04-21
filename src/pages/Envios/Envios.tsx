@@ -2,7 +2,8 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 // S44 — Feature flag para el Wizard T2 (Casilla Intl → Almacén Perú)
 // S47 — Feature flag para el Wizard J (Casilla Intl ↔ Casilla Intl)
-import { isWizardT2Enabled, isWizardJEnabled } from "../../config/features";
+// S48 — Feature flag para el Wizard E (Traslado interno Perú ↔ Perú)
+import { isWizardT2Enabled, isWizardJEnabled, isWizardEEnabled } from "../../config/features";
 import {
   ArrowRightLeft,
   Truck,
@@ -163,6 +164,8 @@ export const Envios: React.FC = () => {
   const wizardT2Enabled = useMemo(() => isWizardT2Enabled(), []);
   // S47 — Feature flag del Wizard J (Casilla Internacional ↔ Casilla Internacional)
   const wizardJEnabled = useMemo(() => isWizardJEnabled(), []);
+  // S48 — Feature flag del Wizard E (Traslado interno Almacén Perú ↔ Almacén Perú)
+  const wizardEEnabled = useMemo(() => isWizardEEnabled(), []);
 
   // S40 Bloque B: KPI reclamos
   const {
@@ -785,6 +788,19 @@ export const Envios: React.FC = () => {
               >
                 <ArrowRightLeft className="h-4 w-4 mr-2" />
                 Entre casillas
+              </Button>
+            )}
+            {/* S48 — Botón del Wizard E (Traslado interno Perú ↔ Perú).
+                Visible sólo con feature flag WIZARD_E activa */}
+            {wizardEEnabled && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/envios/nuevo-e')}
+                title="Wizard E (S48) — Traslado interno entre dos almacenes Perú (consolidación, capacidad, costo menor, etc.)"
+              >
+                <Truck className="h-4 w-4 mr-2" />
+                Traslado interno
               </Button>
             )}
           </div>
