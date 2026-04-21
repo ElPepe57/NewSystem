@@ -24,6 +24,7 @@ import {
   Ban,
   ThumbsUp,
   AlertOctagon,
+  Package,
 } from 'lucide-react';
 import { Modal, Button, Badge } from '../../common';
 import type {
@@ -37,6 +38,13 @@ import type { Envio, IncidenciaEnvio } from '../../../types/envio.types';
 import type { MetodoTesoreria } from '../../../types/tesoreria.types';
 import { useReclamoStore } from '../../../store/reclamoStore';
 import { useToastStore } from '../../../store/toastStore';
+// S45 — Flujo de reemplazo físico (D-16)
+import {
+  ResolverReclamoModal,
+  type ResolverReclamoModalResult,
+} from '../../../pages/Envios/SubEnviosT1';
+import { reclamoService } from '../../../services/reclamo.service';
+import { isSubenviosT1Enabled } from '../../../config/features';
 
 interface ReclamoPanelProps {
   /** Si viene: modo ver/avanzar. Si no: modo crear */
@@ -143,6 +151,9 @@ export const ReclamoPanel: React.FC<ReclamoPanelProps> = ({
   const [mostrarAceptarForm, setMostrarAceptarForm] = useState(false);
   const [mostrarCobroForm, setMostrarCobroForm] = useState(false);
   const [mostrarRechazoForm, setMostrarRechazoForm] = useState(false);
+  // S45 — Modal de resolución con 3 salidas (D-16)
+  const [mostrarResolverModal, setMostrarResolverModal] = useState(false);
+  const subenviosT1Flag = useMemo(() => isSubenviosT1Enabled(), []);
 
   const [motivoDisputa, setMotivoDisputa] = useState('');
   const [montoAcordado, setMontoAcordado] = useState('');
@@ -267,6 +278,58 @@ export const ReclamoPanel: React.FC<ReclamoPanelProps> = ({
       return;
     }
     return runAction('rechazar', () => rechazarReclamo(reclamo.id, motivoRechazo.trim(), userId), 'Reclamo rechazado — merma registrada');
+  };
+
+  // S45 (D-16) — Handler del ResolverReclamoModal: delega según tipoResolucion
+  const handleResolverReclamo = async (result: ResolverReclamoModalResult) => {
+    if (!reclamo) return;
+
+    if (result.tipoResolucion === 'reembolso') {
+      // Flujo estándar: aceptar con monto + registrar cobro (si hay cuenta)
+      const monto = (result.montoAcordadoUSD ?? 0) * (reclamo.tipoCambio ?? 1);
+      await runAction(
+        'resolver-reembolso',
+        async () => {
+          await aceptarReclamo(reclamo.id, monto > 0 ? monto : reclamo.montoReclamadoPEN, userId);
+          if (result.cuentaCobroId) {
+            await registrarCobro(reclamo.id, {
+              cuentaId: result.cuentaCobroId,
+              metodoPago: 'transferencia_bancaria' as MetodoTesoreria,
+              montoCobradoPEN: monto > 0 ? monto : reclamo.montoReclamadoPEN,
+              fecha: result.fechaCobroEstimada ?? new Date(),
+            }, userId);
+          }
+        },
+        'Reclamo resuelto con reembolso'
+      );
+    } else if (result.tipoResolucion === 'reemplazo') {
+      // S45 D-16: crear sub-tanda de reemplazo en el envío padre + actualizar reclamo
+      await runAction(
+        'resolver-reemplazo',
+        async () => {
+          await reclamoService.resolverConReemplazo(
+            reclamo.id,
+            {
+              reemplazoTracking: result.reemplazoTracking,
+              reemplazoFechaEstimada: result.reemplazoFechaEstimada,
+              notas: result.notas,
+            },
+            userId
+          );
+        },
+        'Reclamo resuelto con reemplazo — sub-tanda creada en el envío'
+      );
+    } else if (result.tipoResolucion === 'merma') {
+      // Flujo estándar: rechazar con motivo (merma contable)
+      const motivo = result.notas?.trim() || 'Destinatario no asume — merma contable';
+      await runAction(
+        'resolver-merma',
+        () => rechazarReclamo(reclamo.id, motivo, userId),
+        'Reclamo resuelto como merma'
+      );
+    }
+
+    setMostrarResolverModal(false);
   };
 
   // ─── Render ────────────────────────────────────────────────────────────
@@ -625,7 +688,15 @@ export const ReclamoPanel: React.FC<ReclamoPanelProps> = ({
                         Marcar en disputa
                       </Button>
                     )}
-                    <Button variant="primary" onClick={() => { setMontoAcordado(reclamo.montoReclamadoPEN.toFixed(2)); setMostrarAceptarForm(true); }}>
+                    {/* S45 (D-16) — botón unificado "Resolver" con 3 salidas.
+                        Solo visible con feature flag SUBENVIOS_T1 activo. */}
+                    {subenviosT1Flag && (
+                      <Button variant="primary" onClick={() => setMostrarResolverModal(true)}>
+                        <Package className="w-4 h-4 mr-1.5" />
+                        Resolver (reembolso/reemplazo/merma)
+                      </Button>
+                    )}
+                    <Button variant={subenviosT1Flag ? 'secondary' : 'primary'} onClick={() => { setMontoAcordado(reclamo.montoReclamadoPEN.toFixed(2)); setMostrarAceptarForm(true); }}>
                       <ThumbsUp className="w-4 h-4 mr-1.5" />
                       Aceptar
                     </Button>
@@ -685,6 +756,29 @@ export const ReclamoPanel: React.FC<ReclamoPanelProps> = ({
           </div>
         )}
       </div>
+
+      {/* S45 (D-16) — Modal "Resolver reclamo" con 3 salidas (reembolso/reemplazo/merma) */}
+      {reclamo && (
+        <ResolverReclamoModal
+          isOpen={mostrarResolverModal}
+          onClose={() => setMostrarResolverModal(false)}
+          reclamo={{
+            numeroReclamo: reclamo.numeroReclamo,
+            envioNumero: reclamo.envioNumero,
+            unidadesCount: reclamo.cantidadUnidades,
+            unidadLabel: envio?.productosSummary?.[0]?.nombre,
+            montoReclamadoUSD: reclamo.montoReclamadoUSD ?? reclamo.montoReclamadoPEN,
+            montoReclamadoPEN: reclamo.montoReclamadoPEN,
+            destinatarioNombre: reclamo.destinatarioNombre,
+          }}
+          onConfirm={handleResolverReclamo}
+          loading={
+            actionPending === 'resolver-reembolso' ||
+            actionPending === 'resolver-reemplazo' ||
+            actionPending === 'resolver-merma'
+          }
+        />
+      )}
     </Modal>
   );
 };

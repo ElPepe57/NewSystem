@@ -54,6 +54,23 @@ export const FEATURES = {
    * desde casilla internacional → Perú (caso C del Modelo Envíos Transversal, D-1).
    */
   WIZARD_T2: false,
+
+  /**
+   * S45 — Sub-envíos T1 + Reemplazo físico (D-16)
+   *
+   * Controla la visibilidad de:
+   *   - Tab "Tandas" en EnvioDetailModal (solo para envíos T1: origenTipo='proveedor')
+   *   - Botón "Resolver con reemplazo" en el panel de reclamo
+   *
+   * Al activarse, envíos existentes que no tengan `subEnvios[]` funcionan planos
+   * (sin tandas). El usuario puede decidir fraccionar o no cada envío.
+   *
+   * Flujo de rollout idéntico a WIZARD_T2:
+   *   1. false (default) → código desplegado, sin acceso del usuario
+   *   2. localStorage.setItem('FEATURE_SUBENVIOS_T1', 'true') para UAT individual
+   *   3. true global tras validación end-to-end
+   */
+  SUBENVIOS_T1: false,
 } as const;
 
 /**
@@ -65,6 +82,21 @@ export function isWizardT2Enabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_WIZARD_T2') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S45 — Helper análogo para el flag SUBENVIOS_T1.
+ */
+export function isSubenviosT1Enabled(): boolean {
+  if (FEATURES.SUBENVIOS_T1) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_SUBENVIOS_T1') === 'true';
     } catch {
       return false;
     }

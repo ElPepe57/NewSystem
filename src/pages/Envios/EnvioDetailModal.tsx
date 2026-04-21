@@ -22,7 +22,7 @@ import {
   Users,
 } from 'lucide-react';
 import { Modal, Badge, Button } from '../../components/common';
-import type { Envio, EstadoEnvio, TipoEnvio } from '../../types/envio.types';
+import type { Envio, EstadoEnvio, TipoEnvio, EstadoSubEnvio, SubEnvioT1 } from '../../types/envio.types';
 import type { Producto } from '../../types/producto.types';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { cn } from '../../design-system';
@@ -31,6 +31,11 @@ import { GestionIncidenciasModal } from './GestionIncidenciasModal';
 import { LiberarAduanaModal } from './LiberarAduanaModal';
 import { useToastStore } from '../../store/toastStore';
 import { getEmojiPorProducto } from '../../components/modules/ordenCompra/OCWizardV3/productoEmoji';
+// S45 — Sub-envíos T1 (tandas del proveedor · D-3)
+import { SubEnviosTimeline, type SubEnviosTimelineProductoMeta } from './SubEnviosT1';
+import type { AgregarTandaModalResult } from './SubEnviosT1';
+import { envioCrudService } from '../../services/envio.crud.service';
+import { isSubenviosT1Enabled } from '../../config/features';
 
 // ════════════════════════════════════════════════════════════════════════════
 // EnvioDetailModal — S41 Tanda 8 (reescritura completa alineada al mockup S40)
@@ -75,7 +80,8 @@ interface EnvioDetailModalProps {
   onReconciliarPago: (envio: Envio) => void;
 }
 
-type TabActivo = 'productos' | 'recepciones' | 'costos' | 'incidencias' | 'timeline';
+// S45 — Tab 'tandas' solo visible para envíos T1 (casos A/B/D) cuando flag activa
+type TabActivo = 'productos' | 'recepciones' | 'costos' | 'incidencias' | 'tandas' | 'timeline';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Main
@@ -196,10 +202,92 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
       recepciones: recepciones.length,
       costos: 0, // TODO: costos landed count
       incidencias: incidenciasAbiertas.length,
+      tandas: envio.subEnvios?.length ?? 0,
       timeline: 0,
     }),
-    [envio.productosSummary, recepciones, incidenciasAbiertas]
+    [envio.productosSummary, recepciones, incidenciasAbiertas, envio.subEnvios]
   );
+
+  // ─── S45: Tab "Tandas" visible solo para envíos T1 (A/B/D) con flag activa ─
+  const subenviosT1Flag = useMemo(() => isSubenviosT1Enabled(), []);
+  const esEnvioT1 = envio.origenTipo === 'proveedor';
+  const mostrarTabTandas = subenviosT1Flag && esEnvioT1 && envio.estado !== 'cancelada';
+
+  // Metadata de productos para el SubEnviosTimeline (desnormalizada del envío)
+  const productosMetaTandas: Record<string, SubEnviosTimelineProductoMeta> = useMemo(() => {
+    const map: Record<string, SubEnviosTimelineProductoMeta> = {};
+    for (const p of envio.productosSummary ?? []) {
+      const { emoji } = getEmojiPorProducto({
+        nombreComercial: p.nombre,
+        marca: p.marca ?? '',
+        atributosSkincare: p.atributosSkincare,
+      });
+      map[p.productoId] = {
+        productoId: p.productoId,
+        nombre: p.nombre,
+        emoji,
+      };
+    }
+    return map;
+  }, [envio.productosSummary]);
+
+  // ─── Handlers de sub-tandas (S45) ───────────────────────────────────────
+  const handleAgregarTanda = async (result: AgregarTandaModalResult) => {
+    if (!userId) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    try {
+      await envioCrudService.crearSubTandaT1(
+        envio.id,
+        {
+          unidadesIds: result.unidadesIds,
+          tipo: 'normal',
+          estado: result.estadoInicial,
+          numeroTrackingProveedor: result.numeroTrackingProveedor,
+          fechaEstimadaEntrega: result.fechaEstimadaEntrega,
+        },
+        userId
+      );
+      toast.success('Tanda creada correctamente');
+      // El padre que abrió este modal re-fetchea el envío; el componente se re-renderiza
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al crear tanda';
+      toast.error(msg);
+      throw err; // deja que el modal maneje su loading
+    }
+  };
+
+  const handleTransicionarTanda = async (subEnvioId: string, nuevoEstado: EstadoSubEnvio) => {
+    if (!userId) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    try {
+      await envioCrudService.transicionarSubEnvio(envio.id, subEnvioId, nuevoEstado, userId, {
+        ...(nuevoEstado === 'en_transito' ? { fechaDespachoProveedor: new Date() } : {}),
+        ...(nuevoEstado === 'entregado' ? { fechaEntrega: new Date() } : {}),
+      });
+      toast.success(`Tanda marcada como ${nuevoEstado.replace('_', ' ')}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al transicionar tanda';
+      toast.error(msg);
+    }
+  };
+
+  const handleEliminarTanda = async (subEnvioId: string) => {
+    if (!userId) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    try {
+      await envioCrudService.eliminarSubTanda(envio.id, subEnvioId, userId);
+      toast.success('Tanda eliminada');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al eliminar tanda';
+      toast.error(msg);
+    }
+  };
 
   // ═══ Render ════════════════════════════════════════════════════════════
   return (
@@ -401,6 +489,16 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               badge={badgesTab.incidencias}
               badgeColor={badgesTab.incidencias > 0 ? 'red' : 'slate'}
             />
+            {/* S45 — Tab "Tandas" solo visible para envíos T1 con feature flag activa */}
+            {mostrarTabTandas && (
+              <TabButton
+                active={tab === 'tandas'}
+                onClick={() => setTab('tandas')}
+                icon={<Package className="w-3 h-3" />}
+                label="Tandas"
+                badge={badgesTab.tandas}
+              />
+            )}
             <TabButton
               active={tab === 'timeline'}
               onClick={() => setTab('timeline')}
@@ -427,6 +525,16 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                   onGestionar={() => setShowGestionIncidencias(true)}
                   onLiberarAduana={() => setShowLiberarAduana(true)}
                   tieneAduanaPendiente={tieneAduanaPendiente}
+                />
+              )}
+              {tab === 'tandas' && mostrarTabTandas && (
+                <SubEnviosTimeline
+                  envio={envio}
+                  productosMeta={productosMetaTandas}
+                  onAgregarTanda={handleAgregarTanda}
+                  onTransicionarTanda={handleTransicionarTanda}
+                  onEliminarTanda={handleEliminarTanda}
+                  onReportarIncidencia={() => setShowGestionIncidencias(true)}
                 />
               )}
               {tab === 'timeline' && <TabTimeline envio={envio} />}
