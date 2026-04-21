@@ -28,6 +28,10 @@ const WizardEPage = React.lazy(() =>
 const WizardFPage = React.lazy(() =>
   import('./pages/Envios/EnvioWizardF').then(m => ({ default: m.WizardFPage }))
 );
+// S50 — Wizard I (Almacén propio → Almacén tercero) · detrás de feature flag WIZARD_I
+const WizardIPage = React.lazy(() =>
+  import('./pages/Envios/EnvioWizardI').then(m => ({ default: m.WizardIPage }))
+);
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
 const OrdenesCompra = React.lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
@@ -162,6 +166,7 @@ function App() {
               <Route path="envios/nuevo-j" element={<WizardJPage />} />
               <Route path="envios/nuevo-e" element={<WizardEPage />} />
               <Route path="envios/nuevo-f" element={<WizardFPage />} />
+              <Route path="envios/nuevo-i" element={<WizardIPage />} />
               <Route path="red-logistica" element={<RedLogistica />} />
               <Route path="unidades" element={<Unidades />} />
               <Route path="escaner" element={<Escaner />} />
