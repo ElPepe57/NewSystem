@@ -30,3 +30,13 @@ export {
   selectTotalCostosAdicionales,
   selectTotalLandedUSD,
 } from './envioWizardJTypes';
+
+// ─── Átomos (Fase 2) ────────────────────────────────────────────────────────
+export { WarningCambioPaisBanner } from './WarningCambioPaisBanner';
+export type { WarningCambioPaisBannerProps } from './WarningCambioPaisBanner';
+
+export { VarianteJIndicator } from './VarianteJIndicator';
+export type { VarianteJIndicatorProps } from './VarianteJIndicator';
+
+export { CasillaDestinoColaboradorPicker } from './CasillaDestinoColaboradorPicker';
+export type { CasillaDestinoColaboradorPickerProps } from './CasillaDestinoColaboradorPicker';
