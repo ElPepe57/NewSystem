@@ -4,7 +4,17 @@ import { ShoppingCart, User, Calendar, DollarSign, TrendingUp, Package, Truck, C
 import { Badge, Button, StatusTimeline } from '../../common';
 import { StatusBadge, DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
+// S52 — Capa 3: plantillas canónicas del ERP (ver docs/DESIGN_PATTERNS.md)
+import {
+  EntityHeader,
+  EntityPipeline,
+  type EntityPipelineStep,
+  NextActionBanner,
+  KpiRow,
+} from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
+// S52 — CheckCircle para el banner CTA (Confirmar Venta en estado cotizacion)
+import { CheckCircle } from 'lucide-react';
 import type { Venta, EstadoVenta, EstadoPago } from '../../../types/venta.types';
 import type { Requerimiento } from '../../../types/requerimiento.types';
 import type { OrdenCompra } from '../../../types/ordenCompra.types';
@@ -339,55 +349,187 @@ export const VentaCard: React.FC<VentaCardProps> = ({
     return actions[venta.estado];
   }, [venta.estado, onConfirmar, onAsignarInventario, onProgramarEntrega, onMarcarEntregada]);
 
+  // S52 — Pipeline steps mapeados al formato de EntityPipeline (Capa 3)
+  const entityPipelineSteps: EntityPipelineStep[] = useMemo(
+    () =>
+      timelineSteps.map((s) => ({
+        id: s.id,
+        label: s.label,
+        fecha: s.date,
+        status:
+          s.status === 'completed'
+            ? 'completed'
+            : s.status === 'current'
+              ? 'current'
+              : s.status === 'skipped'
+                ? 'skipped'
+                : 'pending',
+      })),
+    [timelineSteps]
+  );
+
+  // S52 — Icono del banner CTA según estado (map del nextAction a icon Lucide)
+  const nextActionIcon = useMemo(() => {
+    switch (venta.estado) {
+      case 'cotizacion':
+        return CheckCircle;
+      case 'confirmada':
+      case 'reservada':
+        return Package;
+      case 'asignada':
+      case 'en_entrega':
+        return Truck;
+      case 'despachada':
+        return Truck;
+      default:
+        return undefined;
+    }
+  }, [venta.estado]);
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center space-x-3">
-            <ShoppingCart className="h-8 w-8 text-teal-600" />
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">{venta.numeroVenta}</h2>
-              <p className="text-sm text-slate-600">{venta.nombreCliente}</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {venta.estado !== 'cotizacion' && venta.estado !== 'cancelada' && venta.estadoPago && estadoPagoLabels[venta.estadoPago] && (
-            <StatusBadge variant={estadoPagoLabels[venta.estadoPago].variant as any} icon={CreditCard}>
-              {estadoPagoLabels[venta.estadoPago].label}
+      {/* S52 — Header migrado a <EntityHeader> (plantilla Capa 3).
+           Preserva icon ShoppingCart + número mono + cliente + badges
+           (pago + estado + socio si aplica). */}
+      <EntityHeader
+        breadcrumb={
+          <>
+            <ShoppingCart className="w-3.5 h-3.5 text-teal-600" />
+            <span>{venta.numeroVenta}</span>
+          </>
+        }
+        titulo={venta.numeroVenta}
+        subtitulo={venta.nombreCliente}
+        badges={
+          <>
+            {venta.estado !== 'cotizacion' &&
+              venta.estado !== 'cancelada' &&
+              venta.estadoPago &&
+              estadoPagoLabels[venta.estadoPago] && (
+                <StatusBadge
+                  variant={estadoPagoLabels[venta.estadoPago].variant as any}
+                  icon={CreditCard}
+                >
+                  {estadoPagoLabels[venta.estadoPago].label}
+                </StatusBadge>
+              )}
+            <StatusBadge
+              variant={(estadoInfo.variant === 'default' ? 'neutral' : estadoInfo.variant) as any}
+              dot
+              size="md"
+            >
+              {estadoInfo.label}
             </StatusBadge>
-          )}
-          <StatusBadge variant={(estadoInfo.variant === 'default' ? 'neutral' : estadoInfo.variant) as any} dot size="md">
-            {estadoInfo.label}
-          </StatusBadge>
-          {venta.esVentaSocio && (
-            <StatusBadge variant="neutral">
-              Socio{venta.socioNombre ? `: ${venta.socioNombre}` : ''}
-            </StatusBadge>
-          )}
-        </div>
-      </div>
+            {venta.esVentaSocio && (
+              <StatusBadge variant="neutral">
+                Socio{venta.socioNombre ? `: ${venta.socioNombre}` : ''}
+              </StatusBadge>
+            )}
+          </>
+        }
+      />
 
-      {/* Timeline de Estado */}
+      {/* S52 — StatusTimeline reemplazado por <EntityPipeline> (Capa 3).
+           6 pasos de venta: Cotización → Confirmada → Asignada → Programada →
+           En Camino → Entregada. El banner CTA (antes integrado en
+           StatusTimeline) ahora es un componente separado <NextActionBanner>. */}
       <div className="bg-slate-50 p-4 rounded-lg">
-        <StatusTimeline
-          steps={timelineSteps}
-          nextAction={nextAction}
-          orientation="horizontal"
-          showDates={true}
-          compact={false}
-        />
-        {/* Lead Time Total para ventas entregadas */}
+        <EntityPipeline steps={entityPipelineSteps} size="md" />
+        {/* Lead Time Total para ventas entregadas (preservado) */}
         {venta.estado === 'entregada' && venta.fechaCreacion && venta.fechaEntrega && (
           <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-end gap-1">
             <Clock className="h-3.5 w-3.5 text-slate-400" />
             <span className="text-xs text-slate-500">
-              Lead time total: <span className="font-semibold text-slate-700">{daysBetween(venta.fechaCreacion, venta.fechaEntrega)}</span>
+              Lead time total:{' '}
+              <span className="font-semibold text-slate-700">
+                {daysBetween(venta.fechaCreacion, venta.fechaEntrega)}
+              </span>
             </span>
           </div>
         )}
       </div>
+
+      {/* S52 — NextActionBanner separado del pipeline (estándar OC). */}
+      {nextAction && nextAction.buttonText && nextAction.onClick && (
+        <NextActionBanner
+          icon={nextActionIcon}
+          label={nextAction.label}
+          description={nextAction.description}
+          buttonText={nextAction.buttonText}
+          onClick={nextAction.onClick}
+          buttonVariant={nextAction.variant === 'primary' ? 'primary' : 'secondary'}
+          variant="teal"
+        />
+      )}
+      {/* Si nextAction existe pero sin boton (estado informativo), lo
+          mostramos como banner sin CTA para que el usuario vea el siguiente
+          paso (no se puede accionar, solo visualiza). */}
+      {nextAction && !nextAction.onClick && (
+        <NextActionBanner
+          icon={nextActionIcon}
+          label={nextAction.label}
+          description={nextAction.description}
+          variant={
+            nextAction.variant === 'warning'
+              ? 'amber'
+              : nextAction.variant === 'info'
+                ? 'sky'
+                : 'neutral'
+          }
+        />
+      )}
+
+      {/* S52 — Nueva fila de 4 KPIs consolidados (estándar OC, antes ausente).
+           Muestra los datos clave de la venta de un vistazo. */}
+      <KpiRow
+        columns={4}
+        items={[
+          {
+            label: 'Total venta',
+            value: `S/ ${venta.totalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`,
+            subtitle: venta.canalNombre || venta.canal || 'Venta directa',
+            tone: 'default',
+          },
+          {
+            label: 'Productos',
+            value: `${venta.productos.length} SKU${venta.productos.length !== 1 ? 's' : ''}`,
+            subtitle: `${venta.productos.reduce((s, p) => s + p.cantidad, 0)} unidades`,
+            tone: 'default',
+          },
+          {
+            label: 'Pago',
+            value:
+              venta.estadoPago === 'pagado'
+                ? 'Pagado'
+                : venta.estadoPago === 'parcial'
+                  ? 'Parcial'
+                  : 'Pendiente',
+            subtitle: venta.montoPagado
+              ? `S/ ${venta.montoPagado.toLocaleString('es-PE', { maximumFractionDigits: 0 })} / S/ ${venta.totalPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`
+              : '—',
+            tone:
+              venta.estadoPago === 'pagado'
+                ? 'emerald'
+                : venta.estadoPago === 'parcial'
+                  ? 'amber'
+                  : 'red',
+          },
+          {
+            label: 'Lead time',
+            value:
+              venta.estado === 'entregada' && venta.fechaCreacion && venta.fechaEntrega
+                ? `${daysBetween(venta.fechaCreacion, venta.fechaEntrega)} días`
+                : '—',
+            subtitle:
+              venta.estado === 'entregada'
+                ? 'creación → entrega'
+                : venta.estado === 'cancelada'
+                  ? 'cancelada'
+                  : 'en curso',
+            tone: venta.estado === 'entregada' ? 'teal' : 'muted',
+          },
+        ]}
+      />
 
       {/* Trazabilidad - Documentos Relacionados */}
       {(venta.numeroCotizacionOrigen || documentosRelacionados.requerimientos.length > 0 || documentosRelacionados.ordenesCompra.length > 0) && (
