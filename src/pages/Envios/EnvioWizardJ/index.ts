@@ -40,3 +40,14 @@ export type { VarianteJIndicatorProps } from './VarianteJIndicator';
 
 export { CasillaDestinoColaboradorPicker } from './CasillaDestinoColaboradorPicker';
 export type { CasillaDestinoColaboradorPickerProps } from './CasillaDestinoColaboradorPicker';
+
+// ─── Pasos del wizard (Fase 3) ──────────────────────────────────────────────
+export { EnvioJStepOrigen } from './EnvioJStepOrigen';
+export { EnvioJStepDestino } from './EnvioJStepDestino';
+export { EnvioJStepTransporte } from './EnvioJStepTransporte';
+export { EnvioJStepCostos } from './EnvioJStepCostos';
+export { EnvioJStepConfirm } from './EnvioJStepConfirm';
+
+// ─── Contenedor principal (Fase 3) ──────────────────────────────────────────
+export { WizardJPage } from './WizardJPage';
+export type { WizardJPageProps } from './WizardJPage';
