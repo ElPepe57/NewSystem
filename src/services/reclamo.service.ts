@@ -34,6 +34,7 @@ import type {
   ReclamoFiltros,
   EstadoReclamo,
   ResumenReclamos,
+  TipoResolucionReclamo,
 } from '../types/reclamo.types';
 import { ESTADOS_RECLAMO_ACTIVOS } from '../types/reclamo.types';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
@@ -325,6 +326,145 @@ export const reclamoService = {
     });
     logger.success(`Reclamo ${reclamo.numeroReclamo}: aceptado por S/ ${montoAcordadoPEN.toFixed(2)}`);
     await syncIncidenciasEnvio({ ...reclamo, estado: 'aceptado', montoAcordadoPEN }, userId);
+  },
+
+  /**
+   * S45 (D-16) — enviado | en_disputa → aceptado con tipoResolucion='reemplazo'
+   *
+   * El destinatario acepta enviar fisicamente una nueva unidad en vez de pagar.
+   * Crea una sub-tanda tipo='reemplazo' dentro del envio padre, vinculada al
+   * reclamo. El CTRU de la unidad reclamada se preserva (reemplazo gratuito
+   * por convencion).
+   *
+   * NO crea asiento contable (no hay movimiento financiero). Cuando la tanda
+   * de reemplazo llegue y se marque como entregado, llamar a
+   * `confirmarReemplazoRecibido()` para cerrar el reclamo.
+   *
+   * Si el reemplazo tambien falla (nunca llega), el usuario puede reabrir el
+   * reclamo y convertirlo a 'merma' via `rechazar()` o `cerrarSinCobrar()`.
+   */
+  async resolverConReemplazo(
+    reclamoId: string,
+    datos: {
+      reemplazoTracking?: string;
+      reemplazoFechaEstimada?: Date;
+      notas?: string;
+    },
+    userId: string
+  ): Promise<{ subEnvioReemplazoId: string }> {
+    const reclamo = await this.getById(reclamoId);
+    if (!reclamo) throw new Error('Reclamo no encontrado');
+    if (reclamo.estado !== 'enviado' && reclamo.estado !== 'en_disputa') {
+      throw new Error(`No se puede resolver con reemplazo desde estado ${reclamo.estado}`);
+    }
+    if (!reclamo.envioId) {
+      throw new Error('Reclamo sin envío vinculado — no se puede crear tanda de reemplazo');
+    }
+    if (!reclamo.unidadesIds || reclamo.unidadesIds.length === 0) {
+      throw new Error('Reclamo sin unidades — no se puede crear tanda de reemplazo');
+    }
+
+    // Ubicar la sub-tanda original (si hay) para vincular la de reemplazo.
+    // La original es la que contenía alguna de las unidades reclamadas (tipo='normal').
+    const envio = await envioCrudService.getById(reclamo.envioId);
+    if (!envio) throw new Error('Envío del reclamo no existe');
+    const reclamoUidsSet = new Set(reclamo.unidadesIds);
+    const tandaOriginal = (envio.subEnvios ?? []).find(
+      (se) =>
+        se.tipo === 'normal' &&
+        se.unidadesIds.some((uid) => reclamoUidsSet.has(uid))
+    );
+
+    // 1. Crear la sub-tanda tipo='reemplazo' en el envío
+    const nuevaTanda = await envioCrudService.crearSubTandaT1(
+      reclamo.envioId,
+      {
+        unidadesIds: reclamo.unidadesIds,
+        tipo: 'reemplazo',
+        estado: 'pendiente',
+        numeroTrackingProveedor: datos.reemplazoTracking,
+        fechaEstimadaEntrega: datos.reemplazoFechaEstimada,
+        reclamoId,
+        tandaOriginalId: tandaOriginal?.id,
+        notas: datos.notas
+          ? `Reemplazo por reclamo ${reclamo.numeroReclamo}. ${datos.notas}`
+          : `Reemplazo por reclamo ${reclamo.numeroReclamo}`,
+      },
+      userId
+    );
+
+    // 2. Actualizar el reclamo con la resolución elegida
+    const now = Timestamp.now();
+    const tipoRes: TipoResolucionReclamo = 'reemplazo';
+    await updateDoc(doc(db, COLL, reclamoId), {
+      estado: 'aceptado' as EstadoReclamo,
+      tipoResolucion: tipoRes,
+      subEnvioReemplazoId: nuevaTanda.id,
+      fechaResolucion: now,
+      fechaRespuesta: reclamo.fechaRespuesta || now,
+      // Monto acordado = monto reclamado completo (se reemplaza en especie)
+      montoAcordadoPEN: reclamo.montoReclamadoPEN,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+      ...(datos.notas ? { notas: datos.notas } : {}),
+    });
+
+    logger.success(
+      `Reclamo ${reclamo.numeroReclamo}: resuelto con REEMPLAZO · sub-tanda ${nuevaTanda.id} creada en envío ${envio.numeroEnvio}`
+    );
+    await syncIncidenciasEnvio(
+      { ...reclamo, estado: 'aceptado', tipoResolucion: tipoRes, subEnvioReemplazoId: nuevaTanda.id },
+      userId
+    );
+
+    return { subEnvioReemplazoId: nuevaTanda.id };
+  },
+
+  /**
+   * S45 (D-16) — aceptado con tipoResolucion='reemplazo' → cerrado
+   *
+   * Llamar cuando la sub-tanda de reemplazo efectivamente se entrega. Cierra
+   * el reclamo sin movimiento financiero (no hay cobro — se reemplazo en
+   * especie). La unidad queda disponible con su CTRU original preservado.
+   *
+   * Si el reemplazo NO llega, llamar a `rechazar()` o `cerrarSinCobrar()`
+   * para convertir la resolucion a merma.
+   */
+  async confirmarReemplazoRecibido(reclamoId: string, userId: string): Promise<void> {
+    const reclamo = await this.getById(reclamoId);
+    if (!reclamo) throw new Error('Reclamo no encontrado');
+    if (reclamo.estado !== 'aceptado') {
+      throw new Error(
+        `Solo se puede confirmar reemplazo de reclamos aceptados (actual: ${reclamo.estado})`
+      );
+    }
+    if (reclamo.tipoResolucion !== 'reemplazo') {
+      throw new Error(
+        `Reclamo no fue resuelto con reemplazo (tipoResolucion: ${reclamo.tipoResolucion})`
+      );
+    }
+
+    const now = Timestamp.now();
+    // Estado 'cobrado' se usa como terminal de éxito aunque no haya movimiento
+    // financiero — refleja que el reclamo cumplió su resolución. El
+    // tipoResolucion='reemplazo' deja claro que no hubo pago.
+    await updateDoc(doc(db, COLL, reclamoId), {
+      estado: 'cobrado' as EstadoReclamo,
+      fechaCobro: now,
+      fechaCierre: now,
+      cerradoPor: userId,
+      montoCobradoPEN: 0, // no hay dinero, se reemplazo en especie
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    });
+
+    logger.success(
+      `Reclamo ${reclamo.numeroReclamo}: REEMPLAZO confirmado recibido · cerrado sin movimiento financiero`
+    );
+    await syncIncidenciasEnvio(
+      { ...reclamo, estado: 'cobrado', montoCobradoPEN: 0 },
+      userId
+    );
   },
 
   /**

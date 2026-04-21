@@ -30,3 +30,10 @@ export type {
   ResolverReclamoModalReclamoInfo,
   ResolverReclamoModalResult,
 } from './ResolverReclamoModal';
+
+// Compuestos (Fase 3)
+export { SubEnviosTimeline } from './SubEnviosTimeline';
+export type {
+  SubEnviosTimelineProps,
+  SubEnviosTimelineProductoMeta,
+} from './SubEnviosTimeline';
