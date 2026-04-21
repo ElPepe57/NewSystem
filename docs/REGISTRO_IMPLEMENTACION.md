@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-20 (Sesion 42 CIERRE FORMAL — S42 a S42bl completo. Commit inicial S42: `7d811d4`. Commit final S42bl: `6fd0823`. 39 sub-sesiones. Bloques: (1) Rework UX/UI cierre mockups, (2) CTRU arquitectural, (3) Envios+Red Logistica fixes, (4) Modelo Envios Transversal aprobado con 14 decisiones. Proxima sesion: S43 = solo spec+mockups MODELO_ENVIOS_TRANSVERSAL.md. Deuda urgente: DEUDA-CTRU-001.)
+**Ultima actualizacion:** 2026-04-20 (Sesion 43 CIERRE — Spec + Mockups Modelo Envios Transversal. 6 commits solo docs. 0 lineas codigo. 16 decisiones cerradas D-1 a D-16. Plan S44-S52 vertical slicing aprobado. Proxima sesion: S44 = Wizard T2 caso C con feature flag. Artefactos: docs/MODELO_ENVIOS_TRANSVERSAL.md + docs/mockups/envios-transversal-s43.html.)
 **Branch activo:** main
 
 ---
@@ -12,7 +12,7 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 15 de 17 |
-| Sesiones de trabajo registradas | 42 |
+| Sesiones de trabajo registradas | 43 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
 | Fixes aplicados | ~650 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g + 3 S42h + ~71 S42i→S42bl) |
@@ -1454,6 +1454,113 @@ Crear `docs/mockups/envios-transversal-s43.html` con:
 - DesgloseCTRU movido al modulo CTRU: si algun consumer del modulo OC hace import directo del path antiguo, falla silenciosamente
 - StepRuta simplificado: el caso "recojo en origen" ahora confirma OC inmediatamente. Si el colaborador en realidad no recoge, no hay mecanismo de reversion (tendria que cancelar la OC)
 - SubOrdenDetailModal totalPagado ahora viene de historialPagos.filter(subOrdenId). Si un pago no tiene subOrdenId (pagos legacy), no aparece en el total.
+
+---
+
+## SESION 43 CIERRE — 2026-04-20 — Spec + Mockups Modelo Envios Transversal
+
+### Metadata de sesion
+
+| Campo | Valor |
+|-------|-------|
+| Tipo de sesion | Especificacion pura — 0 lineas de codigo de producto |
+| Commits S43 | `aaeb9f1` `5e41e44` `1d6cb27` `88da00d` `af6848b` `ad81911` (6 commits, solo docs) |
+| Archivos creados | `docs/MODELO_ENVIOS_TRANSVERSAL.md` (~1000 lineas, 15 secciones) |
+| | `docs/mockups/envios-transversal-s43.html` (~2700 lineas, 8 tabs navegables) |
+| Archivos de codigo modificados | 0 (ninguno) |
+| tsc -b | No aplica (sin cambios de codigo) |
+| Ultimo deploy verificado heredado | #211 (commit `2bccd75`, S42h) · 0 errores TS |
+| Decisiones cerradas | D-1 a D-16 (16 decisiones, numeracion interna al spec) |
+| Duracion estimada | ~3h de deliberacion y redaccion |
+
+---
+
+### Resumen ejecutivo
+
+S43 fue una sesion de especificacion pura. El objetivo: disenar el "Modelo Envios Transversal" antes de tocar codigo, evitando los errores de S41/S42 donde el modelo emergente genero deuda tecnica acumulada. El resultado son dos artefactos formales:
+
+1. **`docs/MODELO_ENVIOS_TRANSVERSAL.md`** — especificacion funcional completa con 15 secciones: proposito, 9 flujos canonicos (A-J), 16 decisiones cerradas, modelo de datos propuesto (tipos TypeScript), flujos por caso, wizard T2 con 5 pasos, sub-envios T1, reglas de negocio, responsabilidad de reclamos, costos landed, estrategia de migracion, modulos absorbidos, efectos contables, plan de fases S44-S52, y pendientes/riesgos.
+
+2. **`docs/mockups/envios-transversal-s43.html`** — mockup HTML navegable con 8 tabs: vista general, wizard T2 completo (5 pasos), detalle de envio con sub-envios, reclamos con 3 salidas, picking T2 con priorizacion, arbol de decision (automaticos vs manuales), estado inicial por tipo, y sub-tanda fisica (D-16).
+
+Al cierre de S43, el usuario y el equipo acordaron reformular el plan de implementacion de S44 en adelante hacia **vertical slicing**, reemplazando el enfoque monolitico original ("S44 = core inbound" de ~3 semanas).
+
+---
+
+### Cronologia de commits S43
+
+| Commit | Descripcion |
+|--------|-------------|
+| `aaeb9f1` | Spec inicial `MODELO_ENVIOS_TRANSVERSAL.md` + mockup base `envios-transversal-s43.html` con 4 tabs iniciales |
+| `5e41e44` | Mockup expandido: wizard T2 completo, detalle con sub-envios, reclamos con 3 salidas, picking T2 con priorizacion |
+| `1d6cb27` | Correccion del arbol de decision: separar envios automaticos (generados por OC/Venta) de manuales (creados por el operador) |
+| `88da00d` | D-15: estado inicial por tipo de envio — A/B/F/G nacen `confirmado`, D nace `recibida_completa`, C/E/I/J nacen `borrador` |
+| `af6848b` | Mockup sub-envios con pipeline T1 y flujo evolutivo (tantas entregas parciales como haga el proveedor) |
+| `ad81911` | D-16: reclamo con sub-tanda fisica como una de las 3 salidas (reembolso / reemplazo / merma) |
+
+---
+
+### Las 16 decisiones cerradas (inmutables para S44+)
+
+Estas decisiones NO se re-deliberan en ninguna sesion de implementacion posterior.
+
+| ID | Decision | Justificacion |
+|----|---------|--------------|
+| D-1 | Envios = modulo transversal hub logistico. Absorbe movimientos fisicos: T1, T2, E, F, G, I, J | Elimina la duplicacion de modulos (Transferencias, Ventas logistica, Devoluciones) que son el mismo concepto con distinto nombre |
+| D-2 | OC genera solo el tramo T1 que le corresponde (proveedor -> casilla o DDP directo). No genera ruta completa | La OC no sabe cuando ni como se consolidara el T2. El T2 es responsabilidad del operador logistico en el momento del despacho |
+| D-3 | Sub-envios dentro del T1 para N tandas de despacho del proveedor | Un proveedor como Amazon puede despachar la misma sub-orden en 3 fechas distintas. Cada tanda = sub-envio hijo con su propio tracking |
+| D-4 | T2 consolida unidades de N OCs mediante picking manual por casilla | El picking no es por OC sino por unidades fisicas disponibles. El operador decide cuales unidades van en cada T2 |
+| D-5 | Priorizacion de pre-ventas en picking T2 via `Unidad.reservadaPara` | Las unidades reservadas para una cotizacion con adelanto pagado se sugieren primero en el picker del T2. El campo ya existe |
+| D-6 | Caso D tiene 2 variantes: D1 (deudor=colaborador) y D2 (deudor=proveedor, colaborador solo recoge) | Flujo logistico identico (`recojoEnOrigen=true`) pero flujo financiero distinto (quien paga, a quien va la CxP) |
+| D-7 | Caso G (devolucion): unidades entran en `devuelto_pendiente_revision` hasta decision del operador | No se puede asumir automaticamente si las unidades son reintegrables, merma, o materia de reclamo |
+| D-8 | Casos I y J unificados como "Envios entre nodos" con distinto `destinoTipo` | Mismo flujo logistico (nodo origen -> nodo destino). La diferencia es el tipo del nodo destino |
+| D-9 | Caso J preferentemente intra-pais (casilla -> casilla mismo pais) | El cruce internacional entre casillas tiene mayor complejidad aduanera. Es caso de uso secundario |
+| D-10 | Caso I bloquea stock en almacen tercero (Opcion B): unidades no aparecen en stock vendible hasta llegar a Peru | Vender unidades fuera del control directo del negocio genera riesgo operativo |
+| D-11 | Responsabilidad de reclamos derivada del tipo de envio: DDP -> courier del proveedor, T1 -> viajero/courier propio, T2 -> transportista local | El responsable logistico de cada tramo es quien debe rendir cuentas de los faltantes/danados en ese tramo |
+| D-12 | Fee de recepcion/almacenamiento = costoLanded del envio, no un envio separado | Crear un envio solo para registrar un fee de custodia seria overengineering. Va como cargo en costos landed del T2 |
+| D-13 | Wizard T2 con 5 pasos: Origen -> Picking -> Transporte -> Costos -> Confirmar | 5 pasos porque cada uno tiene una decision de negocio distinta. El picker es el paso mas complejo |
+| D-14 | Reutilizar `Unidad.reservadaPara` existente para priorizacion en picking T2 | El campo ya existe y se usa en Cotizaciones. Reutilizar evita agregar redundancia al modelo |
+| D-15 | Estado inicial por tipo: A/B/F/G nacen `confirmado`; D nace `recibida_completa`; C/E/I/J nacen `borrador` | Envios automaticos (generados por sistema) nacen confirmados. Los manuales nacen en borrador porque el operador debe completar los detalles |
+| D-16 | Reclamo con 3 salidas: reembolso (acredita tesoreria) / reemplazo con sub-tanda fisica / merma (gasto contable) | Las 3 salidas cubren los casos reales de resolucion con proveedores. La sub-tanda fisica es un sub-envio nuevo hijo del T1 original |
+
+---
+
+### Plan de implementacion revisado — Vertical Slicing S44-S52
+
+El plan original (S44 = monolito "core inbound" A/B/C/D + desacoplar sub-orden-envio, ~3 semanas) fue reformulado al cierre de S43. Cada sesion entrega una funcionalidad visible y deployable de extremo a extremo.
+
+**Principio de enfoque — Design-Driven Development:**
+El mockup HTML pixel-perfect (`docs/mockups/envios-transversal-s43.html`) se convierte en el primer borrador del componente React. No hay separacion entre "sesion de diseno" y "sesion de codigo". Al empezar cada vertical, el desarrollador abre el tab del mockup correspondiente y lo traduce directamente a JSX/TSX.
+
+| Sesion | Vertical | Entregable visible en produccion |
+|--------|---------|----------------------------------|
+| S44 | Wizard T2 completo — SOLO caso C (Casilla -> Peru), sin tocar otros flujos | Boton "Nuevo envio → Casilla a Peru" en /envios, wizard nuevo, deploy con feature flag |
+| S45 | Sub-envios T1 + timeline de tandas (empieza con caso A, luego B/D) | Detalle de envio muestra tandas. UI "+ Agregar tanda" |
+| S46 | Reemplazo fisico + resolver reclamo (cierra loop incidencias) | Modal "Resolver reclamo" en produccion con las 3 salidas (D-16) |
+| S47 | Vista /envios rediseñada — pills por tipo A-J, KPIs nuevos | Nueva portada del modulo Envios |
+| S48 | Estados iniciales por tipo (D-15) + migracion de envios existentes | Script de migracion + cambio en `confirmarOC()` |
+| S49 | Caso J — Casilla a Casilla (intra-pais preferente) | Wizard tipo J |
+| S50 | Absorber Transferencias — Caso E | Redirect /transferencias -> /envios?tipo=E |
+| S51 | Absorber Ventas logistica — Casos F + G | Envio auto al confirmar venta. Modal devolucion |
+| S52 | Almacenes de terceros — Caso I | Nuevo tipo `almacen_tercero`. Bloqueo de stock (D-10) |
+
+---
+
+### Pendientes y riesgos para S44
+
+1. **`tipoRutaLogistica` en tipo Envio:** el spec propone agregar este campo canonico para reemplazar la heuristica fragil de (tipo, ordenCompraId, esDDP). Pendiente definir si se agrega en S44 o se difiere a S47.
+2. **Estrategia de migracion de envios existentes:** el spec define la estrategia (script one-off con backup previo). El usuario debe confirmar si se ejecuta al finalizar S44 o al finalizar S48.
+3. **Modelo `SubEnvio`:** el spec propone sub-documento o sub-coleccion. Decision de modelo de datos a confirmar con `database-administrator` antes de S45.
+4. **DEUDA-CTRU-001 sigue abierta:** no bloquea S44 (el wizard T2 no toca CTRU directamente) pero si S45+ donde los cargos landed impactan CTRU.
+
+---
+
+### Instrucciones arranque S44
+
+1. Leer esta seccion del registro (S43 CIERRE) y MEMORY.md.
+2. Abrir `docs/mockups/envios-transversal-s43.html` tab "Wizard T2" — es el spec ejecutable para S44.
+3. Verificar con el usuario que el alcance minimo (solo caso C, feature flag, sin tocar flujos existentes) sigue siendo el objetivo.
+4. Leer el briefing S44 en MEMORY.md para el alcance tecnico minimo detallado.
 
 ---
 
