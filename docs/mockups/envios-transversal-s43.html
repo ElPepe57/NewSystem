@@ -1529,18 +1529,27 @@
 
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     SECCION 3 — SUB-ENVIOS T1 (Timeline Amazon)
+     SECCION 5 — SUB-ENVIOS T1 (flujo evolutivo: confirmado → mixto → completo)
      ═══════════════════════════════════════════════════════════════════ -->
-<section id="subenvios" class="section space-y-4">
+<section id="subenvios" class="section space-y-6">
 
+  <!-- Intro -->
+  <div class="bg-white rounded-lg border border-slate-200 p-4">
+    <h2 class="text-lg font-bold text-slate-900">📦 Sub-envíos dentro del T1 — flujo evolutivo</h2>
+    <p class="text-sm text-slate-600 mt-1">Cómo se integran naturalmente las tandas de despacho del proveedor en el detalle del envío. Mostramos las <strong>3 fases</strong> que atraviesa un envío en el tiempo.</p>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       FASE 1 — Envio recien confirmado, SIN tandas todavia
+       ═════════════════════════════════════════════════════════════════ -->
   <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-    <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-6 py-4">
-      <div class="flex items-center gap-2 mb-1">
+    <div class="bg-sky-600 text-white px-6 py-3">
+      <div class="text-xs font-medium text-sky-100 mb-1">Fase 1 · Recién confirmado · Aún no sabemos cómo vendrá</div>
+      <div class="flex items-center gap-2 flex-wrap">
         <span class="text-lg font-bold">ENV-2026-123</span>
-        <span class="text-xs px-2 py-0.5 bg-slate-700 rounded">🏭→📦 Proveedor-Casilla · A</span>
-        <span class="text-xs px-2 py-0.5 bg-emerald-500/30 text-emerald-100 rounded">Recibido completo</span>
+        <span class="text-xs px-2 py-0.5 bg-sky-700 rounded">🏭→📦 A · Proveedor-Casilla</span>
       </div>
-      <p class="text-xs text-slate-300">Detalle del envio · Amazon OC-2026-001 #113-7465331-5293821 · Sub-orden con 3 tandas de despacho</p>
+      <p class="text-xs text-sky-100 mt-1">La OC acaba de confirmarse, el envío nació en <code class="bg-sky-700 px-1 rounded">confirmado</code> con todas las unidades pool.</p>
     </div>
 
     <!-- Ruta -->
@@ -1549,20 +1558,156 @@
         <div class="flex items-center gap-2">
           <span class="text-2xl">🇺🇸</span>
           <div>
-            <div class="font-bold text-slate-900">Amazon</div>
-            <div class="text-xs text-slate-500">Proveedor · Nevada, USA</div>
+            <div class="font-bold text-slate-900 text-sm">Amazon</div>
+            <div class="text-xs text-slate-500">Proveedor · Nevada</div>
           </div>
         </div>
         <div class="flex-1 h-0.5 bg-slate-300 relative">
           <div class="absolute inset-0 flex items-center justify-center">
-            <span class="bg-slate-50 px-2 text-xs text-slate-500">🚚 Courier del proveedor (3 tandas)</span>
+            <span class="bg-slate-50 px-2 text-xs text-slate-500">🚚 Courier del proveedor</span>
           </div>
         </div>
         <div class="flex items-center gap-2">
           <span class="text-2xl">🇺🇸</span>
           <div>
-            <div class="font-bold text-slate-900">Casilla Felicita</div>
-            <div class="text-xs text-slate-500">Miami, FL · Casilla Intl</div>
+            <div class="font-bold text-slate-900 text-sm">Casilla Felicita</div>
+            <div class="text-xs text-slate-500">Miami, FL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIPELINE DE ESTADOS (nuevo elemento clave) -->
+    <div class="px-6 py-4 border-b border-slate-200">
+      <div class="text-xs font-medium text-slate-600 mb-2">Estado del envío</div>
+      <div class="flex items-center">
+        <div class="flex-1 flex items-center">
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-sky-500 text-white font-bold text-xs flex items-center justify-center ring-4 ring-sky-100">✓</div>
+            <div class="text-[10px] font-bold text-sky-700 mt-1">Confirmado</div>
+            <div class="text-[9px] text-slate-500">hoy</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 font-bold text-xs flex items-center justify-center">2</div>
+            <div class="text-[10px] text-slate-400 mt-1">En tránsito</div>
+            <div class="text-[9px] text-slate-400">—</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 font-bold text-xs flex items-center justify-center">3</div>
+            <div class="text-[10px] text-slate-400 mt-1">Recibido parcial</div>
+            <div class="text-[9px] text-slate-400">—</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 font-bold text-xs flex items-center justify-center">4</div>
+            <div class="text-[10px] text-slate-400 mt-1">Recibido completo</div>
+            <div class="text-[9px] text-slate-400">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-slate-900">📦 Contenido del envío</h3>
+        <div class="text-xs text-slate-500">7 unidades · sin fraccionar</div>
+      </div>
+
+      <!-- Lista de productos (plana, sin tandas) -->
+      <div class="border border-slate-200 rounded-lg divide-y divide-slate-100">
+        <div class="p-2.5 flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">💊</span>
+            <span>NOW Ashwagandha KSM-66</span>
+          </div>
+          <span class="text-xs text-slate-500">1 uds</span>
+        </div>
+        <div class="p-2.5 flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🫐</span>
+            <span>Longjack</span>
+          </div>
+          <span class="text-xs text-slate-500">1 uds</span>
+        </div>
+        <div class="p-2.5 flex items-center justify-between text-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🧪</span>
+            <span>WellnessLabs NAD+</span>
+          </div>
+          <span class="text-xs text-slate-500">2 uds</span>
+        </div>
+        <div class="p-2.5 flex items-center justify-between text-sm text-slate-500 italic">
+          + 3 productos más (CoQ10, Myo-Inositol, etc.)
+        </div>
+      </div>
+
+      <!-- Acciones sugeridas integradas naturalmente -->
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <button class="border-2 border-dashed border-violet-300 hover:border-violet-400 hover:bg-violet-50 rounded-lg p-3 text-left transition-colors">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xl">📅</span>
+            <span class="font-bold text-violet-700 text-sm">Fraccionar en tandas</span>
+          </div>
+          <div class="text-xs text-slate-600">El proveedor me avisó que vendrá en varios paquetes. Quiero planificar las tandas.</div>
+        </button>
+        <button class="border-2 border-slate-300 hover:border-blue-400 hover:bg-blue-50 rounded-lg p-3 text-left transition-colors">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xl">🚚</span>
+            <span class="font-bold text-blue-700 text-sm">Marcar despachado completo</span>
+          </div>
+          <div class="text-xs text-slate-600">Va en un solo paquete. Pasar a "en tránsito" directo sin fraccionar.</div>
+        </button>
+      </div>
+
+      <div class="mt-3 text-xs text-slate-500 italic text-center">
+        💡 Ambas acciones son opcionales. Si no haces nada y el paquete llega, al "Recibir" el sistema crea la tanda retroactiva.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       FASE 2 — Envio con tandas MIXTAS (1 entregada, 1 en transito, 1 pendiente)
+       ═════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+    <div class="bg-blue-600 text-white px-6 py-3">
+      <div class="text-xs font-medium text-blue-100 mb-1">Fase 2 · En tránsito · Tandas en curso</div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-lg font-bold">ENV-2026-123</span>
+        <span class="text-xs px-2 py-0.5 bg-blue-700 rounded">🏭→📦 A · Proveedor-Casilla</span>
+        <span class="text-xs px-2 py-0.5 bg-violet-500/40 rounded">3 tandas planificadas</span>
+      </div>
+      <p class="text-xs text-blue-100 mt-1">Proveedor avisó que va en 3 paquetes. Usuario creó las tandas prospectivamente. Ahora: 1 entregada, 1 en tránsito, 1 aún pendiente.</p>
+    </div>
+
+    <!-- PIPELINE DE ESTADOS (fase 2) -->
+    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+      <div class="flex items-center">
+        <div class="flex-1 flex items-center">
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center">✓</div>
+            <div class="text-[10px] text-slate-600 mt-1">Confirmado</div>
+            <div class="text-[9px] text-slate-500">27-mar</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-emerald-400"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-blue-500 text-white font-bold text-xs flex items-center justify-center ring-4 ring-blue-100">●</div>
+            <div class="text-[10px] font-bold text-blue-700 mt-1">En tránsito</div>
+            <div class="text-[9px] text-slate-500">29-mar</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-amber-400 text-white font-bold text-xs flex items-center justify-center ring-4 ring-amber-100">●</div>
+            <div class="text-[10px] font-bold text-amber-700 mt-1">Recibido parcial</div>
+            <div class="text-[9px] text-slate-500">29-mar</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 font-bold text-xs flex items-center justify-center">4</div>
+            <div class="text-[10px] text-slate-400 mt-1">Recibido completo</div>
+            <div class="text-[9px] text-slate-400">—</div>
           </div>
         </div>
       </div>
@@ -1570,111 +1715,345 @@
 
     <!-- KPIs -->
     <div class="grid grid-cols-4 gap-0 border-b border-slate-200">
-      <div class="p-4 border-r border-slate-200">
-        <div class="text-xs text-slate-500">Total unidades</div>
-        <div class="text-2xl font-bold text-slate-900">7/7</div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Progreso</div>
+        <div class="text-xl font-bold text-slate-900">1/7 uds</div>
+        <div class="text-[10px] text-slate-500">14% recibido</div>
       </div>
-      <div class="p-4 border-r border-slate-200">
-        <div class="text-xs text-slate-500">Sub-envios</div>
-        <div class="text-2xl font-bold text-violet-700">3</div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Tandas</div>
+        <div class="text-xl font-bold text-violet-700">3</div>
+        <div class="text-[10px] text-slate-500">1 ✓ · 1 🚚 · 1 ⏳</div>
       </div>
-      <div class="p-4 border-r border-slate-200">
-        <div class="text-xs text-slate-500">Valor en factura</div>
-        <div class="text-2xl font-bold text-slate-900">$309.92</div>
+      <div class="p-3 border-r border-slate-200 text-center">
+        <div class="text-xs text-slate-500">Valor factura</div>
+        <div class="text-xl font-bold text-slate-900">$309.92</div>
       </div>
-      <div class="p-4">
+      <div class="p-3 text-center">
         <div class="text-xs text-slate-500">Responsable reclamo</div>
         <div class="text-sm font-bold text-slate-700">Proveedor</div>
       </div>
     </div>
 
-    <!-- Timeline sub-envios -->
+    <!-- Timeline activo -->
     <div class="p-6">
-      <h3 class="text-sm font-bold text-slate-900 mb-4">📅 Tandas de despacho del proveedor</h3>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-bold text-slate-900">📅 Tandas del proveedor</h3>
+        <button class="text-xs px-3 py-1.5 bg-violet-600 text-white rounded hover:bg-violet-700">+ Agregar tanda</button>
+      </div>
 
       <div class="relative">
-        <!-- Linea vertical del timeline -->
         <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-slate-200"></div>
 
-        <!-- Sub-envio 1 -->
-        <div class="relative pl-10 pb-5">
-          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">1</div>
-          <div class="bg-white border border-slate-200 rounded-lg p-3">
+        <!-- Tanda 1: entregada -->
+        <div class="relative pl-10 pb-4">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">✓</div>
+          <div class="bg-white border border-emerald-200 rounded-lg p-3">
             <div class="flex items-center justify-between mb-2">
               <div>
                 <span class="font-medium text-slate-900">Tanda 1</span>
-                <span class="text-xs text-slate-500 ml-2">Entregado el 30 marzo 2026</span>
+                <span class="text-xs text-slate-500 ml-2">Entregado · 29 marzo</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Entregado</span>
+                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-medium">✓ Entregado</span>
                 <span class="text-xs font-mono text-slate-500">TBA12345</span>
+                <span class="text-xs text-slate-400">🔒</span>
               </div>
             </div>
             <div class="flex items-center gap-2 text-sm text-slate-700">
               <span class="text-lg">💊</span>
-              <span>1 unidad · NOW Ashwagandha KSM-66 · 90 capsulas</span>
+              <span>1 unidad · NOW Ashwagandha KSM-66</span>
             </div>
+            <div class="text-[10px] text-slate-400 mt-1 italic">Solo lectura · hecho consumado</div>
           </div>
         </div>
 
-        <!-- Sub-envio 2 -->
-        <div class="relative pl-10 pb-5">
-          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">2</div>
-          <div class="bg-white border border-slate-200 rounded-lg p-3">
+        <!-- Tanda 2: en transito -->
+        <div class="relative pl-10 pb-4">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">🚚</div>
+          <div class="bg-white border-2 border-blue-300 rounded-lg p-3">
             <div class="flex items-center justify-between mb-2">
               <div>
                 <span class="font-medium text-slate-900">Tanda 2</span>
-                <span class="text-xs text-slate-500 ml-2">Entregado el 29 marzo 2026</span>
+                <span class="text-xs text-slate-500 ml-2">En tránsito · estimado 30-mar</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Entregado</span>
+                <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-medium">🚚 En tránsito</span>
                 <span class="text-xs font-mono text-slate-500">TBA67890</span>
+                <button class="text-xs text-teal-700 hover:underline">Editar</button>
               </div>
             </div>
             <div class="space-y-1 text-sm text-slate-700">
               <div class="flex items-center gap-2"><span>🫐</span> 1 unidad · Longjack</div>
               <div class="flex items-center gap-2"><span>🧪</span> 2 unidades · WellnessLabs NAD+</div>
-              <div class="flex items-center gap-2"><span>🌸</span> 1 unidad · Carlyle Myo-Inositol</div>
               <div class="flex items-center gap-2"><span>❤️</span> 1 unidad · NatureBell CoQ10 200mg</div>
-              <div class="flex items-center gap-2"><span>💪</span> 1 unidad · Life Extension CoQ10 Ubiquinol</div>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <button class="text-xs px-2 py-1 bg-emerald-600 text-white rounded hover:bg-emerald-700">✓ Marcar entregado</button>
+              <button class="text-xs px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded hover:bg-red-100">⚠️ Reportar incidencia</button>
             </div>
           </div>
         </div>
 
-        <!-- Sub-envio 3 -->
+        <!-- Tanda 3: pendiente -->
         <div class="relative pl-10">
-          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">3</div>
-          <div class="bg-white border border-slate-200 rounded-lg p-3">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center text-white text-xs font-bold">⏳</div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3 border-dashed">
             <div class="flex items-center justify-between mb-2">
               <div>
                 <span class="font-medium text-slate-900">Tanda 3</span>
-                <span class="text-xs text-slate-500 ml-2">Entregado el 1 abril 2026</span>
+                <span class="text-xs text-slate-500 ml-2">Pendiente · estimado 01-abr</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Entregado</span>
-                <span class="text-xs font-mono text-slate-500">TBA11111</span>
+                <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded">⏳ Pendiente</span>
+                <span class="text-xs text-slate-400 italic">sin tracking aún</span>
+                <button class="text-xs text-teal-700 hover:underline">Editar</button>
               </div>
             </div>
-            <div class="flex items-center gap-2 text-sm text-slate-700">
-              <span class="text-lg">🌺</span>
-              <span>1 unidad · Micro Ingredients Myo-Inositol & D-Chiro</span>
+            <div class="space-y-1 text-sm text-slate-700">
+              <div class="flex items-center gap-2"><span>🌸</span> 1 unidad · Carlyle Myo-Inositol</div>
+              <div class="flex items-center gap-2"><span>💪</span> 1 unidad · Life Extension CoQ10 Ubiquinol</div>
+              <div class="flex items-center gap-2"><span>🌺</span> 1 unidad · Micro Ingredients Myo-Inositol</div>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <button class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">🚚 Marcar en tránsito</button>
+              <button class="text-xs px-2 py-1 bg-white text-slate-700 border border-slate-300 rounded hover:bg-slate-50">🗑️ Eliminar tanda</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pool unidades sin asignar -->
+      <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div class="text-xs font-medium text-slate-700">📦 Unidades sin asignar a tandas</div>
+          <span class="text-xs font-bold text-emerald-700">0 de 7</span>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-1">Todas las unidades ya están asignadas a alguna tanda. No se puede agregar una nueva tanda sin liberar unidades primero.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       MODAL — "+ Agregar tanda"
+       ═════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-lg border-2 border-violet-400 overflow-hidden">
+    <div class="bg-violet-600 text-white px-6 py-3">
+      <div class="text-xs font-medium text-violet-100 mb-1">Modal · "+ Agregar tanda"</div>
+      <div class="font-bold">Nueva tanda de despacho del proveedor</div>
+      <p class="text-xs text-violet-100 mt-1">Se abre al hacer click en "+ Agregar tanda" desde el timeline.</p>
+    </div>
+
+    <div class="p-6">
+
+      <!-- Info de la tanda -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="text-xs font-medium text-slate-700 block mb-1">Tracking del proveedor (opcional)</label>
+          <input type="text" placeholder="Ej. TBA12345ABC" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+          <div class="text-[10px] text-slate-500 mt-1">Lo puedes dejar vacío si aún no te lo envían</div>
+        </div>
+        <div>
+          <label class="text-xs font-medium text-slate-700 block mb-1">Fecha estimada de entrega</label>
+          <input type="date" value="2026-04-01" class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+          <div class="text-[10px] text-slate-500 mt-1">Opcional · según email del proveedor</div>
+        </div>
+      </div>
+
+      <!-- Picker de unidades disponibles -->
+      <div>
+        <label class="text-xs font-medium text-slate-700 block mb-2">Unidades a incluir en esta tanda <span class="text-red-500">*</span></label>
+        <div class="text-xs text-slate-600 mb-2">Solo se muestran las unidades sin asignar a otras tandas.</div>
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <!-- Producto 1 -->
+          <div class="border-b border-slate-100">
+            <div class="bg-slate-50 px-3 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🌸</span>
+                <span class="font-medium text-sm text-slate-900">Carlyle Myo-Inositol</span>
+                <span class="text-xs text-slate-500">· disponibles: 1</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="w-5 h-5 bg-slate-200 rounded text-xs">−</button>
+                <span class="w-8 text-center text-sm font-bold">1</span>
+                <button class="w-5 h-5 bg-slate-200 rounded text-xs">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Producto 2 -->
+          <div class="border-b border-slate-100">
+            <div class="bg-slate-50 px-3 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">💪</span>
+                <span class="font-medium text-sm text-slate-900">Life Extension CoQ10 Ubiquinol</span>
+                <span class="text-xs text-slate-500">· disponibles: 1</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="w-5 h-5 bg-slate-200 rounded text-xs">−</button>
+                <span class="w-8 text-center text-sm font-bold">1</span>
+                <button class="w-5 h-5 bg-slate-200 rounded text-xs">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Producto 3 -->
+          <div>
+            <div class="bg-slate-50 px-3 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🌺</span>
+                <span class="font-medium text-sm text-slate-900">Micro Ingredients Myo-Inositol & D-Chiro</span>
+                <span class="text-xs text-slate-500">· disponibles: 1</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="w-5 h-5 bg-slate-200 rounded text-xs">−</button>
+                <span class="w-8 text-center text-sm font-bold">1</span>
+                <button class="w-5 h-5 bg-slate-200 rounded text-xs">+</button>
+              </div>
             </div>
           </div>
         </div>
 
+        <div class="mt-2 text-xs text-slate-600">3 unidades seleccionadas · 3 productos</div>
       </div>
 
-      <!-- Boton agregar tanda (si estuviera incompleto) -->
-      <button class="mt-4 w-full border-2 border-dashed border-slate-300 text-slate-500 rounded-lg py-2 text-sm hover:border-teal-400 hover:text-teal-600 transition-colors opacity-50 cursor-not-allowed">
-        + Agregar tanda (no disponible — envio completo)
-      </button>
+      <!-- Estado inicial de la tanda -->
+      <div class="mt-4 p-3 bg-slate-50 rounded border border-slate-200">
+        <label class="text-xs font-medium text-slate-700 block mb-2">Estado inicial de la tanda</label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center gap-2 p-2 border-2 border-violet-400 bg-violet-50 rounded cursor-pointer">
+            <input type="radio" name="estado" checked class="w-4 h-4">
+            <div>
+              <div class="text-sm font-medium text-slate-900">⏳ Pendiente</div>
+              <div class="text-[10px] text-slate-600">Aún no sale, solo planificación</div>
+            </div>
+          </label>
+          <label class="flex items-center gap-2 p-2 border border-slate-200 rounded cursor-pointer hover:border-slate-300">
+            <input type="radio" name="estado" class="w-4 h-4">
+            <div>
+              <div class="text-sm font-medium text-slate-900">🚚 En tránsito</div>
+              <div class="text-[10px] text-slate-600">Ya salió (tienes tracking)</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center justify-end gap-2">
+        <button class="px-4 py-2 border border-slate-300 text-slate-700 rounded text-sm">Cancelar</button>
+        <button class="px-4 py-2 bg-violet-600 text-white rounded text-sm font-medium">Crear tanda</button>
+      </div>
     </div>
   </div>
 
-  <!-- Leyenda -->
+  <!-- ═════════════════════════════════════════════════════════════════
+       FASE 3 — Recibido completo (histórico del caso Amazon real)
+       ═════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-lg border border-slate-200 overflow-hidden opacity-90">
+    <div class="bg-emerald-600 text-white px-6 py-3">
+      <div class="text-xs font-medium text-emerald-100 mb-1">Fase 3 · Recibido completo · Caso Amazon histórico</div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-lg font-bold">ENV-2026-123</span>
+        <span class="text-xs px-2 py-0.5 bg-emerald-700 rounded">🏭→📦 A · Proveedor-Casilla</span>
+        <span class="text-xs px-2 py-0.5 bg-emerald-400/30 rounded">✓ Recibido completo</span>
+      </div>
+      <p class="text-xs text-emerald-100 mt-1">Todas las tandas entregadas. El envío se cerró automáticamente cuando la última unidad se recibió.</p>
+    </div>
+
+    <!-- PIPELINE completo -->
+    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+      <div class="flex items-center">
+        <div class="flex-1 flex items-center">
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center">✓</div>
+            <div class="text-[10px] text-slate-600 mt-1">Confirmado</div>
+            <div class="text-[9px] text-slate-500">27-mar</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-emerald-400"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center">✓</div>
+            <div class="text-[10px] text-slate-600 mt-1">En tránsito</div>
+            <div class="text-[9px] text-slate-500">29-mar</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-emerald-400"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center">✓</div>
+            <div class="text-[10px] text-slate-600 mt-1">Recibido parcial</div>
+            <div class="text-[9px] text-slate-500">29-mar</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-emerald-400"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center ring-4 ring-emerald-100">✓</div>
+            <div class="text-[10px] font-bold text-emerald-700 mt-1">Recibido completo</div>
+            <div class="text-[9px] text-slate-500">01-abr</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline final -->
+    <div class="p-6">
+      <h3 class="text-sm font-bold text-slate-900 mb-4">📅 Tandas entregadas</h3>
+
+      <div class="relative">
+        <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-emerald-200"></div>
+
+        <div class="relative pl-10 pb-3">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">✓</div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 1</span>
+                <span class="text-xs text-slate-500 ml-2">29-mar · TBA12345</span>
+              </div>
+              <span class="text-xs text-slate-700">1 uds · NOW Ashwagandha</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative pl-10 pb-3">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">✓</div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 2</span>
+                <span class="text-xs text-slate-500 ml-2">30-mar · TBA67890</span>
+              </div>
+              <span class="text-xs text-slate-700">5 uds · Longjack, NAD+×2, Myo-Inositol, CoQ10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative pl-10">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">✓</div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 3</span>
+                <span class="text-xs text-slate-500 ml-2">01-abr · TBA11111</span>
+              </div>
+              <span class="text-xs text-slate-700">1 uds · Micro Ingredients Myo-Inositol</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-xs text-slate-500 italic text-center">
+        🔒 Todas las tandas entregadas. El envío está cerrado — solo lectura.
+      </div>
+    </div>
+  </div>
+
+  <!-- Leyenda final -->
   <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-900">
-    <div class="font-medium mb-1">📌 Cambio de modelo</div>
-    <p>El envio T1 ya no es un "paquete unico". Cuando el proveedor despacha la sub-orden en N tandas (caso Amazon con fechas 29/30-mar/01-abr), cada tanda se registra como un <code class="bg-amber-100 px-1 rounded">SubEnvioT1</code> con su tracking y fecha propia. El envio padre se considera "recibido completo" cuando todas sus sub-tandas estan entregadas.</p>
+    <div class="font-medium mb-2">📌 Principios del modelo de sub-envíos</div>
+    <ul class="list-disc pl-4 space-y-1">
+      <li><strong>Los sub-envíos son opcionales:</strong> un envío puede recibirse entero sin fraccionar (ej. OC pequeña en 1 paquete). La sección "Tandas" solo aparece si existen sub-envíos.</li>
+      <li><strong>Se pueden crear en cualquier estado del T1</strong> (excepto <code>recibida_completa</code> / <code>cancelada</code>). No hay que regresar a borrador.</li>
+      <li><strong>El pipeline del T1 se actualiza automáticamente</strong> según los sub-envíos: primer "en tránsito" activa el T1, primer "entregado" dispara recepción parcial.</li>
+      <li><strong>Editabilidad:</strong> tanda <code>pendiente</code> o <code>en_transito</code> = editable (unidades, tracking, fecha). Tanda <code>entregado</code> = solo lectura.</li>
+      <li><strong>Modo mixto:</strong> puedes crear tandas prospectivas (antes del despacho) o reactivas (al recibir). Ambas coexisten sin fricción.</li>
+    </ul>
   </div>
 </section>
 
