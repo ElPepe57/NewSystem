@@ -311,20 +311,6 @@
           </div>
         </div>
 
-        <!-- Fechas -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-          <div>
-            <label class="text-xs font-medium text-slate-700 block mb-1.5">Fecha estimada de salida <span class="text-slate-400">(opcional)</span></label>
-            <input type="date" value="2026-04-22" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
-            <p class="text-xs text-slate-500 mt-1">Cuando el colaborador/courier recoge en la casilla</p>
-          </div>
-          <div>
-            <label class="text-xs font-medium text-slate-700 block mb-1.5">Fecha estimada de llegada <span class="text-slate-400">(opcional)</span></label>
-            <input type="date" value="2026-04-25" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
-            <p class="text-xs text-slate-500 mt-1">Llegada al almacén en Perú</p>
-          </div>
-        </div>
-
       </div>
 
       <!-- ASIDE — Preview panel -->
@@ -805,7 +791,7 @@
                     Disponible
                   </span>
                 </div>
-                <div class="text-xs text-slate-600">Viajero frecuente · 12 viajes completados · Próximo vuelo: 22-abr</div>
+                <div class="text-xs text-slate-600">Viajero frecuente · 12 viajes completados</div>
                 <div class="flex items-center gap-3 mt-2">
                   <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 text-xs font-medium rounded-full">
                     💰 Base: $8/libra
@@ -873,7 +859,7 @@
                 <div class="text-[9px] text-slate-500">Almacén</div>
               </div>
             </div>
-            <div class="text-[10px] text-slate-500 text-center mt-2">Juan Pérez · 22-abr → 25-abr</div>
+            <div class="text-[10px] text-slate-500 text-center mt-2">Juan Pérez (viajero)</div>
           </div>
 
           <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
@@ -1179,7 +1165,7 @@
                   <span class="text-base">✈️</span>
                   <span class="text-xs font-semibold text-slate-700">Juan Pérez</span>
                 </div>
-                <div class="text-[10px] text-slate-500">22-abr → 25-abr · 3 días</div>
+                <div class="text-[10px] text-slate-500">Viajero personal</div>
               </div>
             </div>
 
@@ -1308,7 +1294,7 @@
           <li><code class="bg-slate-800 px-1 rounded">EntityPicker&lt;Casilla&gt;</code> — paso 1</li>
           <li><code class="bg-slate-800 px-1 rounded">RouteVisual</code> — paso 5 (size=lg)</li>
           <li><code class="bg-slate-800 px-1 rounded">DraftBanner</code> — autoguardado</li>
-          <li><code class="bg-slate-800 px-1 rounded">FormField</code> — fechas, tracking, tarifa</li>
+          <li><code class="bg-slate-800 px-1 rounded">FormField</code> — tracking, tarifa, selects</li>
         </ul>
       </div>
 
