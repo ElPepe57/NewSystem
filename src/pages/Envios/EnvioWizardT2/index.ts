@@ -65,3 +65,14 @@ export type {
 
 export { EnvioT2WizardPreview } from './EnvioT2WizardPreview';
 export type { EnvioT2WizardPreviewProps } from './EnvioT2WizardPreview';
+
+// ─── Pasos del wizard (Fase 3) ──────────────────────────────────────────────
+export { EnvioT2StepOrigen } from './EnvioT2StepOrigen';
+export { EnvioT2StepPicking } from './EnvioT2StepPicking';
+export { EnvioT2StepTransporte } from './EnvioT2StepTransporte';
+export { EnvioT2StepCostos } from './EnvioT2StepCostos';
+export { EnvioT2StepConfirm } from './EnvioT2StepConfirm';
+
+// ─── Contenedor principal (Fase 3) ──────────────────────────────────────────
+export { WizardT2Page } from './WizardT2Page';
+export type { WizardT2PageProps } from './WizardT2Page';
