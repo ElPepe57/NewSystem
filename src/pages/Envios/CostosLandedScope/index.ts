@@ -19,3 +19,7 @@ export type {
 
 export { FinalizarCostosModal } from './FinalizarCostosModal';
 export type { FinalizarCostosModalProps } from './FinalizarCostosModal';
+
+// Compuesto (Fase 3)
+export { CostosLandedPanel } from './CostosLandedPanel';
+export type { CostosLandedPanelProps } from './CostosLandedPanel';

@@ -71,6 +71,19 @@ export const FEATURES = {
    *   3. true global tras validación end-to-end
    */
   SUBENVIOS_T1: false,
+
+  /**
+   * S46 — Costos landed con scope (envío vs tanda) + cierre financiero explícito
+   *
+   * Controla:
+   *   - Reemplazo de TabCostos antigua por CostosLandedPanel en EnvioDetailModal
+   *   - Selector scope en modal "Agregar costo" (envío global vs tanda)
+   *   - Estados estimado/confirmado en cada costo
+   *   - Acción "Finalizar costos" con confirmación + cierre financiero
+   *
+   * Retrocompat: costos existentes sin scope/estado se asumen 'envio'/'estimado'.
+   */
+  COSTOS_SCOPE_V2: false,
 } as const;
 
 /**
@@ -97,6 +110,21 @@ export function isSubenviosT1Enabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_SUBENVIOS_T1') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S46 — Helper análogo para el flag COSTOS_SCOPE_V2.
+ */
+export function isCostosScopeV2Enabled(): boolean {
+  if (FEATURES.COSTOS_SCOPE_V2) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_COSTOS_SCOPE_V2') === 'true';
     } catch {
       return false;
     }

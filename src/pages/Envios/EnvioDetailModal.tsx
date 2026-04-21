@@ -35,7 +35,13 @@ import { getEmojiPorProducto } from '../../components/modules/ordenCompra/OCWiza
 import { SubEnviosTimeline, type SubEnviosTimelineProductoMeta } from './SubEnviosT1';
 import type { AgregarTandaModalResult } from './SubEnviosT1';
 import { envioCrudService } from '../../services/envio.crud.service';
-import { isSubenviosT1Enabled } from '../../config/features';
+import { isSubenviosT1Enabled, isCostosScopeV2Enabled } from '../../config/features';
+// S46 — Costos landed con scope + cierre financiero (D-17, D-18)
+import {
+  CostosLandedPanel,
+  type AgregarCostoLandedModalResult,
+} from './CostosLandedScope';
+import { useTipoCambio } from '../../hooks/useTipoCambio';
 
 // ════════════════════════════════════════════════════════════════════════════
 // EnvioDetailModal — S41 Tanda 8 (reescritura completa alineada al mockup S40)
@@ -272,6 +278,91 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error al transicionar tanda';
       toast.error(msg);
+    }
+  };
+
+  // S46 — Flag + TC para el panel de costos
+  const costosScopeFlag = useMemo(() => isCostosScopeV2Enabled(), []);
+  const { tc } = useTipoCambio();
+
+  // Handlers de costos landed (S46)
+  const handleAgregarCosto = async (result: AgregarCostoLandedModalResult) => {
+    if (!userId) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    try {
+      await envioCrudService.agregarCostoLanded(
+        envio.id,
+        {
+          categoriaCostoId: `cat-${Date.now()}`,
+          categoriaCostoNombre: result.categoriaCostoNombre,
+          descripcion: result.descripcion,
+          monto: result.monto,
+          moneda: result.moneda,
+          montoPEN:
+            result.moneda === 'USD'
+              ? result.monto * (result.tipoCambio ?? 1)
+              : result.monto,
+          tipoCambio: result.tipoCambio,
+          metodoProrrateo: result.metodoProrrateo,
+          scope: result.scope,
+          tandaId: result.tandaId,
+          estado: result.estado,
+          facturaReferencia: result.facturaReferencia,
+          motivoEstimado: result.motivoEstimado,
+          pagado: false,
+        },
+        userId
+      );
+      toast.success('Costo agregado');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al agregar costo');
+      throw err;
+    }
+  };
+
+  const handleConfirmarCosto = async (costoId: string) => {
+    if (!userId) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    try {
+      await envioCrudService.confirmarCostoLanded(envio.id, costoId, {}, userId);
+      toast.success('Costo confirmado');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al confirmar');
+    }
+  };
+
+  const handleFinalizarCostos = async () => {
+    if (!userId) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    try {
+      await envioCrudService.finalizarCostosLanded(envio.id, userId);
+      toast.success('Costos finalizados · CTRU definitivo aplicado');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al finalizar');
+    }
+  };
+
+  const handleReabrirCostos = async () => {
+    if (!userId) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    const motivo = window.prompt(
+      'Motivo de la reapertura (obligatorio para auditoría):',
+      ''
+    );
+    if (!motivo || !motivo.trim()) return;
+    try {
+      await envioCrudService.reabrirCostosLanded(envio.id, motivo.trim(), userId);
+      toast.success('Costos reabiertos · justifica la edición con auditoría');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al reabrir');
     }
   };
 
@@ -518,7 +609,20 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               {tab === 'recepciones' && (
                 <TabRecepciones envio={envio} recepciones={recepciones} />
               )}
-              {tab === 'costos' && <TabCostos envio={envio} onEditFlete={onAbrirEditFlete} />}
+              {tab === 'costos' && (
+                costosScopeFlag ? (
+                  <CostosLandedPanel
+                    envio={envio}
+                    tipoCambioActual={tc?.venta}
+                    onAgregarCosto={handleAgregarCosto}
+                    onConfirmarCosto={handleConfirmarCosto}
+                    onFinalizarCostos={handleFinalizarCostos}
+                    onReabrirCostos={handleReabrirCostos}
+                  />
+                ) : (
+                  <TabCostos envio={envio} onEditFlete={onAbrirEditFlete} />
+                )
+              )}
               {tab === 'incidencias' && (
                 <TabIncidencias
                   envio={envio}
