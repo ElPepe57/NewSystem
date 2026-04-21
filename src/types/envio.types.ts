@@ -361,6 +361,49 @@ export interface EnvioFormData {
 }
 
 /**
+ * S44 — Payload para crear un envío T2 (Casilla Internacional → Almacén Perú)
+ * desde el Wizard T2. Consumido por `envioCrudService.crearEnvioT2()`.
+ *
+ * Es distinto a `EnvioFormData` porque encapsula la vista del wizard (unidades
+ * seleccionadas con metadata derivada + costos ya resueltos por preset de tarifa
+ * + contexto de transporte) y delega en el servicio la conversión al formato
+ * interno y la aplicación de costos landed.
+ */
+export interface CrearEnvioT2Payload {
+  /** ID de la casilla internacional origen */
+  casillaOrigenId: string;
+  /** ID del almacén destino en Perú */
+  almacenDestinoId: string;
+  /** Tipo de transporte elegido (afecta metadata, no cálculos) */
+  tipoTransporte: 'viajero' | 'courier';
+  /** ID del colaborador transportador (viajero/courier) */
+  colaboradorId: string;
+  /** Tracking opcional del viaje/paquete */
+  numeroTracking?: string;
+  /** Notas internas del envío */
+  notas?: string;
+  /** Unidades seleccionadas en el Paso 2 (Picking) con metadata desnormalizada */
+  unidades: Array<{
+    unidadId: string;
+    productoId: string;
+    sku: string;
+    codigoUnidad: string;
+    pesoLibras?: number;
+  }>;
+  /** Costos landed capturados en el Paso 4 (ya resueltos por preset de tarifa) */
+  costos: Array<{
+    categoriaCostoId: string;        // ej. 'flete-viajero', 'fee-recepcion'
+    categoriaCostoNombre: string;
+    descripcion?: string;
+    montoUSD: number;
+    tipoCambio: number;              // para calcular montoPEN = monto * tc
+    metodoProrrateo: MetodoProrrateo;
+    /** Mapa productoId → monto (solo si metodoProrrateo='variado_por_producto') */
+    detalleVariado?: Record<string, number>;
+  }>;
+}
+
+/**
  * Filtros para busqueda de envios
  */
 export interface EnvioFiltros {

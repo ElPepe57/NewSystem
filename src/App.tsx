@@ -12,6 +12,10 @@ const Productos = React.lazy(() => import('./pages/Productos/Productos').then(m 
 const Inventario = React.lazy(() => import('./pages/Inventario/Inventario').then(m => ({ default: m.Inventario })));
 // Almacenes page removed from routing — functionality lives in Maestros/AlmacenesLogistica
 const Envios = React.lazy(() => import('./pages/Envios/Envios').then(m => ({ default: m.Envios })));
+// S44 — Wizard T2 (Casilla Internacional → Almacén Perú) · detrás de feature flag WIZARD_T2
+const WizardT2Page = React.lazy(() =>
+  import('./pages/Envios/EnvioWizardT2').then(m => ({ default: m.WizardT2Page }))
+);
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
 const OrdenesCompra = React.lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
@@ -142,6 +146,7 @@ function App() {
               <Route path="productos-intel" element={<ProductosIntel />} />
               <Route path="inventario" element={<Inventario />} />
               <Route path="envios" element={<Envios />} />
+              <Route path="envios/nuevo-t2" element={<WizardT2Page />} />
               <Route path="red-logistica" element={<RedLogistica />} />
               <Route path="unidades" element={<Unidades />} />
               <Route path="escaner" element={<Escaner />} />

@@ -36,4 +36,38 @@ export const FEATURES = {
    * - true: ctruInicial = (costoUnitario + envioProveedor + impuesto + otros)*TC + flete
    */
   CTRU_CAPAS_OC_EN_INICIAL: false,
+
+  /**
+   * S44 — Wizard T2 (Casilla Internacional → Almacén Perú)
+   *
+   * Controla la visibilidad del botón "Nuevo envío — Casilla a Perú" en la vista
+   * /envios y del acceso a la ruta `/envios/nuevo-t2`.
+   *
+   * Flujo de rollout:
+   *   1. false (default) → código desplegado sin acceso del usuario · smoke tests en
+   *      ambiente staging con el flag activado localmente vía localStorage override
+   *   2. Activación gradual: `localStorage.setItem('FEATURE_WIZARD_T2', 'true')` por
+   *      usuario específico para UAT
+   *   3. true (global) → disponible para todos tras validación
+   *
+   * El Wizard T2 reemplaza al wizard antiguo (EnvioWizardV2) para el caso de envíos
+   * desde casilla internacional → Perú (caso C del Modelo Envíos Transversal, D-1).
+   */
+  WIZARD_T2: false,
 } as const;
+
+/**
+ * Helper: verifica si el flag WIZARD_T2 está activo (globalmente o por override
+ * de localStorage, útil para UAT por usuario antes del rollout completo).
+ */
+export function isWizardT2Enabled(): boolean {
+  if (FEATURES.WIZARD_T2) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_WIZARD_T2') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}

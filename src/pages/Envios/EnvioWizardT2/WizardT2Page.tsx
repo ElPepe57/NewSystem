@@ -12,11 +12,14 @@
  *
  * Ruta: /envios/nuevo-t2 (protegido por feature flag — ver routing).
  */
-import React, { useReducer, useEffect, useMemo } from 'react';
+import React, { useReducer, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WizardShell, DraftBanner, formatFechaRelativa } from '../../../design-system';
 import { useWizardAutosave } from '../../../hooks/useWizardAutosave';
 import { useProductoStore } from '../../../store/productoStore';
+import { useAuthStore } from '../../../store/authStore';
+import { envioCrudService } from '../../../services/envio.crud.service';
+import type { CrearEnvioT2Payload, MetodoProrrateo } from '../../../types/envio.types';
 
 import {
   envioWizardT2Reducer,
@@ -65,7 +68,10 @@ export interface WizardT2PageProps {
 
 export const WizardT2Page: React.FC<WizardT2PageProps> = ({ onCreated, onCancel, variant = 'page' }) => {
   const navigate = useNavigate();
+  const userId = useAuthStore((s) => s.user?.uid);
   const [state, dispatch] = useReducer(envioWizardT2Reducer, initialEnvioWizardT2State);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Autoguardado 2 capas (localStorage instant + Firestore cada 30s)
   const autosave = useWizardAutosave<typeof state>({
@@ -93,6 +99,15 @@ export const WizardT2Page: React.FC<WizardT2PageProps> = ({ onCreated, onCancel,
     if (productos.length === 0) fetchProductos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Mapa productoId → pesoLibras (para desnormalizar en el payload crearEnvioT2)
+  const pesosPorProducto = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const p of productos) {
+      if (p.pesoLibras) map[p.id] = p.pesoLibras;
+    }
+    return map;
+  }, [productos]);
 
   // ─── Validación por paso (controla si el botón "Siguiente" está habilitado) ─
   const canProceed = useMemo((): boolean => {
@@ -186,12 +201,98 @@ export const WizardT2Page: React.FC<WizardT2PageProps> = ({ onCreated, onCancel,
   };
 
   const handleConfirm = async () => {
-    // TODO (Fase 4): llamar a envioCrudService.crearEnvioT2(buildPayload(state))
-    //                → onCreated(envioId) → clearDraft() → navigate(`/envios`)
-    //                Por ahora placeholder:
-    // eslint-disable-next-line no-console
-    console.log('[WizardT2Page] TODO: integrar servicio crearEnvioT2', state);
-    if (onCreated) onCreated('ENV-TODO');
+    if (!userId) {
+      setError('Usuario no autenticado');
+      return;
+    }
+    setError(null);
+    setCreating(true);
+    try {
+      // Armar payload desde el state
+      const unidades = state.unidadesDisponibles
+        .filter((u) => state.unidadesIdsSeleccionadas.includes(u.id))
+        .map((u) => ({
+          unidadId: u.id,
+          productoId: u.productoId,
+          sku: u.productoSKU || u.productoId,
+          codigoUnidad: u.id.slice(-6).toUpperCase(),
+          pesoLibras: pesosPorProducto[u.productoId],
+        }));
+
+      // Armar costos landed segun preset
+      const costos: CrearEnvioT2Payload['costos'] = [];
+      const tc = state.tipoCambio || 0;
+      const fleteTotalUSD = selectMontoTotalFlete(state);
+      if (fleteTotalUSD > 0) {
+        const metodoProrrateo: MetodoProrrateo =
+          state.presetTarifa === 'monto_total'
+            ? 'total_por_peso'
+            : state.presetTarifa === 'por_unidad'
+            ? 'fijo_por_unidad'
+            : 'variado_por_producto';
+        costos.push({
+          categoriaCostoId: 'flete-t2',
+          categoriaCostoNombre:
+            state.tipoTransporte === 'viajero'
+              ? `Flete del viajero (${state.colaboradorNombre})`
+              : `Flete del courier (${state.colaboradorNombre})`,
+          descripcion: state.numeroTracking
+            ? `Tracking: ${state.numeroTracking}`
+            : undefined,
+          montoUSD: fleteTotalUSD,
+          tipoCambio: tc,
+          metodoProrrateo,
+          ...(state.presetTarifa === 'variable'
+            ? { detalleVariado: state.tarifaVariablePorProducto }
+            : {}),
+        });
+      }
+      // Costos adicionales activos (fee recepcion, etc.)
+      for (const costoAd of state.costosAdicionales.filter((c) => c.activo)) {
+        const metodoMap: Record<string, MetodoProrrateo> = {
+          monto_total: 'total_por_valor',
+          por_unidad: 'fijo_por_unidad',
+          por_valor: 'total_por_valor',
+        };
+        costos.push({
+          categoriaCostoId: costoAd.id,
+          categoriaCostoNombre: costoAd.concepto,
+          montoUSD: costoAd.monto,
+          tipoCambio: tc,
+          metodoProrrateo: metodoMap[costoAd.metodo] || 'total_por_valor',
+        });
+      }
+
+      const payload: CrearEnvioT2Payload = {
+        casillaOrigenId: state.casillaOrigenId,
+        almacenDestinoId: state.almacenDestinoId,
+        tipoTransporte: state.tipoTransporte!,
+        colaboradorId: state.colaboradorId,
+        numeroTracking: state.numeroTracking || undefined,
+        notas: state.notas || undefined,
+        unidades,
+        costos,
+      };
+
+      const resultado = await envioCrudService.crearEnvioT2(payload, userId);
+
+      // Limpiar borrador
+      autosave.clearDraft();
+
+      if (onCreated) {
+        onCreated(resultado.id);
+      } else {
+        // Navegar a /envios y abrir el detalle del envío recién creado
+        navigate(`/envios?envioId=${resultado.id}`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error desconocido al crear el envío';
+      setError(msg);
+      // eslint-disable-next-line no-console
+      console.error('[WizardT2Page] handleConfirm error:', err);
+    } finally {
+      setCreating(false);
+    }
   };
 
   // ─── Render del contenido por paso ──────────────────────────────────────
@@ -238,6 +339,27 @@ export const WizardT2Page: React.FC<WizardT2PageProps> = ({ onCreated, onCancel,
         </div>
       )}
 
+      {/* Banner de error si el servicio falló al crear el envío */}
+      {error && (
+        <div className="mb-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+          <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0 text-sm">
+            ⚠️
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-semibold text-red-900">No se pudo crear el envío</div>
+            <div className="text-xs text-red-800 mt-0.5">{error}</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className="text-red-400 hover:text-red-600 flex-shrink-0"
+            aria-label="Cerrar error"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       <WizardShell
         title="Nuevo envío — Casilla a Perú"
         subtitle="Consolida unidades de una casilla internacional y envíalas al almacén destino"
@@ -248,9 +370,10 @@ export const WizardT2Page: React.FC<WizardT2PageProps> = ({ onCreated, onCancel,
         onPrev={() => dispatch({ type: 'PREV_STEP' })}
         onCancel={handleCancel}
         onConfirm={handleConfirm}
-        confirmLabel="✓ Crear y despachar"
-        nextDisabled={!canProceed}
+        confirmLabel={creating ? 'Creando envío…' : '✓ Crear y despachar'}
+        nextDisabled={!canProceed || creating}
         nextHint={nextHint}
+        loading={creating}
         variant={variant}
         previewPanel={<EnvioT2WizardPreview {...previewProps} />}
       >

@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+// S44 — Feature flag para el Wizard T2 (Casilla Intl → Almacén Perú)
+import { isWizardT2Enabled } from "../../config/features";
 import {
   ArrowRightLeft,
   Truck,
@@ -147,6 +149,9 @@ export const Envios: React.FC = () => {
   const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  // S44 — Feature flag del Wizard T2 (Casilla Internacional → Almacén Perú)
+  const wizardT2Enabled = useMemo(() => isWizardT2Enabled(), []);
 
   // S40 Bloque B: KPI reclamos
   const {
@@ -741,6 +746,19 @@ export const Envios: React.FC = () => {
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Envio
             </Button>
+            {/* S44 — Botón del Wizard T2 (Casilla Intl → Almacén Perú).
+                Visible sólo con feature flag WIZARD_T2 activa (ver config/features.ts) */}
+            {wizardT2Enabled && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/envios/nuevo-t2')}
+                title="Wizard T2 (S44) — Consolida unidades de una casilla internacional y envíalas a Perú"
+              >
+                <Package className="h-4 w-4 mr-2" />
+                Casilla a Perú
+              </Button>
+            )}
           </div>
         }
         stats={[

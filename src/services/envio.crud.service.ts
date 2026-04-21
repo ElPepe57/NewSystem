@@ -8,7 +8,8 @@ import { COLLECTIONS } from '../config/collections';
 import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import type {
   Envio, EnvioFormData, EnvioFiltros, EnvioUnidad,
-  EstadoEnvio, CostoLanded, RecepcionEnvio, ResumenEnvios
+  EstadoEnvio, CostoLanded, RecepcionEnvio, ResumenEnvios,
+  CrearEnvioT2Payload,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
 
@@ -260,6 +261,84 @@ export const envioCrudService = {
     });
 
     logger.info(`Costo landed agregado a envio ${envio.numeroEnvio}: ${costo.categoriaCostoNombre} S/${costo.montoPEN.toFixed(2)}`);
+  },
+
+  /**
+   * S44 — Crea un envio T2 (Casilla Internacional → Almacén Perú) desde el Wizard T2.
+   *
+   * Caso C del Modelo Envíos Transversal. A diferencia de `crear()` genérico, este
+   * método es un wrapper conveniente que recibe el payload del Wizard T2 y:
+   *   1. Convierte las unidades seleccionadas en `EnvioUnidad[]` (con pesoLibras desnormalizado)
+   *   2. Llama a `crear()` existente con `origenTipo='casilla'` → nace en `borrador` (D-15)
+   *   3. Si se capturaron costos, los agrega vía `agregarCostoLanded()` con estado `'estimado'` (D-17)
+   *
+   * En S44 todos los costos son `scope='envio'` implícito (D-18). El `scope='tanda'` se implementa en S46.
+   *
+   * Retorna el envío creado con id + número.
+   */
+  async crearEnvioT2(
+    payload: CrearEnvioT2Payload,
+    userId: string
+  ): Promise<{ id: string; numeroEnvio: string }> {
+    const { casillaOrigenId, almacenDestinoId, tipoTransporte, colaboradorId, numeroTracking, unidades, costos, notas } = payload;
+
+    // 1. Armar unidadesDetalle (EnvioUnidad[]) desde las unidades seleccionadas
+    const unidadesDetalle = unidades.map((u) => ({
+      unidadId: u.unidadId,
+      productoId: u.productoId,
+      sku: u.sku,
+      codigoUnidad: u.codigoUnidad,
+      estadoEnvio: 'pendiente' as const,
+      ...(u.pesoLibras ? { pesoLibras: u.pesoLibras } : {}),
+    }));
+
+    // 2. Construir EnvioFormData para crear() genérico
+    const formData: EnvioFormData = {
+      origenTipo: 'casilla',
+      origenCasillaId: casillaOrigenId,
+      destinoCasillaId: almacenDestinoId,
+      colaboradorId: colaboradorId || undefined,
+      unidadesIds: unidades.map((u) => u.unidadId),
+      unidadesDetalle,
+      numeroTracking: numeroTracking || undefined,
+      // No hay courier explícito en T2 — se registra como colaborador transportador
+      ...(notas ? { notas } : {}),
+    };
+
+    // 3. Crear el envío base (nace en 'borrador' según D-15 — wizards manuales)
+    const resultado = await this.crear(formData, userId);
+
+    // 4. Agregar los costos landed (todos en estado 'estimado' por default — D-17)
+    //    En S44 el estado 'estimado'/'confirmado' se persiste en el campo CostoLanded.estado
+    //    cuando exista en el modelo. Por ahora se deja implicito hasta S46+.
+    for (const costo of costos) {
+      await this.agregarCostoLanded(
+        resultado.id,
+        {
+          categoriaCostoId: costo.categoriaCostoId,
+          categoriaCostoNombre: costo.categoriaCostoNombre,
+          descripcion: costo.descripcion,
+          monto: costo.montoUSD,
+          moneda: 'USD',
+          montoPEN: costo.montoUSD * costo.tipoCambio,
+          tipoCambio: costo.tipoCambio,
+          metodoProrrateo: costo.metodoProrrateo,
+          ...(costo.detalleVariado ? { detalleVariado: costo.detalleVariado } : {}),
+          pagado: false,
+        },
+        userId
+      );
+    }
+
+    // Indicador de tipo de ruta para Firestore (anticipa S48 consolidation)
+    // Se escribe como campo derivado en futuras sesiones. Por ahora el tipo se
+    // deriva heurísticamente por `origenTipo='casilla' && destino es almacén Perú`.
+
+    logger.success(
+      `[crearEnvioT2] Envío T2 creado: ${resultado.numeroEnvio} · ${unidades.length} uds · ${costos.length} costos landed · tipo ${tipoTransporte}`
+    );
+
+    return resultado;
   },
 
   /**
