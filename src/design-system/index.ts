@@ -62,3 +62,9 @@ export type { ProductoDisplayData } from './components/ProductoDisplay';
 
 // Banner de borrador de wizard (autoguardado 2 capas)
 export { DraftBanner, formatFechaRelativa } from './components/DraftBanner';
+
+// ─── S52 — Capa 3: Plantillas de dominio ─────────────────────────────────
+// Patrones canónicos del ERP derivados del estándar OrdenCompraCard.
+// Ver `docs/DESIGN_PATTERNS.md` para documentación completa.
+export * from './templates';
+export * from './hooks';
