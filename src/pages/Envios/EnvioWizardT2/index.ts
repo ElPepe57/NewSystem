@@ -55,3 +55,13 @@ export type {
   CTRULandedPreviewProps,
   CTRULandedPreviewFila,
 } from './CTRULandedPreview';
+
+// ─── Compuestos (Fase 2) ────────────────────────────────────────────────────
+export { ProductoPickingGroup } from './ProductoPickingGroup';
+export type {
+  ProductoPickingGroupProps,
+  ProductoPickingGroupUnidad,
+} from './ProductoPickingGroup';
+
+export { EnvioT2WizardPreview } from './EnvioT2WizardPreview';
+export type { EnvioT2WizardPreviewProps } from './EnvioT2WizardPreview';
