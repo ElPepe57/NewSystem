@@ -16,6 +16,10 @@ const Envios = React.lazy(() => import('./pages/Envios/Envios').then(m => ({ def
 const WizardT2Page = React.lazy(() =>
   import('./pages/Envios/EnvioWizardT2').then(m => ({ default: m.WizardT2Page }))
 );
+// S47 — Wizard J (Casilla Internacional ↔ Casilla Internacional) · detrás de feature flag WIZARD_J
+const WizardJPage = React.lazy(() =>
+  import('./pages/Envios/EnvioWizardJ').then(m => ({ default: m.WizardJPage }))
+);
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
 const OrdenesCompra = React.lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
@@ -147,6 +151,7 @@ function App() {
               <Route path="inventario" element={<Inventario />} />
               <Route path="envios" element={<Envios />} />
               <Route path="envios/nuevo-t2" element={<WizardT2Page />} />
+              <Route path="envios/nuevo-j" element={<WizardJPage />} />
               <Route path="red-logistica" element={<RedLogistica />} />
               <Route path="unidades" element={<Unidades />} />
               <Route path="escaner" element={<Escaner />} />

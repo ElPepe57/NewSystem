@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 // S44 — Feature flag para el Wizard T2 (Casilla Intl → Almacén Perú)
-import { isWizardT2Enabled } from "../../config/features";
+// S47 — Feature flag para el Wizard J (Casilla Intl ↔ Casilla Intl)
+import { isWizardT2Enabled, isWizardJEnabled } from "../../config/features";
 import {
   ArrowRightLeft,
   Truck,
@@ -160,6 +161,8 @@ export const Envios: React.FC = () => {
   const navigate = useNavigate();
   // S44 — Feature flag del Wizard T2 (Casilla Internacional → Almacén Perú)
   const wizardT2Enabled = useMemo(() => isWizardT2Enabled(), []);
+  // S47 — Feature flag del Wizard J (Casilla Internacional ↔ Casilla Internacional)
+  const wizardJEnabled = useMemo(() => isWizardJEnabled(), []);
 
   // S40 Bloque B: KPI reclamos
   const {
@@ -769,6 +772,19 @@ export const Envios: React.FC = () => {
               >
                 <Package className="h-4 w-4 mr-2" />
                 Casilla a Perú
+              </Button>
+            )}
+            {/* S47 — Botón del Wizard J (Casilla Intl ↔ Casilla Intl).
+                Visible sólo con feature flag WIZARD_J activa */}
+            {wizardJEnabled && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/envios/nuevo-j')}
+                title="Wizard J (S47) — Mueve unidades entre dos casillas internacionales (mismo colaborador o entre colaboradores)"
+              >
+                <ArrowRightLeft className="h-4 w-4 mr-2" />
+                Entre casillas
               </Button>
             )}
           </div>
