@@ -84,6 +84,18 @@ export interface Reclamo {
   motivoRechazo?: string;             // Si rechazado
   motivoDisputa?: string;             // Si en_disputa
 
+  // S45 (D-16) — Tipo de resolución del reclamo con el destinatario.
+  // El reclamo pasa a 'aceptado' cuando el destinatario acepta una resolución.
+  // El tipo determina qué efecto operativo/contable dispara:
+  //   - 'reembolso':  destinatario paga dinero (flujo actual: → cobrado → ingreso_otro)
+  //   - 'reemplazo':  destinatario envía unidad física como sub-tanda (NUEVO S45)
+  //   - 'merma':      destinatario no asume (flujo actual: → rechazado/cerrado_sin_cobrar → gasto_merma)
+  tipoResolucion?: TipoResolucionReclamo;
+  /** Si tipoResolucion='reemplazo': ID de la sub-tanda generada en el envío padre */
+  subEnvioReemplazoId?: string;
+  /** Fecha en que se definió el tipo de resolución (cuando el destinatario respondió) */
+  fechaResolucion?: Timestamp;
+
   // Fechas
   fechaCreacion: Timestamp;
   fechaEnvio?: Timestamp;
@@ -100,6 +112,28 @@ export interface Reclamo {
   // Línea de negocio (desnormalizado desde envío)
   lineaNegocioId?: string;
 }
+
+/**
+ * S45 (D-16) — Tipo de resolución del reclamo al destinatario (proveedor,
+ * courier, seguro, etc.).
+ *
+ *   'reembolso' → destinatario paga el valor reclamado en dinero.
+ *                 Efecto: tesorería ingreso_otro + unidad queda perdida_total.
+ *                 CTRU de unidad NO cambia (ya estaba calculado con costo original).
+ *
+ *   'reemplazo' → destinatario envía físicamente una nueva unidad como
+ *                 sub-tanda dentro del mismo envío T1.
+ *                 Efecto: nueva SubEnvioT1 tipo='reemplazo' vinculada al reclamo.
+ *                 CTRU de la unidad se preserva (reemplazo gratuito por convención).
+ *                 Sin asiento contable automático.
+ *                 Si el reemplazo también falla, se puede reabrir el reclamo y
+ *                 convertirlo a 'merma'.
+ *
+ *   'merma'     → destinatario rechaza o no responde.
+ *                 Efecto: gasto_merma_transferencia + unidad queda perdida_total.
+ *                 Afecta ranking de integridad del destinatario (visible en reportes).
+ */
+export type TipoResolucionReclamo = 'reembolso' | 'reemplazo' | 'merma';
 
 /**
  * Datos para crear un reclamo (borrador) desde UI.

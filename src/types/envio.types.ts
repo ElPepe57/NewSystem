@@ -287,6 +287,15 @@ export interface Envio {
   // Incidencias
   incidencias?: IncidenciaEnvio[];
 
+  // S45 (D-3) — Sub-envíos T1: tandas de despacho del proveedor dentro del mismo
+  // envío T1 (casos A, B, D). Ejemplo: Amazon despacha una sub-orden de 7 unidades
+  // en 3 paquetes con fechas 29-mar / 30-mar / 01-abr → 3 SubEnvioT1.
+  // Si no hay sub-tandas explícitas, el envío funciona plano (una sola tanda
+  // implícita con todas las unidades). Al recibir la primera tanda parcial, se
+  // puede crear retroactivamente (modo reactivo) o pueden crearse prospectivamente
+  // al recibir el aviso del proveedor. Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §7.
+  subEnvios?: SubEnvioT1[];
+
   // S38-009: DDP directo — proveedor entrega directo a Perú sin casilla intermedia
   esDDP?: boolean;
 
@@ -298,6 +307,71 @@ export interface Envio {
   actualizadoPor?: string;
   fechaActualizacion?: Timestamp;
 }
+
+/**
+ * S45 (D-3, D-16) — Sub-envío T1 (tanda de despacho del proveedor).
+ *
+ * Representa una entrega parcial dentro del envío T1 padre. Aplica a los casos
+ * A (Proveedor → Casilla), B (DDP directo) y D (Recojo colaborador).
+ *
+ * Ejemplo real: Amazon despacha una sub-orden de 7 unidades en 3 paquetes
+ * (fechas 29-mar / 30-mar / 01-abr). Cada paquete es una SubEnvioT1 con su
+ * propio tracking del courier del proveedor y fecha de entrega.
+ *
+ * Tipo 'reemplazo' (D-16): cuando el proveedor acepta reemplazar una unidad
+ * faltante/dañada, se crea una nueva sub-tanda vinculada al reclamo origen. El
+ * CTRU de la unidad reemplazada se preserva (reemplazo gratuito por convención).
+ */
+export interface SubEnvioT1 {
+  /** SE-{envioId}-{secuencia}, generado al crear */
+  id: string;
+  /** Número secuencial dentro del envío padre (1, 2, 3...) */
+  secuencia: number;
+  /** Tipo de sub-tanda — 'normal' por default, 'reemplazo' si viene de un reclamo */
+  tipo: 'normal' | 'reemplazo';
+  /** IDs de las unidades que viajan en esta tanda específica (subset del envío padre) */
+  unidadesIds: string[];
+
+  // Tracking del courier del proveedor (distinto al tracking global del envío)
+  numeroTrackingProveedor?: string;
+  /** Fecha en que el proveedor despachó la tanda (si la conocemos) */
+  fechaDespachoProveedor?: Timestamp;
+  /** Fecha estimada de entrega en destino */
+  fechaEstimadaEntrega?: Timestamp;
+  /** Fecha real de entrega (cuando la tanda se marcó como entregada) */
+  fechaEntrega?: Timestamp;
+
+  /** Ciclo de vida de la tanda — independiente del estado del envío padre */
+  estado: EstadoSubEnvio;
+
+  // ─── Solo para tandas de reemplazo (tipo='reemplazo', D-16) ───
+  /** Reclamo que originó esta tanda de reemplazo */
+  reclamoId?: string;
+  /** ID de la sub-tanda original cuya unidad fue reclamada */
+  tandaOriginalId?: string;
+
+  // Auditoría
+  notas?: string;
+  creadoPor: string;
+  fechaCreacion: Timestamp;
+  actualizadoPor?: string;
+  fechaActualizacion?: Timestamp;
+}
+
+/**
+ * S45 — Estados del sub-envío T1 (ciclo de vida independiente del envío padre).
+ *
+ * Transiciones típicas:
+ *   pendiente → en_transito → entregado
+ *   pendiente → en_transito → entregado_parcial  (llegó incompleto, genera incidencia)
+ *   pendiente → cancelada                        (antes de despachar)
+ */
+export type EstadoSubEnvio =
+  | 'pendiente'          // Planificada, aún no sale
+  | 'en_transito'        // El proveedor la despachó (con tracking)
+  | 'entregado'          // Llegó completa a la casilla destino
+  | 'entregado_parcial'  // Llegó incompleta — algunas unidades faltantes/dañadas
+  | 'cancelada';         // Se canceló antes de entregar
 
 /**
  * Pago al colaborador (viajero/courier) por el transporte

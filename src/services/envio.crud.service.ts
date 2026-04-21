@@ -10,6 +10,7 @@ import type {
   Envio, EnvioFormData, EnvioFiltros, EnvioUnidad,
   EstadoEnvio, CostoLanded, RecepcionEnvio, ResumenEnvios,
   CrearEnvioT2Payload,
+  SubEnvioT1, EstadoSubEnvio,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
 
@@ -339,6 +340,221 @@ export const envioCrudService = {
     );
 
     return resultado;
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // S45 — Sub-envíos T1 (tandas de despacho del proveedor)
+  // Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §7 (D-3, D-16)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * S45 — Crea una nueva sub-tanda dentro de un envío T1 existente (casos A/B/D).
+   *
+   * Flujo típico (modo prospectivo): el proveedor avisa "tu pedido va en 3 paquetes
+   * con fechas X/Y/Z" → el usuario crea 3 sub-tandas planificadas con estado
+   * 'pendiente'. Al recibir cada una, transita a 'entregado' via
+   * `transicionarSubEnvio()`.
+   *
+   * Flujo reactivo: al recibir la primera tanda parcial, se crea retroactivamente
+   * con estado 'entregado' directo.
+   *
+   * Validación: las unidadesIds deben estar en el envío padre y NO asignadas aún
+   * a otra sub-tanda (excepción: tipo='reemplazo' que sí puede repetir unidad).
+   */
+  async crearSubTandaT1(
+    envioId: string,
+    data: {
+      unidadesIds: string[];
+      tipo?: 'normal' | 'reemplazo';
+      numeroTrackingProveedor?: string;
+      fechaEstimadaEntrega?: Date;
+      estado?: EstadoSubEnvio; // default 'pendiente'
+      reclamoId?: string;      // solo si tipo='reemplazo'
+      tandaOriginalId?: string;
+      notas?: string;
+    },
+    userId: string
+  ): Promise<SubEnvioT1> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error(`Envío ${envioId} no encontrado`);
+
+    const tipo = data.tipo ?? 'normal';
+    const estado = data.estado ?? 'pendiente';
+    const now = Timestamp.now();
+
+    // Validación: unidades ya asignadas a otras sub-tandas normales
+    if (tipo === 'normal') {
+      const ocupadas = new Set<string>();
+      for (const se of envio.subEnvios ?? []) {
+        if (se.tipo === 'normal') {
+          se.unidadesIds.forEach((uid) => ocupadas.add(uid));
+        }
+      }
+      const conflictos = data.unidadesIds.filter((uid) => ocupadas.has(uid));
+      if (conflictos.length > 0) {
+        throw new Error(
+          `Estas unidades ya están en otra sub-tanda: ${conflictos.slice(0, 3).join(', ')}`
+        );
+      }
+    }
+
+    const secuencia = (envio.subEnvios?.length ?? 0) + 1;
+    const nuevaTanda: SubEnvioT1 = {
+      id: `SE-${envioId.slice(-6)}-${secuencia}`,
+      secuencia,
+      tipo,
+      unidadesIds: data.unidadesIds,
+      estado,
+      creadoPor: userId,
+      fechaCreacion: now,
+      ...(data.numeroTrackingProveedor && { numeroTrackingProveedor: data.numeroTrackingProveedor }),
+      ...(data.fechaEstimadaEntrega && {
+        fechaEstimadaEntrega: Timestamp.fromDate(data.fechaEstimadaEntrega),
+      }),
+      ...(data.reclamoId && { reclamoId: data.reclamoId }),
+      ...(data.tandaOriginalId && { tandaOriginalId: data.tandaOriginalId }),
+      ...(data.notas && { notas: data.notas }),
+    };
+
+    const subEnviosActualizados = [...(envio.subEnvios ?? []), nuevaTanda];
+    const ref = doc(db, COLL, envioId);
+    await updateDoc(ref, {
+      subEnvios: subEnviosActualizados,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    });
+
+    logger.success(
+      `[crearSubTandaT1] Envío ${envio.numeroEnvio} · tanda ${secuencia} (${tipo}) creada · ${data.unidadesIds.length} uds`
+    );
+    return nuevaTanda;
+  },
+
+  /**
+   * S45 — Transita el estado de una sub-tanda específica dentro del envío.
+   *
+   * Transiciones válidas:
+   *   pendiente → en_transito (cuando el proveedor despacha, se ingresa tracking)
+   *   pendiente → cancelada
+   *   en_transito → entregado (llegó completa)
+   *   en_transito → entregado_parcial (llegó incompleta — dispara incidencia)
+   *   en_transito → cancelada (raro, con auditoría)
+   *
+   * Actualiza automáticamente el estado del envío padre (T1) según reglas D-3:
+   *   - Primer sub-envío en_transito → envío padre pasa a 'en_transito'
+   *   - Primer sub-envío entregado → envío padre pasa a 'recibida_parcial'
+   *   - Todos los sub-envíos entregados + unidades recibidas = total → 'recibida_completa'
+   */
+  async transicionarSubEnvio(
+    envioId: string,
+    subEnvioId: string,
+    nuevoEstado: EstadoSubEnvio,
+    userId: string,
+    extra?: {
+      fechaDespachoProveedor?: Date;
+      fechaEntrega?: Date;
+      numeroTrackingProveedor?: string;
+    }
+  ): Promise<void> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error(`Envío ${envioId} no encontrado`);
+
+    const subEnvios = envio.subEnvios ?? [];
+    const idx = subEnvios.findIndex((se) => se.id === subEnvioId);
+    if (idx === -1) throw new Error(`Sub-tanda ${subEnvioId} no existe en el envío`);
+
+    const now = Timestamp.now();
+    const actualizada: SubEnvioT1 = {
+      ...subEnvios[idx],
+      estado: nuevoEstado,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+      ...(extra?.fechaDespachoProveedor && {
+        fechaDespachoProveedor: Timestamp.fromDate(extra.fechaDespachoProveedor),
+      }),
+      ...(extra?.fechaEntrega && {
+        fechaEntrega: Timestamp.fromDate(extra.fechaEntrega),
+      }),
+      ...(extra?.numeroTrackingProveedor && {
+        numeroTrackingProveedor: extra.numeroTrackingProveedor,
+      }),
+    };
+    const subEnviosActualizados = [...subEnvios];
+    subEnviosActualizados[idx] = actualizada;
+
+    // ─── Derivar estado del envío padre según las sub-tandas ───
+    const algunaEnTransito = subEnviosActualizados.some((se) => se.estado === 'en_transito');
+    const algunaEntregada = subEnviosActualizados.some(
+      (se) => se.estado === 'entregado' || se.estado === 'entregado_parcial'
+    );
+    const todasTerminales = subEnviosActualizados.every(
+      (se) => se.estado === 'entregado' || se.estado === 'entregado_parcial' || se.estado === 'cancelada'
+    );
+
+    let nuevoEstadoEnvio: EstadoEnvio | undefined;
+    if (todasTerminales && algunaEntregada) {
+      // Todas tandas llegaron (al menos una entregada, el resto puede ser cancelada)
+      nuevoEstadoEnvio = 'recibida_completa';
+    } else if (algunaEntregada) {
+      nuevoEstadoEnvio = 'recibida_parcial';
+    } else if (algunaEnTransito) {
+      nuevoEstadoEnvio = 'en_transito';
+    }
+
+    const ref = doc(db, COLL, envioId);
+    const updates: Record<string, unknown> = {
+      subEnvios: subEnviosActualizados,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    };
+    if (nuevoEstadoEnvio && nuevoEstadoEnvio !== envio.estado) {
+      updates.estado = nuevoEstadoEnvio;
+      if (nuevoEstadoEnvio === 'en_transito' && !envio.fechaSalida) {
+        updates.fechaSalida = extra?.fechaDespachoProveedor
+          ? Timestamp.fromDate(extra.fechaDespachoProveedor)
+          : now;
+      }
+      if (nuevoEstadoEnvio === 'recibida_completa' && !envio.fechaLlegadaReal) {
+        updates.fechaLlegadaReal = extra?.fechaEntrega
+          ? Timestamp.fromDate(extra.fechaEntrega)
+          : now;
+      }
+    }
+    await updateDoc(ref, updates);
+
+    logger.info(
+      `[transicionarSubEnvio] ${envio.numeroEnvio} · tanda ${actualizada.secuencia} → ${nuevoEstado}${
+        nuevoEstadoEnvio ? ` · envío padre → ${nuevoEstadoEnvio}` : ''
+      }`
+    );
+  },
+
+  /**
+   * S45 — Elimina una sub-tanda (solo permitido si está en estado 'pendiente').
+   * Las unidades vuelven a estar disponibles para asignarse a otras tandas.
+   */
+  async eliminarSubTanda(envioId: string, subEnvioId: string, userId: string): Promise<void> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error(`Envío ${envioId} no encontrado`);
+
+    const subEnvios = envio.subEnvios ?? [];
+    const tanda = subEnvios.find((se) => se.id === subEnvioId);
+    if (!tanda) throw new Error(`Sub-tanda ${subEnvioId} no existe`);
+    if (tanda.estado !== 'pendiente') {
+      throw new Error(
+        `Solo se pueden eliminar sub-tandas en estado 'pendiente' (actual: ${tanda.estado})`
+      );
+    }
+
+    const subEnviosActualizados = subEnvios.filter((se) => se.id !== subEnvioId);
+    const ref = doc(db, COLL, envioId);
+    await updateDoc(ref, {
+      subEnvios: subEnviosActualizados,
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now(),
+    });
+
+    logger.info(`[eliminarSubTanda] ${envio.numeroEnvio} · tanda ${tanda.secuencia} eliminada`);
   },
 
   /**
