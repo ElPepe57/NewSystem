@@ -815,152 +815,91 @@ export const Envios: React.FC = () => {
         <TabRendimiento />
       ) : (
       <>
-      {/* S42 Tanda 9 — KPIs alineados al mockup (líneas 1948-1998) */}
-      <DSKPIBar columns={6}>
-        <DSStatCard
-          label="Total"
-          value={enviosPorLinea.length}
-          icon={ArrowRightLeft}
-          variant="neutral"
-          subtitle="envíos activos"
-        />
-        <DSStatCard
-          label="En tránsito"
-          value={resumen?.enTransito || 0}
-          icon={Truck}
-          variant="info"
-          onClick={() => setActiveTab('en_transito')}
-          active={activeTab === 'en_transito'}
-          subtitle={enviosStatsExtra.unidadesEnTransito > 0
-            ? `${enviosStatsExtra.unidadesEnTransito} unidades`
-            : 'en camino'}
-        />
-        <DSStatCard
-          label="Pendientes"
-          value={resumen?.pendientesRecepcion || 0}
-          icon={Clock}
-          variant="warning"
-          onClick={() => setActiveTab('pendientes')}
-          active={activeTab === 'pendientes'}
-          subtitle="recepción parcial"
-        />
-        <DSStatCard
-          label="Incidencias"
-          value={resumen?.enviosConIncidencias || 0}
-          icon={AlertTriangle}
-          variant={resumen?.enviosConIncidencias ? 'danger' : 'neutral'}
-          onClick={() => setActiveTab('incidencias')}
-          active={activeTab === 'incidencias'}
-          subtitle="sin resolver"
-        />
-        <DSStatCard
-          label="En reclamo"
-          value={resumenReclamos?.reclamosPendientes || 0}
-          icon={Gavel}
-          variant={resumenReclamos && resumenReclamos.reclamosPendientes > 0 ? 'warning' : 'neutral'}
-          onClick={() => setTabEnvios('reclamos')}
-          subtitle={resumenReclamos && resumenReclamos.totalReclamadoPEN > 0
-            ? `S/ ${resumenReclamos.totalReclamadoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })} pendiente`
-            : 'sin reclamos'}
-        />
-        <DSStatCard
-          label="Valor landed"
-          value={enviosStatsExtra.tc > 0
-            ? `S/ ${enviosStatsExtra.valorLandedPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`
-            : `$${valorEnTransito.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
-          icon={DollarSign}
-          variant="success"
-          subtitle="total prorrateado"
-        />
-      </DSKPIBar>
-
-      {/* S42 Tanda 9 — Dashboard 2-col: Breakdown por tipo + Pipeline logístico horizontal (mockup líneas 2000-2070) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Breakdown por tipo */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-slate-800 mb-3">Distribución por tipo</h3>
-          <div className="space-y-2">
-            {breakdownPorTipo.map((item) => (
-              <div key={item.label}>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="flex items-center gap-1.5 text-slate-700">
-                    <span className={`w-2 h-2 rounded-full ${item.dot}`}></span>
-                    {item.label}
-                  </span>
-                  <span className="font-semibold text-slate-800">
-                    {item.value} <span className="text-slate-400 font-normal">({item.pct}%)</span>
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className={`${item.bar} h-2 rounded-full transition-all`} style={{ width: `${item.pct}%` }}></div>
-                </div>
-              </div>
-            ))}
+      {/* S52 — KPIBar pixel-perfect al mockup S43 (6 tarjetas pastel, sin ícono).
+          Reemplaza DSKPIBar+DSStatCard blanco-con-icono por el diseño pastel suave
+          del mockup (`docs/mockups/envios-transversal-s43.html`).
+          El "Distribución por tipo + Pipeline" debajo fue ELIMINADO: redundante con
+          las pills A-J del filtro por tipo de ruta logística. */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="text-xs text-slate-600 font-medium">Total activos</div>
+          <div className="text-3xl font-bold text-slate-900 tabular-nums mt-1">
+            {enviosPorLinea.length}
           </div>
+          <div className="text-[11px] text-slate-500 mt-0.5">envíos en curso</div>
         </div>
-
-        {/* Pipeline logístico horizontal */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-slate-800 mb-3">Pipeline logístico</h3>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setPipelineStage(pipelineStage === 'borrador' ? null : 'borrador')}
-              className={`flex-1 rounded-lg p-2 text-center transition-colors ${
-                pipelineStage === 'borrador' ? 'bg-slate-200 ring-2 ring-slate-400' : 'bg-slate-100 hover:bg-slate-200'
-              }`}
-            >
-              <FileText className="h-4 w-4 text-slate-600 mx-auto" />
-              <div className="text-[10px] text-slate-600 mt-0.5">Borrador</div>
-              <div className="text-sm font-bold text-slate-900">{pipelineStages[0]?.count || 0}</div>
-            </button>
-            <ChevronRight className="h-3 w-3 text-slate-300" />
-            <button
-              type="button"
-              onClick={() => setPipelineStage(pipelineStage === 'confirmado' ? null : 'confirmado')}
-              className={`flex-1 rounded-lg p-2 text-center border transition-colors ${
-                pipelineStage === 'confirmado' ? 'bg-amber-100 border-amber-300 ring-2 ring-amber-300' : 'bg-amber-50 border-amber-200 hover:bg-amber-100'
-              }`}
-            >
-              <Package className="h-4 w-4 text-amber-600 mx-auto" />
-              <div className="text-[10px] text-amber-700 mt-0.5">Confirmado</div>
-              <div className="text-sm font-bold text-slate-900">{pipelineStages[1]?.count || 0}</div>
-            </button>
-            <ChevronRight className="h-3 w-3 text-slate-300" />
-            <button
-              type="button"
-              onClick={() => setPipelineStage(pipelineStage === 'en_transito' ? null : 'en_transito')}
-              className={`flex-1 rounded-lg p-2 text-center border transition-colors ${
-                pipelineStage === 'en_transito' ? 'bg-sky-100 border-sky-300 ring-2 ring-sky-300' : 'bg-sky-50 border-sky-200 hover:bg-sky-100'
-              }`}
-            >
-              <Truck className="h-4 w-4 text-sky-600 mx-auto" />
-              <div className="text-[10px] text-sky-700 mt-0.5">En tránsito</div>
-              <div className="text-sm font-bold text-slate-900">{pipelineStages[2]?.count || 0}</div>
-            </button>
-            <ChevronRight className="h-3 w-3 text-slate-300" />
-            <button
-              type="button"
-              onClick={() => setPipelineStage(pipelineStage === 'recibida' ? null : 'recibida')}
-              className={`flex-1 rounded-lg p-2 text-center border transition-colors ${
-                pipelineStage === 'recibida' ? 'bg-emerald-100 border-emerald-300 ring-2 ring-emerald-300' : 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-              }`}
-            >
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 mx-auto" />
-              <div className="text-[10px] text-emerald-700 mt-0.5">Recibida</div>
-              <div className="text-sm font-bold text-slate-900">{pipelineStages[3]?.count || 0}</div>
-            </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab(activeTab === 'en_transito' ? 'todas' : 'en_transito')}
+          className={`rounded-xl border text-left p-4 transition-colors ${
+            activeTab === 'en_transito'
+              ? 'border-sky-400 bg-sky-100 ring-2 ring-sky-200'
+              : 'border-sky-200 bg-sky-50 hover:bg-sky-100'
+          }`}
+        >
+          <div className="text-xs text-sky-700 font-medium">En tránsito</div>
+          <div className="text-3xl font-bold text-sky-900 tabular-nums mt-1">
+            {resumen?.enTransito || 0}
           </div>
-          {resumen?.completadasMes != null && (
-            <div className="mt-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500 text-center">
-              Completadas este mes: <b className="text-slate-700">{resumen.completadasMes}</b>
-              {enviosPorLinea.length > 0 && (
-                <> · Fill rate: <b className="text-emerald-700">
-                  {Math.round(((pipelineStages[3]?.count || 0) / enviosPorLinea.length) * 100)}%
-                </b></>
-              )}
-            </div>
-          )}
+          <div className="text-[11px] text-sky-700/80 mt-0.5">
+            {enviosStatsExtra.unidadesEnTransito > 0
+              ? `${enviosStatsExtra.unidadesEnTransito} uds`
+              : 'en camino'}
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab(activeTab === 'pendientes' ? 'todas' : 'pendientes')}
+          className={`rounded-xl border text-left p-4 transition-colors ${
+            activeTab === 'pendientes'
+              ? 'border-amber-400 bg-amber-100 ring-2 ring-amber-200'
+              : 'border-amber-200 bg-amber-50 hover:bg-amber-100'
+          }`}
+        >
+          <div className="text-xs text-amber-800 font-medium">Pendientes recepción</div>
+          <div className="text-3xl font-bold text-amber-900 tabular-nums mt-1">
+            {resumen?.pendientesRecepcion || 0}
+          </div>
+          <div className="text-[11px] text-amber-700/80 mt-0.5">recepción parcial</div>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab(activeTab === 'incidencias' ? 'todas' : 'incidencias')}
+          className={`rounded-xl border text-left p-4 transition-colors ${
+            activeTab === 'incidencias'
+              ? 'border-rose-400 bg-rose-100 ring-2 ring-rose-200'
+              : 'border-rose-200 bg-rose-50 hover:bg-rose-100'
+          }`}
+        >
+          <div className="text-xs text-rose-800 font-medium">Incidencias</div>
+          <div className="text-3xl font-bold text-rose-900 tabular-nums mt-1">
+            {resumen?.enviosConIncidencias || 0}
+          </div>
+          <div className="text-[11px] text-rose-700/80 mt-0.5">sin resolver</div>
+        </button>
+        <button
+          type="button"
+          onClick={() => setTabEnvios('reclamos')}
+          className="rounded-xl border border-fuchsia-200 bg-fuchsia-50 hover:bg-fuchsia-100 text-left p-4 transition-colors"
+        >
+          <div className="text-xs text-fuchsia-800 font-medium">En reclamo</div>
+          <div className="text-3xl font-bold text-fuchsia-900 tabular-nums mt-1">
+            {resumenReclamos?.reclamosPendientes || 0}
+          </div>
+          <div className="text-[11px] text-fuchsia-700/80 mt-0.5">
+            {resumenReclamos && resumenReclamos.totalReclamadoPEN > 0
+              ? `S/ ${resumenReclamos.totalReclamadoPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })} pend.`
+              : 'sin reclamos'}
+          </div>
+        </button>
+        <div className="rounded-xl border border-teal-200 bg-teal-50 p-4">
+          <div className="text-xs text-teal-800 font-medium">Valor landed</div>
+          <div className="text-3xl font-bold text-teal-900 tabular-nums mt-1">
+            {enviosStatsExtra.tc > 0
+              ? `S/ ${(enviosStatsExtra.valorLandedPEN / 1000).toFixed(1)}k`
+              : `$${(valorEnTransito / 1000).toFixed(1)}k`}
+          </div>
+          <div className="text-[11px] text-teal-700/80 mt-0.5">total prorrateado</div>
         </div>
       </div>
 
