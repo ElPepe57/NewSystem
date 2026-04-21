@@ -512,6 +512,56 @@ export interface CrearEnvioT2Payload {
 }
 
 /**
+ * S47 — Payload para crear un envío Caso J (Casilla Internacional → Casilla Internacional)
+ * desde el Wizard J. Consumido por `envioCrudService.crearEnvioJ()`.
+ *
+ * Dos variantes (D-8):
+ *   - J1: mismo colaborador, dos casillas suyas (sin destinatario externo)
+ *   - J2: colaboradores distintos (un remitente, un destinatario)
+ *
+ * Decisión D-9: intra-país preferente. Si origenPais !== destinoPais, el usuario
+ * recibe un warning visible (no bloqueante) y el campo `advertenciaCambioPais`
+ * queda en true para auditoría.
+ */
+export interface CrearEnvioJPayload {
+  /** ID de la casilla internacional origen */
+  casillaOrigenId: string;
+  /** ID de la casilla internacional destino (NO es almacén Perú) */
+  casillaDestinoId: string;
+  /** Variante del Caso J */
+  variante: 'J1' | 'J2';
+  /** ID del colaborador transportador (puede ser el mismo del origen en J1) */
+  colaboradorTransporteId: string;
+  /** Tracking opcional del envío */
+  numeroTracking?: string;
+  /** Notas internas */
+  notas?: string;
+  /**
+   * D-9: flag auditable cuando el destino está en un país distinto al origen.
+   * Se setea automáticamente en el wizard cuando origenPais !== destinoPais.
+   */
+  advertenciaCambioPais?: boolean;
+  /** Unidades seleccionadas en el Paso 1 con metadata desnormalizada */
+  unidades: Array<{
+    unidadId: string;
+    productoId: string;
+    sku: string;
+    codigoUnidad: string;
+    pesoLibras?: number;
+  }>;
+  /** Costos landed capturados en el Paso 4 (ya resueltos por preset de tarifa) */
+  costos: Array<{
+    categoriaCostoId: string;
+    categoriaCostoNombre: string;
+    descripcion?: string;
+    montoUSD: number;
+    tipoCambio: number;
+    metodoProrrateo: MetodoProrrateo;
+    detalleVariado?: Record<string, number>;
+  }>;
+}
+
+/**
  * Filtros para busqueda de envios
  */
 export interface EnvioFiltros {

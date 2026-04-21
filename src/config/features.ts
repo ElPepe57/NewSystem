@@ -84,6 +84,25 @@ export const FEATURES = {
    * Retrocompat: costos existentes sin scope/estado se asumen 'envio'/'estimado'.
    */
   COSTOS_SCOPE_V2: false,
+
+  /**
+   * S47 — Wizard J (Casilla Internacional → Casilla Internacional · caso J del
+   * Modelo Envíos Transversal).
+   *
+   * Controla:
+   *   - Visibilidad del botón "Entre casillas" en la vista /envios
+   *   - Acceso a la ruta `/envios/nuevo-j`
+   *
+   * Dos variantes soportadas (D-8):
+   *   - J1: mismo colaborador, dos casillas suyas
+   *   - J2: colaboradores distintos (remitente → destinatario)
+   *
+   * Flujo de rollout idéntico a WIZARD_T2:
+   *   1. false (default) → código desplegado sin acceso del usuario
+   *   2. localStorage.setItem('FEATURE_WIZARD_J', 'true') para UAT individual
+   *   3. true global tras validación end-to-end
+   */
+  WIZARD_J: false,
 } as const;
 
 /**
@@ -125,6 +144,21 @@ export function isCostosScopeV2Enabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_COSTOS_SCOPE_V2') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S47 — Helper análogo para el flag WIZARD_J (Casilla ↔ Casilla).
+ */
+export function isWizardJEnabled(): boolean {
+  if (FEATURES.WIZARD_J) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_WIZARD_J') === 'true';
     } catch {
       return false;
     }

@@ -10,6 +10,7 @@ import type {
   Envio, EnvioFormData, EnvioFiltros, EnvioUnidad,
   EstadoEnvio, CostoLanded, RecepcionEnvio, ResumenEnvios,
   CrearEnvioT2Payload,
+  CrearEnvioJPayload,
   SubEnvioT1, EstadoSubEnvio,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
@@ -518,6 +519,112 @@ export const envioCrudService = {
 
     logger.success(
       `[crearEnvioT2] Envío T2 creado: ${resultado.numeroEnvio} · ${unidades.length} uds · ${costos.length} costos landed · tipo ${tipoTransporte}`
+    );
+
+    return resultado;
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // S47 — Wizard J: envío Casilla Internacional → Casilla Internacional
+  // Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §4 (Caso J, D-8, D-9)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * S47 — Crea un envío Caso J (casilla internacional → casilla internacional).
+   *
+   * Dos variantes:
+   *   - J1: mismo colaborador, dos casillas suyas (movimiento interno)
+   *   - J2: colaboradores distintos (remitente → destinatario)
+   *
+   * D-9: si origen y destino están en países distintos, el wizard marca
+   * `advertenciaCambioPais=true` para auditoría. No bloquea la creación.
+   *
+   * Flujo:
+   *   1. Construye EnvioUnidad[] desde las unidades seleccionadas (estado 'pendiente')
+   *   2. Invoca `crear()` genérico con origenTipo='casilla' y destinoCasillaId (casilla intl)
+   *   3. Agrega costos landed vía `agregarCostoLanded()` con estado 'estimado' (D-17)
+   *
+   * Retorna el envío creado con id + número.
+   */
+  async crearEnvioJ(
+    payload: CrearEnvioJPayload,
+    userId: string
+  ): Promise<{ id: string; numeroEnvio: string }> {
+    const {
+      casillaOrigenId,
+      casillaDestinoId,
+      variante,
+      colaboradorTransporteId,
+      numeroTracking,
+      unidades,
+      costos,
+      notas,
+      advertenciaCambioPais,
+    } = payload;
+
+    // 1. Armar EnvioUnidad[] desde las unidades seleccionadas
+    const unidadesDetalle: EnvioUnidad[] = unidades.map((u) => ({
+      unidadId: u.unidadId,
+      productoId: u.productoId,
+      sku: u.sku,
+      codigoUnidad: u.codigoUnidad,
+      estadoEnvio: 'pendiente' as const,
+      ...(u.pesoLibras ? { pesoLibras: u.pesoLibras } : {}),
+    }));
+
+    // 2. EnvioFormData genérico (destino es casilla internacional, NO almacén Perú)
+    const formData: EnvioFormData = {
+      origenTipo: 'casilla',
+      origenCasillaId: casillaOrigenId,
+      destinoCasillaId: casillaDestinoId,
+      colaboradorId: colaboradorTransporteId || undefined,
+      unidadesIds: unidades.map((u) => u.unidadId),
+      unidadesDetalle,
+      numeroTracking: numeroTracking || undefined,
+      ...(notas ? { notas } : {}),
+    };
+
+    // 3. Crear el envío base (nace en 'borrador' según D-15)
+    const resultado = await this.crear(formData, userId);
+
+    // 4. Persistir metadata Caso J en el documento del envío (variante + advertencia)
+    //    Estos campos son específicos de J y se guardan como extensión del doc.
+    //    Cuando S48+ formalice `tipoRutaLogistica` se migrarán a ese esquema.
+    const extrasJ: Record<string, unknown> = {
+      casoJVariante: variante,
+    };
+    if (advertenciaCambioPais) {
+      extrasJ.advertenciaCambioPais = true;
+    }
+    try {
+      await updateDoc(doc(db, COLL, resultado.id), extrasJ);
+    } catch (err) {
+      // No bloquea — metadata de ruta es soft-info, no altera el flujo operativo
+      logger.warn(`[crearEnvioJ] No se pudo persistir metadata J: ${err}`);
+    }
+
+    // 5. Agregar costos landed capturados en el wizard (estado 'estimado' por default)
+    for (const costo of costos) {
+      await this.agregarCostoLanded(
+        resultado.id,
+        {
+          categoriaCostoId: costo.categoriaCostoId,
+          categoriaCostoNombre: costo.categoriaCostoNombre,
+          descripcion: costo.descripcion,
+          monto: costo.montoUSD,
+          moneda: 'USD',
+          montoPEN: costo.montoUSD * costo.tipoCambio,
+          tipoCambio: costo.tipoCambio,
+          metodoProrrateo: costo.metodoProrrateo,
+          ...(costo.detalleVariado ? { detalleVariado: costo.detalleVariado } : {}),
+          pagado: false,
+        },
+        userId
+      );
+    }
+
+    logger.success(
+      `[crearEnvioJ] Envío J creado: ${resultado.numeroEnvio} · variante ${variante} · ${unidades.length} uds · ${costos.length} costos${advertenciaCambioPais ? ' · ⚠ cambio país' : ''}`
     );
 
     return resultado;
