@@ -110,7 +110,7 @@ Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 co
 | D-14 | Se reutiliza `Unidad.reservadaPara` existente (no crear campo nuevo) | Ya implementado para cotizaciones con adelanto pagado |
 | D-15 | Estado inicial del envio por tipo (NO regla unificada): A/B/F/G nacen `confirmado`, D nace `recibida_completa`, C/E/I/J nacen `borrador` | Los auto-creados tienen compromiso implicito en el documento origen; los manuales necesitan ser editables hasta despachar. Ver seccion 8.1 para la tabla completa. |
 | D-16 | Reclamo al proveedor tiene 3 salidas: **reembolso** (dinero), **reemplazo** (nueva tanda fisica en el mismo envio T1) o **merma** (castigo contable si proveedor no asume) | El reemplazo fisico es una capacidad operativa real que no estaba modelada. Se implementa como sub-tanda adicional con `tipo='reemplazo'` vinculada al reclamo. CTRU de la unidad reemplazada se mantiene original (el reemplazo es gratuito por convencion). Ver seccion 7.4. |
-| D-17 | Costos landed con timing flexible: se pueden registrar **antes** (al crear envio), **durante** (trancito: ej. aduana retiene) o **despues** (ej. factura mensual del colaborador). Cada costo tiene estado `estimado` o `confirmado`. CTRU preliminar mientras haya estimados, final al cerrar envio con todos confirmados. | El Wizard T2 NO obliga a capturar todos los costos en el paso 4. Solo captura los conocidos al momento. La gestion continua de costos vive en el detalle del envio (tab "Costos landed") con historial de auditoria. Editable en todos los estados operativos; solo lectura en `cancelada` o post-cierre contable. |
+| D-17 | Costos landed con **dos cierres independientes**: (a) **cierre operativo** = `estado='recibida_completa'` (mercadería llegó) · (b) **cierre financiero** = todos los costos confirmados + accion explicita "Finalizar costos" → CTRU final. Pueden tardar semanas entre uno y otro (ej. factura del viajero llega post-entrega). Fee de recepción se confirma tanda por tanda al recibir. Cada costo tiene estado `estimado` o `confirmado`. | El Wizard T2 NO obliga captura obligatoria. Los costos son editables incluso en `recibida_completa` hasta la finalización explícita. Boton "Finalizar costos" solo habilitado cuando todos los costos estén confirmados. Al finalizar: CTRU preliminar → final, se bloquea edición futura (salvo reapertura con auditoría). Ver seccion 10.4. |
 
 ---
 
@@ -801,6 +801,66 @@ ctruLandedUnidad = costoUnitarioUSD           // Base: precio pagado al proveedo
 - Tabla producto-tarifa
 - Calculo por producto: `tarifa_producto * unidades_producto`
 - Prorrateo interno: `fijo_por_unidad` dentro de cada producto
+
+### 10.4 Doble cierre: operativo vs financiero (D-17)
+
+El ciclo de vida de un envio tiene **dos cierres independientes** que pueden ocurrir con semanas de diferencia entre si.
+
+**Cierre operativo:**
+- Disparador: todas las unidades recibidas fisicamente en destino
+- Estado: `envio.estado = 'recibida_completa'`
+- Significado: la mercaderia llego, las unidades estan disponibles para venta/uso
+- Momento tipico: 3-5 dias despues del despacho
+
+**Cierre financiero:**
+- Disparador: todos los `CostoLanded` en estado `confirmado` + accion explicita del usuario
+- Flag: `envio.costosFinalizados: boolean` (nuevo campo)
+- Significado: CTRU preliminar → final, se aplica definitivamente a cada unidad
+- Momento tipico: hasta 30-60 dias despues del cierre operativo (espera de facturas)
+
+**Estado del costo landed individual:**
+
+```typescript
+interface CostoLanded {
+  // ... campos existentes ...
+
+  estado: 'estimado' | 'confirmado';       // NUEVO — default 'estimado'
+  fechaConfirmacion?: Timestamp;            // NUEVO — cuando paso a 'confirmado'
+  confirmadoPor?: string;                   // NUEVO — userId
+  facturaReferencia?: string;               // NUEVO — num factura/documento
+  motivoEstimado?: string;                  // NUEVO — ej. "pendiente factura del viajero"
+}
+
+interface Envio {
+  // ... campos existentes ...
+
+  costosFinalizados: boolean;                // NUEVO — default false
+  fechaFinalizacionCostos?: Timestamp;       // NUEVO
+  finalizadoPor?: string;                    // NUEVO
+}
+```
+
+**Flujo UX del doble cierre:**
+
+1. Envio en `recibida_completa` con algunos costos `estimado` → badge "Cierre financiero pendiente" visible, acciones editables activas.
+2. Usuario confirma el costo estimado cuando llega la factura → `estado: 'confirmado'`, historial registra confirmacion.
+3. Cuando **todos los costos** estan `confirmado` → boton "Finalizar costos del envio" se habilita.
+4. Click en "Finalizar costos": modal de confirmacion "Esto hara el CTRU final definitivo. ¿Confirmas?" → al aceptar: `costosFinalizados = true`, CTRU preliminar → final en cada unidad, se bloquea edicion futura.
+5. Post-finalizacion: solo lectura. Para reabrir se requiere accion explicita con auditoria (caso raro: factura anulada por proveedor).
+
+**Implicancia en contabilidad:**
+
+- El valor CTRU preliminar se usa para costo de ventas mientras el envio esta abierto.
+- Al finalizar financieramente: si hay ajuste entre preliminar y final, se genera asiento de ajuste (diferencia costo unitario).
+- El cierre contable mensual puede forzar el cierre financiero de envios viejos (politica: "pasados 60 dias, si no hay factura firme, se toma el estimado como final").
+
+**UI en el detalle del envio:**
+
+- Tab "Costos landed" siempre visible
+- Header con dos badges: estado operativo (ej. "Recibido completo") + estado financiero (ej. "Cierre financiero pendiente")
+- Tabla de costos con columna `Estado` (estimado/confirmado) + accion "✓ Confirmar" cuando esta estimado
+- Boton "Finalizar costos del envio" disabled hasta que todos sean confirmados
+- Historial de cambios abajo (auditoria completa)
 
 ---
 
