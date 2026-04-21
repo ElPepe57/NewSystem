@@ -2044,6 +2044,166 @@
     </div>
   </div>
 
+  <!-- ═════════════════════════════════════════════════════════════════
+       FASE 4 — Incidencia + Reclamo al proveedor + Reemplazo físico (D-16)
+       ═════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-lg border-2 border-red-300 overflow-hidden">
+    <div class="bg-red-600 text-white px-6 py-3">
+      <div class="text-xs font-medium text-red-100 mb-1">Fase 4 · Tanda llegó incompleta · Reclamo al proveedor con reemplazo físico</div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-lg font-bold">ENV-2026-124</span>
+        <span class="text-xs px-2 py-0.5 bg-red-700 rounded">🏭→📦 A · Proveedor-Casilla</span>
+        <span class="text-xs px-2 py-0.5 bg-amber-400/40 rounded">Recibido parcial</span>
+        <span class="text-xs px-2 py-0.5 bg-red-400/40 rounded">⚠️ 1 incidencia</span>
+      </div>
+      <p class="text-xs text-red-100 mt-1">Tanda 1 prometía A+B+C, llegó solo A+C. La unidad B faltante dispara incidencia → reclamo al proveedor → el proveedor acepta reemplazar.</p>
+    </div>
+
+    <!-- Pipeline con nota sobre el reemplazo -->
+    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+      <div class="flex items-center mb-2">
+        <div class="flex-1 flex items-center">
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center">✓</div>
+            <div class="text-[10px] text-slate-600 mt-1">Confirmado</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-emerald-400"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-white font-bold text-xs flex items-center justify-center">✓</div>
+            <div class="text-[10px] text-slate-600 mt-1">En tránsito</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-emerald-400"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-amber-400 text-white font-bold text-xs flex items-center justify-center ring-4 ring-amber-100">●</div>
+            <div class="text-[10px] font-bold text-amber-700 mt-1">Recibido parcial</div>
+            <div class="text-[9px] text-amber-600">Esperando reemplazo</div>
+          </div>
+          <div class="flex-1 h-0.5 bg-slate-200"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-400 font-bold text-xs flex items-center justify-center">4</div>
+            <div class="text-[10px] text-slate-400 mt-1">Recibido completo</div>
+          </div>
+        </div>
+      </div>
+      <div class="text-[10px] text-amber-700 italic text-center">💡 El T1 no transita a "completo" hasta que la sub-tanda de reemplazo llegue.</div>
+    </div>
+
+    <!-- Incidencia activa -->
+    <div class="border-b border-slate-200">
+      <div class="px-6 py-3 bg-red-50 border-b border-red-200">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-lg">⚠️</span>
+            <span class="font-bold text-red-900">Incidencia activa</span>
+            <span class="text-xs text-red-700">· Tanda 1 llegó incompleta</span>
+          </div>
+          <span class="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded font-mono">REC-2026-001</span>
+        </div>
+        <div class="text-xs text-red-800 mt-1">
+          <strong>Unidad faltante:</strong> WellnessLabs NAD+ 1500mg (#UN-9001) · Tipo: <code class="bg-white px-1 rounded">faltante</code> · Valor: $42.00
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline con reemplazo -->
+    <div class="p-6">
+      <h3 class="text-sm font-bold text-slate-900 mb-4">📅 Tandas del proveedor</h3>
+
+      <div class="relative">
+        <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+
+        <!-- Tanda 1: entregada parcial -->
+        <div class="relative pl-10 pb-4">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold">⚠️</div>
+          <div class="bg-white border-2 border-amber-300 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 1</span>
+                <span class="text-xs text-slate-500 ml-2">Entregado parcial · 29 marzo · prometía 3, llegaron 2</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-medium">⚠️ Entregado parcial</span>
+                <span class="text-xs font-mono text-slate-500">TBA12345</span>
+              </div>
+            </div>
+            <div class="space-y-1 text-sm">
+              <div class="flex items-center gap-2 text-slate-700">
+                <span class="text-emerald-600">✓</span>
+                <span class="text-lg">💊</span>
+                <span>NOW Ashwagandha · #UN-8823 · recibida</span>
+              </div>
+              <div class="flex items-center gap-2 text-red-700 bg-red-50 rounded px-2 py-1">
+                <span class="text-red-600">✗</span>
+                <span class="text-lg">🧪</span>
+                <span class="font-medium">WellnessLabs NAD+ · #UN-9001 · <strong>FALTANTE</strong></span>
+                <span class="ml-auto text-xs">Reclamo REC-2026-001</span>
+              </div>
+              <div class="flex items-center gap-2 text-slate-700">
+                <span class="text-emerald-600">✓</span>
+                <span class="text-lg">❤️</span>
+                <span>NatureBell CoQ10 · #UN-9100 · recibida</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tanda 2: entregada (normal) -->
+        <div class="relative pl-10 pb-4">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">✓</div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="font-medium text-slate-900">Tanda 2</span>
+                <span class="text-xs text-slate-500 ml-2">30-mar · TBA67890</span>
+              </div>
+              <span class="text-xs text-slate-700">3 uds · Myo-Inositol, Longjack, CoQ10 Ubiquinol</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tanda 3: REEMPLAZO pendiente -->
+        <div class="relative pl-10">
+          <div class="absolute left-0 top-1 w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center text-white text-[9px] font-bold">📦</div>
+          <div class="bg-violet-50 border-2 border-violet-300 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-slate-900">Tanda 3</span>
+                <span class="text-xs px-2 py-0.5 bg-violet-200 text-violet-900 rounded font-bold">📦 REEMPLAZO</span>
+                <span class="text-xs text-slate-500">Pendiente · estimado 05-abr</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded">⏳ Pendiente</span>
+                <span class="text-xs font-mono text-slate-500">TBA-REPL-789</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-700">
+              <span class="text-lg">🧪</span>
+              <span>1 unidad · WellnessLabs NAD+ 1500mg · <span class="text-violet-700 font-medium">reemplazo de #UN-9001</span></span>
+            </div>
+            <div class="mt-2 p-2 bg-white rounded border border-violet-200 text-xs">
+              <div class="flex items-center gap-2 text-violet-800">
+                <span>🔗</span>
+                <span>Vinculada al reclamo <span class="font-mono font-bold">REC-2026-001</span> · Proveedor acordó reemplazo gratuito</span>
+              </div>
+              <div class="text-slate-600 mt-1">
+                CTRU de la unidad se mantiene en <strong>$42.00</strong> (original) · sin asiento contable adicional
+              </div>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <button class="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">🚚 Marcar en tránsito</button>
+              <button class="text-xs px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded hover:bg-red-100">⚠️ Reportar segunda falla → Merma</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nota explicativa -->
+    <div class="px-6 py-3 bg-violet-50 border-t border-violet-200 text-xs text-violet-900">
+      <strong>💡 Flujo:</strong> Al abrir la incidencia en Tanda 1 → reclamo automático al proveedor → modal "Resolver reclamo" con 3 opciones → el usuario eligió <strong>Reemplazo</strong> → sistema creó Tanda 3 tipo <code class="bg-white px-1 rounded">reemplazo</code> vinculada a REC-2026-001. Ver Tab "Reclamos" para el detalle del modal de resolución.
+    </div>
+  </div>
+
   <!-- Leyenda final -->
   <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-900">
     <div class="font-medium mb-2">📌 Principios del modelo de sub-envíos</div>
@@ -2051,8 +2211,9 @@
       <li><strong>Los sub-envíos son opcionales:</strong> un envío puede recibirse entero sin fraccionar (ej. OC pequeña en 1 paquete). La sección "Tandas" solo aparece si existen sub-envíos.</li>
       <li><strong>Se pueden crear en cualquier estado del T1</strong> (excepto <code>recibida_completa</code> / <code>cancelada</code>). No hay que regresar a borrador.</li>
       <li><strong>El pipeline del T1 se actualiza automáticamente</strong> según los sub-envíos: primer "en tránsito" activa el T1, primer "entregado" dispara recepción parcial.</li>
-      <li><strong>Editabilidad:</strong> tanda <code>pendiente</code> o <code>en_transito</code> = editable (unidades, tracking, fecha). Tanda <code>entregado</code> = solo lectura.</li>
+      <li><strong>Editabilidad:</strong> tanda <code>pendiente</code> o <code>en_transito</code> = editable (unidades, tracking, fecha). Tanda <code>entregado</code> o <code>entregado_parcial</code> = solo lectura.</li>
       <li><strong>Modo mixto:</strong> puedes crear tandas prospectivas (antes del despacho) o reactivas (al recibir). Ambas coexisten sin fricción.</li>
+      <li><strong>Reemplazo físico (D-16):</strong> si una tanda llega incompleta, se abre reclamo al proveedor. Si acepta reemplazar, se crea una nueva tanda <code>tipo=reemplazo</code> en el mismo envío T1, con CTRU preservado de la unidad original. Si no asume, se declara merma.</li>
     </ul>
   </div>
 </section>
@@ -2294,6 +2455,151 @@
       <div class="mt-5 flex items-center justify-end gap-2">
         <button class="px-4 py-2 border border-slate-300 text-slate-700 rounded text-sm">Cancelar</button>
         <button class="px-4 py-2 bg-amber-600 text-white rounded text-sm font-medium">Abrir reclamo · $42.00</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       MODAL — Resolver reclamo (3 salidas: reembolso / reemplazo / merma)
+       ═════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-lg border-2 border-violet-300 overflow-hidden">
+    <div class="bg-violet-600 text-white px-6 py-3">
+      <div class="text-xs font-medium text-violet-100 mb-1">Modal · "Resolver reclamo" (D-16)</div>
+      <div class="flex items-center gap-2">
+        <span class="font-bold">REC-2026-001 · Proveedor Amazon</span>
+        <span class="text-xs px-2 py-0.5 bg-violet-700 rounded">Aceptado</span>
+      </div>
+      <p class="text-xs text-violet-100 mt-1">El proveedor respondió. ¿Cómo se resuelve el reclamo?</p>
+    </div>
+
+    <div class="p-6">
+      <!-- Contexto del reclamo -->
+      <div class="bg-slate-50 rounded-lg p-4 mb-5 text-sm">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <div class="text-xs text-slate-500">Envío</div>
+            <div class="font-bold text-slate-900">ENV-2026-124</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">Unidad reclamada</div>
+            <div class="font-medium text-slate-900">1 uds · WellnessLabs NAD+ 1500mg</div>
+            <div class="text-xs font-mono text-slate-500">#UN-9001</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">Monto reclamado</div>
+            <div class="font-bold text-slate-900">$42.00</div>
+            <div class="text-xs text-slate-500">S/ 158.76 PEN</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 opciones de resolución -->
+      <div class="space-y-3">
+
+        <!-- Opción 1: Reembolso -->
+        <label class="flex items-start gap-3 p-4 border border-slate-200 rounded-lg cursor-pointer hover:border-emerald-300 hover:bg-emerald-50/30">
+          <input type="radio" name="resolucion" class="w-4 h-4 mt-1">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-2xl">💰</span>
+              <span class="font-bold text-slate-900">Reembolso — el proveedor paga el valor</span>
+            </div>
+            <div class="text-xs text-slate-700 mb-2">El proveedor acepta devolver el dinero de la unidad faltante. Se registra ingreso en tesorería.</div>
+            <div class="text-xs space-y-1 pl-4 text-slate-600 border-l-2 border-emerald-300 ml-1">
+              <div>• Reclamo transita a <code class="bg-white px-1 rounded">cobrado</code></div>
+              <div>• Tesorería: <code class="bg-white px-1 rounded">ingreso_otro</code> por $42.00</div>
+              <div>• Unidad #UN-9001 → estado <code class="bg-white px-1 rounded">perdida_total</code> (no vuelve)</div>
+              <div>• Envío T1 transita a <code class="bg-white px-1 rounded">recibida_completa</code> (descuentan unidad faltante)</div>
+            </div>
+            <div class="mt-2 grid grid-cols-3 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-600">Monto acordado USD</label>
+                <input type="text" value="42.00" class="w-full border border-slate-300 rounded px-2 py-1 text-xs">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-600">Cuenta tesorería</label>
+                <select class="w-full border border-slate-300 rounded px-2 py-1 text-xs">
+                  <option>BCP USD — Principal</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-600">Fecha cobro estimada</label>
+                <input type="date" value="2026-04-22" class="w-full border border-slate-300 rounded px-2 py-1 text-xs">
+              </div>
+            </div>
+          </div>
+        </label>
+
+        <!-- Opción 2: Reemplazo (DESTACADA) -->
+        <label class="flex items-start gap-3 p-4 border-2 border-violet-400 bg-violet-50 rounded-lg cursor-pointer">
+          <input type="radio" name="resolucion" checked class="w-4 h-4 mt-1">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-2xl">📦</span>
+              <span class="font-bold text-slate-900">Reemplazo — el proveedor envía otra unidad</span>
+              <span class="text-[10px] px-2 py-0.5 bg-violet-200 text-violet-900 rounded font-bold">D-16 · NUEVO</span>
+            </div>
+            <div class="text-xs text-slate-700 mb-2">El proveedor acepta mandar físicamente la unidad faltante. Se crea una nueva tanda dentro del mismo envío T1.</div>
+            <div class="text-xs space-y-1 pl-4 text-slate-600 border-l-2 border-violet-400 ml-1 mb-3">
+              <div>• Reclamo queda <code class="bg-white px-1 rounded">aceptado</code> pendiente de llegada del reemplazo</div>
+              <div>• Se crea Tanda N+1 en el envío T1 con <code class="bg-white px-1 rounded">tipo=reemplazo</code></div>
+              <div>• CTRU de la unidad se preserva en <strong>$42.00</strong> (no se actualiza)</div>
+              <div>• Sin asiento contable (el reemplazo es gratuito por convención)</div>
+              <div>• Al llegar la unidad → envío T1 transita a <code class="bg-white px-1 rounded">recibida_completa</code></div>
+            </div>
+            <div class="p-3 bg-white rounded border border-violet-200 space-y-2">
+              <div class="text-xs font-medium text-violet-900">Datos de la nueva tanda de reemplazo:</div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-600">Tracking del reemplazo (opcional)</label>
+                  <input type="text" value="TBA-REPL-789" class="w-full border border-slate-300 rounded px-2 py-1 text-xs">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-600">Fecha estimada de llegada</label>
+                  <input type="date" value="2026-04-05" class="w-full border border-slate-300 rounded px-2 py-1 text-xs">
+                </div>
+              </div>
+              <div class="text-[10px] text-violet-700 italic">
+                ℹ️ La unidad #UN-9001 se preasigna automáticamente a esta tanda. Si el reemplazo también falla, puedes reabrir el reclamo y convertirlo a <strong>Merma</strong>.
+              </div>
+            </div>
+          </div>
+        </label>
+
+        <!-- Opción 3: Merma -->
+        <label class="flex items-start gap-3 p-4 border border-slate-200 rounded-lg cursor-pointer hover:border-red-300 hover:bg-red-50/30">
+          <input type="radio" name="resolucion" class="w-4 h-4 mt-1">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-2xl">🗑️</span>
+              <span class="font-bold text-slate-900">Merma — el proveedor no asume</span>
+            </div>
+            <div class="text-xs text-slate-700 mb-2">El proveedor rechaza el reclamo o no responde. Asumimos la pérdida contable.</div>
+            <div class="text-xs space-y-1 pl-4 text-slate-600 border-l-2 border-red-300 ml-1">
+              <div>• Reclamo transita a <code class="bg-white px-1 rounded">rechazado</code> o <code class="bg-white px-1 rounded">cerrado_sin_cobrar</code></div>
+              <div>• Gasto: <code class="bg-white px-1 rounded">gasto_merma_transferencia</code> por $42.00</div>
+              <div>• Unidad #UN-9001 → estado <code class="bg-white px-1 rounded">perdida_total</code></div>
+              <div>• Ranking de proveedores: afecta negativamente la integridad del proveedor</div>
+            </div>
+          </div>
+        </label>
+
+      </div>
+
+      <!-- Notas -->
+      <div class="mt-4">
+        <label class="text-xs font-medium text-slate-700 block mb-1">Notas de la resolución (opcional)</label>
+        <textarea rows="2" placeholder="Ej. Proveedor confirmó reemplazo vía email del 20-abr, DHL tracking provisto por su equipo de soporte" class="w-full border border-slate-300 rounded px-3 py-2 text-xs"></textarea>
+      </div>
+
+      <div class="mt-5 flex items-center justify-end gap-2">
+        <button class="px-4 py-2 border border-slate-300 text-slate-700 rounded text-sm">Cancelar</button>
+        <button class="px-4 py-2 bg-violet-600 text-white rounded text-sm font-medium">✓ Confirmar resolución — crear tanda reemplazo</button>
+      </div>
+
+      <!-- Nota al pie -->
+      <div class="mt-4 p-3 bg-sky-50 border border-sky-200 rounded text-xs text-sky-900">
+        <strong>🔗 Trazabilidad:</strong> la unidad mantiene su <code class="bg-white px-1 rounded">unidadId</code> original. Su <code class="bg-white px-1 rounded">historialEnvios[]</code> queda con la tanda original (entregado_parcial) + la tanda de reemplazo (entregado al recibir). Auditoría completa de lo que pasó con cada unidad física.
       </div>
     </div>
   </div>

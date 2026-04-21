@@ -12,7 +12,7 @@
 
 1. [Proposito y alcance](#1-proposito-y-alcance)
 2. [Los 9 flujos logisticos canonicos](#2-los-9-flujos-logisticos-canonicos)
-3. [Las 15 decisiones cerradas (no re-deliberables)](#3-las-15-decisiones-cerradas-no-re-deliberables)
+3. [Las 16 decisiones cerradas (no re-deliberables)](#3-las-16-decisiones-cerradas-no-re-deliberables)
 4. [Modelo de datos propuesto](#4-modelo-de-datos-propuesto)
 5. [Flujos por caso](#5-flujos-por-caso)
 6. [Wizard de Envio T2 (Casilla Intl -> Peru)](#6-wizard-de-envio-t2-casilla-intl---peru)
@@ -88,7 +88,7 @@ Seguir forzando el modelo actual genera tres problemas:
 
 ---
 
-## 3. Las 15 decisiones cerradas (no re-deliberables)
+## 3. Las 16 decisiones cerradas (no re-deliberables)
 
 Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 con el usuario. Son **input inmutable para S44+**.
 
@@ -109,6 +109,7 @@ Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 co
 | D-13 | Wizard T2: 5 pasos (Origen / Picking / Transporte / Costos / Confirmar) | UX alineada con Wizard OC V3 ya existente |
 | D-14 | Se reutiliza `Unidad.reservadaPara` existente (no crear campo nuevo) | Ya implementado para cotizaciones con adelanto pagado |
 | D-15 | Estado inicial del envio por tipo (NO regla unificada): A/B/F/G nacen `confirmado`, D nace `recibida_completa`, C/E/I/J nacen `borrador` | Los auto-creados tienen compromiso implicito en el documento origen; los manuales necesitan ser editables hasta despachar. Ver seccion 8.1 para la tabla completa. |
+| D-16 | Reclamo al proveedor tiene 3 salidas: **reembolso** (dinero), **reemplazo** (nueva tanda fisica en el mismo envio T1) o **merma** (castigo contable si proveedor no asume) | El reemplazo fisico es una capacidad operativa real que no estaba modelada. Se implementa como sub-tanda adicional con `tipo='reemplazo'` vinculada al reclamo. CTRU de la unidad reemplazada se mantiene original (el reemplazo es gratuito por convencion). Ver seccion 7.4. |
 
 ---
 
@@ -537,6 +538,92 @@ En el detalle del envio T1, seccion "Tandas del proveedor":
 - Al **recibir la primera tanda**: el usuario puede marcar N unidades como "recibidas en esta tanda" y el sistema crea automaticamente el primer sub-envio retroactivamente
 - Alternativa: modo "Planificacion" donde el usuario crea sub-envios prospectivamente al ver el email del proveedor con fechas estimadas
 
+### 7.4 Editabilidad del sub-envio segun su estado (decision D-16 parte A)
+
+| Estado del sub-envio | Editable | Cambios permitidos |
+|---|---|---|
+| `pendiente` | Si | Unidades, tracking, fecha estimada, eliminar tanda |
+| `en_transito` | Parcial | Solo tracking y fecha estimada (las unidades ya salieron fisicamente del proveedor) |
+| `entregado` | No | Solo lectura (hecho consumado). Unica accion: abrir incidencia |
+| `entregado_parcial` | No | Solo lectura. Unidades faltantes/danadas generan incidencia + reclamo |
+| `cancelada` | No | Solo lectura |
+
+**Importante:** si la tanda llega incompleta (ej. prometia A+B+C y llego A+C), **NO se edita la tanda para cambiar lo que prometia**. Se marca como `entregado_parcial` + se registra incidencia tipo `faltante` para la unidad B + se dispara el flujo de reclamo al proveedor (ver seccion 7.5).
+
+### 7.5 Reemplazo fisico del proveedor como sub-tanda (decision D-16)
+
+**Escenario que resuelve:**
+- Tanda 1 prometia A + B + C
+- Llego solo A + C (unidad B faltante o danada)
+- Se abre incidencia `faltante` o `danada` sobre la tanda
+- Se crea reclamo contra el proveedor (`destinatario='proveedor'`)
+
+**Las 3 salidas del reclamo al proveedor:**
+
+| Salida | Efecto operativo | Efecto contable | Sub-tanda generada |
+|---|---|---|---|
+| **Reembolso** | Proveedor paga el valor de la unidad perdida | `ingreso_otro` en tesoreria | No |
+| **Reemplazo** | Proveedor envia nueva unidad fisica | Sin asiento (CTRU original se mantiene) | **Si** — nueva sub-tanda tipo `reemplazo` dentro del mismo envio T1 |
+| **Merma** | Proveedor no asume la perdida | `gasto_merma` contable, unidad -> `perdida_total` | No |
+
+**Modelo de la sub-tanda de reemplazo:**
+
+```typescript
+interface SubEnvioT1 {
+  id: string;
+  secuencia: number;              // N+1 respecto a las tandas existentes
+  tipo: 'normal' | 'reemplazo';   // NUEVO campo
+  unidadesIds: string[];
+  numeroTrackingProveedor?: string;
+  fechaEntrega?: Timestamp;
+  estado: 'pendiente' | 'en_transito' | 'entregado' | 'entregado_parcial' | 'cancelada';
+
+  // Si tipo='reemplazo', vinculo al reclamo origen:
+  reclamoId?: string;             // REC-2026-XXX
+  tandaOriginalId?: string;       // La tanda cuya unidad esta siendo reemplazada
+}
+```
+
+**Reglas del reemplazo:**
+
+1. **Misma ruta, mismo envio T1:** el reemplazo vive dentro del envio padre porque comparte origen (Amazon), destino (Casilla Felicita) y OC. No se crea un envio separado.
+2. **CTRU preservado:** la unidad reemplazada conserva el CTRU original del momento de confirmar la OC. El reemplazo es gratuito por convencion (el proveedor cumple lo que incumplio).
+3. **Si el reemplazo tambien falla:** se puede convertir el reclamo a `merma` (el proveedor no asume ni reemplaza ni reembolsa) → unidad queda en `perdida_total` con castigo contable.
+4. **Trazabilidad:** la unidad mantiene su `unidadId` original. En su `historialEnvios[]` queda registro de la tanda original (entregado_parcial) + tanda de reemplazo (entregado).
+5. **Envio T1 no se cierra hasta que el reemplazo llegue:** si hay sub-tanda de reemplazo pendiente, el estado del T1 se mantiene en `recibida_parcial` aunque originalmente hubiera llegado a `recibida_completa` antes de descubrir el faltante.
+
+**Flujo UX (UI):**
+
+```
+Detalle envio ENV-2026-123 · Tanda 1 entregada con incidencia
+  ↓
+Boton "Reportar incidencia" (en la tanda afectada)
+  ↓
+Modal "Incidencia": selecciona unidad B, tipo=faltante, evidencia
+  ↓
+Al guardar → pregunta "¿Abrir reclamo al proveedor?"
+  ↓ Si
+Reclamo REC-2026-001 creado (destinatario=proveedor, estado=borrador)
+  ↓
+Se envia al proveedor, proveedor responde
+  ↓
+Modal "Resolver reclamo": 3 opciones
+  ├─ 💰 Reembolso → cobrar → tesoreria ingreso_otro
+  ├─ 📦 Reemplazo → modal "Nueva tanda de reemplazo"
+  │     unidad B pre-seleccionada, tracking nuevo, fecha estimada
+  │     Se crea Tanda 4 tipo='reemplazo', vinculada a REC-2026-001
+  └─ 🗑️ Merma → unidad perdida_total, gasto_merma
+```
+
+**Timeline visual:**
+
+```
+Tanda 1 · Entregada parcial (6 de 7) · ⚠️ 1 incidencia  [REC-2026-001]
+Tanda 2 · Entregada
+Tanda 3 · Entregada
+Tanda 4 · 📦 REEMPLAZO · Pendiente · unidad B  [vinculada a REC-2026-001]
+```
+
 ---
 
 ## 8. Reglas de negocio por tipo de envio
@@ -625,6 +712,39 @@ Derivado automaticamente al crear el envio, guardado en `reclamoResponsableDefau
 | J | `viajero` o `courier_interno` |
 
 **El usuario puede override** el responsable al abrir un reclamo; el campo `reclamoResponsableDefault` es solo sugerencia.
+
+### 9.1 Extension del tipo `Reclamo` para soportar reemplazo (D-16)
+
+**Campos nuevos a agregar en `src/types/reclamo.types.ts`:**
+
+```typescript
+export type TipoResolucionReclamo = 'reembolso' | 'reemplazo' | 'merma';
+
+export interface Reclamo {
+  // ... campos existentes (ver src/types/reclamo.types.ts actual) ...
+
+  // NUEVOS campos (S43 — D-16)
+  tipoResolucion?: TipoResolucionReclamo;  // Solo cuando estado='aceptado' o posterior
+  subEnvioReemplazoId?: string;            // Si tipoResolucion='reemplazo', link a la sub-tanda generada
+  fechaResolucion?: Timestamp;             // Cuando se definio el tipo de resolucion
+}
+```
+
+**Estados del reclamo x tipo de resolucion:**
+
+| Estado reclamo | Resolucion posible |
+|---|---|
+| `borrador`, `enviado`, `en_disputa` | Sin resolucion aun |
+| `aceptado` | `reembolso`, `reemplazo`, `merma` (el usuario elige) |
+| `cobrado` | `reembolso` (dinero en tesoreria) |
+| `rechazado` | `merma` automatico |
+| `cerrado_sin_cobrar` | `merma` automatico |
+
+**Transiciones especiales por reemplazo:**
+
+- Al seleccionar `reemplazo`: el reclamo pasa a `aceptado` + se crea sub-tanda tipo `reemplazo` en el envio T1 + el reclamo queda "abierto pendiente de llegada del reemplazo"
+- Al llegar fisicamente la sub-tanda de reemplazo: reclamo transita a `cerrado` (sin movimiento financiero)
+- Si el reemplazo tambien falla: el usuario puede reabrir el reclamo y convertirlo a `merma`
 
 ---
 
@@ -791,16 +911,28 @@ Los envios que generan pagos a colaboradores (C, E, G, I, J) deben:
 - Validacion UI/UX del caso D2 (deudor=proveedor con recojoEnOrigen)
 - **Migracion de envios existentes en estado `borrador` que vienen de OC confirmadas:** script que transiciona a `confirmado` para cumplir la nueva regla (valida con usuario antes de correr)
 - **Extension de `BorradoresWizardPanel`** (existente desde S41) para listar envios tipo `borrador` con filtros por tipo (C/E/I/J) y accion "Eliminar" / "Confirmar"
+- **Reemplazo fisico del proveedor (D-16):**
+  - Extender tipo `Reclamo` con `tipoResolucion: 'reembolso' | 'reemplazo' | 'merma'` + `subEnvioReemplazoId`
+  - Agregar estado `entregado_parcial` a sub-envios (hoy solo hay pendiente/en_transito/entregado)
+  - Agregar campo `tipo: 'normal' | 'reemplazo'` + `reclamoId` + `tandaOriginalId` a `SubEnvioT1`
+  - Modal "Resolver reclamo" en UI del Reclamo con 3 opciones (reembolso/reemplazo/merma)
+  - Al elegir reemplazo: abre sub-flujo para crear la tanda de reemplazo dentro del envio T1
+  - Regla: CTRU de la unidad reemplazada se preserva (no se actualiza al recibir reemplazo)
+  - Trazabilidad: `Unidad.historialEnvios[]` conserva ambas entradas (tanda original + tanda reemplazo)
 - UAT con usuario antes de cerrar
 
 **Archivos impactados (estimado):**
-- `src/types/envio.types.ts`
+- `src/types/envio.types.ts` (estado `entregado_parcial` en sub-envio, tipo `reemplazo`)
+- `src/types/reclamo.types.ts` (TipoResolucionReclamo, campos nuevos)
 - `src/types/unidad.types.ts`
 - `src/types/ordenCompra.types.ts`
-- `src/services/envio.crud.service.ts` (crear() acepta estadoInicial)
+- `src/services/envio.crud.service.ts` (crear() acepta estadoInicial, crearSubTandaReemplazo())
 - `src/services/ordenCompra.crud.service.ts` (funcion `confirmarOC` pasa 'confirmado')
+- `src/services/reclamo.service.ts` (resolver() con tipoResolucion, handler reemplazo)
 - `src/pages/Envios/WizardT2/*` (NUEVO)
 - `src/pages/Envios/SubEnviosTimeline.tsx` (NUEVO)
+- `src/pages/Envios/ResolverReclamoModal.tsx` (NUEVO — 3 salidas)
+- `src/pages/Envios/CrearTandaReemplazoModal.tsx` (NUEVO)
 - `src/components/modules/ordenCompra/OCWizardV3/StepRuta.tsx` (D1 vs D2)
 - `src/pages/Configuracion/BorradoresWizardPanel.tsx` (extension: filtro por tipo envio)
 - `scripts/migracion-s44/*` (NUEVO)
