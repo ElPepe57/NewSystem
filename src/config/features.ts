@@ -119,6 +119,23 @@ export const FEATURES = {
    *   - Motivo obligatorio (consolidación / capacidad / costo menor / otro)
    */
   WIZARD_E: false,
+
+  /**
+   * S49 — Wizard F (Despacho venta Almacén Perú → cliente · caso F del
+   * Modelo Envíos Transversal). Absorbe el despacho de ventas existentes
+   * bajo el hub unificado de Envíos.
+   *
+   * Controla:
+   *   - Visibilidad del botón "Despachar venta" en la vista /envios
+   *   - Acceso a la ruta `/envios/nuevo-f`
+   *
+   * Características:
+   *   - Vinculado obligatoriamente a una Venta existente
+   *   - Unidades default = las reservadas para esa venta (reservadaPara)
+   *   - Cliente + dirección se leen desde la Venta (desnormalizado en Envio)
+   *   - Todo en PEN (despacho local en Perú)
+   */
+  WIZARD_F: false,
 } as const;
 
 /**
@@ -190,6 +207,21 @@ export function isWizardEEnabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_WIZARD_E') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S49 — Helper análogo para el flag WIZARD_F (Despacho venta a cliente).
+ */
+export function isWizardFEnabled(): boolean {
+  if (FEATURES.WIZARD_F) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_WIZARD_F') === 'true';
     } catch {
       return false;
     }

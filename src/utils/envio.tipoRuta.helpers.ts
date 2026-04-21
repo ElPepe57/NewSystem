@@ -27,6 +27,7 @@ export type TipoRutaLogistica = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'I' | 
 export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null {
   const esDDP = (envio as any).esDDP === true;
   const origen = envio.origenTipo;
+  const destinoTipo = envio.destinoTipo; // S49 — puede ser 'cliente' para Caso F
   const hayOC = !!envio.ordenCompraId;
   const origenPais = envio.origenCasillaPais;
   const destinoPais = envio.destinoCasillaPais;
@@ -42,6 +43,16 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
 
   // A — Proveedor → Casilla (OC sin DDP, origen=proveedor)
   if (hayOC && origen === 'proveedor' && !esDDP) return 'A';
+
+  // S49 — G: Devolución (origen=cliente, destino=casilla Perú)
+  if (origen === 'cliente') {
+    return 'G';
+  }
+
+  // S49 — F: Despacho venta (origen=casilla Perú, destino=cliente)
+  if (origen === 'casilla' && destinoTipo === 'cliente' && origenEsPeru) {
+    return 'F';
+  }
 
   // S48 — E: Traslado interno Perú ↔ Perú (origen y destino ambos en Perú)
   // Debe evaluarse ANTES que C para no clasificar Perú→Perú como C.
@@ -59,7 +70,7 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
     return 'J';
   }
 
-  // F/G/I — requieren destinoTipo explícito (S49+ para ventas y terceros)
+  // I — requiere destinoTipo explícito para almacén tercero (S50+)
   return null;
 }
 

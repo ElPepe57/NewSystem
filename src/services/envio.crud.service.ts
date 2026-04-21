@@ -12,6 +12,7 @@ import type {
   CrearEnvioT2Payload,
   CrearEnvioJPayload,
   CrearEnvioEPayload,
+  CrearEnvioFPayload,
   SubEnvioT1, EstadoSubEnvio,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
@@ -216,8 +217,24 @@ export const envioCrudService = {
       nuevoEnvio.esDDP = true;
     }
 
-    // Resolver nombre de casilla destino
-    if (data.destinoCasillaId) {
+    // S49 — Destino cliente (Caso F) y vínculo con Venta/Devolución
+    if (data.destinoTipo) nuevoEnvio.destinoTipo = data.destinoTipo;
+    if (data.destinoClienteId) nuevoEnvio.destinoClienteId = data.destinoClienteId;
+    if (data.destinoClienteNombre) nuevoEnvio.destinoClienteNombre = data.destinoClienteNombre;
+    if (data.destinoClienteDireccion) nuevoEnvio.destinoClienteDireccion = data.destinoClienteDireccion;
+    if (data.destinoClienteDistrito) nuevoEnvio.destinoClienteDistrito = data.destinoClienteDistrito;
+    if (data.destinoClienteTelefono) nuevoEnvio.destinoClienteTelefono = data.destinoClienteTelefono;
+    // S49 — Origen cliente (Caso G devolución)
+    if (data.origenClienteId) nuevoEnvio.origenClienteId = data.origenClienteId;
+    if (data.origenClienteNombre) nuevoEnvio.origenClienteNombre = data.origenClienteNombre;
+    // S49 — Vínculos con Venta / Devolución
+    if (data.ventaId) nuevoEnvio.ventaId = data.ventaId;
+    if (data.ventaNumero) nuevoEnvio.ventaNumero = data.ventaNumero;
+    if (data.devolucionId) nuevoEnvio.devolucionId = data.devolucionId;
+    if (data.devolucionNumero) nuevoEnvio.devolucionNumero = data.devolucionNumero;
+
+    // Resolver nombre de casilla destino (skip si destinoTipo='cliente' — no hay casilla)
+    if (data.destinoCasillaId && data.destinoTipo !== 'cliente') {
       const { casillaCrudService } = await import('./casilla.crud.service');
       const cas = await casillaCrudService.getById(data.destinoCasillaId);
       if (cas) {
@@ -227,6 +244,9 @@ export const envioCrudService = {
         const almRef = await import('firebase/firestore').then(m => m.getDoc(doc(db, 'almacenes', data.destinoCasillaId)));
         if (almRef.exists()) nuevoEnvio.destinoCasillaNombre = (almRef.data() as any).nombre;
       }
+    } else if (data.destinoTipo === 'cliente') {
+      // Caso F: destino es cliente — destinoCasillaNombre vacío, usar destinoClienteNombre
+      nuevoEnvio.destinoCasillaNombre = data.destinoClienteNombre || 'Cliente';
     }
 
     // Sanitizar undefined en unidades anidadas y en el objeto raíz
@@ -720,6 +740,107 @@ export const envioCrudService = {
 
     logger.success(
       `[crearEnvioE] Envío E (traslado interno) creado: ${resultado.numeroEnvio} · motivo ${motivo} · ${unidades.length} uds · ${costosPEN.length} costos PEN`
+    );
+
+    return resultado;
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // S49 — Wizard F: Despacho venta Almacén Perú → cliente
+  // Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §4 (Caso F, D-1 absorbe Ventas)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * S49 — Crea un envío Caso F (despacho de venta desde almacén Perú al cliente).
+   *
+   * Diferencias clave vs. T2/E/J:
+   *   - destinoTipo='cliente' (no es casilla)
+   *   - Vinculado obligatoriamente a una Venta existente (ventaId)
+   *   - Cliente + dirección se desnormalizan desde la Venta
+   *   - Todo en PEN (despacho local en Perú)
+   *
+   * Flujo:
+   *   1. Construye EnvioUnidad[] con estado 'pendiente'
+   *   2. Invoca `crear()` genérico con origenTipo='casilla', destinoTipo='cliente'
+   *      y vinculando al ventaId
+   *   3. Agrega costos landed (delivery) con moneda='PEN' y tipoCambio=1
+   *
+   * NOTA: el destinoCasillaId se setea vacío ('') porque el destino es un cliente,
+   * no una casilla. El Envio queda con destinoTipo='cliente' y los datos del
+   * cliente desnormalizados.
+   */
+  async crearEnvioF(
+    payload: CrearEnvioFPayload,
+    userId: string
+  ): Promise<{ id: string; numeroEnvio: string }> {
+    const {
+      almacenOrigenId,
+      ventaId,
+      ventaNumero,
+      cliente,
+      colaboradorTransporteId,
+      numeroTracking,
+      unidades,
+      costosPEN,
+      notas,
+    } = payload;
+
+    // 1. EnvioUnidad[]
+    const unidadesDetalle: EnvioUnidad[] = unidades.map((u) => ({
+      unidadId: u.unidadId,
+      productoId: u.productoId,
+      sku: u.sku,
+      codigoUnidad: u.codigoUnidad,
+      estadoEnvio: 'pendiente' as const,
+      ...(u.pesoLibras ? { pesoLibras: u.pesoLibras } : {}),
+    }));
+
+    // 2. FormData — destino es cliente, no casilla física
+    //    destinoCasillaId queda como string vacío (solo pasa validación del type);
+    //    el envío real usa destinoTipo='cliente' + destinoCliente* desnormalizado.
+    const formData: EnvioFormData = {
+      origenTipo: 'casilla',
+      origenCasillaId: almacenOrigenId,
+      destinoCasillaId: '', // Caso F no tiene casilla destino — cliente final
+      destinoTipo: 'cliente',
+      destinoClienteId: cliente.id,
+      destinoClienteNombre: cliente.nombre,
+      destinoClienteDireccion: cliente.direccion,
+      destinoClienteDistrito: cliente.distrito,
+      destinoClienteTelefono: cliente.telefono,
+      colaboradorId: colaboradorTransporteId || undefined,
+      unidadesIds: unidades.map((u) => u.unidadId),
+      unidadesDetalle,
+      numeroTracking: numeroTracking || undefined,
+      ventaId,
+      ventaNumero,
+      ...(notas ? { notas } : {}),
+    };
+
+    // 3. Crear envío base (D-15: Caso F nace en 'borrador')
+    const resultado = await this.crear(formData, userId);
+
+    // 4. Agregar costos landed en PEN (tipoCambio=1 implícito para Caso F)
+    for (const costo of costosPEN) {
+      await this.agregarCostoLanded(
+        resultado.id,
+        {
+          categoriaCostoId: costo.categoriaCostoId,
+          categoriaCostoNombre: costo.categoriaCostoNombre,
+          descripcion: costo.descripcion,
+          monto: costo.montoPEN,
+          moneda: 'PEN',
+          montoPEN: costo.montoPEN,
+          tipoCambio: 1,
+          metodoProrrateo: costo.metodoProrrateo,
+          pagado: false,
+        },
+        userId
+      );
+    }
+
+    logger.success(
+      `[crearEnvioF] Envío F (despacho venta) creado: ${resultado.numeroEnvio} · VT ${ventaNumero} · cliente ${cliente.nombre} · ${unidades.length} uds · ${costosPEN.length} costos PEN`
     );
 
     return resultado;

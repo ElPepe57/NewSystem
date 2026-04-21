@@ -90,7 +90,15 @@ export type EstadoEnvio =
 /**
  * Tipo de origen del envio
  */
-export type OrigenTipoEnvio = 'proveedor' | 'casilla';
+// S49 — 'cliente' agregado para Caso G (devolución: cliente → almacén)
+export type OrigenTipoEnvio = 'proveedor' | 'casilla' | 'cliente';
+
+/**
+ * S49 — Tipo de destino del envío.
+ * Permite distinguir Caso F (destino=cliente) del resto de casos donde
+ * el destino es una casilla/almacén. Por retrocompat, undefined === 'casilla'.
+ */
+export type DestinoTipoEnvio = 'casilla' | 'cliente';
 
 /**
  * Metodo de prorrateo de costos landed
@@ -229,11 +237,25 @@ export interface Envio {
   origenCasillaCodigo?: string;
   origenCasillaPais?: string;
 
-  // Destino (siempre una casilla)
+  // Destino — casilla por default; cliente para Caso F
   destinoCasillaId: string;
   destinoCasillaNombre: string;
   destinoCasillaCodigo: string;
   destinoCasillaPais?: string;         // Desnormalizado (S38)
+
+  // S49 — Tipo de destino explícito (undefined === 'casilla' por retrocompat)
+  destinoTipo?: DestinoTipoEnvio;
+
+  // S49 — Datos del cliente destino (cuando destinoTipo='cliente', Caso F)
+  destinoClienteId?: string;           // Vinculo al gestor maestro si existe
+  destinoClienteNombre?: string;
+  destinoClienteDireccion?: string;
+  destinoClienteDistrito?: string;
+  destinoClienteTelefono?: string;
+
+  // S49 — Cliente origen (cuando origenTipo='cliente', Caso G devolución)
+  origenClienteId?: string;
+  origenClienteNombre?: string;
 
   // Transportador
   colaboradorId?: string;              // Quien transporta (viajero, courier, etc.)
@@ -244,6 +266,12 @@ export interface Envio {
   ordenCompraId?: string;
   ordenCompraNumero?: string;
   subOrdenId?: string;                 // Si viene de una sub-orden
+
+  // S49 — Vínculo con Venta (Caso F: despacho) o Devolución (Caso G)
+  ventaId?: string;
+  ventaNumero?: string;
+  devolucionId?: string;
+  devolucionNumero?: string;
 
   // Unidades
   unidades: EnvioUnidad[];
@@ -441,12 +469,27 @@ export interface EnvioFormData {
   origenTipo: OrigenTipoEnvio;
   origenProveedorId?: string;
   origenCasillaId?: string;
+  // S49 — origen cliente (Caso G devolución)
+  origenClienteId?: string;
+  origenClienteNombre?: string;
   destinoCasillaId: string;
+  // S49 — destino cliente (Caso F despacho venta)
+  destinoTipo?: DestinoTipoEnvio;
+  destinoClienteId?: string;
+  destinoClienteNombre?: string;
+  destinoClienteDireccion?: string;
+  destinoClienteDistrito?: string;
+  destinoClienteTelefono?: string;
   colaboradorId?: string;
   // Alias semantico de colaboradorId cuando el colaborador llega como viajero internacional
   viajeroId?: string;
   ordenCompraId?: string;
   subOrdenId?: string;
+  // S49 — vínculos con Venta/Devolución
+  ventaId?: string;
+  ventaNumero?: string;
+  devolucionId?: string;
+  devolucionNumero?: string;
   unidadesIds: string[];
   unidadesDetalle?: EnvioUnidad[];  // Datos completos de unidades para poblar envio.unidades[]
 
@@ -603,6 +646,55 @@ export interface CrearEnvioEPayload {
     montoPEN: number;
     metodoProrrateo: MetodoProrrateo;
     detalleVariado?: Record<string, number>;
+  }>;
+}
+
+/**
+ * S49 — Payload para crear un envío Caso F (Despacho venta almacén Perú → cliente)
+ * desde el Wizard F. Consumido por `envioCrudService.crearEnvioF()`.
+ *
+ * El despacho SIEMPRE está vinculado a una Venta existente (ventaId obligatorio).
+ * Los datos del cliente se desnormalizan desde la Venta. Las unidades suelen
+ * ser las ya reservadas para esa venta (reservadaPara === ventaId).
+ *
+ * Todo en PEN (despacho local). Estado inicial: borrador (D-15).
+ */
+export interface CrearEnvioFPayload {
+  /** ID del almacén Perú origen */
+  almacenOrigenId: string;
+  /** ID de la venta vinculada */
+  ventaId: string;
+  /** Número de venta desnormalizado */
+  ventaNumero: string;
+  /** Datos del cliente (copiados desde Venta) */
+  cliente: {
+    id?: string;
+    nombre: string;
+    direccion?: string;
+    distrito?: string;
+    telefono?: string;
+  };
+  /** Colaborador transporte (opcional — courier o repartidor interno) */
+  colaboradorTransporteId?: string;
+  /** Tracking/guía (opcional) */
+  numeroTracking?: string;
+  /** Notas internas */
+  notas?: string;
+  /** Unidades a despachar */
+  unidades: Array<{
+    unidadId: string;
+    productoId: string;
+    sku: string;
+    codigoUnidad: string;
+    pesoLibras?: number;
+  }>;
+  /** Costos de despacho en PEN (delivery, combustible, etc.) — opcional */
+  costosPEN: Array<{
+    categoriaCostoId: string;
+    categoriaCostoNombre: string;
+    descripcion?: string;
+    montoPEN: number;
+    metodoProrrateo: MetodoProrrateo;
   }>;
 }
 
