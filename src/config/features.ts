@@ -153,6 +153,23 @@ export const FEATURES = {
    *   - Referencia obligatoria con el tercero (FBA ID, consignación, etc.)
    */
   WIZARD_I: false,
+
+  /**
+   * S51 — Wizard G (Devolución cliente → Almacén Perú · caso G del Modelo
+   * Envíos Transversal). Cierra el loop logístico de las devoluciones
+   * registrando el movimiento físico de retorno de unidades.
+   *
+   * Controla:
+   *   - Visibilidad del botón "Retorno físico devolución" en la vista /envios
+   *   - Acceso a la ruta `/envios/nuevo-g`
+   *
+   * Características:
+   *   - Vinculado obligatoriamente a una Devolucion existente
+   *   - origenTipo='cliente' en el Envio
+   *   - D-7: unidades no vuelven a 'disponible' hasta revisión del operador
+   *   - Complementa el DevolucionFormModal existente (no lo reemplaza)
+   */
+  WIZARD_G: false,
 } as const;
 
 /**
@@ -254,6 +271,21 @@ export function isWizardIEnabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_WIZARD_I') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S51 — Helper análogo para el flag WIZARD_G (Devolución cliente → Almacén Perú).
+ */
+export function isWizardGEnabled(): boolean {
+  if (FEATURES.WIZARD_G) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_WIZARD_G') === 'true';
     } catch {
       return false;
     }

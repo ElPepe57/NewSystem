@@ -751,6 +751,61 @@ export interface CrearEnvioIPayload {
 }
 
 /**
+ * S51 — Payload para crear un envío Caso G (Devolución cliente → Almacén Perú)
+ * desde el Wizard G. Consumido por `envioCrudService.crearEnvioG()`.
+ *
+ * Caso G: registra el movimiento físico de las unidades devueltas por el
+ * cliente hacia un almacén Perú. Vinculado obligatoriamente a una Devolucion
+ * existente (devolucionId) que ya capturó el motivo, las cantidades y la
+ * venta de origen.
+ *
+ * D-7: las unidades NO vuelven directamente a 'disponible'. Se marcan como
+ * 'devuelto_pendiente_revision' hasta que el operador decida si son
+ * reintegrables (→ disponible), merma (→ danada) o materia de reclamo.
+ *
+ * Origen: cliente (origenTipo='cliente'), datos desnormalizados de la
+ * devolución (nombre del cliente).
+ */
+export interface CrearEnvioGPayload {
+  /** ID de la Devolución vinculada (obligatorio) */
+  devolucionId: string;
+  /** Número de devolución desnormalizado (DEV-2026-XXX) */
+  devolucionNumero: string;
+  /** ID de la venta original desnormalizada */
+  ventaId: string;
+  /** Número de venta desnormalizada (VT-2026-XXX) */
+  ventaNumero: string;
+  /** Datos del cliente origen (desde la venta original) */
+  cliente: {
+    id?: string;
+    nombre: string;
+  };
+  /** ID del almacén Perú que recibirá las unidades devueltas */
+  almacenDestinoId: string;
+  /** Colaborador transporte / courier que trae la devolución (opcional) */
+  colaboradorTransporteId?: string;
+  /** Tracking de la guía de retorno (opcional) */
+  numeroTracking?: string;
+  /** Notas internas */
+  notas?: string;
+  /** Unidades que el cliente devuelve (desde Devolucion.productos[].unidadesIds) */
+  unidades: Array<{
+    unidadId: string;
+    productoId: string;
+    sku: string;
+    codigoUnidad: string;
+  }>;
+  /** Costos en PEN (delivery del retorno, combustible, etc.) — opcional */
+  costosPEN: Array<{
+    categoriaCostoId: string;
+    categoriaCostoNombre: string;
+    descripcion?: string;
+    montoPEN: number;
+    metodoProrrateo: MetodoProrrateo;
+  }>;
+}
+
+/**
  * Filtros para busqueda de envios
  */
 export interface EnvioFiltros {

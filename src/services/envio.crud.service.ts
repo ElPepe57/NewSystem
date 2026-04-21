@@ -14,6 +14,7 @@ import type {
   CrearEnvioEPayload,
   CrearEnvioFPayload,
   CrearEnvioIPayload,
+  CrearEnvioGPayload,
   SubEnvioT1, EstadoSubEnvio,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
@@ -184,10 +185,16 @@ export const envioCrudService = {
         const cas = await casillaCrudService.getById(data.origenCasillaId);
         if (cas) {
           nuevoEnvio.origenCasillaNombre = cas.nombre;
+          if (cas.pais) nuevoEnvio.origenCasillaPais = cas.pais;
+          if (cas.codigo) nuevoEnvio.origenCasillaCodigo = cas.codigo;
         }
       } catch (err) {
         logger.warn('No se pudo desnormalizar nombre de la casilla de origen:', err);
       }
+    } else if (data.origenTipo === 'cliente') {
+      // S51 — Caso G: origen es el cliente que devuelve la mercadería
+      if (data.origenClienteId) nuevoEnvio.origenClienteId = data.origenClienteId;
+      if (data.origenClienteNombre) nuevoEnvio.origenClienteNombre = data.origenClienteNombre;
     }
 
     // S38-014: Colaborador (courier) — desnormalizar nombre también
@@ -947,6 +954,99 @@ export const envioCrudService = {
 
     logger.success(
       `[crearEnvioI] Envío I (almacén tercero) creado: ${resultado.numeroEnvio} · ref ${referenciaTercero} · ${unidades.length} uds BLOQUEADAS · ${costos.length} costos`
+    );
+
+    return resultado;
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // S51 — Wizard G: Devolución Cliente → Almacén Perú
+  // Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §4 (Caso G, D-7 devuelto_pendiente_revision)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * S51 — Crea un envío Caso G (retorno físico de devolución).
+   *
+   * Vinculado obligatoriamente a una Devolucion existente (devolucionId).
+   * Registra el movimiento físico de las unidades desde el cliente hacia un
+   * almacén Perú. Las unidades quedan marcadas para revisión (D-7) — no
+   * retornan directamente a 'disponible'.
+   *
+   * Flujo:
+   *   1. Construye EnvioUnidad[] con estado 'pendiente'
+   *   2. Invoca `crear()` con origenTipo='cliente' + vinculo a Devolucion/Venta
+   *   3. Agrega costos landed en PEN (tipoCambio=1)
+   *
+   * Estado inicial: 'borrador' (D-15).
+   */
+  async crearEnvioG(
+    payload: CrearEnvioGPayload,
+    userId: string
+  ): Promise<{ id: string; numeroEnvio: string }> {
+    const {
+      devolucionId,
+      devolucionNumero,
+      ventaId,
+      ventaNumero,
+      cliente,
+      almacenDestinoId,
+      colaboradorTransporteId,
+      numeroTracking,
+      unidades,
+      costosPEN,
+      notas,
+    } = payload;
+
+    // 1. EnvioUnidad[]
+    const unidadesDetalle: EnvioUnidad[] = unidades.map((u) => ({
+      unidadId: u.unidadId,
+      productoId: u.productoId,
+      sku: u.sku,
+      codigoUnidad: u.codigoUnidad,
+      estadoEnvio: 'pendiente' as const,
+    }));
+
+    // 2. FormData — origenTipo='cliente', destinoCasillaId=almacén Perú
+    const formData: EnvioFormData = {
+      origenTipo: 'cliente',
+      origenClienteId: cliente.id,
+      origenClienteNombre: cliente.nombre,
+      destinoCasillaId: almacenDestinoId,
+      colaboradorId: colaboradorTransporteId || undefined,
+      unidadesIds: unidades.map((u) => u.unidadId),
+      unidadesDetalle,
+      numeroTracking: numeroTracking || undefined,
+      ventaId,
+      ventaNumero,
+      devolucionId,
+      devolucionNumero,
+      ...(notas ? { notas } : {}),
+    };
+
+    // 3. Crear envío base (D-15: Caso G nace en 'borrador')
+    const resultado = await this.crear(formData, userId);
+
+    // 4. Agregar costos landed en PEN
+    for (const costo of costosPEN) {
+      await this.agregarCostoLanded(
+        resultado.id,
+        {
+          categoriaCostoId: costo.categoriaCostoId,
+          categoriaCostoNombre: costo.categoriaCostoNombre,
+          descripcion: costo.descripcion,
+          monto: costo.montoPEN,
+          moneda: 'PEN',
+          montoPEN: costo.montoPEN,
+          tipoCambio: 1,
+          metodoProrrateo: costo.metodoProrrateo,
+          pagado: false,
+        },
+        userId
+      );
+    }
+
+    logger.success(
+      `[crearEnvioG] Envío G (retorno devolución) creado: ${resultado.numeroEnvio} · DEV ${devolucionNumero} · ${unidades.length} uds → revisión · ${costosPEN.length} costos PEN`
     );
 
     return resultado;
