@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S44 — Wizard T2 Pixel-Perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif; }
+
+  /* Animaciones del wizard (del WizardShell real) */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-fade { animation: fadeIn 200ms ease-out; }
+
+  /* Scrollbar estilizada dentro del wizard */
+  .scroll-styled::-webkit-scrollbar { width: 6px; }
+  .scroll-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  /* Pulse sutil para unidades prioritarias */
+  @keyframes prio-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    50% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0); }
+  }
+  .prio-item { animation: prio-pulse 2.5s infinite; }
+
+  /* Tabular nums para valores monetarios (del tokens.ts real) */
+  .tabular { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HEADER EXPLICATIVO (no forma parte del wizard)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<header class="bg-white border-b border-slate-200 px-6 py-5 sticky top-0 z-20">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-lg font-bold text-slate-900">S44 · Wizard T2 Pixel-Perfect</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Casilla Internacional → Almacén Perú · 5 pasos · Design-Driven Development (este HTML se convierte en JSX)</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="#paso-1" class="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">Paso 1</a>
+      <a href="#paso-2" class="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">Paso 2</a>
+      <a href="#paso-3" class="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">Paso 3</a>
+      <a href="#paso-4" class="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">Paso 4</a>
+      <a href="#paso-5" class="text-xs px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">Paso 5</a>
+      <span class="w-px h-5 bg-slate-300 mx-2"></span>
+      <a href="#entrada" class="text-xs px-3 py-1.5 bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition-colors">Entrada en /envios</a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-8 space-y-10">
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     ENTRADA EN /envios — Botón feature flag
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="entrada" class="scroll-mt-24">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Entrada al wizard</span>
+    <div class="h-px bg-slate-300 flex-1"></div>
+  </div>
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <!-- PageHeader simulado (Envios.tsx) -->
+    <div class="px-6 py-5 border-b border-slate-200">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">Envíos</h2>
+          <p class="text-sm text-slate-600 mt-0.5">Hub logístico del negocio · Todos los movimientos físicos de unidades</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Botón NUEVO con feature flag -->
+          <button class="px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nuevo envío — Casilla a Perú
+          </button>
+          <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors">
+            Exportar
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Placeholder del listado -->
+    <div class="p-8 text-center text-sm text-slate-400 italic">
+      [Listado de envíos existentes · No se modifica en S44]
+    </div>
+  </div>
+  <p class="text-xs text-slate-500 mt-2 italic">
+    El botón "Nuevo envío — Casilla a Perú" sólo aparece si <code class="bg-slate-200 px-1 rounded">FEATURE_FLAGS.wizardT2 === true</code>. Al hacer click, navega a <code class="bg-slate-200 px-1 rounded">/envios/nuevo-t2</code>.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PASO 1 — ORIGEN
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="paso-1" class="scroll-mt-24">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-semibold text-teal-600 uppercase tracking-wider">Paso 1 de 5</span>
+    <span class="text-sm font-semibold text-slate-900">Origen</span>
+    <div class="h-px bg-slate-300 flex-1"></div>
+  </div>
+
+  <!-- WizardShell pixel-perfect -->
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+
+    <!-- HEADER del WizardShell -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envío — Casilla a Perú</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Consolida unidades de una casilla internacional y envíalas al almacén destino</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- STEPPER -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex-shrink-0">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <!-- Step 1 ACTIVO -->
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-semibold ring-4 ring-teal-100 transition-all duration-200" style="transform: scale(1.05)">1</div>
+          <div class="text-xs font-medium text-slate-900">Origen</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <!-- Step 2 PENDING -->
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">2</div>
+          <div class="text-xs font-medium text-slate-400">Picking</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">3</div>
+          <div class="text-xs font-medium text-slate-400">Transporte</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">4</div>
+          <div class="text-xs font-medium text-slate-400">Costos</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">5</div>
+          <div class="text-xs font-medium text-slate-400">Confirmar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY GRID 1fr/320px -->
+    <div class="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_320px]">
+
+      <!-- Contenido principal -->
+      <div class="overflow-y-auto p-6 anim-fade scroll-styled">
+
+        <!-- DraftBanner (opcional, aparece si hay borrador) -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-amber-900">Tienes un borrador sin terminar</div>
+            <div class="text-xs text-amber-800 mt-0.5">Envío T2 desde Casilla Felicita · hace 15 min · Paso 3 de 5</div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button class="px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 rounded-lg flex items-center gap-1.5 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22"/></svg>
+              Descartar
+            </button>
+            <button class="px-3 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg flex items-center gap-1.5 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Continuar
+            </button>
+          </div>
+        </div>
+
+        <!-- Título del paso -->
+        <div class="mb-5">
+          <h3 class="text-base font-semibold text-slate-900">Selecciona la casilla de origen</h3>
+          <p class="text-sm text-slate-600 mt-1">El envío saldrá desde esta casilla internacional hacia el almacén destino.</p>
+        </div>
+
+        <!-- EntityPicker pixel-perfect -->
+        <div class="mb-6">
+          <!-- Search bar -->
+          <div class="relative mb-3">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Buscar casilla por nombre, colaborador o país..." class="w-full pl-10 pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"/>
+          </div>
+
+          <!-- Grid de casillas (EntityPicker variant='grid') -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <!-- Casilla SELECCIONADA (destacada) -->
+            <div class="relative bg-teal-50 border-2 border-teal-500 rounded-xl p-4 cursor-pointer ring-4 ring-teal-100 transition-all">
+              <div class="absolute top-3 right-3 w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="text-3xl">🇺🇸</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold text-slate-900">Casilla Felicita</div>
+                  <div class="text-xs text-slate-600 mt-0.5">1234 Brickell Ave, Miami, FL 33131</div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-100 text-teal-700 text-xs font-medium rounded-full">
+                      <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                      Activa
+                    </span>
+                    <span class="text-xs text-slate-500">47 unidades</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Casilla normal -->
+            <div class="relative bg-white border border-slate-200 hover:border-teal-300 rounded-xl p-4 cursor-pointer transition-colors">
+              <div class="flex items-start gap-3">
+                <span class="text-3xl">🇺🇸</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold text-slate-900">Casilla Wendy</div>
+                  <div class="text-xs text-slate-600 mt-0.5">5678 Park Ave, Orlando, FL 32801</div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      Activa
+                    </span>
+                    <span class="text-xs text-slate-500">12 unidades</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Casilla China -->
+            <div class="relative bg-white border border-slate-200 hover:border-teal-300 rounded-xl p-4 cursor-pointer transition-colors">
+              <div class="flex items-start gap-3">
+                <span class="text-3xl">🇨🇳</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold text-slate-900">Casilla Liu</div>
+                  <div class="text-xs text-slate-600 mt-0.5">Shenzhen Guangdong, China</div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      Activa
+                    </span>
+                    <span class="text-xs text-slate-500">23 unidades</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sin stock -->
+            <div class="relative bg-slate-50 border border-slate-200 rounded-xl p-4 cursor-not-allowed opacity-60">
+              <div class="flex items-start gap-3">
+                <span class="text-3xl">🇰🇷</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold text-slate-700">Casilla Kim</div>
+                  <div class="text-xs text-slate-600 mt-0.5">Seúl, Corea del Sur</div>
+                  <div class="flex items-center gap-2 mt-2">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-200 text-slate-700 text-xs font-medium rounded-full">
+                      Sin stock
+                    </span>
+                    <span class="text-xs text-slate-500">0 unidades</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview del contenido de la casilla (StatCard grid) -->
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Contenido de Casilla Felicita</span>
+            <div class="h-px bg-slate-200 flex-1"></div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <!-- StatCard 1 -->
+            <div class="bg-white border border-slate-200 border-l-4 border-l-transparent rounded-lg p-4">
+              <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Unidades disponibles</p>
+              <p class="text-2xl font-bold tabular text-slate-900 mt-1">47</p>
+              <p class="text-xs text-slate-500 mt-0.5">de 5 OCs distintas</p>
+            </div>
+            <!-- StatCard 2 -->
+            <div class="bg-white border border-slate-200 border-l-4 border-l-transparent rounded-lg p-4">
+              <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Productos únicos</p>
+              <p class="text-2xl font-bold tabular text-slate-900 mt-1">12</p>
+              <p class="text-xs text-slate-500 mt-0.5">SKUs distintos</p>
+            </div>
+            <!-- StatCard 3 — VARIANT SUCCESS (pre-vendidas) -->
+            <div class="bg-emerald-50 border border-emerald-200 border-l-4 border-l-emerald-500 rounded-lg p-4">
+              <p class="text-xs font-medium uppercase tracking-wider text-emerald-600">Pre-vendidas</p>
+              <p class="text-2xl font-bold tabular text-emerald-900 mt-1">4</p>
+              <p class="text-xs text-emerald-700 mt-0.5">con adelanto pagado</p>
+            </div>
+            <!-- StatCard 4 -->
+            <div class="bg-white border border-slate-200 border-l-4 border-l-transparent rounded-lg p-4">
+              <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Valor base</p>
+              <p class="text-2xl font-bold tabular text-slate-900 mt-1">$1,284</p>
+              <p class="text-xs text-slate-500 mt-0.5">CTRU base USD</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fechas -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="text-xs font-medium text-slate-700 block mb-1.5">Fecha estimada de salida <span class="text-slate-400">(opcional)</span></label>
+            <input type="date" value="2026-04-22" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+            <p class="text-xs text-slate-500 mt-1">Cuando el colaborador/courier recoge en la casilla</p>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-slate-700 block mb-1.5">Fecha estimada de llegada <span class="text-slate-400">(opcional)</span></label>
+            <input type="date" value="2026-04-25" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+            <p class="text-xs text-slate-500 mt-1">Llegada al almacén en Perú</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ASIDE — Preview panel -->
+      <aside class="hidden lg:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-5 scroll-styled">
+        <div class="sticky top-0 space-y-4">
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Resumen del envío</div>
+          </div>
+
+          <!-- Mini RouteVisual sm -->
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2">
+              <div class="flex flex-col items-center">
+                <span class="text-2xl">🇺🇸</span>
+                <div class="text-[10px] font-medium text-slate-900 mt-1">Felicita</div>
+              </div>
+              <div class="flex-1 flex items-center">
+                <div class="h-px bg-slate-300 flex-1"></div>
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <div class="h-px bg-slate-300 flex-1"></div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-2xl">🇵🇪</span>
+                <div class="text-[10px] font-medium text-slate-400 mt-1">Destino</div>
+                <div class="text-[9px] text-slate-400">pendiente</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats del envío -->
+          <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">Unidades</span>
+              <span class="font-semibold text-slate-900 tabular">0</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">Productos</span>
+              <span class="font-semibold text-slate-900 tabular">0</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">OCs consolidadas</span>
+              <span class="font-semibold text-slate-900 tabular">0</span>
+            </div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">CTRU base</span>
+              <span class="font-semibold text-slate-900 tabular">$0.00</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">+ Landed</span>
+              <span class="font-semibold text-teal-700 tabular">+$0.00</span>
+            </div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-700">Total estimado</span>
+              <span class="font-bold text-slate-900 tabular">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Autoguardado indicator -->
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            <span>Guardado automático · hace unos segundos</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          Cancelar
+        </button>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500 hidden sm:inline">Puedes volver en cualquier paso</span>
+        <button class="px-5 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors flex items-center gap-2">
+          Siguiente →
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PASO 2 — PICKING
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="paso-2" class="scroll-mt-24">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-semibold text-teal-600 uppercase tracking-wider">Paso 2 de 5</span>
+    <span class="text-sm font-semibold text-slate-900">Picking — seleccionar unidades</span>
+    <div class="h-px bg-slate-300 flex-1"></div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+
+    <!-- HEADER -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envío — Casilla a Perú</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Consolida unidades de una casilla internacional y envíalas al almacén destino</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- STEPPER -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <!-- Step 1 DONE -->
+        <div class="flex flex-col items-center gap-1.5 cursor-pointer group">
+          <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="text-xs font-medium text-emerald-700">Origen</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <!-- Step 2 ACTIVE -->
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-semibold ring-4 ring-teal-100" style="transform: scale(1.05)">2</div>
+          <div class="text-xs font-medium text-slate-900">Picking</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">3</div>
+          <div class="text-xs font-medium text-slate-400">Transporte</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">4</div>
+          <div class="text-xs font-medium text-slate-400">Costos</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">5</div>
+          <div class="text-xs font-medium text-slate-400">Confirmar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_320px]">
+      <div class="overflow-y-auto p-6 anim-fade scroll-styled">
+
+        <!-- Título -->
+        <div class="mb-5">
+          <h3 class="text-base font-semibold text-slate-900">Selecciona las unidades a enviar</h3>
+          <p class="text-sm text-slate-600 mt-1">La casilla Felicita tiene <strong>47 unidades disponibles</strong>. Usa los steppers por producto o expándelos para control individual por unidad.</p>
+        </div>
+
+        <!-- ═══════ BannerPriorizacion (COMPONENTE NUEVO) ═══════ -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-5 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+            <span class="text-lg">🎯</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-emerald-900">4 unidades están pre-vendidas</div>
+            <div class="text-xs text-emerald-800 mt-0.5">
+              Cotizaciones <span class="font-mono bg-white px-1 rounded">COT-123</span>, <span class="font-mono bg-white px-1 rounded">COT-145</span>, <span class="font-mono bg-white px-1 rounded">COT-178</span> con adelanto pagado — se recomienda incluirlas para cumplir compromiso con clientes.
+            </div>
+          </div>
+          <label class="flex items-center gap-2 text-xs font-medium text-emerald-800 cursor-pointer flex-shrink-0">
+            <input type="checkbox" checked class="w-4 h-4 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500">
+            Incluir automáticamente
+          </label>
+        </div>
+
+        <!-- ═══════ ProductoPickingGroup (COMPONENTE NUEVO) ═══════ -->
+        <div class="space-y-3">
+
+          <!-- Producto 1 — con pre-venta, EXPANDIDO para control individual -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <!-- Header del grupo (colapsable) -->
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <button class="flex items-center gap-3 flex-1 text-left">
+                <svg class="w-4 h-4 text-slate-500 transition-transform" style="transform: rotate(90deg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <span class="text-2xl">💊</span>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-900">NOW Ashwagandha KSM-66</div>
+                  <div class="text-xs text-slate-500">SKU: NOW-ASH-90 · OC-2026-001 (Amazon)</div>
+                </div>
+              </button>
+              <div class="flex items-center gap-3 flex-shrink-0">
+                <span class="text-xs text-slate-500">Disponibles: <strong class="text-slate-900">3</strong></span>
+                <!-- Stepper -->
+                <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg overflow-hidden">
+                  <button class="w-7 h-7 text-slate-600 hover:bg-slate-100 transition-colors">−</button>
+                  <span class="w-8 text-center text-sm font-bold tabular">2</span>
+                  <button class="w-7 h-7 text-slate-600 hover:bg-slate-100 transition-colors">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Unidades individuales expandidas -->
+            <div class="divide-y divide-slate-100">
+
+              <!-- UnidadPickerItem — prioritaria seleccionada -->
+              <div class="px-4 py-2.5 bg-emerald-50/40 flex items-center gap-3 prio-item">
+                <input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+                <span class="text-base">🏷️</span>
+                <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs text-slate-700">#UN-8823</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-medium rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Reservada · COT-145
+                  </span>
+                </div>
+                <span class="text-xs text-slate-500">Recibida 29-mar</span>
+              </div>
+
+              <div class="px-4 py-2.5 bg-emerald-50/40 flex items-center gap-3 prio-item">
+                <input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+                <span class="text-base">🏷️</span>
+                <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs text-slate-700">#UN-8824</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-medium rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Reservada · COT-145
+                  </span>
+                </div>
+                <span class="text-xs text-slate-500">Recibida 29-mar</span>
+              </div>
+
+              <div class="px-4 py-2.5 flex items-center gap-3">
+                <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+                <span class="text-base">🏷️</span>
+                <div class="flex-1 min-w-0">
+                  <span class="font-mono text-xs text-slate-600">#UN-8825</span>
+                </div>
+                <span class="text-xs text-slate-500">Recibida 29-mar · stock normal</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Producto 2 — COLAPSADO -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 cursor-pointer">
+              <div class="flex items-center gap-3 flex-1">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <span class="text-2xl">🧪</span>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-900">WellnessLabs NAD+ 1500mg</div>
+                  <div class="text-xs text-slate-500">SKU: WL-NAD-60 · OC-2026-001 + OC-2026-002
+                    <span class="ml-1 inline-flex items-center gap-1 px-1.5 py-0 bg-emerald-100 text-emerald-700 text-[10px] font-medium rounded">
+                      🎯 2 prioritarias
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500">Disponibles: <strong class="text-slate-900">5</strong></span>
+                <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg overflow-hidden">
+                  <button class="w-7 h-7 text-slate-600 hover:bg-slate-100">−</button>
+                  <span class="w-8 text-center text-sm font-bold tabular">3</span>
+                  <button class="w-7 h-7 text-slate-600 hover:bg-slate-100">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Producto 3 — COLAPSADO sin selección -->
+          <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 flex items-center justify-between hover:bg-slate-50 cursor-pointer">
+              <div class="flex items-center gap-3 flex-1">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <span class="text-2xl">❤️</span>
+                <div class="min-w-0">
+                  <div class="text-sm font-semibold text-slate-900">NatureBell CoQ10 200mg</div>
+                  <div class="text-xs text-slate-500">SKU: NB-COQ-240 · OC-2026-001</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500">Disponibles: <strong class="text-slate-900">8</strong></span>
+                <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg overflow-hidden">
+                  <button class="w-7 h-7 text-slate-600 hover:bg-slate-100">−</button>
+                  <span class="w-8 text-center text-sm font-bold tabular text-slate-400">0</span>
+                  <button class="w-7 h-7 text-slate-600 hover:bg-slate-100">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-500 italic text-center py-2">
+            + 9 productos más con 31 unidades disponibles...
+          </div>
+        </div>
+
+        <!-- Resumen inferior -->
+        <div class="mt-5 p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="text-sm font-semibold text-teal-900"><span class="tabular">5</span> unidades seleccionadas</div>
+            <div class="text-xs text-teal-700 mt-0.5">2 productos · <strong>2 prioritarias incluidas ✓</strong> · 2 prioritarias pendientes</div>
+          </div>
+          <button class="text-xs px-3 py-1.5 bg-white border border-teal-300 text-teal-700 rounded-lg hover:bg-teal-50 transition-colors font-medium">
+            🎯 Agregar las 2 restantes
+          </button>
+        </div>
+      </div>
+
+      <!-- ASIDE — Preview panel actualizado -->
+      <aside class="hidden lg:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-5 scroll-styled">
+        <div class="sticky top-0 space-y-4">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Resumen del envío</div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2">
+              <div class="flex flex-col items-center">
+                <span class="text-2xl">🇺🇸</span>
+                <div class="text-[10px] font-medium text-slate-900 mt-1">Felicita</div>
+              </div>
+              <div class="flex-1 flex items-center">
+                <div class="h-px bg-slate-300 flex-1"></div>
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <div class="h-px bg-slate-300 flex-1"></div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-2xl">🇵🇪</span>
+                <div class="text-[10px] font-medium text-slate-400 mt-1">Destino</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">Unidades</span>
+              <span class="font-semibold text-slate-900 tabular">5</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">Productos</span>
+              <span class="font-semibold text-slate-900 tabular">2</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">OCs consolidadas</span>
+              <span class="font-semibold text-slate-900 tabular">1</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">🎯 Pre-vendidas</span>
+              <span class="font-semibold text-emerald-700 tabular">2 de 4</span>
+            </div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">CTRU base</span>
+              <span class="font-semibold text-slate-900 tabular">$163.00</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500">+ Landed</span>
+              <span class="font-semibold text-teal-700 tabular">+$0.00</span>
+            </div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-700">Total estimado</span>
+              <span class="font-bold text-slate-900 tabular">$163.00</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors">← Anterior</button>
+      </div>
+      <button class="px-5 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors">Siguiente →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PASO 3 — TRANSPORTE
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="paso-3" class="scroll-mt-24">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-semibold text-teal-600 uppercase tracking-wider">Paso 3 de 5</span>
+    <span class="text-sm font-semibold text-slate-900">Transporte — colaborador + almacén destino</span>
+    <div class="h-px bg-slate-300 flex-1"></div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+    <!-- HEADER -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envío — Casilla a Perú</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Consolida unidades de una casilla internacional y envíalas al almacén destino</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+
+    <!-- STEPPER (1-2 done, 3 active) -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+          <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>
+          <div class="text-xs font-medium text-emerald-700">Origen</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+          <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>
+          <div class="text-xs font-medium text-emerald-700">Picking</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-semibold ring-4 ring-teal-100" style="transform: scale(1.05)">3</div>
+          <div class="text-xs font-medium text-slate-900">Transporte</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">4</div>
+          <div class="text-xs font-medium text-slate-400">Costos</div>
+        </div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">5</div>
+          <div class="text-xs font-medium text-slate-400">Confirmar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_320px]">
+      <div class="overflow-y-auto p-6 anim-fade scroll-styled">
+
+        <!-- Título -->
+        <div class="mb-5">
+          <h3 class="text-base font-semibold text-slate-900">¿Cómo viajan las unidades a Perú?</h3>
+          <p class="text-sm text-slate-600 mt-1">Elige el tipo de transporte, el colaborador responsable y el almacén destino.</p>
+        </div>
+
+        <!-- Tipo de transporte (2 cards grandes) -->
+        <div class="mb-6">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">Tipo de transporte</label>
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Viajero SELECCIONADO -->
+            <label class="relative bg-teal-50 border-2 border-teal-500 rounded-xl p-4 cursor-pointer ring-4 ring-teal-100">
+              <input type="radio" checked name="tipo" class="absolute top-3 right-3">
+              <div class="flex items-start gap-3">
+                <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl">✈️</div>
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">Viajero personal</div>
+                  <div class="text-xs text-slate-600 mt-1">Persona de confianza que viaja a Perú cargando equipaje</div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Courier normal -->
+            <label class="relative bg-white border border-slate-200 hover:border-teal-300 rounded-xl p-4 cursor-pointer transition-colors">
+              <input type="radio" name="tipo" class="absolute top-3 right-3">
+              <div class="flex items-start gap-3">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-2xl">📦</div>
+                <div>
+                  <div class="text-sm font-semibold text-slate-700">Courier internacional</div>
+                  <div class="text-xs text-slate-500 mt-1">DHL, FedEx, empresas de envío</div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Colaborador (ColaboradorTransporteCard) -->
+        <div class="mb-6">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">Colaborador (viajero)</label>
+
+          <!-- Seleccionado -->
+          <div class="bg-white border-2 border-teal-500 rounded-xl p-4 ring-4 ring-teal-100 relative">
+            <div class="absolute top-3 right-3 w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-2xl font-bold">JP</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-base font-semibold text-slate-900">Juan Pérez</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Disponible
+                  </span>
+                </div>
+                <div class="text-xs text-slate-600">Viajero frecuente · 12 viajes completados · Próximo vuelo: 22-abr</div>
+                <div class="flex items-center gap-3 mt-2">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 text-xs font-medium rounded-full">
+                    💰 Base: $8/libra
+                  </span>
+                  <span class="text-xs text-slate-500">Última tarifa confirmada hace 2 semanas</span>
+                </div>
+              </div>
+              <button class="text-xs text-teal-700 hover:underline font-medium">Cambiar</button>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-500 mt-2">Su tarifa se prellenará automáticamente en el paso de costos.</p>
+        </div>
+
+        <!-- Tracking + Almacén destino -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="text-xs font-medium text-slate-700 block mb-1.5">Número de tracking <span class="text-slate-400">(opcional)</span></label>
+            <input type="text" placeholder="Ej. DHL12345 o #vuelo AA2421" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+            <p class="text-xs text-slate-500 mt-1">Si el viajero da su vuelo o el courier te da tracking</p>
+          </div>
+
+          <!-- Almacén destino (D3: Opción B - aquí en paso 3) -->
+          <div>
+            <label class="text-xs font-medium text-slate-700 block mb-1.5">Almacén destino en Perú <span class="text-red-500">*</span></label>
+            <select class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+              <option>Almacén Lima Centro (principal)</option>
+              <option>Almacén Callao</option>
+              <option>Depósito Miraflores</option>
+            </select>
+            <p class="text-xs text-slate-500 mt-1">Dónde se recibirán las unidades</p>
+          </div>
+        </div>
+
+        <!-- Info card sobre responsabilidad reclamos -->
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center flex-shrink-0 text-sm">💡</div>
+          <div class="text-xs text-sky-900">
+            <strong>Responsable default de reclamos:</strong> Viajero (Juan Pérez). Si las unidades llegan dañadas o se pierden en tránsito, el reclamo inicial se levanta contra él. Puedes cambiar el responsable manualmente al abrir el reclamo.
+          </div>
+        </div>
+      </div>
+
+      <!-- ASIDE -->
+      <aside class="hidden lg:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-5 scroll-styled">
+        <div class="sticky top-0 space-y-4">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Resumen del envío</div>
+
+          <!-- Ruta ahora con destino definido -->
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2">
+              <div class="flex flex-col items-center">
+                <span class="text-2xl">🇺🇸</span>
+                <div class="text-[10px] font-medium text-slate-900 mt-1">Felicita</div>
+                <div class="text-[9px] text-slate-500">Miami</div>
+              </div>
+              <div class="flex-1 flex items-center">
+                <div class="h-px bg-teal-400 flex-1"></div>
+                <span class="text-xs px-1">✈️</span>
+                <div class="h-px bg-teal-400 flex-1"></div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-2xl">🇵🇪</span>
+                <div class="text-[10px] font-medium text-slate-900 mt-1">Lima Centro</div>
+                <div class="text-[9px] text-slate-500">Almacén</div>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 text-center mt-2">Juan Pérez · 22-abr → 25-abr</div>
+          </div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Unidades</span><span class="font-semibold text-slate-900 tabular">5</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Productos</span><span class="font-semibold text-slate-900 tabular">2</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">🎯 Pre-vendidas</span><span class="font-semibold text-emerald-700 tabular">2</span></div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">CTRU base</span><span class="font-semibold text-slate-900 tabular">$163.00</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">+ Landed</span><span class="font-semibold text-teal-700 tabular">pendiente</span></div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-700">Total estimado</span><span class="font-bold text-slate-900 tabular">$163.00</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors">← Anterior</button>
+      </div>
+      <button class="px-5 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors">Siguiente →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PASO 4 — COSTOS LANDED
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="paso-4" class="scroll-mt-24">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-semibold text-teal-600 uppercase tracking-wider">Paso 4 de 5</span>
+    <span class="text-sm font-semibold text-slate-900">Costos landed</span>
+    <div class="h-px bg-slate-300 flex-1"></div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envío — Casilla a Perú</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Consolida unidades de una casilla internacional y envíalas al almacén destino</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+
+    <!-- Stepper (1-3 done, 4 active) -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><div class="text-xs font-medium text-emerald-700">Origen</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><div class="text-xs font-medium text-emerald-700">Picking</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><div class="text-xs font-medium text-emerald-700">Transporte</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-semibold ring-4 ring-teal-100" style="transform: scale(1.05)">4</div><div class="text-xs font-medium text-slate-900">Costos</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-slate-200"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-semibold">5</div><div class="text-xs font-medium text-slate-400">Confirmar</div></div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_320px]">
+      <div class="overflow-y-auto p-6 anim-fade scroll-styled">
+
+        <div class="mb-5">
+          <h3 class="text-base font-semibold text-slate-900">Define los costos del transporte</h3>
+          <p class="text-sm text-slate-600 mt-1">Estos costos se prorratean automáticamente al CTRU de cada unidad al recibir.</p>
+        </div>
+
+        <!-- ═══════ TarifaPresetSelector (COMPONENTE NUEVO) ═══════ -->
+        <div class="mb-5">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">Método de tarifa del colaborador</label>
+          <div class="grid grid-cols-4 gap-2">
+            <!-- Por peso SELECCIONADO -->
+            <label class="relative bg-teal-50 border-2 border-teal-500 rounded-xl p-3 cursor-pointer ring-4 ring-teal-100">
+              <div class="text-xl mb-1">⚖️</div>
+              <div class="text-sm font-semibold text-slate-900">Por peso</div>
+              <div class="text-xs text-slate-600 mt-0.5">$X/libra</div>
+              <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px]">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              </div>
+            </label>
+
+            <label class="bg-white border border-slate-200 hover:border-teal-300 rounded-xl p-3 cursor-pointer transition-colors">
+              <div class="text-xl mb-1">📦</div>
+              <div class="text-sm font-semibold text-slate-700">Estándar</div>
+              <div class="text-xs text-slate-500 mt-0.5">$X/unidad</div>
+            </label>
+
+            <label class="bg-white border border-slate-200 hover:border-teal-300 rounded-xl p-3 cursor-pointer transition-colors">
+              <div class="text-xl mb-1">💵</div>
+              <div class="text-sm font-semibold text-slate-700">Monto total</div>
+              <div class="text-xs text-slate-500 mt-0.5">$X fijo</div>
+            </label>
+
+            <label class="bg-white border border-slate-200 hover:border-teal-300 rounded-xl p-3 cursor-pointer transition-colors">
+              <div class="text-xl mb-1">📊</div>
+              <div class="text-sm font-semibold text-slate-700">Variable</div>
+              <div class="text-xs text-slate-500 mt-0.5">por producto</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Inputs de tarifa -->
+        <div class="grid grid-cols-2 gap-4 mb-5">
+          <div>
+            <label class="text-xs font-medium text-slate-700 block mb-1.5">Tarifa por libra (USD) <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+              <input type="number" value="8.00" step="0.01" class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Peso total estimado: <strong class="text-slate-700 tabular">18.5 lb</strong> · Flete total: <strong class="text-slate-900 tabular">$148.00</strong></p>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-slate-700 block mb-1.5">Tipo de cambio (PEN/USD)</label>
+            <input type="number" value="3.78" step="0.001" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+            <p class="text-xs text-slate-500 mt-1">TC del día desde tesorería · aplicable solo al prorrateo</p>
+          </div>
+        </div>
+
+        <!-- Costos adicionales (DynamicChargesSection style) -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden mb-5">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div class="text-sm font-semibold text-slate-700">Costos adicionales</div>
+            <button class="text-xs text-teal-700 hover:text-teal-800 font-medium flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Agregar
+            </button>
+          </div>
+          <div class="divide-y divide-slate-100">
+            <!-- Fee de recepción (pre-cargado) -->
+            <div class="px-4 py-3 flex items-center gap-3">
+              <input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-teal-600">
+              <div class="flex-1 grid grid-cols-3 gap-2">
+                <input type="text" value="Recepción en destino" class="px-2 py-1.5 text-sm border border-slate-200 rounded">
+                <select class="px-2 py-1.5 text-sm border border-slate-200 rounded">
+                  <option>Monto total</option>
+                  <option>Por unidad</option>
+                </select>
+                <div class="relative">
+                  <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">$</span>
+                  <input type="number" value="15.00" class="w-full pl-5 pr-2 py-1.5 text-sm border border-slate-200 rounded">
+                </div>
+              </div>
+              <button class="text-slate-400 hover:text-red-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════ CTRULandedPreview (COMPONENTE NUEVO) ═══════ -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-200 flex items-center gap-2">
+            <span class="text-base">💡</span>
+            <div class="text-sm font-semibold text-slate-700">Preview CTRU landed por producto</div>
+            <span class="ml-auto text-xs text-slate-500">Actualizado en tiempo real</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="text-xs text-slate-500 bg-white border-b border-slate-200">
+                <tr>
+                  <th class="text-left py-2 px-4 font-medium">Producto</th>
+                  <th class="text-right py-2 px-3 font-medium">Uds</th>
+                  <th class="text-right py-2 px-3 font-medium">CTRU base</th>
+                  <th class="text-right py-2 px-3 font-medium">+ Landed</th>
+                  <th class="text-right py-2 px-4 font-medium">CTRU final</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-slate-100">
+                <tr>
+                  <td class="py-2 px-4">
+                    <div class="flex items-center gap-2">
+                      <span class="text-lg">💊</span>
+                      <span class="text-slate-900">NOW Ashwagandha</span>
+                    </div>
+                  </td>
+                  <td class="text-right py-2 px-3 tabular">2</td>
+                  <td class="text-right py-2 px-3 tabular text-slate-700">$18.50</td>
+                  <td class="text-right py-2 px-3 tabular font-semibold text-teal-700">+$4.82</td>
+                  <td class="text-right py-2 px-4 tabular font-bold text-slate-900">$23.32</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-4">
+                    <div class="flex items-center gap-2">
+                      <span class="text-lg">🧪</span>
+                      <span class="text-slate-900">WellnessLabs NAD+</span>
+                    </div>
+                  </td>
+                  <td class="text-right py-2 px-3 tabular">3</td>
+                  <td class="text-right py-2 px-3 tabular text-slate-700">$42.00</td>
+                  <td class="text-right py-2 px-3 tabular font-semibold text-teal-700">+$11.23</td>
+                  <td class="text-right py-2 px-4 tabular font-bold text-slate-900">$53.23</td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-slate-100 border-t-2 border-slate-300 text-slate-900">
+                <tr>
+                  <td class="py-2 px-4 font-semibold">Total</td>
+                  <td class="text-right py-2 px-3 tabular font-bold">5</td>
+                  <td class="text-right py-2 px-3 tabular font-bold">$163.00</td>
+                  <td class="text-right py-2 px-3 tabular font-bold text-teal-700">+$163.00</td>
+                  <td class="text-right py-2 px-4 tabular font-bold">$326.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASIDE actualizado -->
+      <aside class="hidden lg:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-5 scroll-styled">
+        <div class="sticky top-0 space-y-4">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Resumen del envío</div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2">
+              <div class="flex flex-col items-center"><span class="text-2xl">🇺🇸</span><div class="text-[10px] font-medium text-slate-900 mt-1">Felicita</div></div>
+              <div class="flex-1 flex items-center"><div class="h-px bg-teal-400 flex-1"></div><span class="text-xs px-1">✈️</span><div class="h-px bg-teal-400 flex-1"></div></div>
+              <div class="flex flex-col items-center"><span class="text-2xl">🇵🇪</span><div class="text-[10px] font-medium text-slate-900 mt-1">Lima Centro</div></div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Unidades</span><span class="font-semibold text-slate-900 tabular">5</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Productos</span><span class="font-semibold text-slate-900 tabular">2</span></div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">CTRU base</span><span class="font-semibold text-slate-900 tabular">$163.00</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">+ Flete peso</span><span class="font-semibold text-teal-700 tabular">+$148.00</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">+ Recepción</span><span class="font-semibold text-teal-700 tabular">+$15.00</span></div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between"><span class="text-xs font-semibold text-slate-700">Total landed</span><span class="font-bold text-slate-900 tabular">$326.00</span></div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500"><span>Equivalente PEN</span><span class="tabular">S/ 1,232.28</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <button class="px-5 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg">Siguiente →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PASO 5 — CONFIRMAR
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="paso-5" class="scroll-mt-24">
+  <div class="flex items-center gap-2 mb-3">
+    <span class="text-xs font-semibold text-teal-600 uppercase tracking-wider">Paso 5 de 5</span>
+    <span class="text-sm font-semibold text-slate-900">Confirmar y crear envío</span>
+    <div class="h-px bg-slate-300 flex-1"></div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envío — Casilla a Perú</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Revisa los detalles antes de crear el envío</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+
+    <!-- Stepper (1-4 done, 5 active) -->
+    <div class="px-6 py-5 border-b border-slate-100 bg-slate-50">
+      <div class="flex items-center justify-between max-w-4xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><div class="text-xs font-medium text-emerald-700">Origen</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><div class="text-xs font-medium text-emerald-700">Picking</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><div class="text-xs font-medium text-emerald-700">Transporte</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div><div class="text-xs font-medium text-emerald-700">Costos</div></div>
+        <div class="flex-1 h-0.5 mx-2 bg-emerald-500"></div>
+        <div class="flex flex-col items-center gap-1.5"><div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-semibold ring-4 ring-teal-100" style="transform: scale(1.05)">5</div><div class="text-xs font-medium text-slate-900">Confirmar</div></div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_320px]">
+      <div class="overflow-y-auto p-6 anim-fade scroll-styled space-y-5">
+
+        <!-- RouteVisual GRANDE (size=lg) -->
+        <div class="bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 p-6">
+          <div class="flex items-center gap-4">
+            <div class="flex flex-col items-center flex-shrink-0">
+              <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-4xl">🇺🇸</div>
+              <div class="font-semibold text-slate-900 text-sm mt-2">Casilla Felicita</div>
+              <div class="text-xs text-slate-500">Miami, FL</div>
+            </div>
+
+            <div class="flex-1 relative">
+              <div class="absolute inset-0 top-1/2 -translate-y-1/2">
+                <div class="h-0.5 bg-gradient-to-r from-slate-300 via-teal-400 to-slate-300 relative">
+                  <span class="absolute left-0 w-3 h-3 rounded-full bg-slate-300 -top-1"></span>
+                  <span class="absolute right-0 w-3 h-3 rounded-full bg-slate-300 -top-1"></span>
+                </div>
+              </div>
+              <div class="relative flex flex-col items-center bg-white px-3 py-2 mx-auto w-fit border border-teal-200 rounded-lg">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">✈️</span>
+                  <span class="text-xs font-semibold text-slate-700">Juan Pérez</span>
+                </div>
+                <div class="text-[10px] text-slate-500">22-abr → 25-abr · 3 días</div>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-center flex-shrink-0">
+              <div class="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-4xl">🇵🇪</div>
+              <div class="font-semibold text-slate-900 text-sm mt-2">Almacén Lima</div>
+              <div class="text-xs text-slate-500">Lima Centro</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPIBar 3 columns -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-white border border-slate-200 border-l-4 border-l-slate-500 rounded-lg p-4">
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Contenido</p>
+            <p class="text-2xl font-bold tabular text-slate-900 mt-1">5 uds</p>
+            <p class="text-xs text-slate-500 mt-0.5">2 productos · 1 OC · <span class="text-emerald-700 font-medium">🎯 2 pre-vendidas</span></p>
+          </div>
+          <div class="bg-white border border-slate-200 border-l-4 border-l-slate-500 rounded-lg p-4">
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Valor de productos</p>
+            <p class="text-2xl font-bold tabular text-slate-900 mt-1">$163.00</p>
+            <p class="text-xs text-slate-500 mt-0.5">CTRU base total</p>
+          </div>
+          <div class="bg-white border border-teal-200 border-l-4 border-l-teal-500 rounded-lg p-4">
+            <p class="text-xs font-medium uppercase tracking-wider text-teal-600">Costos landed</p>
+            <p class="text-2xl font-bold tabular text-teal-900 mt-1">$163.00</p>
+            <p class="text-xs text-teal-700 mt-0.5">Flete $148 + Recepción $15</p>
+          </div>
+        </div>
+
+        <!-- Efectos al confirmar -->
+        <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">✨</span>
+            <div class="text-sm font-semibold text-sky-900">Al confirmar se creará:</div>
+          </div>
+          <ul class="text-xs text-sky-800 space-y-1.5 pl-7 list-disc">
+            <li>Envío <strong class="font-mono bg-white px-1 rounded">ENV-2026-200</strong> tipo <strong>C (Casilla → Perú)</strong> en estado <strong class="font-mono bg-white px-1 rounded">borrador</strong> <span class="text-sky-600">(caso manual — editable hasta despachar)</span></li>
+            <li>5 unidades cambian de estado: <code class="bg-white px-1 rounded">recibida_usa</code> → <code class="bg-white px-1 rounded">asignada_envio</code></li>
+            <li>CxP al colaborador Juan Pérez por <strong class="tabular">$163.00 USD</strong> <span class="text-sky-600">(S/ 615.94 PEN al TC 3.78)</span></li>
+            <li>Al confirmar desde /envios: estado transita <code class="bg-white px-1 rounded">borrador → confirmado</code></li>
+            <li>Al despachar: unidades pasan a <code class="bg-white px-1 rounded">en_transito_peru</code></li>
+            <li>Al recibir: CTRU landed se aplica a cada unidad prorrateado por peso</li>
+          </ul>
+        </div>
+
+        <!-- Responsable reclamo -->
+        <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm">🛡️</div>
+            <div>
+              <div class="text-sm font-medium text-slate-900">Responsable default de reclamos</div>
+              <div class="text-xs text-slate-500">Puedes cambiar al abrir un reclamo si aplica</div>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-medium rounded-full">
+            Viajero (Juan Pérez)
+          </span>
+        </div>
+      </div>
+
+      <!-- ASIDE final -->
+      <aside class="hidden lg:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-5 scroll-styled">
+        <div class="sticky top-0 space-y-4">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Resumen final</div>
+
+          <div class="bg-white rounded-lg border border-slate-200 p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Unidades</span><span class="font-semibold text-slate-900 tabular">5</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Productos</span><span class="font-semibold text-slate-900 tabular">2</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">🎯 Pre-vendidas</span><span class="font-semibold text-emerald-700 tabular">2</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">OCs</span><span class="font-semibold text-slate-900 tabular">1</span></div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">CTRU base</span><span class="font-semibold text-slate-900 tabular">$163.00</span></div>
+            <div class="flex items-center justify-between text-xs"><span class="text-slate-500">+ Landed</span><span class="font-semibold text-teal-700 tabular">+$163.00</span></div>
+            <div class="h-px bg-slate-100"></div>
+            <div class="flex items-center justify-between"><span class="text-sm font-semibold text-slate-700">Total</span><span class="font-bold text-slate-900 tabular text-lg">$326.00</span></div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500"><span>S/</span><span class="tabular">S/ 1,232.28</span></div>
+          </div>
+
+          <!-- Gran total destacado (patrón de OCWizardPreview) -->
+          <div class="bg-teal-50 border border-teal-200 rounded-xl p-3">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-teal-700 mb-1">Gran total del envío</div>
+            <div class="text-2xl font-bold text-teal-900 tabular">$326.00</div>
+            <div class="text-xs text-teal-700 mt-0.5">USD · S/ 1,232.28 PEN</div>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            <span>Guardado automático · hace 5 segundos</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- FOOTER — botones confirmar -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">
+          Guardar como borrador
+        </button>
+        <button class="px-5 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+          Crear y despachar envío
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     FOOTER — Mapa de componentes
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="pt-8 pb-16">
+  <div class="bg-slate-900 text-slate-100 rounded-2xl p-6">
+    <h2 class="text-base font-bold text-white mb-4">📋 Mapa de componentes S44</h2>
+
+    <div class="grid grid-cols-3 gap-6 text-xs">
+      <div>
+        <div class="text-emerald-400 font-semibold mb-2">♻️ Reutilizables directos (5)</div>
+        <ul class="space-y-1 text-slate-300">
+          <li><code class="bg-slate-800 px-1 rounded">WizardShell</code> — contenedor</li>
+          <li><code class="bg-slate-800 px-1 rounded">EntityPicker&lt;Casilla&gt;</code> — paso 1</li>
+          <li><code class="bg-slate-800 px-1 rounded">RouteVisual</code> — paso 5 (size=lg)</li>
+          <li><code class="bg-slate-800 px-1 rounded">DraftBanner</code> — autoguardado</li>
+          <li><code class="bg-slate-800 px-1 rounded">FormField</code> — fechas, tracking, tarifa</li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="text-amber-400 font-semibold mb-2">🔧 Primitivos de composición (5)</div>
+        <ul class="space-y-1 text-slate-300">
+          <li><code class="bg-slate-800 px-1 rounded">StatCard + KPIBar</code> — preview + KPIs</li>
+          <li><code class="bg-slate-800 px-1 rounded">StatusBadge</code> — prioridad, disponibilidad</li>
+          <li><code class="bg-slate-800 px-1 rounded">ProductoDisplay</code> — headers de grupo</li>
+          <li><code class="bg-slate-800 px-1 rounded">DynamicChargesSection</code> — costos adicionales</li>
+          <li><code class="bg-slate-800 px-1 rounded">useWizardAutosave</code> — hook existente</li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="text-violet-400 font-semibold mb-2">🆕 Nuevos a crear (7)</div>
+        <ul class="space-y-1 text-slate-300">
+          <li><code class="bg-violet-900/50 px-1 rounded">UnidadPickerItem</code></li>
+          <li><code class="bg-violet-900/50 px-1 rounded">ProductoPickingGroup</code></li>
+          <li><code class="bg-violet-900/50 px-1 rounded">BannerPriorizacion</code></li>
+          <li><code class="bg-violet-900/50 px-1 rounded">TarifaPresetSelector</code></li>
+          <li><code class="bg-violet-900/50 px-1 rounded">CTRULandedPreview</code></li>
+          <li><code class="bg-violet-900/50 px-1 rounded">EnvioT2WizardPreview</code></li>
+          <li><code class="bg-violet-900/50 px-1 rounded">ColaboradorTransporteCard</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-700 text-xs text-slate-400">
+      Ubicación: todos los componentes nuevos viven en <code class="bg-slate-800 px-1 rounded">src/pages/Envios/EnvioWizardT2/</code>. El <code class="bg-slate-800 px-1 rounded">WizardT2Page.tsx</code> los compone. Feature flag: <code class="bg-slate-800 px-1 rounded">FEATURE_FLAGS.wizardT2</code>. Ruta: <code class="bg-slate-800 px-1 rounded">/envios/nuevo-t2</code>.
+    </div>
+  </div>
+</section>
+
+</main>
+
+</body>
+</html>
