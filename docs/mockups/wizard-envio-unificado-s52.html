@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S52 — Wizard Envio Unificado</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .tab-active { background-color: #0f766e; color: white; }
+  .tab-inactive { background-color: #f1f5f9; color: #475569; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .tipo-card { transition: all 150ms ease; cursor: pointer; }
+  .tipo-card:hover { border-color: #0d9488; background-color: #f0fdfa; }
+  .tipo-card.selected { border-color: #0f766e; background-color: #f0fdfa; box-shadow: 0 0 0 3px #ccfbf1; }
+  .tipo-card.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+  .ruta-connector {
+    flex: 1; height: 2px;
+    background: linear-gradient(to right, #94a3b8 50%, transparent 50%);
+    background-size: 8px 2px; background-repeat: repeat-x;
+  }
+  .step-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .step-line { flex: 1; height: 2px; }
+  .stepper-done { background-color: #10b981; color: white; }
+  .stepper-active { background-color: #0f766e; color: white; box-shadow: 0 0 0 4px #ccfbf1; }
+  .stepper-pending { background-color: #e2e8f0; color: #94a3b8; }
+  .line-done { background-color: #10b981; }
+  .line-pending { background-color: #e2e8f0; }
+  .picking-row:hover { background-color: #f8fafc; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeIn 200ms ease-out; }
+  .collapse-btn { cursor: pointer; }
+  .collapsible { overflow: hidden; transition: max-height 300ms ease; }
+</style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+<!-- Header de navegacion del mockup -->
+<header class="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-20">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <h1 class="text-base font-bold text-slate-900">S52 — Wizard Envio Unificado</h1>
+      <p class="text-xs text-slate-500">Mockup de validacion · 3 vistas: selector de tipo + Paso 2 tipo C + Paso 2 tipo F</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="envios-transversal-s43.html" class="text-xs text-teal-700 hover:underline">Ver S43 →</a>
+    </div>
+  </div>
+</header>
+
+<!-- Tabs -->
+<div class="bg-white border-b border-slate-200 px-6 py-3 sticky top-[57px] z-10">
+  <div class="max-w-7xl mx-auto flex gap-2 flex-wrap">
+    <button onclick="showTab('paso1')" class="tab-btn tab-active px-4 py-2 rounded-lg text-sm font-medium" data-tab="paso1">Paso 1 — Elegir tipo</button>
+    <button onclick="showTab('paso2c')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium" data-tab="paso2c">Paso 2 — Tipo C (Casilla → Peru)</button>
+    <button onclick="showTab('paso2f')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium" data-tab="paso2f">Paso 2 — Tipo F (Despacho venta)</button>
+    <button onclick="showTab('paso4')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium" data-tab="paso4">Paso 4 — Logistica (Tipo C)</button>
+    <button onclick="showTab('paso5')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium" data-tab="paso5">Paso 5 — Confirmar</button>
+    <button onclick="showTab('notas')" class="tab-btn tab-inactive px-4 py-2 rounded-lg text-sm font-medium" data-tab="notas">Notas de diseno</button>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-4">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TAB 1 — PASO 1: ELEGIR TIPO
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="paso1" class="section active animate-in">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col" style="min-height: 82vh;">
+
+    <!-- Header del wizard -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envio</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Elige el tipo de movimiento logistico para continuar</p>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Stepper -->
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex-shrink-0">
+      <div class="flex items-center max-w-3xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-active">1</div>
+          <span class="text-xs font-medium text-slate-900">Tipo</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">2</div>
+          <span class="text-xs text-slate-400">Origen</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">3</div>
+          <span class="text-xs text-slate-400">Destino</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">4</div>
+          <span class="text-xs text-slate-400">Logistica</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">5</div>
+          <span class="text-xs text-slate-400">Confirmar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body: grid contenido + preview -->
+    <div class="flex-1 overflow-hidden grid" style="grid-template-columns: 1fr 304px;">
+
+      <!-- Contenido principal -->
+      <div class="overflow-y-auto p-6">
+
+        <!-- Titulo de seccion -->
+        <div class="mb-5">
+          <h3 class="text-base font-semibold text-slate-900 mb-1">¿Que tipo de movimiento vas a registrar?</h3>
+          <p class="text-sm text-slate-500">Selecciona el caso que mejor describe de donde viene y a donde va tu mercaderia.</p>
+        </div>
+
+        <!-- GRUPO 1: Importaciones -->
+        <div class="mb-5">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-2 h-2 rounded-full bg-teal-500"></div>
+            <span class="text-xs font-semibold text-teal-800 uppercase tracking-wide">Importaciones — del exterior a Peru</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+
+            <!-- Caso C — SELECCIONADO -->
+            <div class="tipo-card selected border-2 rounded-xl p-4" onclick="selectTipo(this, 'C')">
+              <div class="flex items-start justify-between mb-2">
+                <div class="text-2xl">📦→🇵🇪</div>
+                <span class="text-xs font-bold px-2 py-0.5 bg-teal-100 text-teal-800 rounded-full">Caso C</span>
+              </div>
+              <div class="font-semibold text-slate-900 text-sm mb-1">Casilla internacional → Almacen Peru</div>
+              <div class="text-xs text-slate-500 leading-relaxed">Un viajero o courier trae tu mercaderia desde la casilla en EE.UU., China o Corea hacia tu almacen en Peru.</div>
+              <div class="mt-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span class="text-xs text-teal-700 font-medium">El mas frecuente</span>
+              </div>
+            </div>
+
+            <!-- Caso J -->
+            <div class="tipo-card border-2 border-slate-200 rounded-xl p-4 bg-white" onclick="selectTipo(this, 'J')">
+              <div class="flex items-start justify-between mb-2">
+                <div class="text-2xl">📦↔📦</div>
+                <span class="text-xs font-bold px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full">Caso J</span>
+              </div>
+              <div class="font-semibold text-slate-900 text-sm mb-1">Casilla internacional → Casilla internacional</div>
+              <div class="text-xs text-slate-500 leading-relaxed">Mover mercaderia entre dos casillas, ya sea del mismo colaborador o entre colaboradores distintos.</div>
+              <div class="mt-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-xs text-slate-500">Intra-pais o entre paises</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- GRUPO 2: Operaciones Peru -->
+        <div class="mb-5">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+            <span class="text-xs font-semibold text-amber-800 uppercase tracking-wide">Operaciones en Peru</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+
+            <!-- Caso E -->
+            <div class="tipo-card border-2 border-slate-200 rounded-xl p-4 bg-white" onclick="selectTipo(this, 'E')">
+              <div class="flex items-start justify-between mb-2">
+                <div class="text-2xl">🏠↔🏠</div>
+                <span class="text-xs font-bold px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full">Caso E</span>
+              </div>
+              <div class="font-semibold text-slate-900 text-sm mb-1">Traslado interno — Almacen a Almacen</div>
+              <div class="text-xs text-slate-500 leading-relaxed">Mover unidades entre tus propios almacenes en Peru. Rebalanceo de stock, preparacion de temporada.</div>
+              <div class="mt-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                <span class="text-xs text-slate-500">Costos en soles</span>
+              </div>
+            </div>
+
+            <!-- Caso F -->
+            <div class="tipo-card border-2 border-slate-200 rounded-xl p-4 bg-white" onclick="selectTipo(this, 'F')">
+              <div class="flex items-start justify-between mb-2">
+                <div class="text-2xl">🏠→🛍️</div>
+                <span class="text-xs font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full">Caso F</span>
+              </div>
+              <div class="font-semibold text-slate-900 text-sm mb-1">Despacho venta → Cliente</div>
+              <div class="text-xs text-slate-500 leading-relaxed">Enviar productos vendidos al cliente final desde tu almacen. Vincula una venta existente.</div>
+              <div class="mt-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <span class="text-xs text-slate-500">Requiere venta previa</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- GRUPO 3: Especiales -->
+        <div class="mb-5">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-2 h-2 rounded-full bg-violet-500"></div>
+            <span class="text-xs font-semibold text-violet-800 uppercase tracking-wide">Casos especiales</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+
+            <!-- Caso G -->
+            <div class="tipo-card border-2 border-slate-200 rounded-xl p-4 bg-white" onclick="selectTipo(this, 'G')">
+              <div class="flex items-start justify-between mb-2">
+                <div class="text-2xl">🛍️→🏠</div>
+                <span class="text-xs font-bold px-2 py-0.5 bg-rose-100 text-rose-800 rounded-full">Caso G</span>
+              </div>
+              <div class="font-semibold text-slate-900 text-sm mb-1">Retorno fisico — Cliente → Almacen</div>
+              <div class="text-xs text-slate-500 leading-relaxed">Registrar el retorno fisico de productos devueltos por un cliente. Vincula una devolucion existente.</div>
+              <div class="mt-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                <span class="text-xs text-slate-500">Requiere devolucion aprobada</span>
+              </div>
+            </div>
+
+            <!-- Caso I -->
+            <div class="tipo-card border-2 border-slate-200 rounded-xl p-4 bg-white" onclick="selectTipo(this, 'I')">
+              <div class="flex items-start justify-between mb-2">
+                <div class="text-2xl">🏠→🏢</div>
+                <span class="text-xs font-bold px-2 py-0.5 bg-violet-100 text-violet-800 rounded-full">Caso I</span>
+              </div>
+              <div class="font-semibold text-slate-900 text-sm mb-1">Envio a tercero — Fulfillment / Consignacion</div>
+              <div class="text-xs text-slate-500 leading-relaxed">Enviar productos a un almacen externo (MercadoLibre, tienda propia, distribuidor). Stock queda bloqueado.</div>
+              <div class="mt-3 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span class="text-xs text-amber-700">Stock se bloquea al enviar</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- GRUPO 4: Automaticos — colapsable -->
+        <details class="mb-2">
+          <summary class="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-500 hover:text-slate-700 py-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            Como nacen los envios A, B y D (se crean automaticamente, no necesitan wizard)
+          </summary>
+          <div class="mt-3 grid grid-cols-3 gap-3">
+            <div class="border border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 opacity-70">
+              <div class="text-xl mb-2">🏭→📦</div>
+              <div class="text-xs font-semibold text-slate-700 mb-1">Caso A — Proveedor → Casilla</div>
+              <div class="text-xs text-slate-500">Se crea automaticamente al confirmar una OC con ruta via casilla.</div>
+              <div class="mt-2 text-xs text-teal-700 font-medium cursor-pointer hover:underline">Ver mis envios tipo A →</div>
+            </div>
+            <div class="border border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 opacity-70">
+              <div class="text-xl mb-2">🏭→🇵🇪</div>
+              <div class="text-xs font-semibold text-slate-700 mb-1">Caso B — DDP Directo</div>
+              <div class="text-xs text-slate-500">Se crea automaticamente al confirmar una OC con entrega directa a Peru.</div>
+              <div class="mt-2 text-xs text-teal-700 font-medium cursor-pointer hover:underline">Ver mis envios tipo B →</div>
+            </div>
+            <div class="border border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 opacity-70">
+              <div class="text-xl mb-2">🏭→👤</div>
+              <div class="text-xs font-semibold text-slate-700 mb-1">Caso D — Recojo en origen</div>
+              <div class="text-xs text-slate-500">Se crea automaticamente al confirmar una OC donde el colaborador recoge.</div>
+              <div class="mt-2 text-xs text-teal-700 font-medium cursor-pointer hover:underline">Ver mis envios tipo D →</div>
+            </div>
+          </div>
+        </details>
+
+      </div>
+
+      <!-- Panel lateral preview -->
+      <aside class="border-l border-slate-200 bg-slate-50 p-5 overflow-y-auto">
+        <div class="sticky top-0">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Resumen del envio</div>
+
+          <!-- Tipo seleccionado -->
+          <div class="bg-teal-50 border border-teal-200 rounded-xl p-3 mb-4">
+            <div class="text-xs text-teal-700 font-medium mb-1">Tipo elegido</div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl">📦→🇵🇪</span>
+              <div>
+                <div class="text-sm font-semibold text-teal-900">Caso C</div>
+                <div class="text-xs text-teal-700">Casilla intl → Almacen Peru</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ruta visual (placeholder) -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4">
+            <div class="text-xs text-slate-500 mb-2 font-medium">Ruta logistica</div>
+            <div class="flex items-center gap-2">
+              <div class="text-center">
+                <div class="text-lg">📦</div>
+                <div class="text-xs text-slate-500 mt-0.5">Origen</div>
+              </div>
+              <div class="flex-1 h-px bg-dashed border-t-2 border-dashed border-slate-300"></div>
+              <div class="text-center">
+                <div class="text-lg">🇵🇪</div>
+                <div class="text-xs text-slate-500 mt-0.5">Destino</div>
+              </div>
+            </div>
+            <div class="text-xs text-slate-400 text-center mt-2">Se completa en los siguientes pasos</div>
+          </div>
+
+          <!-- Contadores placeholder -->
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Unidades</span>
+              <span class="text-slate-400">— sin seleccionar</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Costo landed</span>
+              <span class="text-slate-400">— sin costos</span>
+            </div>
+          </div>
+
+          <!-- Indicador de paso -->
+          <div class="bg-teal-700 text-white rounded-lg px-3 py-2 text-center">
+            <div class="text-xs font-medium">Paso 1 de 5</div>
+            <div class="text-xs text-teal-200 mt-0.5">Elige el tipo para continuar</div>
+          </div>
+
+          <!-- Autoguardado -->
+          <div class="mt-4 text-xs text-slate-400 text-center">
+            <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            Borrador guardado automaticamente
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+      <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+        Cancelar
+      </button>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500">Selecciona un tipo para continuar</span>
+        <button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-teal-600 hover:bg-teal-700 transition-colors">
+          Siguiente →
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TAB 2 — PASO 2: TIPO C (Casilla → Peru)
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="paso2c" class="section animate-in">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col" style="min-height: 82vh;">
+
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envio</h2>
+        <div class="flex items-center gap-2 mt-0.5">
+          <span class="text-xs px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-medium">📦→🇵🇪 Caso C</span>
+          <span class="text-xs text-slate-500">Selecciona la casilla origen</span>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Stepper -->
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex-shrink-0">
+      <div class="flex items-center max-w-3xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-done">✓</div>
+          <span class="text-xs font-medium text-emerald-700">Tipo</span>
+        </div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-active">2</div>
+          <span class="text-xs font-medium text-slate-900">Origen</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">3</div>
+          <span class="text-xs text-slate-400">Destino</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">4</div>
+          <span class="text-xs text-slate-400">Logistica</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">5</div>
+          <span class="text-xs text-slate-400">Confirmar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-hidden grid" style="grid-template-columns: 1fr 304px;">
+      <div class="overflow-y-auto p-6">
+
+        <h3 class="text-base font-semibold text-slate-900 mb-1">¿Desde que casilla sale la mercaderia?</h3>
+        <p class="text-sm text-slate-500 mb-5">Elige la casilla internacional de origen. En el siguiente paso seleccionaras las unidades a incluir.</p>
+
+        <!-- Casillas disponibles -->
+        <div class="space-y-3 mb-6">
+
+          <!-- Casilla seleccionada -->
+          <div class="border-2 border-teal-500 bg-teal-50 rounded-xl p-4 cursor-pointer" style="box-shadow: 0 0 0 3px #ccfbf1;">
+            <div class="flex items-start justify-between">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-lg flex-shrink-0">🇺🇸</div>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-semibold text-slate-900">Casilla Felicita</span>
+                    <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">USA · Miami, FL</span>
+                    <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded">Principal</span>
+                  </div>
+                  <div class="text-xs text-slate-500 mt-0.5">Felicita Huanca · 2342 NW 107th Ave, Doral FL</div>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0 ml-3">
+                <div class="text-sm font-bold text-slate-900">14 uds</div>
+                <div class="text-xs text-slate-500">3 OCs</div>
+              </div>
+            </div>
+            <!-- OCs disponibles en esta casilla -->
+            <div class="mt-3 pt-3 border-t border-teal-200">
+              <div class="text-xs font-medium text-teal-800 mb-2">Ordenes de compra con stock en esta casilla:</div>
+              <div class="flex flex-wrap gap-2">
+                <span class="text-xs px-2 py-1 bg-white border border-teal-200 rounded-lg text-teal-800 font-mono">OC-2026-001 · Amazon · 7 uds</span>
+                <span class="text-xs px-2 py-1 bg-white border border-teal-200 rounded-lg text-teal-800 font-mono">OC-2026-008 · iHerb · 4 uds</span>
+                <span class="text-xs px-2 py-1 bg-white border border-teal-200 rounded-lg text-teal-800 font-mono">OC-2026-012 · Vitacost · 3 uds</span>
+              </div>
+              <div class="mt-2 flex items-center gap-1.5">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></div>
+                <span class="text-xs text-emerald-800 font-medium">4 unidades pre-vendidas — se recomienda incluirlas</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Casilla no seleccionada -->
+          <div class="border-2 border-slate-200 bg-white rounded-xl p-4 cursor-pointer hover:border-teal-300 hover:bg-slate-50 transition-all">
+            <div class="flex items-start justify-between">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-lg flex-shrink-0">🇨🇳</div>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-semibold text-slate-900">Casilla Beijing</span>
+                    <span class="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded">China · Beijing</span>
+                  </div>
+                  <div class="text-xs text-slate-500 mt-0.5">Carlos Quispe · Room 502, Building A, Shunyi District</div>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0 ml-3">
+                <div class="text-sm font-bold text-slate-900">6 uds</div>
+                <div class="text-xs text-slate-500">1 OC</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Casilla no seleccionada 2 -->
+          <div class="border-2 border-slate-200 bg-white rounded-xl p-4 cursor-pointer hover:border-teal-300 hover:bg-slate-50 transition-all">
+            <div class="flex items-start justify-between">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-lg flex-shrink-0">🇰🇷</div>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-semibold text-slate-900">Casilla Seoul</span>
+                    <span class="text-xs px-2 py-0.5 bg-sky-100 text-sky-800 rounded">Corea · Seoul</span>
+                  </div>
+                  <div class="text-xs text-slate-500 mt-0.5">Maria Campos · Gangnam-gu, Seoul</div>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0 ml-3">
+                <div class="text-sm font-bold text-slate-500">0 uds</div>
+                <div class="text-xs text-slate-400">Sin stock</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Info contextual -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-start gap-2">
+          <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div class="text-xs text-blue-800">
+            <strong>En el siguiente paso</strong> elegiras exactamente cuales unidades incluir en este envio, de que OCs y en que cantidad.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Panel preview -->
+      <aside class="border-l border-slate-200 bg-slate-50 p-5 overflow-y-auto">
+        <div class="sticky top-0">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Resumen del envio</div>
+
+          <div class="bg-teal-50 border border-teal-200 rounded-xl p-3 mb-4">
+            <div class="text-xs text-teal-700 font-medium mb-2">Ruta elegida</div>
+            <div class="flex items-center gap-2">
+              <div class="text-center">
+                <div class="text-lg">🇺🇸</div>
+                <div class="text-xs font-medium text-slate-900 mt-0.5">Casilla Felicita</div>
+                <div class="text-xs text-slate-500">Miami, FL</div>
+              </div>
+              <div class="flex-1 relative py-2">
+                <div class="ruta-connector"></div>
+              </div>
+              <div class="text-center">
+                <div class="text-lg">🇵🇪</div>
+                <div class="text-xs font-medium text-slate-900 mt-0.5">Almacen Peru</div>
+                <div class="text-xs text-slate-500">Por definir</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Tipo</span>
+              <span class="font-medium text-teal-800">Caso C · Casilla → Peru</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Casilla origen</span>
+              <span class="font-medium text-slate-900">Casilla Felicita</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">OCs disponibles</span>
+              <span class="font-medium text-slate-900">3 OCs · 14 uds</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Pre-vendidas</span>
+              <span class="font-medium text-emerald-800">4 unidades</span>
+            </div>
+          </div>
+
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Unidades a enviar</span>
+              <span class="text-slate-400">— se elige en Paso 3</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Transporte</span>
+              <span class="text-slate-400">— se elige en Paso 4</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Costo landed</span>
+              <span class="text-slate-400">— se define en Paso 4</span>
+            </div>
+          </div>
+
+          <div class="bg-teal-700 text-white rounded-lg px-3 py-2 text-center">
+            <div class="text-xs font-medium">Paso 2 de 5</div>
+            <div class="text-xs text-teal-200 mt-0.5">Elige la casilla para continuar</div>
+          </div>
+
+          <div class="mt-4 text-xs text-slate-400 text-center">
+            <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            Autoguardado hace 2 min
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+      <div class="flex gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500">Paso 2 de 5</span>
+        <button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-teal-600 hover:bg-teal-700">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TAB 3 — PASO 2: TIPO F (Despacho venta → cliente)
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="paso2f" class="section animate-in">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col" style="min-height: 82vh;">
+
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envio</h2>
+        <div class="flex items-center gap-2 mt-0.5">
+          <span class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-medium">🏠→🛍️ Caso F</span>
+          <span class="text-xs text-slate-500">Selecciona la venta a despachar</span>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Stepper (mismo pero con badge Caso F) -->
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex-shrink-0">
+      <div class="flex items-center max-w-3xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-done">✓</div>
+          <span class="text-xs font-medium text-emerald-700">Tipo</span>
+        </div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-active">2</div>
+          <span class="text-xs font-medium text-slate-900">Origen</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">3</div>
+          <span class="text-xs text-slate-400">Destino</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">4</div>
+          <span class="text-xs text-slate-400">Logistica</span>
+        </div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="step-dot stepper-pending">5</div>
+          <span class="text-xs text-slate-400">Confirmar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-hidden grid" style="grid-template-columns: 1fr 304px;">
+      <div class="overflow-y-auto p-6">
+
+        <h3 class="text-base font-semibold text-slate-900 mb-1">¿Cual venta vas a despachar?</h3>
+        <p class="text-sm text-slate-500 mb-5">Busca la venta por numero, nombre del cliente o producto. Solo se muestran ventas pendientes de despacho.</p>
+
+        <!-- Buscador -->
+        <div class="relative mb-5">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar por #venta, nombre de cliente o SKU..." class="w-full border border-slate-300 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+        </div>
+
+        <!-- Filtros rapidos -->
+        <div class="flex gap-2 mb-5 flex-wrap">
+          <button class="px-3 py-1.5 bg-teal-700 text-white rounded-lg text-xs font-medium">Todas pendientes (8)</button>
+          <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">Con adelanto pagado (3)</button>
+          <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">Delivery mismo dia (2)</button>
+          <button class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200">Programadas (1)</button>
+        </div>
+
+        <!-- Lista de ventas -->
+        <div class="space-y-3">
+
+          <!-- Venta seleccionada -->
+          <div class="border-2 border-emerald-500 bg-emerald-50 rounded-xl p-4 cursor-pointer" style="box-shadow: 0 0 0 3px #d1fae5;">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap mb-1">
+                  <span class="font-bold text-slate-900 font-mono">VEN-2026-089</span>
+                  <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-medium">Con adelanto</span>
+                  <span class="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded">Urgente</span>
+                </div>
+                <div class="font-semibold text-slate-900">Maria Garcia Rios</div>
+                <div class="text-xs text-slate-500 mt-0.5">Miraflores, Lima · +51 999 123 456</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold text-emerald-900">S/ 340.00</div>
+                <div class="text-xs text-slate-500">Adelanto: S/ 100</div>
+              </div>
+            </div>
+            <!-- Productos de la venta -->
+            <div class="bg-white border border-emerald-200 rounded-lg p-3">
+              <div class="text-xs font-medium text-slate-700 mb-2">Productos pedidos:</div>
+              <div class="space-y-1.5">
+                <div class="flex justify-between text-xs">
+                  <span class="text-slate-700">💊 NOW Ashwagandha KSM-66</span>
+                  <span class="font-medium text-slate-900">x2 · S/ 120c/u</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                  <span class="text-slate-700">🧴 Vital Proteins Collagen</span>
+                  <span class="font-medium text-slate-900">x1 · S/ 100</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 text-xs text-emerald-800 font-medium flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Venta seleccionada para despacho
+            </div>
+          </div>
+
+          <!-- Venta no seleccionada 1 -->
+          <div class="border-2 border-slate-200 bg-white rounded-xl p-4 cursor-pointer hover:border-teal-300 hover:bg-slate-50 transition-all">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap mb-1">
+                  <span class="font-bold text-slate-900 font-mono">VEN-2026-091</span>
+                  <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-700 rounded">Sin adelanto</span>
+                </div>
+                <div class="font-semibold text-slate-900">Carlos Mendoza Torres</div>
+                <div class="text-xs text-slate-500">San Isidro, Lima · +51 987 654 321</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold text-slate-900">S/ 180.00</div>
+                <div class="text-xs text-slate-500">Pago contra entrega</div>
+              </div>
+            </div>
+            <div class="text-xs text-slate-500">2 productos · 3 unidades</div>
+          </div>
+
+          <!-- Venta no seleccionada 2 -->
+          <div class="border-2 border-slate-200 bg-white rounded-xl p-4 cursor-pointer hover:border-teal-300 hover:bg-slate-50 transition-all">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap mb-1">
+                  <span class="font-bold text-slate-900 font-mono">VEN-2026-094</span>
+                  <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded">Programada</span>
+                </div>
+                <div class="font-semibold text-slate-900">Ana Lucia Flores</div>
+                <div class="text-xs text-slate-500">Surco, Lima · Entrega programada 25-abr</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-bold text-slate-900">S/ 220.00</div>
+                <div class="text-xs text-slate-500">1 producto · 1 unidad</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Panel preview — Tipo F -->
+      <aside class="border-l border-slate-200 bg-slate-50 p-5 overflow-y-auto">
+        <div class="sticky top-0">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Resumen del envio</div>
+
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 mb-4">
+            <div class="text-xs text-emerald-700 font-medium mb-2">Ruta elegida</div>
+            <div class="flex items-center gap-2">
+              <div class="text-center">
+                <div class="text-lg">🏠</div>
+                <div class="text-xs font-medium text-slate-900 mt-0.5">Almacen Lima</div>
+                <div class="text-xs text-slate-500">Por definir</div>
+              </div>
+              <div class="flex-1 relative py-2">
+                <div class="ruta-connector"></div>
+              </div>
+              <div class="text-center">
+                <div class="text-lg">🛍️</div>
+                <div class="text-xs font-medium text-slate-900 mt-0.5">Maria Garcia</div>
+                <div class="text-xs text-slate-500">Miraflores</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Tipo</span>
+              <span class="font-medium text-emerald-800">Caso F · Despacho</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Venta</span>
+              <span class="font-mono font-medium text-slate-900">VEN-2026-089</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Cliente</span>
+              <span class="font-medium text-slate-900">Maria Garcia</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Valor venta</span>
+              <span class="font-medium text-slate-900">S/ 340.00</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Adelanto</span>
+              <span class="font-medium text-amber-800">S/ 100 pagado</span>
+            </div>
+          </div>
+
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Almacen + picking</span>
+              <span class="text-slate-400">— se elige en Paso 3</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Costo delivery</span>
+              <span class="text-slate-400">— se define en Paso 4</span>
+            </div>
+          </div>
+
+          <div class="bg-emerald-700 text-white rounded-lg px-3 py-2 text-center">
+            <div class="text-xs font-medium">Paso 2 de 5</div>
+            <div class="text-xs text-emerald-200 mt-0.5">Elige la venta para continuar</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+      <div class="flex gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500">Paso 2 de 5</span>
+        <button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-teal-600 hover:bg-teal-700">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TAB 4 — PASO 4: LOGISTICA (Tipo C)
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="paso4" class="section animate-in">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col" style="min-height: 82vh;">
+
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envio</h2>
+        <div class="flex items-center gap-2 mt-0.5">
+          <span class="text-xs px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-medium">📦→🇵🇪 Caso C</span>
+          <span class="text-xs text-slate-500">Transporte, costos y datos adicionales</span>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Stepper -->
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex-shrink-0">
+      <div class="flex items-center max-w-3xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-done">✓</div><span class="text-xs font-medium text-emerald-700">Tipo</span></div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-done">✓</div><span class="text-xs font-medium text-emerald-700">Origen</span></div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-done">✓</div><span class="text-xs font-medium text-emerald-700">Destino</span></div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-active">4</div><span class="text-xs font-medium text-slate-900">Logistica</span></div>
+        <div class="step-line line-pending mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-pending">5</div><span class="text-xs text-slate-400">Confirmar</span></div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-hidden grid" style="grid-template-columns: 1fr 304px;">
+      <div class="overflow-y-auto p-6 space-y-5">
+
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 mb-1">Logistica del envio</h3>
+          <p class="text-sm text-slate-500">Este paso es opcional — puedes avanzar y completarlo despues si aun no tienes todos los datos.</p>
+        </div>
+
+        <!-- Seccion A: Transporte -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold">A</div>
+              <span class="font-medium text-slate-900 text-sm">Transporte</span>
+            </div>
+            <span class="text-xs text-red-600 font-medium">Obligatorio para Caso C</span>
+          </div>
+          <div class="p-4">
+            <!-- Tipo de transporte -->
+            <div class="mb-4">
+              <label class="text-xs font-medium text-slate-700 block mb-2">Tipo de transporte</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="border-2 border-teal-500 bg-teal-50 rounded-lg p-3 text-center transition-all">
+                  <div class="text-lg mb-1">✈️</div>
+                  <div class="text-xs font-semibold text-teal-900">Viajero</div>
+                  <div class="text-xs text-teal-700">Persona fisica</div>
+                </button>
+                <button class="border-2 border-slate-200 bg-white rounded-lg p-3 text-center hover:border-teal-300 hover:bg-slate-50 transition-all">
+                  <div class="text-lg mb-1">📦</div>
+                  <div class="text-xs font-semibold text-slate-700">Courier externo</div>
+                  <div class="text-xs text-slate-500">DHL, FedEx, etc.</div>
+                </button>
+                <button class="border-2 border-slate-200 bg-white rounded-lg p-3 text-center hover:border-teal-300 hover:bg-slate-50 transition-all">
+                  <div class="text-lg mb-1">🚚</div>
+                  <div class="text-xs font-semibold text-slate-700">Transportista local</div>
+                  <div class="text-xs text-slate-500">Solo Peru</div>
+                </button>
+              </div>
+            </div>
+            <!-- Colaborador -->
+            <div class="mb-3">
+              <label class="text-xs font-medium text-slate-700 block mb-1">Viajero responsable</label>
+              <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <option>Juan Perez Mamani</option>
+                <option>Felicita Huanca</option>
+                <option>Carlos Quispe Ramos</option>
+              </select>
+            </div>
+            <!-- Tracking -->
+            <div>
+              <label class="text-xs font-medium text-slate-700 block mb-1">Numero de tracking <span class="text-slate-400 font-normal">(opcional)</span></label>
+              <input type="text" placeholder="Ej: 1Z999AA10123456784" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Seccion B: Costos landed -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold">B</div>
+              <span class="font-medium text-slate-900 text-sm">Costos landed (USD)</span>
+            </div>
+            <span class="text-xs text-slate-500">Opcional</span>
+          </div>
+          <div class="p-4">
+            <!-- Preset tarifa -->
+            <div class="mb-4">
+              <label class="text-xs font-medium text-slate-700 block mb-2">Metodo de cobro del flete</label>
+              <div class="grid grid-cols-3 gap-2 mb-3">
+                <button class="border-2 border-teal-500 bg-teal-50 rounded-lg p-2.5 text-center text-xs">
+                  <div class="font-semibold text-teal-900 mb-0.5">Monto total</div>
+                  <div class="text-teal-700">$ fijo por envio</div>
+                </button>
+                <button class="border-2 border-slate-200 bg-white rounded-lg p-2.5 text-center text-xs hover:border-teal-300 transition-all">
+                  <div class="font-semibold text-slate-700 mb-0.5">Por unidad</div>
+                  <div class="text-slate-500">$ x unidad</div>
+                </button>
+                <button class="border-2 border-slate-200 bg-white rounded-lg p-2.5 text-center text-xs hover:border-teal-300 transition-all">
+                  <div class="font-semibold text-slate-700 mb-0.5">Variable</div>
+                  <div class="text-slate-500">$ x producto</div>
+                </button>
+              </div>
+              <!-- Monto total flete -->
+              <div class="flex gap-3">
+                <div class="flex-1">
+                  <label class="text-xs text-slate-600 block mb-1">Monto del flete (USD)</label>
+                  <div class="flex">
+                    <span class="px-3 py-2 bg-slate-100 border border-r-0 border-slate-300 rounded-l-lg text-sm text-slate-600">$</span>
+                    <input type="number" value="85" class="flex-1 border border-slate-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  </div>
+                </div>
+                <div class="w-36">
+                  <label class="text-xs text-slate-600 block mb-1">Tipo de cambio</label>
+                  <div class="flex">
+                    <span class="px-2 py-2 bg-slate-100 border border-r-0 border-slate-300 rounded-l-lg text-xs text-slate-600">S/</span>
+                    <input type="number" value="3.72" step="0.01" class="flex-1 border border-slate-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  </div>
+                </div>
+              </div>
+              <!-- Preview de conversion -->
+              <div class="mt-2 text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2">
+                $85 USD × 3.72 = <span class="font-semibold text-slate-900">S/ 316.20 PEN</span> en costos de flete
+              </div>
+            </div>
+
+            <!-- Costos adicionales -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-medium text-slate-700">Costos adicionales</label>
+                <button class="text-xs text-teal-700 font-medium hover:underline">+ Agregar</button>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                  <input type="checkbox" checked class="w-4 h-4 accent-teal-600">
+                  <div class="flex-1 text-xs text-slate-700">Fee de recepcion en casilla</div>
+                  <div class="text-xs font-medium text-slate-900">$12.00</div>
+                </div>
+                <div class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                  <input type="checkbox" class="w-4 h-4 accent-teal-600">
+                  <div class="flex-1 text-xs text-slate-500">Seguro de envio</div>
+                  <div class="text-xs text-slate-400">$0.00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seccion C: Adicional -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">C</div>
+            <span class="font-medium text-slate-900 text-sm">Informacion adicional</span>
+            <span class="text-xs text-slate-500">Opcional</span>
+          </div>
+          <div class="p-4 grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-medium text-slate-700 block mb-1">Fecha estimada de llegada</label>
+              <input type="date" value="2026-04-28" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+              <label class="text-xs font-medium text-slate-700 block mb-1">Notas del envio</label>
+              <input type="text" placeholder="Observaciones, instrucciones..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Panel preview -->
+      <aside class="border-l border-slate-200 bg-slate-50 p-5 overflow-y-auto">
+        <div class="sticky top-0">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Resumen del envio</div>
+
+          <div class="bg-teal-50 border border-teal-200 rounded-xl p-3 mb-4">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="text-lg">🇺🇸</div>
+              <div class="ruta-connector flex-1"></div>
+              <div class="text-xs text-slate-500">✈️ Juan Perez</div>
+              <div class="ruta-connector flex-1"></div>
+              <div class="text-lg">🇵🇪</div>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="font-medium text-slate-900">Casilla Felicita</span>
+              <span class="font-medium text-slate-900">Almacen Lima</span>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Unidades</span>
+              <span class="font-medium text-slate-900">11 uds · 3 productos</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">OCs consolidadas</span>
+              <span class="font-medium text-slate-900">3 OCs</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Pre-vendidas</span>
+              <span class="font-medium text-emerald-800">4 incluidas</span>
+            </div>
+            <hr class="border-slate-100">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Flete</span>
+              <span class="font-medium text-slate-900">$85.00 USD</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Fee recepcion</span>
+              <span class="font-medium text-slate-900">$12.00 USD</span>
+            </div>
+            <hr class="border-slate-100">
+            <div class="flex justify-between text-xs font-semibold">
+              <span class="text-slate-700">Total landed</span>
+              <span class="text-teal-900">$97.00 · S/ 360.84</span>
+            </div>
+          </div>
+
+          <div class="bg-teal-700 text-white rounded-lg px-3 py-2 text-center mb-2">
+            <div class="text-xs font-medium">Paso 4 de 5</div>
+            <div class="text-xs text-teal-200 mt-0.5">Todo listo para confirmar</div>
+          </div>
+          <div class="text-xs text-teal-700 text-center font-medium cursor-pointer hover:underline">Puedes avanzar sin costos →</div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+      <div class="flex gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500">Paso 4 de 5 · Opcional</span>
+        <button class="px-5 py-2 text-sm font-semibold text-white rounded-lg bg-teal-600 hover:bg-teal-700">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TAB 5 — PASO 5: CONFIRMAR (universal)
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="paso5" class="section animate-in">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col" style="min-height: 82vh;">
+
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">Nuevo envio</h2>
+        <div class="flex items-center gap-2 mt-0.5">
+          <span class="text-xs px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-medium">📦→🇵🇪 Caso C</span>
+          <span class="text-xs text-slate-500">Revisa y confirma el envio</span>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 rounded-lg p-2 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Stepper completo -->
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex-shrink-0">
+      <div class="flex items-center max-w-3xl mx-auto w-full">
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-done">✓</div><span class="text-xs font-medium text-emerald-700">Tipo</span></div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-done">✓</div><span class="text-xs font-medium text-emerald-700">Origen</span></div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-done">✓</div><span class="text-xs font-medium text-emerald-700">Destino</span></div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-done">✓</div><span class="text-xs font-medium text-emerald-700">Logistica</span></div>
+        <div class="step-line line-done mx-2"></div>
+        <div class="flex flex-col items-center gap-1"><div class="step-dot stepper-active">5</div><span class="text-xs font-medium text-slate-900">Confirmar</span></div>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-hidden grid" style="grid-template-columns: 1fr 304px;">
+      <div class="overflow-y-auto p-6 space-y-4">
+
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 mb-1">Revisa los datos del envio</h3>
+          <p class="text-sm text-slate-500">Puedes volver atras para editar cualquier seccion antes de crear el envio.</p>
+        </div>
+
+        <!-- Ruta visual -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-xs font-medium text-slate-600 mb-3 uppercase tracking-wide">Ruta logistica</div>
+          <div class="flex items-center gap-3">
+            <div class="text-center">
+              <div class="text-3xl">🇺🇸</div>
+              <div class="text-sm font-semibold text-slate-900 mt-1">Casilla Felicita</div>
+              <div class="text-xs text-slate-500">Miami, FL · USA</div>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full ruta-connector"></div>
+              <div class="text-xs text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200 -mt-1">✈️ Juan Perez Mamani (viajero)</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl">🇵🇪</div>
+              <div class="text-sm font-semibold text-slate-900 mt-1">Almacen Lima Centro</div>
+              <div class="text-xs text-slate-500">Lima · Peru</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque de carga -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-900">Carga del envio</span>
+            <span class="text-xs text-teal-700 font-medium cursor-pointer hover:underline">← Editar</span>
+          </div>
+          <div class="p-4">
+            <div class="flex gap-4 mb-3">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-slate-900">11</div>
+                <div class="text-xs text-slate-500">unidades</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-slate-900">3</div>
+                <div class="text-xs text-slate-500">productos</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-slate-900">3</div>
+                <div class="text-xs text-slate-500">OCs consolidadas</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-emerald-700">4</div>
+                <div class="text-xs text-emerald-600">pre-vendidas</div>
+              </div>
+            </div>
+            <details>
+              <summary class="text-xs text-teal-700 font-medium cursor-pointer hover:underline">Ver lista de unidades (11)</summary>
+              <div class="mt-2 space-y-1">
+                <div class="flex justify-between text-xs py-1 border-t border-slate-100">
+                  <span class="text-slate-700">💊 NOW Ashwagandha KSM-66 (x4)</span>
+                  <span class="text-slate-500">OC-2026-001</span>
+                </div>
+                <div class="flex justify-between text-xs py-1 border-t border-slate-100">
+                  <span class="text-slate-700">🧴 Vital Proteins Collagen (x4)</span>
+                  <span class="text-slate-500">OC-2026-008</span>
+                </div>
+                <div class="flex justify-between text-xs py-1 border-t border-slate-100">
+                  <span class="text-slate-700">💊 Garden of Life Probiotic (x3)</span>
+                  <span class="text-slate-500">OC-2026-012</span>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- Bloque financiero -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 px-4 py-3 flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-900">Costos landed</span>
+            <span class="text-xs text-teal-700 font-medium cursor-pointer hover:underline">← Editar</span>
+          </div>
+          <div class="p-4 space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-600">Flete — Juan Perez (viajero)</span>
+              <span class="font-medium text-slate-900">$85.00</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-600">Fee recepcion en casilla</span>
+              <span class="font-medium text-slate-900">$12.00</span>
+            </div>
+            <hr class="border-slate-100">
+            <div class="flex justify-between text-sm font-bold">
+              <span class="text-slate-900">Total USD</span>
+              <span class="text-teal-900">$97.00</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Equivalente PEN (TC 3.72)</span>
+              <span class="text-slate-700 font-medium">S/ 360.84</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas finales -->
+        <div>
+          <label class="text-xs font-medium text-slate-700 block mb-1">Notas del envio <span class="text-slate-400 font-normal">(opcional)</span></label>
+          <textarea rows="2" placeholder="Observaciones adicionales para este envio..." class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Panel preview final -->
+      <aside class="border-l border-slate-200 bg-slate-50 p-5 overflow-y-auto">
+        <div class="sticky top-0">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Resumen final</div>
+
+          <div class="bg-teal-50 border border-teal-200 rounded-xl p-3 mb-3">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="text-base">🇺🇸</div>
+              <div class="flex-1 h-px bg-teal-300"></div>
+              <div class="text-xs text-teal-700">✈️</div>
+              <div class="flex-1 h-px bg-teal-300"></div>
+              <div class="text-base">🇵🇪</div>
+            </div>
+            <div class="flex justify-between text-xs font-medium">
+              <span class="text-teal-900">Casilla Felicita</span>
+              <span class="text-teal-900">Almacen Lima</span>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 space-y-1.5 text-xs">
+            <div class="flex justify-between"><span class="text-slate-500">Tipo</span><span class="font-medium">Caso C</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Viajero</span><span class="font-medium">Juan Perez</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Unidades</span><span class="font-medium">11 uds</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Pre-vendidas</span><span class="font-medium text-emerald-700">4 incluidas</span></div>
+            <hr class="border-slate-100">
+            <div class="flex justify-between font-bold"><span class="text-slate-700">Total landed</span><span class="text-teal-800">$97.00</span></div>
+            <div class="flex justify-between text-slate-500"><span>En soles</span><span>S/ 360.84</span></div>
+          </div>
+
+          <div class="bg-teal-700 text-white rounded-lg px-3 py-2 text-center mb-3">
+            <div class="text-xs font-medium">Todo listo</div>
+            <div class="text-xs text-teal-200 mt-0.5">Revisa y crea el envio</div>
+          </div>
+
+          <div class="text-xs text-slate-400 text-center">
+            Al confirmar, el envio pasa a estado "En transito" y las unidades quedan en movimiento.
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer con boton principal -->
+    <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between flex-shrink-0">
+      <div class="flex gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 hover:bg-slate-100 rounded-lg">← Anterior</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500">Paso 5 de 5</span>
+        <button class="px-6 py-2.5 text-sm font-bold text-white rounded-lg bg-teal-600 hover:bg-teal-700 shadow-sm">
+          Crear y despachar →
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TAB 6 — NOTAS DE DISENO
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="notas" class="section animate-in">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 max-w-3xl mx-auto">
+    <h2 class="text-xl font-bold text-slate-900 mb-6">Notas de diseno — Wizard Envio Unificado</h2>
+
+    <div class="space-y-6 text-sm text-slate-700">
+
+      <div>
+        <h3 class="font-semibold text-slate-900 mb-2">Por que 5 pasos fijos para todos los tipos</h3>
+        <p class="text-slate-600 leading-relaxed">El stepper siempre muestra "Tipo / Origen / Destino / Logistica / Confirmar". Esto permite al usuario saber en todo momento en que parte del proceso esta, independientemente del tipo de envio elegido. El contenido interno de cada paso cambia, pero la estructura de navegacion es identica.</p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-slate-900 mb-2">El Paso 1 como reemplazo del NuevoEnvioMenu</h3>
+        <p class="text-slate-600 leading-relaxed">El dropdown actual no explica cuando usar cada tipo. La tarjeta del Paso 1 tiene nombre descriptivo + caso de uso tipico + indicadores visuales (color de grupo, icono de ruta). El usuario aprende mientras elige, no antes.</p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-slate-900 mb-2">Tipos A, B, D — visibles pero no seleccionables</h3>
+        <p class="text-slate-600 leading-relaxed">Se muestran en una seccion colapsable "Como nacen los envios A, B y D" para educar al usuario sin confundirlo. La seccion esta colapsada por default para no contaminar el flujo principal con opciones que el usuario no puede elegir.</p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-slate-900 mb-2">Asimetria de picking (Pasos 2 vs 3)</h3>
+        <p class="text-slate-600 leading-relaxed">En Caso C el picking ocurre en Paso 3 (porque en Paso 2 solo se elige la casilla). En Casos E, I, J el picking ocurre en Paso 2 (porque origen y picking van juntos). En Caso F el picking ocurre en Paso 3 (porque primero se elige la venta). Esta asimetria es correcta — forzar picking siempre en el mismo paso crearia relleno artificial.</p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-slate-900 mb-2">Colores de grupo en el Paso 1</h3>
+        <ul class="text-slate-600 leading-relaxed space-y-1 ml-4 list-disc">
+          <li>Teal: importaciones (C, J) — el color primario del sistema</li>
+          <li>Amber: operaciones Peru (E, F) — operaciones locales</li>
+          <li>Violet: casos especiales (G, I) — poco frecuentes</li>
+          <li>Slate con opacidad: automaticos (A, B, D) — informativos</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-slate-900 mb-2">Panel lateral persistente</h3>
+        <p class="text-slate-600 leading-relaxed">El panel lateral se actualiza en tiempo real desde el Paso 1. Al elegir el tipo, ya muestra la ruta logistica esquematica. Al elegir la casilla en Paso 2, ya muestra el origen con bandera y nombre. Al definir costos en Paso 4, ya muestra el total landed con conversion a PEN. En el Paso 5 de confirmacion, el panel es un resumen compacto de todo.</p>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-slate-900 mb-2">Etiqueta del boton final por tipo</h3>
+        <div class="bg-slate-50 rounded-lg p-4 space-y-1 text-xs font-mono">
+          <div>Caso C → "Crear y despachar →"</div>
+          <div>Caso J → "Crear envio J →"</div>
+          <div>Caso E → "Crear traslado →"</div>
+          <div>Caso F → "Crear despacho →"</div>
+          <div>Caso G → "Crear retorno fisico →"</div>
+          <div>Caso I → "Crear envio a tercero (bloquear stock) →"</div>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div class="font-semibold text-amber-900 mb-2">Decisiones pendientes de aprobacion</div>
+        <ul class="text-amber-800 text-xs space-y-1 leading-relaxed">
+          <li>D-U1: El Paso 1 es obligatorio incluso con tipo pre-seleccionado via URL? (recomendado: si)</li>
+          <li>D-U2: El label del paso cambia segun el tipo (Paso 3 = "Destino" o "Picking") o es fijo?</li>
+          <li>D-U3: Al cambiar el tipo en Paso 1 desde un paso avanzado, se muestra dialogo de confirmacion?</li>
+          <li>D-U4: El Paso 4 tiene badge "Opcional" en el stepper para los tipos E, F, G?</li>
+          <li>D-U5: Los tipos A, B, D van en seccion colapsada o directamente ocultos?</li>
+          <li>D-U6: Convivencia con wizards individuales: feature flag o migracion total desde el inicio?</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active'); b.classList.add('tab-inactive'); });
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.dataset.tab === id) { b.classList.add('tab-active'); b.classList.remove('tab-inactive'); }
+  });
+}
+
+function selectTipo(el, tipo) {
+  document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>
