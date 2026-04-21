@@ -54,6 +54,7 @@ import { useToastStore } from "../../store/toastStore";
 // Sub-componentes
 import { EnvioCard } from "./EnvioCard";
 import { EnvioWizardV2 } from "./EnvioWizardV2/EnvioWizardV2";
+import { NuevoEnvioMenu } from "./NuevoEnvioMenu";
 import { RecepcionModal } from "./RecepcionModal";
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -746,7 +747,7 @@ export const Envios: React.FC = () => {
         subtitle="Hub logístico · Todos los movimientos físicos del negocio"
         icon={ArrowRightLeft}
         actions={
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               onClick={() => {
@@ -756,101 +757,10 @@ export const Envios: React.FC = () => {
                 fetchResumen();
               }}
               className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              title="Actualizar"
             >
               <RefreshCw className="h-5 w-5" />
             </Button>
-            {/* S42bf — Botón Exportar (auditoría mockup S40 L1934) */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => exportService.exportEnvios(enviosPorLinea)}
-              disabled={enviosPorLinea.length === 0}
-            >
-              <Download className="h-4 w-4 mr-1.5" />
-              <span className="hidden sm:inline">Exportar</span>
-            </Button>
-            <Button variant="primary" size="sm" onClick={() => setShowCreateModal(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Envio
-            </Button>
-            {/* S44 — Botón del Wizard T2 (Casilla Intl → Almacén Perú).
-                Visible sólo con feature flag WIZARD_T2 activa (ver config/features.ts) */}
-            {wizardT2Enabled && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/envios/nuevo-t2')}
-                title="Wizard T2 (S44) — Consolida unidades de una casilla internacional y envíalas a Perú"
-              >
-                <Package className="h-4 w-4 mr-2" />
-                Casilla a Perú
-              </Button>
-            )}
-            {/* S47 — Botón del Wizard J (Casilla Intl ↔ Casilla Intl).
-                Visible sólo con feature flag WIZARD_J activa */}
-            {wizardJEnabled && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/envios/nuevo-j')}
-                title="Wizard J (S47) — Mueve unidades entre dos casillas internacionales (mismo colaborador o entre colaboradores)"
-              >
-                <ArrowRightLeft className="h-4 w-4 mr-2" />
-                Entre casillas
-              </Button>
-            )}
-            {/* S48 — Botón del Wizard E (Traslado interno Perú ↔ Perú).
-                Visible sólo con feature flag WIZARD_E activa */}
-            {wizardEEnabled && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/envios/nuevo-e')}
-                title="Wizard E (S48) — Traslado interno entre dos almacenes Perú (consolidación, capacidad, costo menor, etc.)"
-              >
-                <Truck className="h-4 w-4 mr-2" />
-                Traslado interno
-              </Button>
-            )}
-            {/* S49 — Botón del Wizard F (Despacho venta → cliente).
-                Visible sólo con feature flag WIZARD_F activa */}
-            {wizardFEnabled && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/envios/nuevo-f')}
-                title="Wizard F (S49) — Despacho de una venta desde almacén Perú al cliente final"
-              >
-                <Package className="h-4 w-4 mr-2" />
-                Despachar venta
-              </Button>
-            )}
-            {/* S50 — Botón del Wizard I (Almacén propio → Almacén tercero).
-                Visible sólo con feature flag WIZARD_I activa */}
-            {wizardIEnabled && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/envios/nuevo-i')}
-                title="Wizard I (S50) — Envío a almacén tercero (FBA, consignación, distribución) · D-10 stock bloqueado"
-              >
-                <Gavel className="h-4 w-4 mr-2" />
-                Envío a tercero
-              </Button>
-            )}
-            {/* S51 — Botón del Wizard G (Retorno físico devolución).
-                Visible sólo con feature flag WIZARD_G activa */}
-            {wizardGEnabled && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/envios/nuevo-g')}
-                title="Wizard G (S51) — Registra el retorno físico de una devolución existente · D-7 unidades en revisión"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Retorno devolución
-              </Button>
-            )}
           </div>
         }
       />
@@ -1118,49 +1028,69 @@ export const Envios: React.FC = () => {
         )}
       </div>
 
-      {/* S47 — Pills por tipo de ruta logística A-J (Modelo Envíos Transversal) */}
-      <div className="flex items-center gap-2 flex-wrap mt-2">
-        <span className="text-xs text-slate-500">Tipo de ruta:</span>
-        <button
-          type="button"
-          onClick={() => setFiltroTipoRuta('')}
-          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
-            filtroTipoRuta === '' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-          }`}
-          title="Ver todos los tipos de ruta"
+      {/* S47 — Sección "Filtrar por tipo de ruta logística" (mockup S43 pixel-perfect) */}
+      <div className="space-y-2 mt-2">
+        <div className="text-xs font-medium text-slate-700">
+          Filtrar por tipo de ruta logística
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setFiltroTipoRuta('')}
+            className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+              filtroTipoRuta === '' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+            title="Ver todos los tipos de ruta"
+          >
+            Todos <span className="ml-1 opacity-75">({enviosPorLinea.length})</span>
+          </button>
+          {(Object.keys(INFO_TIPO_RUTA) as TipoRutaLogistica[]).map((codigo) => {
+            const info = INFO_TIPO_RUTA[codigo];
+            const count = enviosStatsExtra.countsPorTipoRuta[codigo] || 0;
+            const activo = filtroTipoRuta === codigo;
+            // S52 — Siempre visibles (incluso con count=0) para matching pixel-perfect con mockup
+            return (
+              <button
+                key={codigo}
+                type="button"
+                onClick={() => setFiltroTipoRuta(activo ? '' : codigo)}
+                disabled={count === 0 && !activo}
+                title={info.nombreLargo}
+                className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1.5 ${
+                  activo
+                    ? 'bg-teal-600 text-white ring-2 ring-teal-300'
+                    : count === 0
+                      ? 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed opacity-60'
+                      : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 cursor-pointer'
+                }`}
+              >
+                <span className="text-[11px]">{info.icono}</span>
+                <span>{info.nombreCorto}</span>
+                <span className="font-mono text-[10px] opacity-70">· {codigo}</span>
+                <span className={`font-semibold ${activo ? 'text-white/90' : 'text-slate-500'}`}>({count})</span>
+              </button>
+            );
+          })}
+          {enviosStatsExtra.countsPorTipoRuta.sin_clasificar > 0 && (
+            <span className="text-[11px] text-slate-400 italic ml-1">
+              · {enviosStatsExtra.countsPorTipoRuta.sin_clasificar} sin clasificar
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* S52 — Acciones principales debajo de pills (matching mockup: + Nuevo envío · Exportar) */}
+      <div className="flex items-center gap-3 mt-2">
+        <NuevoEnvioMenu onNuevoGenerico={() => setShowCreateModal(true)} />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => exportService.exportEnvios(enviosPorLinea)}
+          disabled={enviosPorLinea.length === 0}
         >
-          Todos
-        </button>
-        {(Object.keys(INFO_TIPO_RUTA) as TipoRutaLogistica[]).map((codigo) => {
-          const info = INFO_TIPO_RUTA[codigo];
-          const count = enviosStatsExtra.countsPorTipoRuta[codigo] || 0;
-          const activo = filtroTipoRuta === codigo;
-          // Ocultar pills sin envíos clasificables (E/F/G/I por ahora) salvo que estén seleccionados
-          if (count === 0 && !activo) return null;
-          return (
-            <button
-              key={codigo}
-              type="button"
-              onClick={() => setFiltroTipoRuta(activo ? '' : codigo)}
-              title={info.nombreLargo}
-              className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1.5 ${
-                activo
-                  ? 'bg-teal-600 text-white ring-2 ring-teal-300'
-                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
-              }`}
-            >
-              <span className="font-mono text-[10px] opacity-70">{codigo}</span>
-              <span className="text-[11px]">{info.icono}</span>
-              <span>{info.nombreCorto}</span>
-              <span className={`font-semibold ${activo ? 'text-white/90' : 'text-slate-500'}`}>({count})</span>
-            </button>
-          );
-        })}
-        {enviosStatsExtra.countsPorTipoRuta.sin_clasificar > 0 && (
-          <span className="text-[11px] text-slate-400 italic ml-1">
-            · {enviosStatsExtra.countsPorTipoRuta.sin_clasificar} sin clasificar
-          </span>
-        )}
+          <Download className="h-4 w-4 mr-1.5" />
+          Exportar
+        </Button>
       </div>
 
       {/* Toolbar */}
