@@ -237,14 +237,40 @@ export const envioCrudService = {
   },
 
   /**
-   * Agrega un costo landed al envio
+   * Agrega un costo landed al envio.
+   *
+   * S46 (D-17, D-18): si el caller no especifica `scope` se asume `'envio'` por
+   * compatibilidad retroactiva. Si `scope='tanda'`, `tandaId` es required y debe
+   * referenciar a una sub-tanda existente del envío. `estado` default = 'estimado'
+   * (asume factura pendiente hasta confirmación explícita).
+   *
+   * Si el envío ya tiene `costosFinalizados=true`, no se permiten nuevos costos
+   * (requiere reabrir con `reabrirCostosLanded()`).
    */
   async agregarCostoLanded(envioId: string, costo: Omit<CostoLanded, 'id' | 'creadoPor' | 'fechaCreacion'>, userId: string): Promise<void> {
     const envio = await this.getById(envioId);
     if (!envio) throw new Error('Envio no encontrado');
+    if (envio.costosFinalizados) {
+      throw new Error('Los costos del envío están finalizados. Reabrir antes de agregar nuevos.');
+    }
+
+    // S46 — Defaults y validaciones de scope/tandaId/estado
+    const scope = costo.scope ?? 'envio';
+    if (scope === 'tanda') {
+      if (!costo.tandaId) {
+        throw new Error("Costo con scope='tanda' requiere tandaId");
+      }
+      const existe = (envio.subEnvios ?? []).some((se) => se.id === costo.tandaId);
+      if (!existe) {
+        throw new Error(`Sub-tanda ${costo.tandaId} no existe en el envío`);
+      }
+    }
+    const estado = costo.estado ?? 'estimado';
 
     const nuevoCosto: CostoLanded = {
       ...costo,
+      scope,
+      estado,
       id: `CL-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       creadoPor: userId,
       fechaCreacion: Timestamp.now(),
@@ -261,7 +287,162 @@ export const envioCrudService = {
       fechaActualizacion: Timestamp.now(),
     });
 
-    logger.info(`Costo landed agregado a envio ${envio.numeroEnvio}: ${costo.categoriaCostoNombre} S/${costo.montoPEN.toFixed(2)}`);
+    logger.info(
+      `Costo landed agregado a envio ${envio.numeroEnvio}: ${costo.categoriaCostoNombre} S/${costo.montoPEN.toFixed(2)} · scope=${scope}${costo.tandaId ? ` tanda=${costo.tandaId}` : ''} · estado=${estado}`
+    );
+  },
+
+  /**
+   * S46 (D-17) — Confirma un costo landed (estimado → confirmado).
+   *
+   * Se llama cuando llega la factura real del proveedor/colaborador. Opcionalmente
+   * permite actualizar el monto real (si difiere del estimado) y registrar el
+   * número de factura como referencia.
+   *
+   * Validaciones:
+   *  - Costo debe existir y estar en estado 'estimado'
+   *  - Envío no puede estar en `costosFinalizados=true`
+   */
+  async confirmarCostoLanded(
+    envioId: string,
+    costoId: string,
+    datos: {
+      /** Monto real de la factura si difiere del estimado (en USD o PEN según moneda) */
+      montoReal?: number;
+      /** Número de factura/documento de respaldo */
+      facturaReferencia?: string;
+      /** Fecha de confirmación (default: ahora) */
+      fechaConfirmacion?: Date;
+    },
+    userId: string
+  ): Promise<void> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (envio.costosFinalizados) {
+      throw new Error('Los costos del envío ya están finalizados');
+    }
+
+    const idx = envio.costosLanded.findIndex((c) => c.id === costoId);
+    if (idx === -1) throw new Error(`Costo ${costoId} no encontrado en el envío`);
+    const costo = envio.costosLanded[idx];
+    const estadoActual = costo.estado ?? 'estimado';
+    if (estadoActual === 'confirmado') {
+      throw new Error('El costo ya está confirmado');
+    }
+
+    const fechaConf = datos.fechaConfirmacion
+      ? Timestamp.fromDate(datos.fechaConfirmacion)
+      : Timestamp.now();
+
+    // Si hay monto real distinto, recalcular montoPEN
+    let nuevoMonto = costo.monto;
+    let nuevoMontoPEN = costo.montoPEN;
+    if (datos.montoReal !== undefined && datos.montoReal !== costo.monto) {
+      nuevoMonto = datos.montoReal;
+      const tc = costo.tipoCambio ?? 1;
+      nuevoMontoPEN =
+        costo.moneda === 'USD' ? datos.montoReal * tc : datos.montoReal;
+    }
+
+    const costoActualizado: CostoLanded = {
+      ...costo,
+      monto: nuevoMonto,
+      montoPEN: nuevoMontoPEN,
+      estado: 'confirmado',
+      fechaConfirmacion: fechaConf,
+      confirmadoPor: userId,
+      ...(datos.facturaReferencia
+        ? { facturaReferencia: datos.facturaReferencia }
+        : {}),
+    };
+    const costosActualizados = [...envio.costosLanded];
+    costosActualizados[idx] = costoActualizado;
+    const totalPEN = costosActualizados.reduce((sum, c) => sum + c.montoPEN, 0);
+
+    await updateDoc(doc(db, COLL, envioId), {
+      costosLanded: costosActualizados,
+      costoLandedTotalPEN: totalPEN,
+      actualizadoPor: userId,
+      fechaActualizacion: Timestamp.now(),
+    });
+
+    logger.success(
+      `Costo ${costo.categoriaCostoNombre} confirmado en envío ${envio.numeroEnvio}${datos.facturaReferencia ? ` · factura ${datos.facturaReferencia}` : ''}`
+    );
+  },
+
+  /**
+   * S46 (D-17) — Finaliza los costos del envío (cierre financiero).
+   *
+   * Valida que TODOS los costos estén confirmados + marca `costosFinalizados=true`
+   * + bloquea futuras ediciones. Este es el evento que transita el CTRU de cada
+   * unidad de "preliminar" a "final definitivo".
+   *
+   * Requiere confirmación explícita del usuario (action irreversible salvo
+   * reapertura auditada).
+   */
+  async finalizarCostosLanded(envioId: string, userId: string): Promise<void> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (envio.costosFinalizados) {
+      throw new Error('Los costos del envío ya están finalizados');
+    }
+
+    const estimados = envio.costosLanded.filter((c) => (c.estado ?? 'estimado') === 'estimado');
+    if (estimados.length > 0) {
+      throw new Error(
+        `No se puede finalizar: ${estimados.length} costo(s) todavía en estado 'estimado'. Confirma cada uno con la factura real antes de cerrar.`
+      );
+    }
+
+    const now = Timestamp.now();
+    await updateDoc(doc(db, COLL, envioId), {
+      costosFinalizados: true,
+      fechaFinalizacionCostos: now,
+      finalizadoPor: userId,
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    });
+
+    logger.success(
+      `Costos del envío ${envio.numeroEnvio} FINALIZADOS · ${envio.costosLanded.length} costos confirmados · CTRU de ${envio.totalUnidades} unidades pasa a DEFINITIVO`
+    );
+  },
+
+  /**
+   * S46 (D-17) — Reabre los costos de un envío que ya fue finalizado (caso raro).
+   *
+   * Solo se debe usar cuando:
+   *  - Llegó una factura adicional después del cierre (ej. tasa aduanera atrasada)
+   *  - Una factura previa fue anulada/corregida por el proveedor
+   *
+   * Requiere motivo explícito que queda en el envío para auditoría.
+   */
+  async reabrirCostosLanded(
+    envioId: string,
+    motivo: string,
+    userId: string
+  ): Promise<void> {
+    const envio = await this.getById(envioId);
+    if (!envio) throw new Error('Envío no encontrado');
+    if (!envio.costosFinalizados) {
+      throw new Error('Los costos no están finalizados — no hay nada que reabrir');
+    }
+    if (!motivo.trim()) {
+      throw new Error('Debe especificar un motivo para reabrir los costos (auditoría)');
+    }
+
+    const now = Timestamp.now();
+    await updateDoc(doc(db, COLL, envioId), {
+      costosFinalizados: false,
+      motivoReaperturaCostos: motivo.trim(),
+      actualizadoPor: userId,
+      fechaActualizacion: now,
+    });
+
+    logger.warn(
+      `Costos del envío ${envio.numeroEnvio} REABIERTOS por ${userId} · motivo: ${motivo.trim()}`
+    );
   },
 
   /**

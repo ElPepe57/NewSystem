@@ -126,6 +126,29 @@ export interface CostoLanded {
   fechaPago?: Timestamp;
   movimientoTesoreriaId?: string;
 
+  // S46 (D-18) — Scope del costo:
+  //   'envio' → afecta todas las unidades del envío (default, backcompat)
+  //   'tanda' → afecta solo las unidades de una sub-tanda específica (tandaId required)
+  // Registros existentes sin scope se asumen 'envio' por compatibilidad retroactiva.
+  scope?: 'envio' | 'tanda';
+  /** Required si scope='tanda': id del SubEnvioT1 al que aplica este costo */
+  tandaId?: string;
+
+  // S46 (D-17) — Estado del costo para el cierre financiero:
+  //   'estimado'   → valor conocido pero pendiente de factura firme (default al crear)
+  //   'confirmado' → factura emitida y verificada, entra al CTRU final al finalizar
+  // Costos 'confirmado' NO se pueden editar (solo reabrir con auditoría).
+  // Costos 'estimado' bloquean el cierre financiero del envío/tanda.
+  estado?: 'estimado' | 'confirmado';
+  /** Fecha en que se confirmó el costo (transición estimado → confirmado) */
+  fechaConfirmacion?: Timestamp;
+  /** Usuario que confirmó el costo */
+  confirmadoPor?: string;
+  /** Nº factura o documento de respaldo (para auditoría del confirmado) */
+  facturaReferencia?: string;
+  /** Motivo por el que aún está estimado (ej. "pendiente factura del viajero") */
+  motivoEstimado?: string;
+
   // Auditoria
   creadoPor: string;
   fechaCreacion: Timestamp;
@@ -295,6 +318,17 @@ export interface Envio {
   // puede crear retroactivamente (modo reactivo) o pueden crearse prospectivamente
   // al recibir el aviso del proveedor. Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §7.
   subEnvios?: SubEnvioT1[];
+
+  // S46 (D-17) — Cierre financiero del envío (distinto del cierre operativo).
+  // El cierre operativo = estado='recibida_completa' (mercadería llegó).
+  // El cierre financiero = todos los costosLanded.estado='confirmado' + acción
+  // explícita del usuario. Al cerrar se aplica CTRU final definitivo a las unidades.
+  // Puede tardar semanas tras el operativo (esperando facturas del viajero/courier).
+  costosFinalizados?: boolean;
+  fechaFinalizacionCostos?: Timestamp;
+  finalizadoPor?: string;
+  /** Motivo registrado al reabrir los costos (caso raro de auditoría) */
+  motivoReaperturaCostos?: string;
 
   // S38-009: DDP directo — proveedor entrega directo a Perú sin casilla intermedia
   esDDP?: boolean;
