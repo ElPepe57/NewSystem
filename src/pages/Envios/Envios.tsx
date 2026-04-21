@@ -3,7 +3,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 // S44 — Feature flag para el Wizard T2 (Casilla Intl → Almacén Perú)
 // S47 — Feature flag para el Wizard J (Casilla Intl ↔ Casilla Intl)
 // S48 — Feature flag para el Wizard E (Traslado interno Perú ↔ Perú)
-import { isWizardT2Enabled, isWizardJEnabled, isWizardEEnabled } from "../../config/features";
+// S49 — Feature flag para el Wizard F (Despacho venta → cliente)
+import { isWizardT2Enabled, isWizardJEnabled, isWizardEEnabled, isWizardFEnabled } from "../../config/features";
 import {
   ArrowRightLeft,
   Truck,
@@ -166,6 +167,8 @@ export const Envios: React.FC = () => {
   const wizardJEnabled = useMemo(() => isWizardJEnabled(), []);
   // S48 — Feature flag del Wizard E (Traslado interno Almacén Perú ↔ Almacén Perú)
   const wizardEEnabled = useMemo(() => isWizardEEnabled(), []);
+  // S49 — Feature flag del Wizard F (Despacho venta Almacén Perú → cliente)
+  const wizardFEnabled = useMemo(() => isWizardFEnabled(), []);
 
   // S40 Bloque B: KPI reclamos
   const {
@@ -801,6 +804,19 @@ export const Envios: React.FC = () => {
               >
                 <Truck className="h-4 w-4 mr-2" />
                 Traslado interno
+              </Button>
+            )}
+            {/* S49 — Botón del Wizard F (Despacho venta → cliente).
+                Visible sólo con feature flag WIZARD_F activa */}
+            {wizardFEnabled && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/envios/nuevo-f')}
+                title="Wizard F (S49) — Despacho de una venta desde almacén Perú al cliente final"
+              >
+                <Package className="h-4 w-4 mr-2" />
+                Despachar venta
               </Button>
             )}
           </div>
