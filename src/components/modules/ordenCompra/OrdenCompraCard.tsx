@@ -3,6 +3,15 @@ import { formatFecha as formatDate } from '../../../utils/dateFormatters';
 import { Package, User, Calendar, DollarSign, MapPin, Truck, Box, TrendingUp, CreditCard, ChevronDown, ChevronUp, Clock, RotateCcw, Layers, CheckCircle2, Send } from 'lucide-react';
 import { Badge, Button, StatusTimeline } from '../../common';
 import { StatusBadge, cn } from '../../../design-system';
+// S52 — Capa 3: plantillas canónicas del ERP (ver docs/DESIGN_PATTERNS.md)
+import {
+  EntityHeader,
+  EntityPipeline,
+  type EntityPipelineStep,
+  NextActionBanner,
+  KpiRow,
+  type KpiRowItem,
+} from '../../../design-system';
 import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOrden } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
@@ -284,47 +293,83 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* S42an — Header estilo mockup S41 SubOrdenDetailModal:
-           breadcrumb pequeño + título + nombre proveedor + pills a la derecha. */}
-      <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1 font-mono">
-            <Package className="w-3.5 h-3.5" />
-            <span>{orden.numeroOrden}</span>
-          </div>
-          <h2 className="text-xl font-semibold text-slate-900">
-            Orden de compra {orden.numeroOrden}
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {orden.nombreProveedor}
-            {orden.paisOrigen && (
-              <span className="ml-2 text-slate-400">· {orden.paisOrigen}</span>
-            )}
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <StatusBadge variant={estadoInfo.variant as any} dot size="sm">
-            {estadoInfo.label}
-          </StatusBadge>
-          <StatusBadge variant={estadoPagoInfo.variant as any} size="sm">
-            {estadoPagoInfo.label}
-          </StatusBadge>
-        </div>
+      {/* S52 — Header migrado a <EntityHeader> (plantilla Capa 3).
+           Preserva breadcrumb Package+numero + título + subtítulo
+           proveedor·pais + 2 badges verticales a la derecha.
+           Border inferior preservado con wrapper className. */}
+      <div className="pb-4 border-b border-slate-100">
+        <EntityHeader
+          breadcrumb={
+            <>
+              <Package className="w-3.5 h-3.5" />
+              <span>{orden.numeroOrden}</span>
+            </>
+          }
+          titulo={`Orden de compra ${orden.numeroOrden}`}
+          subtitulo={
+            <>
+              {orden.nombreProveedor}
+              {orden.paisOrigen && (
+                <span className="ml-2 text-slate-400">· {orden.paisOrigen}</span>
+              )}
+            </>
+          }
+          badges={
+            <div className="flex flex-col items-end gap-1.5">
+              <StatusBadge variant={estadoInfo.variant as any} dot size="sm">
+                {estadoInfo.label}
+              </StatusBadge>
+              <StatusBadge variant={estadoPagoInfo.variant as any} size="sm">
+                {estadoPagoInfo.label}
+              </StatusBadge>
+            </div>
+          }
+        />
       </div>
 
-      {/* S42an — Pipeline horizontal grande con fechas (estilo mockup S41 L149-167).
-           Reemplaza el StatusTimeline viejo. 5 nodos para OC: Borrador →
-           Confirmada → En Proceso → Despachada → Completada. Cada nodo muestra
-           su fecha si está completado, "—" si pendiente. */}
-      {!(orden.subOrdenes?.length) && (
-        <PipelineGrandeOC
-          estadoActual={orden.estado}
-          fechaBorrador={orden.fechaCreacion}
-          fechaConfirmada={orden.fechaEnviada}
-          fechaDespachada={undefined}
-          fechaCompletada={orden.fechaRecibida}
-        />
-      )}
+      {/* S52 — Pipeline migrado a <EntityPipeline> (plantilla Capa 3).
+           4 nodos para OC: Borrador → Confirmada → En Despacho → Completada.
+           Preserva el mapeo de estado OC → índice + la lógica "→ ?" cuando
+           current sin fecha (ver EntityPipeline.tsx). */}
+      {!(orden.subOrdenes?.length) && (() => {
+        // Mapeo de estado OC a índice del pipeline (4 etapas)
+        // 0=Borrador, 1=Confirmada, 2=En Despacho, 3=Completada
+        const indexActual =
+          orden.estado === 'borrador' ? 0
+          : (orden.estado === 'enviada' || orden.estado === 'en_proceso') ? 1
+          : (orden.estado === 'despachada' || orden.estado === 'en_transito' || orden.estado === 'recibida_parcial') ? 2
+          : (orden.estado === 'recibida' || orden.estado === 'completada') ? 3
+          : 0;
+
+        const steps: EntityPipelineStep[] = [
+          {
+            id: 'borrador',
+            label: 'Borrador',
+            fecha: orden.fechaCreacion,
+            status: indexActual > 0 ? 'completed' : 'current',
+          },
+          {
+            id: 'confirmada',
+            label: 'Confirmada',
+            fecha: orden.fechaEnviada,
+            status: indexActual > 1 ? 'completed' : indexActual === 1 ? 'current' : 'pending',
+          },
+          {
+            id: 'despacho',
+            label: 'En Despacho',
+            fecha: undefined,
+            status: indexActual > 2 ? 'completed' : indexActual === 2 ? 'current' : 'pending',
+          },
+          {
+            id: 'completada',
+            label: 'Completada',
+            fecha: orden.fechaRecibida,
+            status: indexActual === 3 ? 'completed' : 'pending',
+          },
+        ];
+
+        return <EntityPipeline steps={steps} size="md" />;
+      })()}
 
       {/* S42aw — Cuerpo dinámico: muestra banner+productos+cargos+envío
           cuando vista='detalle', o el ConfirmarOCModal embedded cuando
@@ -349,80 +394,67 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
         />
       ) : (<>
 
-      {/* S42ap — Banner CTA de próxima acción (restaurado después de S42an/ao
-          que lo había eliminado al quitar StatusTimeline). Usa el nextAction
-          ya calculado que resuelve label/description/buttonText/onClick según
-          el estado. En borrador muestra "Confirmar OC" y dispara el flujo
-          inline de pregunta / división en sub-órdenes. */}
+      {/* S52 — Banner CTA migrado a <NextActionBanner> (plantilla Capa 3).
+           Preserva el ícono Send + colores teal + botón variant. Mismo
+           comportamiento: dispara vistaInterna='confirmar' en borrador, etc. */}
       {nextAction && nextAction.buttonText && nextAction.onClick && (
-        <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-white border border-teal-200 flex items-center justify-center flex-shrink-0">
-              <Send className="w-5 h-5 text-teal-600" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-semibold text-teal-900">
-                {nextAction.label}
-              </div>
-              {nextAction.description && (
-                <div className="text-xs text-teal-700 mt-0.5">
-                  {nextAction.description}
-                </div>
-              )}
-            </div>
-          </div>
-          <Button
-            variant={nextAction.variant === 'primary' ? 'primary' : 'secondary'}
-            onClick={nextAction.onClick}
-            className="flex-shrink-0"
-          >
-            {nextAction.buttonText}
-          </Button>
-        </div>
+        <NextActionBanner
+          icon={Send}
+          label={nextAction.label}
+          description={nextAction.description}
+          buttonText={nextAction.buttonText}
+          onClick={nextAction.onClick}
+          buttonVariant={nextAction.variant === 'primary' ? 'primary' : 'secondary'}
+          variant="teal"
+        />
       )}
 
-      {/* S42ao — Fila de 4 KPIs alineada al mockup S41 L171-199:
-           container bg-slate-50, sin borders visibles entre celdas, valores
-           centrados. Replica fielmente el patrón del SubOrdenDetailModal. */}
-      <div className="grid grid-cols-2 md:grid-cols-4 bg-slate-50 rounded-xl py-4 px-2">
-        <KpiCell
-          label="Total OC"
-          value={`$${orden.totalUSD.toFixed(2)}`}
-          subtitle={orden.tcCompra ? `≈ S/ ${(orden.totalUSD * orden.tcCompra).toFixed(2)}` : 'USD'}
-          tone="default"
-        />
-        <KpiCell
-          label="Productos"
-          value={`${totalSKUs} SKU${totalSKUs !== 1 ? 's' : ''} · ${totalUnidades} und`}
-          subtitle=""
-          tone="default"
-        />
-        <KpiCell
-          label="Sub-órdenes"
-          value={subOrdenesCount > 0 ? String(subOrdenesCount) : '—'}
-          subtitle={subOrdenesCount > 0 ? 'divisiones' : 'sin dividir'}
-          tone={subOrdenesCount > 0 ? 'teal' : 'muted'}
-        />
-        <KpiCell
-          label="Pagos"
-          value={`$${totalPagadoUSD.toFixed(0)} / $${orden.totalUSD.toFixed(0)}`}
-          subtitle={
-            estadoPagoInfo.variant === 'success'
-              ? 'pagado'
-              : estadoPagoInfo.variant === 'warning'
-                ? 'parcial'
-                : 'pendiente'
-          }
-          tone={
-            estadoPagoInfo.variant === 'success'
-              ? 'emerald'
-              : estadoPagoInfo.variant === 'warning'
-                ? 'amber'
-                : 'red'
-          }
-          last
-        />
-      </div>
+      {/* S52 — 4 KPIs migrados a <KpiRow> (plantilla Capa 3).
+           Preserva exactamente el mockup S41 L171-199: bg-slate-50, valores
+           centrados, tonos semanticos por celda. La plantilla es la misma
+           usada ahora en toda entidad (Envio, Venta, etc.). */}
+      <KpiRow
+        items={[
+          {
+            label: 'Total OC',
+            value: `$${orden.totalUSD.toFixed(2)}`,
+            subtitle: orden.tcCompra
+              ? `≈ S/ ${(orden.totalUSD * orden.tcCompra).toFixed(2)}`
+              : 'USD',
+            tone: 'default',
+          },
+          {
+            label: 'Productos',
+            value: `${totalSKUs} SKU${totalSKUs !== 1 ? 's' : ''} · ${totalUnidades} und`,
+            tone: 'default',
+          },
+          {
+            label: 'Sub-órdenes',
+            value: subOrdenesCount > 0 ? String(subOrdenesCount) : '—',
+            subtitle: subOrdenesCount > 0 ? 'divisiones' : 'sin dividir',
+            tone: subOrdenesCount > 0 ? 'teal' : 'muted',
+          },
+          {
+            label: 'Pagos',
+            value: `$${totalPagadoUSD.toFixed(0)} / $${orden.totalUSD.toFixed(0)}`,
+            subtitle:
+              estadoPagoInfo.variant === 'success'
+                ? 'pagado'
+                : estadoPagoInfo.variant === 'warning'
+                  ? 'parcial'
+                  : 'pendiente',
+            tone:
+              estadoPagoInfo.variant === 'success'
+                ? 'emerald'
+                : estadoPagoInfo.variant === 'warning'
+                  ? 'amber'
+                  : 'red',
+          },
+        ]}
+        columns={4}
+      />
+      {/* La definición privada de KpiCell (abajo en este archivo) queda
+          obsoleta post-refactor S52. Se elimina en cleanup siguiente. */}
 
       {/* Sub-órdenes como interfaz operativa principal */}
       {orden.estado !== 'borrador' && orden.subOrdenes && orden.subOrdenes.length > 0 && (
@@ -781,151 +813,8 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
 };
 
 // ════════════════════════════════════════════════════════════════════════════
-// S42an — Componentes internos alineados al estilo mockup S41 SubOrdenDetailModal
+// S52 — Componentes privados eliminados post-refactor a Capa 3:
+//   - PipelineGrandeOC -> reemplazado por <EntityPipeline> del design-system
+//   - KpiCell -> reemplazado por <KpiRow> del design-system
+// Ver docs/DESIGN_PATTERNS.md para uso de las plantillas Capa 3.
 // ════════════════════════════════════════════════════════════════════════════
-
-/**
- * PipelineGrandeOC — pipeline horizontal con 4 nodos minimalistas + fechas debajo.
- * Estilo fiel al mockup S41 SubOrdenDetailModal L149-167: círculos 32px con
- * ícono (check / dot / dash), etiqueta pequeña y fecha tabular. Líneas finas
- * entre nodos.
- */
-const PipelineGrandeOC: React.FC<{
-  estadoActual: EstadoOrden;
-  fechaBorrador?: any;
-  fechaConfirmada?: any;
-  fechaDespachada?: any;
-  fechaCompletada?: any;
-}> = ({
-  estadoActual,
-  fechaBorrador,
-  fechaConfirmada,
-  fechaDespachada,
-  fechaCompletada,
-}) => {
-  // Mapeo de estados a 4 etapas del pipeline:
-  //  0 = Borrador | 1 = Confirmada | 2 = En Despacho | 3 = Completada
-  const indexActual = (() => {
-    if (estadoActual === 'borrador') return 0;
-    if (estadoActual === 'enviada' || estadoActual === 'en_proceso') return 1;
-    if (
-      estadoActual === 'despachada' ||
-      estadoActual === 'en_transito' ||
-      estadoActual === 'recibida_parcial'
-    )
-      return 2;
-    if (estadoActual === 'recibida' || estadoActual === 'completada') return 3;
-    return 0;
-  })();
-
-  const steps = [
-    { label: 'Borrador', fecha: fechaBorrador },
-    { label: 'Confirmada', fecha: fechaConfirmada },
-    { label: 'En Despacho', fecha: fechaDespachada },
-    { label: 'Completada', fecha: fechaCompletada },
-  ];
-
-  const fmt = (d: any): string => {
-    if (!d) return '—';
-    try {
-      const date = typeof d?.toDate === 'function' ? d.toDate() : new Date(d);
-      return date.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
-    } catch {
-      return '—';
-    }
-  };
-
-  return (
-    <div className="flex items-start justify-between gap-2 py-2">
-      {steps.map((step, i) => {
-        const completado = i < indexActual;
-        const activo = i === indexActual;
-        const pendiente = i > indexActual;
-        const isLast = i === steps.length - 1;
-
-        return (
-          <React.Fragment key={step.label}>
-            <div className="flex flex-col items-center flex-shrink-0">
-              <div
-                className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center transition-colors',
-                  completado && 'bg-emerald-500 text-white',
-                  activo && 'bg-emerald-500 text-white',
-                  pendiente && 'bg-slate-200 text-slate-400'
-                )}
-              >
-                {completado && <CheckCircle2 className="w-4 h-4" strokeWidth={3} />}
-                {activo && (
-                  <span className="w-2 h-2 rounded-full bg-white" />
-                )}
-                {pendiente && <span className="text-xs">—</span>}
-              </div>
-              <div
-                className={cn(
-                  'text-xs font-medium mt-2 text-center whitespace-nowrap',
-                  completado && 'text-slate-700',
-                  activo && 'text-slate-900',
-                  pendiente && 'text-slate-400'
-                )}
-              >
-                {step.label}
-              </div>
-              <div
-                className={cn(
-                  'text-[11px] mt-0.5 tabular-nums',
-                  completado && 'text-slate-500',
-                  activo && 'text-slate-500',
-                  pendiente && 'text-slate-300'
-                )}
-              >
-                {activo && !step.fecha ? `${fmt(fechaConfirmada)} → ?` : fmt(step.fecha)}
-              </div>
-            </div>
-            {!isLast && (
-              <div
-                className={cn(
-                  'flex-1 h-0.5 mt-4 rounded-full transition-colors',
-                  i < indexActual ? 'bg-emerald-400' : 'bg-slate-200'
-                )}
-              />
-            )}
-          </React.Fragment>
-        );
-      })}
-    </div>
-  );
-};
-
-/**
- * KpiCell — celda de un KPI dentro de la fila de 4 KPIs superiores.
- * Con border-right entre celdas (excepto la última) para replicar el
- * divisor visual del mockup S41 L171-199.
- */
-const KpiCell: React.FC<{
-  label: string;
-  value: string;
-  subtitle?: string;
-  tone?: 'default' | 'teal' | 'amber' | 'emerald' | 'red' | 'muted';
-  last?: boolean;
-}> = ({ label, value, subtitle, tone = 'default' }) => {
-  const valueColor = {
-    default: 'text-slate-900',
-    teal: 'text-teal-700',
-    amber: 'text-amber-700',
-    emerald: 'text-emerald-700',
-    red: 'text-red-700',
-    muted: 'text-slate-400',
-  }[tone];
-
-  return (
-    <div className="px-2 py-1 text-center">
-      <div className="text-xs text-slate-500 mb-1">{label}</div>
-      <div className={cn('text-xl font-bold tabular-nums', valueColor)}>
-        {value}
-      </div>
-      {subtitle && (
-        <div className="text-[11px] text-slate-400 mt-0.5">{subtitle}</div>
-      )}
-    </div>
-  );
-};

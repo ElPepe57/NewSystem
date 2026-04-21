@@ -40,17 +40,29 @@ import { cn } from '../utils';
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface EntityHeaderProps {
-  /** Breadcrumb chiquito arriba del título (ej. "Órdenes de Compra > OC-001") */
-  breadcrumb?: string;
-  /** Título principal (ej. "OC-2026-001", "ENV-2026-200") — se renderiza mono */
+  /**
+   * Breadcrumb: línea chiquita arriba del título. Puede ser string simple
+   * (ej. "OC-2026-001") o ReactNode si querés poner ícono+texto.
+   * Formato OC: <><Package className="w-3.5 h-3.5" /> <span>{numero}</span></>
+   */
+  breadcrumb?: React.ReactNode;
+  /** Título principal (ej. "Orden de compra OC-2026-001") */
   titulo: string;
-  /** Subtítulo opcional debajo (ej. proveedor, cliente, ruta corta) */
-  subtitulo?: string;
-  /** Slot para badges alineados a la derecha (StatusBadge, chips custom) */
+  /**
+   * Subtítulo opcional debajo. Puede ser string simple o ReactNode si
+   * querés tonos diferenciados (ej. proveedor en slate-500, país en slate-400).
+   */
+  subtitulo?: React.ReactNode;
+  /**
+   * Slot para badges alineados a la derecha. Render libre — el caller decide
+   * si apila horizontal o vertical.
+   *
+   * Patrón canónico OC: stack vertical (flex-col) con 2 badges (estado + pago).
+   */
   badges?: React.ReactNode;
-  /** Acciones adicionales al extremo derecho (ej. botón de cerrar, menú kebab) */
+  /** Acciones adicionales al extremo derecho (ej. botón cerrar, menú kebab) */
   accionesHeader?: React.ReactNode;
-  /** Clase adicional */
+  /** Clase adicional para el contenedor */
   className?: string;
 }
 
@@ -67,28 +79,24 @@ export const EntityHeader: React.FC<EntityHeaderProps> = ({
   className,
 }) => {
   return (
-    <div className={cn('flex items-start justify-between gap-4 flex-wrap', className)}>
+    <div className={cn('flex items-start justify-between gap-4', className)}>
       {/* Columna izquierda: breadcrumb + título + subtítulo */}
       <div className="min-w-0 flex-1">
         {breadcrumb && (
-          <div className="text-xs font-mono text-slate-500 mb-1 truncate">
+          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1 font-mono">
             {breadcrumb}
           </div>
         )}
-        <h2 className="text-2xl font-bold font-mono text-slate-900 truncate">
-          {titulo}
-        </h2>
+        <h2 className="text-xl font-semibold text-slate-900">{titulo}</h2>
         {subtitulo && (
-          <div className="text-sm text-slate-600 mt-1 truncate">{subtitulo}</div>
+          <p className="text-xs text-slate-500 mt-0.5">{subtitulo}</p>
         )}
       </div>
 
       {/* Columna derecha: badges + acciones */}
       {(badges || accionesHeader) && (
-        <div className="flex items-start gap-2 flex-shrink-0 flex-wrap">
-          {badges && (
-            <div className="flex items-center gap-2 flex-wrap">{badges}</div>
-          )}
+        <div className="flex items-start gap-2 flex-shrink-0">
+          {badges}
           {accionesHeader && (
             <div className="flex items-center gap-1">{accionesHeader}</div>
           )}
