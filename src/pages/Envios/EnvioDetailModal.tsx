@@ -26,6 +26,14 @@ import type { Envio, EstadoEnvio, TipoEnvio, EstadoSubEnvio, SubEnvioT1 } from '
 import type { Producto } from '../../types/producto.types';
 import { getDescripcionProducto } from '../../utils/producto.helpers';
 import { cn } from '../../design-system';
+// S52 — Capa 3: plantillas canónicas del ERP (ver docs/DESIGN_PATTERNS.md)
+import {
+  EntityHeader,
+  EntityPipeline,
+  type EntityPipelineStep,
+  NextActionBanner,
+  KpiRow,
+} from '../../design-system';
 import { UserName } from './UserName';
 import { GestionIncidenciasModal } from './GestionIncidenciasModal';
 import { LiberarAduanaModal } from './LiberarAduanaModal';
@@ -305,6 +313,69 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   const costosScopeFlag = useMemo(() => isCostosScopeV2Enabled(), []);
   const { tc } = useTipoCambio();
 
+  // S52 — Próxima acción contextual según estado del envío (estándar OC).
+  // Reemplaza el botón "Registrar recepción" que antes vivía en el header.
+  // Ver docs/DESIGN_PATTERNS.md → Patrón 4 (NextActionBanner).
+  const nextActionEnvio = useMemo((): {
+    icon: typeof CheckCircle;
+    label: string;
+    description: string;
+    buttonText: string;
+    onClick: () => void;
+    variant: 'teal' | 'sky' | 'amber' | 'emerald';
+  } | null => {
+    switch (envio.estado) {
+      case 'borrador':
+        return {
+          icon: CheckCircle,
+          label: 'Confirmar envío',
+          description: 'Valida los detalles del envío antes del despacho',
+          buttonText: 'Confirmar',
+          onClick: () => onConfirmar(envio.id),
+          variant: 'teal',
+        };
+      case 'confirmado':
+        return {
+          icon: Truck,
+          label: 'Despachar envío',
+          description: 'Registra tracking y marca en camino al transportador',
+          buttonText: 'Despachar',
+          onClick: () => onEnviar(envio.id),
+          variant: 'sky',
+        };
+      case 'en_transito':
+        return {
+          icon: PackageCheck,
+          label: 'Registrar recepción',
+          description: 'Procesa las unidades recibidas y actualiza el stock',
+          buttonText: 'Recepcionar',
+          onClick: () => onIniciarRecepcion(envio),
+          variant: 'emerald',
+        };
+      case 'recibida_parcial':
+        return {
+          icon: PackageCheck,
+          label: 'Registrar recepción adicional',
+          description: 'Aún quedan unidades pendientes — procesá la siguiente tanda',
+          buttonText: 'Recepcionar',
+          onClick: () => onIniciarRecepcion(envio),
+          variant: 'amber',
+        };
+      case 'retenida_aduana':
+        return {
+          icon: AlertTriangle,
+          label: 'Liberar unidades de aduana',
+          description: 'Registra los gastos de liberación y libera las unidades',
+          buttonText: 'Liberar',
+          onClick: () => setShowLiberarAduana(true),
+          variant: 'amber',
+        };
+      default:
+        // recibida_completa / cancelada / perdida_total — sin acción
+        return null;
+    }
+  }, [envio, onConfirmar, onEnviar, onIniciarRecepcion]);
+
   // Handlers de costos landed (S46)
   const handleAgregarCosto = async (result: AgregarCostoLandedModalResult) => {
     if (!userId) {
@@ -411,78 +482,79 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
         contentPadding="none"
       >
         <div className="flex flex-col h-full">
-          {/* ═══ Header enriquecido ═══ */}
+          {/* ═══ Header migrado a <EntityHeader> (Capa 3 estándar OC) ═══
+              Preserva el gradient sky + icon circular + badges a la derecha
+              + acciones contextuales (Imprimir / Registrar recepción / Cerrar). */}
           <div className="px-6 py-5 bg-gradient-to-br from-slate-50 to-slate-100 border-b border-slate-200">
-            <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center flex-shrink-0">
-                    <Plane className="w-5 h-5 text-sky-700" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 flex-wrap">
-                      <span className="font-mono">{envio.numeroEnvio}</span>
-                      {getEstadoBadgeNuevo(envio.estado)}
-                      {/* S47 — Badge tipo ruta A-J (reemplaza chip DDP aislado) */}
-                      {infoRuta && (
-                        <span
-                          className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${badgeClassForTipoRuta(tipoRuta!)}`}
-                          title={infoRuta.nombreLargo}
-                        >
-                          <span className="font-mono text-[9px] opacity-70">{infoRuta.codigo}</span>
-                          <span>{infoRuta.icono}</span>
-                          <span>{infoRuta.nombreCorto}</span>
-                        </span>
-                      )}
-                    </h2>
-                    <div className="text-xs text-slate-500 mt-0.5">
-                      {esInternacional ? 'Internacional → Perú' : 'Interna origen'} · creado hace{' '}
-                      {envio.fechaCreacion.toDate().toLocaleDateString('es-PE', {
-                        day: 'numeric',
-                        month: 'long',
-                      })}
-                      {envio.ordenCompraNumero && (
-                        <>
-                          {' '}
-                          · vinculado a{' '}
-                          <span className="text-teal-600 font-medium font-mono">
-                            {envio.ordenCompraNumero}
-                          </span>
-                        </>
-                      )}
+            <div className="mb-4">
+              <EntityHeader
+                breadcrumb={
+                  <>
+                    <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+                      <Plane className="w-4 h-4 text-sky-700" />
                     </div>
+                    <span className="font-mono text-xs text-slate-500">
+                      {envio.numeroEnvio}
+                    </span>
+                  </>
+                }
+                titulo={`Envío ${envio.numeroEnvio}`}
+                subtitulo={
+                  <>
+                    {esInternacional ? 'Internacional → Perú' : 'Interna origen'} · creado hace{' '}
+                    {envio.fechaCreacion.toDate().toLocaleDateString('es-PE', {
+                      day: 'numeric',
+                      month: 'long',
+                    })}
+                    {envio.ordenCompraNumero && (
+                      <>
+                        {' '}
+                        · vinculado a{' '}
+                        <span className="text-teal-600 font-medium font-mono">
+                          {envio.ordenCompraNumero}
+                        </span>
+                      </>
+                    )}
+                  </>
+                }
+                badges={
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {getEstadoBadgeNuevo(envio.estado)}
+                    {infoRuta && (
+                      <span
+                        className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${badgeClassForTipoRuta(tipoRuta!)}`}
+                        title={infoRuta.nombreLargo}
+                      >
+                        <span className="font-mono text-[9px] opacity-70">{infoRuta.codigo}</span>
+                        <span>{infoRuta.icono}</span>
+                        <span>{infoRuta.nombreCorto}</span>
+                      </span>
+                    )}
                   </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="px-3 py-1.5 text-xs border border-slate-300 rounded-lg hover:bg-white text-slate-700 flex items-center gap-1.5"
-                >
-                  <Printer className="w-3 h-3" /> Imprimir
-                </button>
-                {(envio.estado === 'en_transito' || envio.estado === 'recibida_parcial') && (
-                  <button
-                    type="button"
-                    onClick={() => onIniciarRecepcion(envio)}
-                    className="px-3 py-1.5 text-xs bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-1.5 font-semibold"
-                  >
-                    <PackageCheck className="w-3 h-3" />
-                    {envio.estado === 'recibida_parcial'
-                      ? 'Registrar recepción adicional'
-                      : 'Registrar recepción'}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="p-1.5 text-slate-400 hover:text-slate-600"
-                  aria-label="Cerrar"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+                }
+                accionesHeader={
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="px-3 py-1.5 text-xs border border-slate-300 rounded-lg hover:bg-white text-slate-700 flex items-center gap-1.5"
+                    >
+                      <Printer className="w-3 h-3" /> Imprimir
+                    </button>
+                    {/* S52 — botón "Registrar recepción" removido del header.
+                        Ahora la acción principal vive en <NextActionBanner>
+                        abajo del RutaGrande (alineado al estándar OC). */}
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="p-1.5 text-slate-400 hover:text-slate-600"
+                      aria-label="Cerrar"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                }
+              />
             </div>
 
             {/* Ruta horizontal grande 3 nodos */}
@@ -524,54 +596,75 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               }
             />
 
-            {/* 5 KPIs rápidos — S47 incluye OCs consolidadas (Modelo Envíos Transversal) */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
-              <KpiRapido
-                label="Unidades"
-                value={String(totalUnidades)}
-                subtitle="esperadas"
-              />
-              <KpiRapido
-                label="OCs consolidadas"
-                value={ocsConsolidadas > 0 ? String(ocsConsolidadas) : '—'}
-                subtitle={
-                  ocsConsolidadas === 1 && envio.ordenCompraNumero
-                    ? envio.ordenCompraNumero
-                    : ocsConsolidadas > 1
-                      ? 'de distintos proveedores'
-                      : 'sin OC vinculada'
-                }
-                valueColor="text-teal-700"
-              />
-              <KpiRapido
-                label="Recibidas"
-                value={String(totalRecibidas)}
-                subtitle={`${progreso}% del total`}
-                valueColor="text-emerald-700"
-              />
-              <KpiRapido
-                label="Pendientes"
-                value={String(totalPendientes)}
-                subtitle={
-                  incidenciasAbiertas.length > 0
-                    ? `· ${incidenciasAbiertas.length} incidencia${incidenciasAbiertas.length !== 1 ? 's' : ''}`
-                    : 'por llegar'
-                }
-                valueColor={totalPendientes > 0 ? 'text-amber-700' : 'text-slate-700'}
-                redBg={incidenciasAbiertas.length > 0}
-              />
-              {/* S47 — Valor landed reemplaza la barra de progreso (redundante con "Recibidas") */}
-              <KpiRapido
-                label="Valor landed"
-                value={
-                  valorLandedUSD > 0
-                    ? `$${valorLandedUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
-                    : '—'
-                }
-                subtitle={
-                  valorLandedUSD > 0 ? 'USD · costo importación' : 'sin valuar'
-                }
-                valueColor="text-emerald-700"
+            {/* S52 — NextActionBanner contextual según estado (Capa 3).
+                Reemplaza el botón "Registrar recepción" que estaba en el header.
+                Alineado al estándar OC: la acción principal vive acá, no en el header. */}
+            {nextActionEnvio && (
+              <div className="mt-4">
+                <NextActionBanner
+                  icon={nextActionEnvio.icon}
+                  label={nextActionEnvio.label}
+                  description={nextActionEnvio.description}
+                  buttonText={nextActionEnvio.buttonText}
+                  onClick={nextActionEnvio.onClick}
+                  variant={nextActionEnvio.variant}
+                />
+              </div>
+            )}
+
+            {/* S52 — 5 KPIs migrados a <KpiRow> (Capa 3).
+                Preserva Unidades · OCs · Recibidas · Pendientes · Valor landed.
+                La grid anterior con KpiRapido privado queda obsoleta. */}
+            <div className="mt-4">
+              <KpiRow
+                columns={5}
+                items={[
+                  {
+                    label: 'Unidades',
+                    value: String(totalUnidades),
+                    subtitle: 'esperadas',
+                  },
+                  {
+                    label: 'OCs consolidadas',
+                    value: ocsConsolidadas > 0 ? String(ocsConsolidadas) : '—',
+                    subtitle:
+                      ocsConsolidadas === 1 && envio.ordenCompraNumero
+                        ? envio.ordenCompraNumero
+                        : ocsConsolidadas > 1
+                          ? 'de distintos proveedores'
+                          : 'sin OC vinculada',
+                    tone: 'teal',
+                  },
+                  {
+                    label: 'Recibidas',
+                    value: String(totalRecibidas),
+                    subtitle: `${progreso}% del total`,
+                    tone: 'emerald',
+                  },
+                  {
+                    label: 'Pendientes',
+                    value: String(totalPendientes),
+                    subtitle:
+                      incidenciasAbiertas.length > 0
+                        ? `· ${incidenciasAbiertas.length} incidencia${incidenciasAbiertas.length !== 1 ? 's' : ''}`
+                        : 'por llegar',
+                    tone: incidenciasAbiertas.length > 0
+                      ? 'red'
+                      : totalPendientes > 0
+                        ? 'amber'
+                        : 'default',
+                  },
+                  {
+                    label: 'Valor landed',
+                    value:
+                      valorLandedUSD > 0
+                        ? `$${valorLandedUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+                        : '—',
+                    subtitle:
+                      valorLandedUSD > 0 ? 'USD · costo importación' : 'sin valuar',
+                    tone: 'emerald',
+                  },
+                ]}
               />
             </div>
           </div>
