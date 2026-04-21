@@ -12,7 +12,7 @@
 
 1. [Proposito y alcance](#1-proposito-y-alcance)
 2. [Los 9 flujos logisticos canonicos](#2-los-9-flujos-logisticos-canonicos)
-3. [Las 17 decisiones cerradas (no re-deliberables)](#3-las-17-decisiones-cerradas-no-re-deliberables)
+3. [Las 18 decisiones cerradas (no re-deliberables)](#3-las-18-decisiones-cerradas-no-re-deliberables)
 4. [Modelo de datos propuesto](#4-modelo-de-datos-propuesto)
 5. [Flujos por caso](#5-flujos-por-caso)
 6. [Wizard de Envio T2 (Casilla Intl -> Peru)](#6-wizard-de-envio-t2-casilla-intl---peru)
@@ -23,7 +23,7 @@
 11. [Estrategia de migracion de datos existentes](#11-estrategia-de-migracion-de-datos-existentes)
 12. [Modulos absorbidos y su rework](#12-modulos-absorbidos-y-su-rework)
 13. [Efectos contables y financieros](#13-efectos-contables-y-financieros)
-14. [Plan de implementacion por fases (S44-S48)](#14-plan-de-implementacion-por-fases-s44-s48)
+14. [Plan de implementacion por fases (S44-S51)](#14-plan-de-implementacion-por-fases-s44-s48)
 15. [Pendientes / Riesgos / Validaciones previas a S44](#15-pendientes--riesgos--validaciones-previas-a-s44)
 
 ---
@@ -88,7 +88,7 @@ Seguir forzando el modelo actual genera tres problemas:
 
 ---
 
-## 3. Las 17 decisiones cerradas (no re-deliberables)
+## 3. Las 18 decisiones cerradas (no re-deliberables)
 
 Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 con el usuario. Son **input inmutable para S44+**.
 
@@ -111,6 +111,7 @@ Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 co
 | D-15 | Estado inicial del envio por tipo (NO regla unificada): A/B/F/G nacen `confirmado`, D nace `recibida_completa`, C/E/I/J nacen `borrador` | Los auto-creados tienen compromiso implicito en el documento origen; los manuales necesitan ser editables hasta despachar. Ver seccion 8.1 para la tabla completa. |
 | D-16 | Reclamo al proveedor tiene 3 salidas: **reembolso** (dinero), **reemplazo** (nueva tanda fisica en el mismo envio T1) o **merma** (castigo contable si proveedor no asume) | El reemplazo fisico es una capacidad operativa real que no estaba modelada. Se implementa como sub-tanda adicional con `tipo='reemplazo'` vinculada al reclamo. CTRU de la unidad reemplazada se mantiene original (el reemplazo es gratuito por convencion). Ver seccion 7.4. |
 | D-17 | Costos landed con **dos cierres independientes**: (a) **cierre operativo** = `estado='recibida_completa'` (mercadería llegó) · (b) **cierre financiero** = todos los costos confirmados + accion explicita "Finalizar costos" → CTRU final. Pueden tardar semanas entre uno y otro (ej. factura del viajero llega post-entrega). Fee de recepción se confirma tanda por tanda al recibir. Cada costo tiene estado `estimado` o `confirmado`. | El Wizard T2 NO obliga captura obligatoria. Los costos son editables incluso en `recibida_completa` hasta la finalización explícita. Boton "Finalizar costos" solo habilitado cuando todos los costos estén confirmados. Al finalizar: CTRU preliminar → final, se bloquea edición futura (salvo reapertura con auditoría). Ver seccion 10.4. |
+| D-18 | Costos landed soportan **3 formas de asignación**: (a) `scope='envio'` afecta todas las unidades del envío · (b) `scope='tanda'` afecta solo unidades de una recepción parcial específica · (c) **anticipos consumibles** vía entidad `AnticipoColaborador` que vive en Tesorería. El tipo de facturación real varía por colaborador: algunos facturan al final monto global (A), otros por tanda (B), otros requieren anticipo antes del envío como reserva de spot (C). | Fasing aprobado: **S44 implementa solo caso A** (todos los costos `scope='envio'`, sin anticipos). **S46** agrega `scope='tanda'` con cierre financiero por tanda. **S47** agrega `AnticipoColaborador` con saldo consumible. Ver seccion 10.5 para modelo completo. |
 
 ---
 
@@ -862,6 +863,131 @@ interface Envio {
 - Boton "Finalizar costos del envio" disabled hasta que todos sean confirmados
 - Historial de cambios abajo (auditoria completa)
 
+### 10.5 Scope de costos landed y anticipos (D-18, diferido a S46-S47)
+
+La operacion real tiene 3 formas de facturar el transporte (todas coexisten segun el colaborador):
+
+**Caso A — Facturacion global al final**
+- Viajero hace un viaje con 20 unidades y factura $150 al final
+- El costo es del envio completo, se prorratea entre las 20 unidades por peso
+- Modelado: `CostoLanded { scope: 'envio' }` — este es **el unico caso soportado en S44**
+
+**Caso B — Facturacion por tanda recibida**
+- Viajero factura $60 por las 8 unidades recibidas en tanda 1 y $90 por las 12 de tanda 2
+- Cada factura es un costo distinto asociado a la tanda que entrega
+- Modelado: `CostoLanded { scope: 'tanda', tandaId: 'xxx' }` — **diferido a S46**
+
+**Caso C — Anticipo de reserva de spot**
+- Se paga al viajero antes de tener productos en casilla (ej. $80 para reservar su proximo vuelo)
+- El anticipo queda con saldo y se consume contra el flete cuando se hace el envio real
+- Un anticipo puede cubrir multiples envios futuros o quedar sin consumir
+- Modelado: entidad `AnticipoColaborador` en Tesoreria + `CostoLanded.pagadoConAnticipoId` — **diferido a S47**
+
+#### Modelo de datos completo (referencia)
+
+```typescript
+// CostoLanded — ya existe, se extiende en S46/S47
+interface CostoLanded {
+  id: string;
+  categoriaCostoId: string;
+  monto: number;
+  moneda: 'USD' | 'PEN';
+  metodoProrrateo: MetodoProrrateo;
+
+  // De D-17 (S44)
+  estado: 'estimado' | 'confirmado';
+  fechaConfirmacion?: Timestamp;
+  facturaReferencia?: string;
+
+  // De D-18 (S46) — scope
+  scope: 'envio' | 'tanda';           // default 'envio' en S44
+  tandaId?: string;                    // required si scope='tanda'
+
+  // De D-18 (S47) — anticipos
+  pagadoConAnticipoId?: string;        // si se aplico un anticipo
+  montoConsumidoDelAnticipo?: number;  // puede ser monto parcial
+}
+
+// Entidad nueva para S47
+interface AnticipoColaborador {
+  id: string;
+  colaboradorId: string;
+  colaboradorNombre: string;
+
+  // Monto
+  montoInicialUSD: number;
+  saldoDisponibleUSD: number;
+  moneda: 'USD' | 'PEN';
+
+  // Contexto
+  motivo: string;                      // "Reserva spot vuelo abril"
+  fechaPago: Timestamp;
+  movimientoTesoreriaId: string;       // link al pago bancario real
+
+  // Historial de consumos
+  consumos: Array<{
+    envioId: string;
+    costoLandedId: string;
+    montoConsumidoUSD: number;
+    fecha: Timestamp;
+    usuario: string;
+  }>;
+
+  estado: 'activo' | 'consumido' | 'reembolsado' | 'expirado';
+  notas?: string;
+}
+```
+
+#### Regla de cierre financiero con scope (S46)
+
+Una **tanda** cierra financieramente cuando:
+- Todos sus costos con `scope='tanda' && tandaId=esta` estan `confirmado`
+- Todos los costos con `scope='envio'` del envio padre estan `confirmado`
+
+Si hay algun costo de scope 'envio' pendiente, **ninguna tanda puede cerrar** (el costo global afecta a todas).
+
+El **envio** cierra financieramente cuando todas sus tandas estan cerradas (o, si no hay tandas, cuando todos sus costos scope 'envio' estan confirmados).
+
+#### UX al agregar un costo landed (S46)
+
+Al abrir modal "Agregar costo" se muestra:
+```
+¿A que aplica este costo?
+ ◉ Todo el envio (todas las tandas)
+ ○ Una tanda especifica: [Tanda 1 - 8 uds · 24-abr ▼]
+
+¿Como se paga?
+ ◉ Se pagara por separado (o ya se pago)
+ ○ Aplicar anticipo existente: [Anticipo Juan Perez · $80 disponibles ▼]
+```
+
+#### Migracion de datos existentes S46
+
+Cuando se agregue `scope` al tipo CostoLanded:
+1. Todos los registros existentes reciben `scope: 'envio'` por default (100% compat)
+2. Nueva UI empieza a ofrecer la opcion `scope: 'tanda'` al agregar costos
+3. Historico de envios cerrados no se ve afectado
+
+#### UI resultante en detalle del envio (S46)
+
+```
+┌─ Costos del envio (globales) ─────────────────────────┐
+│  Flete del viajero · $148 · Confirmado                 │
+│  [+ Agregar costo del envio]                           │
+└────────────────────────────────────────────────────────┘
+
+┌─ Tanda 1 · 8 uds · 24-abr · 🔓 Cerrada financieramente ┐
+│   └ Recepcion tanda 1: $9 · Confirmado                 │
+│   └ CTRU final aplicado a las 8 unidades                │
+└────────────────────────────────────────────────────────┘
+
+┌─ Tanda 2 · 12 uds · 25-abr · 🔒 Cierre pendiente ─────┐
+│   └ Recepcion tanda 2: $14 · Confirmado                │
+│   └ Aduana tanda 2: $45 · Estimado ← bloquea cierre    │
+│   └ [+ Agregar costo]                                   │
+└────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## 11. Estrategia de migracion de datos existentes
@@ -950,65 +1076,112 @@ Los envios que generan pagos a colaboradores (C, E, G, I, J) deben:
 
 ---
 
-## 14. Plan de implementacion por fases (S44-S48)
+## 14. Plan de implementacion por fases (S44-S51)
 
-### S44 — Core inbound (A, B, C, D) + desacoplar sub-orden-envio
+### S44 — Wizard T2 (Casilla → Peru) vertical minima
 
-**Objetivo:** refactor del tramo OC -> Envio para soportar sub-envios T1 + Wizard T2 + caso D con dos variantes + estado inicial correcto por tipo.
+**Objetivo:** entregar la primera vertical completa del modelo Envios Transversal — el Wizard T2 para caso C — con feature flag y sin tocar flujos existentes.
 
-**Entregables:**
-- Tipo `Envio` actualizado con `tipoRutaLogistica`, `origenTipo`, `destinoTipo`, `subEnvios[]`
-- Migracion de envios existentes via scripts
-- **Cambio estado inicial por tipo (seccion 8.1):**
-  - `confirmarOC()` crea envio T1 (A/B) en estado `confirmado` directo (antes `borrador`)
-  - Caso D sigue naciendo en `recibida_completa` (sin cambio)
-  - Wizards manuales (C/E/I/J) nacen en `borrador` (sin cambio — es el flujo natural del wizard)
-  - **Requerimiento tecnico:** agregar parametro `estadoInicial?: EstadoEnvio` a `envioCrudService.crear()` con default `'borrador'`. `confirmarOC()` pasa `'confirmado'` explicito.
-- `confirmarOC()` crea envio T1 sin sub-envios (nacimiento simple — los sub-envios se crean retroactivamente al recibir tandas)
-- UI para crear sub-envios al recibir tandas parciales (timeline visual)
-- Wizard T2 completo (5 pasos)
-- Picking con priorizacion pre-ventas
-- `DespacharEnvioModal` actualizado con labels dinamicos (ya esta en S42bl)
-- Validacion UI/UX del caso D2 (deudor=proveedor con recojoEnOrigen)
-- **Migracion de envios existentes en estado `borrador` que vienen de OC confirmadas:** script que transiciona a `confirmado` para cumplir la nueva regla (valida con usuario antes de correr)
-- **Extension de `BorradoresWizardPanel`** (existente desde S41) para listar envios tipo `borrador` con filtros por tipo (C/E/I/J) y accion "Eliminar" / "Confirmar"
-- **Reemplazo fisico del proveedor (D-16):**
-  - Extender tipo `Reclamo` con `tipoResolucion: 'reembolso' | 'reemplazo' | 'merma'` + `subEnvioReemplazoId`
-  - Agregar estado `entregado_parcial` a sub-envios (hoy solo hay pendiente/en_transito/entregado)
-  - Agregar campo `tipo: 'normal' | 'reemplazo'` + `reclamoId` + `tandaOriginalId` a `SubEnvioT1`
-  - Modal "Resolver reclamo" en UI del Reclamo con 3 opciones (reembolso/reemplazo/merma)
-  - Al elegir reemplazo: abre sub-flujo para crear la tanda de reemplazo dentro del envio T1
-  - Regla: CTRU de la unidad reemplazada se preserva (no se actualiza al recibir reemplazo)
-  - Trazabilidad: `Unidad.historialEnvios[]` conserva ambas entradas (tanda original + tanda reemplazo)
+**Principio:** Design-Driven Development. El mockup `docs/mockups/wizard-t2-pixel-perfect.html` ES el primer borrador del componente React. Los 7 componentes nuevos se implementan en 5 fases (5 atomos → 2 compuestos → reducer → 5 pasos → ensamblado).
+
+**Entregables S44:**
+- 7 componentes nuevos en `src/pages/Envios/EnvioWizardT2/`:
+  - Atomos: `UnidadPickerItem`, `BannerPriorizacion`, `TarifaPresetSelector` (3 presets), `ColaboradorTransporteCard`, `CTRULandedPreview`
+  - Compuestos: `ProductoPickingGroup`, `EnvioT2WizardPreview`
+- `WizardT2Page.tsx` ensamblado sobre `WizardShell` existente
+- Nueva ruta `/envios/nuevo-t2` con feature flag `FEATURE_FLAGS.wizardT2`
+- Boton "Nuevo envio — Casilla a Peru" en `Envios.tsx` (visible solo con flag activa)
+- Funcion nueva `envioCrudService.crearEnvioT2(data)` aislada
+- Tab "Costos landed" en detalle de envio — tabla plana con estados estimado/confirmado (D-17)
+- Accion "Finalizar costos del envio" con logica de cierre financiero
+- Autoguardado via `useWizardAutosave` existente + banner visible en `BorradoresWizardPanel`
 - UAT con usuario antes de cerrar
 
-**Archivos impactados (estimado):**
-- `src/types/envio.types.ts` (estado `entregado_parcial` en sub-envio, tipo `reemplazo`)
-- `src/types/reclamo.types.ts` (TipoResolucionReclamo, campos nuevos)
-- `src/types/unidad.types.ts`
-- `src/types/ordenCompra.types.ts`
-- `src/services/envio.crud.service.ts` (crear() acepta estadoInicial, crearSubTandaReemplazo())
-- `src/services/ordenCompra.crud.service.ts` (funcion `confirmarOC` pasa 'confirmado')
-- `src/services/reclamo.service.ts` (resolver() con tipoResolucion, handler reemplazo)
-- `src/pages/Envios/WizardT2/*` (NUEVO)
-- `src/pages/Envios/SubEnviosTimeline.tsx` (NUEVO)
-- `src/pages/Envios/ResolverReclamoModal.tsx` (NUEVO — 3 salidas)
-- `src/pages/Envios/CrearTandaReemplazoModal.tsx` (NUEVO)
-- `src/components/modules/ordenCompra/OCWizardV3/StepRuta.tsx` (D1 vs D2)
-- `src/pages/Configuracion/BorradoresWizardPanel.tsx` (extension: filtro por tipo envio)
-- `scripts/migracion-s44/*` (NUEVO)
-  - `01-migrar-envios-borrador-a-confirmado.mjs` (envios A/B/D/F/G pre-S44 en borrador)
+**Alcance MINIMO — lo que SI entra:**
+- Wizard T2 de 5 pasos pixel-perfect
+- 3 presets de tarifa (Monto total / Por unidad / Variable) con prorrateo automatico por peso
+- Picking con priorizacion pre-ventas via `Unidad.reservadaPara` (D-5, D-14)
+- Costos landed todos con `scope='envio'` (implicito, sin selector en UI)
+- Cierre financiero a nivel envio completo (sin cierre por tanda)
+- Edicion pre/durante/post recepcion (D-17)
 
-### S45 — Caso J (Casilla-Casilla)
+**Lo que NO entra en S44 (diferido explicitamente):**
+- `scope='tanda'` en costos → S46
+- Anticipos a colaboradores → S47
+- Cierre financiero por tanda → S46
+- `confirmarOC()` — no se toca, los estados iniciales por tipo (D-15) son S48
+- Sub-envios T1 con timeline → S45
+- Reemplazo fisico del proveedor (D-16) → parte de S45
+- Modelo general del tipo `Envio` con `tipoRutaLogistica`, `origenTipo`, `destinoTipo` — solo se agrega lo necesario para tipo C en S44; la consolidacion total es S48
 
-**Objetivo:** agregar tipo J con preferencia intra-pais.
+**Archivos impactados (mantenidos minimos):**
+- `src/types/envio.types.ts` — agregar `tipoRutaLogistica: 'C_casilla_almacen'`, `CostoLanded.estado: 'estimado'|'confirmado'` (D-17)
+- `src/services/envio.crud.service.ts` — nueva funcion `crearEnvioT2`, extender `agregarCostoLanded` con estado
+- `src/pages/Envios/EnvioWizardT2/*` (NUEVO)
+- `src/pages/Envios/Envios.tsx` — agregar boton con feature flag
+- `src/config/featureFlags.ts` (NUEVO si no existe)
+- Tests: unit tests de los 7 componentes + integracion del wizard
+- Deploy: feature flag off por default, se activa para UAT
+
+**Criterio de exito S44:**
+1. Usuario puede crear un envio T2 end-to-end: seleccionar casilla → picking → transporte → costos → confirmar
+2. El envio creado aparece en /envios con `tipoRutaLogistica: 'C_casilla_almacen'`, estado `'borrador'`
+3. Se puede editar costos post-creacion (estimado ↔ confirmado)
+4. Se puede finalizar costos → CTRU preliminar → final
+5. Ningun flujo existente regresa errores (OC, ventas, transferencias funcionan igual)
+
+### S45 — Sub-envios T1 + reemplazo fisico del proveedor
+
+**Objetivo:** soportar tandas de despacho dentro del T1 (caso Amazon con 3 fechas de entrega) + reemplazo fisico via reclamo al proveedor (D-16).
+
+**Entregables:**
+- Tipo `SubEnvioT1` con secuencia, unidadesIds, tracking, estado, fecha
+- UI `SubEnviosTimeline.tsx` en detalle del envio T1
+- Estados adicionales: `entregado_parcial` en sub-envio
+- Modal "+ Agregar tanda" con picker de unidades sin asignar
+- Transiciones automaticas del envio T1 padre segun sub-envios
+- Reclamo con `tipoResolucion: 'reembolso'|'reemplazo'|'merma'` (D-16)
+- Modal "Resolver reclamo" con 3 salidas
+- Al elegir reemplazo: crear sub-tanda tipo `reemplazo` vinculada
+- Trazabilidad: `Unidad.historialEnvios[]`
+
+### S46 — Costos con scope: envio vs tanda (D-18 parte A)
+
+**Objetivo:** introducir `CostoLanded.scope` para permitir costos asociados a una tanda especifica (no solo al envio global). Habilita el cierre financiero por tanda.
+
+**Entregables:**
+- Campo `scope: 'envio' | 'tanda'` + `tandaId?` en `CostoLanded`
+- UI "Agregar costo" con selector "¿A que aplica? Todo el envio / Tanda especifica"
+- Reestructura del tab "Costos landed" en detalle de envio:
+  - Seccion "Costos del envio (globales)"
+  - Seccion "Costos por tanda" con mini-tablas expandibles
+- Cierre financiero por tanda posible cuando: costos scope=tanda + costos scope=envio estan todos confirmados
+- Migracion: todos los `CostoLanded` existentes reciben `scope: 'envio'` por default
+- Test: caso B de D-18 (facturacion por tanda) + caso A (facturacion global) coexisten
+
+### S47 — Anticipos a colaboradores (D-18 parte B)
+
+**Objetivo:** entidad nueva `AnticipoColaborador` para registrar pagos anticipados al viajero/courier como reserva de spot. Saldo consumible contra costos de envios futuros.
+
+**Entregables:**
+- Tipo `AnticipoColaborador` en `src/types/tesoreria.types.ts`
+- Servicio `anticipoService` con: crear, consumir, liquidar, listar activos
+- UI en /tesoreria: "Anticipos a colaboradores" con saldo por colaborador
+- Al agregar costo landed: opcion "Pagar con anticipo existente" con dropdown de saldos
+- Campo `CostoLanded.pagadoConAnticipoId` + `montoConsumidoDelAnticipo`
+- Reporte: anticipos sin consumir > 60 dias (alerta)
+
+### S48 — Caso J (Casilla-Casilla) + estados iniciales por tipo
+
+**Objetivo:** completar casos manuales + alinear estados iniciales de envios auto-creados con D-15.
 
 **Entregables:**
 - Wizard de envio J (4 pasos: Origen / Destino / Picking / Costos)
 - Validacion "preferente mismo pais" con warning si cambia pais
-- Filtros en /envios para tipo J
+- **Cambio estado inicial (D-15):** `confirmarOC()` crea envios A/B en `confirmado` directo (no `borrador`)
+- Migracion de envios existentes en `borrador` que vienen de OC confirmadas
 
-### S46 — Absorber Transferencias (Caso E)
+### S49 — Absorber Transferencias (Caso E)
 
 **Objetivo:** mover `/transferencias` al hub Envios.
 
@@ -1017,17 +1190,17 @@ Los envios que generan pagos a colaboradores (C, E, G, I, J) deben:
 - Redirect de `/transferencias` a `/envios?tipo=E`
 - Documentacion de cambio para usuarios
 
-### S47 — Absorber Ventas logistica (F + G)
+### S50 — Absorber Ventas logistica (F + G)
 
 **Objetivo:** unificar despacho y devolucion de ventas en Envios.
 
 **Entregables:**
-- Al confirmar venta, auto-crear envio F
-- Al abrir devolucion, auto-crear envio G
+- Al confirmar venta, auto-crear envio F en `confirmado`
+- Al abrir devolucion, auto-crear envio G en `confirmado`
 - Seccion "Logistica" en detalle de venta (read-only, link a /envios)
 - Estado `devuelto_pendiente_revision` implementado con flujo QA
 
-### S48 — Almacenes de terceros (Caso I)
+### S51 — Almacenes de terceros (Caso I)
 
 **Objetivo:** crear tipo de nodo "almacen tercero" con bloqueo de stock vendible.
 
@@ -1070,7 +1243,7 @@ Los envios que generan pagos a colaboradores (C, E, G, I, J) deben:
 ### 15.4 Pendientes arquitecturales declarados pero no cerrados
 
 - **Trazabilidad cruzada de la unidad (P7):** el spec define el campo `Unidad.historialEnvios[]`, pero falta diseñar la UI de drill-down "ver toda la historia de esta unidad" (probablemente S48 o post-go-live).
-- **Reportes/Dashboards transversales:** post-S48, `bi-analyst` tendra que rehacer los dashboards logisticos (KPIs por tipo de envio, ranking de colaboradores, rentabilidad por ruta, etc.) — fuera del alcance S44-S48.
+- **Reportes/Dashboards transversales:** post-S51, `bi-analyst` tendra que rehacer los dashboards logisticos (KPIs por tipo de envio, ranking de colaboradores, rentabilidad por ruta, etc.) — fuera del alcance S44-S51.
 - **Alertas automaticas:** Cloud Function scaffold creado en S40 Bloque F (no deployada) debera reactivarse con los nuevos tipos de ruta.
 
 ---
