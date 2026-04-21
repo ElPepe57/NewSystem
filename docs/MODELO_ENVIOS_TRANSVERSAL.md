@@ -12,7 +12,7 @@
 
 1. [Proposito y alcance](#1-proposito-y-alcance)
 2. [Los 9 flujos logisticos canonicos](#2-los-9-flujos-logisticos-canonicos)
-3. [Las 16 decisiones cerradas (no re-deliberables)](#3-las-16-decisiones-cerradas-no-re-deliberables)
+3. [Las 17 decisiones cerradas (no re-deliberables)](#3-las-17-decisiones-cerradas-no-re-deliberables)
 4. [Modelo de datos propuesto](#4-modelo-de-datos-propuesto)
 5. [Flujos por caso](#5-flujos-por-caso)
 6. [Wizard de Envio T2 (Casilla Intl -> Peru)](#6-wizard-de-envio-t2-casilla-intl---peru)
@@ -88,7 +88,7 @@ Seguir forzando el modelo actual genera tres problemas:
 
 ---
 
-## 3. Las 16 decisiones cerradas (no re-deliberables)
+## 3. Las 17 decisiones cerradas (no re-deliberables)
 
 Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 con el usuario. Son **input inmutable para S44+**.
 
@@ -110,6 +110,7 @@ Estas decisiones fueron discutidas y cerradas en la deliberacion S42bl -> S43 co
 | D-14 | Se reutiliza `Unidad.reservadaPara` existente (no crear campo nuevo) | Ya implementado para cotizaciones con adelanto pagado |
 | D-15 | Estado inicial del envio por tipo (NO regla unificada): A/B/F/G nacen `confirmado`, D nace `recibida_completa`, C/E/I/J nacen `borrador` | Los auto-creados tienen compromiso implicito en el documento origen; los manuales necesitan ser editables hasta despachar. Ver seccion 8.1 para la tabla completa. |
 | D-16 | Reclamo al proveedor tiene 3 salidas: **reembolso** (dinero), **reemplazo** (nueva tanda fisica en el mismo envio T1) o **merma** (castigo contable si proveedor no asume) | El reemplazo fisico es una capacidad operativa real que no estaba modelada. Se implementa como sub-tanda adicional con `tipo='reemplazo'` vinculada al reclamo. CTRU de la unidad reemplazada se mantiene original (el reemplazo es gratuito por convencion). Ver seccion 7.4. |
+| D-17 | Costos landed con timing flexible: se pueden registrar **antes** (al crear envio), **durante** (trancito: ej. aduana retiene) o **despues** (ej. factura mensual del colaborador). Cada costo tiene estado `estimado` o `confirmado`. CTRU preliminar mientras haya estimados, final al cerrar envio con todos confirmados. | El Wizard T2 NO obliga a capturar todos los costos en el paso 4. Solo captura los conocidos al momento. La gestion continua de costos vive en el detalle del envio (tab "Costos landed") con historial de auditoria. Editable en todos los estados operativos; solo lectura en `cancelada` o post-cierre contable. |
 
 ---
 
