@@ -105,6 +105,260 @@ const fechaCorta = (ts: { toDate?: () => Date } | null | undefined): string => {
   }
 };
 
+// Motivos traducidos para Caso E
+const MOTIVO_E_LABEL: Record<string, string> = {
+  consolidacion: 'Consolidación',
+  capacidad: 'Capacidad',
+  viaje_proximo: 'Viaje próximo',
+  costo_menor: 'Costo menor',
+  otro: 'Otro',
+};
+
+/**
+ * Construye el footer izquierdo contextual según el tipo de ruta (mockup S43).
+ * Devuelve un array de strings que se unirán con " · " y opcionalmente un
+ * link "ver timeline" al final.
+ */
+interface FooterSummary {
+  partes: React.ReactNode[];
+  /** true si la última parte es un link clicable (ej. "ver timeline") */
+  incluyeTimelineLink?: boolean;
+}
+
+function buildFooterSummary(
+  envio: Envio,
+  tipoRuta: string | null,
+  derivados: {
+    totalUnidades: number;
+    totalRecibidas: number;
+    numSubEnvios: number;
+    numProductos: number;
+    marcasNombradas: string[];
+  }
+): FooterSummary {
+  const { totalUnidades, totalRecibidas, numSubEnvios, numProductos, marcasNombradas } =
+    derivados;
+  const esRecibido =
+    envio.estado === 'recibida_completa' || envio.estado === 'recibida_parcial';
+  const partes: React.ReactNode[] = [];
+
+  // ─── Encabezado común: unidades ───
+  if (esRecibido) {
+    partes.push(
+      <span key="uds">
+        <b className="text-slate-900 tabular-nums">
+          {totalRecibidas}/{totalUnidades}
+        </b>{' '}
+        unidades recibidas
+      </span>
+    );
+  } else {
+    partes.push(
+      <span key="uds">
+        <b className="text-slate-900 tabular-nums">{totalUnidades}</b> unidades
+      </span>
+    );
+  }
+
+  // ─── Sub-envíos: "N tandas de despacho · ver timeline" ───
+  if (numSubEnvios > 0) {
+    partes.push(
+      <span key="tandas">
+        {numSubEnvios} tanda{numSubEnvios !== 1 ? 's' : ''} de despacho
+      </span>
+    );
+    // El link "ver timeline" se agrega como marcador (el render lo convierte)
+    // en un span con hover underline.
+  }
+
+  // ─── Contexto específico por tipo de ruta ───
+  switch (tipoRuta) {
+    case 'A':
+    case 'B': {
+      // T1 Proveedor → Casilla (o DDP). Mostrar proveedor si está.
+      if (envio.origenProveedorNombre && !numSubEnvios) {
+        partes.push(
+          <span key="prov">
+            Proveedor: <span className="text-slate-700">{envio.origenProveedorNombre}</span>
+          </span>
+        );
+      }
+      break;
+    }
+    case 'C': {
+      // T2 Casilla Intl → Perú. Mostrar OCs consolidadas (aproximado por marcas).
+      if (marcasNombradas.length > 1) {
+        const muestra = marcasNombradas.slice(0, 3).join(', ');
+        const mas = marcasNombradas.length > 3 ? ` +${marcasNombradas.length - 3}` : '';
+        partes.push(
+          <span key="marcas">
+            {marcasNombradas.length} marca{marcasNombradas.length !== 1 ? 's' : ''}:{' '}
+            <span className="text-slate-700">{muestra}{mas}</span>
+          </span>
+        );
+      }
+      if (numProductos > 0) {
+        partes.push(
+          <span key="prods">
+            {numProductos} producto{numProductos !== 1 ? 's' : ''}
+          </span>
+        );
+      }
+      break;
+    }
+    case 'D': {
+      // Recojo directo. Explicar variante + vínculo OC.
+      const variante = (envio as any).recojoEnOrigen === true ? 'D2' : 'D1';
+      const detalle =
+        variante === 'D2'
+          ? 'Yo pago al proveedor, colaborador solo recoge'
+          : 'Colaborador paga al proveedor';
+      partes.splice(
+        0,
+        partes.length,
+        <span key="d-var" className="font-semibold text-amber-800">
+          {variante}
+        </span>,
+        <span key="d-det" className="text-slate-700">
+          {detalle}
+        </span>,
+        <span key="d-cxp" className="text-slate-500 italic">
+          CxP al {variante === 'D2' ? 'proveedor' : 'colaborador'}
+        </span>
+      );
+      break;
+    }
+    case 'E': {
+      // Traslado interno Perú. Mostrar motivo si está.
+      const motivo = envio.motivo as string | undefined;
+      if (motivo && MOTIVO_E_LABEL[motivo]) {
+        partes.push(
+          <span key="motivo">
+            motivo: <span className="text-slate-700">{MOTIVO_E_LABEL[motivo]}</span>
+          </span>
+        );
+      }
+      if (numProductos > 0 && !motivo) {
+        partes.push(
+          <span key="prods">
+            {numProductos} producto{numProductos !== 1 ? 's' : ''}
+          </span>
+        );
+      }
+      break;
+    }
+    case 'F': {
+      // Despacho venta → cliente. Mostrar venta + cliente.
+      const ventaNum = (envio as any).ventaNumero;
+      const cliente = (envio as any).destinoClienteNombre;
+      if (ventaNum) {
+        partes.push(
+          <span key="venta">
+            Venta:{' '}
+            <span className="font-mono text-teal-700 font-semibold">{ventaNum}</span>
+          </span>
+        );
+      }
+      if (cliente) {
+        partes.push(
+          <span key="cliente">
+            → <span className="text-slate-700">{cliente}</span>
+          </span>
+        );
+      }
+      break;
+    }
+    case 'G': {
+      // Retorno devolución. Mostrar devolución + motivo si está.
+      const devNum = (envio as any).devolucionNumero;
+      if (devNum) {
+        partes.push(
+          <span key="dev">
+            Devolución:{' '}
+            <span className="font-mono text-amber-700 font-semibold">{devNum}</span>
+          </span>
+        );
+      }
+      partes.push(
+        <span key="revision" className="text-amber-700 italic">
+          → revisión (D-7)
+        </span>
+      );
+      break;
+    }
+    case 'I': {
+      // Almacén tercero. Mostrar referencia + tipo relación.
+      const ref = (envio as any).referenciaTercero as string | undefined;
+      const relacion = (envio as any).tipoRelacionTercero as string | undefined;
+      if (ref) {
+        partes.push(
+          <span key="ref">
+            Ref:{' '}
+            <span className="font-mono text-violet-700 font-semibold">
+              {ref.length > 18 ? `${ref.slice(0, 18)}…` : ref}
+            </span>
+          </span>
+        );
+      }
+      if (relacion) {
+        partes.push(
+          <span key="rel" className="text-slate-600">
+            {relacion}
+          </span>
+        );
+      }
+      partes.push(
+        <span key="bloqueo" className="text-red-600 italic">
+          🔒 stock bloqueado
+        </span>
+      );
+      break;
+    }
+    case 'J': {
+      // Casilla ↔ Casilla intl. Mostrar variante J1/J2 + advertencia país.
+      const variante = (envio as any).casoJVariante as string | undefined;
+      const advPais = (envio as any).advertenciaCambioPais === true;
+      if (variante) {
+        partes.push(
+          <span key="j-var" className="font-semibold text-violet-800">
+            {variante}
+          </span>
+        );
+        partes.push(
+          <span key="j-det" className="text-slate-700">
+            {variante === 'J1'
+              ? 'Mismo colaborador'
+              : 'Entre colaboradores distintos'}
+          </span>
+        );
+      }
+      if (advPais) {
+        partes.push(
+          <span key="adv" className="text-amber-700 italic">
+            ⚠ cambio país
+          </span>
+        );
+      }
+      break;
+    }
+    default: {
+      // Fallback para envíos sin clasificar
+      if (numProductos > 0) {
+        partes.push(
+          <span key="prods">
+            {numProductos} producto{numProductos !== 1 ? 's' : ''}
+          </span>
+        );
+      }
+    }
+  }
+
+  return {
+    partes,
+    incluyeTimelineLink: numSubEnvios > 0,
+  };
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Sub-componente: Ruta horizontal pixel-perfect al mockup
 // ────────────────────────────────────────────────────────────────────────────
@@ -265,6 +519,23 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
   const totalRecibidas =
     envio.totalUnidadesRecibidas ??
     (envio.unidades ?? []).filter((u) => u.estadoEnvio === 'recibida').length;
+  // S52 — Marcas distintas (aproximación a "OCs consolidadas" para Caso C/T2)
+  const marcasNombradas = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const p of envio.productosSummary ?? []) {
+      if (p.marca) set.add(p.marca);
+    }
+    return Array.from(set);
+  }, [envio.productosSummary]);
+
+  // Footer contextual según tipo de ruta
+  const footer = buildFooterSummary(envio, tipoRuta, {
+    totalUnidades,
+    totalRecibidas,
+    numSubEnvios,
+    numProductos,
+    marcasNombradas,
+  });
 
   // OC vinculada
   const ocNumero = envio.ordenCompraNumero;
@@ -432,46 +703,21 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({ envio, onSelect }) => {
         transporteIcon={transporteIcon}
       />
 
-      {/* ─── Fila 3: Footer ─── */}
+      {/* ─── Fila 3: Footer contextual según tipo de ruta (mockup S43) ─── */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 gap-3">
-        <div className="truncate">
-          {/* Resumen de contenido adaptativo al estado */}
-          {envio.estado === 'recibida_completa' || envio.estado === 'recibida_parcial' ? (
+        <div className="truncate flex items-center gap-1 flex-wrap">
+          {footer.partes.map((p, idx) => (
+            <React.Fragment key={idx}>
+              {idx > 0 && <span className="text-slate-300">·</span>}
+              {p}
+            </React.Fragment>
+          ))}
+          {footer.incluyeTimelineLink && (
             <>
-              <b className="text-slate-900 tabular-nums">
-                {totalRecibidas}/{totalUnidades}
-              </b>{' '}
-              unidades recibidas
-              {numSubEnvios > 0 && (
-                <>
-                  {' · '}
-                  <span>
-                    {numSubEnvios} tanda{numSubEnvios !== 1 ? 's' : ''} de despacho
-                  </span>
-                </>
-              )}
-              {numProductos > 0 && (
-                <>
-                  {' · '}
-                  {numProductos} producto{numProductos !== 1 ? 's' : ''}
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <b className="text-slate-900 tabular-nums">{totalUnidades}</b> unidades
-              {numProductos > 0 && (
-                <>
-                  {' · '}
-                  {numProductos} producto{numProductos !== 1 ? 's' : ''}
-                </>
-              )}
-              {numSubEnvios > 0 && (
-                <>
-                  {' · '}
-                  {numSubEnvios} sub-envío{numSubEnvios !== 1 ? 's' : ''}
-                </>
-              )}
+              <span className="text-slate-300">·</span>
+              <span className="text-teal-700 hover:text-teal-900 hover:underline cursor-pointer font-medium">
+                ver timeline
+              </span>
             </>
           )}
         </div>
