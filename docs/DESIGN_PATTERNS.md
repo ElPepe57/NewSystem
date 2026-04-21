@@ -230,26 +230,62 @@ Estos son los patrones que vienen del estándar OC y que deben usarse en TODAS l
 
 ## ✅ Checklist para pantallas nuevas
 
-**Antes de escribir código, respondé por escrito:**
+El checklist está dividido en **dos partes**. La primera es tuya (dueño del producto, no requiere saber código). La segunda la valida Claude o un agente técnico.
 
-### Preguntas de negocio (primero)
-1. ¿Qué tarea quiere completar el usuario en esta pantalla?
-2. ¿Cuáles son los 3 datos más importantes que tiene que ver?
-3. ¿Qué acción principal va a ejecutar? ¿Y cuáles son las secundarias?
-4. ¿Cuántos estados puede tener la entidad? ¿Cuál es el siguiente paso en cada estado?
+### 📝 Parte A — Checklist del dueño del producto (5 preguntas)
 
-### Preguntas de diseño (después)
-5. ¿Hay un mockup HTML en `docs/mockups/`? Si no, hacerlo primero.
-6. ¿El patrón de layout ya existe en la Capa 3? → Usarlo.
-7. ¿Los KPIs que voy a mostrar caben en `<KpiRow>`? → Sí, usar.
-8. ¿Hay un pipeline de estados? → Usar `<EntityPipeline>`.
-9. ¿Hay acción próxima según estado? → Usar `<NextActionBanner>`.
-10. ¿Necesito un formulario que hoy sería un modal? → Convertirlo en vista embedded (`useEmbeddableView`).
+**Responde estas ANTES de pedirle a Claude que construya una pantalla nueva.**
 
-### Preguntas de código (al final)
-11. ¿Los colores vienen de `tokens.ts` o están hardcodeados? → Deben venir de tokens.
-12. ¿Hay estado vacío diseñado? ¿Hay estado de carga?
-13. ¿Probé que se vea bien en mobile (320px)?
+Si no sabés alguna, está bien — Claude asume un default razonable y vos validás después viendo la pantalla. Esto es una guía, no un bloqueo.
+
+1. **¿Qué tarea concreta quiere completar el usuario en esta pantalla?**
+   *Responder en 1 oración.* Ejemplo: "Crear un envío nuevo desde una casilla internacional a Perú".
+
+2. **¿Cuáles son las 2-3 acciones más frecuentes?**
+   *Lista corta ordenada por frecuencia.* Ejemplo: "1) Consultar envíos activos · 2) Crear envío nuevo · 3) Registrar recepción".
+
+3. **¿Con qué otras pantallas se conecta esta?**
+   *¿A dónde va el usuario desde acá y de dónde viene?* Ejemplo: "Se entra desde el menú principal · Al clic en un envío se abre el detalle · Al terminar recepción vuelve a la lista".
+
+4. **¿Hay un mockup HTML en `docs/mockups/`?**
+   - ✅ Sí → perfecto, arrancamos directo.
+   - ❌ No → no pasa nada. Claude puede hacer una propuesta visual basada en patrones existentes (OC, Envíos), vos la revisás y iteramos. O podés pedir un mockup antes de codear.
+
+5. **¿Cuántos estados puede tener la entidad?**
+   *Ejemplo para envío: `Borrador → Confirmado → En tránsito → Recibido → Completado`.*
+   *Ejemplo para venta: `Cotización → Reservada → Confirmada → Despachada → Entregada`.*
+   Si ya está documentado en otro lado (ej. spec técnica, briefing de sesión), solo apuntá el archivo.
+
+**Regla de oro:** si respondés las 5, Claude tiene todo lo que necesita para construir la primera versión. Si alguna queda abierta, Claude pregunta puntualmente o asume un default y lo marca.
+
+---
+
+### 🔧 Parte B — Checklist técnico (lo valida Claude o un agente)
+
+No es para que el dueño del producto responda. Es un recordatorio de las cosas que Claude debe verificar antes de entregar código. Si ves que algo falta, podés pedirlo.
+
+1. ¿Usa `<PageShell>` + `<PageHeader>` en la lista?
+2. ¿Usa `<EntityDetailShell>` + sus slots en el detalle?
+3. ¿Usa `<KpiRow>` o `<KPIBar>` según corresponda (detalle vs. lista)?
+4. ¿Usa `<EntityPipeline>` si hay estados?
+5. ¿Usa `<NextActionBanner>` para la próxima acción?
+6. ¿Los formularios de acción son `embedded` con `useEmbeddableView` (no modal sobre modal)?
+7. ¿Los colores vienen de `tokens.ts` (no hardcodeados)?
+8. ¿Hay estado vacío y estado de carga diseñados?
+9. ¿Se ve bien en mobile (320px de ancho)?
+10. ¿Pasan `tsc -b` y `vite build` sin errores?
+11. ¿Los imports vienen de la capa más alta disponible?
+12. ¿No hay duplicación de bloques JSX que ya existen en otro archivo?
+
+---
+
+### 🆘 Si no sabés responder alguna pregunta de la Parte A
+
+**No te bloquea.** Opciones:
+
+- **Decir "no sé, proponé vos"** → Claude propone una opción, vos la revisás y aprobás o ajustás.
+- **Decir "como en OC"** → Claude replica el patrón de Órdenes de Compra (que ya aprobaste como estándar).
+- **Decir "como en el mockup"** → Claude busca el mockup más cercano y lo adapta.
 
 ---
 
@@ -325,6 +361,7 @@ Un patrón se vuelve "canónico" y entra a esta guía cuando:
 | Fecha | Versión | Cambio |
 |---|---|---|
 | 2026-04-21 | 1.0 | Versión inicial · 5 patrones canónicos · derivados del estándar OC · S52 |
+| 2026-04-21 | 1.1 | Checklist dividido en 2 partes (dueño del producto 5 preguntas, técnico 12 preguntas). Sección "si no sabés responder, ¿qué hacer?" añadida para no bloquear. |
 
 ---
 
