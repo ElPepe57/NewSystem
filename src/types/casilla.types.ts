@@ -7,7 +7,13 @@ import { Timestamp } from 'firebase/firestore';
  * - punto_courier: Ubicacion virtual de un courier (ej. centro DHL)
  * - ubicacion_proveedor: Ubicacion virtual del proveedor (origen de unidades pedidas)
  */
-export type TipoCasilla = 'almacen_propio' | 'casilla_viajero' | 'punto_courier' | 'ubicacion_proveedor';
+// S50 — 'almacen_tercero' agregado para Caso I (Fulfillment, consignatario, distribuidor)
+export type TipoCasilla =
+  | 'almacen_propio'
+  | 'casilla_viajero'
+  | 'punto_courier'
+  | 'ubicacion_proveedor'
+  | 'almacen_tercero';
 
 /**
  * Estado de la casilla

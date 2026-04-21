@@ -13,6 +13,7 @@ import type {
   CrearEnvioJPayload,
   CrearEnvioEPayload,
   CrearEnvioFPayload,
+  CrearEnvioIPayload,
   SubEnvioT1, EstadoSubEnvio,
 } from '../types/envio.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
@@ -841,6 +842,111 @@ export const envioCrudService = {
 
     logger.success(
       `[crearEnvioF] Envío F (despacho venta) creado: ${resultado.numeroEnvio} · VT ${ventaNumero} · cliente ${cliente.nombre} · ${unidades.length} uds · ${costosPEN.length} costos PEN`
+    );
+
+    return resultado;
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // S50 — Wizard I: Almacén propio → Almacén tercero (FBA, consignación)
+  // Ver docs/MODELO_ENVIOS_TRANSVERSAL.md §4 (Caso I, D-10 stock bloqueado)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * S50 — Crea un envío Caso I (envío a almacén tercero).
+   *
+   * D-10 (Opción B): al crear el envío las unidades transitan a 'asignada_envio'
+   * y quedan BLOQUEADAS — no aparecen como stock vendible hasta que regresen
+   * a Perú (envío inverso) o sean liquidadas. El marcador operativo queda en
+   * `destinoTipo='almacen_tercero'` + `enAlmacenTerceroFlag=true` en el envío.
+   *
+   * Flujo:
+   *   1. Construye EnvioUnidad[] con estado 'pendiente'
+   *   2. Invoca `crear()` con origenTipo='casilla', destinoTipo='almacen_tercero'
+   *      y destinoCasillaId apuntando al tercero (casilla tipo='almacen_tercero')
+   *   3. Persiste referenciaTercero y tipoRelacion como extras
+   *   4. Agrega costos landed en la moneda indicada (USD o PEN)
+   *
+   * Campo extra persistido en doc:
+   *   - referenciaTercero (FBA-XYZ, Consig-001, etc.)
+   *   - tipoRelacion (fulfillment / consignacion / distribucion / otro)
+   *   - enAlmacenTerceroFlag=true (soft-flag de auditoría)
+   */
+  async crearEnvioI(
+    payload: CrearEnvioIPayload,
+    userId: string
+  ): Promise<{ id: string; numeroEnvio: string }> {
+    const {
+      almacenOrigenId,
+      almacenTerceroDestinoId,
+      referenciaTercero,
+      tipoRelacion,
+      colaboradorTransporteId,
+      numeroTracking,
+      unidades,
+      costos,
+      notas,
+    } = payload;
+
+    // 1. EnvioUnidad[]
+    const unidadesDetalle: EnvioUnidad[] = unidades.map((u) => ({
+      unidadId: u.unidadId,
+      productoId: u.productoId,
+      sku: u.sku,
+      codigoUnidad: u.codigoUnidad,
+      estadoEnvio: 'pendiente' as const,
+      ...(u.pesoLibras ? { pesoLibras: u.pesoLibras } : {}),
+    }));
+
+    // 2. FormData con destinoTipo='almacen_tercero'
+    const formData: EnvioFormData = {
+      origenTipo: 'casilla',
+      origenCasillaId: almacenOrigenId,
+      destinoCasillaId: almacenTerceroDestinoId,
+      destinoTipo: 'almacen_tercero',
+      colaboradorId: colaboradorTransporteId || undefined,
+      unidadesIds: unidades.map((u) => u.unidadId),
+      unidadesDetalle,
+      numeroTracking: numeroTracking || undefined,
+      ...(notas ? { notas } : {}),
+    };
+
+    // 3. Crear envío base (D-15: Caso I nace en 'borrador')
+    const resultado = await this.crear(formData, userId);
+
+    // 4. Persistir metadata Caso I (referencia + tipo relación + flag bloqueo)
+    const extrasI: Record<string, unknown> = {
+      referenciaTercero,
+      enAlmacenTerceroFlag: true, // D-10: marca de bloqueo para queries futuras
+    };
+    if (tipoRelacion) extrasI.tipoRelacionTercero = tipoRelacion;
+    try {
+      await updateDoc(doc(db, COLL, resultado.id), extrasI);
+    } catch (err) {
+      logger.warn(`[crearEnvioI] No se pudo persistir metadata I: ${err}`);
+    }
+
+    // 5. Agregar costos landed (moneda configurable por costo)
+    for (const costo of costos) {
+      await this.agregarCostoLanded(
+        resultado.id,
+        {
+          categoriaCostoId: costo.categoriaCostoId,
+          categoriaCostoNombre: costo.categoriaCostoNombre,
+          descripcion: costo.descripcion,
+          monto: costo.monto,
+          moneda: costo.moneda,
+          montoPEN: costo.moneda === 'USD' ? costo.monto * costo.tipoCambio : costo.monto,
+          tipoCambio: costo.tipoCambio,
+          metodoProrrateo: costo.metodoProrrateo,
+          pagado: false,
+        },
+        userId
+      );
+    }
+
+    logger.success(
+      `[crearEnvioI] Envío I (almacén tercero) creado: ${resultado.numeroEnvio} · ref ${referenciaTercero} · ${unidades.length} uds BLOQUEADAS · ${costos.length} costos`
     );
 
     return resultado;

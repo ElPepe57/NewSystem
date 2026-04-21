@@ -94,11 +94,13 @@ export type EstadoEnvio =
 export type OrigenTipoEnvio = 'proveedor' | 'casilla' | 'cliente';
 
 /**
- * S49 — Tipo de destino del envío.
- * Permite distinguir Caso F (destino=cliente) del resto de casos donde
- * el destino es una casilla/almacén. Por retrocompat, undefined === 'casilla'.
+ * S49/S50 — Tipo de destino del envío.
+ * - 'casilla': almacén propio o casilla de viajero (default — retrocompat undefined)
+ * - 'cliente': cliente final (Caso F despacho venta)
+ * - 'almacen_tercero': almacén de un tercero (Caso I · FBA, distribuidor, consignatario)
+ *                     D-10: stock bloqueado hasta retornar a Perú o liquidarse
  */
-export type DestinoTipoEnvio = 'casilla' | 'cliente';
+export type DestinoTipoEnvio = 'casilla' | 'cliente' | 'almacen_tercero';
 
 /**
  * Metodo de prorrateo de costos landed
@@ -694,6 +696,56 @@ export interface CrearEnvioFPayload {
     categoriaCostoNombre: string;
     descripcion?: string;
     montoPEN: number;
+    metodoProrrateo: MetodoProrrateo;
+  }>;
+}
+
+/**
+ * S50 — Payload para crear un envío Caso I (Almacén propio → Almacén tercero)
+ * desde el Wizard I. Consumido por `envioCrudService.crearEnvioI()`.
+ *
+ * Caso I: envío a un almacén tercero (Fulfillment Amazon, distribuidor,
+ * consignatario). D-10: el stock queda BLOQUEADO — las unidades NO aparecen
+ * como vendibles hasta que regresen a Perú o se liquiden allá.
+ *
+ * Diferencias clave vs. otros casos:
+ *   - Destino es una casilla tipo='almacen_tercero' (no almacén propio)
+ *   - destinoTipo='almacen_tercero' para identificación rápida
+ *   - El contrato/referencia con el tercero es campo obligatorio
+ *     (ej. ID de registro en FBA Amazon, número de consignación)
+ *   - El Envio nace en 'borrador' (D-15)
+ */
+export interface CrearEnvioIPayload {
+  /** ID del almacén Perú origen (casilla tipo='almacen_propio' en Perú) */
+  almacenOrigenId: string;
+  /** ID del almacén tercero destino (casilla tipo='almacen_tercero') */
+  almacenTerceroDestinoId: string;
+  /** Referencia/contrato con el tercero (ej. FBA-SHIPMENT-XYZ, Consig-2026-001) */
+  referenciaTercero: string;
+  /** Tipo de relación comercial con el tercero (informativo, libre) */
+  tipoRelacion?: 'fulfillment' | 'consignacion' | 'distribucion' | 'otro';
+  /** Colaborador transporte (courier internacional si es cross-border) */
+  colaboradorTransporteId?: string;
+  /** Tracking del transporte (opcional) */
+  numeroTracking?: string;
+  /** Notas internas */
+  notas?: string;
+  /** Unidades a enviar al tercero */
+  unidades: Array<{
+    unidadId: string;
+    productoId: string;
+    sku: string;
+    codigoUnidad: string;
+    pesoLibras?: number;
+  }>;
+  /** Costos del envío en PEN o USD (transporte, aduana destino, fee inicial) */
+  costos: Array<{
+    categoriaCostoId: string;
+    categoriaCostoNombre: string;
+    descripcion?: string;
+    monto: number;
+    moneda: 'USD' | 'PEN';
+    tipoCambio: number; // usado solo si moneda=USD
     metodoProrrateo: MetodoProrrateo;
   }>;
 }

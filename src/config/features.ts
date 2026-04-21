@@ -136,6 +136,23 @@ export const FEATURES = {
    *   - Todo en PEN (despacho local en Perú)
    */
   WIZARD_F: false,
+
+  /**
+   * S50 — Wizard I (Almacén propio → Almacén tercero · caso I del Modelo
+   * Envíos Transversal). Envíos a FBA Amazon, distribuidores o consignatarios.
+   *
+   * Controla:
+   *   - Visibilidad del botón "Envío a tercero" en la vista /envios
+   *   - Acceso a la ruta `/envios/nuevo-i`
+   *
+   * Características D-10 (Opción B):
+   *   - Las unidades quedan BLOQUEADAS: no aparecen como stock vendible
+   *     hasta que regresen a Perú o sean liquidadas en el tercero.
+   *   - Nueva variante de casilla: tipo='almacen_tercero'
+   *   - destinoTipo='almacen_tercero' en el envío
+   *   - Referencia obligatoria con el tercero (FBA ID, consignación, etc.)
+   */
+  WIZARD_I: false,
 } as const;
 
 /**
@@ -222,6 +239,21 @@ export function isWizardFEnabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_WIZARD_F') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * S50 — Helper análogo para el flag WIZARD_I (Almacén propio → Almacén tercero).
+ */
+export function isWizardIEnabled(): boolean {
+  if (FEATURES.WIZARD_I) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_WIZARD_I') === 'true';
     } catch {
       return false;
     }

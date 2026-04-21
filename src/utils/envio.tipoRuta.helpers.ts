@@ -54,6 +54,11 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
     return 'F';
   }
 
+  // S50 — I: Almacén propio → Almacén tercero (D-10 stock bloqueado)
+  if (origen === 'casilla' && destinoTipo === 'almacen_tercero') {
+    return 'I';
+  }
+
   // S48 — E: Traslado interno Perú ↔ Perú (origen y destino ambos en Perú)
   // Debe evaluarse ANTES que C para no clasificar Perú→Perú como C.
   if (origen === 'casilla' && origenEsPeru && destinoEsPeru) {
@@ -70,7 +75,6 @@ export function deriveTipoRutaLogistica(envio: Envio): TipoRutaLogistica | null 
     return 'J';
   }
 
-  // I — requiere destinoTipo explícito para almacén tercero (S50+)
   return null;
 }
 
