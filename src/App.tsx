@@ -32,6 +32,10 @@ const WizardFPage = React.lazy(() =>
 const WizardIPage = React.lazy(() =>
   import('./pages/Envios/EnvioWizardI').then(m => ({ default: m.WizardIPage }))
 );
+// S51 — Wizard G (Retorno físico devolución · cliente → almacén Perú) · detrás de feature flag WIZARD_G
+const WizardGPage = React.lazy(() =>
+  import('./pages/Envios/EnvioWizardG').then(m => ({ default: m.WizardGPage }))
+);
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
 const OrdenesCompra = React.lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
@@ -167,6 +171,7 @@ function App() {
               <Route path="envios/nuevo-e" element={<WizardEPage />} />
               <Route path="envios/nuevo-f" element={<WizardFPage />} />
               <Route path="envios/nuevo-i" element={<WizardIPage />} />
+              <Route path="envios/nuevo-g" element={<WizardGPage />} />
               <Route path="red-logistica" element={<RedLogistica />} />
               <Route path="unidades" element={<Unidades />} />
               <Route path="escaner" element={<Escaner />} />

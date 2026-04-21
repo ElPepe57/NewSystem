@@ -5,7 +5,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 // S48 — Feature flag para el Wizard E (Traslado interno Perú ↔ Perú)
 // S49 — Feature flag para el Wizard F (Despacho venta → cliente)
 // S50 — Feature flag para el Wizard I (Almacén propio → Almacén tercero)
-import { isWizardT2Enabled, isWizardJEnabled, isWizardEEnabled, isWizardFEnabled, isWizardIEnabled } from "../../config/features";
+// S51 — Feature flag para el Wizard G (Retorno físico devolución)
+import { isWizardT2Enabled, isWizardJEnabled, isWizardEEnabled, isWizardFEnabled, isWizardIEnabled, isWizardGEnabled } from "../../config/features";
 import {
   ArrowRightLeft,
   Truck,
@@ -172,6 +173,8 @@ export const Envios: React.FC = () => {
   const wizardFEnabled = useMemo(() => isWizardFEnabled(), []);
   // S50 — Feature flag del Wizard I (Almacén propio → Almacén tercero)
   const wizardIEnabled = useMemo(() => isWizardIEnabled(), []);
+  // S51 — Feature flag del Wizard G (Retorno físico devolución)
+  const wizardGEnabled = useMemo(() => isWizardGEnabled(), []);
 
   // S40 Bloque B: KPI reclamos
   const {
@@ -833,6 +836,19 @@ export const Envios: React.FC = () => {
               >
                 <Gavel className="h-4 w-4 mr-2" />
                 Envío a tercero
+              </Button>
+            )}
+            {/* S51 — Botón del Wizard G (Retorno físico devolución).
+                Visible sólo con feature flag WIZARD_G activa */}
+            {wizardGEnabled && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => navigate('/envios/nuevo-g')}
+                title="Wizard G (S51) — Registra el retorno físico de una devolución existente · D-7 unidades en revisión"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Retorno devolución
               </Button>
             )}
           </div>
