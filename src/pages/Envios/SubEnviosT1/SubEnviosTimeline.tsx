@@ -21,7 +21,7 @@
  * el envío es de tipo T1 (A/B/D).
  */
 import React, { useMemo, useState } from 'react';
-import { Package, Plus } from 'lucide-react';
+import { Package, Plus, CheckCircle2, Truck, Clock, PackageCheck } from 'lucide-react';
 import type { Envio, SubEnvioT1, EstadoSubEnvio } from '../../../types/envio.types';
 import { SubEnvioTimelineItem, SubEnviosTimelineLinea } from './SubEnvioTimelineItem';
 import type { SubEnvioTimelineItemProductoInfo } from './SubEnvioTimelineItem';
@@ -225,31 +225,39 @@ export const SubEnviosTimeline: React.FC<SubEnviosTimelineProps> = ({
     );
   }
 
+  // S47 — Totales de unidades por pipeline stage (para progress bar global)
+  const unidadesPorEstado = useMemo(() => {
+    let confirmadas = 0;
+    let enTransito = 0;
+    let recibidasParcial = 0;
+    let recibidasCompletas = 0;
+    for (const se of subEnvios) {
+      const n = se.unidadesIds.length;
+      if (se.estado === 'pendiente') confirmadas += n;
+      else if (se.estado === 'en_transito') enTransito += n;
+      else if (se.estado === 'entregado_parcial') recibidasParcial += n;
+      else if (se.estado === 'entregado') recibidasCompletas += n;
+    }
+    const totalAsignadas = confirmadas + enTransito + recibidasParcial + recibidasCompletas;
+    return { confirmadas, enTransito, recibidasParcial, recibidasCompletas, totalAsignadas };
+  }, [subEnvios]);
+
+  const pctGlobal = totalUnidades > 0
+    ? Math.round((unidadesPorEstado.recibidasCompletas / totalUnidades) * 100)
+    : 0;
+
   return (
     <div className={cn('bg-white border border-slate-200 rounded-xl overflow-hidden', className)}>
-      {/* Header */}
+      {/* Header con título + acción */}
       <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <span className="text-base" aria-hidden>📅</span>
           <h4 className="text-sm font-semibold text-slate-900">
             Tandas del proveedor ({subEnvios.length})
           </h4>
-          <div className="flex items-center gap-1 text-xs text-slate-500">
-            {resumenTandas.entregado > 0 && (
-              <span>· {resumenTandas.entregado} ✓</span>
-            )}
-            {resumenTandas.en_transito > 0 && (
-              <span>· {resumenTandas.en_transito} 🚚</span>
-            )}
-            {resumenTandas.pendiente > 0 && (
-              <span>· {resumenTandas.pendiente} ⏳</span>
-            )}
-            {resumenTandas.entregado_parcial > 0 && (
-              <span className="text-amber-700 font-medium">
-                · {resumenTandas.entregado_parcial} ⚠️
-              </span>
-            )}
-          </div>
+          <span className="text-xs text-slate-500">
+            · {unidadesPorEstado.recibidasCompletas}/{totalUnidades} unidades recibidas
+          </span>
         </div>
         {onAgregarTanda && (
           <button
@@ -271,6 +279,57 @@ export const SubEnviosTimeline: React.FC<SubEnviosTimelineProps> = ({
             <Plus className="w-3.5 h-3.5" aria-hidden /> Agregar tanda
           </button>
         )}
+      </div>
+
+      {/* S47 — Pipeline horizontal 4 etapas (mockup envios-transversal-s43.html) */}
+      <div className="px-5 py-4 bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
+        <div className="grid grid-cols-4 gap-2">
+          <PipelineEtapa
+            icon={Clock}
+            label="Confirmado"
+            cantidad={resumenTandas.pendiente}
+            unidades={unidadesPorEstado.confirmadas}
+            color="amber"
+            activo={resumenTandas.pendiente > 0}
+          />
+          <PipelineEtapa
+            icon={Truck}
+            label="En tránsito"
+            cantidad={resumenTandas.en_transito}
+            unidades={unidadesPorEstado.enTransito}
+            color="sky"
+            activo={resumenTandas.en_transito > 0}
+          />
+          <PipelineEtapa
+            icon={Package}
+            label="Recibido parcial"
+            cantidad={resumenTandas.entregado_parcial}
+            unidades={unidadesPorEstado.recibidasParcial}
+            color="purple"
+            activo={resumenTandas.entregado_parcial > 0}
+          />
+          <PipelineEtapa
+            icon={CheckCircle2}
+            label="Recibido completo"
+            cantidad={resumenTandas.entregado}
+            unidades={unidadesPorEstado.recibidasCompletas}
+            color="emerald"
+            activo={resumenTandas.entregado > 0}
+          />
+        </div>
+        {/* Progress bar global de unidades */}
+        <div className="mt-3 flex items-center gap-2">
+          <PackageCheck className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+          <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all"
+              style={{ width: `${pctGlobal}%` }}
+            />
+          </div>
+          <span className="text-xs font-semibold text-slate-700 tabular-nums min-w-[3rem] text-right">
+            {pctGlobal}%
+          </span>
+        </div>
       </div>
 
       {/* Timeline */}
@@ -338,6 +397,64 @@ export const SubEnviosTimeline: React.FC<SubEnviosTimelineProps> = ({
           loading={submitting}
         />
       )}
+    </div>
+  );
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// PipelineEtapa — S47 · una columna del pipeline horizontal 4 etapas
+// ════════════════════════════════════════════════════════════════════════════
+
+interface PipelineEtapaProps {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  cantidad: number;          // Número de tandas en esta etapa
+  unidades: number;          // Total unidades en esta etapa
+  color: 'amber' | 'sky' | 'purple' | 'emerald';
+  activo: boolean;
+}
+
+const PipelineEtapa: React.FC<PipelineEtapaProps> = ({
+  icon: Icon,
+  label,
+  cantidad,
+  unidades,
+  color,
+  activo,
+}) => {
+  const colorMap: Record<PipelineEtapaProps['color'], { bg: string; border: string; text: string; iconBg: string; iconFg: string }> = {
+    amber:   { bg: 'bg-amber-50',   border: 'border-amber-200',   text: 'text-amber-800',   iconBg: 'bg-amber-100',   iconFg: 'text-amber-600' },
+    sky:     { bg: 'bg-sky-50',     border: 'border-sky-200',     text: 'text-sky-800',     iconBg: 'bg-sky-100',     iconFg: 'text-sky-600' },
+    purple:  { bg: 'bg-purple-50',  border: 'border-purple-200',  text: 'text-purple-800',  iconBg: 'bg-purple-100',  iconFg: 'text-purple-600' },
+    emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800', iconBg: 'bg-emerald-100', iconFg: 'text-emerald-600' },
+  };
+  const c = colorMap[color];
+  return (
+    <div
+      className={cn(
+        'rounded-lg border p-2.5 transition-all',
+        activo ? `${c.bg} ${c.border}` : 'bg-slate-50/50 border-slate-200 opacity-60'
+      )}
+    >
+      <div className="flex items-center gap-1.5 mb-1">
+        <div className={cn('w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0', activo ? c.iconBg : 'bg-slate-100')}>
+          <Icon className={cn('w-3.5 h-3.5', activo ? c.iconFg : 'text-slate-400')} />
+        </div>
+        <span className={cn('text-[10px] font-semibold uppercase tracking-wide truncate', activo ? c.text : 'text-slate-400')}>
+          {label}
+        </span>
+      </div>
+      <div className="flex items-baseline gap-1.5">
+        <span className={cn('text-lg font-bold tabular-nums', activo ? c.text : 'text-slate-400')}>
+          {cantidad}
+        </span>
+        <span className={cn('text-[10px]', activo ? c.text : 'text-slate-400')}>
+          {cantidad === 1 ? 'tanda' : 'tandas'}
+        </span>
+      </div>
+      <div className={cn('text-[10px] mt-0.5', activo ? 'text-slate-500' : 'text-slate-400')}>
+        {unidades} {unidades === 1 ? 'unidad' : 'unidades'}
+      </div>
     </div>
   );
 };

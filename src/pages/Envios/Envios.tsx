@@ -62,6 +62,13 @@ import { TabReclamos } from './TabReclamos';
 import { TabIncidencias } from './TabIncidencias';
 import { TabCostosLanded } from './TabCostosLanded';
 import { TabRendimiento } from './TabRendimiento';
+// S47 — Modelo Envios Transversal: clasificación A-J derivada de campos existentes
+import {
+  deriveTipoRutaLogistica,
+  contarEnviosPorTipoRuta,
+  INFO_TIPO_RUTA,
+  type TipoRutaLogistica,
+} from '../../utils/envio.tipoRuta.helpers';
 
 type TabEnvios = 'operaciones' | 'incidencias' | 'reclamos' | 'costos' | 'rendimiento';
 
@@ -143,7 +150,8 @@ export const Envios: React.FC = () => {
   // S42aj — 'tramo1' reemplaza el tab "Envíos Proveedor" eliminado (origenTipo === 'proveedor')
   const [pillFiltroEnv, setPillFiltroEnv] = useState<'todas' | 'activas' | 'incidencias' | 'tramo1'>('todas');
   const [filtroCourier, setFiltroCourier] = useState('');
-  const [filtroTipoRuta, setFiltroTipoRuta] = useState('');
+  // S47 — Filtro por tipo de ruta logística (A-J del Modelo Envíos Transversal)
+  const [filtroTipoRuta, setFiltroTipoRuta] = useState<TipoRutaLogistica | ''>('');
   const [itemsVisiblesEnv, setItemsVisiblesEnv] = useState(12);
 
   const [cuentasTesoreria, setCuentasTesoreria] = useState<CuentaCaja[]>([]);
@@ -276,7 +284,18 @@ export const Envios: React.FC = () => {
     // S42aj — Count Tramo 1 (envíos del proveedor a casilla)
     const countTramo1 = enviosPorLinea.filter(e => e.origenTipo === 'proveedor').length;
 
-    return { unidadesEnTransito, valorLandedPEN, countActivas, countIncidencias, countTramo1, tc };
+    // S47 — Count por tipo de ruta A-J (Modelo Envíos Transversal)
+    const countsPorTipoRuta = contarEnviosPorTipoRuta(enviosPorLinea);
+
+    return {
+      unidadesEnTransito,
+      valorLandedPEN,
+      countActivas,
+      countIncidencias,
+      countTramo1,
+      tc,
+      countsPorTipoRuta,
+    };
   }, [enviosEnTransitoPorLinea, enviosPorLinea, tipoCambioActual, valorEnTransito]);
 
   // S42 Tanda 9 — Breakdown por tipo de ruta (mockup líneas 2003-2036)
@@ -380,16 +399,9 @@ export const Envios: React.FC = () => {
       lista = lista.filter(e => e.courier === filtroCourier);
     }
 
-    // Dropdown tipo de ruta (mockup líneas 2080-2085)
+    // S47 — Filtro tipo ruta A-J (Modelo Envíos Transversal)
     if (filtroTipoRuta) {
-      lista = lista.filter(e => {
-        const esDDP = (e as any).esDDP === true;
-        if (filtroTipoRuta === 'ddp_directo') return esDDP;
-        if (filtroTipoRuta === 'proveedor_casilla') return !esDDP && e.tipo === 'internacional_peru' && !!e.ordenCompraId;
-        if (filtroTipoRuta === 'casilla_peru') return !esDDP && e.tipo === 'internacional_peru' && !e.ordenCompraId;
-        if (filtroTipoRuta === 'entre_casillas') return e.tipo === 'interna_origen';
-        return true;
-      });
+      lista = lista.filter(e => deriveTipoRutaLogistica(e) === filtroTipoRuta);
     }
 
     return lista;
@@ -715,8 +727,8 @@ export const Envios: React.FC = () => {
   return (
     <PageShell>
       <PageHeader
-        title="Envios"
-        subtitle="Gestiona el movimiento de productos entre casillas"
+        title="Envíos"
+        subtitle="Hub logístico · Todos los movimientos físicos del negocio"
         icon={ArrowRightLeft}
         actions={
           <div className="flex items-center space-x-3">
@@ -761,12 +773,6 @@ export const Envios: React.FC = () => {
             )}
           </div>
         }
-        stats={[
-          { label: 'Total', value: enviosPorLinea.length },
-          { label: 'En Transito', value: resumen?.enTransito || 0 },
-          { label: 'Pendientes', value: resumen?.pendientesRecepcion || 0 },
-          { label: 'Completadas', value: resumen?.completadasMes || 0 },
-        ]}
       />
 
       {/* S40 Bloque D: Tabs módulo logístico — Operaciones / Proveedor / Incidencias / Reclamos / Costos / Rendimiento */}
@@ -1010,18 +1016,6 @@ export const Envios: React.FC = () => {
           <Package className="w-3 h-3" />
           Tramo 1 · Proveedor ({enviosStatsExtra.countTramo1})
         </button>
-        <span className="text-slate-300 mx-1">|</span>
-        <select
-          value={filtroTipoRuta}
-          onChange={(e) => setFiltroTipoRuta(e.target.value)}
-          className="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
-        >
-          <option value="">Todos los tipos</option>
-          <option value="proveedor_casilla">Proveedor → Casilla</option>
-          <option value="casilla_peru">Casilla → Perú</option>
-          <option value="entre_casillas">Entre casillas origen</option>
-          <option value="ddp_directo">Entrega directa a Perú</option>
-        </select>
         <select
           value={filtroCourier}
           onChange={(e) => setFiltroCourier(e.target.value)}
@@ -1041,6 +1035,51 @@ export const Envios: React.FC = () => {
           >
             Limpiar filtros
           </button>
+        )}
+      </div>
+
+      {/* S47 — Pills por tipo de ruta logística A-J (Modelo Envíos Transversal) */}
+      <div className="flex items-center gap-2 flex-wrap mt-2">
+        <span className="text-xs text-slate-500">Tipo de ruta:</span>
+        <button
+          type="button"
+          onClick={() => setFiltroTipoRuta('')}
+          className={`px-2.5 py-1 text-xs rounded-full transition-colors ${
+            filtroTipoRuta === '' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }`}
+          title="Ver todos los tipos de ruta"
+        >
+          Todos
+        </button>
+        {(Object.keys(INFO_TIPO_RUTA) as TipoRutaLogistica[]).map((codigo) => {
+          const info = INFO_TIPO_RUTA[codigo];
+          const count = enviosStatsExtra.countsPorTipoRuta[codigo] || 0;
+          const activo = filtroTipoRuta === codigo;
+          // Ocultar pills sin envíos clasificables (E/F/G/I por ahora) salvo que estén seleccionados
+          if (count === 0 && !activo) return null;
+          return (
+            <button
+              key={codigo}
+              type="button"
+              onClick={() => setFiltroTipoRuta(activo ? '' : codigo)}
+              title={info.nombreLargo}
+              className={`px-2.5 py-1 text-xs rounded-full transition-colors flex items-center gap-1.5 ${
+                activo
+                  ? 'bg-teal-600 text-white ring-2 ring-teal-300'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <span className="font-mono text-[10px] opacity-70">{codigo}</span>
+              <span className="text-[11px]">{info.icono}</span>
+              <span>{info.nombreCorto}</span>
+              <span className={`font-semibold ${activo ? 'text-white/90' : 'text-slate-500'}`}>({count})</span>
+            </button>
+          );
+        })}
+        {enviosStatsExtra.countsPorTipoRuta.sin_clasificar > 0 && (
+          <span className="text-[11px] text-slate-400 italic ml-1">
+            · {enviosStatsExtra.countsPorTipoRuta.sin_clasificar} sin clasificar
+          </span>
         )}
       </div>
 

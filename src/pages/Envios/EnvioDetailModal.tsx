@@ -36,6 +36,12 @@ import { SubEnviosTimeline, type SubEnviosTimelineProductoMeta } from './SubEnvi
 import type { AgregarTandaModalResult } from './SubEnviosT1';
 import { envioCrudService } from '../../services/envio.crud.service';
 import { isSubenviosT1Enabled, isCostosScopeV2Enabled } from '../../config/features';
+// S47 — Clasificación tipo de ruta A-J (Modelo Envíos Transversal)
+import {
+  deriveTipoRutaLogistica,
+  INFO_TIPO_RUTA,
+  badgeClassForTipoRuta,
+} from '../../utils/envio.tipoRuta.helpers';
 // S46 — Costos landed con scope + cierre financiero (D-17, D-18)
 import {
   CostosLandedPanel,
@@ -113,7 +119,9 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
 
   // ─── Derivados ──────────────────────────────────────────────────────────
   const esInternacional = envio.tipo === 'internacional_peru';
-  const esDDP = (envio as any).esDDP === true;
+  // S47 — Tipo ruta A-J derivado (reemplaza el chip "Entrega directa" aislado)
+  const tipoRuta = deriveTipoRutaLogistica(envio);
+  const infoRuta = tipoRuta ? INFO_TIPO_RUTA[tipoRuta] : null;
   const incidenciasArr = envio.incidencias || [];
   const incidenciasAbiertas = incidenciasArr.filter((i) => !i.resuelta);
   const tieneAduanaPendiente = incidenciasArr.some(
@@ -129,6 +137,18 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   const totalPendientes = Math.max(0, totalUnidades - totalRecibidas - totalDanadas - totalFaltantes);
   const progreso =
     totalUnidades > 0 ? Math.round(((totalRecibidas + totalDanadas) / totalUnidades) * 100) : 0;
+
+  // S47 — OCs consolidadas: para T1 es el OC único del envío; para T2/J todavía
+  // no hay campo explícito (diferido a S48). Por ahora usamos ordenCompraId
+  // cuando existe; si el picking fue multi-OC quedará '—' hasta que el modelo
+  // almacene el listado (ver MODELO_ENVIOS_TRANSVERSAL.md §4).
+  const ocsConsolidadas = envio.ordenCompraId ? 1 : 0;
+
+  // S47 — Valor landed USD (para el badge del header)
+  const valorLandedUSD = (envio.productosSummary ?? []).reduce(
+    (sum, p) => sum + ((p as { costoTotalUSD?: number }).costoTotalUSD || 0),
+    0
+  );
 
   const diasEnTransito = envio.fechaSalida
     ? Math.floor((Date.now() - envio.fechaSalida.toDate().getTime()) / (1000 * 60 * 60 * 24))
@@ -403,9 +423,15 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                     <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 flex-wrap">
                       <span className="font-mono">{envio.numeroEnvio}</span>
                       {getEstadoBadgeNuevo(envio.estado)}
-                      {esDDP && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200" title="El proveedor entrega directo a Perú sin casilla intermedia">
-                          <Truck className="w-3 h-3" /> Entrega directa
+                      {/* S47 — Badge tipo ruta A-J (reemplaza chip DDP aislado) */}
+                      {infoRuta && (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${badgeClassForTipoRuta(tipoRuta!)}`}
+                          title={infoRuta.nombreLargo}
+                        >
+                          <span className="font-mono text-[9px] opacity-70">{infoRuta.codigo}</span>
+                          <span>{infoRuta.icono}</span>
+                          <span>{infoRuta.nombreCorto}</span>
                         </span>
                       )}
                     </h2>
@@ -498,12 +524,24 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               }
             />
 
-            {/* 5 KPIs rápidos */}
+            {/* 5 KPIs rápidos — S47 incluye OCs consolidadas (Modelo Envíos Transversal) */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
               <KpiRapido
                 label="Unidades"
                 value={String(totalUnidades)}
                 subtitle="esperadas"
+              />
+              <KpiRapido
+                label="OCs consolidadas"
+                value={ocsConsolidadas > 0 ? String(ocsConsolidadas) : '—'}
+                subtitle={
+                  ocsConsolidadas === 1 && envio.ordenCompraNumero
+                    ? envio.ordenCompraNumero
+                    : ocsConsolidadas > 1
+                      ? 'de distintos proveedores'
+                      : 'sin OC vinculada'
+                }
+                valueColor="text-teal-700"
               />
               <KpiRapido
                 label="Recibidas"
@@ -514,38 +552,27 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               <KpiRapido
                 label="Pendientes"
                 value={String(totalPendientes)}
-                subtitle="por llegar"
-                valueColor={totalPendientes > 0 ? 'text-amber-700' : 'text-slate-700'}
-              />
-              <KpiRapido
-                label="Incidencias"
-                value={String(incidenciasAbiertas.length)}
                 subtitle={
                   incidenciasAbiertas.length > 0
-                    ? 'sin resolver'
-                    : 'sin problemas'
+                    ? `· ${incidenciasAbiertas.length} incidencia${incidenciasAbiertas.length !== 1 ? 's' : ''}`
+                    : 'por llegar'
                 }
-                valueColor={
-                  incidenciasAbiertas.length > 0 ? 'text-red-700' : 'text-emerald-700'
-                }
+                valueColor={totalPendientes > 0 ? 'text-amber-700' : 'text-slate-700'}
                 redBg={incidenciasAbiertas.length > 0}
               />
-              <div className="bg-white rounded-lg p-3 border border-slate-200">
-                <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                  Progreso
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 bg-slate-200 rounded-full h-2">
-                    <div
-                      className="bg-emerald-500 h-2 rounded-full transition-all"
-                      style={{ width: `${progreso}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-bold text-slate-700 tabular-nums">
-                    {progreso}%
-                  </span>
-                </div>
-              </div>
+              {/* S47 — Valor landed reemplaza la barra de progreso (redundante con "Recibidas") */}
+              <KpiRapido
+                label="Valor landed"
+                value={
+                  valorLandedUSD > 0
+                    ? `$${valorLandedUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+                    : '—'
+                }
+                subtitle={
+                  valorLandedUSD > 0 ? 'USD · costo importación' : 'sin valuar'
+                }
+                valueColor="text-emerald-700"
+              />
             </div>
           </div>
 
@@ -1097,12 +1124,19 @@ const TabProductos: React.FC<{
   const mostrarRecepcion =
     envio.estado === 'recibida_completa' || envio.estado === 'recibida_parcial';
 
+  // S47 — OC origen: en envíos T1 (single-OC) todos los productos provienen
+  // del mismo envio.ordenCompraId. Para T2/J (multi-OC picking) el campo se
+  // queda como '—' hasta que el modelo guarde ordenCompraId por EnvioUnidad
+  // (pendiente S48+, ver MODELO_ENVIOS_TRANSVERSAL.md §4).
+  const ocOrigenTexto = envio.ordenCompraNumero ?? null;
+
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden">
       <table className="w-full text-sm">
         <thead className="bg-slate-50 text-xs text-slate-500">
           <tr>
             <th className="px-4 py-2 text-left font-medium">Producto</th>
+            <th className="px-4 py-2 text-left font-medium">OC origen</th>
             <th className="px-4 py-2 text-center font-medium">Enviadas</th>
             {mostrarRecepcion && (
               <>
@@ -1165,6 +1199,16 @@ const TabProductos: React.FC<{
                       )}
                     </div>
                   </div>
+                </td>
+                {/* S47 — OC origen */}
+                <td className="px-4 py-3">
+                  {ocOrigenTexto ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-teal-700 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+                      {ocOrigenTexto}
+                    </span>
+                  ) : (
+                    <span className="text-slate-400 text-xs">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-center font-semibold tabular-nums">
                   {p.cantidad}

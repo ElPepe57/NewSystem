@@ -13,11 +13,17 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, Badge, Button } from "../../components/common";
-import type { Envio, EstadoEnvio, TipoEnvio } from "../../types/envio.types";
+import type { Envio, EstadoEnvio } from "../../types/envio.types";
 import { StatusBadge, RouteVisual } from '../../design-system';
 import type { RouteNode, RouteSegment } from '../../design-system';
 import type { Producto } from "../../types/producto.types";
 import { getDescripcionProducto } from "../../utils/producto.helpers";
+// S47 — Clasificación tipo de ruta A-J (Modelo Envíos Transversal)
+import {
+  deriveTipoRutaLogistica,
+  INFO_TIPO_RUTA,
+  badgeClassForTipoRuta,
+} from '../../utils/envio.tipoRuta.helpers';
 
 interface EnvioCardProps {
   envio: Envio;
@@ -80,12 +86,8 @@ const getIncidenciasBadge = (envio: Envio) => {
   );
 };
 
-const getTipoBadge = (tipo?: TipoEnvio) => {
-  if (!tipo) return null;
-  return tipo === 'interna_origen'
-    ? <StatusBadge variant="neutral">Interna Origen</StatusBadge>
-    : <StatusBadge variant="info">Internacional → Perú</StatusBadge>;
-};
+// S47 — getTipoBadge(tipo) eliminado: reemplazado por badge A-J del helper
+// deriveTipoRutaLogistica (ver encabezado del archivo y bloque de render).
 
 // S38-014: incluir país/contexto del origen
 const getOrigenLabel = (envio: Envio): { nombre: string; codigo?: string } => {
@@ -116,14 +118,34 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
   const origen = getOrigenLabel(envio);
   const esInternacional = envio.tipo === 'internacional_peru';
 
+  // S47 — Clasificación A-J del Modelo Envíos Transversal (derivada, no persistida)
+  const tipoRuta = deriveTipoRutaLogistica(envio);
+  const infoRuta = tipoRuta ? INFO_TIPO_RUTA[tipoRuta] : null;
+
+  // S47 — Valor landed USD (suma de costoTotalUSD de productosSummary)
+  const valorLandedUSD = (envio.productosSummary ?? []).reduce(
+    (sum, p) => sum + ((p as { costoTotalUSD?: number }).costoTotalUSD || 0),
+    0
+  );
+
+  // S47 — Sub-envíos (tandas) — S45 flag
+  const numSubEnvios = Array.isArray((envio as any).subEnvios)
+    ? ((envio as any).subEnvios as unknown[]).length
+    : 0;
+
+  // S47 — Unidades pre-vendidas (reservadaPara existente en Unidad)
+  const numPreVendidas = (envio.unidades ?? []).filter(
+    (u) => !!(u as any).reservadaPara
+  ).length;
+
   return (
     <Card
       padding="md"
       className="hover:shadow-lg transition-shadow cursor-pointer"
       onClick={() => onSelect(envio)}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3">
+      <div className="flex items-start justify-between mb-4 gap-3">
+        <div className="flex items-center space-x-3 min-w-0 flex-1">
           <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
             esInternacional ? 'bg-sky-100' : 'bg-slate-100'
           }`}>
@@ -132,21 +154,60 @@ export const EnvioCard: React.FC<EnvioCardProps> = ({
               : <ArrowRightLeft className="h-6 w-6 text-slate-600" />
             }
           </div>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">{envio.numeroEnvio}</h3>
-            <div className="flex flex-wrap items-center gap-2 mt-1">
-              {getTipoBadge(envio.tipo)}
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg font-semibold text-slate-900 truncate">{envio.numeroEnvio}</h3>
+            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+              {/* S47 — Badge tipo ruta A-J como primera identidad visual */}
+              {infoRuta && (
+                <span
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${badgeClassForTipoRuta(tipoRuta!)}`}
+                  title={infoRuta.nombreLargo}
+                >
+                  <span className="font-mono text-[9px] opacity-70">{infoRuta.codigo}</span>
+                  <span className="text-[11px]">{infoRuta.icono}</span>
+                  <span>{infoRuta.nombreCorto}</span>
+                </span>
+              )}
               {getEstadoBadge(envio.estado)}
               {(() => {
                 const resumen = getResumenIncidencias(envio);
                 if (!resumen) return null;
                 return <span title={resumen.tooltip}>{getIncidenciasBadge(envio)}</span>;
               })()}
+              {/* S47 — Chips operativos: sub-envíos T1 + pre-vendidas */}
+              {numSubEnvios > 0 && (
+                <span
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200"
+                  title="El envío se fraccionó en N tandas de despacho"
+                >
+                  <Package className="h-2.5 w-2.5" />
+                  {numSubEnvios} {numSubEnvios === 1 ? 'tanda' : 'tandas'}
+                </span>
+              )}
+              {numPreVendidas > 0 && (
+                <span
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200"
+                  title="Unidades reservadas para ventas pendientes (Unidad.reservadaPara)"
+                >
+                  ★ {numPreVendidas} pre-vendida{numPreVendidas !== 1 ? 's' : ''}
+                </span>
+              )}
             </div>
           </div>
         </div>
-        <div className="text-right text-sm text-slate-500">
-          {fechaCreacion.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+        {/* S47 — Columna derecha: valor landed destacado + fecha */}
+        <div className="text-right shrink-0">
+          {valorLandedUSD > 0 && (
+            <div className="mb-1">
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">Valor landed</div>
+              <div className="text-base font-bold text-emerald-700 tabular-nums">
+                ${valorLandedUSD.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </div>
+            </div>
+          )}
+          <div className="text-xs text-slate-500">
+            {fechaCreacion.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </div>
         </div>
       </div>
 
