@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S52 · Wizard de Envíos Unificado (v3 — ruta vertical persistente)</title>
+<title>S52 · Wizard de Envíos Unificado (v4 — formulario apilado + ruta vertical)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -62,9 +62,9 @@
 <header class="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-20">
   <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-500 font-mono">🧙 S52 · Wizard Envíos v3</div>
-      <h1 class="text-lg font-semibold text-slate-900">Wizard Unificado con Ruta Vertical Persistente</h1>
-      <p class="text-xs text-slate-500">Mockup de validación · diseño v3 · aprobado para implementación</p>
+      <div class="flex items-center gap-2 text-xs text-slate-500 font-mono">🧙 S52 · Wizard Envíos v4</div>
+      <h1 class="text-lg font-semibold text-slate-900">Wizard Unificado · formulario apilado + ruta vertical</h1>
+      <p class="text-xs text-slate-500">Mockup de validación · diseño v4 · aprobado para implementación</p>
     </div>
     <div class="flex items-center gap-1 flex-wrap">
       <button onclick="mostrarTab('paso1')" id="tab-paso1" class="tab-active text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">1 · Origen y destino</button>
@@ -103,85 +103,61 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
-      <!-- Contenido principal (preguntas) -->
+      <!-- Contenido principal (formulario apilado vertical) -->
       <div class="lg:col-span-2 space-y-6">
         <div>
           <h3 class="text-base font-semibold text-slate-900 mb-1">¿Desde dónde y hacia dónde?</h3>
           <p class="text-sm text-slate-600">Elegí las ubicaciones. La ruta del envío se va armando en el panel derecho conforme avanzás.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">Origen</label>
-            <div class="space-y-2">
-              <div class="option-card selected border-2 rounded-xl p-4 flex items-start gap-3">
-                <input type="radio" name="origen" checked class="mt-1">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🌎</span><span class="text-sm font-semibold text-slate-900">Casilla internacional</span></div>
-                  <p class="text-xs text-slate-600">USA, China, Corea, Japón, etc.</p>
-                </div>
-              </div>
-              <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
-                <input type="radio" name="origen" class="mt-1">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Perú</span></div>
-                  <p class="text-xs text-slate-600">Tu almacén local en Perú</p>
-                </div>
+        <!-- ORIGEN apilado vertical -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">Origen</label>
+          <div class="space-y-2">
+            <div class="option-card selected border-2 rounded-xl p-4 flex items-start gap-3">
+              <input type="radio" name="origen" checked class="mt-1">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🌎</span><span class="text-sm font-semibold text-slate-900">Casilla internacional</span></div>
+                <p class="text-xs text-slate-600">USA, China, Corea, Japón, etc.</p>
               </div>
             </div>
-          </div>
-
-          <div>
-            <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">Destino</label>
-            <div class="space-y-2">
-              <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
-                <input type="radio" name="destino" class="mt-1">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🌎</span><span class="text-sm font-semibold text-slate-900">Casilla internacional</span></div>
-                  <p class="text-xs text-slate-600">Otra casilla tuya en el extranjero</p>
-                </div>
-              </div>
-              <div class="option-card selected border-2 rounded-xl p-4 flex items-start gap-3">
-                <input type="radio" name="destino" checked class="mt-1">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Perú</span></div>
-                  <p class="text-xs text-slate-600">Tu almacén local</p>
-                </div>
-              </div>
-              <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
-                <input type="radio" name="destino" class="mt-1">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🏭</span><span class="text-sm font-semibold text-slate-900">Almacén tercero</span></div>
-                  <p class="text-xs text-slate-600">FBA Amazon, distribuidor, consignación</p>
-                </div>
+            <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
+              <input type="radio" name="origen" class="mt-1">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Perú</span></div>
+                <p class="text-xs text-slate-600">Tu almacén local en Perú</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Ejemplo combinación inválida (colapsable) -->
-        <details class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-          <summary class="cursor-pointer text-sm font-medium text-slate-700">Ejemplo: ¿qué pasa si elijo una combinación no estándar?</summary>
-          <div class="mt-3 bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-full bg-white border border-amber-200 flex items-center justify-center flex-shrink-0"><span class="text-lg">⚠️</span></div>
+        <!-- DESTINO apilado vertical -->
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">Destino</label>
+          <div class="space-y-2">
+            <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
+              <input type="radio" name="destino" class="mt-1">
               <div class="flex-1">
-                <div class="text-xs font-semibold uppercase tracking-wider text-amber-700 mb-0.5">Combinación no estándar</div>
-                <div class="text-sm font-bold text-amber-900">Este tipo de movimiento requiere coordinación con el administrador</div>
-                <p class="text-xs text-amber-800 mt-1">Contactá al admin para habilitar este caso específico.</p>
-                <div class="mt-3 pt-3 border-t border-amber-200">
-                  <div class="text-xs text-amber-700 font-semibold mb-1.5">Combinaciones disponibles:</div>
-                  <ul class="text-xs text-amber-800 space-y-1">
-                    <li>• Casilla internacional → Almacén Perú</li>
-                    <li>• Casilla internacional → Casilla internacional</li>
-                    <li>• Almacén Perú → Almacén Perú</li>
-                    <li>• Almacén Perú → Almacén tercero</li>
-                  </ul>
-                </div>
+                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🌎</span><span class="text-sm font-semibold text-slate-900">Casilla internacional</span></div>
+                <p class="text-xs text-slate-600">Otra casilla tuya en el extranjero</p>
+              </div>
+            </div>
+            <div class="option-card selected border-2 rounded-xl p-4 flex items-start gap-3">
+              <input type="radio" name="destino" checked class="mt-1">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Perú</span></div>
+                <p class="text-xs text-slate-600">Tu almacén local</p>
+              </div>
+            </div>
+            <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
+              <input type="radio" name="destino" class="mt-1">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🏭</span><span class="text-sm font-semibold text-slate-900">Almacén tercero</span></div>
+                <p class="text-xs text-slate-600">FBA Amazon, distribuidor, consignación</p>
               </div>
             </div>
           </div>
-        </details>
+        </div>
       </div>
 
       <!-- SIDEBAR RUTA VERTICAL -->
@@ -919,22 +895,28 @@
 <section id="notas" class="section">
   <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
     <div>
-      <h2 class="text-xl font-semibold text-slate-900 mb-1">💡 Decisiones de diseño · v3 (definitivo)</h2>
-      <p class="text-sm text-slate-600">Versión aprobada con ruta vertical persistente en sidebar + inferencia inteligente. Lista para implementación.</p>
+      <h2 class="text-xl font-semibold text-slate-900 mb-1">💡 Decisiones de diseño · v4 (definitivo)</h2>
+      <p class="text-sm text-slate-600">Formulario apilado vertical + ruta vertical persistente + inferencia inteligente. Lista para implementación.</p>
     </div>
 
     <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-      <h3 class="text-sm font-semibold text-emerald-900 mb-2">✨ Cambios respecto a v2</h3>
+      <h3 class="text-sm font-semibold text-emerald-900 mb-2">✨ Cambios respecto a v3</h3>
       <ul class="text-xs text-emerald-800 space-y-1.5 list-disc pl-5">
-        <li><b>Ruta vertical persistente en sidebar.</b> Se reemplaza el banner "DETECTADO AUTOMÁTICAMENTE" por un minimapa de 3 bloques (Origen / Tránsito / Destino) que vive en el panel derecho durante TODO el wizard.</li>
+        <li><b>Paso 1 apilado vertical.</b> Ya no hay grid 2×2 (ORIGEN | DESTINO lado a lado). Se apila verticalmente: primero ORIGEN con sus 2 opciones, debajo DESTINO con sus 3 opciones. Se lee como formulario natural.</li>
+        <li><b>Proporción 65/35.</b> Formulario ancho + sidebar compacto (ruta vertical).</li>
+        <li><b>Colapsable "Ejemplo combinación no estándar" eliminado.</b> El chip del sidebar + el banner de admin (cuando aplique) ya cubren ese caso.</li>
+      </ul>
+    </div>
+
+    <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+      <h3 class="text-sm font-semibold text-sky-900 mb-2">Heredado de v3 (sigue vigente)</h3>
+      <ul class="text-xs text-sky-800 space-y-1.5 list-disc pl-5">
+        <li><b>Ruta vertical persistente en sidebar.</b> Minimapa de 3 bloques (Origen / Tránsito / Destino) en el panel derecho durante TODO el wizard.</li>
         <li><b>Llenado progresivo en 2 niveles.</b> Paso 1 fija categoría + bandera; pasos 2-4 refinan a nombre específico.</li>
         <li><b>3 estados visuales por bloque.</b> Pendiente (gris punteado) / Actual (azul pulsante) / Completo (verde con check, clickeable).</li>
-        <li><b>Chip de tipo inferido arriba del sidebar.</b> Cambia de color según tipo (teal=C, violet=I, etc.). Siempre visible.</li>
-        <li><b>Click en bloque completo = jump-back</b> al paso que lo definió. Breadcrumb visual alternativo.</li>
+        <li><b>Chip de tipo inferido arriba del sidebar.</b> Cambia de color según tipo (teal=C, sky=J, amber=E, violet=I).</li>
+        <li><b>Click en bloque completo = jump-back</b> al paso que lo definió.</li>
         <li><b>Icono de tránsito dinámico.</b> ✈️ (aéreo) / 🚢 (marítimo) / 🚚 (terrestre) según modo.</li>
-        <li><b>D-3 resuelto:</b> se quita la sección "Otros tipos que nacen automáticamente" del Paso 1. La inferencia + chip de tipo ya comunican esa información.</li>
-        <li><b>D-4 resuelto:</b> reemplazo directo, sin feature flag de convivencia.</li>
-        <li><b>D-5 resuelto:</b> labels del stepper permanecen genéricos fijos (Origen/destino · Ubicación · Destino · Logística · Confirmar).</li>
       </ul>
     </div>
 

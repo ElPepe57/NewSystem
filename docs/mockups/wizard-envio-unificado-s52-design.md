@@ -144,23 +144,34 @@ El label del bloque tránsito también cambia: "Tránsito · Aéreo" / "Tránsit
 
 ### Paso 1 — Origen y destino
 
-Dos selectores lado a lado. **El feedback del tipo vive en el sidebar** (chip de tipo + ruta vertical), no en un banner dentro del paso:
+Formulario apilado vertical en columna izquierda (primero ORIGEN con sus 2 opciones una debajo de la otra, después DESTINO con sus 3 opciones una debajo de la otra). **El feedback del tipo vive en el sidebar derecho** (chip de tipo + ruta vertical):
 
 ```
-┌──── Contenido principal ────┐  ┌──── Sidebar persistente ────┐
-│  ¿Desde dónde y hacia dónde? │  │ 🏷️ Envío internacional       │
-│                              │  │    Casilla → Perú            │
-│  ┌─ Origen ──┐  ┌─ Destino ┐ │  ├──────────────────────────────┤
-│  │ ◉ Casilla │  │ ○ Casilla│ │  │ 📦 ORIGEN             ✓     │
-│  │ ○ Perú    │  │ ◉ Perú   │ │  │    Casilla intl. 🌎          │
-│  │           │  │ ○ Tercero│ │  │              ↓                │
-│  └───────────┘  └──────────┘ │  │ ✈️ TRÁNSITO           [4]    │
-│                              │  │    (por elegir)               │
-│  (Sin banner aquí; todo el   │  │              ↓                │
-│   feedback vive en el        │  │ 🏠 DESTINO             ✓     │
-│   sidebar →)                 │  │    Almacén Perú 🇵🇪           │
-└──────────────────────────────┘  └──────────────────────────────┘
+┌──── Formulario (2/3 ancho) ────┐  ┌── Sidebar (1/3) ──┐
+│ ¿Desde dónde y hacia dónde?     │  │ 🏷️ Envío intl.     │
+│                                 │  │    Casilla → Perú  │
+│ ─── ORIGEN ────────             │  ├────────────────────┤
+│ ┌─────────────────────────────┐ │  │ 📦 ORIGEN      ✓  │
+│ │ ◉ 🌎 Casilla internacional  │ │  │    Casilla 🌎       │
+│ └─────────────────────────────┘ │  │         ↓           │
+│ ┌─────────────────────────────┐ │  │ ✈️ TRÁNSITO   [4] │
+│ │ ○ 🇵🇪 Almacén Perú           │ │  │    (por elegir)    │
+│ └─────────────────────────────┘ │  │         ↓           │
+│                                 │  │ 🏠 DESTINO     ✓  │
+│ ─── DESTINO ───────             │  │    Perú 🇵🇪         │
+│ ┌─────────────────────────────┐ │  └────────────────────┘
+│ │ ○ 🌎 Casilla internacional  │ │
+│ └─────────────────────────────┘ │
+│ ┌─────────────────────────────┐ │
+│ │ ◉ 🇵🇪 Almacén Perú           │ │
+│ └─────────────────────────────┘ │
+│ ┌─────────────────────────────┐ │
+│ │ ○ 🏭 Almacén tercero        │ │
+│ └─────────────────────────────┘ │
+└─────────────────────────────────┘
 ```
+
+**Proporción 65/35** (formulario ancho, sidebar compacto). El colapsable "Ejemplo: ¿qué pasa si elijo una combinación no estándar?" del v3 **se elimina** — el chip del sidebar + el mensaje de admin (cuando aplique) ya cubren ese caso.
 
 **Si el usuario elige una combinación NO soportada** (ej. Cliente → Cliente, o Casilla intl → Almacén tercero), el banner cambia a:
 
@@ -434,4 +445,5 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 |---|---|---|
 | 2026-04-21 | 1.0 | Versión inicial — 5 pasos con selector de tipo explícito (descartada) |
 | 2026-04-21 | 2.0 | Rediseño con inferencia automática del tipo · F/G movidos a sus módulos · 4 tipos soportados (C/J/E/I) · combinaciones inválidas con mensaje de coordinación |
-| 2026-04-22 | **3.0** | **APROBADO.** Sidebar con ruta vertical persistente (chip tipo + 3 bloques Origen/Tránsito/Destino + KPIs). 5 refinamientos R1-R5 (llenado progresivo 2 niveles, 3 estados visuales, chip tipo, jump-back en bloque completo, iconos por rol). D-3 cerrada (no se muestran tipos auto-creados). D-4 cerrada (reemplazo directo sin flag). D-5 cerrada (labels genéricos fijos). Banner "DETECTADO AUTOMÁTICAMENTE" del Paso 1 eliminado. |
+| 2026-04-22 | 3.0 | Sidebar con ruta vertical persistente (chip tipo + 3 bloques Origen/Tránsito/Destino + KPIs). 5 refinamientos R1-R5 (llenado progresivo 2 niveles, 3 estados visuales, chip tipo, jump-back en bloque completo, iconos por rol). D-3 cerrada (no se muestran tipos auto-creados). D-4 cerrada (reemplazo directo sin flag). D-5 cerrada (labels genéricos fijos). Banner "DETECTADO AUTOMÁTICAMENTE" del Paso 1 eliminado. |
+| 2026-04-22 | **4.0** | **APROBADO.** Paso 1 con formulario apilado vertical en columna izquierda (ORIGEN arriba, DESTINO abajo, cada uno con sus opciones una debajo de la otra). Proporción 65/35 formulario/sidebar. Colapsable "Ejemplo combinación no estándar" eliminado (chip + mensaje admin cuando aplique ya cubren el caso). |
