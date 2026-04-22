@@ -1,8 +1,10 @@
 # 🧙 Wizard de Envíos Unificado — Diseño S52
 
-> **Versión 2.0 · 2026-04-21 · Fase 5.0 (Diseño)**
+> **Versión 3.0 · 2026-04-22 · Fase 5.0 (Diseño) · APROBADO**
 >
 > Este documento define el diseño UX + arquitectura del wizard unificado de envíos que reemplazará a los 4 wizards separados actuales (C/E/J/I). F y G se integran en sus módulos naturales (Ventas / Devoluciones).
+>
+> **Cambio clave v3:** ruta vertical persistente en sidebar + 5 refinamientos visuales + D-3/D-4/D-5 cerradas.
 >
 > **Audiencia:** dueño del producto (no-técnico) + agentes técnicos que implementarán después.
 
@@ -35,22 +37,27 @@ Paso 1: "Elige el tipo"
 
 El usuario debe aprender 6 códigos técnicos antes de avanzar.
 
-### ✅ Modelo aprobado (v2 — inteligente)
+### ✅ Modelo aprobado (v3 — inteligente + ruta vertical en sidebar)
 
 ```
 Paso 1: "¿Desde dónde y hacia dónde?"
 
-  ┌─── ORIGEN ──────────┐      ┌─── DESTINO ─────────┐
-  │ ○ Casilla intl.     │      │ ○ Casilla intl.     │
-  │ ○ Almacén Perú      │  →   │ ○ Almacén Perú      │
-  │                     │      │ ○ Almacén tercero   │
-  └─────────────────────┘      └─────────────────────┘
-
-  ✨ Detectado: Envío internacional (Casilla → Perú)
-     Consolidación de unidades desde casilla USA/CN/KR hacia Perú
+  ┌─ ORIGEN ──────┐   ┌─ DESTINO ─────┐   │ 🏷️ Envío internacional  │
+  │ ○ Casilla     │   │ ○ Casilla     │   │    Casilla → Perú       │
+  │ ○ Almacén PE  │   │ ○ Almacén PE  │   ├─────────────────────────┤
+  │               │   │ ○ Tercero     │   │ 📦 ORIGEN           ✓  │
+  └───────────────┘   └───────────────┘   │    Casilla intl. 🌎     │
+                                           │         ↓                │
+  (Sin banner de detección; el tipo        │ ✈️ TRÁNSITO         [ ] │
+   vive permanentemente en el chip         │    (por elegir)          │
+   del sidebar derecho.)                   │         ↓                │
+                                           │ 🏠 DESTINO          ✓  │
+                                           │    Almacén Perú 🇵🇪      │
+                                           └─────────────────────────┘
+                                             Sidebar persistente
 ```
 
-El usuario **nunca ve "T2"** — ve lenguaje de negocio.
+El usuario **nunca ve "T2"** — ve lenguaje de negocio. La **ruta vertical del sidebar** le muestra visualmente hacia dónde va conforme avanza por los pasos.
 
 ---
 
@@ -81,28 +88,78 @@ Ver sección **"Tareas derivadas"** al final para el trabajo pendiente en esos m
 
 ---
 
+## 🗺️ Sidebar de ruta vertical (novedad v3)
+
+**El sidebar derecho del wizard es persistente a lo largo de los 5 pasos** y contiene 3 elementos:
+
+1. **Chip de tipo inferido** (arriba) — siempre visible, cambia de color según tipo detectado
+2. **Ruta vertical 3-bloques** — ORIGEN → TRÁNSITO → DESTINO, con conectores verticales punteados
+3. **Panel de resumen** (abajo) — KPIs que se actualizan (unidades, CTRU, flete, gran total)
+
+### R1 — Llenado progresivo en 2 niveles
+
+| Paso | ORIGEN | TRÁNSITO | DESTINO |
+|---|---|---|---|
+| Entrada (Paso 1) | *(por elegir)* | *(por elegir)* | *(por elegir)* |
+| Paso 1 completo (categorías) | **Casilla intl. 🌎** ✓ | *(por elegir)* | **Almacén Perú 🇵🇪** ✓ |
+| Paso 2 (refina origen) | **Felicita · Miami 🇺🇸** ✓ | *(por elegir)* | Almacén Perú 🇵🇪 ✓ |
+| Paso 3 (refina destino) | Felicita · Miami 🇺🇸 ✓ | *(por elegir)* | **Almacén Lima Centro 🇵🇪** ✓ |
+| Paso 4 (llena tránsito) | Felicita · Miami 🇺🇸 ✓ | **Juan Pérez ✈️ ($280)** ✓ | Almacén Lima Centro 🇵🇪 ✓ |
+
+### R2 — 3 estados visuales por bloque
+
+- **Pendiente** → fondo `slate-50`, borde punteado `slate-200`, texto *italic "(por elegir)"*, badge gris con número del paso donde se definirá
+- **Actual** (este paso lo refina) → fondo `blue-50`, borde `blue-500` con animación pulsante, badge azul ⟳, texto "Seleccionando…"
+- **Completo** → fondo `green-50`, borde `green-500` sólido, badge verde ✓, cursor pointer, tooltip "Click para editar"
+- **Completo categoría** (intermedio, tras Paso 1) → fondo `emerald-50`, borde `emerald-500`, badge ✓, texto "Por refinar en Paso X"
+
+### R3 — Chip de tipo inferido arriba del sidebar
+
+Aparece tan pronto como Paso 1 tiene origen + destino seleccionados:
+
+| Tipo | Color chip | Texto |
+|---|---|---|
+| C | Teal | Envío internacional · Casilla → Perú |
+| J | Sky | Movimiento internacional · Casilla → Casilla |
+| E | Amber | Traslado interno · Perú → Perú |
+| I | Violet | Envío a tercero · Almacén → Fulfillment |
+
+Reemplaza el banner "DETECTADO AUTOMÁTICAMENTE" del v2 (que era intrusivo en Paso 1).
+
+### R4 — Click en bloque completo = jump-back
+
+Los bloques en estado *completo* son clickeables. Llevan al usuario al paso donde se definieron (efectivamente un breadcrumb visual alternativo al stepper horizontal). Tooltip: "Click para editar (Paso X)".
+
+### R5 — Icono fijo por rol + tránsito dinámico por modo
+
+- 📦 **ORIGEN** — fijo siempre
+- 🏠 **DESTINO** — fijo siempre
+- ✈️ / 🚢 / 🚚 **TRÁNSITO** — cambia según el modo de transporte elegido en Paso 4 (aéreo / marítimo / terrestre)
+
+El label del bloque tránsito también cambia: "Tránsito · Aéreo" / "Tránsito · Marítimo" / "Tránsito · Terrestre".
+
+---
+
 ## 🗺️ Flujo de 5 pasos (idéntico para todos los tipos)
 
 ### Paso 1 — Origen y destino
 
-Dos selectores lado a lado + banner inteligente que se actualiza en vivo:
+Dos selectores lado a lado. **El feedback del tipo vive en el sidebar** (chip de tipo + ruta vertical), no en un banner dentro del paso:
 
 ```
-┌────────────────────────────────────────────────────────────────────┐
-│  ¿Desde dónde y hacia dónde?                                        │
-│                                                                     │
-│  ┌─ Origen ──────────────┐      ┌─ Destino ─────────────┐          │
-│  │ ◉ 🌎 Casilla intl.     │      │ ○ 🌎 Casilla intl.     │          │
-│  │ ○ 🇵🇪 Almacén Perú     │      │ ◉ 🇵🇪 Almacén Perú     │          │
-│  │                       │      │ ○ 🏭 Almacén tercero   │          │
-│  └───────────────────────┘      └───────────────────────┘          │
-│                                                                     │
-│  ┌────────────────────────────────────────────────────────────┐    │
-│  │ ✨ Detectado: Envío internacional (Casilla → Perú)         │    │
-│  │    Consolidás unidades de tu casilla en USA/CN/KR para     │    │
-│  │    enviarlas al almacén de Perú.                           │    │
-│  └────────────────────────────────────────────────────────────┘    │
-└────────────────────────────────────────────────────────────────────┘
+┌──── Contenido principal ────┐  ┌──── Sidebar persistente ────┐
+│  ¿Desde dónde y hacia dónde? │  │ 🏷️ Envío internacional       │
+│                              │  │    Casilla → Perú            │
+│  ┌─ Origen ──┐  ┌─ Destino ┐ │  ├──────────────────────────────┤
+│  │ ◉ Casilla │  │ ○ Casilla│ │  │ 📦 ORIGEN             ✓     │
+│  │ ○ Perú    │  │ ◉ Perú   │ │  │    Casilla intl. 🌎          │
+│  │           │  │ ○ Tercero│ │  │              ↓                │
+│  └───────────┘  └──────────┘ │  │ ✈️ TRÁNSITO           [4]    │
+│                              │  │    (por elegir)               │
+│  (Sin banner aquí; todo el   │  │              ↓                │
+│   feedback vive en el        │  │ 🏠 DESTINO             ✓     │
+│   sidebar →)                 │  │    Almacén Perú 🇵🇪           │
+└──────────────────────────────┘  └──────────────────────────────┘
 ```
 
 **Si el usuario elige una combinación NO soportada** (ej. Cliente → Cliente, o Casilla intl → Almacén tercero), el banner cambia a:
@@ -266,12 +323,31 @@ Cada `tipoX.config.ts` tiene ~40 líneas, el shell común tiene ~300 líneas, y 
 
 ---
 
-## ✅ Decisiones del usuario (ya aprobadas)
+## ✅ Decisiones del usuario — todas cerradas en v3
 
 ### D-1 · Cambio de tipo a mitad del flujo
 **Política:** no se permite. Si por alguna razón queda un borrador incompleto en el sistema, **se elimina automáticamente** (background cleanup de borradores con `fechaActualizacion` antigua, política por definir).
 
-### D-A · Casos F y G (NUEVA DECISIÓN CLAVE)
+### D-2 · Sistema inteligente con inferencia
+**Decisión:** el tipo se infiere automáticamente desde el Paso 1 (origen + destino). El usuario nunca ve siglas técnicas ("T2", "C", "J", "E", "I"). El tipo inferido vive en el chip del sidebar.
+
+### D-3 · Tipos auto-creados — NO se muestran en Paso 1
+**Decisión:** la sección colapsable "Otros tipos que nacen automáticamente" del diseño v2 **se elimina**. La ruta vertical del sidebar + el chip de tipo inferido ya dan suficiente contexto visual al usuario. Si el usuario intenta una combinación que correspondería a un tipo auto-creado (ej. almacén Perú → cliente), el banner de "coordinación con admin" los orienta.
+
+### D-4 · Reemplazo directo — sin feature flag
+**Decisión:** Opción B. Al mergear Fase 5.3 se eliminan los 4 wizards C/J/E/I en el mismo commit. **No se usa `WIZARD_UNIFICADO` flag.** Justificación del usuario: simplifica el delivery, evita deuda técnica de mantener 2 implementaciones. Mitigación de riesgo: UAT funcional riguroso antes del merge + posibilidad de revert de commit si aparece regresión crítica.
+
+### D-5 · Labels del stepper — genéricos fijos
+**Decisión:** los labels del stepper permanecen genéricos para los 4 tipos:
+1. Origen/destino
+2. Ubicación
+3. Destino
+4. Logística
+5. Confirmar
+
+**Justificación:** el chip de tipo inferido + la ruta vertical del sidebar ya comunican el contexto específico. Duplicarlo en el stepper sería redundante.
+
+### D-A · Casos F y G fuera del wizard
 **Decisión:** **No van en el wizard unificado.** Se integran directamente en:
 - Módulo **Ventas** → botón "Despachar venta" en detalle que crea envío F automáticamente
 - Módulo **Devoluciones** → botón "Procesar retorno" en detalle que crea envío G automáticamente
@@ -279,36 +355,10 @@ Cada `tipoX.config.ts` tiene ~40 líneas, el shell común tiene ~300 líneas, y 
 **Justificación:** ambos casos requieren siempre un documento vinculado (venta o devolución). El flujo natural es nacer desde ese documento, no desde `/envios`.
 
 ### D-B · Combinaciones no válidas
-**Decisión:** el Paso 1 muestra un banner con el mensaje **"Esta combinación requiere coordinación con el administrador. Contactá al admin para habilitarlo."** y el botón "Siguiente" queda deshabilitado. Se lista abajo las combinaciones disponibles como guía.
+**Decisión:** el Paso 1 muestra un banner con el mensaje **"Esta combinación requiere coordinación con el administrador. Contactá al admin para habilitarlo."** y el botón "Siguiente" queda deshabilitado. Se listan abajo las combinaciones disponibles como guía.
 
----
-
-## ❓ Decisiones que quedan pendientes (3)
-
-### D-3 · ¿Se muestran los tipos del wizard de OC (A/B/D) como informativos en el Paso 1?
-
-Los tipos A, B, D nacen automáticamente desde la OC (nunca desde este wizard). La pregunta es si aparecen en el Paso 1 como **tarjetas informativas deshabilitadas** para documentación visual.
-
-- **A** — No aparecen. El Paso 1 solo muestra las 4 combinaciones soportadas.
-- **B** — Aparecen como sección "Otros tipos (nacen automáticamente)" con tooltip educativo.
-
-**Recomendación:** B. El usuario novato ve el mapa completo y entiende que esos tipos existen pero se crean desde otro flujo.
-
-### D-4 · ¿Convivencia con los 4 wizards actuales durante migración?
-
-- **A** — Feature flag `WIZARD_UNIFICADO` activa el nuevo, los 4 viejos (T2/J/E/I) siguen vivos como fallback hasta validación.
-- **B** — Reemplazo total desde el primer commit.
-
-**Recomendación:** A. Consistente con el patrón de rollout que usamos en S44-S51. Permite rollback rápido si algo falla en UAT.
-
-### D-5 · Label dinámico del stepper
-
-Los labels del stepper (Paso 2 "Origen", Paso 3 "Destino", etc.) son genéricos. ¿Querés que sean **específicos según el tipo** detectado?
-
-- **A** — Genérico fijo: Paso 2 = "Origen", Paso 3 = "Destino" (siempre)
-- **B** — Dinámico: Paso 2 = "Casilla origen" (tipo C) / "Almacén origen" (tipo E) / etc.
-
-**Recomendación:** A. Simpleza. El breadcrumb ya dice qué tipo es, los labels del stepper pueden ser genéricos.
+### D-R · Sidebar de ruta vertical persistente (novedad v3)
+**Decisión:** se agrega un sidebar derecho persistente durante todo el wizard con 3 bloques verticales (Origen / Tránsito / Destino) que se van llenando progresivamente en 2 niveles (categoría primero, nombre específico después). Aplica los 5 refinamientos R1-R5 descritos en la sección correspondiente.
 
 ---
 
@@ -355,10 +405,10 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 
 | Fase | Alcance | Sesión estimada |
 |---|---|---|
-| 5.0 — Diseño | Documento + mockup (este) | ✅ completada |
-| **5.1 — Fundaciones** | Shell + registry + Paso 1 + Paso 5 (el "esqueleto") | Próxima sesión |
+| 5.0 — Diseño | Documento v3 + mockup v3 (este) | ✅ completada |
+| **5.1 — Fundaciones** | Shell + **sidebar ruta vertical** + registry + Paso 1 + Paso 5 | Próxima sesión |
 | **5.2 — Pasos adaptativos** | Paso 2 + Paso 3 + Paso 4 con variantes por tipo | Tercera sesión |
-| **5.3 — Migración** | Reemplazar los 4 wizards C/J/E/I por el unificado tras flag UAT | Cuarta sesión |
+| **5.3 — Migración + delete** | Reemplazo directo (D-4) — se eliminan los 4 wizards C/J/E/I en el mismo commit | Cuarta sesión |
 | T-F (derivada) | Integrar F en Ventas | Sesión aparte |
 | T-G (derivada) | Integrar G en Devoluciones | Sesión aparte |
 | T-Cleanup | Eliminar legacy F/G + rutas | Mini-sesión al final |
@@ -384,3 +434,4 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 |---|---|---|
 | 2026-04-21 | 1.0 | Versión inicial — 5 pasos con selector de tipo explícito (descartada) |
 | 2026-04-21 | 2.0 | Rediseño con inferencia automática del tipo · F/G movidos a sus módulos · 4 tipos soportados (C/J/E/I) · combinaciones inválidas con mensaje de coordinación |
+| 2026-04-22 | **3.0** | **APROBADO.** Sidebar con ruta vertical persistente (chip tipo + 3 bloques Origen/Tránsito/Destino + KPIs). 5 refinamientos R1-R5 (llenado progresivo 2 niveles, 3 estados visuales, chip tipo, jump-back en bloque completo, iconos por rol). D-3 cerrada (no se muestran tipos auto-creados). D-4 cerrada (reemplazo directo sin flag). D-5 cerrada (labels genéricos fijos). Banner "DETECTADO AUTOMÁTICAMENTE" del Paso 1 eliminado. |
