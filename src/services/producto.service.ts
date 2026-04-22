@@ -27,7 +27,8 @@ import type {
   InvestigacionResumen,
   HistorialPrecio,
   AlertaInvestigacion,
-  PuntoEquilibrio
+  PuntoEquilibrio,
+  ComponentePack
 } from '../types/producto.types';
 import type { TipoProductoSnapshot } from '../types/tipoProducto.types';
 import type { CategoriaSnapshot } from '../types/categoria.types';
@@ -153,10 +154,117 @@ export class ProductoService {
   }
 
   /**
+   * TAREA-105 — Valida componentes de un Pack/Kit y enriquece denormalizados.
+   *
+   * Reglas (D-PACK-01, D-PACK-05):
+   *   - Si esPack=true, debe tener al menos 1 componente.
+   *   - Cada componente: nombre no vacío y cantidad > 0.
+   *   - Componentes vinculados (con productoId): deben existir, no ser pack
+   *     ellos mismos (sin anidamiento) y compartir lineaNegocioId con el pack.
+   *   - Denormaliza sku y marca del producto referenciado en cada vinculado.
+   *
+   * @param esPack bandera que activa el modo pack
+   * @param componentes lista de componentes del pack
+   * @param lineaNegocioIdPack línea de negocio que declarará el pack
+   * @returns lista de componentes con sku/marca denormalizados (mismo orden)
+   * @throws Error con mensaje descriptivo si alguna regla falla
+   */
+  static async validateComponentesPack(
+    esPack: boolean | undefined,
+    componentes: ComponentePack[] | undefined,
+    lineaNegocioIdPack: string | undefined
+  ): Promise<ComponentePack[] | undefined> {
+    if (!esPack) return componentes;
+
+    if (!componentes || componentes.length === 0) {
+      throw new Error('Un Pack/Kit debe tener al menos 1 componente.');
+    }
+
+    const enriquecidos: ComponentePack[] = [];
+
+    for (let i = 0; i < componentes.length; i++) {
+      const c = componentes[i];
+      const posicion = i + 1;
+
+      if (!c.nombre || !c.nombre.trim()) {
+        throw new Error(`Componente ${posicion}: el nombre es obligatorio.`);
+      }
+      if (!c.cantidad || c.cantidad <= 0) {
+        throw new Error(`Componente ${posicion} (${c.nombre}): la cantidad debe ser mayor a 0.`);
+      }
+
+      // Componente vinculado: verificar existencia, no anidamiento, misma línea
+      if (c.productoId) {
+        const ref = doc(db, COLLECTION_NAME, c.productoId);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          throw new Error(`Componente ${posicion} (${c.nombre}): el producto vinculado no existe.`);
+        }
+        const productoLinked = { id: snap.id, ...snap.data() } as Producto;
+
+        // Anidamiento prohibido (D-PACK-01)
+        if (productoLinked.esPack) {
+          throw new Error(
+            `Componente ${posicion} (${productoLinked.nombreComercial}): no se permite anidar packs. ` +
+            `Un Pack/Kit no puede contener otro Pack/Kit.`
+          );
+        }
+
+        // Segregación por línea (D-PACK-05)
+        if (lineaNegocioIdPack && productoLinked.lineaNegocioId &&
+            productoLinked.lineaNegocioId !== lineaNegocioIdPack) {
+          throw new Error(
+            `Componente ${posicion} (${productoLinked.nombreComercial}): su línea de negocio ` +
+            `(${productoLinked.lineaNegocioNombre ?? productoLinked.lineaNegocioId}) no coincide con la del pack. ` +
+            `Los componentes vinculados deben compartir línea con el pack.`
+          );
+        }
+
+        // Denormalizar identificación extendida (snapshot del Producto base).
+        // Para SUP: presentacion/dosaje/contenido/sabor. Para SKC: atributosSkincare.
+        const snapshot: ComponentePack = {
+          ...c,
+          sku: productoLinked.sku,
+          marca: productoLinked.marca,
+          presentacion: productoLinked.presentacion || c.presentacion,
+        };
+        if (productoLinked.dosaje) snapshot.dosaje = productoLinked.dosaje;
+        if (productoLinked.contenido) snapshot.contenido = productoLinked.contenido;
+        if (productoLinked.sabor) snapshot.sabor = productoLinked.sabor;
+        if (productoLinked.atributosSkincare) {
+          const skc = productoLinked.atributosSkincare;
+          snapshot.atributosSkincare = {
+            ...(skc.tipoProductoSKC && { tipoProductoSKC: skc.tipoProductoSKC }),
+            ...(skc.volumen && { volumen: skc.volumen }),
+            ...(skc.ingredienteClave && { ingredienteClave: skc.ingredienteClave }),
+            ...(skc.textura && { textura: skc.textura }),
+            ...(skc.spf && { spf: skc.spf }),
+            ...(skc.pa && { pa: skc.pa }),
+            ...(skc.lineaProducto && { lineaProducto: skc.lineaProducto }),
+          };
+        }
+        enriquecidos.push(snapshot);
+      } else {
+        // Componente exclusivo: se deja como viene (solo nombre, cantidad, presentacion, notas)
+        enriquecidos.push(c);
+      }
+    }
+
+    return enriquecidos;
+  }
+
+  /**
    * Crear nuevo producto
    */
   static async create(data: ProductoFormData, userId: string): Promise<Producto> {
     try {
+      // Validar componentes si es un Pack/Kit (TAREA-105)
+      const componentesValidados = await this.validateComponentesPack(
+        data.esPack,
+        data.componentesPack,
+        data.lineaNegocioId
+      );
+
       // Determinar prefijo SKU basado en línea de negocio
       let skuPrefix = 'BMN';
       let lineaNegocioNombre: string | undefined;
@@ -307,6 +415,12 @@ export class ProductoService {
         newProducto.varianteLabel = data.varianteLabel;
       }
 
+      // Pack / Kit (TAREA-105)
+      if (data.esPack) {
+        newProducto.esPack = true;
+        newProducto.componentesPack = componentesValidados ?? [];
+      }
+
       // Limpiar cualquier valor undefined restante antes de enviar a Firestore
       const cleanedProducto = this.removeUndefined(newProducto);
 
@@ -374,12 +488,36 @@ export class ProductoService {
     try {
       const docRef = doc(db, COLLECTION_NAME, id);
 
+      // Validar componentes si se están modificando campos de Pack/Kit (TAREA-105).
+      // Si no viene lineaNegocioId en la actualización, leemos la actual del producto
+      // para validar correctamente la segregación por línea.
+      let componentesValidados: ComponentePack[] | undefined;
+      if (data.esPack !== undefined || data.componentesPack !== undefined) {
+        let lineaNegocioIdEfectiva = data.lineaNegocioId;
+        if (lineaNegocioIdEfectiva === undefined) {
+          const actualSnap = await getDoc(docRef);
+          if (actualSnap.exists()) {
+            lineaNegocioIdEfectiva = (actualSnap.data() as Producto).lineaNegocioId;
+          }
+        }
+        componentesValidados = await this.validateComponentesPack(
+          data.esPack,
+          data.componentesPack,
+          lineaNegocioIdEfectiva
+        );
+      }
+
       // Preparar datos de actualizacion - limpiar valores undefined
       const cleanData = this.removeUndefined(data);
       const updateData: Record<string, any> = {
         ...cleanData,
         ultimaEdicion: serverTimestamp()
       };
+
+      // Sobreescribir componentesPack con la versión enriquecida (sku/marca denormalizados)
+      if (data.componentesPack !== undefined && componentesValidados !== undefined) {
+        updateData.componentesPack = componentesValidados;
+      }
 
       // Si se actualiza el tipo de producto, obtener snapshot
       if (data.tipoProductoId !== undefined) {
@@ -590,6 +728,9 @@ export class ProductoService {
       stockMinimo?: number;
       stockMaximo?: number;
       pesoLibras?: number;
+      /** SKC: atributos compartidos por todas las variantes del grupo. */
+      atributosSkincare?: import('../types/producto.types').AtributosSkincare;
+      codigoUPC?: string;
     },
     variantes: {
       contenido: string;
@@ -712,6 +853,21 @@ export class ProductoService {
         docData.etiquetaIds = datosComunes.etiquetaIds;
         if (etiquetasSnapshots.length) docData.etiquetasData = etiquetasSnapshots;
       }
+
+      // Atributos Skincare: heredados del grupo, con override de volumen por variante
+      if (datosComunes.atributosSkincare) {
+        const skc = { ...datosComunes.atributosSkincare };
+        const volumenVariante = v.volumen || v.contenido;
+        if (volumenVariante) skc.volumen = volumenVariante;
+        docData.atributosSkincare = skc;
+        // Mantener también los campos legacy sincronizados para compat (match create())
+        if (skc.tipoProductoSKC) docData.presentacion = skc.tipoProductoSKC;
+        if (skc.volumen) docData.contenido = skc.volumen;
+        if (skc.ingredienteClave) docData.dosaje = skc.ingredienteClave;
+      }
+
+      // Código UPC heredado (si se definió a nivel de grupo)
+      if (datosComunes.codigoUPC) docData.codigoUPC = datosComunes.codigoUPC;
 
       // Deep clean undefined values — Firestore batch rejects undefined at any depth
       batch.set(docRefs[i], this.removeUndefined(docData));

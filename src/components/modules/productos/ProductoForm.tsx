@@ -36,12 +36,13 @@ import { useToastStore } from '../../../store/toastStore';
 import { useDetectarVarianteCandidatos } from '../../../hooks/useDetectarVarianteCandidatos';
 import { SugerenciaVarianteBanner } from './SugerenciaVarianteBanner';
 import { VariantesTable, type VarianteRow } from './VariantesTable';
+import { ComponentesPackSection } from './ComponentesPackSection';
 import { useLineaNegocioStore } from '../../../store/lineaNegocioStore';
 import { usePaisOrigenStore } from '../../../store/paisOrigenStore';
 import { METODO_ENVIO_LABELS } from '../../../types/paisOrigen.types';
 import type { MetodoEnvio } from '../../../types/paisOrigen.types';
 import { Globe, Building2, Plus, MapPin, Truck, Pencil, Trash2, Loader2 } from 'lucide-react';
-import type { ProductoFormData, Producto, InvestigacionMercado, AtributosSkincare, TipoProductoSKC, PasoRutinaSKC, TexturaSKC } from '../../../types/producto.types';
+import type { ProductoFormData, Producto, InvestigacionMercado, AtributosSkincare, TipoProductoSKC, PasoRutinaSKC, TexturaSKC, ComponentePack } from '../../../types/producto.types';
 import { TIPO_PRODUCTO_SKC_LABELS, PASO_RUTINA_LABELS, TEXTURA_LABELS, TIPO_PIEL_OPTIONS, PREOCUPACIONES_OPTIONS, ZONA_APLICACION_OPTIONS } from '../../../types/producto.types';
 import type { MarcaSnapshot, MarcaFormData } from '../../../types/entidadesMaestras.types';
 import type { TipoProductoSnapshot } from '../../../types/tipoProducto.types';
@@ -57,6 +58,8 @@ interface ProductoFormProps {
   productosExistentes?: Producto[];
   /** true = modo "Producto con variantes" — muestra tab Variantes */
   modoVariantes?: boolean;
+  /** true = modo "Pack / Kit" (TAREA-105) — muestra tab Componentes */
+  modoPack?: boolean;
   /** Handler para crear grupo con variantes (batch) */
   onSubmitConVariantes?: (
     datosComunes: any,
@@ -97,8 +100,11 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
   loading = false,
   productosExistentes = [],
   modoVariantes = false,
+  modoPack: modoPackProp = false,
   onSubmitConVariantes
 }) => {
+  // Modo pack efectivo: prop + detección automática al editar un pack existente.
+  const modoPack = modoPackProp || !!(initialData as any)?.esPack;
   const { user } = useAuthStore();
   const toast = useToastStore();
   const { activeTab, setActiveTab } = useTabs('origen');
@@ -119,6 +125,11 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     { id: 'v1', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, pesoLibras: 0, varianteLabel: '', esPrincipal: true },
     { id: 'v2', presentacion: '', contenido: '', dosaje: '', sabor: '', codigoUPC: '', servingsPerDay: 0, pesoLibras: 0, varianteLabel: '', esPrincipal: false },
   ]);
+
+  // Estado de componentes para modo "pack" (TAREA-105)
+  const [componentesPack, setComponentesPack] = useState<ComponentePack[]>(
+    (initialData?.componentesPack as ComponentePack[]) ?? []
+  );
 
   // Estado para crear/editar país inline
   const [mostrarNuevoPais, setMostrarNuevoPais] = useState(false);
@@ -593,7 +604,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
     }
   };
 
-  // Dynamic tabs: add "Variantes" tab when in modoVariantes
+  // Dynamic tabs: add "Variantes" tab when in modoVariantes, "Componentes" when in modoPack
   const activeTabs = useMemo(() => {
     if (modoVariantes) {
       return [
@@ -601,8 +612,14 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
         { id: 'variantes', label: 'Variantes', icon: <GitBranch className="h-4 w-4" /> },
       ];
     }
+    if (modoPack) {
+      return [
+        ...FORM_TABS,
+        { id: 'componentes', label: 'Componentes', icon: <Package className="h-4 w-4" /> },
+      ];
+    }
     return FORM_TABS;
-  }, [modoVariantes]);
+  }, [modoVariantes, modoPack]);
 
   const isFirstTab = activeTab === activeTabs[0].id;
   const isLastTab = activeTab === activeTabs[activeTabs.length - 1].id;
@@ -994,7 +1011,45 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             />
 
             {/* === CAMPOS ESPECÍFICOS POR LÍNEA DE NEGOCIO === */}
-            {esSuplemento ? (
+            {modoPack ? (
+              /* MODO PACK (TAREA-105): solo datos del pack como unidad física.
+                 Los atributos de cada componente se definen en el tab Componentes. */
+              <>
+                <div className="flex items-start gap-2 p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-900">
+                  <Package className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                  <span>
+                    <strong>Pack / Kit:</strong> solo necesitamos los datos del pack como unidad
+                    física (peso, código del pack). Los productos que contiene y sus detalles se
+                    definen en el tab{' '}
+                    <button type="button" className="underline font-medium" onClick={() => setActiveTab('componentes')}>
+                      Componentes
+                    </button>.
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Peso del pack (lb)"
+                    name="pesoLibras"
+                    type="number"
+                    value={formData.pesoLibras ?? ''}
+                    onChange={handleChange}
+                    placeholder="ej: 0.32"
+                    helperText="Peso total del pack armado, en libras"
+                    step="0.01"
+                    min="0.01"
+                    max="50"
+                  />
+                  <Input
+                    label="Código UPC/EAN del pack (opcional)"
+                    name="codigoUPC"
+                    value={formData.codigoUPC}
+                    onChange={handleChange}
+                    placeholder="ej: 768990014307"
+                    helperText="Código de barras de la cajita, no de los componentes"
+                  />
+                </div>
+              </>
+            ) : esSuplemento ? (
               <>
                 {/* SUPLEMENTOS: en modo variantes, todo va en tab Variantes */}
                 {modoVariantes ? (
@@ -1526,6 +1581,19 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             </TabPanel>
           )}
 
+          {/* TAB 5 (alt): COMPONENTES (solo en modo pack — TAREA-105) */}
+          {modoPack && (
+            <TabPanel tabId="componentes" className="mt-6">
+              <ComponentesPackSection
+                lineaNegocioId={formData.lineaNegocioId}
+                lineaNegocioNombre={lineasActivas.find(l => l.id === formData.lineaNegocioId)?.nombre}
+                componentes={componentesPack}
+                onChange={setComponentesPack}
+                esSkincare={!esSuplemento}
+              />
+            </TabPanel>
+          )}
+
         </TabsProvider>
       </div>
 
@@ -1569,7 +1637,7 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
               loading={loading}
               disabled={variantesRows.length < 2 || variantesRows.some(v => !v.contenido.trim())}
               onClick={() => {
-                const datosComunes = {
+                const datosComunes: any = {
                   marca: formData.marca,
                   marcaId: formData.marcaId,
                   nombreComercial: formData.nombreComercial,
@@ -1586,7 +1654,12 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
                   stockMinimo: formData.stockMinimo,
                   stockMaximo: formData.stockMaximo,
                   pesoLibras: formData.pesoLibras,
+                  codigoUPC: formData.codigoUPC,
                 };
+                // SKC: atributos compartidos por todas las variantes del grupo
+                if (formData.atributosSkincare) {
+                  datosComunes.atributosSkincare = formData.atributosSkincare;
+                }
                 const variantes = variantesRows.map(v => ({
                   contenido: v.contenido,
                   sabor: v.sabor || undefined,
@@ -1599,6 +1672,36 @@ export const ProductoForm: React.FC<ProductoFormProps> = ({
             >
               <GitBranch className="h-4 w-4 mr-1" />
               Crear grupo ({variantesRows.length} variantes)
+            </Button>
+          ) : modoPack ? (
+            <Button
+              type="button"
+              variant="primary"
+              loading={loading}
+              disabled={!formData.lineaNegocioId || componentesPack.length === 0}
+              onClick={() => {
+                if (!formData.lineaNegocioId) return;
+                if (componentesPack.length === 0) {
+                  toast.error('El pack debe tener al menos 1 componente.');
+                  return;
+                }
+                // Pack: limpiar campos SUP/SKC que no aplican al pack como unidad física.
+                // El tipo/presentación real del pack se representa con el badge "Pack"
+                // y los atributos viven en cada componente.
+                onSubmit({
+                  ...formData,
+                  presentacion: '' as any,
+                  dosaje: '',
+                  contenido: '',
+                  sabor: '',
+                  atributosSkincare: undefined,
+                  esPack: true,
+                  componentesPack,
+                });
+              }}
+            >
+              <Package className="h-4 w-4 mr-1" />
+              {initialData ? 'Actualizar' : 'Crear'} Pack ({componentesPack.length} componente{componentesPack.length === 1 ? '' : 's'})
             </Button>
           ) : (
             <Button

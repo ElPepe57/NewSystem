@@ -55,7 +55,7 @@ export const Productos: React.FC = () => {
   const [isBuscadorVarianteOpen, setIsBuscadorVarianteOpen] = useState(false);
   const [isFormVarianteReducidaOpen, setIsFormVarianteReducidaOpen] = useState(false);
   const [grupoSeleccionadoParaVariante, setGrupoSeleccionadoParaVariante] = useState<Producto | null>(null);
-  const [wizardTipo, setWizardTipo] = useState<'simple' | 'con_variantes' | 'variante_existente'>('simple');
+  const [wizardTipo, setWizardTipo] = useState<'simple' | 'con_variantes' | 'variante_existente' | 'pack'>('simple');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tipoCambioActual, setTipoCambioActual] = useState<TipoCambio | null>(null);
   const [variantesDelProducto, setVariantesDelProducto] = useState<Producto[]>([]);
@@ -74,7 +74,8 @@ export const Productos: React.FC = () => {
     investigacion: '' as 'todos' | 'sin_investigar' | 'vigente' | 'vencida' | 'importar' | 'descartar' | '',
     tipoProductoId: '',
     categoriaId: '',
-    etiquetaId: ''
+    etiquetaId: '',
+    esPack: false,
   });
 
   // Paginación
@@ -174,10 +175,10 @@ export const Productos: React.FC = () => {
     setIsWizardOpen(true);
   };
 
-  const handleWizardSelect = (tipo: 'simple' | 'con_variantes' | 'variante_existente') => {
+  const handleWizardSelect = (tipo: 'simple' | 'con_variantes' | 'variante_existente' | 'pack') => {
     setIsWizardOpen(false);
     setWizardTipo(tipo);
-    if (tipo === 'simple' || tipo === 'con_variantes') {
+    if (tipo === 'simple' || tipo === 'con_variantes' || tipo === 'pack') {
       setSelectedProducto(null);
       setIsEditing(false);
       setIsFormModalOpen(true);
@@ -208,7 +209,8 @@ export const Productos: React.FC = () => {
       } as any);
     }
 
-    await createProducto({
+    const esSkincare = !!grupo.atributosSkincare;
+    const payloadBase: any = {
       marca: grupo.marca,
       marcaId: grupo.marcaId,
       nombreComercial: grupo.nombreComercial,
@@ -221,16 +223,29 @@ export const Productos: React.FC = () => {
       categoriaIds: grupo.categoriaIds || [],
       categoriaPrincipalId: grupo.categoriaPrincipalId || '',
       etiquetaIds: grupo.etiquetaIds || [],
-      contenido: data.contenido,
-      sabor: data.sabor,
-      dosaje: data.dosaje,
       varianteLabel: data.varianteLabel,
       stockMinimo: data.stockMinimo,
+      pesoLibras: data.pesoLibras,
       grupoVarianteId: grupoVId,
       esPrincipalGrupo: false,
       parentId: grupo.id,
       esVariante: true,
-    } as any, user.uid);
+    };
+
+    if (esSkincare) {
+      // Variante SKC: hereda todos los atributos del grupo, solo cambia volumen.
+      payloadBase.atributosSkincare = {
+        ...grupo.atributosSkincare,
+        volumen: data.volumen || grupo.atributosSkincare?.volumen || '',
+      };
+    } else {
+      // Variante SUP: contenido/sabor/dosaje directos.
+      payloadBase.contenido = data.contenido;
+      payloadBase.sabor = data.sabor;
+      payloadBase.dosaje = data.dosaje;
+    }
+
+    await createProducto(payloadBase, user.uid);
 
     toast.success(`Variante "${data.varianteLabel}" creada en el grupo de ${grupo.nombreComercial}`);
     setIsFormVarianteReducidaOpen(false);
@@ -505,6 +520,11 @@ export const Productos: React.FC = () => {
         return false;
       }
 
+      // Filtro Pack / Kit (TAREA-105)
+      if (filters.esPack && !producto.esPack) {
+        return false;
+      }
+
 
       // Filtro por investigación
       if (filters.investigacion) {
@@ -682,7 +702,8 @@ export const Productos: React.FC = () => {
       investigacion: '',
       tipoProductoId: '',
       categoriaId: '',
-      etiquetaId: ''
+      etiquetaId: '',
+      esPack: false,
     });
     setSearchTerm('');
     setCurrentPage(1);
@@ -760,8 +781,10 @@ export const Productos: React.FC = () => {
             activos={productosArray.filter(p => p.estado === 'activo').length}
             stockCritico={productosStockCritico}
             sinInvestigar={productosSinInvestigar}
+            packs={productosArray.filter(p => p.esPack).length}
             activeFilter={
-              filters.stockStatus === 'critico' ? 'stock_critico'
+              filters.esPack ? 'packs'
+              : filters.stockStatus === 'critico' ? 'stock_critico'
               : filters.investigacion === 'sin_investigar' ? 'sin_investigar'
               : filters.estado === 'activo' ? 'activos'
               : (filters.estado || filters.marca || filters.tipoProductoId || filters.categoriaId || filters.etiquetaId || filters.stockStatus || filters.investigacion) ? null
@@ -772,6 +795,7 @@ export const Productos: React.FC = () => {
               if (filterId === 'activos') setFilters(prev => ({ ...prev, estado: 'activo' }));
               else if (filterId === 'stock_critico') setFilters(prev => ({ ...prev, stockStatus: 'critico' }));
               else if (filterId === 'sin_investigar') setFilters(prev => ({ ...prev, investigacion: 'sin_investigar' }));
+              else if (filterId === 'packs') setFilters(prev => ({ ...prev, esPack: true }));
               setCurrentPage(1);
             }}
           />
@@ -1166,7 +1190,15 @@ export const Productos: React.FC = () => {
       <Modal
         isOpen={isFormModalOpen}
         onClose={handleCloseFormModal}
-        title={isEditing ? 'Editar Producto' : wizardTipo === 'con_variantes' ? 'Nuevo Producto con Variantes' : 'Nuevo Producto'}
+        title={
+          isEditing
+            ? 'Editar Producto'
+            : wizardTipo === 'con_variantes'
+              ? 'Nuevo Producto con Variantes'
+              : wizardTipo === 'pack'
+                ? 'Nuevo Pack / Kit'
+                : 'Nuevo Producto'
+        }
         size="xl"
         disableBackdropClick
         disableEscapeKey
@@ -1177,6 +1209,7 @@ export const Productos: React.FC = () => {
           onCancel={handleCloseFormModal}
           loading={isSubmitting}
           modoVariantes={!isEditing && wizardTipo === 'con_variantes'}
+          modoPack={!isEditing && wizardTipo === 'pack'}
           onSubmitConVariantes={async (datosComunes, variantes) => {
             if (!user) return;
             setIsSubmitting(true);

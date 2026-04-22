@@ -1,5 +1,6 @@
 import React from 'react';
-import { Package, AlertTriangle, Search, Layers } from 'lucide-react';
+import { Package, AlertTriangle, Search, Layers, Gift } from 'lucide-react';
+import { isProductoPackEnabled } from '../../../config/features';
 
 interface FiltroRapidoItem {
   id: string;
@@ -16,6 +17,8 @@ interface FiltrosRapidosProps {
   activos: number;
   stockCritico: number;
   sinInvestigar: number;
+  /** Cantidad de productos Pack/Kit (solo se muestra si el flag PRODUCTO_PACK está activo). */
+  packs?: number;
   activeFilter: string | null;
   onFilter: (filterId: string | null) => void;
 }
@@ -25,9 +28,11 @@ export const FiltrosRapidos: React.FC<FiltrosRapidosProps> = ({
   activos,
   stockCritico,
   sinInvestigar,
+  packs = 0,
   activeFilter,
   onFilter,
 }) => {
+  const packEnabled = isProductoPackEnabled();
   const filtros: FiltroRapidoItem[] = [
     {
       id: 'todos',
@@ -65,6 +70,15 @@ export const FiltrosRapidos: React.FC<FiltrosRapidosProps> = ({
       color: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
       activeColor: 'bg-amber-100 text-amber-700 ring-1 ring-amber-300',
     },
+    ...(packEnabled ? [{
+      id: 'packs',
+      label: 'Packs / Kits',
+      labelCorto: 'Packs',
+      icon: Gift,
+      count: packs,
+      color: 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+      activeColor: 'bg-purple-100 text-purple-700 ring-1 ring-purple-300',
+    }] : []),
   ];
 
   return (

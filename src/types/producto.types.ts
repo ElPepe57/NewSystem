@@ -401,6 +401,64 @@ export interface InvestigacionResumen {
   tendenciaPrecio?: 'subiendo' | 'bajando' | 'estable';  // Tendencia del historial
 }
 
+// ============================================
+// PRODUCTO PACK / KIT (TAREA-105)
+// ============================================
+
+/**
+ * Componente dentro de un Producto Pack/Kit.
+ *
+ * Dos modalidades según si `productoId` está presente:
+ *   - VINCULADO (productoId definido): referencia a un Producto del catálogo.
+ *     Habilita reporting cruzado (ventas sueltas + dentro de packs).
+ *     Debe compartir línea de negocio con el pack que lo contiene.
+ *   - EXCLUSIVO (productoId ausente): texto libre. El componente solo existe
+ *     dentro del pack (ej: edición limitada, mini no vendida suelta).
+ *
+ * Decisiones de negocio TAREA-105 (D-PACK-01 a D-PACK-08):
+ *   - Sin anidamiento: un pack no puede contener otro pack.
+ *   - Vender el pack NO descuenta stock de componentes vinculados
+ *     (son unidades físicas distintas).
+ */
+export interface ComponentePack {
+  /** Nombre visible del componente (siempre presente). */
+  nombre: string;
+  /** Cantidad del componente dentro del pack. */
+  cantidad: number;
+  /** Presentación del componente (ej: "30ml", "60 caps"). Opcional. */
+  presentacion?: string;
+  /** Notas adicionales (ej: "versión mini", "edición limitada"). */
+  notas?: string;
+
+  // === VINCULADO ===
+  /** Si está presente, es un componente vinculado a un Producto del catálogo. */
+  productoId?: string;
+  /** Snapshot del SKU del producto vinculado (denormalizado). */
+  sku?: string;
+  /** Snapshot de la marca del producto vinculado (denormalizado). */
+  marca?: string;
+
+  // === IDENTIFICACIÓN EXTENDIDA (SUP) ===
+  /** Dosaje (ej: "1000mg"). */
+  dosaje?: string;
+  /** Contenido total (ej: "60 cápsulas"). */
+  contenido?: string;
+  /** Sabor (ej: "Limón", "Natural"). */
+  sabor?: string;
+
+  // === IDENTIFICACIÓN EXTENDIDA (SKC) ===
+  /** Atributos Skincare: snapshot para vinculados, input libre para exclusivos. */
+  atributosSkincare?: {
+    tipoProductoSKC?: TipoProductoSKC;
+    volumen?: string;
+    ingredienteClave?: string;
+    textura?: TexturaSKC;
+    spf?: number;
+    pa?: string;
+    lineaProducto?: string;
+  };
+}
+
 export interface Producto {
   id: string;
   sku: string;
@@ -535,6 +593,16 @@ export interface Producto {
   // === INVESTIGACIÓN DE MERCADO ===
   investigacion?: InvestigacionMercado;
 
+  // === PACK / KIT (TAREA-105) ===
+  /**
+   * true si este Producto es un Pack/Kit cerrado (cajita armada de fábrica,
+   * no desarmable). Se compra y vende como un SKU normal; los componentes
+   * son informativos y base para reporting cruzado.
+   */
+  esPack?: boolean;
+  /** Componentes dentro del pack. Requerido cuando esPack=true (min 1). */
+  componentesPack?: ComponentePack[];
+
   creadoPor: string;
   fechaCreacion: Timestamp;
   ultimaEdicion?: Timestamp;
@@ -596,6 +664,10 @@ export interface ProductoFormData {
   parentId?: string;
   grupoId?: string;
   esVariante?: boolean;
+
+  // === PACK / KIT (TAREA-105) ===
+  esPack?: boolean;
+  componentesPack?: ComponentePack[];
 }
 
 // Los tipos de Unidad, EstadoUnidad, MovimientoUnidad, UnidadFormData

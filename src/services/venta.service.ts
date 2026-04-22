@@ -283,6 +283,9 @@ export class VentaService {
           ...(producto.grupoVarianteId && { grupoVarianteId: producto.grupoVarianteId }),
           ...(producto.esPrincipalGrupo && { esPrincipalGrupo: producto.esPrincipalGrupo }),
           ...(producto.varianteLabel && { varianteLabel: producto.varianteLabel }),
+          // Pack / Kit (TAREA-105) — denormalizado para UI de search en Ventas
+          ...(producto.esPack && { esPack: true }),
+          ...(producto.componentesPack && { componentesPack: producto.componentesPack }),
           unidadesDisponibles: disponiblesEnPeru,
           unidadesUSA: disponiblesEnUSA,
           unidadesEnTransito: 0,

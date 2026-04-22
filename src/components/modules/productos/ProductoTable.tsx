@@ -4,8 +4,8 @@ import { Badge } from '../../common';
 import { DataTable } from '../../../design-system';
 import type { DataTableColumn } from '../../../design-system';
 import { ProductoService } from '../../../services/producto.service';
-import type { Producto, TexturaSKC } from '../../../types/producto.types';
-import { TEXTURA_LABELS } from '../../../types/producto.types';
+import type { Producto, TexturaSKC, TipoProductoSKC } from '../../../types/producto.types';
+import { TEXTURA_LABELS, TIPO_PRODUCTO_SKC_LABELS } from '../../../types/producto.types';
 import type { CategoriaSnapshot } from '../../../types/categoria.types';
 import type { EtiquetaSnapshot } from '../../../types/etiqueta.types';
 
@@ -86,6 +86,7 @@ const ProductoCardResponsive: React.FC<{
   onReactivar?: (producto: Producto) => void;
 }> = ({ producto, onView, onEdit, onDelete, onReactivar }) => {
   const [expanded, setExpanded] = useState(false);
+  const [packExpandido, setPackExpandido] = useState(false);
   const invResumen = ProductoService.getResumenInvestigacion(producto);
 
   // Calcular métricas
@@ -109,6 +110,15 @@ const ProductoCardResponsive: React.FC<{
                 Grupo
               </span>
             )}
+            {producto.esPack && (
+              <span
+                className="text-[10px] px-2 py-0.5 rounded-full font-bold text-white"
+                style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' }}
+                title={`Pack con ${producto.componentesPack?.length ?? 0} componente(s)`}
+              >
+                Pack
+              </span>
+            )}
             <Badge variant={producto.estado === 'activo' ? 'success' : 'default'} size="sm">
               {producto.estado === 'activo' ? 'Activo' : 'Inactivo'}
             </Badge>
@@ -124,6 +134,9 @@ const ProductoCardResponsive: React.FC<{
                 {producto.atributosSkincare.textura && <span>· {TEXTURA_LABELS[producto.atributosSkincare.textura as TexturaSKC] || producto.atributosSkincare.textura}</span>}
                 {producto.atributosSkincare.spf && <span>· SPF{producto.atributosSkincare.spf} {producto.atributosSkincare.pa || ''}</span>}
               </>
+            ) : producto.esPack ? (
+              /* Pack: no mostrar presentación/dosaje SUP (no aplican). */
+              <span className="italic text-slate-400">Cajita armada · no desarmable</span>
             ) : (
               <>
                 {producto.presentacion && <span>{producto.presentacion}</span>}
@@ -133,6 +146,108 @@ const ProductoCardResponsive: React.FC<{
               </>
             )}
           </div>
+          {/* Preview de componentes del pack — colapsable con avatares apilados (Linear/Stripe style) */}
+          {producto.esPack && producto.componentesPack && producto.componentesPack.length > 0 && (() => {
+            const comps = producto.componentesPack;
+            // Metadata agregada: marca común, volumen común
+            const marcas = new Set(comps.map(c => c.marca).filter(Boolean));
+            const volumenes = comps.map(c => c.atributosSkincare?.volumen || c.contenido || '').filter(Boolean);
+            const volumenesUnicos = new Set(volumenes);
+            const marcaComun = marcas.size === 1 ? Array.from(marcas)[0] : null;
+            const volumenComun = volumenesUnicos.size === 1 && volumenes.length === comps.length
+              ? Array.from(volumenesUnicos)[0]
+              : null;
+            const resumen = [
+              marcaComun,
+              volumenComun ? `${volumenComun} c/u` : null,
+            ].filter(Boolean).join(' · ');
+
+            // Color por tipo SKC para el mini-avatar
+            const colorPorTipo = (tipo?: string): string => {
+              const t = (tipo || '').toLowerCase();
+              if (t.includes('limpiador')) return 'bg-teal-100 text-teal-700';
+              if (t.includes('ampolla')) return 'bg-pink-100 text-pink-700';
+              if (t.includes('tonico') || t.includes('tónico')) return 'bg-sky-100 text-sky-700';
+              if (t.includes('aceite')) return 'bg-amber-100 text-amber-700';
+              if (t.includes('crema')) return 'bg-rose-100 text-rose-700';
+              if (t.includes('serum') || t.includes('sérum')) return 'bg-violet-100 text-violet-700';
+              if (t.includes('mascarilla')) return 'bg-indigo-100 text-indigo-700';
+              if (t.includes('protector')) return 'bg-orange-100 text-orange-700';
+              if (t.includes('contorno')) return 'bg-fuchsia-100 text-fuchsia-700';
+              return 'bg-slate-100 text-slate-600';
+            };
+            const inicialTipo = (tipo?: string): string => {
+              if (!tipo) return '?';
+              const label = (TIPO_PRODUCTO_SKC_LABELS as Record<string, string>)[tipo] || tipo;
+              return label.charAt(0).toUpperCase();
+            };
+
+            return (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setPackExpandido(v => !v); }}
+                  className="w-full flex items-center gap-2 text-left text-[11px] hover:bg-slate-50 rounded px-1.5 py-1 -mx-1.5 transition"
+                >
+                  <span className="text-slate-400 flex-shrink-0 transition-transform" style={{ transform: packExpandido ? 'rotate(90deg)' : 'none' }}>›</span>
+                  <span className="font-semibold text-slate-700">
+                    {comps.length} componente{comps.length === 1 ? '' : 's'}
+                  </span>
+                  {resumen && <span className="text-slate-400 truncate">· {resumen}</span>}
+                  {/* Stack de mini-avatares */}
+                  <div className="ml-auto flex items-center -space-x-1.5 flex-shrink-0">
+                    {comps.slice(0, 5).map((c, i) => {
+                      const tipoRaw = c.atributosSkincare?.tipoProductoSKC || c.presentacion;
+                      return (
+                        <span
+                          key={i}
+                          title={c.nombre}
+                          className={`w-5 h-5 rounded-full ${colorPorTipo(tipoRaw)} border border-white text-[9px] font-bold flex items-center justify-center`}
+                          style={{ zIndex: 10 - i }}
+                        >
+                          {inicialTipo(tipoRaw)}
+                        </span>
+                      );
+                    })}
+                    {comps.length > 5 && (
+                      <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-600 border border-white text-[9px] font-bold flex items-center justify-center">
+                        +{comps.length - 5}
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                {packExpandido && (
+                  <ul className="mt-1 text-[11px] leading-tight space-y-1 pl-5 border-l border-slate-200 ml-1.5">
+                    {comps.map((c, i) => {
+                      const volumen = c.atributosSkincare?.volumen || c.contenido || '';
+                      const tipoRaw = c.atributosSkincare?.tipoProductoSKC;
+                      const tipoSKC = tipoRaw
+                        ? (TIPO_PRODUCTO_SKC_LABELS[tipoRaw as TipoProductoSKC] || tipoRaw)
+                        : c.presentacion || '';
+                      return (
+                        <li key={i} className="flex items-baseline gap-1.5 truncate">
+                          <span className={`w-1.5 h-1.5 rounded-full ${colorPorTipo(tipoRaw || '').split(' ')[0]} flex-shrink-0 translate-y-[-1px]`}></span>
+                          <span className="font-medium text-slate-700 truncate">{c.nombre}</span>
+                          <span className="text-slate-400 truncate">
+                            {volumen && volumen !== volumenComun ? volumen : ''}
+                            {volumen && volumen !== volumenComun && tipoSKC && ' · '}
+                            {tipoSKC && <span className="capitalize">{tipoSKC}</span>}
+                          </span>
+                          {c.cantidad > 1 && (
+                            <span className="text-purple-600 font-semibold flex-shrink-0">×{c.cantidad}</span>
+                          )}
+                          {!c.productoId && (
+                            <span className="text-amber-600 flex-shrink-0 text-[10px]">excl.</span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            );
+          })()}
           {/* Conexión de grupo */}
           {producto.esVariante && (
             <div className="flex items-center gap-1 mt-1">

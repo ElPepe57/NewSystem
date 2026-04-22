@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup Producto Pack (Skincare) — Validación de flujo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide-static/0.344.0/font/lucide.css" />
+  <style>
+    body { font-family: -apple-system, 'Segoe UI', sans-serif; }
+    .i { font-family: lucide; font-style: normal; }
+
+    /* Pills */
+    .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+    .pill-activo { background: #ecfdf5; color: #047857; }
+    .pill-warning { background: #fffbeb; color: #b45309; }
+    .pill-info { background: #eff6ff; color: #1e40af; }
+    .pill-slate { background: #f1f5f9; color: #475569; }
+    .pill-teal { background: #f0fdfa; color: #0f766e; }
+    .pill-purple { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+    .pill-pink { background: #fdf2f8; color: #9d174d; }
+
+    /* Cards */
+    .card-elevate { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03); }
+
+    /* Pack badge destacado */
+    .pack-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+      color: white; font-weight: 700; font-size: 0.7rem;
+      padding: 0.2rem 0.6rem; border-radius: 9999px;
+      box-shadow: 0 2px 4px rgba(168, 85, 247, 0.25);
+    }
+
+    /* Pack card border accent */
+    .pack-card-accent { border-left: 4px solid #a855f7; }
+
+    /* Wizard tipo cards */
+    .tipo-card { transition: all 0.15s; border: 2px solid #e2e8f0; cursor: pointer; }
+    .tipo-card:hover { border-color: #94a3b8; }
+    .tipo-card.selected { border-color: #a855f7; background: #faf5ff; }
+    .tipo-card.new-pill { position: relative; }
+    .tipo-card.new-pill::before {
+      content: 'NUEVO';
+      position: absolute; top: -8px; right: 12px;
+      background: #a855f7; color: white;
+      font-size: 0.6rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 9999px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Componente rows */
+    .componente-row { transition: all 0.15s; border: 1px solid #e2e8f0; }
+    .componente-row:hover { border-color: #c4b5fd; background: #fafaff; }
+    .componente-row.vinculado { border-left: 3px solid #3b82f6; }
+    .componente-row.exclusivo { border-left: 3px solid #f59e0b; }
+
+    /* Nav pills */
+    .nav-pill { transition: all 0.15s; }
+    .nav-pill.active { background: #a855f7; color: white; }
+    .nav-pill:not(.active):hover { background: #f1f5f9; }
+
+    .flujo-pane { display: none; }
+    .flujo-pane.active { display: block; }
+
+    /* Fade in */
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Tooltip on hover (demo estático) */
+    .has-tooltip { position: relative; }
+    .tooltip-content {
+      position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+      background: #1e293b; color: white; font-size: 0.7rem;
+      padding: 0.5rem 0.75rem; border-radius: 0.5rem;
+      white-space: nowrap; margin-bottom: 6px;
+      opacity: 0; pointer-events: none; transition: opacity 0.15s;
+    }
+    .has-tooltip:hover .tooltip-content { opacity: 1; }
+
+    /* Modal backdrop simulado */
+    .modal-backdrop { background: rgba(15, 23, 42, 0.4); }
+
+    /* Search result row */
+    .search-row { transition: background 0.15s; cursor: pointer; }
+    .search-row:hover { background: #f8fafc; }
+  </style>
+</head>
+<body class="bg-slate-100 p-6">
+
+  <!-- Navegación -->
+  <div class="max-w-7xl mx-auto mb-4 flex items-center justify-between bg-white rounded-xl px-4 py-3 shadow-sm">
+    <div class="flex items-center gap-3 text-sm text-slate-600">
+      <i class="i text-purple-600">&#xe9e0;</i>
+      <span><b>Producto Pack</b> · Skincare · Validación de flujo</span>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-xs text-slate-400 mr-2">Flujos:</span>
+      <button onclick="mostrar('catalogo')" id="btn-catalogo" class="nav-pill active px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700">1. Catálogo</button>
+      <button onclick="mostrar('wizard-tipo')" id="btn-wizard-tipo" class="nav-pill px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700">2. Wizard · Tipo</button>
+      <button onclick="mostrar('wizard-comp')" id="btn-wizard-comp" class="nav-pill px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700">3. Wizard · Componentes</button>
+      <button onclick="mostrar('detalle')" id="btn-detalle" class="nav-pill px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700">4. Detalle del pack</button>
+      <button onclick="mostrar('venta')" id="btn-venta" class="nav-pill px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-700">5. Búsqueda en venta</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- FLUJO 1: CATÁLOGO CON PRODUCTOS PACK                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section id="pane-catalogo" class="flujo-pane active">
+    <div class="max-w-7xl mx-auto space-y-4">
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900">
+        <b>🎁 Catálogo — los packs se ven como productos normales con un badge</b><br>
+        El pack es un SKU como cualquier otro (stock propio, precio propio, compra directa). Solo se distingue visualmente con el badge <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span> y en su detalle muestra qué contiene.
+      </div>
+
+      <!-- Filtros rapidos -->
+      <div class="bg-white rounded-xl p-3 border border-slate-200 flex items-center gap-2 flex-wrap">
+        <span class="text-xs text-slate-400 mr-1">Filtros:</span>
+        <button class="pill pill-slate">Todos <span class="ml-1 font-normal opacity-60">247</span></button>
+        <button class="pill pill-activo">Simples <span class="ml-1 font-normal opacity-60">198</span></button>
+        <button class="pill pill-info">Con variantes <span class="ml-1 font-normal opacity-60">37</span></button>
+        <button class="pill" style="background:#faf5ff;color:#7e22ce;border:1px solid #e9d5ff;">Packs <span class="ml-1 font-normal opacity-60">12</span></button>
+        <div class="flex-1"></div>
+        <input type="text" placeholder="Buscar por SKU, marca, nombre..." class="text-sm px-3 py-1.5 border border-slate-200 rounded-lg w-64" />
+      </div>
+
+      <!-- Grid de productos -->
+      <div class="grid grid-cols-3 gap-4">
+
+        <!-- Producto PACK (destacado) -->
+        <div class="bg-white rounded-2xl card-elevate border border-slate-200 pack-card-accent overflow-hidden">
+          <div class="p-4">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span>
+                <span class="pill pill-pink">SKC</span>
+              </div>
+              <span class="pill pill-activo">Activo</span>
+            </div>
+            <div class="text-sm text-slate-400 mb-1">SKU-PACK-TO-STRT-01</div>
+            <h3 class="font-semibold text-slate-800 leading-tight mb-1">The Ordinary · Starter Kit Skincare</h3>
+            <div class="text-xs text-slate-500 mb-3">Cajita armada · No desarmable</div>
+            <div class="text-xs text-slate-600 bg-slate-50 rounded-lg p-2 mb-3">
+              <div class="text-slate-400 mb-1">Contiene:</div>
+              <div class="space-y-0.5">
+                <div>• Niacinamide 10% · 30ml</div>
+                <div>• Hyaluronic Acid · 30ml</div>
+                <div>• Retinol 0.2% <span class="text-amber-600">· exclusivo pack</span></div>
+              </div>
+            </div>
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="text-xs text-slate-400">Stock</div>
+                <div class="text-lg font-semibold text-emerald-600">24 uds</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-slate-400">Precio venta</div>
+                <div class="text-lg font-semibold text-slate-800">S/ 189</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto simple (comparación) -->
+        <div class="bg-white rounded-2xl card-elevate border border-slate-200 overflow-hidden">
+          <div class="p-4">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-pink">SKC</span>
+              </div>
+              <span class="pill pill-activo">Activo</span>
+            </div>
+            <div class="text-sm text-slate-400 mb-1">SKU-TO-NIAC-30</div>
+            <h3 class="font-semibold text-slate-800 leading-tight mb-1">The Ordinary · Niacinamide 10% + Zinc 1%</h3>
+            <div class="text-xs text-slate-500 mb-3">30ml · Sérum</div>
+            <div class="flex items-end justify-between mt-6">
+              <div>
+                <div class="text-xs text-slate-400">Stock</div>
+                <div class="text-lg font-semibold text-emerald-600">48 uds</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-slate-400">Precio venta</div>
+                <div class="text-lg font-semibold text-slate-800">S/ 45</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Otro pack -->
+        <div class="bg-white rounded-2xl card-elevate border border-slate-200 pack-card-accent overflow-hidden">
+          <div class="p-4">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span>
+                <span class="pill pill-pink">SKC</span>
+              </div>
+              <span class="pill pill-warning">Stock bajo</span>
+            </div>
+            <div class="text-sm text-slate-400 mb-1">SKU-PACK-CSRX-AM-01</div>
+            <h3 class="font-semibold text-slate-800 leading-tight mb-1">COSRX · Acne Spot Routine Pack</h3>
+            <div class="text-xs text-slate-500 mb-3">Edición limitada · No desarmable</div>
+            <div class="text-xs text-slate-600 bg-slate-50 rounded-lg p-2 mb-3">
+              <div class="text-slate-400 mb-1">Contiene:</div>
+              <div class="space-y-0.5">
+                <div>• AHA/BHA Cleanser · 150ml</div>
+                <div>• Acne Pimple Master 24 patches <span class="text-amber-600">· exclusivo pack</span></div>
+                <div>• Snail Mucin Essence <span class="text-slate-400">mini 30ml</span></div>
+              </div>
+            </div>
+            <div class="flex items-end justify-between">
+              <div>
+                <div class="text-xs text-slate-400">Stock</div>
+                <div class="text-lg font-semibold text-amber-600">3 uds</div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs text-slate-400">Precio venta</div>
+                <div class="text-lg font-semibold text-slate-800">S/ 145</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- FLUJO 2: WIZARD PASO 1 — SELECCIÓN DE TIPO                  -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section id="pane-wizard-tipo" class="flujo-pane">
+    <div class="max-w-5xl mx-auto space-y-4">
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900">
+        <b>🪄 Wizard de creación — Paso 1 · ¿Qué tipo de producto estás creando?</b><br>
+        Se agrega el 4º tipo <b>Pack cerrado</b> a los 3 existentes. La UI mantiene el mismo lenguaje visual; solo cambia el flujo del siguiente paso.
+      </div>
+
+      <!-- Header wizard -->
+      <div class="bg-white rounded-2xl card-elevate border border-slate-200 p-6">
+        <div class="flex items-center gap-2 text-xs text-slate-500 mb-2">
+          <span class="pill pill-purple">Paso 1 de 4</span>
+          <span>·</span>
+          <span>Tipo de producto</span>
+        </div>
+        <h2 class="text-xl font-semibold text-slate-800 mb-1">¿Qué tipo de producto vas a crear?</h2>
+        <p class="text-sm text-slate-500 mb-6">Esto determina el resto del flujo. Podrás cambiar después algunos datos, pero el tipo no.</p>
+
+        <div class="grid grid-cols-2 gap-4">
+
+          <!-- Simple -->
+          <div class="tipo-card rounded-xl p-5 bg-white">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                <i class="i text-slate-600 text-lg">&#xe9c7;</i>
+              </div>
+              <div class="font-semibold text-slate-800">Simple</div>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">Un SKU único. El caso más común: 1 producto, 1 presentación.</p>
+          </div>
+
+          <!-- Con variantes -->
+          <div class="tipo-card rounded-xl p-5 bg-white">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="i text-blue-600 text-lg">&#xeb0f;</i>
+              </div>
+              <div class="font-semibold text-slate-800">Con variantes</div>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">Un producto con varias presentaciones (ej: 30ml / 50ml / 100ml).</p>
+          </div>
+
+          <!-- Variante existente -->
+          <div class="tipo-card rounded-xl p-5 bg-white">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                <i class="i text-teal-600 text-lg">&#xea1e;</i>
+              </div>
+              <div class="font-semibold text-slate-800">Variante existente</div>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">Agregar una nueva presentación a un producto que ya tienes en catálogo.</p>
+          </div>
+
+          <!-- Pack (NUEVO) -->
+          <div class="tipo-card new-pill selected rounded-xl p-5">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="i text-purple-600 text-lg">&#xe9e0;</i>
+              </div>
+              <div class="font-semibold text-slate-800">Pack cerrado</div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">Una cajita con varios productos adentro, <b>armada de fábrica</b> y no desarmable. Se compra y vende como una unidad.</p>
+            <div class="mt-3 text-[11px] text-purple-700 bg-white border border-purple-200 rounded-lg p-2">
+              <i class="i text-[10px]">&#xe9bf;</i> Los componentes se listarán en el detalle del producto y pueden enlazarse a SKUs de tu catálogo.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+          <button class="text-sm text-slate-500 hover:text-slate-700">← Cancelar</button>
+          <button class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition">Continuar con Pack cerrado →</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- FLUJO 3: WIZARD PASO — COMPONENTES DEL PACK                 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section id="pane-wizard-comp" class="flujo-pane">
+    <div class="max-w-6xl mx-auto space-y-4">
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900">
+        <b>📦 Wizard · Paso 3 de 4 · Componentes del pack</b><br>
+        Aquí defines qué hay dentro de la cajita. Dos tipos: <span class="text-blue-700 font-semibold">vinculado</span> (también lo vendes suelto, habilita reporting cruzado) y <span class="text-amber-700 font-semibold">exclusivo</span> (solo existe dentro del pack, texto libre).
+      </div>
+
+      <!-- Header + stepper -->
+      <div class="bg-white rounded-2xl card-elevate border border-slate-200 p-6">
+        <div class="flex items-center gap-2 text-xs text-slate-500 mb-2">
+          <span class="pill pill-purple">Paso 3 de 4</span>
+          <span>·</span>
+          <span>The Ordinary · Starter Kit Skincare</span>
+        </div>
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-800">¿Qué contiene este pack?</h2>
+            <p class="text-sm text-slate-500">Agrega todos los productos que vienen dentro de la cajita.</p>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-400">Componentes agregados</div>
+            <div class="text-2xl font-semibold text-purple-600">3</div>
+          </div>
+        </div>
+
+        <!-- Lista de componentes -->
+        <div class="space-y-2 mb-4">
+
+          <!-- Componente 1: Vinculado -->
+          <div class="componente-row vinculado rounded-xl p-3 bg-white flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+              <i class="i text-blue-600">&#xea1e;</i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="pill pill-info">Vinculado</span>
+                <span class="text-xs text-slate-400">SKU-TO-NIAC-30</span>
+              </div>
+              <div class="font-medium text-slate-800 text-sm">Niacinamide 10% + Zinc 1%</div>
+              <div class="text-xs text-slate-500">The Ordinary · 30ml</div>
+            </div>
+            <div class="text-right mr-3">
+              <div class="text-xs text-slate-400">Cantidad en el pack</div>
+              <div class="text-lg font-semibold text-slate-700">1</div>
+            </div>
+            <button class="text-slate-400 hover:text-slate-600 p-1"><i class="i">&#xea53;</i></button>
+            <button class="text-red-400 hover:text-red-600 p-1"><i class="i">&#xe9ac;</i></button>
+          </div>
+
+          <!-- Componente 2: Vinculado -->
+          <div class="componente-row vinculado rounded-xl p-3 bg-white flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
+              <i class="i text-blue-600">&#xea1e;</i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="pill pill-info">Vinculado</span>
+                <span class="text-xs text-slate-400">SKU-TO-HA-30</span>
+              </div>
+              <div class="font-medium text-slate-800 text-sm">Hyaluronic Acid 2% + B5</div>
+              <div class="text-xs text-slate-500">The Ordinary · 30ml</div>
+            </div>
+            <div class="text-right mr-3">
+              <div class="text-xs text-slate-400">Cantidad en el pack</div>
+              <div class="text-lg font-semibold text-slate-700">1</div>
+            </div>
+            <button class="text-slate-400 hover:text-slate-600 p-1"><i class="i">&#xea53;</i></button>
+            <button class="text-red-400 hover:text-red-600 p-1"><i class="i">&#xe9ac;</i></button>
+          </div>
+
+          <!-- Componente 3: Exclusivo -->
+          <div class="componente-row exclusivo rounded-xl p-3 bg-white flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center shrink-0">
+              <i class="i text-amber-600">&#xe9b7;</i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="pill" style="background:#fffbeb;color:#b45309;">Exclusivo del pack</span>
+                <span class="text-xs text-slate-400">Sin SKU propio</span>
+              </div>
+              <div class="font-medium text-slate-800 text-sm">Retinol 0.2% en Squalane</div>
+              <div class="text-xs text-slate-500">Edición especial · 15ml</div>
+            </div>
+            <div class="text-right mr-3">
+              <div class="text-xs text-slate-400">Cantidad en el pack</div>
+              <div class="text-lg font-semibold text-slate-700">1</div>
+            </div>
+            <button class="text-slate-400 hover:text-slate-600 p-1"><i class="i">&#xea53;</i></button>
+            <button class="text-red-400 hover:text-red-600 p-1"><i class="i">&#xe9ac;</i></button>
+          </div>
+
+        </div>
+
+        <!-- Botones de agregar -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <button class="border-2 border-dashed border-blue-300 bg-blue-50/50 hover:bg-blue-50 rounded-xl p-4 text-left transition">
+            <div class="flex items-center gap-2 mb-1">
+              <i class="i text-blue-600">&#xe9e2;</i>
+              <span class="font-semibold text-blue-700 text-sm">+ Agregar componente vinculado</span>
+            </div>
+            <p class="text-xs text-slate-600">Busca un producto de tu catálogo. Permitirá reporting cruzado.</p>
+          </button>
+          <button class="border-2 border-dashed border-amber-300 bg-amber-50/50 hover:bg-amber-50 rounded-xl p-4 text-left transition">
+            <div class="flex items-center gap-2 mb-1">
+              <i class="i text-amber-600">&#xe9b7;</i>
+              <span class="font-semibold text-amber-700 text-sm">+ Agregar componente exclusivo</span>
+            </div>
+            <p class="text-xs text-slate-600">Solo existe dentro del pack. Escribe nombre y presentación libremente.</p>
+          </button>
+        </div>
+
+        <!-- Hint de validación -->
+        <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-600 flex items-start gap-2">
+          <i class="i text-slate-500 mt-0.5">&#xe9bf;</i>
+          <div>
+            El pack debe tener <b>al menos 1 componente</b>. Los componentes <span class="text-blue-700 font-semibold">vinculados</span> permiten responder preguntas como <i>"¿cuántas unidades de Niacinamide vendí este mes, sumando sueltas + dentro de packs?"</i>.
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+          <button class="text-sm text-slate-500 hover:text-slate-700">← Atrás · Datos generales</button>
+          <button class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition">Continuar · Confirmar →</button>
+        </div>
+      </div>
+
+      <!-- Modal simulado: agregar vinculado -->
+      <div class="bg-white rounded-2xl card-elevate border-2 border-blue-200 p-5 fade-in">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i class="i text-blue-600">&#xe9e2;</i>
+            <h3 class="font-semibold text-slate-800">Agregar componente vinculado</h3>
+            <span class="pill pill-info">Demo abierto</span>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i class="i">&#xeb8c;</i></button>
+        </div>
+
+        <input type="text" value="niacin" placeholder="Buscar por SKU, marca, nombre..." class="w-full text-sm px-3 py-2 border border-slate-200 rounded-lg mb-3" />
+
+        <!-- Resultados de búsqueda -->
+        <div class="space-y-1 border border-slate-200 rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+          <div class="search-row flex items-center gap-3 p-2 bg-blue-50">
+            <div class="w-8 h-8 bg-pink-100 rounded-md flex items-center justify-center shrink-0 text-sm">🧴</div>
+            <div class="flex-1">
+              <div class="text-sm font-medium text-slate-800">Niacinamide 10% + Zinc 1%</div>
+              <div class="text-xs text-slate-500">The Ordinary · 30ml · <span class="text-emerald-600">Stock: 48</span></div>
+            </div>
+            <span class="text-xs text-slate-400">SKU-TO-NIAC-30</span>
+            <i class="i text-blue-600">&#xeb74;</i>
+          </div>
+          <div class="search-row flex items-center gap-3 p-2">
+            <div class="w-8 h-8 bg-pink-100 rounded-md flex items-center justify-center shrink-0 text-sm">🧴</div>
+            <div class="flex-1">
+              <div class="text-sm font-medium text-slate-800">Niacinamide 5% Faster Absorbing</div>
+              <div class="text-xs text-slate-500">Paula's Choice · 20ml · <span class="text-emerald-600">Stock: 12</span></div>
+            </div>
+            <span class="text-xs text-slate-400">SKU-PC-NIAC-20</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div>
+            <label class="text-xs text-slate-500">Cantidad dentro del pack</label>
+            <input type="number" value="1" class="w-full text-sm px-3 py-1.5 border border-slate-200 rounded-lg mt-0.5" />
+          </div>
+          <div>
+            <label class="text-xs text-slate-500">Notas (opcional)</label>
+            <input type="text" placeholder="Ej: versión mini" class="w-full text-sm px-3 py-1.5 border border-slate-200 rounded-lg mt-0.5" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 mt-4">
+          <button class="text-sm text-slate-500 hover:text-slate-700 px-3 py-1.5">Cancelar</button>
+          <button class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg">Agregar al pack</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- FLUJO 4: DETALLE DEL PRODUCTO PACK                          -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section id="pane-detalle" class="flujo-pane">
+    <div class="max-w-6xl mx-auto space-y-4">
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900">
+        <b>🔍 Detalle del producto pack</b><br>
+        La pantalla respeta el layout actual del detalle de producto. La diferencia: badge <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span> al lado del nombre + sección nueva <b>"Este pack contiene"</b> debajo de Datos generales.
+      </div>
+
+      <!-- Header producto -->
+      <div class="bg-white rounded-2xl card-elevate border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-5 border-b border-slate-100">
+          <div class="flex items-start justify-between">
+            <div class="flex items-start gap-4">
+              <div class="w-20 h-20 bg-white rounded-xl shadow-sm flex items-center justify-center text-4xl">🎁</div>
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span>
+                  <span class="pill pill-pink">SKC</span>
+                  <span class="pill pill-activo">Activo</span>
+                </div>
+                <h1 class="text-2xl font-semibold text-slate-800 leading-tight">The Ordinary · Starter Kit Skincare</h1>
+                <div class="text-sm text-slate-500 mt-1">SKU-PACK-TO-STRT-01 · Cajita armada, no desarmable</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="text-sm text-slate-600 hover:text-slate-800 border border-slate-200 bg-white rounded-lg px-3 py-1.5">Editar</button>
+              <button class="text-sm text-white bg-slate-800 hover:bg-slate-900 rounded-lg px-3 py-1.5">Acciones ▾</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-4 gap-0 border-b border-slate-100">
+          <div class="p-4 border-r border-slate-100">
+            <div class="text-xs text-slate-400 mb-1">Stock disponible</div>
+            <div class="text-2xl font-semibold text-emerald-600">24 uds</div>
+          </div>
+          <div class="p-4 border-r border-slate-100">
+            <div class="text-xs text-slate-400 mb-1">Precio de venta</div>
+            <div class="text-2xl font-semibold text-slate-800">S/ 189</div>
+          </div>
+          <div class="p-4 border-r border-slate-100">
+            <div class="text-xs text-slate-400 mb-1">CTRU promedio</div>
+            <div class="text-2xl font-semibold text-slate-800">$ 42.80</div>
+          </div>
+          <div class="p-4">
+            <div class="text-xs text-slate-400 mb-1">Rotación</div>
+            <div class="text-2xl font-semibold text-slate-800">8.2 <span class="text-xs text-slate-400">/mes</span></div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex items-center gap-1 p-2 border-b border-slate-100 bg-slate-50">
+          <button class="px-3 py-1.5 text-xs font-medium bg-white rounded-lg shadow-sm text-slate-800">General</button>
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800">Stock y ubicaciones</button>
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800">Histórico de ventas</button>
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800">Investigación</button>
+        </div>
+
+        <div class="p-5 space-y-5">
+
+          <!-- Datos generales -->
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <i class="i text-slate-500">&#xeae7;</i>
+              <h3 class="font-semibold text-slate-800">Datos generales</h3>
+            </div>
+            <div class="grid grid-cols-4 gap-4 text-sm">
+              <div><div class="text-xs text-slate-400">Marca</div><div class="text-slate-700">The Ordinary</div></div>
+              <div><div class="text-xs text-slate-400">Tipo</div><div class="text-slate-700">Pack cerrado</div></div>
+              <div><div class="text-xs text-slate-400">Presentación</div><div class="text-slate-700">Cajita 3 productos</div></div>
+              <div><div class="text-xs text-slate-400">Peso</div><div class="text-slate-700">0.32 lb</div></div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN PACK — NUEVA -->
+          <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i class="i text-purple-600">&#xe9e0;</i>
+                <h3 class="font-semibold text-slate-800">Este pack contiene</h3>
+                <span class="pill pill-purple">3 componentes</span>
+              </div>
+              <button class="text-xs text-purple-700 hover:text-purple-900 font-medium">Editar componentes →</button>
+            </div>
+
+            <div class="space-y-2">
+              <!-- Componente vinculado: clickeable -->
+              <div class="componente-row vinculado rounded-lg p-3 bg-white flex items-center gap-3">
+                <div class="w-8 h-8 bg-pink-100 rounded-md flex items-center justify-center shrink-0 text-base">🧴</div>
+                <div class="flex-1">
+                  <a href="#" class="font-medium text-blue-700 hover:underline text-sm">Niacinamide 10% + Zinc 1%</a>
+                  <div class="text-xs text-slate-500">The Ordinary · 30ml · <span class="text-emerald-600">Stock suelto: 48</span></div>
+                </div>
+                <span class="pill pill-info">Vinculado</span>
+                <span class="text-xs text-slate-500">× 1</span>
+              </div>
+
+              <div class="componente-row vinculado rounded-lg p-3 bg-white flex items-center gap-3">
+                <div class="w-8 h-8 bg-pink-100 rounded-md flex items-center justify-center shrink-0 text-base">💧</div>
+                <div class="flex-1">
+                  <a href="#" class="font-medium text-blue-700 hover:underline text-sm">Hyaluronic Acid 2% + B5</a>
+                  <div class="text-xs text-slate-500">The Ordinary · 30ml · <span class="text-emerald-600">Stock suelto: 31</span></div>
+                </div>
+                <span class="pill pill-info">Vinculado</span>
+                <span class="text-xs text-slate-500">× 1</span>
+              </div>
+
+              <!-- Componente exclusivo: no clickeable -->
+              <div class="componente-row exclusivo rounded-lg p-3 bg-white flex items-center gap-3">
+                <div class="w-8 h-8 bg-amber-100 rounded-md flex items-center justify-center shrink-0 text-base">✨</div>
+                <div class="flex-1">
+                  <div class="font-medium text-slate-800 text-sm">Retinol 0.2% en Squalane</div>
+                  <div class="text-xs text-slate-500">Edición especial · 15ml</div>
+                </div>
+                <span class="pill" style="background:#fffbeb;color:#b45309;">Exclusivo</span>
+                <span class="text-xs text-slate-500">× 1</span>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-purple-100 text-xs text-slate-600 flex items-start gap-2">
+              <i class="i text-slate-500 mt-0.5">&#xe9bf;</i>
+              <div>
+                Vender este pack <b>no descuenta</b> stock de los componentes vinculados (son unidades físicas distintas). El reporting cruzado se calcula aparte.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- FLUJO 5: BÚSQUEDA EN VENTA                                  -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <section id="pane-venta" class="flujo-pane">
+    <div class="max-w-5xl mx-auto space-y-4">
+
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-900">
+        <b>🛒 Búsqueda de producto en el modal de nueva venta</b><br>
+        En <code>ProductoSearchVentas</code>, los packs aparecen con badge <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span>. Al hover, un tooltip muestra qué contiene, para que el vendedor responda rápido si el cliente pregunta.
+      </div>
+
+      <!-- Modal Nueva Venta (simulado) -->
+      <div class="bg-white rounded-2xl card-elevate border border-slate-200 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-semibold text-slate-800">Nueva venta · Agregar producto</h3>
+            <p class="text-xs text-slate-500">Busca por SKU, marca o nombre</p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600"><i class="i">&#xeb8c;</i></button>
+        </div>
+
+        <input type="text" value="ordinary" class="w-full text-sm px-3 py-2.5 border border-slate-300 rounded-lg mb-3" />
+
+        <!-- Resultados -->
+        <div class="space-y-1">
+
+          <!-- Pack con tooltip -->
+          <div class="search-row has-tooltip flex items-center gap-3 p-3 border border-slate-200 rounded-xl hover:border-purple-300">
+            <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center shrink-0 text-xl">🎁</div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-medium text-slate-800">The Ordinary · Starter Kit Skincare</span>
+                <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span>
+              </div>
+              <div class="text-xs text-slate-500">SKU-PACK-TO-STRT-01 · Cajita 3 productos</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400">Stock</div>
+              <div class="text-sm font-semibold text-emerald-600">24 uds</div>
+            </div>
+            <div class="text-right ml-4">
+              <div class="text-xs text-slate-400">Precio</div>
+              <div class="text-sm font-semibold text-slate-800">S/ 189</div>
+            </div>
+            <button class="ml-3 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg">+ Agregar</button>
+            <div class="tooltip-content">
+              <b>Contiene:</b><br>
+              • Niacinamide 10% (30ml)<br>
+              • Hyaluronic Acid (30ml)<br>
+              • Retinol 0.2% <span class="text-amber-300">· exclusivo</span>
+            </div>
+          </div>
+
+          <!-- Producto simple (mismo nivel) -->
+          <div class="search-row flex items-center gap-3 p-3 border border-slate-200 rounded-xl">
+            <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center shrink-0 text-xl">🧴</div>
+            <div class="flex-1">
+              <div class="font-medium text-slate-800 mb-0.5">The Ordinary · Niacinamide 10% + Zinc 1%</div>
+              <div class="text-xs text-slate-500">SKU-TO-NIAC-30 · 30ml</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400">Stock</div>
+              <div class="text-sm font-semibold text-emerald-600">48 uds</div>
+            </div>
+            <div class="text-right ml-4">
+              <div class="text-xs text-slate-400">Precio</div>
+              <div class="text-sm font-semibold text-slate-800">S/ 45</div>
+            </div>
+            <button class="ml-3 bg-slate-700 hover:bg-slate-800 text-white text-xs font-medium px-3 py-1.5 rounded-lg">+ Agregar</button>
+          </div>
+
+          <!-- Otro pack -->
+          <div class="search-row flex items-center gap-3 p-3 border border-slate-200 rounded-xl">
+            <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center shrink-0 text-xl">🎁</div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-medium text-slate-800">COSRX · Acne Spot Routine Pack</span>
+                <span class="pack-badge"><i class="i text-[10px]">&#xe9e0;</i>Pack</span>
+              </div>
+              <div class="text-xs text-slate-500">SKU-PACK-CSRX-AM-01 · Edición limitada</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400">Stock</div>
+              <div class="text-sm font-semibold text-amber-600">3 uds</div>
+            </div>
+            <div class="text-right ml-4">
+              <div class="text-xs text-slate-400">Precio</div>
+              <div class="text-sm font-semibold text-slate-800">S/ 145</div>
+            </div>
+            <button class="ml-3 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg">+ Agregar</button>
+          </div>
+
+        </div>
+
+        <!-- Hint al final -->
+        <div class="mt-4 text-xs text-slate-500 flex items-center gap-1.5">
+          <i class="i text-xs">&#xe9bf;</i>
+          Los packs se comportan como productos simples: 1 pack vendido = 1 unidad de stock del pack descontada.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    function mostrar(id) {
+      document.querySelectorAll('.flujo-pane').forEach(el => el.classList.remove('active'));
+      document.getElementById('pane-' + id).classList.add('active');
+      document.querySelectorAll('.nav-pill').forEach(el => el.classList.remove('active'));
+      document.getElementById('btn-' + id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+
+</body>
+</html>

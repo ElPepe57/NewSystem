@@ -11,7 +11,8 @@ import {
   Lock,
   ChevronRight,
   Info,
-  ScanLine
+  ScanLine,
+  Gift
 } from 'lucide-react';
 import { BarcodeScanner } from '../../common/BarcodeScanner';
 import type { ProductoDisponible } from '../../../types/venta.types';
@@ -356,6 +357,49 @@ export const ProductoSearchVentas: React.FC<ProductoSearchVentasProps> = ({
                         <span className="font-mono text-xs sm:text-sm text-teal-600 font-medium flex-shrink-0">
                           {producto.sku}
                         </span>
+                        {producto.esPack && (
+                          <span
+                            className="relative group px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs rounded-full text-white font-bold flex items-center flex-shrink-0"
+                            style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' }}
+                            title={
+                              producto.componentesPack && producto.componentesPack.length > 0
+                                ? producto.componentesPack
+                                    .map(c => `• ${c.nombre}${c.presentacion ? ' (' + c.presentacion + ')' : ''}${c.cantidad > 1 ? ' ×' + c.cantidad : ''}`)
+                                    .join('\n')
+                                : 'Pack / Kit'
+                            }
+                          >
+                            <Gift className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
+                            Pack
+                            {producto.componentesPack && producto.componentesPack.length > 0 && (
+                              <div className="absolute z-20 left-0 top-full mt-1 hidden group-hover:block bg-slate-900 text-white text-[11px] rounded-lg p-2.5 shadow-xl min-w-[220px] max-w-[280px] text-left normal-case font-normal">
+                                <div className="font-semibold mb-1 flex items-center gap-1">
+                                  <Gift className="h-3 w-3" />
+                                  Contiene ({producto.componentesPack.length})
+                                </div>
+                                <div className="space-y-0.5">
+                                  {producto.componentesPack.map((c, idx) => (
+                                    <div key={idx} className="flex items-start gap-1">
+                                      <span className="text-slate-400 flex-shrink-0">•</span>
+                                      <span className="flex-1">
+                                        {c.nombre}
+                                        {c.presentacion && (
+                                          <span className="text-slate-400"> · {c.presentacion}</span>
+                                        )}
+                                        {c.cantidad > 1 && (
+                                          <span className="text-purple-300"> ×{c.cantidad}</span>
+                                        )}
+                                        {!c.productoId && (
+                                          <span className="text-amber-300 text-[10px]"> · exclusivo</span>
+                                        )}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </span>
+                        )}
                         {producto.investigacion && (
                           <span className="px-1 sm:px-1.5 py-0.5 text-[10px] sm:text-xs rounded bg-sky-100 text-sky-700 flex items-center flex-shrink-0">
                             <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />

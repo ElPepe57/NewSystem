@@ -5,8 +5,11 @@ import {
   Trash2,
   Copy,
   GitBranch,
+  Gift,
   Package,
   DollarSign,
+  Link2,
+  FileText,
   TrendingUp,
   AlertTriangle,
   ShoppingCart,
@@ -36,6 +39,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../common';
 import { ProductoService } from '../../../services/producto.service';
+import { useProductoStore } from '../../../store/productoStore';
 import { useUserName } from '../../../hooks/useUserNames';
 import { PuntoEquilibrioCard } from './PuntoEquilibrioCard';
 import type { Producto, TexturaSKC } from '../../../types/producto.types';
@@ -196,11 +200,40 @@ const KPICard: React.FC<{
 export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, onDelete, onInvestigar, onReactivar, onCreateVariante, variantes, onViewVariante }) => {
   const [copiedSku, setCopiedSku] = useState(false);
   const stockCritico = producto.stockPeru <= producto.stockMinimo;
+  const productosCatalogo = useProductoStore(s => s.productos);
 
   // Resumen de investigación
   const invResumen = useMemo(() => ProductoService.getResumenInvestigacion(producto), [producto]);
   const inv = producto.investigacion;
   const esUSA = producto.lineaNegocioId === 'Z50CnuaBdD5x0w7XGRv8';
+
+  // Valorización del pack (TAREA-105): suma de precios de componentes vinculados
+  // vs. precio del pack. Sirve para ver el "ahorro" al comprarlo armado.
+  const valorizacionPack = useMemo(() => {
+    if (!producto.esPack || !producto.componentesPack?.length) return null;
+    const precioPack = producto.investigacion?.precioEntrada
+      || producto.investigacion?.precioSugeridoCalculado
+      || 0;
+    let sumaComponentes = 0;
+    let componentesValorizados = 0;
+    let componentesSinPrecio = 0;
+    for (const c of producto.componentesPack) {
+      if (!c.productoId) { componentesSinPrecio++; continue; }
+      const p = productosCatalogo.find(x => x.id === c.productoId);
+      const precioComp = p?.investigacion?.precioEntrada
+        || p?.investigacion?.precioSugeridoCalculado
+        || 0;
+      if (precioComp > 0) {
+        sumaComponentes += precioComp * c.cantidad;
+        componentesValorizados++;
+      } else {
+        componentesSinPrecio++;
+      }
+    }
+    const diferencia = sumaComponentes - precioPack;
+    const ahorroPct = sumaComponentes > 0 ? (diferencia / sumaComponentes) * 100 : 0;
+    return { precioPack, sumaComponentes, diferencia, ahorroPct, componentesValorizados, componentesSinPrecio };
+  }, [producto, productosCatalogo]);
   const labelPrecioOrigen = esUSA ? 'Precio USA' : 'Precio Proveedor';
   const labelSubPrecio = esUSA ? 'con impuesto' : 'precio unitario';
 
@@ -245,6 +278,15 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
               }`}>
                 {producto.estado === 'activo' ? 'Activo' : producto.estado === 'inactivo' ? 'Inactivo' : 'Descontinuado'}
               </span>
+              {producto.esPack && (
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-white px-2 py-0.5 rounded-full shadow-sm"
+                  style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' }}
+                >
+                  <Gift className="h-3 w-3" />
+                  Pack
+                </span>
+              )}
             </div>
             <p className="text-base sm:text-lg text-slate-300 mt-1">{producto.nombreComercial}</p>
           </div>
@@ -369,6 +411,154 @@ export const ProductoCard: React.FC<ProductoCardProps> = ({ producto, onEdit, on
           <span className="text-sky-600 font-medium">Variante: {producto.varianteLabel}</span>
         )}
       </div>
+
+      {/* ============ ESTE PACK CONTIENE (TAREA-105) ============ */}
+      {producto.esPack && producto.componentesPack && producto.componentesPack.length > 0 && (
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Gift className="h-4 w-4 text-purple-600" />
+              <h3 className="font-semibold text-slate-800 text-sm">Este pack contiene</h3>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white text-purple-700 border border-purple-200">
+                {producto.componentesPack.length} componente{producto.componentesPack.length === 1 ? '' : 's'}
+              </span>
+            </div>
+          </div>
+          {/* Tabla alineada estilo line-items (Stripe/Notion/Shopify) */}
+          <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 border-b border-slate-200">
+                <tr className="text-[10px] uppercase tracking-wider text-slate-500">
+                  <th className="text-left px-3 py-2 font-semibold">Producto</th>
+                  <th className="text-left px-2 py-2 font-semibold hidden sm:table-cell">Volumen</th>
+                  <th className="text-left px-2 py-2 font-semibold hidden sm:table-cell">Tipo</th>
+                  <th className="text-center px-2 py-2 font-semibold w-14">Cant.</th>
+                  <th className="text-center px-2 py-2 font-semibold w-20">Tipo ref.</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {producto.componentesPack.map((c, i) => {
+                  const vinculado = !!c.productoId;
+                  const skc = c.atributosSkincare;
+                  const volumen = skc?.volumen || c.contenido || '';
+                  const tipoRaw = skc?.tipoProductoSKC as string | undefined;
+                  const tipoLabel = tipoRaw
+                    ? ((TIPO_PRODUCTO_SKC_LABELS as Record<string, string>)[tipoRaw] || tipoRaw)
+                    : (c.presentacion || '');
+                  return (
+                    <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-3 py-2.5 align-top">
+                        <div className="font-medium text-slate-800 text-sm leading-tight truncate">{c.nombre}</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5 leading-tight truncate">
+                          {c.marca && <span className="font-medium">{c.marca}</span>}
+                          {c.sku && <span className="text-slate-400 ml-1 font-mono">{c.sku}</span>}
+                          {c.notas && <span className="text-slate-400"> · {c.notas}</span>}
+                        </div>
+                      </td>
+                      <td className="px-2 py-2.5 align-top text-slate-700 text-[12px] hidden sm:table-cell whitespace-nowrap">
+                        {volumen || <span className="text-slate-300">—</span>}
+                      </td>
+                      <td className="px-2 py-2.5 align-top text-slate-700 text-[12px] hidden sm:table-cell capitalize">
+                        {tipoLabel || <span className="text-slate-300">—</span>}
+                      </td>
+                      <td className="px-2 py-2.5 align-top text-center">
+                        <span className="inline-flex items-center justify-center min-w-[24px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[12px] font-semibold">
+                          {c.cantidad}
+                        </span>
+                      </td>
+                      <td className="px-2 py-2.5 align-top text-center">
+                        {vinculado ? (
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-50 text-blue-700 border border-blue-200"
+                            title="Vinculado al catálogo — entra en reporting cruzado"
+                          >
+                            <Link2 className="h-2.5 w-2.5" />
+                            Vinc.
+                          </span>
+                        ) : (
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-50 text-amber-700 border border-amber-200"
+                            title="Exclusivo del pack — solo existe dentro del kit"
+                          >
+                            <FileText className="h-2.5 w-2.5" />
+                            Excl.
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {/* Valorización: pack vs. suma de componentes */}
+          {valorizacionPack && (valorizacionPack.precioPack > 0 || valorizacionPack.sumaComponentes > 0) && (
+            <div className="mt-3 pt-3 border-t border-purple-100">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Valorización</div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-white border border-slate-200 rounded-lg p-2.5">
+                  <div className="text-[10px] text-slate-500 mb-0.5">Precio pack</div>
+                  <div className="text-base font-bold text-slate-800">
+                    {valorizacionPack.precioPack > 0 ? `S/ ${valorizacionPack.precioPack.toFixed(2)}` : '—'}
+                  </div>
+                  <div className="text-[9px] text-slate-400 mt-0.5">al cliente</div>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-2.5">
+                  <div className="text-[10px] text-slate-500 mb-0.5">Suma sueltos</div>
+                  <div className="text-base font-bold text-slate-800">
+                    {valorizacionPack.sumaComponentes > 0 ? `S/ ${valorizacionPack.sumaComponentes.toFixed(2)}` : '—'}
+                  </div>
+                  <div className="text-[9px] text-slate-400 mt-0.5">
+                    {valorizacionPack.componentesValorizados} vinc.
+                    {valorizacionPack.componentesSinPrecio > 0 && `, ${valorizacionPack.componentesSinPrecio} s/precio`}
+                  </div>
+                </div>
+                <div className={`rounded-lg p-2.5 border ${
+                  valorizacionPack.diferencia > 0
+                    ? 'bg-emerald-50 border-emerald-200'
+                    : valorizacionPack.diferencia < 0
+                      ? 'bg-red-50 border-red-200'
+                      : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="text-[10px] text-slate-500 mb-0.5">
+                    {valorizacionPack.diferencia >= 0 ? 'Ahorro cliente' : 'Sobreprecio'}
+                  </div>
+                  <div className={`text-base font-bold ${
+                    valorizacionPack.diferencia > 0
+                      ? 'text-emerald-700'
+                      : valorizacionPack.diferencia < 0
+                        ? 'text-red-700'
+                        : 'text-slate-700'
+                  }`}>
+                    {valorizacionPack.precioPack > 0 && valorizacionPack.sumaComponentes > 0
+                      ? `S/ ${Math.abs(valorizacionPack.diferencia).toFixed(2)}`
+                      : '—'}
+                  </div>
+                  <div className="text-[9px] text-slate-500 mt-0.5">
+                    {valorizacionPack.precioPack > 0 && valorizacionPack.sumaComponentes > 0
+                      ? `${Math.abs(valorizacionPack.ahorroPct).toFixed(0)}% vs. sueltos`
+                      : 'Falta precio'}
+                  </div>
+                </div>
+              </div>
+              {valorizacionPack.componentesSinPrecio > 0 && (
+                <p className="text-[10px] text-slate-400 mt-2">
+                  <Info className="h-3 w-3 inline mr-1" />
+                  {valorizacionPack.componentesSinPrecio} componente{valorizacionPack.componentesSinPrecio === 1 ? '' : 's'} sin investigación de precio (exclusivos o vinculados sin investigar).
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-3 pt-3 border-t border-purple-100 text-[11px] text-slate-600 flex items-start gap-2">
+            <Info className="h-3.5 w-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
+            <span>
+              Vender este pack <b>no descuenta</b> stock de los componentes vinculados
+              (son unidades físicas distintas). El reporting cruzado se calcula aparte.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ============ MÉTRICAS KPI ============ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">

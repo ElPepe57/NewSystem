@@ -170,6 +170,30 @@ export const FEATURES = {
    *   - Complementa el DevolucionFormModal existente (no lo reemplaza)
    */
   WIZARD_G: false,
+
+  /**
+   * TAREA-105 — Producto Pack/Kit en catálogo (extra fuera de secuencia S47-S52).
+   *
+   * Controla:
+   *   - 4º modo "Pack / Kit" en ProductoCreacionWizard
+   *   - Paso "Componentes" en el wizard (picker vinculados + form exclusivos)
+   *   - Sección "Este pack contiene" en detalle de producto
+   *   - Badge "Pack" en ProductoCard, ProductoTable y ProductoSearchVentas
+   *   - Filtro "Packs" en listado /productos
+   *
+   * Segregación por línea de negocio (D-PACK-02, D-PACK-05):
+   *   - El pack declara su línea (SKC o SUP) al crearlo
+   *   - Componentes vinculados deben compartir línea con el pack
+   *   - Componentes exclusivos usan labels/nomenclatura de la línea
+   *
+   * Sin anidamiento (D-PACK-01): un pack no puede contener otro pack.
+   *
+   * Flujo de rollout idéntico al resto:
+   *   1. false (default) → código desplegado sin acceso del usuario
+   *   2. localStorage.setItem('FEATURE_PRODUCTO_PACK', 'true') para UAT
+   *   3. true global tras validación end-to-end
+   */
+  PRODUCTO_PACK: false,
 } as const;
 
 /**
@@ -286,6 +310,21 @@ export function isWizardGEnabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_WIZARD_G') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * TAREA-105 — Helper análogo para el flag PRODUCTO_PACK (Pack/Kit en catálogo).
+ */
+export function isProductoPackEnabled(): boolean {
+  if (FEATURES.PRODUCTO_PACK) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_PRODUCTO_PACK') === 'true';
     } catch {
       return false;
     }

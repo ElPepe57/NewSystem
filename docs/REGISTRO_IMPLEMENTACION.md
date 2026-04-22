@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-20 (Sesion 43 CIERRE — Spec + Mockups Modelo Envios Transversal. 6 commits solo docs. 0 lineas codigo. 16 decisiones cerradas D-1 a D-16. Plan S44-S52 vertical slicing aprobado. Proxima sesion: S44 = Wizard T2 caso C con feature flag. Artefactos: docs/MODELO_ENVIOS_TRANSVERSAL.md + docs/mockups/envios-transversal-s43.html.)
+**Ultima actualizacion:** 2026-04-20 (Sesion 46 CIERRE — Costos landed con scope + cierre financiero. 3 fases, 3 commits, 1,783 lineas nuevas. Flag COSTOS_SCOPE_V2. S44/S45/S46 cerradas, todas en produccion con feature flags. Proxima sesion: S47 = Caso J (Casilla Intl a Casilla Intl) CON mockup previo.)
 **Branch activo:** main
 
 ---
@@ -12,7 +12,7 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 15 de 17 |
-| Sesiones de trabajo registradas | 43 |
+| Sesiones de trabajo registradas | 46 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
 | Fixes aplicados | ~650 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g + 3 S42h + ~71 S42i→S42bl) |
@@ -166,6 +166,379 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - varianteLabel: removido de la columna SKU, integrado en el area descriptiva junto a los demas atributos (S20b)
   - Deploy functions + hosting: vitaskinperu.web.app (S20b)
 ```
+
+---
+
+## SESION 46 CIERRE — 2026-04-20 — Costos landed con scope + cierre financiero
+
+### Metadata
+
+- Build: `npx tsc -b` 0 errores | `npx vite build` exitoso
+- Commits: `c6844c8` (F1: types+services) · `c6b8122` (F2: atomos) · `cb059f4` (F3+F4: panel+integracion+flag+deploy)
+- Deploy: https://vitaskinperu.web.app (feature flag `COSTOS_SCOPE_V2=false` por default)
+- Lineas nuevas: 1,783 | Archivos nuevos: 5 | Archivos modificados: 4
+
+### Resumen ejecutivo
+
+S46 completa la decision D-17 en su forma definitiva (costos landed con ciclo de vida propio: estimado → confirmado → finalizado → reabierto) y cierra el concepto de scope introducido en S44 (D-18: un costo puede pertenecer al envio completo o a una tanda especifica). El resultado es un panel de costos con trazabilidad financiera completa que reemplaza el tab `TabCostos` anterior cuando el flag esta activo.
+
+- **Fase 1 (commit `c6844c8`):** Tipos extendidos y 4 funciones de servicio nuevas. `CostoLanded` recibe `scope`, `tandaId`, `estado`, `fechaConfirmacion`, `confirmadoPor`, `facturaReferencia`, `motivoEstimado`. `Envio` recibe `costosFinalizados`, `fechaFinalizacionCostos`, `finalizadoPor`, `motivoReaperturaCostos`. Servicios: `agregarCostoLanded` (mejorado), `confirmarCostoLanded`, `finalizarCostosLanded`, `reabrirCostosLanded`. +217 lineas.
+- **Fase 2 (commit `c6b8122`):** 3 atomos UI. `CostoLandedRow` (fila de costo con estado visual, confirmacion inline, accion eliminar). `AgregarCostoLandedModal` (formulario con scope envio/tanda, tipo, monto, referencia de factura, estimado vs confirmado desde el origen). `FinalizarCostosModal` (modal de cierre financiero con resumen de totales confirmados vs estimados + campo de motivo). +933 lineas.
+- **Fases 3+4 (commit `cb059f4`):** Compuesto `CostosLandedPanel` integra los 3 atomos con logica de estado (panel bloqueado si `costosFinalizados=true`, boton reabrir con motivo). Integracion en `/envios` reemplaza `TabCostos` por `CostosLandedPanel` cuando `COSTOS_SCOPE_V2` esta activo. +633 lineas.
+
+### Archivos S46
+
+**Carpeta nueva `src/pages/Envios/CostosLandedScope/` (5 archivos):**
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `CostoLandedRow.tsx` | Atomo: fila con estado (estimado/confirmado), confirmacion inline, eliminar |
+| `AgregarCostoLandedModal.tsx` | Atomo: modal ingreso costo con scope + estado inicial + referencia factura |
+| `FinalizarCostosModal.tsx` | Atomo: modal cierre financiero con resumen y campo motivo |
+| `CostosLandedPanel.tsx` | Compuesto: panel completo con lista, totales, acciones finalizar/reabrir |
+| `index.ts` | Barrel export |
+
+**Archivos modificados (4):**
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/types/envio.types.ts` | `CostoLanded` extendido con scope/estado/trazabilidad · `Envio` con campos de cierre financiero |
+| `src/services/envio.crud.service.ts` | `agregarCostoLanded` mejorado · 3 funciones nuevas (confirmar/finalizar/reabrir) |
+| `src/config/features.ts` | Nuevo flag `COSTOS_SCOPE_V2` |
+| `src/pages/Envios/EnvioDetailModal.tsx` | `TabCostos` reemplazado por `CostosLandedPanel` cuando flag activo |
+
+### Decisiones aplicadas en S46
+
+| Decision | Descripcion | Nota de implementacion |
+|----------|-------------|------------------------|
+| D-17 | Costos landed con timing flexible (estimado/confirmado) | Implementacion completa — el atomo `AgregarCostoLandedModal` permite elegir estado desde el origen, no como edicion posterior |
+| D-18 | Scope envio/tanda | `CostoLanded.scope: 'envio' | 'tanda'` + `tandaId` opcional. Scope 'tanda' activado; en S44 solo scope='envio' estaba disponible |
+
+### Activacion del feature flag
+
+**Para activar en produccion (requiere rebuild):**
+Cambiar en `src/config/features.ts`: `COSTOS_SCOPE_V2: false → COSTOS_SCOPE_V2: true`
+
+**Para activar en sesion de prueba sin rebuild:**
+```javascript
+localStorage.setItem('feature_COSTOS_SCOPE_V2', 'true'); location.reload()
+```
+
+### Deudas tecnicas declaradas S46
+
+1. **Cierre financiero no integrado con contabilidad:** `finalizarCostosLanded` escribe el estado en Firestore pero no genera asiento contable ni mueve el gasto al modulo de contabilidad. Cuando COSTOS_SCOPE_V2 se active globalmente, `accounting-manager` debe revisar el asiento correspondiente.
+2. **Totales en `CostosLandedPanel` no actualizan CTRU en tiempo real:** el panel calcula totales localmente pero no dispara recalculo de `getCargosEfectivosOC()`. Coordinacion con DEUDA-CTRU-001 pendiente.
+3. **Reabrir costos sin audit trail de quien lo solicito:** `reabrirCostosLanded` guarda `motivoReaperturaCostos` pero no el usuario que solicita la reapertura (solo quien la ejecuta tecnicamente). Agregar campo `reabiertoPor` en el proximo refactor del tipo.
+
+### Proxima sesion S47
+
+S47 = Caso J (Casilla Internacional → Casilla Internacional), con mockup en `docs/mockups/envios-transversal-s43.html`. Puede reutilizar ~70% de los componentes del Wizard T2 de S44. Ver briefing S47 al final de este registro.
+
+---
+
+## SESION 45 CIERRE — 2026-04-20 — Sub-envios T1 + Reemplazo fisico del proveedor
+
+### Metadata
+
+- Build: `npx tsc -b` 0 errores | `npx vite build` exitoso
+- Commits: `89cc3e0` (F1: types+services) · `2c972c1` (F2: atomos) · `48acb89` (F3: Timeline+resolverConReemplazo) · `d6eb184` (F4: integracion+flag)
+- Deploy: https://vitaskinperu.web.app (feature flag `SUBENVIOS_T1=false` por default)
+- Lineas nuevas: 2,228 | Archivos nuevos: 9 | Archivos modificados: 4
+
+### Resumen ejecutivo
+
+S45 implementa dos verticales ligadas por el mismo tipo de evento: la llegada parcial de un proveedor (caso Amazon con 3 tandas) y la resolucion cuando una de esas tandas tiene reclamo activo. Ambas verticales comparten el modelo `SubEnvioT1` como unidad de trazabilidad.
+
+- **Fase 1 (commit `89cc3e0`):** Foundation de tipos y servicios. `SubEnvioT1` + `EstadoSubEnvio` en `envio.types.ts`. `TipoResolucionReclamo` en `reclamo.types.ts`. Campos opcionales retrocompatibles: `Envio.subEnvios?[]`, `Reclamo.tipoResolucion`, `Reclamo.subEnvioReemplazoId`. Servicios: `crearSubTandaT1`, `transicionarSubEnvio`, `eliminarSubTanda` en `envio.crud`; `resolverConReemplazo` + `confirmarReemplazoRecibido` en `reclamo.service`. +324 lineas.
+- **Fase 2 (commit `2c972c1`):** 3 atomos UI. `SubEnvioTimelineItem` (fila de tanda con estado visual y acciones contextuales). `AgregarTandaModal` (formulario para registrar nueva sub-tanda: fecha estimada, unidades, tracking). `ResolverReclamoModal` (modal con 3 opciones D-16: reembolso / reemplazo con nueva sub-tanda / merma con monto). +1,176 lineas.
+- **Fase 3 (commit `48acb89`):** Compuesto `SubEnviosTimeline` ensambla los atomos con logica de progreso (X/N unidades recibidas, pipeline horizontal de tandas). Funcion `resolverConReemplazo` completa el ciclo: cierra el reclamo + crea la sub-tanda de reemplazo en un batch atomico. +490 lineas.
+- **Fase 4 (commit `d6eb184`):** Integracion y flag. Tab "Tandas" en `EnvioDetailModal` visible solo para envios T1 cuando `SUBENVIOS_T1` activo. Boton "Resolver (reembolso / reemplazo / merma)" en `ReclamoPanel` abre `ResolverReclamoModal`. Flag `SUBENVIOS_T1` en `features.ts`. +238 lineas.
+
+### Archivos S45
+
+**Carpeta nueva `src/pages/Envios/SubEnviosT1/` (5 archivos):**
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `SubEnvioTimelineItem.tsx` | Atomo: fila de tanda con estado (pendiente/en-transito/recibida/con-incidencia) |
+| `AgregarTandaModal.tsx` | Atomo: modal registro nueva sub-tanda con tracking y fecha estimada |
+| `ResolverReclamoModal.tsx` | Atomo: modal resolucion con 3 salidas (D-16) |
+| `SubEnviosTimeline.tsx` | Compuesto: timeline completo con progreso agregado |
+| `index.ts` | Barrel export |
+
+**Archivos modificados (4):**
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/types/envio.types.ts` | `SubEnvioT1` + `EstadoSubEnvio` · `Envio.subEnvios?[]` |
+| `src/types/reclamo.types.ts` | `TipoResolucionReclamo` · `Reclamo.tipoResolucion` + `subEnvioReemplazoId` |
+| `src/services/envio.crud.service.ts` | `crearSubTandaT1` + `transicionarSubEnvio` + `eliminarSubTanda` |
+| `src/services/reclamo.service.ts` | `resolverConReemplazo` + `confirmarReemplazoRecibido` |
+| `src/pages/Envios/EnvioDetailModal.tsx` | Tab "Tandas" flag-gated (solo T1) |
+| `src/components/modules/reclamos/ReclamoPanel.tsx` | Boton "Resolver" + integracion `ResolverReclamoModal` |
+| `src/config/features.ts` | Nuevo flag `SUBENVIOS_T1` |
+
+### Decisiones aplicadas en S45
+
+| Decision | Descripcion | Nota de implementacion |
+|----------|-------------|------------------------|
+| D-3 | Sub-envios dentro de T1 como lista de tandas | `SubEnvioT1[]` es array dentro del documento Envio, no coleccion separada. Simplifica queries pero limita a ~50 tandas por envio (limite practico aceptable) |
+| D-11 | Responsabilidad de reclamos por tipo de envio | `resolverConReemplazo` solo disponible para envios T1. Envios T2 resuelven por la venta (logica distinta, diferida) |
+| D-16 | Reclamo con 3 salidas | `ResolverReclamoModal` implementa exactamente: reembolso (cierra reclamo, sin movimiento inventario) / reemplazo (cierra reclamo + crea sub-tanda de reemplazo) / merma (cierra reclamo + registra gasto de merma) |
+
+### Activacion del feature flag
+
+**Para activar en sesion de prueba sin rebuild:**
+```javascript
+localStorage.setItem('feature_SUBENVIOS_T1', 'true'); location.reload()
+```
+El tab "Tandas" aparece en `EnvioDetailModal` solo para envios cuyo tipo sea T1.
+
+### Deudas tecnicas declaradas S45
+
+1. **`resolverConReemplazo` sin validacion de idempotencia:** si el usuario hace doble-click en confirmar, puede crear dos sub-tandas de reemplazo para el mismo reclamo. Solucion: verificar `reclamo.estado === 'resuelto'` al inicio de la funcion antes de escribir.
+2. **`SubEnviosTimeline` calcula progreso localmente:** suma unidades recibidas de los `SubEnvioT1` del documento Envio. Si `envio.unidadesRecibidas` se actualiza por otra via (RecepcionModal heredado), los conteos pueden divergir. Solucion a largo plazo: deprecar `unidadesRecibidas` del documento raiz y calcularlo desde las sub-tandas.
+3. **`ResolverReclamoModal` opcion "Merma" no captura lote:** registra el gasto de merma pero no vincula las unidades especificas (por lote/vencimiento) que se dan de baja. Relevante para trazabilidad cuando se active CTRU por lote.
+
+---
+
+## SESION 44 — 2026-04-20 — Wizard T2 funcional en produccion (Casilla Internacional → Almacen Peru)
+
+### Metadata
+
+- Build: `npx tsc -b` 0 errores | `npx vite build` exitoso
+- Commits: `a503b83` (F1) · `dc8008c` (F2) · `2312147` (F3) · `ffdc82e` (F4)
+- Deploy: https://vitaskinperu.web.app (feature flag `WIZARD_T2=false` por default)
+- Lineas nuevas: 4,547 | Archivos nuevos/modificados: 23
+- Enfoque: Design-Driven Development — mockup S43 tab "Wizard T2" como primer borrador React
+
+### Resumen ejecutivo
+
+S44 implementa la primera vertical del modelo Envios Transversal definido en S43. El objetivo era tener un Wizard T2 funcional (caso C: consolidar N OCs desde casilla internacional hacia almacen Peru) con feature flag para no afectar produccion.
+
+Se ejecuto en 4 fases secuenciales con enfoque Design-Driven Development: el mockup HTML pixel-perfect de S43 (`docs/mockups/envios-transversal-s43.html`) fue la fuente de verdad visual; cada componente React traduce directamente el JSX correspondiente al tab del mockup.
+
+- **Fase 1 (commit `a503b83`):** Foundation. Tipos `envioWizardT2Types.ts` completos (state + reducer + 11 selectors), mas 5 componentes atomicos (UnidadPickerItem, BannerPriorizacion, TarifaPresetSelector, ColaboradorTransporteCard, CTRULandedPreview). +1,880 lineas.
+- **Fase 2 (commit `dc8008c`):** Compuestos. `ProductoPickingGroup` (stepper con expansion a unidades individuales, modelo D-2 hibrido) + `EnvioT2WizardPreview` (panel lateral sticky con totales en tiempo real). +556 lineas.
+- **Fase 3 (commit `2312147`):** Pasos del wizard + contenedor. 5 pasos completos (`EnvioT2StepOrigen`, `EnvioT2StepPicking`, `EnvioT2StepTransporte`, `EnvioT2StepCostos`, `EnvioT2StepConfirm`) + `WizardT2Page`. +1,798 lineas.
+- **Fase 4 (commit `ffdc82e`):** Integracion de produccion. `crearEnvioT2()` en servicio, flag `WIZARD_T2` en `features.ts`, ruta `/envios/nuevo-t2` en `App.tsx`, boton "Casilla a Peru" en `Envios.tsx` condicionado al flag. +313 lineas.
+
+### Archivos S44
+
+**Carpeta nueva `src/pages/Envios/EnvioWizardT2/` (15 archivos):**
+
+| Archivo | Descripcion | Lineas aprox. |
+|---------|-------------|---------------|
+| `envioWizardT2Types.ts` | State, reducer, 11 selectors, `WizardT2State` | ~280 |
+| `UnidadPickerItem.tsx` | Atomo: fila de unidad individual con checkbox y metadatos | ~90 |
+| `BannerPriorizacion.tsx` | Atomo: banner teal/amber segun prioridad pre-vendida | ~60 |
+| `TarifaPresetSelector.tsx` | Atomo: 3 presets (Monto total / Por unidad / Variable) | ~110 |
+| `ColaboradorTransporteCard.tsx` | Atomo: card colaborador con tarifas destacadas | ~120 |
+| `CTRULandedPreview.tsx` | Atomo: preview de CTRU con costos landed prorrateados | ~150 |
+| `ProductoPickingGroup.tsx` | Compuesto: stepper agregado + expansion a unidades FIFO | ~230 |
+| `EnvioT2WizardPreview.tsx` | Panel lateral sticky con resumen financiero en tiempo real | ~230 |
+| `EnvioT2StepOrigen.tsx` | Paso 1: seleccion casilla origen y OCs a incluir | ~340 |
+| `EnvioT2StepPicking.tsx` | Paso 2: picking de unidades por producto | ~380 |
+| `EnvioT2StepTransporte.tsx` | Paso 3: seleccion colaborador transporte + tarifa | ~290 |
+| `EnvioT2StepCostos.tsx` | Paso 4: costos landed (flete, impuesto, otros) con timing estimado/confirmado | ~310 |
+| `EnvioT2StepConfirm.tsx` | Paso 5: revision final + submit | ~280 |
+| `WizardT2Page.tsx` | Contenedor del wizard completo con WizardShell | ~180 |
+| `index.ts` | Barrel export | ~20 |
+
+**Archivos modificados (5):**
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/types/envio.types.ts` | Agregado `CrearEnvioT2Payload` |
+| `src/services/envio.crud.service.ts` | Agregada funcion `crearEnvioT2()` |
+| `src/config/features.ts` | Nuevo flag `WIZARD_T2` + helper `isWizardT2Enabled()` |
+| `src/App.tsx` | Nueva ruta `/envios/nuevo-t2` protegida con flag |
+| `src/pages/Envios/Envios.tsx` | Boton "Casilla a Peru" visible cuando `isWizardT2Enabled()` |
+
+### Decisiones aplicadas en S44
+
+| Decision | Descripcion | Nota de implementacion |
+|----------|-------------|------------------------|
+| D-1 | Envios como hub transversal | Caso C implementado como primera vertical |
+| D-2 | Stepper agregado + expansion a unidades | `ProductoPickingGroup`: selector por cantidad + expansion para elegir unidades especificas |
+| D-5 | Priorizacion via `Unidad.reservadaPara` | `BannerPriorizacion` muestra pre-vendidas al tope; `UnidadPickerItem` las marca con badge |
+| D-13 | Wizard T2 con 5 pasos | Ruta → Picking → Transporte → Costos → Confirmar |
+| D-14 | Reutilizar campo `reservadaPara` existente | Sin modelo nuevo; selector ordena por este campo |
+| D-15 | Envio T2 nace en estado `borrador` | `crearEnvioT2()` escribe `estado: 'borrador'` (caso manual) |
+| D-17 | Costos landed con timing flexible | `EnvioT2StepCostos` tiene toggle estimado/confirmado por cada costo |
+| D-18 | Simplificacion de 4 a 3 presets | `TarifaPresetSelector`: Monto total / Por unidad / Variable (scope='tanda' diferido) |
+
+### Activacion del feature flag
+
+**Para activar en produccion globalmente (requiere rebuild):**
+Cambiar en `src/config/features.ts`:
+```
+WIZARD_T2: false  →  WIZARD_T2: true
+```
+
+**Para activar en sesion de prueba sin rebuild (override localStorage):**
+Abrir DevTools → Console y ejecutar:
+```javascript
+localStorage.setItem('feature_WIZARD_T2', 'true')
+location.reload()
+```
+Para desactivar: `localStorage.removeItem('feature_WIZARD_T2')` + reload.
+
+**Ruta de acceso con flag activo:** `/envios/nuevo-t2`
+**Boton visible en:** `/envios` — boton secundario "Casilla a Peru" junto al boton principal "Nuevo Envio".
+
+### Smoke tests recomendados (9 escenarios)
+
+1. **Happy path completo:** seleccionar casilla origen → vincular 2 OCs → picking de 10 unidades totales → asignar colaborador transporte → ingresar flete estimado → confirmar → verificar que aparece nuevo envio en `/envios` con estado `borrador`.
+2. **Prioridad pre-vendidas:** tener unidades con `reservadaPara` poblado → verificar que el banner de priorizacion aparece y dichas unidades se listan primero en el picker.
+3. **Multiples OCs en una casilla:** tener 3+ OCs con unidades en la misma casilla → verificar que todas aparecen en paso 1 y el picking las agrupa por producto correctamente.
+4. **Preset "Por unidad":** seleccionar tarifa preset "Por unidad" en paso Transporte → verificar que el calculo del total se actualiza en tiempo real en el panel lateral.
+5. **Costo landed estimado:** ingresar costo estimado (toggle estimado) en paso Costos → confirmar → verificar que el envio guarda `costoLandedEstimado` (no confirmado).
+6. **Panel lateral en tiempo real:** navegar entre pasos con productos ya seleccionados → verificar que el preview muestra subtotales correctos en cada cambio.
+7. **Validacion paso 2 sin picking:** intentar avanzar del paso Picking sin seleccionar unidades → verificar que el wizard bloquea la navegacion con mensaje de error.
+8. **Flag desactivado:** con `WIZARD_T2=false` (default) ir a `/envios` → verificar que el boton "Casilla a Peru" no aparece.
+9. **Acceso directo con flag desactivado:** ir a `/envios/nuevo-t2` con flag desactivado → verificar que redirige a `/envios` o muestra pantalla de "funcionalidad no disponible".
+
+### Metricas S44
+
+| Metrica | Valor |
+|---------|-------|
+| Commits | 4 |
+| Archivos nuevos | 15 (carpeta EnvioWizardT2) |
+| Archivos modificados | 5 |
+| Lineas nuevas | ~4,547 |
+| Feature flag | WIZARD_T2 (default=false) |
+| Decisiones aplicadas | D-1, D-2, D-5, D-13, D-14, D-15, D-17, D-18 |
+| Decisiones diferidas | D-16 (reemplazo fisico) → S45 |
+
+### Diferidos explicitamente a sesiones futuras
+
+| Item diferido | Sesion destino | Razon |
+|---------------|---------------|-------|
+| `CostoLanded.scope='tanda'` | S46 | Requiere modelo de Tanda completo |
+| `AnticipoColaborador` | S47 | Depende de flujo financiero de colaborador |
+| Cierre financiero por tanda | S46 | Depende de S46 completo |
+| Estados iniciales `confirmarOC()` por tipo | S48 | Migracion de datos asociada |
+| Sub-envios T1 (tandas de despacho proveedor) | S45 | Proxima sesion — vertical independiente |
+| Reemplazo fisico del proveedor (D-16) | S45 | Vinculado a sub-envios T1 |
+
+### Deudas tecnicas declaradas S44
+
+1. **`crearEnvioT2()` sin validacion Firestore-side:** el servicio escribe directamente sin transaction guard. Para volumenes altos (>50 unidades en un T2) puede haber race condition si el mismo lote se procesa dos veces. Solucion futura: usar `runTransaction` o verificacion de idempotencia via ID deterministico.
+2. **`EnvioT2StepOrigen` carga todas las OCs en memoria:** filtra en cliente. Para negocios con 500+ OCs activas esto puede ser lento. Solucion futura: query Firestore por `casilla_origen_id` + `estado in [...]`.
+3. **Panel lateral sticky no persiste entre reloads:** el preview usa state local del wizard. Si el usuario recarga a mitad del wizard, pierde el contexto. El `useWizardAutosave` del sistema (S41) no se integro en S44. Tarea: integrar `useWizardAutosave` en `WizardT2Page`.
+4. **`TarifaPresetSelector` preset "Variable" sin UI completa:** la tarifa variable requiere tabla de tramos por peso/volumen. En S44 solo captura un valor base. Completar en S47 cuando se implemente `AnticipoColaborador`.
+
+### Instrucciones arranque S45
+
+1. Leer este registro (seccion S44) y MEMORY.md
+2. Abrir `docs/mockups/envios-transversal-s43.html` tab **"Sub-envios T1 (Amazon)"** como referencia visual principal
+3. Leer `docs/MODELO_ENVIOS_TRANSVERSAL.md` seccion Sub-envios (D-3) y Reclamos con reemplazo (D-16)
+4. Activar feature flag `WIZARD_T2=true` solo para smoke test local antes de iniciar S45
+5. Ejecutar 9 smoke tests de S44 para confirmar que la base esta solida antes de agregar S45
+
+---
+
+## SESION 43 — 2026-04-20 — Spec + Mockups Modelo Envios Transversal (0 lineas codigo)
+
+### Metadata
+
+- Commits: `aaeb9f1` `5e41e44` `1d6cb27` `88da00d` `af6848b` `ad81911` (6 commits, solo docs)
+- Deploy: heredado S42h #211 (`2bccd75`)
+- Lineas de codigo: 0 | Artefactos: 2 documentos nuevos
+
+### Resumen ejecutivo
+
+Sesion de diseno puro. Se creo el modelo completo del modulo Envios Transversal antes de escribir una sola linea de codigo. 16 decisiones de arquitectura cerradas. Plan de vertical slicing S44-S52 aprobado. Enfoque Design-Driven Development establecido: el mockup HTML pixel-perfect es el primer borrador del componente React.
+
+**Artefactos producidos:**
+- `docs/MODELO_ENVIOS_TRANSVERSAL.md` (~1,000 lineas, 15 secciones)
+- `docs/mockups/envios-transversal-s43.html` (~2,700 lineas, 8 tabs navegables)
+
+**Decisiones cerradas D-1 a D-16:** Envios como hub transversal (D-1) · OC genera solo T1 (D-2) · Sub-envios dentro T1 (D-3) · T2 picking manual N OCs (D-4) · Priorizacion via `reservadaPara` (D-5) · Caso D en variantes D1/D2 (D-6) · Devolucion en `devuelto_pendiente_revision` (D-7) · Casos I/J como envios entre nodos (D-8) · Caso J intra-pais preferente (D-9) · Caso I bloquea stock Opcion B (D-10) · Responsabilidad reclamos por tipo (D-11) · Fee recepcion = costoLanded (D-12) · Wizard T2 con 5 pasos (D-13) · Reutilizar `reservadaPara` (D-14) · Estado inicial por tipo (D-15) · Reclamo con 3 salidas reembolso/reemplazo/merma (D-16).
+
+**Plan S44-S52 (original):** S44=Wizard T2 caso C · S45=Sub-envios T1 · S46=Resolver reclamo (D-16) · S47=Vista /envios rediseñada · S48=Estados iniciales + migracion · S49=Caso J · S50=Absorber Transferencias · S51=Absorber Ventas logistica · S52=Almacenes terceros.
+
+**Plan S47-S52 REVISADO (post S46):** S47=Caso J (Casilla Intl a Casilla Intl) · S48=Caso E (absorber Transferencias) · S49=Casos F+G (absorber Ventas logistica) · S50=Caso I (Almacenes terceros con bloqueo) · S51=Estados iniciales por tipo (D-15 · confirmarOC refactor) · S52=Anticipos a colaboradores (diferido al final).
+
+---
+
+## PLAN REVISADO S47-S52 — Actualizado 2026-04-20
+
+| Sesion | Alcance | Mockup previo | Decision(es) clave |
+|--------|---------|---------------|--------------------|
+| S47 | Caso J: Casilla Intl → Casilla Intl (J1 mismo colaborador / J2 colaboradores distintos) | Si — tab Caso J en `docs/mockups/envios-transversal-s43.html` | D-8 (I/J como envios entre nodos) · D-9 (intra-pais preferente) |
+| S48 | Caso E: absorber Transferencias existentes bajo modelo Envios Transversal | Si — tab Caso E en mockup S43 | D-1 (Envios=hub, absorbe Transferencias) |
+| S49 | Casos F+G: absorber Ventas logistica (entrega a cliente final desde casilla o almacen Peru) | Si — tabs F y G en mockup S43 | D-1 (absorbe F/G) |
+| S50 | Caso I: envio a Almacen tercero con bloqueo de stock (Opcion B D-10) | Si — tab Caso I en mockup S43 | D-10 (bloquea stock, no transfiere propiedad) |
+| S51 | Estados iniciales por tipo (D-15) + refactor `confirmarOC()` para respetar estado segun tipo de ruta | No (logica interna) | D-15 (A/B/F/G=confirmado, D=recibida_completa, C/E/I/J=borrador) |
+| S52 | Anticipos a colaboradores (diferido deliberadamente) | No | UX-D2 (flujo CxP deudor=colaborador) |
+
+---
+
+## BRIEFING S47 — Caso J: Casilla Internacional → Casilla Internacional
+
+### Objetivo de la sesion
+
+Implementar la tercera vertical del modelo Envios Transversal: envio entre dos casillas internacionales donde ambos nodos son gestionados por colaboradores del negocio. Flag `WIZARD_J`.
+
+### Dos variantes del Caso J
+
+**J1 — Mismo colaborador, dos casillas suyas**
+El viajero tiene casilla en USA y casilla en China. Necesita mover unidades de una a la otra (ej. consolidar antes de enviar a Peru). No hay coordinacion con terceros — es un movimiento interno del colaborador.
+
+**J2 — Colaboradores distintos**
+Un viajero en USA recibe unidades que debe re-enviar a la casilla de otro viajero en Corea. Hay dos actores: el remitente y el destinatario. El destinatario debe confirmar la recepcion.
+
+### Decision D-9: intra-pais preferente
+
+El wizard debe defaultear al mismo pais del colaborador origen. Si el usuario selecciona un pais diferente para el destino, mostrar un warning visible (no bloqueante): "Envio entre paises distintos — verificar que el colaborador destino espera este envio."
+
+El warning no impide confirmar, pero queda registrado en el documento del envio (`advertenciaCambioPais: true`).
+
+### Reutilizacion de componentes S44
+
+El Wizard J puede reutilizar directamente del Wizard T2:
+- `WizardShell` (contenedor con pasos y preview lateral)
+- `TarifaPresetSelector` (mismos 3 presets)
+- `CTRULandedPreview` (sin cambios)
+- `BannerPriorizacion` (sin cambios)
+- `UnidadPickerItem` (sin cambios)
+- `ProductoPickingGroup` (sin cambios)
+- `EnvioT2WizardPreview` (puede extenderse o reutilizarse directamente)
+
+Componentes nuevos especificos de J:
+- `CasillaDestinoColaboradorPicker` — selector de casilla destino con indicador de pais + colaborador responsable + warning D-9
+- `EnvioJStepOrigen` — paso 1: casilla origen + picker de unidades (similar a T2 pero sin seleccion de OCs, las unidades ya estan en casilla)
+- `EnvioJStepDestino` — paso 2: casilla destino con selector J1/J2 + warning intra-pais
+- `EnvioJStepTransporte` — paso 3: colaborador transporte (puede ser el mismo colaborador origen en J1)
+- `EnvioJStepCostos` — paso 4: costos landed (puede reutilizar `EnvioT2StepCostos` directamente)
+- `EnvioJStepConfirm` — paso 5: resumen + submit
+
+### Alcance tecnico S47
+
+| Artefacto | Descripcion |
+|-----------|-------------|
+| `src/pages/Envios/EnvioWizardJ/` | Carpeta nueva con wizard J (5 pasos + tipos + index) |
+| `src/types/envio.types.ts` | `CrearEnvioJPayload` con campos J1/J2 + `advertenciaCambioPais` |
+| `src/services/envio.crud.service.ts` | `crearEnvioJ()` nuevo |
+| `src/config/features.ts` | Flag `WIZARD_J` |
+| `src/App.tsx` | Ruta `/envios/nuevo-j` protegida |
+| `src/pages/Envios/Envios.tsx` | Boton "Entre casillas" visible cuando flag activo |
+
+### Estado inicial del envio J
+
+Segun D-15: envios J nacen en estado `borrador` (igual que T2). El colaborador destino confirma recepcion para transicionar a `recibido`.
+
+### Diferidos explicitamente fuera de S47
+
+- Notificacion push al colaborador destino cuando llega el envio J (requiere integracion WhatsApp/push — S48+)
+- Analytics de movimientos entre casillas por colaborador
+- Caso J con escala intermedia (J1 con 3 casillas en cadena)
+
+### Mockup de referencia
+
+`docs/mockups/envios-transversal-s43.html` → tab "Caso J (Casilla Intl → Casilla Intl)"
 
 ---
 
@@ -14064,3 +14437,179 @@ Sesion de refactoring arquitectural profundo motivada por la decision de "lienzo
 
 *Cierre registrado por implementation-controller (Agente 23).*
 *2026-04-14 — Sesion 37 CERRADA. Deploy 201 exitoso (hosting vitaskinperu.web.app). 2 commits (82 archivos). Balance neto: -8,982 lineas. Refactoring arquitectural masivo con 3 ejes: (1) nuevo modulo /red-logistica con estructura por proceso de negocio (Compras/Ventas), (2) eliminacion completa del modelo Transportista unificado bajo Colaborador con subtipos y aliases compat, (3) unificacion Transferencia→Envio en fase unica — 10 archivos eliminados (incluyendo transferencia.service.ts 1592 lineas), 5 creados. 22 archivos totales eliminados. 12 creados. 4 decisiones (D-59 a D-62) con justificacion "lienzo en blanco". Build con vite directo (~30 errores TypeScript pre-existentes pendientes). Proxima sesion: auditoria 360 ronda 2 medios → Envio DDP directo → rediseno Stock.*
+
+---
+
+## TAREA-105 — Producto Pack/Kit en catalogo (EXTRA fuera de secuencia S47-S52)
+
+**ID:** TAREA-105
+**Titulo:** Producto Pack/Kit en catalogo de productos
+**Tipo:** Feature nueva
+**Modulo:** Productos / Catalogo / Ventas (busqueda)
+**Prioridad:** MEDIA
+**Origen:** Extra por necesidad del momento — solicitado por el titular 2026-04-21 fuera de la secuencia planificada S47-S52.
+**Estado:** DISENADA — pendiente implementacion (sin numero de sesion asignado).
+
+### Contexto de negocio
+
+En Skincare (SKC) muchos productos vienen armados de fabrica en cajitas pack que NO son desarmables. Tambien aplica a Suplementos (SUP) en kits promocionales. Estos packs se compran al proveedor como 1 SKU y se venden como 1 SKU, pero el detalle del producto debe listar que contiene para informacion/marketing/reporting cruzado.
+
+**Clave operativa:** el pack se comporta IGUAL que un producto simple (stock propio, compra directa, venta como unidad). Vender un pack NO descuenta stock de componentes vinculados (son unidades fisicas distintas). La composicion es info + base para reporting cruzado en BI.
+
+### Decisiones cerradas con el titular (2026-04-21)
+
+| # | Decision | Valor |
+|---|----------|-------|
+| D-PACK-01 | Anidamiento de packs | NO — un pack no puede contener otro pack |
+| D-PACK-02 | Lineas de negocio | SKC + SUP, con segregacion por linea |
+| D-PACK-03 | Nombre del modo en wizard | "Pack / Kit" |
+| D-PACK-04 | Linea de negocio del pack | Se declara al crearlo |
+| D-PACK-05 | Componentes vinculados | Filtrados por linea (no cross SKC/SUP) |
+| D-PACK-06 | Componentes exclusivos | Nomenclatura/labels adaptados por linea (SKC: presentacion ml + formato serum/crema/etc. · SUP: presentacion caps/g + forma farmaceutica capsula/tableta/polvo/etc.) |
+| D-PACK-07 | Tipos de componentes | Dos: vinculado (con productoId, reporting cruzado) + exclusivo (texto libre) — se permite mezclar |
+| D-PACK-08 | Impacto en stock de componentes | Vender pack NO descuenta stock de componentes vinculados |
+
+### Alcance tecnico
+
+**Modelo (`src/types/producto.types.ts`):**
+```ts
+esPack?: boolean;
+componentesPack?: ComponentePack[];
+
+interface ComponentePack {
+  nombre: string;              // siempre
+  cantidad: number;            // siempre
+  presentacion?: string;
+  // Vinculado (si existe productoId, habilita reporting cruzado):
+  productoId?: string;
+  sku?: string;                // snapshot
+  marca?: string;              // snapshot
+  // Exclusivo (sin productoId): solo texto libre
+}
+```
+
+**Validacion en `producto.service.ts`:** componentes vinculados deben compartir linea de negocio con el pack. Al menos 1 componente. Sin anidamiento.
+
+**UI:**
+- `ProductoCreacionWizard`: 4º modo "Pack / Kit" con paso `StepComponentes` (picker vinculados filtrado por linea + form exclusivos con labels SKC/SUP).
+- Detalle producto: badge gradient morado-rosa "Pack" + seccion "Este pack contiene" con componentes vinculados clickeables.
+- Listados (`ProductoCard`, `ProductoTable`): badge "Pack" visible + filtro "Packs" en `/productos`.
+- `ProductoSearchVentas`: badge + tooltip con componentes. Venta sigue flujo normal (1 pack = 1 unidad del pack descontada).
+
+**Feature flag:** `PRODUCTO_PACK` (siguiendo patron S44-S46). Activar con `localStorage.setItem('feature_PRODUCTO_PACK', 'true')` + reload.
+
+### Plan de fases sugerido
+
+| Fase | Entregable |
+|------|-----------|
+| F1 | Tipos + servicio (esPack, componentesPack, validacion linea) |
+| F2 | Wizard modo Pack/Kit con StepComponentes |
+| F3 | Detalle + badge en ProductoCard/ProductoTable + filtro listado |
+| F4 | ProductoSearchVentas con badge + tooltip |
+
+**Fuera de alcance de esta tarea:** reporting cruzado en BI (unidades vendidas sueltas + dentro de packs) — queda para otra sesion con bi-analyst.
+
+### Artefactos
+
+- **Mockup:** `docs/mockups/producto-pack-skincare.html` (5 tabs: Catalogo · Wizard Tipo · Wizard Componentes · Detalle · Busqueda en venta). Creado 2026-04-21 siguiendo Design-Driven Development del proyecto.
+
+### Proxima accion
+
+Pendiente asignar numero de sesion de implementacion. NO se bloquea por las sesiones planificadas S47 (Caso J) / S48 (Estados iniciales) / etc. — es un extra que puede intercalarse cuando el titular decida.
+
+---
+
+*Registrado por implementation-controller (Agente 23) — 2026-04-21*
+
+---
+
+## TAREA-105 CIERRE — Producto Pack/Kit IMPLEMENTADO + refinamientos UX + fix bug variantes SKC
+
+**Fecha de cierre:** 2026-04-21
+**Estado:** IMPLEMENTADO y DESPLEGADO. Feature flag `PRODUCTO_PACK` por default en `false`.
+**Scope ampliado:** 4 fases core + 3 rondas de refinamiento UX + 2 bugs bonus fuera de scope + data fixes.
+
+### Fases ejecutadas
+
+**F1 — Modelo + flag + validacion (service):**
+- `ComponentePack` tipo agregado a `producto.types.ts` con modalidad vinculado (productoId) y exclusivo (texto libre) + atributos extendidos SUP (dosaje, contenido, sabor) y SKC (atributosSkincare: tipoProductoSKC/volumen/ingredienteClave/textura/spf/pa/lineaProducto).
+- `Producto.esPack` y `Producto.componentesPack[]` agregados.
+- Feature flag `PRODUCTO_PACK` + helper `isProductoPackEnabled()` en `features.ts`.
+- `ProductoService.validateComponentesPack()`: valida min 1 componente, campos requeridos, anidamiento prohibido (D-PACK-01), misma linea (D-PACK-05), denormaliza sku/marca + atributos completos del Producto base.
+
+**F2 — Wizard modo Pack/Kit:**
+- 4º opcion "Pack / Kit" en `ProductoCreacionWizard` (con badge NUEVO morado, visible solo si flag activo).
+- Prop `modoPack` en `ProductoForm`. Al activar: tab Basico reducido (solo Peso + UPC + banner informativo) + nuevo tab Componentes con `ComponentesPackSection`.
+- `ComponentesPackSection` con VISTAS INLINE (no modales anidados): panel "Agregar vinculado" (buscador filtrado por linea + preview producto + cantidad + notas) y panel "Agregar exclusivo" (campos adaptados por linea SKC/SUP: nombre, cantidad, presentacion + atributos especificos + notas).
+- Submit del pack limpia `presentacion/dosaje/contenido/sabor/atributosSkincare` que no aplican al pack como unidad fisica.
+- `modoPack` ahora tambien se auto-detecta desde `initialData.esPack` al editar un pack existente.
+
+**F3 — Detalle + badge + filtro listado:**
+- `ProductoCard` (detalle): badge gradient morado-rosa "Pack" en header. Seccion "Este pack contiene" como TABLA ALINEADA estilo line-items (Stripe/Notion): columnas Producto | Volumen | Tipo | Cant. | Tipo ref. con hover subtle y header tipografico uppercase tracking.
+- Valorizacion del pack (3 cards): Precio pack (al cliente) vs. Suma sueltos (precio si vendiera componentes sueltos) vs. Ahorro cliente (diferencia + % ahorro, verde si positivo).
+- `ProductoTable` (card listado): badge "Pack" al lado del SKU + preview COLAPSABLE con mini-avatares apilados (Linear/Stripe style) mostrando primera letra del tipo SKC con color diferenciado (Limpiador teal, Ampolla pink, Tonico sky, Aceite amber, Crema rose, etc.). Metadata agregada inteligente: si todos los componentes comparten marca o volumen, se muestra condensado ("SKIN1004 · 30 ml c/u"). Al expandir muestra lista completa.
+- Nuevo chip "Packs / Kits" en `FiltrosRapidos` (visible solo con flag activo).
+- Filtro `esPack` integrado en `filteredProductos`, `activeFilter`, `onFilter`, `handleClearFilters`.
+
+**F4 — Busqueda en venta:**
+- `ProductoDisponible` extendido con `esPack?` y `componentesPack?`.
+- `VentaService.getProductosDisponibles()` denormaliza ambos campos al construir el snapshot.
+- `ProductoSearchVentas` muestra badge "Pack" gradient morado al lado del SKU en cada resultado. Hover muestra tooltip HTML estilizado con "Contiene (N)" + lista de componentes (nombre, presentacion, ×cantidad, tag exclusivo si aplica) para decision rapida del vendedor.
+
+### Refinamientos UX (3 rondas)
+
+- **Ronda 1:** tab Basico pack reducido a 2 campos (Peso + UPC) + banner. Modal vinculado reorganizado en 2 pasos claros (buscar / elegido + cantidad). Filas de componentes con jerarquia visual mejorada (pill compacta + nombre grande + pill cantidad semantica "×N").
+- **Ronda 2:** modal vinculado/exclusivo convertido a PANEL INLINE dentro del tab (eliminando anti-patron de modal-sobre-modal). Breadcrumb "< Componentes / Agregar X" + footer con "Volver a componentes" + "Agregar al pack".
+- **Ronda 3 (rediseno moderno):** detalle convertido a TABLA HTML con columnas alineadas (Stripe pattern). Listado convertido a COLAPSABLE con avatares apilados (Linear pattern). Metadata compartida agregada en header del listado (marca/volumen comun detectados automaticamente).
+
+### Bugs bonus corregidos (fuera de scope original)
+
+- **Bug variantes SKC sin atributos:** `createConVariantes()` no copiaba `atributosSkincare` de `datosComunes` a las variantes hijas. Signature extendida + builder propaga snapshot por variante con override de `volumen`. `ProductoForm` ahora pasa `formData.atributosSkincare` en `datosComunes`. `FormVarianteReducida` adapta campos por linea (SKC pide Volumen + Ingrediente heredado readonly; SUP mantiene Contenido+Sabor+Dosaje). `handleCrearVarianteReducida` construye `atributosSkincare` heredando del grupo. Boton "Crear variante" ahora usa `canSubmit` en lugar de flag viejo `!contenido.trim()` que mantenia disabled en modo SKC.
+- **Bug pack guardaba "capsulas" como presentacion:** default del formData inicial SUP contaminaba el pack. Fix: onClick del pack limpia presentacion/dosaje/contenido/sabor/atributosSkincare antes del submit. Pack existente (SKC-0041) corregido via data-fix.
+
+### Data fixes aplicados (via dev exposure temporal en main.tsx)
+
+- SKC-0033 / SKC-0034 (Madagascar Centella Soothing Cream 30/75 ml): rellenados atributosSkincare completos siguiendo patron Madagascar Centella (tipoProductoSKC=crema, ingredienteClave=Centella Asiatica, lineaProducto=Madagascar Centella, textura=crema, pao=12, tipoPiel=[Sensible,Todo tipo], preocupaciones=[Rojeces,Irritacion,Piel reactiva,Hidratacion], pasoRutina=hidratacion) + peso.
+- SKC-0037 / SKC-0038 / SKC-0039 (Madagascar Centella Toning Toner 30/210/400 ml): rellenados (tipoProductoSKC=tonico, textura=agua, pasoRutina=tonificacion) + peso por volumen.
+- SKC-0041 (Madagascar Centella Travel Kit): limpiado `presentacion="capsulas"` heredado del default SUP.
+- SKC-0032 (Ampoule Foam variante): `varianteLabel` corregido de "30 ml" a "20 ml". Pack SKC-0041 rehidratado para refrescar el snapshot denormalizado del componente.
+- **Deuda latente identificada:** los snapshots denormalizados en `componentesPack` NO se refrescan automaticamente cuando el Producto base cambia. Candidato para Cloud Function futura que rehidrate snapshots cuando un Producto referenciado se edita.
+
+### Archivos tocados
+
+| Tipo | Archivos |
+|------|----------|
+| Nuevos | `src/components/modules/productos/ComponentesPackSection.tsx` · `docs/mockups/producto-pack-skincare.html` |
+| Modificados | `src/types/producto.types.ts` · `src/types/venta.types.ts` · `src/config/features.ts` · `src/services/producto.service.ts` · `src/services/venta.service.ts` · `src/pages/Productos/Productos.tsx` · `src/components/modules/productos/ProductoForm.tsx` · `src/components/modules/productos/ProductoCreacionWizard.tsx` · `src/components/modules/productos/ProductoCard.tsx` · `src/components/modules/productos/ProductoTable.tsx` · `src/components/modules/productos/FiltrosRapidos.tsx` · `src/components/modules/productos/FormVarianteReducida.tsx` · `src/components/modules/entidades/ProductoSearchVentas.tsx` |
+
+### Metricas
+
+| Indicador | Valor |
+|-----------|-------|
+| Lineas insertadas | ~1,590 |
+| Lineas eliminadas | ~228 |
+| Balance neto | +1,362 lineas |
+| Archivos nuevos | 2 |
+| Archivos modificados | 13 |
+| Build | Vite 18.02s · sin errores |
+| TypeScript | tsc -b exit 0 |
+| Feature flag | PRODUCTO_PACK=false (activar con `localStorage.setItem('FEATURE_PRODUCTO_PACK','true')` + reload) |
+
+### Decisiones cerradas (recap)
+
+D-PACK-01 a D-PACK-08 ya registradas arriba + las siguientes derivadas durante la sesion:
+- **D-PACK-09:** panel inline en lugar de modal anidado (UX moderna, evita "modal sobre modal").
+- **D-PACK-10:** tabla alineada estilo line-items en detalle (Stripe/Notion pattern).
+- **D-PACK-11:** listado con colapsable + avatares apilados por tipo SKC (Linear pattern), con metadata agregada inteligente.
+- **D-PACK-12:** color por tipo SKC en avatares (Limpiador=teal, Ampolla=pink, Tonico=sky, Aceite=amber, Crema=rose, Serum=violet, Mascarilla=indigo, Protector=orange, Contorno=fuchsia).
+- **D-PACK-13:** snapshot denormalizado en `componentesPack` — acepta deuda latente de rehidratacion manual hasta implementar Cloud Function (fuera de scope TAREA-105).
+
+### Fuera de scope (pendiente)
+
+- **Reporting cruzado en BI:** "¿cuantas unidades de Niacinamide vendi este mes sumando sueltas + dentro de packs?" — queda para otra sesion con bi-analyst. La base esta lista (componentes vinculados tienen `productoId`).
+- **Rehidratacion automatica de snapshots:** Cloud Function que escuche cambios en Productos y refresque `componentesPack` en todos los Packs que lo referencien. Deuda-PACK-001.
+- **UAT end-to-end:** nada probado con data real en produccion (consistente con patron S44-S46).
+
+---
+
+*Cierre registrado por implementation-controller (Agente 23) — 2026-04-21.*

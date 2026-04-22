@@ -1,5 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
-import type { AtributosSkincare } from './producto.types';
+import type { AtributosSkincare, ComponentePack } from './producto.types';
 import type { EstadoCotizacion } from './cotizacion.types';
 export type { EstadoCotizacion };
 
@@ -518,6 +518,10 @@ export interface ProductoDisponible {
   esPadre?: boolean;
   esVariante?: boolean;
   varianteLabel?: string;
+  /** TAREA-105: true si es un Pack/Kit. */
+  esPack?: boolean;
+  /** TAREA-105: componentes del pack (denormalizado desde Producto). */
+  componentesPack?: ComponentePack[];
 
   unidadesDisponibles: number;   // Stock en Perú
   unidadesUSA: number;           // Stock en USA
