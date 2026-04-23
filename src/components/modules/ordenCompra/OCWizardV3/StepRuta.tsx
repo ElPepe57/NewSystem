@@ -421,9 +421,10 @@ export const StepRuta: React.FC<StepRutaProps> = ({ state, dispatch }) => {
                       config.llegadaPeru !== 'ya_en_peru') {
                     cambio.llegadaPeru = 'viajero';
                   }
-                  if (!config.salidaProveedor) {
-                    cambio.salidaProveedor = 'proveedor_envia';
-                  }
+                  // S53.2 — Sin default para salidaProveedor. El usuario debe elegir
+                  // explícitamente entre "Proveedor envía" y "Recojo en origen".
+                  // La validación de puedeAvanzarPaso[0] en OCWizardV3.tsx bloquea el
+                  // botón "Siguiente" hasta que se elija.
                   if (Object.keys(cambio).length > 0) updateConfig(cambio);
                   setTipoRutaExpandedOverride(false); // colapsar al seleccionar
                 }}
