@@ -7,7 +7,8 @@ import { Button } from '../../components/common/Button';
 import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import type { Colaborador, TipoColaborador, ColaboradorFormData, SubtipoTransportistaLocal } from '../../types/colaborador.types';
+import type { Colaborador, TipoColaborador, ColaboradorFormData, SubtipoTransportistaLocal, TramoPeso } from '../../types/colaborador.types';
+import { TramosPesoSection, validarTramos } from './shared/TramosPesoSection';
 
 interface Props {
   isOpen: boolean;
@@ -57,6 +58,9 @@ export const ColaboradorFormModal: React.FC<Props> = ({
     subtipoTransportista: 'interno' as SubtipoTransportistaLocal,
   });
 
+  // S52 · D-11 — Tramos de peso escalonados (solo viajero/courier_externo)
+  const [tramosPeso, setTramosPeso] = useState<TramoPeso[]>([]);
+
   useEffect(() => {
     if (colaborador) {
       setForm({
@@ -72,6 +76,7 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         notas: colaborador.notas || '',
         subtipoTransportista: colaborador.subtipoTransportista || 'interno',
       });
+      setTramosPeso(colaborador.tarifas?.tarifaPorTramos || []);
     } else {
       setForm({
         nombre: '',
@@ -81,11 +86,26 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         ciudad: '', direccion: '', telefono: '', email: '', whatsapp: '', notas: '',
         subtipoTransportista: subtipoPreseleccionado || 'interno',
       });
+      setTramosPeso([]);
     }
   }, [colaborador, isOpen, tipoPreseleccionado, subtipoPreseleccionado]);
 
   const handleSubmit = async () => {
     if (!user || !form.nombre.trim()) return;
+
+    // S52 · D-11 — Validar tramos si se ingresaron
+    const aplicaTramos = form.tipo === 'viajero' || form.tipo === 'courier_externo';
+    if (aplicaTramos && tramosPeso.length > 0) {
+      const erroresTramos = validarTramos(tramosPeso);
+      if (erroresTramos.length > 0) {
+        toast.error(
+          'Los tramos de peso tienen errores: ' + erroresTramos[0],
+          'Validación'
+        );
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       // S42c fix — omitir campos vacíos en lugar de enviarlos como `undefined`
@@ -108,6 +128,15 @@ export const ColaboradorFormModal: React.FC<Props> = ({
       // Solo se preserva subtipoTransportista (requerido para separar Internos/Externos en el listado).
       if (form.tipo === 'transportista_local') {
         (data as any).subtipoTransportista = form.subtipoTransportista;
+      }
+
+      // S52 · D-11 — Persistir tramos de peso solo si aplica (viajero/courier_externo)
+      // y hay tramos válidos. La validación bloquea el submit más arriba.
+      if (
+        (form.tipo === 'viajero' || form.tipo === 'courier_externo') &&
+        tramosPeso.length > 0
+      ) {
+        (data as any).tarifas = { tarifaPorTramos: tramosPeso };
       }
 
       if (colaborador) {
@@ -227,6 +256,31 @@ export const ColaboradorFormModal: React.FC<Props> = ({
              reportes). El colaborador queda con solo datos de contacto estándar
              independientemente del tipo. Si en el futuro aparece un caso de uso
              real para cualquiera, los campos siguen en el modelo @deprecated. */}
+
+        {/* S52 · D-11 — Tramos de peso para tarifa escalonada (viajero/courier) */}
+        {(form.tipo === 'viajero' || form.tipo === 'courier_externo') && (
+          <div className="pt-4 border-t border-slate-100">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <label className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
+                  <span>⚖️</span> Tarifa por tramos de peso
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded uppercase tracking-wider">
+                    Opcional
+                  </span>
+                </label>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Acuerdo escalonado en libras. El wizard de envíos auto-carga esta
+                  tabla al elegirte como transportador.
+                </p>
+              </div>
+            </div>
+            <TramosPesoSection
+              value={tramosPeso}
+              onChange={setTramosPeso}
+              showValidation
+            />
+          </div>
+        )}
 
         {/* Notas */}
         <div>

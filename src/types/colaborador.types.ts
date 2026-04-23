@@ -27,6 +27,28 @@ export type SubtipoTransportistaLocal = 'interno' | 'externo';
 export type CourierExterno = 'olva' | 'mercado_envios' | 'urbano' | 'shalom' | 'otro';
 
 /**
+ * Tramo de peso escalonado para tarifa de flete (S52 · D-11)
+ *
+ * Los tramos definen el costo unitario del flete según el peso del producto.
+ * Ejemplo típico de acuerdo con viajero:
+ *   { pesoDesde: 0,   pesoHasta: 0.5,  costoUnitario: 5 }   // < 0.5 lb = $5/ud
+ *   { pesoDesde: 0.5, pesoHasta: 1.0,  costoUnitario: 6 }   // 0.5-1 lb = $6/ud
+ *   { pesoDesde: 1.0, pesoHasta: 1.5,  costoUnitario: 7 }   // 1-1.5 lb = $7/ud
+ *   { pesoDesde: 2.0, pesoHasta: null, costoUnitario: 10 }  // >= 2 lb = $10/ud (último tramo)
+ *
+ * Solo libras (lb). La conversión desde kg (si algún producto la usa)
+ * se hace al vuelo en el cálculo del wizard.
+ */
+export interface TramoPeso {
+  /** Peso mínimo del tramo (inclusive) en libras */
+  pesoDesde: number;
+  /** Peso máximo del tramo (exclusive) en libras. `null` = infinito (último tramo). */
+  pesoHasta: number | null;
+  /** Costo por unidad en USD que se aplica a productos cuyo peso cae en este tramo */
+  costoUnitario: number;
+}
+
+/**
  * Tarifas del colaborador (varia segun tipo)
  */
 export interface TarifasColaborador {
@@ -51,6 +73,20 @@ export interface TarifasColaborador {
   comisionPorcentaje?: number;
   /** @deprecated S42l — Sin uso. */
   costoFijo?: number;
+
+  /**
+   * Tarifa por tramos de peso (S52 · D-11).
+   * Aplicable a viajeros y couriers externos. Cuando el wizard de envíos
+   * selecciona este colaborador como transportador y elige la modalidad
+   * "Por tramos de peso", la tabla se auto-carga desde este campo.
+   *
+   * Requisitos de integridad (validar en UI antes de persistir):
+   * - Los tramos deben estar en orden ascendente por `pesoDesde`.
+   * - No deben tener gaps (el `pesoHasta` de un tramo = `pesoDesde` del siguiente).
+   * - Exactamente un tramo con `pesoHasta === null` (el último, cubre peso infinito).
+   * - Todos los `costoUnitario` >= 0.
+   */
+  tarifaPorTramos?: TramoPeso[];
 }
 
 /**
