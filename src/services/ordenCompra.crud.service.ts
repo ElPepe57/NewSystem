@@ -1020,28 +1020,101 @@ async function aplicarRecojoEnOrigen(
 ): Promise<void> {
   const { casillaCrudService } = await import('./casilla.crud.service');
   const { envioCrudService } = await import('./envio.crud.service');
+  const { calcularCostosLandedPorUnidad, buildProductosInfoFromOC } = await import(
+    '../utils/prorrateoLanded'
+  );
   const now = Timestamp.now();
 
   // 1. Obtener nombre de la casilla para desnormalizar en unidades
   const casillaDestino = await casillaCrudService.getById(destinoCasillaId);
   const casillaNombre = casillaDestino?.nombre ?? destinoCasillaId;
 
-  // 2. Marcar todas las unidades como 'disponible' en la casilla destino
+  // 2. S53.6 — Calcular CTRU prorrateado por unidad leyendo los costosLanded
+  //    del(los) envío(s) de la OC. Al recibir en origen, los cargos comerciales
+  //    de la OC (impuestos, cargos, descuentos) ya fueron heredados al Envio T1
+  //    via `heredarCargos` durante confirmarOC. Aquí replicamos la lógica que
+  //    hace `envio.recepcion.service.registrarRecepcion` para que el CTRU final
+  //    incluya esos prorrateos (antes de S53.6 quedaba en 0 el campo ctruInicial).
+  const enviosDeOC = await envioCrudService.getByOrdenCompra(orden.id);
+  const productosInfo = buildProductosInfoFromOC(orden.productos);
+  const tcCompra = orden.tcReferencial || orden.tcCompra || 0;
+
+  const costosLandedPorUnidad = new Map<string, number>();
+  for (const envio of enviosDeOC) {
+    if (!envio.costosLanded || envio.costosLanded.length === 0) continue;
+    const unidadesParaProrratear = envio.unidades || [];
+    const prorrateoEnvio = calcularCostosLandedPorUnidad(
+      envio.costosLanded,
+      unidadesParaProrratear,
+      productosInfo
+    );
+    for (const [unidadId, monto] of prorrateoEnvio) {
+      costosLandedPorUnidad.set(
+        unidadId,
+        (costosLandedPorUnidad.get(unidadId) || 0) + monto
+      );
+    }
+  }
+
+  // 3. Marcar todas las unidades como 'disponible' en la casilla destino con CTRU calculado
+  // S53.5 FIX — el tipo Unidad define el campo desnormalizado como `casillaNombre`
+  // (sin "Actual"). Antes se escribía `casillaActualNombre` que la UI de /unidades
+  // no lee, resultando en "🇺🇸 -" en vez de "🇺🇸 Casa - Angie".
+  // S53.6 FIX — calcular ctruInicial/Dinamico/Contable/Gerencial + costosLandedPEN
+  // por cada unidad. Antes quedaba en 0/undefined porque se saltaba el flujo de
+  // recepción normal.
   const unidadesBatch = writeBatch(db);
   for (const uid of unidadIds) {
-    unidadesBatch.update(doc(db, 'unidades', uid), {
+    // Buscar el costo unitario desde la OC (usando el productoId de la unidad
+    // no lo tenemos aquí directamente; podemos leer de la unidad o mapear vía envio).
+    // Para consistencia, construimos la fórmula con los datos de la OC:
+    //   costoProductoPEN = costoUnitarioUSD * tc
+    //   costosLandedPEN  = monto prorrateado (ya en PEN)
+    //   ctruInicial      = costoProductoPEN + costosLandedPEN
+    const costosLanded = costosLandedPorUnidad.get(uid) || 0;
+
+    // Necesitamos el costoUnitarioUSD para este uid. Lo resolvemos desde el Envio
+    // T1 (que tiene un array unidades[].productoId) o leyendo la unidad. Como ya
+    // tenemos `enviosDeOC` cargado, lo buscamos ahí.
+    let costoUnitarioUSD = 0;
+    for (const envio of enviosDeOC) {
+      const unidadEnvio = envio.unidades?.find(u => u.unidadId === uid);
+      if (unidadEnvio) {
+        const prod = orden.productos.find(p => p.productoId === unidadEnvio.productoId);
+        if (prod) costoUnitarioUSD = prod.costoUnitario;
+        break;
+      }
+    }
+
+    const costoProductoPEN = costoUnitarioUSD * tcCompra;
+    const ctruInicial = costoProductoPEN + costosLanded;
+
+    const updateData: Record<string, unknown> = {
       estado: 'disponible',
       casillaActualId: destinoCasillaId,
-      casillaActualNombre: casillaNombre,
+      casillaNombre,
+      pais: casillaDestino?.pais || orden.paisOrigen || 'USA',
       fechaRecepcion: now,
       actualizadoPor: userId,
       fechaActualizacion: now,
-    });
+    };
+
+    // Persistir CTRU solo si hay datos válidos para calcularlo
+    if (tcCompra > 0 && costoUnitarioUSD > 0) {
+      updateData.ctruInicial = ctruInicial;
+      updateData.ctruDinamico = ctruInicial;
+      updateData.ctruContable = ctruInicial;
+      updateData.ctruGerencial = ctruInicial;
+      if (costosLanded > 0) {
+        updateData.costosLandedPEN = costosLanded;
+      }
+    }
+
+    unidadesBatch.update(doc(db, 'unidades', uid), updateData);
   }
   await unidadesBatch.commit();
 
-  // 3. Actualizar envío(s): buscar todos los envíos de esta OC y marcarlos recibidos
-  const enviosDeOC = await envioCrudService.getByOrdenCompra(orden.id);
+  // 4. Actualizar envío(s) buscados en paso 2: marcarlos como recibidos
   for (const envio of enviosDeOC) {
     const envioRef = doc(db, COLLECTIONS.ENVIOS, envio.id);
     const totalUnidades = envio.unidades?.length ?? 0;
@@ -1064,18 +1137,27 @@ async function aplicarRecojoEnOrigen(
     });
   }
 
-  // 4. Actualizar inventario de la casilla destino
+  // 5. Actualizar inventario de la casilla destino
   const cantidadTotal = unidadIds.length;
   await casillaCrudService.incrementarUnidadesRecibidas(destinoCasillaId, cantidadTotal);
 
-  // Sumar valor de inventario (costo unitario × cantidad, en USD)
-  const valorTotalUSD = orden.productos.reduce(
+  // Sumar valor de inventario — S53.6 incluye impuestos + cargos - descuentos de la OC
+  // (total efectivo de la OC en USD) en vez de solo el subtotal base de productos.
+  const subtotalUSD = orden.productos.reduce(
     (sum, prod) => sum + prod.costoUnitario * prod.cantidad,
     0
   );
+  const impuestosUSD = orden.impuestoCompraUSD || 0;
+  const descuentosUSD = orden.descuentoUSD || 0;
+  const cargosOC = (orden.cargosOC || []).reduce((s, c) => s + (c.montoUSD || 0), 0);
+  const valorTotalUSD = subtotalUSD + impuestosUSD + cargosOC - descuentosUSD;
   await casillaCrudService.actualizarValorInventario(destinoCasillaId, valorTotalUSD);
 
   logger.success(
-    `Recojo en origen aplicado: ${cantidadTotal} unidades disponibles en ${casillaNombre}, valor +$${valorTotalUSD.toFixed(2)}, ${enviosDeOC.length} envío(s) marcado(s) como recibidos`
+    `Recojo en origen aplicado: ${cantidadTotal} unidades disponibles en ${casillaNombre}, ` +
+      `valor +$${valorTotalUSD.toFixed(2)} (subtotal $${subtotalUSD.toFixed(2)} + ` +
+      `impuestos $${impuestosUSD.toFixed(2)} + cargos $${cargosOC.toFixed(2)} - ` +
+      `descuentos $${descuentosUSD.toFixed(2)}), CTRU calculado por unidad, ` +
+      `${enviosDeOC.length} envío(s) marcado(s) como recibidos`
   );
 }

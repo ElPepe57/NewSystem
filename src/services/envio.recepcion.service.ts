@@ -6,6 +6,11 @@ import { logger } from '../lib/logger';
 import { COLLECTIONS } from '../config/collections';
 import { envioCrudService } from './envio.crud.service';
 import { getCostoBasePEN, getTC } from '../utils/ctru.utils';
+import {
+  calcularCostosLandedPorUnidad,
+  buildProductosInfoFromOC,
+  type ProductoInfo,
+} from '../utils/prorrateoLanded';
 import type { Envio, EstadoEnvio, RecepcionEnvio, EnvioUnidad, CostoLanded, MetodoProrrateo } from '../types/envio.types';
 import type { Unidad, EstadoUnidad, MovimientoUnidad } from '../types/unidad.types';
 
@@ -13,75 +18,11 @@ const ENVIOS_COLL = COLLECTIONS.ENVIOS;
 const UNIDADES_COLL = COLLECTIONS.UNIDADES;
 const BATCH_LIMIT = 450;
 
-/**
- * Prorratea un monto entre unidades segun el metodo indicado
- */
-function prorratearCosto(
-  costo: CostoLanded,
-  unidades: EnvioUnidad[],
-  productosInfo?: Map<string, { costoUSD: number; pesoLb: number }>
-): Map<string, number> {
-  const resultado = new Map<string, number>();
-  const totalUnidades = unidades.length;
-
-  if (totalUnidades === 0) return resultado;
-
-  switch (costo.metodoProrrateo) {
-    case 'fijo_por_unidad': {
-      const montoPorUnidad = costo.montoPEN / totalUnidades;
-      for (const u of unidades) {
-        resultado.set(u.unidadId, montoPorUnidad);
-      }
-      break;
-    }
-
-    case 'variado_por_producto': {
-      if (!costo.detalleVariado) {
-        // Fallback a fijo si no hay detalle
-        const montoPorUnidad = costo.montoPEN / totalUnidades;
-        for (const u of unidades) resultado.set(u.unidadId, montoPorUnidad);
-      } else {
-        for (const u of unidades) {
-          resultado.set(u.unidadId, costo.detalleVariado[u.productoId] || 0);
-        }
-      }
-      break;
-    }
-
-    case 'total_por_peso': {
-      let pesoTotal = 0;
-      for (const u of unidades) {
-        pesoTotal += u.pesoLibras || 1; // fallback 1 lb si no tiene peso
-      }
-      for (const u of unidades) {
-        const peso = u.pesoLibras || 1;
-        resultado.set(u.unidadId, costo.montoPEN * (peso / pesoTotal));
-      }
-      break;
-    }
-
-    case 'total_por_valor': {
-      let valorTotal = 0;
-      for (const u of unidades) {
-        const info = productosInfo?.get(u.productoId);
-        valorTotal += info?.costoUSD || 1;
-      }
-      for (const u of unidades) {
-        const info = productosInfo?.get(u.productoId);
-        const valor = info?.costoUSD || 1;
-        resultado.set(u.unidadId, costo.montoPEN * (valor / valorTotal));
-      }
-      break;
-    }
-
-    default: {
-      const montoPorUnidad = costo.montoPEN / totalUnidades;
-      for (const u of unidades) resultado.set(u.unidadId, montoPorUnidad);
-    }
-  }
-
-  return resultado;
-}
+// S53.7 — `prorratearCosto` y el helper de prorrateo extraídos a
+// `src/utils/prorrateoLanded.ts` para reutilizar desde `aplicarRecojoEnOrigen`
+// en `ordenCompra.crud.service.ts`. El fix incluido es el paso de
+// `productosInfo` correcto al método 'total_por_valor' (antes degeneraba
+// a prorrateo uniforme por falta de datos de producto).
 
 export const envioRecepcionService = {
   /**
@@ -120,21 +61,46 @@ export const envioRecepcionService = {
     const now = Timestamp.now();
     const batch = writeBatch(db);
 
-    // Calcular prorrateo de costos landed para CADA unidad recibida
+    // S53.7 — Calcular prorrateo de costos landed para CADA unidad recibida.
+    // Construimos `productosInfo` leyendo los costos base desde las primeras
+    // unidades de cada productoId (están desnormalizados en el envío + en
+    // la unidad real via `costoUnitarioUSD`). Esto arregla el bug CONT-003
+    // donde `total_por_valor` degeneraba en prorrateo uniforme.
     const costosLandedPorUnidad = new Map<string, number>();
     if (envio.costosLanded.length > 0) {
       const unidadesPendientes = envio.unidades.filter(
         u => u.estadoEnvio === 'pendiente' || u.estadoEnvio === 'enviada'
       );
 
-      for (const costo of envio.costosLanded) {
-        const prorrateo = prorratearCosto(costo, unidadesPendientes);
-        for (const [unidadId, monto] of prorrateo) {
-          costosLandedPorUnidad.set(
-            unidadId,
-            (costosLandedPorUnidad.get(unidadId) || 0) + monto
-          );
+      // Construir productosInfo leyendo el costoUnitarioUSD real de Firestore
+      // (una lectura por productoId distinto, no por unidad individual).
+      const productosInfo = new Map<string, ProductoInfo>();
+      const productoIdsUnicos = Array.from(
+        new Set(unidadesPendientes.map(u => u.productoId))
+      );
+      for (const pid of productoIdsUnicos) {
+        // Tomar una unidad de ese producto para leer su costoUnitarioUSD
+        // desnormalizado y su pesoLibras (si existe).
+        const primera = unidadesPendientes.find(u => u.productoId === pid);
+        if (!primera) continue;
+        const unidadRef = doc(db, UNIDADES_COLL, primera.unidadId);
+        const unidadSnap = await getDoc(unidadRef);
+        if (unidadSnap.exists()) {
+          const data = unidadSnap.data() as Unidad;
+          productosInfo.set(pid, {
+            costoUSD: data.costoUnitarioUSD || 0,
+            pesoLb: primera.pesoLibras || 0,
+          });
         }
+      }
+
+      const prorrateo = calcularCostosLandedPorUnidad(
+        envio.costosLanded,
+        unidadesPendientes,
+        productosInfo
+      );
+      for (const [unidadId, monto] of prorrateo) {
+        costosLandedPorUnidad.set(unidadId, monto);
       }
     }
 
