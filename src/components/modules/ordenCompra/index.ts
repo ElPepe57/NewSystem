@@ -1,8 +1,8 @@
 // Orden de Compra Components
-export { OrdenCompraForm } from './OrdenCompraForm';
-export { OrdenCompraTable } from './OrdenCompraTable';
+// S53.9 — OrdenCompraForm + OrdenCompraTable ELIMINADOS (legacy).
+// Creación/edición ahora vive en OCWizardV3 (via page OrdenesCompra directamente).
 
-// OC Builder (Wizard)
+// OC Builder (Wizard desde requerimientos)
 export { OCBuilder } from './OCBuilder/OCBuilder';
 export { PendientesCompraPanel } from './PendientesCompraPanel';
 

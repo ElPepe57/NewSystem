@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Search, LayoutGrid, List } from 'lucide-react';
+import { Plus, Package, DollarSign, TrendingUp, AlertCircle, Download, ExternalLink, FileText, Send, Truck, CheckCircle, XCircle, CreditCard, PackageCheck, Calendar, Building2, Edit3, Search } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, useActionModal, ActionModal } from '../../components/common';
 import { PageShell, PageHeader, KPIBar, StatCard, DataCard } from '../../design-system';
 import type { StatusVariant } from '../../design-system';
 import { useToastStore } from '../../store/toastStore';
-import { OrdenCompraForm } from '../../components/modules/ordenCompra/OrdenCompraForm';
-import { OrdenCompraTable } from '../../components/modules/ordenCompra/OrdenCompraTable';
+// S53.9 — OrdenCompraForm + OrdenCompraTable ELIMINADOS (legacy).
+// Toda la creacion/edicion de OC pasa por OCWizardV3. Lista en tarjetas unicamente.
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
 import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
 import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
@@ -150,9 +150,8 @@ export const OrdenesCompra: React.FC = () => {
 
   // S42am — Default a vista card para que coincida con el diseño del mockup S40.
   // La vista tabla se mantiene como opción pero no es el default.
-  const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
+  // S53.9 — viewMode eliminado. Vista de tarjetas es la única opción.
   const [isWizardV2Open, setIsWizardV2Open] = useState(false);
-  const [isOrdenModalOpen, setIsOrdenModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
@@ -169,7 +168,7 @@ export const OrdenesCompra: React.FC = () => {
   const [itemsVisibles, setItemsVisibles] = useState(10);
   // Estado para edición
   const [ordenEditando, setOrdenEditando] = useState<OrdenCompra | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
+  // S53.9 — isEditMode eliminado. El wizard detecta edicion por presencia de `ordenEditar`.
 
   // Datos iniciales para el formulario (cuando viene de un requerimiento)
   const [initialFormData, setInitialFormData] = useState<{
@@ -378,7 +377,7 @@ export const OrdenesCompra: React.FC = () => {
       });
 
       // Abrir modal de nueva orden
-      setIsOrdenModalOpen(true);
+      setIsWizardV2Open(true);
 
       // Limpiar el state de location para evitar re-abrir al navegar
       window.history.replaceState({}, document.title);
@@ -417,7 +416,7 @@ export const OrdenesCompra: React.FC = () => {
             nombre: primeraAsignacion.viajeroNombre
           }
         });
-        setIsOrdenModalOpen(true);
+        setIsWizardV2Open(true);
       }
 
       // Limpiar el state de location
@@ -440,14 +439,33 @@ export const OrdenesCompra: React.FC = () => {
         })),
         tcSugerido: fromMultipleRequerimientos.tcInvestigacion
       });
-      setIsOrdenModalOpen(true);
+      setIsWizardV2Open(true);
       window.history.replaceState({}, document.title);
     }
   }, [fromMultipleRequerimientos, proveedoresActivos]);
 
-  // Crear orden
+  // Crear orden (o editar si ordenEditando está seteado — S53.9)
   const handleCreateOrden = async (data: OrdenCompraFormData) => {
     if (!user) return;
+
+    // S53.9 — Modo edición: OCWizardV3 llamó onSubmit y ordenEditando está seteado.
+    // En vez de crear una OC nueva, actualizamos la existente con update().
+    if (ordenEditando) {
+      setIsSubmitting(true);
+      try {
+        await updateOrden(ordenEditando.id, data, user.uid);
+        toast.success('Orden actualizada correctamente');
+        setIsWizardV2Open(false);
+        setOrdenEditando(null);
+        await fetchOrdenes();
+      } catch (error: any) {
+        console.error('Error al actualizar orden:', error);
+        toast.error(error.message, 'Error');
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -519,7 +537,7 @@ export const OrdenesCompra: React.FC = () => {
           setMultiViajeroCompletado(true);
 
           // Limpiar todos los estados
-          setIsOrdenModalOpen(false);
+          setIsWizardV2Open(false);
           setInitialFormData(null);
           setMultiViajeroData(null);
           setCurrentViajeroIndex(0);
@@ -533,7 +551,7 @@ export const OrdenesCompra: React.FC = () => {
           );
         }
       } else {
-        setIsOrdenModalOpen(false);
+        setIsWizardV2Open(false);
         setIsWizardV2Open(false);
         setInitialFormData(null);
         toast.success('Orden de compra creada exitosamente');
@@ -550,23 +568,21 @@ export const OrdenesCompra: React.FC = () => {
         setTotalViajerosOriginal(0);
         setViajerosCompletados(0);
       }
-      setIsOrdenModalOpen(false);
+      setIsWizardV2Open(false);
       setInitialFormData(null);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Cerrar modal y limpiar datos iniciales
+  // S53.9 — Cerrar wizard y limpiar datos iniciales. Reemplaza el handleCloseOrdenModal
+  // legacy que cerraba el modal de OrdenCompraForm. Ahora cierra el OCWizardV3.
   const handleCloseOrdenModal = () => {
-    setIsOrdenModalOpen(false);
+    setIsWizardV2Open(false);
     setInitialFormData(null);
-    // Limpiar estado de edición
     setOrdenEditando(null);
-    setIsEditMode(false);
     // Limpiar datos de multi-viajero si estaba en ese modo
     if (creandoMultiOC) {
-      // Marcar como completado para evitar que el useEffect re-abra el modal
       setMultiViajeroCompletado(true);
       setMultiViajeroData(null);
       setCurrentViajeroIndex(0);
@@ -591,34 +607,16 @@ export const OrdenesCompra: React.FC = () => {
     setIsDetailsModalOpen(true);
   };
 
-  // Editar orden (solo permitido en estado borrador)
+  // Editar orden (solo permitido en estado borrador) — S53.9: abre OCWizardV3
+  // con el prop `ordenEditar` que pre-carga todos los datos.
   const handleEditOrden = (orden: OrdenCompra) => {
     if (orden.estado !== 'borrador') {
       toast.warning('Solo se pueden editar órdenes en estado Borrador');
       return;
     }
+    setIsDetailsModalOpen(false);
     setOrdenEditando(orden);
-    setIsEditMode(true);
-    setIsOrdenModalOpen(true);
-  };
-
-  // Actualizar orden existente
-  const handleUpdateOrden = async (data: OrdenCompraFormData) => {
-    if (!user || !ordenEditando) return;
-
-    setIsSubmitting(true);
-    try {
-      await updateOrden(ordenEditando.id, data, user.uid);
-      toast.success('Orden actualizada correctamente');
-      setIsOrdenModalOpen(false);
-      setOrdenEditando(null);
-      setIsEditMode(false);
-    } catch (error: any) {
-      console.error('Error al actualizar orden:', error);
-      toast.error(error.message, 'Error');
-    } finally {
-      setIsSubmitting(false);
-    }
+    setIsWizardV2Open(true);
   };
 
   // Cambiar estado
@@ -1058,51 +1056,11 @@ export const OrdenesCompra: React.FC = () => {
             Limpiar filtros
           </button>
         )}
-        {/* S42am — Toggle vista tabla/card inline (mockup S40 L251-254).
-             Reemplaza el <Toolbar> separado que mostraba "N resultados" duplicando
-             los pills "Todas (N)". */}
-        <div className="flex items-center gap-1 ml-2 border-l border-slate-200 pl-2">
-          <button
-            type="button"
-            onClick={() => setViewMode('card')}
-            title="Vista tarjetas"
-            className={`p-1.5 rounded transition-colors ${
-              viewMode === 'card'
-                ? 'bg-slate-200 text-slate-900'
-                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('table')}
-            title="Vista tabla"
-            className={`p-1.5 rounded transition-colors ${
-              viewMode === 'table'
-                ? 'bg-slate-200 text-slate-900'
-                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <List className="w-4 h-4" />
-          </button>
-        </div>
+        {/* S53.9 — Toggle viewMode ELIMINADO. Vista de tarjetas es la unica. */}
       </div>
 
-      {/* Lista de Ordenes */}
-      {viewMode === 'table' ? (
-        <Card padding="none">
-          <OrdenCompraTable
-            ordenes={ordenesFiltradas}
-            onView={handleViewDetails}
-            onEdit={handleEditOrden}
-            onDelete={handleDelete}
-            loading={loading}
-          />
-        </Card>
-      ) : (
-        // S42al — Container con bg-slate-50 + padding para que las cards
-        // blancas contrasten visualmente (mockup S40 L258: `bg-slate-50 p-6 space-y-3`).
+      {/* Lista de Ordenes — vista de tarjetas unicamente (S53.9) */}
+      {(
         <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
           {ordenesFiltradas.length === 0 ? (
             <div className="bg-white border border-slate-200 rounded-lg py-16 text-center">
@@ -1157,117 +1115,8 @@ export const OrdenesCompra: React.FC = () => {
         </div>
       )}
 
-      {/* Modal Nueva Orden */}
-      {isOrdenModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          {/* Backdrop - click para cerrar */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-            onClick={handleCloseOrdenModal}
-          />
+      {/* S53.9 — Modal Nueva Orden legacy ELIMINADO. La creacion/edicion vive en OCWizardV3. */}
 
-          {/* Modal Container */}
-          <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
-            <div
-              className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col pointer-events-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header con X para cerrar */}
-              <div className="flex-shrink-0 bg-white z-10 flex items-center justify-between px-6 py-4 border-b border-slate-200 rounded-t-lg">
-                <h3 className="text-xl font-semibold text-slate-900">
-                  {isEditMode && ordenEditando
-                    ? `Editar Orden ${ordenEditando.numeroOrden}`
-                    : creandoMultiOC && multiViajeroData
-                      ? `Nueva OC para ${multiViajeroData.asignaciones[currentViajeroIndex]?.viajeroNombre} (${viajerosCompletados + 1}/${totalViajerosOriginal})`
-                      : initialFormData?.requerimientoNumero
-                        ? `Nueva OC desde ${initialFormData.requerimientoNumero}`
-                        : "Nueva Orden de Compra"
-                  }
-                </h3>
-                <button
-                  type="button"
-                  onClick={handleCloseOrdenModal}
-                  className="text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-100 rounded-full"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Content - scrollable area */}
-              <div className="p-6 overflow-y-auto flex-1 min-h-0">
-                {/* Banner de progreso multi-viajero */}
-                {creandoMultiOC && multiViajeroData && totalViajerosOriginal > 0 && (
-                  <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Package className="h-5 w-5 text-purple-600 mr-2" />
-                        <span className="font-medium text-purple-900">
-                          Creando OC {viajerosCompletados + 1} de {totalViajerosOriginal}
-                        </span>
-                      </div>
-                      <span className="text-sm text-purple-600">
-                        Viajero: {multiViajeroData.asignaciones[currentViajeroIndex]?.viajeroNombre}
-                      </span>
-                    </div>
-                    <div className="mt-2 w-full bg-purple-200 rounded-full h-2">
-                      <div
-                        className="bg-purple-600 h-2 rounded-full transition-all"
-                        style={{ width: `${((viajerosCompletados + 1) / totalViajerosOriginal) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-                <OrdenCompraForm
-                  key={isEditMode ? ordenEditando?.id : (initialFormData?.viajero?.id || 'default')}
-                  proveedores={proveedoresActivos}
-                  productos={productos}
-                  onSubmit={isEditMode ? handleUpdateOrden : handleCreateOrden}
-                  onCancel={handleCloseOrdenModal}
-                  loading={isSubmitting}
-                  tcSugerido={initialFormData?.tcSugerido || tcSugerido}
-                  initialProductos={initialFormData?.productos}
-                  requerimientoId={initialFormData?.requerimientoId}
-                  requerimientoNumero={initialFormData?.requerimientoNumero}
-                  requerimientoIds={initialFormData?.requerimientoIds}
-                  requerimientoNumeros={initialFormData?.requerimientoNumeros}
-                  clientesOrigen={initialFormData?.clientesOrigen}
-                  productosOrigen={initialFormData?.productosOrigen}
-                  initialViajero={initialFormData?.viajero}
-                  isEditMode={isEditMode}
-                  ordenEditar={ordenEditando ? {
-                    id: ordenEditando.id,
-                    numeroOrden: ordenEditando.numeroOrden,
-                    proveedorId: ordenEditando.proveedorId,
-                    nombreProveedor: ordenEditando.nombreProveedor,
-                    almacenDestino: ordenEditando.almacenDestino || '',
-                    productos: ordenEditando.productos.map(p => ({
-                      productoId: p.productoId,
-                      sku: p.sku,
-                      marca: p.marca,
-                      nombreComercial: p.nombreComercial,
-                      presentacion: p.presentacion,
-                      cantidad: p.cantidad,
-                      costoUnitario: p.costoUnitario
-                    })),
-                    subtotalUSD: ordenEditando.subtotalUSD,
-                    impuestoCompraUSD: ordenEditando.impuestoCompraUSD,
-                    costoEnvioProveedorUSD: ordenEditando.costoEnvioProveedorUSD,
-                    otrosGastosCompraUSD: ordenEditando.otrosGastosCompraUSD,
-                    descuentoUSD: ordenEditando.descuentoUSD,
-                    totalUSD: ordenEditando.totalUSD,
-                    tcCompra: ordenEditando.tcCompra || 0,
-                    numeroTracking: ordenEditando.numeroTracking,
-                    courier: ordenEditando.courier,
-                    observaciones: ordenEditando.observaciones
-                  } as any : undefined}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal Detalles de Orden */}
       <Modal
@@ -1287,6 +1136,9 @@ export const OrdenesCompra: React.FC = () => {
             onRegistrarPago={handleRegistrarPago}
             onPagarSubOrden={handlePagarSubOrden}
             onRefresh={() => { fetchOrdenes(); if (selectedOrden) refreshSelectedOrden(selectedOrden.id); }}
+            // S53.9 — Editar y Eliminar solo visibles en borrador (dentro del card)
+            onEditarOC={() => handleEditOrden(selectedOrden)}
+            onEliminarOC={() => handleDelete(selectedOrden)}
           />
         )}
       </Modal>
@@ -1367,12 +1219,23 @@ export const OrdenesCompra: React.FC = () => {
       {/* Modal de Acciones con campos */}
       <ActionModal {...actionModalProps} />
 
-      {/* Wizard V3 — Rework S41: Ruta → Productos → Cargos → Inteligencia → Confirmar */}
+      {/* Wizard V3 — Rework S41: Ruta → Productos → Cargos → Inteligencia → Confirmar
+           S53.9: maneja tambien edicion de OCs borrador (ordenEditando) y pre-link a
+           requerimientos (initialFormData.requerimientoId/Ids/Numero/Numeros) */}
       <OCWizardV3
         isOpen={isWizardV2Open}
-        onClose={() => setIsWizardV2Open(false)}
+        onClose={() => {
+          setIsWizardV2Open(false);
+          setOrdenEditando(null);
+          setInitialFormData(null);
+        }}
         onSubmit={handleCreateOrden}
         isSubmitting={isSubmitting}
+        ordenEditar={ordenEditando || undefined}
+        requerimientoId={initialFormData?.requerimientoId}
+        requerimientoNumero={initialFormData?.requerimientoNumero}
+        requerimientoIds={initialFormData?.requerimientoIds}
+        requerimientoNumeros={initialFormData?.requerimientoNumeros}
       />
 
       {/* S38-011: Modal Despachar OC con autocomplete inteligente de courier */}

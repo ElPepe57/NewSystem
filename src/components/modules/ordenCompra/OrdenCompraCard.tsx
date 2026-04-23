@@ -16,7 +16,7 @@ import type { TimelineStep, NextAction } from '../../common';
 import type { OrdenCompra, EstadoOrden, EstadoPagoOC, SubOrdenCompra, ProductoOrden } from '../../../types/ordenCompra.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
 import { calcularEstadoDerivadoOC, getCargosEfectivosOC, prorratearCargosOC } from '../../../utils/ordenCompra.helpers';
-import { Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, AlertTriangle, Edit3 } from 'lucide-react';
 import { SubOrdenCard } from './SubOrdenCard';
 import { EnviosDeOC } from './EnviosDeOC';
 import { ConfirmarOCModal } from './ConfirmarOCModal';
@@ -34,6 +34,10 @@ interface OrdenCompraCardProps {
   onRegistrarPago?: () => void;
   onPagarSubOrden?: (subOrdenId: string) => void;
   onRefresh?: () => void;
+  /** S53.9 — Editar OC borrador. Solo se muestra cuando orden.estado === 'borrador'. */
+  onEditarOC?: () => void;
+  /** S53.9 — Eliminar OC. Solo visible en borrador (para no romper trazabilidad). */
+  onEliminarOC?: () => void;
 }
 
 const estadoLabels: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
@@ -63,7 +67,9 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
   onSolicitarConfirmacion,
   onRegistrarPago,
   onPagarSubOrden,
-  onRefresh
+  onRefresh,
+  onEditarOC,
+  onEliminarOC,
 }) => {
   const [showHistory, setShowHistory] = useState(false);
   // Sub-orden lifecycle state: trackingDraft[subId] = { tracking, courier }
@@ -325,6 +331,32 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
             </div>
           }
         />
+        {/* S53.9 — Botones Editar / Eliminar OC (solo en estado borrador).
+             Reemplaza los iconos inline de la tabla legacy (OrdenCompraTable). */}
+        {orden.estado === 'borrador' && (onEditarOC || onEliminarOC) && (
+          <div className="flex items-center justify-end gap-2 mt-3">
+            {onEditarOC && (
+              <button
+                type="button"
+                onClick={onEditarOC}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg transition-colors"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                Editar OC
+              </button>
+            )}
+            {onEliminarOC && (
+              <button
+                type="button"
+                onClick={onEliminarOC}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Eliminar
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* S52 — Pipeline migrado a <EntityPipeline> (plantilla Capa 3).

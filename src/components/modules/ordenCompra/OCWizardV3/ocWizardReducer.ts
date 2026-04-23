@@ -33,6 +33,7 @@ export type OCWizardAction =
   | { type: 'UPDATE_IMPUESTO'; impuesto: ImpuestoOC }
   | { type: 'SET_OBSERVACIONES'; text: string }
   | { type: 'SET_CONFIG_LOGISTICA'; config: ConfigLogistica }
+  | { type: 'CARGAR_ORDEN'; state: OCWizardState }
   | { type: 'RESET' };
 
 export function ocWizardReducer(state: OCWizardState, action: OCWizardAction): OCWizardState {
@@ -140,6 +141,11 @@ export function ocWizardReducer(state: OCWizardState, action: OCWizardAction): O
 
     case 'RESET':
       return { ...initialWizardState };
+
+    case 'CARGAR_ORDEN':
+      // S53.9 — Modo edición: reemplaza el state completo con el payload provisto
+      // por el caller que ya construyó el snapshot desde OrdenCompra.
+      return { ...action.state };
 
     default:
       return state;

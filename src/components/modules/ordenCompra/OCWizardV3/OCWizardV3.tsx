@@ -30,6 +30,12 @@ interface OCWizardV3Props {
   /** Pre-link a múltiples requerimientos */
   requerimientoIds?: string[];
   requerimientoNumeros?: string[];
+  /**
+   * S53.9 — Modo edición: cuando se pasa una OC existente, el wizard
+   * pre-carga todos sus datos y el submit llama a `update()` en vez de `crear()`.
+   * Solo permitido para OCs en estado 'borrador' (el servicio bloquea el resto).
+   */
+  ordenEditar?: import('../../../../types/ordenCompra.types').OrdenCompra;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -120,8 +126,11 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
   requerimientoNumero,
   requerimientoIds,
   requerimientoNumeros,
+  ordenEditar,
 }) => {
   const [state, dispatch] = useReducer(ocWizardReducer, initialWizardState);
+  // S53.9 — modo edición activo cuando se pasa una OC existente
+  const esEdicion = !!ordenEditar;
   const submittedRef = useRef(false);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [draftAceptado, setDraftAceptado] = React.useState(false);
@@ -137,7 +146,10 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     tipo: 'oc',
     state,
     pasoActual: currentStep,
-    enabled: isOpen && !submittedRef.current,
+    // S53.9 — En modo edición NO autosave: la OC ya está persistida, cualquier
+    // cambio temporal no debería crear un borrador paralelo. El submit hace
+    // update() directo a la OC existente.
+    enabled: isOpen && !submittedRef.current && !esEdicion,
     buildResumen: (s) => {
       const prov = s.configLogistica.proveedorNombre || s.proveedorNombre;
       const total = s.productos.reduce(
@@ -195,6 +207,19 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     await descartarBorrador();
     setDraftAceptado(true);
   };
+
+  // ─── S53.9 — Modo edición: pre-cargar state desde la OC al abrir ─────────
+  React.useEffect(() => {
+    if (!isOpen || !ordenEditar) return;
+    (async () => {
+      const { buildStateFromOrden } = await import('./ocWizardFromOrden');
+      dispatch({
+        type: 'CARGAR_ORDEN',
+        state: buildStateFromOrden(ordenEditar),
+      } as OCWizardAction);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, ordenEditar?.id]);
 
   // ─── Auto-fetch TC del día al abrir ──────────────────────────────────────
   React.useEffect(() => {
@@ -442,8 +467,8 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
       )}
       <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">
         <WizardShell
-          title="Nueva Orden de Compra"
-          subtitle={subtitle}
+          title={esEdicion ? `Editar OC ${ordenEditar?.numeroOrden}` : 'Nueva Orden de Compra'}
+          subtitle={esEdicion ? 'Modificá los campos necesarios y guardá los cambios.' : subtitle}
           steps={STEPS}
           currentStep={currentStep}
           onStepChange={(i) => {
@@ -456,7 +481,13 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
           onConfirm={handleSubmit}
           nextDisabled={!canProceed}
           loading={isSubmitting}
-          confirmLabel={isSubmitting ? 'Guardando...' : 'Crear Orden'}
+          confirmLabel={
+            isSubmitting
+              ? 'Guardando...'
+              : esEdicion
+              ? 'Guardar cambios'
+              : 'Crear Orden'
+          }
           nextHint={
             !canProceed
               ? 'Completa los datos obligatorios para continuar'
