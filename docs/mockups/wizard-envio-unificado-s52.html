@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S52 · Wizard de Envíos Unificado (v6 — secciones estilo OC con buscador)</title>
+<title>S52 · Wizard de Envíos Unificado (v7 — modalidad por tramos de peso + TC del sistema)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -67,9 +67,9 @@
 <header class="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-20">
   <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-500 font-mono">🧙 S52 · Wizard Envíos v6</div>
-      <h1 class="text-lg font-semibold text-slate-900">Wizard Unificado · secciones estilo OC con buscador</h1>
-      <p class="text-xs text-slate-500">Mockup de validación · diseño v6 · aprobado para implementación</p>
+      <div class="flex items-center gap-2 text-xs text-slate-500 font-mono">🧙 S52 · Wizard Envíos v7</div>
+      <h1 class="text-lg font-semibold text-slate-900">Wizard Unificado · 4 modalidades de costo + TC del sistema</h1>
+      <p class="text-xs text-slate-500">Mockup de validación · diseño v7 · aprobado para implementación</p>
     </div>
     <div class="flex items-center gap-1 flex-wrap">
       <button onclick="mostrarTab('paso1')" id="tab-paso1" class="tab-active text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">1 · Origen + destino + unidades</button>
@@ -620,25 +620,170 @@
 
         <div>
           <h3 class="text-base font-semibold text-slate-900 mb-3">Costos del envío (USD)</h3>
-          <div class="grid grid-cols-3 gap-2 mb-3">
-            <div class="option-card selected border-2 rounded-lg p-2 text-center"><div class="text-xs font-semibold text-slate-900">Monto total</div><p class="text-[10px] text-slate-600">Total fijo, prorratea por peso</p></div>
-            <div class="option-card border border-slate-200 rounded-lg p-2 text-center"><div class="text-xs text-slate-700">Por unidad</div><p class="text-[10px] text-slate-500">$ × uds</p></div>
-            <div class="option-card border border-slate-200 rounded-lg p-2 text-center"><div class="text-xs text-slate-700">Variable</div><p class="text-[10px] text-slate-500">Tabla por producto</p></div>
+
+          <!-- 4 modalidades de cálculo -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+            <div class="option-card border border-slate-200 rounded-lg p-3 text-center">
+              <div class="text-xs font-semibold text-slate-700 mb-0.5">Flete total</div>
+              <p class="text-[10px] text-slate-500 leading-tight">"Pagué $X total"</p>
+            </div>
+            <div class="option-card border border-slate-200 rounded-lg p-3 text-center">
+              <div class="text-xs font-semibold text-slate-700 mb-0.5">Tarifa por unidad</div>
+              <p class="text-[10px] text-slate-500 leading-tight">"$X por cada unidad"</p>
+            </div>
+            <div class="option-card border border-slate-200 rounded-lg p-3 text-center">
+              <div class="text-xs font-semibold text-slate-700 mb-0.5">Por producto</div>
+              <p class="text-[10px] text-slate-500 leading-tight">"Costo distinto por SKU"</p>
+            </div>
+            <div class="option-card selected border-2 rounded-lg p-3 text-center relative">
+              <span class="absolute -top-1.5 -right-1.5 text-[9px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full">⭐ NUEVO</span>
+              <div class="text-xs font-semibold text-slate-900 mb-0.5">Por tramos de peso</div>
+              <p class="text-[10px] text-slate-600 leading-tight">Tarifa escalonada en lb</p>
+            </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs text-slate-700 block mb-1">Monto total del flete (USD)</label>
-              <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span><input type="number" value="280" class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg"></div>
+
+          <!-- Modalidad activa: Por tramos de peso -->
+          <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-4 animate-in">
+
+            <!-- Banner: tramos cargados desde viajero -->
+            <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3 flex-1">
+                <span class="text-xl flex-shrink-0">💡</span>
+                <div class="text-xs">
+                  <div class="font-semibold text-sky-900 mb-0.5">Tramos cargados desde el acuerdo preset de Juan Pérez</div>
+                  <p class="text-sky-800">Estos tramos viven en la ficha del viajero (Red Logística). Podés editarlos para este envío puntual sin alterar su preset.</p>
+                </div>
+              </div>
+              <button class="text-xs font-medium text-sky-700 hover:text-sky-900 whitespace-nowrap">✏️ Editar tramos</button>
             </div>
+
+            <!-- Tabla de tramos (read-only en este estado) -->
             <div>
-              <label class="text-xs text-slate-700 block mb-1">Tipo de cambio (PEN/USD)</label>
-              <input type="number" value="3.780" step="0.001" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Tramos de peso (lb)</div>
+              <div class="border border-slate-200 rounded-lg overflow-hidden">
+                <table class="w-full text-xs">
+                  <thead class="bg-slate-50 text-slate-600">
+                    <tr>
+                      <th class="px-3 py-2 text-left font-semibold">Peso desde</th>
+                      <th class="px-3 py-2 text-left font-semibold">Peso hasta</th>
+                      <th class="px-3 py-2 text-right font-semibold">Costo por unidad</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr><td class="px-3 py-2 tabular-nums">0 lb</td><td class="px-3 py-2 tabular-nums">0.5 lb</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">$ 5.00</td></tr>
+                    <tr><td class="px-3 py-2 tabular-nums">0.5 lb</td><td class="px-3 py-2 tabular-nums">1.0 lb</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">$ 6.00</td></tr>
+                    <tr><td class="px-3 py-2 tabular-nums">1.0 lb</td><td class="px-3 py-2 tabular-nums">1.5 lb</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">$ 7.00</td></tr>
+                    <tr><td class="px-3 py-2 tabular-nums">1.5 lb</td><td class="px-3 py-2 tabular-nums">2.0 lb</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">$ 8.00</td></tr>
+                    <tr><td class="px-3 py-2 tabular-nums">2.0 lb</td><td class="px-3 py-2 tabular-nums">∞</td><td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">$ 10.00</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
+
+            <!-- Tabla de cálculo automático por producto -->
+            <div>
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Cálculo automático · por producto del Paso 1</div>
+              <div class="border border-slate-200 rounded-lg overflow-hidden">
+                <table class="w-full text-xs">
+                  <thead class="bg-slate-50 text-slate-600">
+                    <tr>
+                      <th class="px-3 py-2 text-left font-semibold">Producto</th>
+                      <th class="px-3 py-2 text-right font-semibold">Peso unit.</th>
+                      <th class="px-3 py-2 text-right font-semibold">Cant.</th>
+                      <th class="px-3 py-2 text-left font-semibold">Tramo aplicado</th>
+                      <th class="px-3 py-2 text-right font-semibold">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr>
+                      <td class="px-3 py-2">💊 Ashwagandha KSM-66</td>
+                      <td class="px-3 py-2 text-right tabular-nums">0.3 lb</td>
+                      <td class="px-3 py-2 text-right tabular-nums">8</td>
+                      <td class="px-3 py-2 text-[11px] text-slate-600">&lt; 0.5 lb · $5</td>
+                      <td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">$ 40.00</td>
+                    </tr>
+                    <tr>
+                      <td class="px-3 py-2">🧴 Soothing Cream</td>
+                      <td class="px-3 py-2 text-right tabular-nums">0.7 lb</td>
+                      <td class="px-3 py-2 text-right tabular-nums">6</td>
+                      <td class="px-3 py-2 text-[11px] text-slate-600">0.5-1 lb · $6</td>
+                      <td class="px-3 py-2 text-right tabular-nums font-semibold text-slate-900">$ 36.00</td>
+                    </tr>
+                    <tr class="bg-slate-50/50">
+                      <td class="px-3 py-2">💧 DHA para Bebés</td>
+                      <td class="px-3 py-2 text-right tabular-nums text-slate-400">1.2 lb</td>
+                      <td class="px-3 py-2 text-right tabular-nums text-slate-400">0</td>
+                      <td class="px-3 py-2 text-[11px] text-slate-400">1-1.5 lb · $7</td>
+                      <td class="px-3 py-2 text-right tabular-nums text-slate-400">$ 0.00</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="bg-teal-50 border-t-2 border-teal-200">
+                    <tr>
+                      <td colspan="4" class="px-3 py-2 font-semibold text-teal-900 text-right">TOTAL DEL FLETE:</td>
+                      <td class="px-3 py-2 text-right tabular-nums font-bold text-teal-900 text-sm">$ 76.00</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Ejemplo: advertencia si falta peso (hidden en este estado, solo para documentación) -->
+            <details class="bg-amber-50/40 border border-amber-200 rounded-lg p-3">
+              <summary class="cursor-pointer text-xs font-medium text-amber-900">💡 Ejemplo: ¿qué pasa si un producto no tiene peso configurado?</summary>
+              <div class="mt-3 bg-amber-100/60 border border-amber-300 rounded-lg p-3">
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">⚠️</span>
+                  <div class="text-xs flex-1">
+                    <div class="font-semibold text-amber-900 mb-0.5">DHA para Bebés no tiene peso configurado</div>
+                    <p class="text-amber-800 mb-2">La modalidad "Por tramos de peso" requiere peso unitario en la ficha del producto. Para continuar:</p>
+                    <div class="flex items-center gap-2">
+                      <button class="text-[11px] font-medium px-2 py-1 bg-amber-600 text-white rounded">Definir peso en catálogo</button>
+                      <button class="text-[11px] font-medium px-2 py-1 bg-white text-amber-700 border border-amber-300 rounded">Usar otra modalidad</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+          </div>
+
+          <!-- Tipo de cambio: CHIP READ-ONLY desde sección TC del sistema (D-10) -->
+          <div class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">💱</span>
+              <div>
+                <div class="text-sm font-semibold text-slate-900 tabular-nums">3.780 <span class="text-xs font-normal text-slate-500">PEN/USD</span></div>
+                <div class="text-[11px] text-slate-500">Tasa del día · SBS · 22-abr-2026 08:00</div>
+              </div>
+            </div>
+            <button class="text-xs font-medium text-slate-600 hover:text-slate-900">Editar manualmente ↗</button>
+          </div>
+
+          <!-- Total landed con fórmula visible -->
+          <div class="mt-3 bg-teal-50 border border-teal-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-xs text-teal-800"><b class="text-teal-900">Total flete:</b></div>
+              <div class="text-sm font-bold tabular-nums text-teal-900">$ 76.00 USD · S/ 287.28 PEN</div>
+            </div>
+            <div class="text-[11px] text-teal-700">Derivado de los tramos · 14 uds · 2 SKUs con peso</div>
           </div>
         </div>
 
-        <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 flex items-center justify-between">
-          <div class="text-xs text-teal-800"><b class="text-teal-900">Total landed:</b><span class="font-semibold tabular-nums"> $280.00 USD</span> · <span class="text-teal-700">S/ 1,058.40 PEN</span></div>
+        <!-- RECORDATORIO: Cierre operativo ≠ Cierre financiero -->
+        <div class="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-4">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl flex-shrink-0">⏱️</span>
+            <div class="flex-1 text-xs">
+              <div class="font-bold text-amber-900 mb-1">Cierre operativo ≠ Cierre financiero</div>
+              <p class="text-amber-800 mb-2">Podés crear el envío con costos <b>estimados o incompletos</b> ahora y actualizarlos después cuando tengas la factura final del viajero. El envío puede <b>transitar operativamente</b> (confirmado → en tránsito → recibido) aunque los costos aún no estén cerrados financieramente.</p>
+              <ul class="text-[11px] text-amber-700 space-y-0.5 list-disc pl-4">
+                <li><b>Antes del despacho:</b> costos tentativos según preset del viajero</li>
+                <li><b>Durante el tránsito:</b> ajustes si el viajero renegoció en aeropuerto</li>
+                <li><b>Después de recibir:</b> factura final o nota de débito por ajustes de peso real</li>
+              </ul>
+              <p class="text-amber-800 mt-2">Cuando la parte financiera está completa, se hace <b>cierre financiero</b> del envío (ver Fase 5.2 · D-17 ya implementado en S46).</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -684,7 +829,7 @@
               </div>
               <div class="ruta-name text-sm">Juan Pérez</div>
               <div class="text-[10px] text-blue-700 mt-0.5">✈️ Viajero · 12 viajes</div>
-              <div class="text-[10px] text-blue-600 mt-1 italic">Flete: $280 USD</div>
+              <div class="text-[10px] text-blue-600 mt-1 italic">Flete: $76 USD · por tramos</div>
             </div>
 
             <div class="ruta-connector-v"></div>
@@ -707,9 +852,9 @@
             <div class="space-y-1 text-xs">
               <div class="flex items-center justify-between"><span class="text-slate-500">Unidades:</span><span class="font-semibold">14</span></div>
               <div class="flex items-center justify-between"><span class="text-slate-500">CTRU base:</span><span>$1,247</span></div>
-              <div class="flex items-center justify-between"><span class="text-slate-500">Flete:</span><span class="text-teal-700 font-semibold">$280</span></div>
-              <div class="flex items-center justify-between pt-2 border-t border-slate-300"><span class="text-slate-700 font-semibold">Gran total:</span><span class="font-bold text-teal-900">$1,527</span></div>
-              <div class="flex items-center justify-between text-[11px] text-slate-500"><span></span><span>S/ 5,771.46</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-500">Flete:</span><span class="text-teal-700 font-semibold">$76</span></div>
+              <div class="flex items-center justify-between pt-2 border-t border-slate-300"><span class="text-slate-700 font-semibold">Gran total:</span><span class="font-bold text-teal-900">$1,323</span></div>
+              <div class="flex items-center justify-between text-[11px] text-slate-500"><span></span><span>S/ 5,000.94</span></div>
             </div>
           </div>
         </div>
@@ -874,23 +1019,27 @@
 <section id="notas" class="section">
   <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
     <div>
-      <h2 class="text-xl font-semibold text-slate-900 mb-1">💡 Decisiones de diseño · v6 (definitivo)</h2>
-      <p class="text-sm text-slate-600">4 pasos con Paso 1 estilo OC (secciones colapsables + buscador + cards apiladas). Lista para implementación.</p>
+      <h2 class="text-xl font-semibold text-slate-900 mb-1">💡 Decisiones de diseño · v7 (definitivo)</h2>
+      <p class="text-sm text-slate-600">4 modalidades de costo en Paso 3 (incluye "Por tramos de peso") + TC auto-poblado desde la sección TC del sistema. Lista para implementación.</p>
     </div>
 
     <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-      <h3 class="text-sm font-semibold text-emerald-900 mb-2">✨ Cambios respecto a v5</h3>
+      <h3 class="text-sm font-semibold text-emerald-900 mb-2">✨ Cambios respecto a v6</h3>
       <ul class="text-xs text-emerald-800 space-y-1.5 list-disc pl-5">
-        <li><b>Paso 1 rediseñado estilo OCWizardV3.</b> 3 secciones numeradas colapsables (Origen / Destino / Unidades) en vez de progressive disclosure vertical continuo.</li>
-        <li><b>Cada sección tiene 2 estados:</b>
-          <ul class="list-[circle] pl-5 mt-1 space-y-0.5">
-            <li><b>EXPANDED</b> (antes de elegir): buscador 🔍 + lista de opciones apiladas verticales (no grid 2×2). Incluye categoría + ubicación específica juntas.</li>
-            <li><b>COLLAPSED</b> (tras elegir): resumen de la selección + link "Cambiar" a la derecha. Click en Cambiar → re-expande.</li>
-          </ul>
-        </li>
-        <li><b>Buscadores agregados:</b> en Origen (busca casilla por nombre/ciudad/país), en Destino (busca almacén), y en Unidades (busca producto por nombre/SKU/marca).</li>
-        <li><b>Cards apiladas verticales</b> en todas las listas (no grid 2 columnas). Cada card usa el ancho completo con icono + nombre + metadata + checkmark a la derecha.</li>
-        <li><b>Numeración consistente con OC:</b> badge circular con número [1] [2] [3] en cada sección.</li>
+        <li><b>4ta modalidad de costo: "Por tramos de peso" (D-11).</b> Tarifa escalonada en libras con tabla definida por tramos (ej. 0-0.5 lb = $5, 0.5-1 lb = $6, etc.). Los tramos se guardan en la ficha del viajero (Red Logística) y se auto-cargan al elegirlo. El cálculo por producto es automático usando el <code class="bg-white px-1 rounded">pesoUnitario</code> del catálogo.</li>
+        <li><b>Labels renombrados para claridad:</b> "Monto total" → "Flete total", "Por unidad" → "Tarifa por unidad", "Variable" → "Por producto". Más el nuevo "Por tramos de peso".</li>
+        <li><b>TC como chip read-only (D-10).</b> Ya no es un input editable. Viene auto-poblado desde la sección <code class="bg-white px-1 rounded">tiposDeCambio</code> del sistema con fuente + timestamp. Link "Editar manualmente" abre modal con warning + auditoría.</li>
+        <li><b>Recordatorio "Cierre operativo ≠ Cierre financiero"</b> al final del Paso 3. Refuerza que los costos pueden actualizarse antes/durante/después y que el envío puede transitar operativamente con costos incompletos.</li>
+        <li><b>Sidebar actualizado:</b> resumen del flete ahora muestra $76 (calculado por tramos) en vez de $280. El bloque TRÁNSITO del sidebar indica "Flete: $76 USD · por tramos".</li>
+      </ul>
+    </div>
+
+    <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+      <h3 class="text-sm font-semibold text-sky-900 mb-2">Heredado de v6 (sigue vigente)</h3>
+      <ul class="text-xs text-sky-800 space-y-1.5 list-disc pl-5">
+        <li><b>Paso 1 estilo OCWizardV3:</b> 3 secciones numeradas colapsables (Origen / Destino / Unidades) con buscador + cards apiladas en estado EXPANDED.</li>
+        <li>Wizard de 4 pasos · Paso 2 condicional (solo E e I) · sidebar con ruta vertical persistente.</li>
+        <li>Reemplazo directo sin feature flag · F y G fuera del wizard.</li>
       </ul>
     </div>
 

@@ -411,6 +411,51 @@ Cada `tipoX.config.ts` tiene ~40 líneas, el shell común tiene ~300 líneas, y 
 
 **Justificación:** los productos tienen peso/volumen heterogéneo (una crema vs una cápsula). El modo "Variable" permite calibrar el costo real por SKU cuando el prorrateo por unidad o por peso no refleja la realidad.
 
+### D-11 · Costos del envío — modalidad "Por tramos de peso" con tarifa escalonada (Paso 3)
+
+**Contexto:** acuerdos comunes con viajeros usan tarifas escalonadas por peso (ej. < 0.5 lb = $5, 0.5-1 lb = $6, 1-1.5 lb = $7, etc.). La UX actual solo ofrece 3 modalidades (Flete total / Tarifa por unidad / Por producto) que no cubren este caso.
+
+**Decisión:** agregar una **4ta modalidad "Por tramos de peso"** con las siguientes reglas:
+
+**Piezas del diseño:**
+
+1. **Tabla de tramos** definida en libras. Cada tramo: `pesoDesde`, `pesoHasta` (o `null` para el último tramo ∞), `costoUnitario`.
+2. **Cálculo automático por producto:** cada producto seleccionado en Paso 1 se matchea con el tramo correspondiente según su `pesoUnitario` (ya existe en el catálogo de productos del sistema). Subtotal = `cantidad × costoUnitario_del_tramo`.
+3. **Total del flete** = suma de subtotales de todos los productos.
+
+**Dónde viven los tramos (fuente única de verdad):**
+
+Los tramos preset viven en la ficha del **Colaborador viajero/courier** (módulo Red Logística). Se agrega campo:
+
+```ts
+interface Colaborador {
+  // ... campos existentes
+  tarifaPorTramos?: TramoPeso[];
+}
+
+interface TramoPeso {
+  pesoDesde: number;         // en libras
+  pesoHasta: number | null;  // null = infinito (último tramo)
+  costoUnitario: number;     // en USD
+}
+```
+
+**Casos de uso (UX):**
+
+| Caso | Flujo |
+|---|---|
+| **Viajero con preset** | Al elegirlo como transportador en Paso 3, la tabla auto-carga sus tramos. Banner sky: "💡 Tramos cargados desde Juan Pérez (acuerdo preset)". Botón "Editar tramos" permite override puntual para este envío sin modificar su ficha. |
+| **Viajero sin preset** | Tabla aparece vacía con botón "+ Agregar tramo". Usuario crea los tramos. Al final checkbox: `[ ] Guardar estos tramos como acuerdo fijo con Juan Pérez` → si marca, se persisten en su ficha. |
+| **Producto sin peso** | Banner amber: "⚠️ [Producto] no tiene peso configurado" con 2 botones: "Definir peso en catálogo" (navega a ficha de producto) o "Usar otra modalidad" (vuelve al selector de modalidad). |
+
+**Unidad de medida:** solo libras (lb). Si algún producto tiene peso en kg en el catálogo, se convierte al vuelo.
+
+**Aplicación en OC (no solo envíos):**
+
+La modalidad "Por tramos de peso" también aplica al **Paso Flete del OCWizardV3**, aunque con matiz: en OC el flete suele venir incluido en la factura del proveedor. Aun así, **valorizar el flete por tramos** sigue aportando valor para el cálculo de CTRU real por SKU. Se recomienda ofrecer las 4 modalidades también en OC, incluyendo "Por tramos de peso" para consistencia.
+
+**Dependencia con D-17 (S46):** los costos de flete siguen la política "cierre operativo ≠ cierre financiero". El envío puede crearse con tramos estimados y transitar operativamente hasta recibido. El cierre financiero se hace después cuando se conocen pesos reales / factura final del viajero. Ver S46 Costos Landed Scope.
+
 ### D-10 · Tipo de cambio auto-poblado desde la sección TC del sistema (Paso 3)
 
 **Contexto:** el mockup v6 muestra el TC como un input editable. Esto contradice la política del sistema: el TC vive en una sección dedicada (`tiposDeCambio`) que todos los módulos consumen como fuente única de verdad.
@@ -518,4 +563,5 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 | 2026-04-22 | 4.0 | Paso 1 con formulario apilado vertical en columna izquierda (ORIGEN arriba, DESTINO abajo, cada uno con sus opciones una debajo de la otra). Proporción 65/35 formulario/sidebar. Colapsable "Ejemplo combinación no estándar" eliminado (chip + mensaje admin cuando aplique ya cubren el caso). |
 | 2026-04-22 | 5.0 | Wizard de 5 → 4 pasos. Paso 1 integrado con progressive disclosure (categoría origen → casillas disponibles → categoría destino → ubicación destino → unidades). Paso 2 condicional (solo E e I). D-6 y D-7 cerradas. El Paso 1 del v4 + el Paso 2 del v4 se integran en el Paso 1 del v5 según pedido del usuario ("me gustan ambas interfaces"). |
 | 2026-04-22 | 6.0 | Paso 1 rediseñado estilo OCWizardV3. 3 secciones numeradas [1] [2] [3] colapsables (Origen / Destino / Unidades). Cada sección: buscador 🔍 + cards apiladas verticales en estado EXPANDED; resumen + link "Cambiar" en estado COLLAPSED. D-8 cerrada. Buscador también en Unidades según pedido del usuario. |
-| 2026-04-22 | **6.1** | Decisiones D-9 y D-10 añadidas para la implementación del Paso 3 Logística (no se modifica mockup). D-9: la modalidad "Variable" de costos despliega tabla inline con una fila por producto (costo unit. editable, subtotal derivado, total reemplaza el campo global). D-10: el TC se auto-puebla desde la sección `tiposDeCambio` del sistema (read-only por defecto, override manual explícito con modal de confirmación y auditoría). |
+| 2026-04-22 | 6.1 | Decisiones D-9 y D-10 añadidas para la implementación del Paso 3 Logística (no se modifica mockup). D-9: la modalidad "Variable" de costos despliega tabla inline con una fila por producto (costo unit. editable, subtotal derivado, total reemplaza el campo global). D-10: el TC se auto-puebla desde la sección `tiposDeCambio` del sistema (read-only por defecto, override manual explícito con modal de confirmación y auditoría). |
+| 2026-04-22 | **7.0** | **APROBADO.** Paso 3 rediseñado: 4ta modalidad "Por tramos de peso" (D-11) con tabla escalonada en libras; tramos viven en ficha del viajero (Red Logística) y auto-cargan al elegirlo; cálculo automático por producto usando `pesoUnitario` del catálogo. Labels renombrados para claridad. TC como chip read-only (D-10 ahora sí aplicada en mockup). Recordatorio "Cierre operativo ≠ Cierre financiero" explícito al final del Paso 3. D-11 aplica también al Paso Flete del OCWizardV3 para consistencia. |
