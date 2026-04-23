@@ -15,6 +15,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WizardShell, type WizardStep } from '../../../design-system';
+import { useAuthStore } from '../../../store/authStore';
+import { useToastStore } from '../../../store/toastStore';
 
 import { useEnvioWizardState } from './useEnvioWizardState';
 import { RutaVerticalSidebar } from './shared/RutaVerticalSidebar';
@@ -22,6 +24,7 @@ import { Paso1OrigenDestinoUnidades } from './steps/Paso1OrigenDestinoUnidades';
 import { Paso2DestinoDetalles } from './steps/Paso2DestinoDetalles';
 import { Paso3Logistica } from './steps/Paso3Logistica';
 import { Paso4Confirmar } from './steps/Paso4Confirmar';
+import { envioUnificadoService } from './services/envio.unificado.service';
 
 // D-5: labels genéricos fijos. Orden: 1 → 2 → 3 → 4.
 const WIZARD_STEPS: WizardStep[] = [
@@ -50,9 +53,13 @@ const WIZARD_STEPS: WizardStep[] = [
 
 export const EnvioWizardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const toast = useToastStore();
   const wizard = useEnvioWizardState();
   const {
     state,
+    dispatch,
+    tipoInferido,
     tipoConfig,
     paso1Completo,
     paso2Completo,
@@ -84,12 +91,34 @@ export const EnvioWizardPage: React.FC = () => {
     }
   };
 
-  const handleConfirm = () => {
-    // La lógica real de submit se implementa en F4.
-    alert(
-      'La creación del envío se implementa en F4 (S53).\n\nTipo inferido: ' +
-        (wizard.tipoInferido || 'ninguno')
-    );
+  const handleConfirm = async () => {
+    if (!user) {
+      toast.error('Debés estar autenticado para crear el envío', 'Error');
+      return;
+    }
+    if (!tipoInferido) {
+      toast.error('Completá el Paso 1 antes de crear el envío', 'Error');
+      return;
+    }
+    dispatch({ type: 'SUBMIT_START' });
+    try {
+      const resultado = await envioUnificadoService.crear(
+        tipoInferido,
+        state,
+        totalFleteUSD,
+        user.uid
+      );
+      dispatch({ type: 'SUBMIT_SUCCESS' });
+      toast.success(
+        `Envío ${resultado.numeroEnvio} creado (${tipoConfig?.nombre})`,
+        '✓ Envío creado'
+      );
+      navigate(`/envios`);
+    } catch (error: any) {
+      const mensaje = error?.message || 'Error desconocido al crear el envío';
+      dispatch({ type: 'SUBMIT_ERROR', error: mensaje });
+      toast.error(mensaje, 'Error al crear envío');
+    }
   };
 
   // Renderizar el contenido del paso actual
