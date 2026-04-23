@@ -93,6 +93,8 @@ export const SeccionOrigen: React.FC<Props> = ({ wizard, collapsed, onToggle }) 
       id: casilla.id,
       nombre: casilla.nombre,
       pais: casilla.pais,
+      // S53.1 FIX — guardar colaboradorId para detectar J1 vs J2
+      colaboradorId: casilla.colaboradorId,
     });
     // Auto-colapsar al seleccionar (comportamiento OC)
     onToggle();

@@ -44,20 +44,40 @@ export type TipoRelacionTercero = 'fulfillment' | 'consignacion' | 'distribucion
 // Sub-types de state
 // ============================================================================
 
-/** Unidad seleccionada en el picker del Paso 1 */
+/** Unidad seleccionada en el picker del Paso 1 (agrupada por SKU)
+ *
+ * S53.1 FIX — Cada entry representa las unidades de UN producto (SKU) que el
+ * usuario decidió incluir en el envío. `unidadIdsAsignados` contiene los IDs
+ * REALES de las unidades físicas que se asignaron (no replicados). Cada ID
+ * es único y corresponde a una unidad en la casilla origen con su propio
+ * lote, vencimiento, costo y peso específico.
+ *
+ * Flujo de selección:
+ *   1. Usuario clickea `+` en el stepper → se agrega el siguiente unidadId
+ *      disponible del pool de la casilla origen.
+ *   2. Usuario clickea `-` → se quita el último unidadId agregado.
+ *   3. Usuario expande la fila → puede marcar/desmarcar IDs específicos
+ *      (uso: viajero sabe que va a llevar físicamente las unidades con
+ *      vencimiento más próximo, o las del lote X, etc.).
+ *
+ * `cantidadSeleccionada` es un derivado directo: === unidadIdsAsignados.length.
+ * Se mantiene por compat con UI existente pero el source of truth es el array.
+ */
 export interface UnidadSeleccionadaWizard {
-  unidadId: string;
+  /** IDs REALES de las unidades físicas asignadas a este envío (cada una es única) */
+  unidadIdsAsignados: string[];
   productoId: string;
   sku: string;
-  codigoUnidad: string;
   productoNombre: string;
   pesoLibras?: number;
-  /** `true` si la unidad tiene `reservadaPara` definido (pre-vendida) */
-  esPrevendida?: boolean;
-  /** Para productos agrupables: cuántas unidades del mismo SKU se incluyen */
+  /** Cantidad de unidades pre-vendidas dentro del grupo (tienen `reservadaPara`) */
+  cantidadPrevendida: number;
+  /** Derivado: unidadIdsAsignados.length (para compat con UI) */
   cantidadSeleccionada: number;
   /** Cuántas hay disponibles en la ubicación origen */
   cantidadDisponible: number;
+  /** IDs de TODAS las unidades disponibles del grupo (para expansión manual) */
+  unidadIdsDisponibles: string[];
 }
 
 /** Costo variable por producto (modalidad 'por_producto') */
@@ -77,12 +97,16 @@ export interface EnvioWizardState {
   ubicacionOrigenId: string;
   ubicacionOrigenNombre: string;      // desnormalizado para sidebar
   ubicacionOrigenPais: string;        // desnormalizado
+  /** S53.1 FIX — colaboradorId del dueño de la casilla origen (para detectar J1 vs J2) */
+  ubicacionOrigenColaboradorId: string;
 
   // ---- Paso 1 · Destino ----
   destinoCategoria: DestinoCategoria | null;
   ubicacionDestinoId: string;
   ubicacionDestinoNombre: string;
   ubicacionDestinoPais: string;
+  /** S53.1 FIX — colaboradorId del dueño de la casilla destino (para detectar J1 vs J2) */
+  ubicacionDestinoColaboradorId: string;
 
   // ---- Paso 1 · Unidades ----
   unidadesSeleccionadas: UnidadSeleccionadaWizard[];
@@ -141,10 +165,12 @@ export const initialEnvioWizardState: EnvioWizardState = {
   ubicacionOrigenId: '',
   ubicacionOrigenNombre: '',
   ubicacionOrigenPais: '',
+  ubicacionOrigenColaboradorId: '',
   destinoCategoria: null,
   ubicacionDestinoId: '',
   ubicacionDestinoNombre: '',
   ubicacionDestinoPais: '',
+  ubicacionDestinoColaboradorId: '',
   unidadesSeleccionadas: [],
   incluirPrevendidas: true,
   busquedaUnidades: '',
@@ -179,6 +205,7 @@ export type EnvioWizardAction =
       id: string;
       nombre: string;
       pais: string;
+      colaboradorId: string;
     }
   // Paso 1 · Destino
   | { type: 'SET_DESTINO_CATEGORIA'; categoria: DestinoCategoria | null }
@@ -187,10 +214,25 @@ export type EnvioWizardAction =
       id: string;
       nombre: string;
       pais: string;
+      colaboradorId: string;
     }
-  // Paso 1 · Unidades
-  | { type: 'TOGGLE_UNIDAD'; unidad: UnidadSeleccionadaWizard }
-  | { type: 'SET_CANTIDAD_UNIDAD'; productoId: string; cantidad: number }
+  // Paso 1 · Unidades (S53.1 FIX — basado en unidadIdsAsignados reales)
+  | {
+      type: 'AGREGAR_UNIDAD_ID';
+      productoId: string;
+      unidadId: string;
+      /** Datos del grupo si es la primera vez que se agrega un ID de este producto */
+      datosGrupoSiEsNuevo?: {
+        sku: string;
+        productoNombre: string;
+        pesoLibras?: number;
+        cantidadDisponible: number;
+        cantidadPrevendida: number;
+        unidadIdsDisponibles: string[];
+      };
+    }
+  | { type: 'QUITAR_UNIDAD_ID'; productoId: string; unidadId: string }
+  | { type: 'QUITAR_PRODUCTO_ENTERO'; productoId: string }
   | { type: 'SET_INCLUIR_PREVENDIDAS'; incluir: boolean }
   | { type: 'SET_BUSQUEDA_UNIDADES'; query: string }
   | { type: 'RESET_UNIDADES' }
@@ -252,6 +294,7 @@ export function envioWizardReducer(
         ubicacionOrigenId: '',
         ubicacionOrigenNombre: '',
         ubicacionOrigenPais: '',
+        ubicacionOrigenColaboradorId: '',
         unidadesSeleccionadas: [],
       };
 
@@ -262,6 +305,7 @@ export function envioWizardReducer(
         ubicacionOrigenId: action.id,
         ubicacionOrigenNombre: action.nombre,
         ubicacionOrigenPais: action.pais,
+        ubicacionOrigenColaboradorId: action.colaboradorId,
         unidadesSeleccionadas: [],
       };
 
@@ -272,6 +316,7 @@ export function envioWizardReducer(
         ubicacionDestinoId: '',
         ubicacionDestinoNombre: '',
         ubicacionDestinoPais: '',
+        ubicacionDestinoColaboradorId: '',
         // Limpiar campos específicos del destino cuando cambia categoría
         motivo: undefined,
         motivoDetalle: undefined,
@@ -291,51 +336,87 @@ export function envioWizardReducer(
         ubicacionDestinoId: action.id,
         ubicacionDestinoNombre: action.nombre,
         ubicacionDestinoPais: action.pais,
+        ubicacionDestinoColaboradorId: action.colaboradorId,
         advertenciaCambioPais: cambioPais,
       };
     }
 
-    case 'TOGGLE_UNIDAD': {
-      const existe = state.unidadesSeleccionadas.find(
-        u => u.productoId === action.unidad.productoId
+    case 'AGREGAR_UNIDAD_ID': {
+      // S53.1 FIX — Agrega un unidadId real al grupo. Si el grupo no existe,
+      // lo crea con `datosGrupoSiEsNuevo`. Si ya existe, solo añade el ID
+      // (si no estaba ya).
+      const existente = state.unidadesSeleccionadas.find(
+        u => u.productoId === action.productoId
       );
-      if (existe) {
+      if (existente) {
+        if (existente.unidadIdsAsignados.includes(action.unidadId)) {
+          return state; // ya estaba, no duplicar
+        }
+        const nuevosIds = [...existente.unidadIdsAsignados, action.unidadId];
         return {
           ...state,
-          unidadesSeleccionadas: state.unidadesSeleccionadas.filter(
-            u => u.productoId !== action.unidad.productoId
+          unidadesSeleccionadas: state.unidadesSeleccionadas.map(u =>
+            u.productoId === action.productoId
+              ? {
+                  ...u,
+                  unidadIdsAsignados: nuevosIds,
+                  cantidadSeleccionada: nuevosIds.length,
+                }
+              : u
           ),
         };
       }
+      // Grupo nuevo — requiere datos del producto
+      if (!action.datosGrupoSiEsNuevo) return state;
+      const d = action.datosGrupoSiEsNuevo;
       return {
         ...state,
-        unidadesSeleccionadas: [...state.unidadesSeleccionadas, action.unidad],
+        unidadesSeleccionadas: [
+          ...state.unidadesSeleccionadas,
+          {
+            productoId: action.productoId,
+            sku: d.sku,
+            productoNombre: d.productoNombre,
+            pesoLibras: d.pesoLibras,
+            cantidadDisponible: d.cantidadDisponible,
+            cantidadPrevendida: d.cantidadPrevendida,
+            unidadIdsDisponibles: d.unidadIdsDisponibles,
+            unidadIdsAsignados: [action.unidadId],
+            cantidadSeleccionada: 1,
+          },
+        ],
       };
     }
 
-    case 'SET_CANTIDAD_UNIDAD': {
-      const existe = state.unidadesSeleccionadas.find(
-        u => u.productoId === action.productoId
-      );
-      if (!existe) return state;
-      if (action.cantidad <= 0) {
-        return {
-          ...state,
-          unidadesSeleccionadas: state.unidadesSeleccionadas.filter(
-            u => u.productoId !== action.productoId
-          ),
-        };
-      }
-      const cantidadFinal = Math.min(action.cantidad, existe.cantidadDisponible);
+    case 'QUITAR_UNIDAD_ID': {
+      // Quita un unidadId específico del grupo. Si el grupo queda vacío, lo elimina.
       return {
         ...state,
-        unidadesSeleccionadas: state.unidadesSeleccionadas.map(u =>
-          u.productoId === action.productoId
-            ? { ...u, cantidadSeleccionada: cantidadFinal }
-            : u
-        ),
+        unidadesSeleccionadas: state.unidadesSeleccionadas
+          .map(u =>
+            u.productoId === action.productoId
+              ? {
+                  ...u,
+                  unidadIdsAsignados: u.unidadIdsAsignados.filter(
+                    id => id !== action.unidadId
+                  ),
+                  cantidadSeleccionada: u.unidadIdsAsignados.filter(
+                    id => id !== action.unidadId
+                  ).length,
+                }
+              : u
+          )
+          .filter(u => u.unidadIdsAsignados.length > 0),
       };
     }
+
+    case 'QUITAR_PRODUCTO_ENTERO':
+      return {
+        ...state,
+        unidadesSeleccionadas: state.unidadesSeleccionadas.filter(
+          u => u.productoId !== action.productoId
+        ),
+      };
 
     case 'SET_INCLUIR_PREVENDIDAS':
       return { ...state, incluirPrevendidas: action.incluir };
@@ -480,11 +561,21 @@ export function selectTotalSKUs(state: EnvioWizardState): number {
   return state.unidadesSeleccionadas.length;
 }
 
-/** Total de unidades pre-vendidas seleccionadas */
+/**
+ * Total de unidades pre-vendidas dentro del grupo que están SELECCIONADAS.
+ *
+ * El conteo exacto requeriría saber cuáles unidadIds específicos tienen
+ * `reservadaPara`. Como aproximación, tomamos el mínimo entre la cantidad
+ * seleccionada y la cantidad pre-vendida disponible en ese grupo.
+ * (Si el usuario seleccionó 8 de 10 y 4 son pre-vendidas, hay entre 2 y 4
+ * pre-vendidas en la selección. Aproximamos al máximo posible — 4.)
+ * En una fase futura esto se puede calcular exactamente cruzando unidadIds.
+ */
 export function selectTotalPrevendidas(state: EnvioWizardState): number {
-  return state.unidadesSeleccionadas
-    .filter(u => u.esPrevendida)
-    .reduce((sum, u) => sum + u.cantidadSeleccionada, 0);
+  return state.unidadesSeleccionadas.reduce(
+    (sum, u) => sum + Math.min(u.cantidadSeleccionada, u.cantidadPrevendida),
+    0
+  );
 }
 
 /**

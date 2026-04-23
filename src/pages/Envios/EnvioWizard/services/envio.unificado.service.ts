@@ -31,8 +31,21 @@ import type { TramoPeso } from '../../../../types/colaborador.types';
 // Helpers
 // ============================================================================
 
-/** Expande las unidades agrupadas (una por SKU con cantidad) a unidades individuales
- *  según lo requiere el payload del servicio legacy. */
+/**
+ * S53.1 FIX — Expande las unidades agrupadas (1 grupo por SKU con N IDs reales)
+ * a unidades individuales con su unidadId específico.
+ *
+ * Cada `UnidadSeleccionadaWizard` contiene un array `unidadIdsAsignados`
+ * con los IDs físicos que el usuario asignó (manualmente o vía stepper).
+ * Iteramos ese array y generamos una entry por ID real — NO replicamos.
+ *
+ * Esto preserva la trazabilidad: cada unidad física del envío referencia
+ * su propio registro en la colección `unidades` con su lote, vencimiento,
+ * costo y peso específicos.
+ *
+ * `codigoUnidad` usa el unidadId como fallback (el servicio legacy lo
+ * sobreescribe con el código real cuando persiste EnvioUnidad).
+ */
 function expandirUnidades(
   unidades: UnidadSeleccionadaWizard[]
 ): Array<{
@@ -50,21 +63,14 @@ function expandirUnidades(
     pesoLibras?: number;
   }> = [];
 
-  for (const u of unidades) {
-    // Cada UnidadSeleccionadaWizard representa N unidades del mismo SKU en la
-    // ubicación origen. Aquí las replicamos con el unidadId representativo.
-    // En F2 esto se simplifica (la agrupación usa unidadIdsRepresentativa);
-    // para este adaptador, tomamos el unidadId provisto y replicamos
-    // cantidadSeleccionada veces con el mismo id (suficiente para el MVP del
-    // wizard. La asignación real de unidadIds específicos es responsabilidad
-    // del servicio legacy cuando crea la EnvioUnidad).
-    for (let i = 0; i < u.cantidadSeleccionada; i++) {
+  for (const grupo of unidades) {
+    for (const unidadIdReal of grupo.unidadIdsAsignados) {
       expandidas.push({
-        unidadId: u.unidadId,
-        productoId: u.productoId,
-        sku: u.sku,
-        codigoUnidad: u.codigoUnidad,
-        ...(u.pesoLibras !== undefined ? { pesoLibras: u.pesoLibras } : {}),
+        unidadId: unidadIdReal,
+        productoId: grupo.productoId,
+        sku: grupo.sku,
+        codigoUnidad: unidadIdReal, // el servicio legacy lee el código real al persistir
+        ...(grupo.pesoLibras !== undefined ? { pesoLibras: grupo.pesoLibras } : {}),
       });
     }
   }
@@ -196,14 +202,22 @@ function buildPayloadJ(
         ]
       : [];
 
-  // Determinar variante J1/J2: J1 = mismo colaborador en ambas casillas.
-  // El wizard unificado no distingue explícitamente, así que usamos J2
-  // (variante más común: remitente → destinatario). Refinable en una
-  // tarea futura analizando `casilla.colaboradorId`.
+  // S53.1 FIX — Detectar variante J1/J2:
+  //   J1 = misma persona dueña de ambas casillas (movimiento interno)
+  //   J2 = 2 colaboradores distintos (remitente → destinatario)
+  // El state guarda `ubicacionOrigenColaboradorId` y `ubicacionDestinoColaboradorId`
+  // en cada `SET_UBICACION_*`. Comparación directa.
+  const varianteJ: 'J1' | 'J2' =
+    state.ubicacionOrigenColaboradorId &&
+    state.ubicacionDestinoColaboradorId &&
+    state.ubicacionOrigenColaboradorId === state.ubicacionDestinoColaboradorId
+      ? 'J1'
+      : 'J2';
+
   return {
     casillaOrigenId: state.ubicacionOrigenId,
     casillaDestinoId: state.ubicacionDestinoId,
-    variante: 'J2',
+    variante: varianteJ,
     colaboradorTransporteId: state.colaboradorTransporteId,
     numeroTracking: state.numeroTracking || undefined,
     notas: state.notas || undefined,

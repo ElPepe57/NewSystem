@@ -133,6 +133,8 @@ export const SeccionDestino: React.FC<Props> = ({
       id: casilla.id,
       nombre: casilla.nombre,
       pais: casilla.pais,
+      // S53.1 FIX — guardar colaboradorId para detectar J1 vs J2
+      colaboradorId: casilla.colaboradorId,
     });
     onToggle();
   };
