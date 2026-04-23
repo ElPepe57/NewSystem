@@ -213,6 +213,28 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     fetchTC();
   }, [isOpen]);
 
+  // ─── S53.3 FIX — Reset state al cerrar el modal (cualquier camino) ──────
+  // Bug previo: handleClose() reseteaba state, pero handleSubmit() no. Tras
+  // crear una OC, el state quedaba pegado con los datos viejos. Al reabrir
+  // el wizard el usuario veía la OC anterior ya completa.
+  //
+  // Este useEffect detecta la transición de isOpen true→false (cierre por
+  // cualquier motivo: submit exitoso, submit fallido, cancelar, click
+  // fuera, tecla Escape) y limpia el state. El useReducer persiste entre
+  // renders cuando el componente no se desmonta, por eso hace falta el
+  // reset explícito.
+  const wasOpenRef = useRef(false);
+  React.useEffect(() => {
+    if (wasOpenRef.current && !isOpen) {
+      // Modal acaba de cerrarse — resetear todo para la próxima apertura
+      dispatch({ type: 'RESET' } as OCWizardAction);
+      setCurrentStep(0);
+      setDraftAceptado(false);
+      submittedRef.current = false;
+    }
+    wasOpenRef.current = isOpen;
+  }, [isOpen]);
+
   // ─── Totales en vivo ─────────────────────────────────────────────────────
   const subtotal = useMemo(
     () => state.productos.reduce((s, p) => s + (p.costoUnitario || 0) * (p.cantidad || 0), 0),
