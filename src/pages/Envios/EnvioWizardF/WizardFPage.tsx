@@ -24,7 +24,7 @@ import {
   selectValorVentaPEN,
 } from './envioWizardFTypes';
 
-import { EnvioT2WizardPreview } from '../EnvioWizardT2';
+import { EnvioT2WizardPreview } from '../legacy-shared';
 import { EnvioFStepVenta } from './EnvioFStepVenta';
 import { EnvioFStepPicking } from './EnvioFStepPicking';
 import { EnvioFStepDetalles } from './EnvioFStepDetalles';

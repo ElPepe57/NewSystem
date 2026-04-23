@@ -1,12 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-// S44 — Feature flag para el Wizard T2 (Casilla Intl → Almacén Perú)
-// S47 — Feature flag para el Wizard J (Casilla Intl ↔ Casilla Intl)
-// S48 — Feature flag para el Wizard E (Traslado interno Perú ↔ Perú)
-// S49 — Feature flag para el Wizard F (Despacho venta → cliente)
-// S50 — Feature flag para el Wizard I (Almacén propio → Almacén tercero)
-// S51 — Feature flag para el Wizard G (Retorno físico devolución)
-import { isWizardT2Enabled, isWizardJEnabled, isWizardEEnabled, isWizardFEnabled, isWizardIEnabled, isWizardGEnabled } from "../../config/features";
+// S53 F5 — Flags legacy WIZARD_T2/J/E/I eliminados (reemplazo directo D-4).
+//   F y G siguen con flag hasta T-F y T-G (migración a Ventas/Devoluciones).
+import { isWizardFEnabled, isWizardGEnabled } from "../../config/features";
 import {
   ArrowRightLeft,
   Truck,
@@ -53,7 +49,7 @@ import { useToastStore } from "../../store/toastStore";
 
 // Sub-componentes
 import { EnvioCard } from "./EnvioCard";
-import { EnvioWizardV2 } from "./EnvioWizardV2/EnvioWizardV2";
+// S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza
 import { NuevoEnvioMenu } from "./NuevoEnvioMenu";
 import { RecepcionModal } from "./RecepcionModal";
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -173,8 +169,7 @@ export const Envios: React.FC = () => {
     return map;
   }, [todosProductos]);
 
-  // Estado de modales
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  // Estado de modales (S53 F5 · showCreateModal eliminado — ahora /envios/nuevo)
   const [showRecepcionModal, setShowRecepcionModal] = useState(false);
   const [showPagoModal, setShowPagoModal] = useState(false);
   const [envioParaRecepcion, setEnvioParaRecepcion] = useState<Envio | null>(null);
@@ -208,17 +203,9 @@ export const Envios: React.FC = () => {
   const { dialogProps, confirm: confirmDialog } = useConfirmDialog();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  // S44 — Feature flag del Wizard T2 (Casilla Internacional → Almacén Perú)
-  const wizardT2Enabled = useMemo(() => isWizardT2Enabled(), []);
-  // S47 — Feature flag del Wizard J (Casilla Internacional ↔ Casilla Internacional)
-  const wizardJEnabled = useMemo(() => isWizardJEnabled(), []);
-  // S48 — Feature flag del Wizard E (Traslado interno Almacén Perú ↔ Almacén Perú)
-  const wizardEEnabled = useMemo(() => isWizardEEnabled(), []);
-  // S49 — Feature flag del Wizard F (Despacho venta Almacén Perú → cliente)
+  // S53 F5 — Flags legacy eliminados (WIZARD_T2/J/E/I). Solo F y G tienen flag
+  // hasta T-F y T-G que los migran a Ventas/Devoluciones.
   const wizardFEnabled = useMemo(() => isWizardFEnabled(), []);
-  // S50 — Feature flag del Wizard I (Almacén propio → Almacén tercero)
-  const wizardIEnabled = useMemo(() => isWizardIEnabled(), []);
-  // S51 — Feature flag del Wizard G (Retorno físico devolución)
   const wizardGEnabled = useMemo(() => isWizardGEnabled(), []);
 
   // S40 Bloque B: KPI reclamos
@@ -586,10 +573,8 @@ export const Envios: React.FC = () => {
     }
   }, [user, reconciliarPagoColaborador, toast]);
 
-  const handleCrearEnvio = useCallback(async (data: EnvioFormData) => {
-    if (!user) return;
-    await crearEnvio(data, user.uid);
-  }, [user, crearEnvio]);
+  // S53 F5 · handleCrearEnvio ELIMINADO — la creación de envíos ahora vive
+  // en /envios/nuevo (EnvioWizardPage) que llama a envioUnificadoService.
 
   const handleRegistrarRecepcion = useCallback(async (
     data: RecepcionEnvioFormData,
@@ -1065,7 +1050,8 @@ export const Envios: React.FC = () => {
 
       {/* S52 — Acciones principales debajo de pills (matching mockup: + Nuevo envío · Exportar) */}
       <div className="flex items-center gap-3 mt-2">
-        <NuevoEnvioMenu onNuevoGenerico={() => setShowCreateModal(true)} />
+        {/* S53 F5 · NuevoEnvioMenu ahora navega siempre a /envios/nuevo (wizard unificado) */}
+        <NuevoEnvioMenu onNuevoGenerico={() => navigate('/envios/nuevo')} />
         <Button
           variant="outline"
           size="sm"
@@ -1145,7 +1131,7 @@ export const Envios: React.FC = () => {
               }
             </p>
             {activeTab === 'todas' && (
-              <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+              <Button variant="primary" onClick={() => navigate('/envios/nuevo')}>
                 <Plus className="h-5 w-5 mr-2" />
                 Nuevo Envio
               </Button>
@@ -1197,17 +1183,8 @@ export const Envios: React.FC = () => {
         </Card>
       )}
 
-      {/* Wizard V2 — Rework S41: Ruta → Productos → Confirmar (Opción A) */}
-      <EnvioWizardV2
-        isOpen={showCreateModal}
-        loading={loading}
-        casillasOrigen={almacenesOrigen}
-        casillasDestinoPeru={almacenesDestinoPeru}
-        colaboradores={viajeros}
-        productosMap={productosMapGlobal}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCrearEnvio}
-      />
+      {/* S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza.
+           La creación de envíos C/J/E/I nace desde NuevoEnvioMenu → /envios/nuevo. */}
 
       {/* Modal: Detalle de envio */}
       {selectedEnvio && (

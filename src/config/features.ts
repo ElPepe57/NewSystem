@@ -38,24 +38,6 @@ export const FEATURES = {
   CTRU_CAPAS_OC_EN_INICIAL: false,
 
   /**
-   * S44 — Wizard T2 (Casilla Internacional → Almacén Perú)
-   *
-   * Controla la visibilidad del botón "Nuevo envío — Casilla a Perú" en la vista
-   * /envios y del acceso a la ruta `/envios/nuevo-t2`.
-   *
-   * Flujo de rollout:
-   *   1. false (default) → código desplegado sin acceso del usuario · smoke tests en
-   *      ambiente staging con el flag activado localmente vía localStorage override
-   *   2. Activación gradual: `localStorage.setItem('FEATURE_WIZARD_T2', 'true')` por
-   *      usuario específico para UAT
-   *   3. true (global) → disponible para todos tras validación
-   *
-   * El Wizard T2 reemplaza al wizard antiguo (EnvioWizardV2) para el caso de envíos
-   * desde casilla internacional → Perú (caso C del Modelo Envíos Transversal, D-1).
-   */
-  WIZARD_T2: false,
-
-  /**
    * S45 — Sub-envíos T1 + Reemplazo físico (D-16)
    *
    * Controla la visibilidad de:
@@ -86,41 +68,6 @@ export const FEATURES = {
   COSTOS_SCOPE_V2: false,
 
   /**
-   * S47 — Wizard J (Casilla Internacional → Casilla Internacional · caso J del
-   * Modelo Envíos Transversal).
-   *
-   * Controla:
-   *   - Visibilidad del botón "Entre casillas" en la vista /envios
-   *   - Acceso a la ruta `/envios/nuevo-j`
-   *
-   * Dos variantes soportadas (D-8):
-   *   - J1: mismo colaborador, dos casillas suyas
-   *   - J2: colaboradores distintos (remitente → destinatario)
-   *
-   * Flujo de rollout idéntico a WIZARD_T2:
-   *   1. false (default) → código desplegado sin acceso del usuario
-   *   2. localStorage.setItem('FEATURE_WIZARD_J', 'true') para UAT individual
-   *   3. true global tras validación end-to-end
-   */
-  WIZARD_J: false,
-
-  /**
-   * S48 — Wizard E (Traslado interno Almacén Perú ↔ Almacén Perú · caso E del
-   * Modelo Envíos Transversal). Absorbe el concepto legacy de Transferencias
-   * internas bajo el hub unificado de Envíos.
-   *
-   * Controla:
-   *   - Visibilidad del botón "Traslado interno" en la vista /envios
-   *   - Acceso a la ruta `/envios/nuevo-e`
-   *
-   * Diferencias clave vs. T2/J:
-   *   - Todo en PEN (sin USD ni diferencial cambiario)
-   *   - Sin aduana, solo transporte local
-   *   - Motivo obligatorio (consolidación / capacidad / costo menor / otro)
-   */
-  WIZARD_E: false,
-
-  /**
    * S49 — Wizard F (Despacho venta Almacén Perú → cliente · caso F del
    * Modelo Envíos Transversal). Absorbe el despacho de ventas existentes
    * bajo el hub unificado de Envíos.
@@ -136,23 +83,6 @@ export const FEATURES = {
    *   - Todo en PEN (despacho local en Perú)
    */
   WIZARD_F: false,
-
-  /**
-   * S50 — Wizard I (Almacén propio → Almacén tercero · caso I del Modelo
-   * Envíos Transversal). Envíos a FBA Amazon, distribuidores o consignatarios.
-   *
-   * Controla:
-   *   - Visibilidad del botón "Envío a tercero" en la vista /envios
-   *   - Acceso a la ruta `/envios/nuevo-i`
-   *
-   * Características D-10 (Opción B):
-   *   - Las unidades quedan BLOQUEADAS: no aparecen como stock vendible
-   *     hasta que regresen a Perú o sean liquidadas en el tercero.
-   *   - Nueva variante de casilla: tipo='almacen_tercero'
-   *   - destinoTipo='almacen_tercero' en el envío
-   *   - Referencia obligatoria con el tercero (FBA ID, consignación, etc.)
-   */
-  WIZARD_I: false,
 
   /**
    * S51 — Wizard G (Devolución cliente → Almacén Perú · caso G del Modelo
@@ -196,21 +126,7 @@ export const FEATURES = {
   PRODUCTO_PACK: false,
 } as const;
 
-/**
- * Helper: verifica si el flag WIZARD_T2 está activo (globalmente o por override
- * de localStorage, útil para UAT por usuario antes del rollout completo).
- */
-export function isWizardT2Enabled(): boolean {
-  if (FEATURES.WIZARD_T2) return true;
-  if (typeof window !== 'undefined') {
-    try {
-      return window.localStorage.getItem('FEATURE_WIZARD_T2') === 'true';
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
+// S53 F5 · isWizardT2Enabled ELIMINADO — wizard unificado no tiene flag (D-4 reemplazo directo).
 
 /**
  * S45 — Helper análogo para el flag SUBENVIOS_T1.
@@ -242,35 +158,7 @@ export function isCostosScopeV2Enabled(): boolean {
   return false;
 }
 
-/**
- * S47 — Helper análogo para el flag WIZARD_J (Casilla ↔ Casilla).
- */
-export function isWizardJEnabled(): boolean {
-  if (FEATURES.WIZARD_J) return true;
-  if (typeof window !== 'undefined') {
-    try {
-      return window.localStorage.getItem('FEATURE_WIZARD_J') === 'true';
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
-
-/**
- * S48 — Helper análogo para el flag WIZARD_E (Traslado interno Perú ↔ Perú).
- */
-export function isWizardEEnabled(): boolean {
-  if (FEATURES.WIZARD_E) return true;
-  if (typeof window !== 'undefined') {
-    try {
-      return window.localStorage.getItem('FEATURE_WIZARD_E') === 'true';
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
+// S53 F5 · isWizardJEnabled e isWizardEEnabled ELIMINADOS — reemplazados por wizard unificado.
 
 /**
  * S49 — Helper análogo para el flag WIZARD_F (Despacho venta a cliente).
@@ -287,20 +175,7 @@ export function isWizardFEnabled(): boolean {
   return false;
 }
 
-/**
- * S50 — Helper análogo para el flag WIZARD_I (Almacén propio → Almacén tercero).
- */
-export function isWizardIEnabled(): boolean {
-  if (FEATURES.WIZARD_I) return true;
-  if (typeof window !== 'undefined') {
-    try {
-      return window.localStorage.getItem('FEATURE_WIZARD_I') === 'true';
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
+// S53 F5 · isWizardIEnabled ELIMINADO — tipo I ahora maneja el wizard unificado.
 
 /**
  * S51 — Helper análogo para el flag WIZARD_G (Devolución cliente → Almacén Perú).

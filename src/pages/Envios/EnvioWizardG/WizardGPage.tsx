@@ -22,7 +22,7 @@ import {
   selectUnidadesPayload,
 } from './envioWizardGTypes';
 
-import { EnvioT2WizardPreview } from '../EnvioWizardT2';
+import { EnvioT2WizardPreview } from '../legacy-shared';
 import { EnvioGStepDevolucion } from './EnvioGStepDevolucion';
 import { EnvioGStepDestinoDetalles } from './EnvioGStepDestinoDetalles';
 import { EnvioGStepConfirm } from './EnvioGStepConfirm';

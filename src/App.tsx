@@ -12,32 +12,19 @@ const Productos = React.lazy(() => import('./pages/Productos/Productos').then(m 
 const Inventario = React.lazy(() => import('./pages/Inventario/Inventario').then(m => ({ default: m.Inventario })));
 // Almacenes page removed from routing — functionality lives in Maestros/AlmacenesLogistica
 const Envios = React.lazy(() => import('./pages/Envios/Envios').then(m => ({ default: m.Envios })));
-// S44 — Wizard T2 (Casilla Internacional → Almacén Perú) · detrás de feature flag WIZARD_T2
-const WizardT2Page = React.lazy(() =>
-  import('./pages/Envios/EnvioWizardT2').then(m => ({ default: m.WizardT2Page }))
-);
-// S47 — Wizard J (Casilla Internacional ↔ Casilla Internacional) · detrás de feature flag WIZARD_J
-const WizardJPage = React.lazy(() =>
-  import('./pages/Envios/EnvioWizardJ').then(m => ({ default: m.WizardJPage }))
-);
-// S48 — Wizard E (Traslado interno Almacén Perú ↔ Almacén Perú) · detrás de feature flag WIZARD_E
-const WizardEPage = React.lazy(() =>
-  import('./pages/Envios/EnvioWizardE').then(m => ({ default: m.WizardEPage }))
-);
+// S53 F5 — Wizards legacy C/J/E/I + V2 ELIMINADOS (reemplazo directo D-4).
+// El wizard unificado vive en /envios/nuevo.
+// F y G siguen activos hasta T-F y T-G (se migrarán a Ventas/Devoluciones).
+
 // S49 — Wizard F (Despacho venta Almacén Perú → cliente) · detrás de feature flag WIZARD_F
 const WizardFPage = React.lazy(() =>
   import('./pages/Envios/EnvioWizardF').then(m => ({ default: m.WizardFPage }))
-);
-// S50 — Wizard I (Almacén propio → Almacén tercero) · detrás de feature flag WIZARD_I
-const WizardIPage = React.lazy(() =>
-  import('./pages/Envios/EnvioWizardI').then(m => ({ default: m.WizardIPage }))
 );
 // S51 — Wizard G (Retorno físico devolución · cliente → almacén Perú) · detrás de feature flag WIZARD_G
 const WizardGPage = React.lazy(() =>
   import('./pages/Envios/EnvioWizardG').then(m => ({ default: m.WizardGPage }))
 );
-// S53 — Wizard UNIFICADO de envíos (v7 aprobado en S52). Reemplaza C/J/E/I
-// (los legacy se eliminan en F5). Ruta: /envios/nuevo
+// S53 — Wizard UNIFICADO de envíos (v7 aprobado en S52). Ruta: /envios/nuevo
 const EnvioWizardPage = React.lazy(() =>
   import('./pages/Envios/EnvioWizard/EnvioWizardPage').then(m => ({ default: m.EnvioWizardPage }))
 );
@@ -171,14 +158,12 @@ function App() {
               <Route path="productos-intel" element={<ProductosIntel />} />
               <Route path="inventario" element={<Inventario />} />
               <Route path="envios" element={<Envios />} />
-              {/* S53 — Wizard UNIFICADO (v7). Ruta principal de creación de envíos. */}
+              {/* S53 — Wizard UNIFICADO (v7). Ruta principal de creación de envíos
+                   para los 4 tipos C/J/E/I (el tipo se infiere del origen+destino). */}
               <Route path="envios/nuevo" element={<EnvioWizardPage />} />
-              {/* S44-S51 — Wizards legacy C/J/E/F/I/G. Se eliminan en F5 (reemplazo directo). */}
-              <Route path="envios/nuevo-t2" element={<WizardT2Page />} />
-              <Route path="envios/nuevo-j" element={<WizardJPage />} />
-              <Route path="envios/nuevo-e" element={<WizardEPage />} />
+              {/* S49/S51 — Wizards F (despacho venta) y G (retorno devolución) siguen
+                   activos hasta T-F y T-G que los migran a Ventas/Devoluciones. */}
               <Route path="envios/nuevo-f" element={<WizardFPage />} />
-              <Route path="envios/nuevo-i" element={<WizardIPage />} />
               <Route path="envios/nuevo-g" element={<WizardGPage />} />
               <Route path="red-logistica" element={<RedLogistica />} />
               <Route path="unidades" element={<Unidades />} />

@@ -14,7 +14,7 @@ import { getEmojiPorProducto } from '../../../components/modules/ordenCompra/OCW
 import type { Unidad } from '../../../types/unidad.types';
 import type { Casilla } from '../../../types/casilla.types';
 import { cn } from '../../../design-system';
-import { ProductoPickingGroup, type ProductoPickingGroupUnidad } from '../EnvioWizardT2';
+import { ProductoPickingGroup, type ProductoPickingGroupUnidad } from '../legacy-shared';
 import type { EnvioWizardFState, EnvioWizardFAction } from './envioWizardFTypes';
 import { selectUnidadesReservadasVenta } from './envioWizardFTypes';
 
