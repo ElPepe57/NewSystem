@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S52 · Wizard de Envíos Unificado (v5 — 4 pasos + paso 1 integrado)</title>
+<title>S52 · Wizard de Envíos Unificado (v6 — secciones estilo OC con buscador)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -67,9 +67,9 @@
 <header class="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-20">
   <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-500 font-mono">🧙 S52 · Wizard Envíos v5</div>
-      <h1 class="text-lg font-semibold text-slate-900">Wizard Unificado · 4 pasos con Paso 1 integrado</h1>
-      <p class="text-xs text-slate-500">Mockup de validación · diseño v5 · aprobado para implementación</p>
+      <div class="flex items-center gap-2 text-xs text-slate-500 font-mono">🧙 S52 · Wizard Envíos v6</div>
+      <h1 class="text-lg font-semibold text-slate-900">Wizard Unificado · secciones estilo OC con buscador</h1>
+      <p class="text-xs text-slate-500">Mockup de validación · diseño v6 · aprobado para implementación</p>
     </div>
     <div class="flex items-center gap-1 flex-wrap">
       <button onclick="mostrarTab('paso1')" id="tab-paso1" class="tab-active text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">1 · Origen + destino + unidades</button>
@@ -106,189 +106,213 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-      <!-- FORMULARIO APILADO (col span 2 = 65% aprox) -->
-      <div class="md:col-span-2 space-y-6">
+      <!-- FORMULARIO (col span 2 = 65%) — estilo OC: secciones numeradas colapsables con buscador + cards apiladas -->
+      <div class="md:col-span-2 space-y-5">
 
-        <!-- === ORIGEN === -->
-        <div>
-          <div class="subseccion-header">
-            <div class="subseccion-titulo">📦 Origen</div>
-            <div class="subseccion-linea"></div>
-          </div>
-          <div class="space-y-2">
-            <div class="option-card selected border-2 rounded-xl p-4 flex items-start gap-3">
-              <input type="radio" name="origen" checked class="mt-1">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🌎</span><span class="text-sm font-semibold text-slate-900">Casilla internacional</span></div>
-                <p class="text-xs text-slate-600">USA, China, Corea, Japón, etc.</p>
-              </div>
+        <!-- =========================================================== -->
+        <!-- [1] ORIGEN — COLLAPSED (Felicita seleccionada) -->
+        <!-- =========================================================== -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold">1</span>
+              <h4 class="text-sm font-semibold text-slate-900">¿De dónde salen las unidades?</h4>
             </div>
-            <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <input type="radio" name="origen" class="mt-1">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Perú</span></div>
-                <p class="text-xs text-slate-600">Tu almacén local en Perú</p>
+            <button onclick="toggleSeccion('sec-origen')" class="text-xs font-medium text-teal-600 hover:text-teal-700">Cambiar</button>
+          </div>
+          <!-- Cuerpo colapsado: resumen de la selección -->
+          <div class="p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center text-xl flex-shrink-0">🇺🇸</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-sm font-semibold text-slate-900">Felicita · Miami</span>
+                  <span class="text-amber-500">⭐</span>
+                  <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded uppercase tracking-wider font-semibold">Casilla intl</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Miami, FL · 47 uds · 2 SKUs disponibles</div>
               </div>
+              <div class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">✓</div>
             </div>
           </div>
+        </div>
 
-          <!-- CASILLAS DISPONIBLES - aparece al elegir categoría origen -->
-          <div class="mt-4 bg-sky-50/50 border-l-4 border-sky-400 rounded-r-lg p-4 animate-in">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-sky-700 mb-3">Casillas disponibles · elegí la específica</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div class="option-card selected border-2 rounded-xl p-3 bg-white">
-                <div class="flex items-start justify-between mb-2">
-                  <div>
-                    <div class="flex items-center gap-1.5"><span class="text-xl">🇺🇸</span><span class="text-sm font-semibold text-slate-900">Felicita · Miami</span><span class="text-amber-500">⭐</span></div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Miami, FL · Casilla Intl</div>
-                  </div>
-                  <div class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">✓</div>
+        <!-- =========================================================== -->
+        <!-- [2] DESTINO — COLLAPSED (Lima Centro seleccionado) -->
+        <!-- =========================================================== -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold">2</span>
+              <h4 class="text-sm font-semibold text-slate-900">¿A dónde llegan las unidades?</h4>
+            </div>
+            <button onclick="toggleSeccion('sec-destino')" class="text-xs font-medium text-teal-600 hover:text-teal-700">Cambiar</button>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-xl flex-shrink-0">🇵🇪</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-sm font-semibold text-slate-900">Almacén Lima Centro</span>
+                  <span class="text-amber-500">⭐</span>
+                  <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded uppercase tracking-wider font-semibold">Propio PE</span>
                 </div>
-                <div class="flex items-center gap-2 text-[11px]">
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">● Activa</span>
-                  <span class="text-slate-500">47 uds · 2 SKUs</span>
+                <div class="text-[11px] text-slate-500 mt-0.5">Lima · Capacidad 45%</div>
+              </div>
+              <div class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">✓</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================== -->
+        <!-- [3] UNIDADES — EXPANDED con buscador + lista apilada -->
+        <!-- =========================================================== -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden animate-in">
+          <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+              <h4 class="text-sm font-semibold text-slate-900">¿Qué unidades envías?</h4>
+            </div>
+            <div class="text-[11px] font-medium text-slate-500">14 / 47 seleccionadas</div>
+          </div>
+          <div class="p-4 space-y-3">
+            <p class="text-xs text-slate-600">Elegí las unidades que se enviarán. Las pre-vendidas se incluyen automáticamente.</p>
+
+            <!-- Buscador -->
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+              <input type="text" placeholder="Buscar producto por nombre, SKU, marca..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-100 focus:border-teal-500 outline-none">
+            </div>
+
+            <!-- Banner pre-vendidas -->
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-start gap-3">
+              <span class="text-xl">🎯</span>
+              <div class="flex-1 text-xs">
+                <div class="font-semibold text-emerald-900 mb-0.5">4 unidades pre-vendidas disponibles</div>
+                <p class="text-emerald-800">Hay clientes esperando estas unidades. Se incluirán automáticamente.</p>
+              </div>
+              <label class="flex items-center gap-1.5 text-xs text-emerald-800 whitespace-nowrap"><input type="checkbox" checked class="rounded"> Incluir auto</label>
+            </div>
+
+            <!-- Lista apilada de productos -->
+            <div class="space-y-2">
+              <div class="border border-slate-200 rounded-lg bg-white p-3 flex items-center gap-3">
+                <span class="text-2xl">💊</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold text-slate-900">Ashwagandha KSM-66</span><span class="text-[10px] px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded">NOW</span></div>
+                  <div class="text-[11px] text-slate-500">SKU: NOW-ASH-90 · OC-2026-001 (Amazon)</div>
+                </div>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <button class="w-7 h-7 rounded-lg border border-slate-300 text-slate-600">−</button>
+                  <span class="w-8 text-center text-sm font-semibold tabular-nums">8</span>
+                  <button class="w-7 h-7 rounded-lg bg-teal-600 text-white">+</button>
+                  <span class="text-[11px] text-slate-400">/ 12</span>
                 </div>
               </div>
-              <div class="option-card border-2 border-slate-200 rounded-xl p-3 bg-white">
-                <div class="flex items-start justify-between mb-2">
-                  <div>
-                    <div class="flex items-center gap-1.5"><span class="text-xl">🇨🇳</span><span class="text-sm font-semibold text-slate-900">Angie · Guangzhou</span></div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Guangzhou, China</div>
-                  </div>
+              <div class="border border-slate-200 rounded-lg bg-white p-3 flex items-center gap-3">
+                <span class="text-2xl">🧴</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold text-slate-900">Soothing Cream</span><span class="text-[10px] px-1.5 py-0.5 bg-fuchsia-50 text-fuchsia-700 rounded">Carlyle</span><span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded">🎯 3 pre-vendidas</span></div>
+                  <div class="text-[11px] text-slate-500">SKU: CAR-SC-30 · OC-2026-004 (iHerb)</div>
                 </div>
-                <div class="flex items-center gap-2 text-[11px]">
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">● Activa</span>
-                  <span class="text-slate-500">12 uds · 3 SKUs</span>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <button class="w-7 h-7 rounded-lg border border-slate-300 text-slate-600">−</button>
+                  <span class="w-8 text-center text-sm font-semibold tabular-nums">6</span>
+                  <button class="w-7 h-7 rounded-lg bg-teal-600 text-white">+</button>
+                  <span class="text-[11px] text-slate-400">/ 15</span>
+                </div>
+              </div>
+              <div class="border border-slate-200 rounded-lg bg-white p-3 flex items-center gap-3">
+                <span class="text-2xl">💧</span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold text-slate-900">DHA para Bebés</span><span class="text-[10px] px-1.5 py-0.5 bg-teal-50 text-teal-700 rounded">Nordic Naturals</span><span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded">🎯 1 pre-vendida</span></div>
+                  <div class="text-[11px] text-slate-500">SKU: NN-DHA-120 · OC-2026-007 (Vitacost)</div>
+                </div>
+                <div class="flex items-center gap-1.5 flex-shrink-0">
+                  <button class="w-7 h-7 rounded-lg border border-slate-300 text-slate-600">−</button>
+                  <span class="w-8 text-center text-sm font-semibold tabular-nums">0</span>
+                  <button class="w-7 h-7 rounded-lg bg-teal-600 text-white">+</button>
+                  <span class="text-[11px] text-slate-400">/ 20</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- === DESTINO === -->
-        <div>
-          <div class="subseccion-header">
-            <div class="subseccion-titulo">🏠 Destino</div>
-            <div class="subseccion-linea"></div>
-          </div>
-          <div class="space-y-2">
-            <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <input type="radio" name="destino" class="mt-1">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🌎</span><span class="text-sm font-semibold text-slate-900">Casilla internacional</span></div>
-                <p class="text-xs text-slate-600">Otra casilla tuya en el extranjero</p>
+        <!-- Ejemplo ilustrativo del estado EXPANDED de una sección -->
+        <details class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+          <summary class="cursor-pointer text-xs font-medium text-slate-700 px-4 py-3 hover:bg-slate-100">
+            💡 Ver cómo se ve la sección <b>Origen</b> cuando está expandida (antes de elegir)
+          </summary>
+          <div class="border-t border-slate-200">
+            <!-- Versión expandida del [1] Origen -->
+            <div class="border-0 rounded-none">
+              <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+                  <h4 class="text-sm font-semibold text-slate-900">¿De dónde salen las unidades?</h4>
+                </div>
               </div>
-            </div>
-            <div class="option-card selected border-2 rounded-xl p-4 flex items-start gap-3">
-              <input type="radio" name="destino" checked class="mt-1">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Perú</span></div>
-                <p class="text-xs text-slate-600">Tu almacén local</p>
-              </div>
-            </div>
-            <div class="option-card border-2 border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <input type="radio" name="destino" class="mt-1">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-0.5"><span class="text-2xl">🏭</span><span class="text-sm font-semibold text-slate-900">Almacén tercero</span></div>
-                <p class="text-xs text-slate-600">FBA Amazon, distribuidor, consignación</p>
-              </div>
-            </div>
-          </div>
+              <div class="p-4 space-y-3 bg-white">
+                <p class="text-xs text-slate-600">Selecciona el tipo de origen y luego la ubicación específica.</p>
 
-          <!-- UBICACIÓN DESTINO - aparece al elegir categoría destino -->
-          <div class="mt-4 bg-emerald-50/50 border-l-4 border-emerald-400 rounded-r-lg p-4 animate-in">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 mb-3">Almacenes disponibles · elegí el específico</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div class="option-card selected border-2 rounded-xl p-3 bg-white">
-                <div class="flex items-start justify-between mb-2">
-                  <div>
-                    <div class="flex items-center gap-1.5"><span class="text-xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Lima Centro</span><span class="text-amber-500">⭐</span></div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Lima · Almacén propio</div>
-                  </div>
-                  <div class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">✓</div>
-                </div>
-                <div class="flex items-center gap-2 text-[11px]">
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">● Activa</span>
-                  <span class="text-slate-500">Capacidad 45%</span>
-                </div>
-              </div>
-              <div class="option-card border-2 border-slate-200 rounded-xl p-3 bg-white">
-                <div class="flex items-start justify-between mb-2">
-                  <div>
-                    <div class="flex items-center gap-1.5"><span class="text-xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Arequipa Sur</span></div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Arequipa · Almacén propio</div>
+                <!-- Categoría origen: radios apilados -->
+                <div>
+                  <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block mb-2">Tipo de origen</label>
+                  <div class="space-y-2">
+                    <div class="option-card selected border-2 rounded-xl p-3 flex items-start gap-3">
+                      <input type="radio" name="origen-demo" checked class="mt-1">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-0.5"><span class="text-xl">🌎</span><span class="text-sm font-semibold text-slate-900">Casilla internacional</span></div>
+                        <p class="text-xs text-slate-600">USA, China, Corea, Japón, etc.</p>
+                      </div>
+                    </div>
+                    <div class="option-card border-2 border-slate-200 rounded-xl p-3 flex items-start gap-3">
+                      <input type="radio" name="origen-demo" class="mt-1">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-0.5"><span class="text-xl">🇵🇪</span><span class="text-sm font-semibold text-slate-900">Almacén Perú</span></div>
+                        <p class="text-xs text-slate-600">Tu almacén local en Perú</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="flex items-center gap-2 text-[11px]">
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">● Activa</span>
-                  <span class="text-slate-500">Capacidad 78%</span>
+
+                <!-- Casilla específica: buscador + cards apiladas -->
+                <div>
+                  <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block mb-2">Casilla específica</label>
+                  <div class="relative mb-3">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                    <input type="text" placeholder="Buscar casilla por nombre, ciudad, país..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg">
+                  </div>
+                  <div class="space-y-2">
+                    <div class="option-card selected border-2 rounded-xl p-3 flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center text-xl flex-shrink-0">🇺🇸</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap"><span class="text-sm font-semibold text-slate-900">Felicita · Miami</span><span class="text-amber-500">⭐</span></div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Miami, FL · 47 uds · 2 SKUs</div>
+                      </div>
+                      <div class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs flex-shrink-0">✓</div>
+                    </div>
+                    <div class="option-card border-2 border-slate-200 rounded-xl p-3 flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-xl flex-shrink-0">🇨🇳</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold text-slate-900">Angie · Guangzhou</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Guangzhou, China · 12 uds · 3 SKUs</div>
+                      </div>
+                    </div>
+                    <div class="option-card border-2 border-slate-200 rounded-xl p-3 flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-xl flex-shrink-0">🇰🇷</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold text-slate-900">Seoul Express</div>
+                        <div class="text-[11px] text-slate-500 mt-0.5">Seúl, Corea · 8 uds · 1 SKU</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- === UNIDADES === aparece cuando origen+destino están completos -->
-        <div class="animate-in">
-          <div class="subseccion-header">
-            <div class="subseccion-titulo">📦 Unidades a enviar</div>
-            <div class="subseccion-linea"></div>
-            <div class="text-[11px] text-slate-500 whitespace-nowrap">14 / 47 en Felicita</div>
-          </div>
-
-          <!-- Banner pre-vendidas -->
-          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-start gap-3 mb-3">
-            <span class="text-xl">🎯</span>
-            <div class="flex-1 text-xs">
-              <div class="font-semibold text-emerald-900 mb-0.5">4 unidades pre-vendidas disponibles</div>
-              <p class="text-emerald-800">Hay clientes esperando estas unidades. Se incluirán automáticamente.</p>
-            </div>
-            <label class="flex items-center gap-1.5 text-xs text-emerald-800 whitespace-nowrap"><input type="checkbox" checked class="rounded"> Incluir auto</label>
-          </div>
-
-          <!-- Picker productos -->
-          <div class="space-y-2">
-            <div class="border border-slate-200 rounded-lg bg-white p-3 flex items-center gap-3">
-              <span class="text-2xl">💊</span>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold text-slate-900">Ashwagandha KSM-66</span><span class="text-[10px] px-1.5 py-0.5 bg-sky-50 text-sky-700 rounded">NOW</span></div>
-                <div class="text-[11px] text-slate-500">SKU: NOW-ASH-90 · OC-2026-001 (Amazon)</div>
-              </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button class="w-7 h-7 rounded-lg border border-slate-300 text-slate-600">−</button>
-                <span class="w-8 text-center text-sm font-semibold tabular-nums">8</span>
-                <button class="w-7 h-7 rounded-lg bg-teal-600 text-white">+</button>
-                <span class="text-[11px] text-slate-400">/ 12</span>
-              </div>
-            </div>
-            <div class="border border-slate-200 rounded-lg bg-white p-3 flex items-center gap-3">
-              <span class="text-2xl">🧴</span>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold text-slate-900">Soothing Cream</span><span class="text-[10px] px-1.5 py-0.5 bg-fuchsia-50 text-fuchsia-700 rounded">Carlyle</span><span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded">🎯 3 pre-vendidas</span></div>
-                <div class="text-[11px] text-slate-500">SKU: CAR-SC-30 · OC-2026-004 (iHerb)</div>
-              </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button class="w-7 h-7 rounded-lg border border-slate-300 text-slate-600">−</button>
-                <span class="w-8 text-center text-sm font-semibold tabular-nums">6</span>
-                <button class="w-7 h-7 rounded-lg bg-teal-600 text-white">+</button>
-                <span class="text-[11px] text-slate-400">/ 15</span>
-              </div>
-            </div>
-            <div class="border border-slate-200 rounded-lg bg-white p-3 flex items-center gap-3">
-              <span class="text-2xl">💧</span>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-semibold text-slate-900">DHA para Bebés</span><span class="text-[10px] px-1.5 py-0.5 bg-teal-50 text-teal-700 rounded">Nordic Naturals</span><span class="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded">🎯 1 pre-vendida</span></div>
-                <div class="text-[11px] text-slate-500">SKU: NN-DHA-120 · OC-2026-007 (Vitacost)</div>
-              </div>
-              <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button class="w-7 h-7 rounded-lg border border-slate-300 text-slate-600">−</button>
-                <span class="w-8 text-center text-sm font-semibold tabular-nums">0</span>
-                <button class="w-7 h-7 rounded-lg bg-teal-600 text-white">+</button>
-                <span class="text-[11px] text-slate-400">/ 20</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        </details>
       </div>
 
       <!-- SIDEBAR RUTA VERTICAL -->
@@ -850,19 +874,33 @@
 <section id="notas" class="section">
   <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
     <div>
-      <h2 class="text-xl font-semibold text-slate-900 mb-1">💡 Decisiones de diseño · v5 (definitivo)</h2>
-      <p class="text-sm text-slate-600">4 pasos con Paso 1 integrado (origen + destino + unidades). Lista para implementación.</p>
+      <h2 class="text-xl font-semibold text-slate-900 mb-1">💡 Decisiones de diseño · v6 (definitivo)</h2>
+      <p class="text-sm text-slate-600">4 pasos con Paso 1 estilo OC (secciones colapsables + buscador + cards apiladas). Lista para implementación.</p>
     </div>
 
     <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-      <h3 class="text-sm font-semibold text-emerald-900 mb-2">✨ Cambios respecto a v4</h3>
+      <h3 class="text-sm font-semibold text-emerald-900 mb-2">✨ Cambios respecto a v5</h3>
       <ul class="text-xs text-emerald-800 space-y-1.5 list-disc pl-5">
-        <li><b>Wizard de 5 → 4 pasos.</b> Paso 1 y Paso 2 del v4 se integran en un solo paso con progressive disclosure.</li>
-        <li><b>Paso 1 nuevo:</b> "Origen + destino + unidades". 3 secciones apiladas verticales. Al elegir categoría origen aparece la lista de casillas específicas (inline). Al elegir casilla aparece la lista de destinos. Al tener origen+destino aparece el picker de unidades.</li>
-        <li><b>Paso 2 nuevo:</b> "Destino detalles". Condicional — solo aparece para tipos E (motivo obligatorio) e I (referencia+tipo relación). Para tipos C y J este paso se salta automáticamente (wizard efectivo de 3 pasos).</li>
-        <li><b>Paso 3 nuevo:</b> Logística (era Paso 4 del v4).</li>
-        <li><b>Paso 4 nuevo:</b> Confirmar (era Paso 5 del v4).</li>
-        <li><b>Sidebar de ruta vertical sigue vigente</b> en los 4 pasos. En Paso 1 se completa el 95% (ORIGEN + DESTINO con nombres específicos), solo TRÁNSITO queda pendiente hasta Paso 3.</li>
+        <li><b>Paso 1 rediseñado estilo OCWizardV3.</b> 3 secciones numeradas colapsables (Origen / Destino / Unidades) en vez de progressive disclosure vertical continuo.</li>
+        <li><b>Cada sección tiene 2 estados:</b>
+          <ul class="list-[circle] pl-5 mt-1 space-y-0.5">
+            <li><b>EXPANDED</b> (antes de elegir): buscador 🔍 + lista de opciones apiladas verticales (no grid 2×2). Incluye categoría + ubicación específica juntas.</li>
+            <li><b>COLLAPSED</b> (tras elegir): resumen de la selección + link "Cambiar" a la derecha. Click en Cambiar → re-expande.</li>
+          </ul>
+        </li>
+        <li><b>Buscadores agregados:</b> en Origen (busca casilla por nombre/ciudad/país), en Destino (busca almacén), y en Unidades (busca producto por nombre/SKU/marca).</li>
+        <li><b>Cards apiladas verticales</b> en todas las listas (no grid 2 columnas). Cada card usa el ancho completo con icono + nombre + metadata + checkmark a la derecha.</li>
+        <li><b>Numeración consistente con OC:</b> badge circular con número [1] [2] [3] en cada sección.</li>
+      </ul>
+    </div>
+
+    <div class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+      <h3 class="text-sm font-semibold text-sky-900 mb-2">Heredado de v5 (sigue vigente)</h3>
+      <ul class="text-xs text-sky-800 space-y-1.5 list-disc pl-5">
+        <li><b>Wizard de 4 pasos:</b> Paso 1 integrado / Paso 2 condicional (solo E e I) / Paso 3 logística / Paso 4 confirmar.</li>
+        <li>Paso 1 absorbe la selección de origen + destino + unidades (lo que antes eran 2 pasos en el v4).</li>
+        <li>Paso 2 es condicional — se salta para tipos C y J (wizard efectivo de 3 pasos en esos casos).</li>
+        <li>Sidebar con ruta vertical persistente (chip tipo + 3 bloques Origen/Tránsito/Destino + KPIs).</li>
       </ul>
     </div>
 
@@ -926,6 +964,12 @@
     const btn = document.getElementById('tab-' + id);
     if (btn) { btn.classList.remove('tab-inactive'); btn.classList.add('tab-active'); }
     window.scrollTo(0, 0);
+  }
+
+  // Stub visual: al hacer click en "Cambiar" mostramos un alert explicando que re-expandiría la sección.
+  // En la implementación real, esto alternará entre estado COLLAPSED y EXPANDED de la sección.
+  function toggleSeccion(id) {
+    alert('Click en "Cambiar" — en la implementación real, esta sección se re-expande mostrando buscador + lista apilada de opciones.\n\nVer el ejemplo ilustrativo al final del Paso 1 para el estado EXPANDED.');
   }
 </script>
 

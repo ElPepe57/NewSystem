@@ -1,10 +1,10 @@
 # 🧙 Wizard de Envíos Unificado — Diseño S52
 
-> **Versión 5.0 · 2026-04-22 · Fase 5.0 (Diseño) · APROBADO**
+> **Versión 6.0 · 2026-04-22 · Fase 5.0 (Diseño) · APROBADO**
 >
 > Este documento define el diseño UX + arquitectura del wizard unificado de envíos que reemplazará a los 4 wizards separados actuales (C/E/J/I). F y G se integran en sus módulos naturales (Ventas / Devoluciones).
 >
-> **Cambio clave v5:** wizard de **4 pasos** (antes 5). Paso 1 integra origen + destino + unidades con progressive disclosure. Paso 2 es condicional (solo tipos E e I).
+> **Cambio clave v6:** Paso 1 rediseñado estilo OCWizardV3. 3 secciones numeradas colapsables (Origen / Destino / Unidades), cada una con buscador + lista apilada cuando está expandida, y botón "Cambiar" cuando está colapsada.
 >
 > **Audiencia:** dueño del producto (no-técnico) + agentes técnicos que implementarán después.
 
@@ -144,15 +144,21 @@ El label del bloque tránsito también cambia: "Tránsito · Aéreo" / "Tránsit
 
 Novedad v5: el Paso 1 y el Paso 2 del v4 se integran en un solo paso con progressive disclosure. El Paso 2 del v5 es condicional (solo tipos E e I). Wizard pasa de 5 → 4 pasos.
 
-### Paso 1 — Origen + destino + unidades (INTEGRADO)
+### Paso 1 — Origen + destino + unidades (estilo OCWizardV3)
 
-Formulario apilado vertical con **progressive disclosure** de 5 sub-secciones en columna izquierda:
+Paso 1 se estructura en **3 secciones numeradas colapsables** estilo OC:
 
-1. **Origen (categoría)** — radios Casilla intl / Almacén Perú
-2. **Casillas disponibles** — aparece al elegir categoría origen. Cards con casillas específicas, indicadores de stock y estado.
-3. **Destino (categoría)** — radios Casilla intl / Almacén Perú / Almacén tercero
-4. **Ubicación destino** — aparece al elegir categoría destino. Cards con destinos específicos.
-5. **Unidades** — aparece cuando origen + destino están listos. Banner pre-vendidas (si aplica) + picker de productos con stepper +/-.
+| Sección | Contenido expandido | Contenido colapsado |
+|---|---|---|
+| **[1] Origen** | Radios de categoría (Casilla intl / Almacén Perú) + buscador + lista apilada de ubicaciones específicas | Resumen: icono + nombre + metadata + chip categoría + ✓ + link "Cambiar" |
+| **[2] Destino** | Radios de categoría (Casilla intl / Almacén Perú / Almacén tercero) + buscador + lista apilada de destinos específicos | Resumen: icono + nombre + metadata + chip categoría + ✓ + link "Cambiar" |
+| **[3] Unidades** | Buscador + banner pre-vendidas (si aplica) + lista apilada de productos con stepper +/- | No se colapsa (multi-selección, la cantidad en el título lo resume) |
+
+**Patrón interactivo:**
+- Al ingresar al paso, la sección [1] está EXPANDED con buscador + cards apiladas. [2] y [3] están desactivadas hasta completar [1].
+- Al seleccionar una opción en [1], la sección colapsa automáticamente mostrando solo la selección + link "Cambiar" a la derecha, y [2] se activa y expande.
+- Click en "Cambiar" de cualquier sección colapsada → re-expande para editar.
+- Cuando [1] y [2] están completas, [3] Unidades se expande con buscador + lista.
 
 **El feedback del tipo vive en el sidebar derecho** (chip de tipo + ruta vertical con nombres específicos al completar este paso):
 
@@ -368,6 +374,17 @@ Cada `tipoX.config.ts` tiene ~40 líneas, el shell común tiene ~300 líneas, y 
 
 **Justificación:** mantener el Paso 1 manejable. Los campos del destino son decisiones legales/operativas que merecen foco propio. Para los tipos C/J que no los requieren, el wizard efectivo son 3 pasos (Paso 1 + Paso 3 + Paso 4), sin overhead visible.
 
+### D-8 · Paso 1 con secciones colapsables estilo OCWizardV3 (novedad v6)
+**Decisión:** el Paso 1 se estructura en 3 secciones numeradas [1] [2] [3] con 2 estados cada una (EXPANDED / COLLAPSED), replicando el patrón de `OCWizardV3` paso "Ruta".
+
+**Elementos del patrón:**
+- **Header numerado:** badge circular con número ([1] [2] [3]) + título + link "Cambiar" a la derecha cuando está colapsada.
+- **Buscador siempre presente en estado expandido:** input con icono 🔍 y placeholder descriptivo (ej. "Buscar casilla por nombre, ciudad, país…").
+- **Cards apiladas verticales** (no grid 2×2). Cada card ocupa ancho completo: icono + nombre + metadata + checkmark a la derecha cuando seleccionado.
+- **Colapso automático al seleccionar:** muestra solo la opción elegida + link "Cambiar" para re-expandir.
+
+**Justificación del usuario:** "en la medida de lo posible que exista un buscador y se apilen asi como en esta version… que cuando lo escojas el desplegable se centre solo en ese, y que cuando le vuelvas a dar click a la misma seccion se vuelva abrir, asi como en Nueva Orden de Compra". Aplica también para el buscador de unidades.
+
 ---
 
 ## 📦 Tareas derivadas (fuera del alcance de Fase 5)
@@ -444,4 +461,5 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 | 2026-04-21 | 2.0 | Rediseño con inferencia automática del tipo · F/G movidos a sus módulos · 4 tipos soportados (C/J/E/I) · combinaciones inválidas con mensaje de coordinación |
 | 2026-04-22 | 3.0 | Sidebar con ruta vertical persistente (chip tipo + 3 bloques Origen/Tránsito/Destino + KPIs). 5 refinamientos R1-R5 (llenado progresivo 2 niveles, 3 estados visuales, chip tipo, jump-back en bloque completo, iconos por rol). D-3 cerrada (no se muestran tipos auto-creados). D-4 cerrada (reemplazo directo sin flag). D-5 cerrada (labels genéricos fijos). Banner "DETECTADO AUTOMÁTICAMENTE" del Paso 1 eliminado. |
 | 2026-04-22 | 4.0 | Paso 1 con formulario apilado vertical en columna izquierda (ORIGEN arriba, DESTINO abajo, cada uno con sus opciones una debajo de la otra). Proporción 65/35 formulario/sidebar. Colapsable "Ejemplo combinación no estándar" eliminado (chip + mensaje admin cuando aplique ya cubren el caso). |
-| 2026-04-22 | **5.0** | **APROBADO.** Wizard de 5 → 4 pasos. Paso 1 integrado con progressive disclosure (categoría origen → casillas disponibles → categoría destino → ubicación destino → unidades). Paso 2 condicional (solo E e I). D-6 y D-7 cerradas. El Paso 1 del v4 + el Paso 2 del v4 se integran en el Paso 1 del v5 según pedido del usuario ("me gustan ambas interfaces"). |
+| 2026-04-22 | 5.0 | Wizard de 5 → 4 pasos. Paso 1 integrado con progressive disclosure (categoría origen → casillas disponibles → categoría destino → ubicación destino → unidades). Paso 2 condicional (solo E e I). D-6 y D-7 cerradas. El Paso 1 del v4 + el Paso 2 del v4 se integran en el Paso 1 del v5 según pedido del usuario ("me gustan ambas interfaces"). |
+| 2026-04-22 | **6.0** | **APROBADO.** Paso 1 rediseñado estilo OCWizardV3. 3 secciones numeradas [1] [2] [3] colapsables (Origen / Destino / Unidades). Cada sección: buscador 🔍 + cards apiladas verticales en estado EXPANDED; resumen + link "Cambiar" en estado COLLAPSED. D-8 cerrada. Buscador también en Unidades según pedido del usuario. |
