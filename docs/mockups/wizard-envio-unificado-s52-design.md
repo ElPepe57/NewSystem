@@ -1,10 +1,10 @@
 # 🧙 Wizard de Envíos Unificado — Diseño S52
 
-> **Versión 3.0 · 2026-04-22 · Fase 5.0 (Diseño) · APROBADO**
+> **Versión 5.0 · 2026-04-22 · Fase 5.0 (Diseño) · APROBADO**
 >
 > Este documento define el diseño UX + arquitectura del wizard unificado de envíos que reemplazará a los 4 wizards separados actuales (C/E/J/I). F y G se integran en sus módulos naturales (Ventas / Devoluciones).
 >
-> **Cambio clave v3:** ruta vertical persistente en sidebar + 5 refinamientos visuales + D-3/D-4/D-5 cerradas.
+> **Cambio clave v5:** wizard de **4 pasos** (antes 5). Paso 1 integra origen + destino + unidades con progressive disclosure. Paso 2 es condicional (solo tipos E e I).
 >
 > **Audiencia:** dueño del producto (no-técnico) + agentes técnicos que implementarán después.
 
@@ -140,77 +140,64 @@ El label del bloque tránsito también cambia: "Tránsito · Aéreo" / "Tránsit
 
 ---
 
-## 🗺️ Flujo de 5 pasos (idéntico para todos los tipos)
+## 🗺️ Flujo de 4 pasos (v5 · con Paso 1 integrado)
 
-### Paso 1 — Origen y destino
+Novedad v5: el Paso 1 y el Paso 2 del v4 se integran en un solo paso con progressive disclosure. El Paso 2 del v5 es condicional (solo tipos E e I). Wizard pasa de 5 → 4 pasos.
 
-Formulario apilado vertical en columna izquierda (primero ORIGEN con sus 2 opciones una debajo de la otra, después DESTINO con sus 3 opciones una debajo de la otra). **El feedback del tipo vive en el sidebar derecho** (chip de tipo + ruta vertical):
+### Paso 1 — Origen + destino + unidades (INTEGRADO)
 
-```
-┌──── Formulario (2/3 ancho) ────┐  ┌── Sidebar (1/3) ──┐
-│ ¿Desde dónde y hacia dónde?     │  │ 🏷️ Envío intl.     │
-│                                 │  │    Casilla → Perú  │
-│ ─── ORIGEN ────────             │  ├────────────────────┤
-│ ┌─────────────────────────────┐ │  │ 📦 ORIGEN      ✓  │
-│ │ ◉ 🌎 Casilla internacional  │ │  │    Casilla 🌎       │
-│ └─────────────────────────────┘ │  │         ↓           │
-│ ┌─────────────────────────────┐ │  │ ✈️ TRÁNSITO   [4] │
-│ │ ○ 🇵🇪 Almacén Perú           │ │  │    (por elegir)    │
-│ └─────────────────────────────┘ │  │         ↓           │
-│                                 │  │ 🏠 DESTINO     ✓  │
-│ ─── DESTINO ───────             │  │    Perú 🇵🇪         │
-│ ┌─────────────────────────────┐ │  └────────────────────┘
-│ │ ○ 🌎 Casilla internacional  │ │
-│ └─────────────────────────────┘ │
-│ ┌─────────────────────────────┐ │
-│ │ ◉ 🇵🇪 Almacén Perú           │ │
-│ └─────────────────────────────┘ │
-│ ┌─────────────────────────────┐ │
-│ │ ○ 🏭 Almacén tercero        │ │
-│ └─────────────────────────────┘ │
-└─────────────────────────────────┘
-```
+Formulario apilado vertical con **progressive disclosure** de 5 sub-secciones en columna izquierda:
 
-**Proporción 65/35** (formulario ancho, sidebar compacto). El colapsable "Ejemplo: ¿qué pasa si elijo una combinación no estándar?" del v3 **se elimina** — el chip del sidebar + el mensaje de admin (cuando aplique) ya cubren ese caso.
+1. **Origen (categoría)** — radios Casilla intl / Almacén Perú
+2. **Casillas disponibles** — aparece al elegir categoría origen. Cards con casillas específicas, indicadores de stock y estado.
+3. **Destino (categoría)** — radios Casilla intl / Almacén Perú / Almacén tercero
+4. **Ubicación destino** — aparece al elegir categoría destino. Cards con destinos específicos.
+5. **Unidades** — aparece cuando origen + destino están listos. Banner pre-vendidas (si aplica) + picker de productos con stepper +/-.
 
-**Si el usuario elige una combinación NO soportada** (ej. Cliente → Cliente, o Casilla intl → Almacén tercero), el banner cambia a:
+**El feedback del tipo vive en el sidebar derecho** (chip de tipo + ruta vertical con nombres específicos al completar este paso):
 
 ```
-┌────────────────────────────────────────────────────────────────────┐
-│  ⚠ Combinación no estándar                                          │
-│                                                                     │
-│  Este tipo de movimiento requiere coordinación con el               │
-│  administrador. Contactá al admin para habilitarlo.                 │
-│                                                                     │
-│  Combinaciones disponibles:                                         │
-│  • Casilla intl → Almacén Perú                                      │
-│  • Casilla intl → Casilla intl                                      │
-│  • Almacén Perú → Almacén Perú                                      │
-│  • Almacén Perú → Almacén tercero                                   │
-└────────────────────────────────────────────────────────────────────┘
+┌────── Paso 1 · Formulario 65% ───────────┐ ┌── Sidebar 35% ──┐
+│                                           │ │ 🏷️ Envío intl.   │
+│ ─── 📦 Origen ──────────────              │ │    Casilla → PE  │
+│ ◉ 🌎 Casilla internacional                │ ├──────────────────┤
+│ ○ 🇵🇪 Almacén Perú                         │ │ 📦 ORIGEN    ✓  │
+│                                           │ │    Felicita      │
+│   ┌ Casillas disponibles ────┐           │ │    🇺🇸 · 14 uds    │
+│   │ ◉ 🇺🇸 Felicita Miami ⭐   │           │ │        ↓          │
+│   │ ○ 🇨🇳 Angie Guangzhou     │           │ │ ✈️ TRÁNSITO [3] │
+│   └──────────────────────────┘           │ │    (por elegir)  │
+│                                           │ │        ↓          │
+│ ─── 🏠 Destino ──────────────             │ │ 🏠 DESTINO   ✓  │
+│ ○ 🌎 Casilla  ◉ 🇵🇪 PE  ○ 🏭 3ro         │ │    Almacén Lima  │
+│                                           │ └──────────────────┘
+│   ┌ Almacenes disponibles ──┐            │
+│   │ ◉ Lima Centro ⭐         │            │
+│   │ ○ Arequipa Sur          │            │
+│   └─────────────────────────┘            │
+│                                           │
+│ ─── 📦 Unidades (14 / 47) ────            │
+│ 🎯 4 pre-vendidas · incluir auto         │
+│ 💊 Ashwagandha     [- 8 +] / 12          │
+│ 🧴 Soothing Cream  [- 6 +] / 15          │
+│ 💧 DHA Bebés       [- 0 +] / 20          │
+└───────────────────────────────────────────┘
 ```
 
-El botón "Siguiente" queda deshabilitado.
+**Proporción 65/35** (formulario ancho, sidebar compacto). **Progressive disclosure**: cada sub-sección solo aparece cuando la anterior está completa. Al terminar Paso 1, la ruta del sidebar queda al 95% llena (falta solo TRÁNSITO que se define en Paso 3).
 
-### Paso 2 — Ubicación de origen + picking
+**Si el usuario elige una combinación NO soportada** (ej. Cliente → Cliente, o Casilla intl → Almacén tercero), el sidebar muestra un chip rojo "Combinación no estándar" y en el contenido aparece el mensaje "Requiere coordinación con el administrador". El botón "Siguiente" queda deshabilitado.
 
-El contenido cambia según lo elegido en Paso 1:
+### Paso 2 — Destino detalles (CONDICIONAL)
 
-- **Si origen = Casilla intl:** grid de casillas internacionales activas
-- **Si origen = Almacén Perú:** grid de almacenes tipo `almacen_propio` en Perú
+Este paso **solo aparece para tipos E e I**. Para tipos C y J se salta automáticamente (del Paso 1 se va directo a Paso 3 Logística). Banner informativo al inicio del paso aclara esta condición al usuario.
 
-En ambos casos, al seleccionar la ubicación aparece el **picker de unidades disponibles** (reutiliza `ProductoPickingGroup` actual con priorización de pre-vendidas cuando aplica).
+Campos según tipo:
 
-### Paso 3 — Ubicación de destino + campos específicos
+- **Tipo E (Perú → Perú):** motivo obligatorio (Consolidación / Capacidad / Costo menor / Viaje próximo / Otro) + campo libre "detalle"
+- **Tipo I (Perú → Tercero):** referencia obligatoria (FBA-XYZ, Consig-001, etc.) + tipo de relación (Fulfillment / Consignación / Distribución / Otro) + banner de bloqueo de stock
 
-El contenido cambia según lo elegido en Paso 1:
-
-- **Destino = Almacén Perú (tipo C):** selector de almacén Perú destino
-- **Destino = Almacén Perú (tipo E):** selector de almacén Perú destino + **motivo obligatorio** (Consolidación / Capacidad / Costo menor / Viaje próximo / Otro)
-- **Destino = Casilla intl (tipo J):** selector de casilla intl + indicador J1/J2 + warning D-9 si cambia país
-- **Destino = Almacén tercero (tipo I):** selector de casillas tipo `almacen_tercero` + **referencia obligatoria** (FBA-XYZ, Consig-001, etc.) + tipo de relación (Fulfillment / Consignación / Distribución / Otro)
-
-### Paso 4 — Logística
+### Paso 3 — Logística
 
 Universal para los 4 tipos:
 
@@ -221,7 +208,7 @@ Universal para los 4 tipos:
   - E: PEN puro (sin TC)
   - I: USD o PEN por línea (multi-moneda, cross-border + local)
 
-### Paso 5 — Confirmar
+### Paso 4 — Confirmar
 
 Resumen universal con:
 - Header con tipo detectado en lenguaje humano (sin siglas)
@@ -371,6 +358,16 @@ Cada `tipoX.config.ts` tiene ~40 líneas, el shell común tiene ~300 líneas, y 
 ### D-R · Sidebar de ruta vertical persistente (novedad v3)
 **Decisión:** se agrega un sidebar derecho persistente durante todo el wizard con 3 bloques verticales (Origen / Tránsito / Destino) que se van llenando progresivamente en 2 niveles (categoría primero, nombre específico después). Aplica los 5 refinamientos R1-R5 descritos en la sección correspondiente.
 
+### D-6 · Integración Paso 1 + Paso 2 del v4 (novedad v5)
+**Decisión:** combinación en un solo paso con progressive disclosure. Wizard pasa de 5 → 4 pasos. El Paso 1 nuevo se llama "Origen + destino + unidades" y contiene 5 sub-secciones que aparecen secuencialmente: categoría origen → casillas disponibles → categoría destino → ubicación destino → unidades.
+
+**Justificación del usuario:** "me gustan ambas interfaces" (la selección de categoría del Paso 1 anterior + el picker del Paso 2 anterior). Integrarlas reduce saltos innecesarios y permite ver todas las decisiones geográficas + el picker en un solo scroll.
+
+### D-7 · Campos específicos del destino en paso separado (novedad v5)
+**Decisión:** los campos obligatorios de tipo E (motivo) y tipo I (referencia + tipo de relación) viven en un Paso 2 dedicado y **condicional** — solo aparece cuando el tipo lo requiere. Para tipos C y J el wizard salta directo de Paso 1 a Paso 3.
+
+**Justificación:** mantener el Paso 1 manejable. Los campos del destino son decisiones legales/operativas que merecen foco propio. Para los tipos C/J que no los requieren, el wizard efectivo son 3 pasos (Paso 1 + Paso 3 + Paso 4), sin overhead visible.
+
 ---
 
 ## 📦 Tareas derivadas (fuera del alcance de Fase 5)
@@ -416,9 +413,9 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 
 | Fase | Alcance | Sesión estimada |
 |---|---|---|
-| 5.0 — Diseño | Documento v3 + mockup v3 (este) | ✅ completada |
-| **5.1 — Fundaciones** | Shell + **sidebar ruta vertical** + registry + Paso 1 + Paso 5 | Próxima sesión |
-| **5.2 — Pasos adaptativos** | Paso 2 + Paso 3 + Paso 4 con variantes por tipo | Tercera sesión |
+| 5.0 — Diseño | Documento v5 + mockup v5 (este) | ✅ completada |
+| **5.1 — Fundaciones** | Shell + **sidebar ruta vertical** + registry + Paso 1 integrado + Paso 4 confirmar | Próxima sesión |
+| **5.2 — Pasos adaptativos** | Paso 2 condicional (E/I) + Paso 3 logística con variantes de moneda | Tercera sesión |
 | **5.3 — Migración + delete** | Reemplazo directo (D-4) — se eliminan los 4 wizards C/J/E/I en el mismo commit | Cuarta sesión |
 | T-F (derivada) | Integrar F en Ventas | Sesión aparte |
 | T-G (derivada) | Integrar G en Devoluciones | Sesión aparte |
@@ -446,4 +443,5 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 | 2026-04-21 | 1.0 | Versión inicial — 5 pasos con selector de tipo explícito (descartada) |
 | 2026-04-21 | 2.0 | Rediseño con inferencia automática del tipo · F/G movidos a sus módulos · 4 tipos soportados (C/J/E/I) · combinaciones inválidas con mensaje de coordinación |
 | 2026-04-22 | 3.0 | Sidebar con ruta vertical persistente (chip tipo + 3 bloques Origen/Tránsito/Destino + KPIs). 5 refinamientos R1-R5 (llenado progresivo 2 niveles, 3 estados visuales, chip tipo, jump-back en bloque completo, iconos por rol). D-3 cerrada (no se muestran tipos auto-creados). D-4 cerrada (reemplazo directo sin flag). D-5 cerrada (labels genéricos fijos). Banner "DETECTADO AUTOMÁTICAMENTE" del Paso 1 eliminado. |
-| 2026-04-22 | **4.0** | **APROBADO.** Paso 1 con formulario apilado vertical en columna izquierda (ORIGEN arriba, DESTINO abajo, cada uno con sus opciones una debajo de la otra). Proporción 65/35 formulario/sidebar. Colapsable "Ejemplo combinación no estándar" eliminado (chip + mensaje admin cuando aplique ya cubren el caso). |
+| 2026-04-22 | 4.0 | Paso 1 con formulario apilado vertical en columna izquierda (ORIGEN arriba, DESTINO abajo, cada uno con sus opciones una debajo de la otra). Proporción 65/35 formulario/sidebar. Colapsable "Ejemplo combinación no estándar" eliminado (chip + mensaje admin cuando aplique ya cubren el caso). |
+| 2026-04-22 | **5.0** | **APROBADO.** Wizard de 5 → 4 pasos. Paso 1 integrado con progressive disclosure (categoría origen → casillas disponibles → categoría destino → ubicación destino → unidades). Paso 2 condicional (solo E e I). D-6 y D-7 cerradas. El Paso 1 del v4 + el Paso 2 del v4 se integran en el Paso 1 del v5 según pedido del usuario ("me gustan ambas interfaces"). |
