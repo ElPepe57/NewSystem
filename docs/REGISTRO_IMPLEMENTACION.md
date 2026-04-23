@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-20 (Sesion 46 CIERRE — Costos landed con scope + cierre financiero. 3 fases, 3 commits, 1,783 lineas nuevas. Flag COSTOS_SCOPE_V2. S44/S45/S46 cerradas, todas en produccion con feature flags. Proxima sesion: S47 = Caso J (Casilla Intl a Casilla Intl) CON mockup previo.)
+**Ultima actualizacion:** 2026-04-22 (Sesion 52 CIERRE — Diseno del Wizard de Envios Unificado Fase 5.0. 100% diseno: 9 commits de docs, 7 versiones iterativas (v1→v7 aprobada), 11 decisiones cerradas. Sin cambios de codigo ni deploy. Proxima sesion: S53 = Fase 5.1 Fundaciones — shell + sidebar + Paso 1 + Paso 4.)
 **Branch activo:** main
 
 ---
@@ -12,7 +12,7 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 15 de 17 |
-| Sesiones de trabajo registradas | 46 |
+| Sesiones de trabajo registradas | 52 |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
 | Fixes aplicados | ~650 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g + 3 S42h + ~71 S42i→S42bl) |
@@ -166,6 +166,134 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - varianteLabel: removido de la columna SKU, integrado en el area descriptiva junto a los demas atributos (S20b)
   - Deploy functions + hosting: vitaskinperu.web.app (S20b)
 ```
+
+---
+
+## SESION 52 CIERRE — 2026-04-22 — Diseno del Wizard de Envios Unificado (Fase 5.0)
+
+### Metadata
+
+- Tipo de sesion: 100% diseno — cero lineas de codigo de aplicacion
+- Build: tsc -b sin cambios (0 errores, heredado de S46) | vite build no aplica
+- Commits: 9 commits, todos de tipo `docs(s52)` — solo archivos bajo `docs/`
+  - `5e90b4b` docs(s52): Fase 5.0 — documento + mockup inicial
+  - `1c93bb2` docs(s52): v2 — inferencia inteligente
+  - `b79e0ea` docs(s52): v3 — sidebar ruta vertical + D-3/D-4/D-5 cerradas
+  - `204e771` docs(s52): v4 — Paso 1 formulario apilado vertical + proporcion 65/35
+  - `e75bacc` docs(s52): fix v4 — breakpoint lg corregido a md
+  - `5794322` docs(s52): v5 — wizard de 4 pasos con Paso 1 integrado (D-6, D-7)
+  - `38783f7` docs(s52): v6 — Paso 1 estilo OCWizardV3 con secciones colapsables (D-8)
+  - `8ed6751` docs(s52): v6.1 — D-9 modalidad Variable + D-10 TC desde seccion TC
+  - `61c9f9a` docs(s52): v7 FINAL — 4ta modalidad Por tramos de peso + TC del sistema (D-11)
+- Deploy: sin cambios (ultimo deploy heredado del S46)
+- Artefactos producidos: 2 archivos bajo `docs/`
+- Version aprobada por el usuario: v7 (aprobacion explicita: "Actualmente con esta version estoy contento. asi que podemos cerrar con esto")
+
+### Resumen ejecutivo
+
+S52 es una sesion de diseno puro. El objetivo fue disenar el Wizard de Envios Unificado (Fase 5.0), que reemplazara los 4 wizards de tipo especifico actuales (T2/C, caso J, caso E, caso I) en un unico flujo con inferencia inteligente del tipo.
+
+El diseno paso por 7 iteraciones sucesivas antes de alcanzar la version aprobada. Cada iteracion respondio a un problema especifico de UX o a una decision de negocio que emergio durante la deliberacion. El resultado final es un wizard de 4 pasos (reducido de 5 en v1) con inferencia automatica, Paso 1 de secciones colapsables estilo OCWizardV3, Paso 2 condicional (solo para tipos E e I), Paso 3 con 4 modalidades de costo incluyendo tarifas por tramos de peso, y sidebar con ruta logistica persistente.
+
+### Artefactos producidos
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `docs/mockups/wizard-envio-unificado-s52.html` | Mockup HTML navegable — 4 pasos funcionales + tab de decisiones. Referencia de diseno para S53. |
+| `docs/mockups/wizard-envio-unificado-s52-design.md` | Documento de diseno: arquitectura, flujo de pasos, decisiones, tareas derivadas, roadmap de implementacion. |
+
+### Iteraciones del diseno (v1 → v7)
+
+| Version | Cambio principal | Estado |
+|---------|-----------------|--------|
+| v1 | 5 pasos con selector de tipo explicito | DESCARTADA — el usuario no debe ver "T2"/"C"/"J" |
+| v2 | Inferencia inteligente del tipo por origen+destino | Avance significativo — establece D-2 |
+| v3 | Sidebar con ruta vertical persistente + 5 refinamientos visuales (R1-R5) | Cierra D-3, D-4, D-5 |
+| v4 | Paso 1 apilado vertical, proporcion 65/35, fix breakpoint lg→md | Refinamiento de layout |
+| v5 | Wizard de 5→4 pasos, Paso 1 integrado, Paso 2 condicional | Cierra D-6, D-7 — reduccion de friccion |
+| v6 | Paso 1 con 3 secciones numeradas colapsables estilo OCWizardV3 | Cierra D-8, D-9, D-10 |
+| **v7** | **4ta modalidad "Por tramos de peso" + TC auto-poblado (D-11)** | **APROBADA POR EL USUARIO** |
+
+### Decisiones cerradas en S52 (11 decisiones)
+
+| ID | Titulo | Resolucion |
+|----|--------|------------|
+| D-1 | Borradores incompletos | Se eliminan automaticamente — sin persistencia de borrador sin completar |
+| D-2 | Inferencia del tipo de envio | El tipo (C, J, E, I) se infiere del par origen+destino, nunca se muestra al usuario |
+| D-3 | Tipos auto-creados excluidos del Paso 1 | A, B, D, F, G no aparecen en el wizard — nacen por otros flujos |
+| D-4 | Reemplazo directo sin feature flag | Al mergear Fase 5.3 se eliminan los 4 wizards C/J/E/I en el mismo commit |
+| D-5 | Labels genericos en el stepper | Origen/destino · Ubicacion · Destino · Logistica · Confirmar — independientes del tipo inferido |
+| D-6 | Integracion Paso 1 + Paso 2 del v4 | Progressive disclosure — wizard pasa de 5 a 4 pasos |
+| D-7 | Campos especificos del destino en Paso 2 condicional | Aparece solo para E (motivo obligatorio) e I (referencia + tipo relacion + banner bloqueo stock) |
+| D-8 | Paso 1 con secciones colapsables estilo OCWizardV3 | 3 secciones numeradas [1][2][3] con buscador + cards apiladas en estado EXPANDED, resumen + "Cambiar" en COLLAPSED |
+| D-9 | Modalidad "Por producto" con tabla inline | Un costo landed por SKU, columnas: Producto / Costo USD / Notas |
+| D-10 | TC auto-poblado desde seccion TC del sistema | Chip read-only "TC hoy: S/ X.XX" nutrido por `tiposDeCambio` — aplica a todos los modulos con operaciones USD |
+| D-11 | Modalidad "Por tramos de peso" con tarifa escalonada | Tramos en libras, configurados en la ficha del Colaborador viajero (Red Logistica). Aplica tambien al Paso Flete del OCWizardV3 |
+| D-A | Casos F y G fuera del wizard | F (despacho venta) nace desde Ventas; G (retorno devolucion) nace desde Devoluciones |
+| D-B | Combinaciones invalidas origen+destino | Mensaje "Requiere coordinacion con el administrador" + boton Siguiente deshabilitado |
+| D-R | Sidebar con ruta vertical persistente | Chip tipo + 3 bloques Origen/Transito/Destino + KPIs — visible en todos los pasos |
+
+### Estructura final del wizard v7 (4 pasos)
+
+**Paso 1 — Origen + destino + unidades**
+- 3 secciones numeradas colapsables: [1] Origen · [2] Destino · [3] Unidades
+- Cada seccion: buscador + cards apiladas en estado EXPANDED, chip resumen + boton "Cambiar" en estado COLLAPSED
+- Al completar Origen y Destino: el sistema infiere el tipo y muestra chip en el sidebar
+- Combinaciones invalidas muestran banner de bloqueo
+
+**Paso 2 — Destino detalles (CONDICIONAL)**
+- Solo aparece para tipos E (motivo obligatorio) e I (referencia + tipo relacion + banner bloqueo stock)
+- Para tipos C y J: este paso se salta automaticamente
+- Nunca muestra el codigo de tipo al usuario
+
+**Paso 3 — Logistica**
+- Seleccion de transportador + numero de tracking
+- Costos con 4 modalidades:
+  1. Flete total (monto unico)
+  2. Tarifa por unidad (precio/u x N unidades)
+  3. Por producto (tabla inline SKU → costo USD)
+  4. Por tramos de peso (tarifa escalonada en libras, desde ficha del Colaborador viajero)
+- Chip TC read-only auto-poblado desde `tiposDeCambio` del sistema
+- Recordatorio: "Cierre operativo != Cierre financiero" (el wizard completa el envio, no el panel de costos)
+
+**Paso 4 — Confirmar**
+- Resumen completo con ruta visual (RouteVisual del design system)
+- KPIs del envio (unidades, valor estimado, transportador)
+- Lista de efectos al confirmar (cambios de estado, movimientos de inventario)
+- Boton con label dinamico segun tipo inferido ("Registrar envio", "Registrar transferencia", etc.)
+
+### Sidebar — Ruta vertical persistente (D-R)
+
+Visible en todos los pasos:
+- Chip con tipo inferido (aparece al completar Paso 1)
+- 3 bloques: Origen → Transito (si aplica) → Destino con banderas y nombres
+- KPIs en tiempo real: unidades, valor estimado, modalidad de costo activa
+
+### Tareas derivadas detectadas en S52
+
+| ID | Descripcion | Sesion estimada | Prerequisito |
+|----|-------------|----------------|-------------|
+| T-F | Integrar "Despachar venta" embedded en modulo Ventas (caso F) | ~1 sesion | S55 completada |
+| T-G | Integrar "Procesar retorno fisico" embedded en Devoluciones (caso G) | ~1 sesion | S55 completada |
+| T-Cleanup | Eliminar `EnvioWizardF/` y `EnvioWizardG/` tras UAT | 30 min | UAT T-F y T-G |
+| T-TramosRedLogistica | Agregar campo `tarifaPorTramos?: TramoPeso[]` al modelo Colaborador + UI en ColaboradorFormModal | ~0.5 sesion | Prerequisito de D-11 |
+| T-TramosOC | Aplicar D-11 (tramos de peso) al Paso Flete del OCWizardV3 para consistencia | ~0.5 sesion | T-TramosRedLogistica |
+
+### Roadmap de implementacion del Wizard Unificado
+
+| Sesion | Fase | Alcance |
+|--------|------|---------|
+| S53 | Fase 5.1 — Fundaciones | Shell + sidebar ruta vertical + registry de tipos + Paso 1 integrado + Paso 4 confirmar |
+| S54 | Fase 5.2 — Pasos adaptativos | Paso 2 condicional (E/I) + Paso 3 con las 4 modalidades de costo |
+| S55 | Fase 5.3 — Migracion | Reemplazo directo: se eliminan los 4 wizards C/J/E/I en el mismo commit (D-4) |
+
+### Deudas heredadas no resueltas (sin cambios en S52)
+
+| Deuda | Declarada | Estado |
+|-------|-----------|--------|
+| UAT pendiente S44+S45+S46 | S44-S46 | Sin iniciar — nada probado con data real |
+| DEUDA-CTRU-001 — revision completa CTRU | S42 | Bloqueada hasta completar wizard |
+| UX-D2 — flujo CxP deudor=colaborador | S44 | Pendiente |
 
 ---
 

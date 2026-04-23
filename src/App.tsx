@@ -36,6 +36,11 @@ const WizardIPage = React.lazy(() =>
 const WizardGPage = React.lazy(() =>
   import('./pages/Envios/EnvioWizardG').then(m => ({ default: m.WizardGPage }))
 );
+// S53 — Wizard UNIFICADO de envíos (v7 aprobado en S52). Reemplaza C/J/E/I
+// (los legacy se eliminan en F5). Ruta: /envios/nuevo
+const EnvioWizardPage = React.lazy(() =>
+  import('./pages/Envios/EnvioWizard/EnvioWizardPage').then(m => ({ default: m.EnvioWizardPage }))
+);
 const Unidades = React.lazy(() => import('./pages/Unidades/Unidades').then(m => ({ default: m.Unidades })));
 const TipoCambio = React.lazy(() => import('./pages/TipoCambio/TipoCambio').then(m => ({ default: m.TipoCambio })));
 const OrdenesCompra = React.lazy(() => import('./pages/OrdenesCompra/OrdenesCompra').then(m => ({ default: m.OrdenesCompra })));
@@ -166,6 +171,9 @@ function App() {
               <Route path="productos-intel" element={<ProductosIntel />} />
               <Route path="inventario" element={<Inventario />} />
               <Route path="envios" element={<Envios />} />
+              {/* S53 — Wizard UNIFICADO (v7). Ruta principal de creación de envíos. */}
+              <Route path="envios/nuevo" element={<EnvioWizardPage />} />
+              {/* S44-S51 — Wizards legacy C/J/E/F/I/G. Se eliminan en F5 (reemplazo directo). */}
               <Route path="envios/nuevo-t2" element={<WizardT2Page />} />
               <Route path="envios/nuevo-j" element={<WizardJPage />} />
               <Route path="envios/nuevo-e" element={<WizardEPage />} />
