@@ -471,6 +471,7 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
               totalDescuentos={totalDescuentos}
               totalImpuestos={totalImpuestos}
               grandTotal={grandTotal}
+              currentStep={currentStep}
             />
           }
           className="h-full"

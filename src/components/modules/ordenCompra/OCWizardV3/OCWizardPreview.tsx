@@ -1,8 +1,7 @@
 import React from 'react';
-import { Package, DollarSign, MapPin, Users, TrendingUp } from 'lucide-react';
-import { RouteVisual } from '../../../../design-system';
+import { Package, DollarSign, TrendingUp } from 'lucide-react';
 import type { OCWizardState } from './ocWizardTypes';
-import type { ConfigLogistica } from './configLogistica';
+import { OCRutaVerticalSidebar } from './OCRutaVerticalSidebar';
 
 interface OCWizardPreviewProps {
   state: OCWizardState;
@@ -11,6 +10,7 @@ interface OCWizardPreviewProps {
   totalDescuentos: number;
   totalImpuestos: number;
   grandTotal: number;
+  currentStep: number; // S53.4 — para saber qué bloque está "current" en la ruta vertical
 }
 
 /**
@@ -24,56 +24,16 @@ export const OCWizardPreview: React.FC<OCWizardPreviewProps> = ({
   totalDescuentos,
   totalImpuestos,
   grandTotal,
+  currentStep,
 }) => {
-  const cfg = state.configLogistica;
-  const tienesProveedor = !!cfg.proveedorId;
-  const tienesCasilla = !!cfg.casillaDestinoId;
   const productosCount = state.productos.length;
   const unidadesTotal = state.productos.reduce((s, p) => s + (p.cantidad || 0), 0);
 
   return (
     <div className="space-y-4">
-      <div>
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-          Resumen en vivo
-        </div>
-        <div className="text-xs text-slate-400">
-          Se actualiza mientras completas el wizard
-        </div>
-      </div>
-
-      {/* ─── Proveedor + Ruta ──────────────────────────────────────────── */}
-      <PreviewSection icon={<MapPin className="w-4 h-4" />} title="Ruta" isEmpty={!tienesProveedor}>
-        {tienesProveedor ? (
-          <div className="space-y-2">
-            <div className="text-sm font-medium text-slate-800 truncate">
-              {cfg.proveedorNombre}
-            </div>
-            <div className="text-xs text-slate-500">{cfg.paisOrigen || 'País'}</div>
-
-            {tienesCasilla && (
-              <div className="mt-3">
-                <RouteVisual size="sm" nodes={buildPreviewNodes(cfg)} />
-              </div>
-            )}
-
-            {cfg.colaboradorId && (
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-2">
-                <Users className="w-3 h-3 text-slate-400" />
-                <span className="truncate">{cfg.colaboradorNombre}</span>
-              </div>
-            )}
-
-            {cfg.deudorTipo === 'colaborador' && (
-              <div className="mt-2 px-2 py-1 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-900">
-                <strong>Deudor alternativo:</strong> {cfg.deudorNombre}
-              </div>
-            )}
-          </div>
-        ) : (
-          <EmptyHint text="Selecciona proveedor y ruta" />
-        )}
-      </PreviewSection>
+      {/* S53.4 — Ruta vertical persistente (chip tipo + 3 bloques + deudor alt)
+           replica el patrón del Wizard de Envíos Unificado v7 · D-R */}
+      <OCRutaVerticalSidebar state={state} currentStep={currentStep} />
 
       {/* ─── Productos ─────────────────────────────────────────────────── */}
       <PreviewSection icon={<Package className="w-4 h-4" />} title="Productos" isEmpty={productosCount === 0}>
@@ -171,59 +131,6 @@ const EmptyHint: React.FC<{ text: string }> = ({ text }) => (
   <div className="text-xs text-slate-400 italic">{text}</div>
 );
 
-// S42ai — La ruta en la OC describe SOLO lo que esta OC cubre.
-//   - ddp_directo → Proveedor → Perú (2 nodos, proveedor entrega directo)
-//   - todo lo demás → Proveedor → Casilla (la OC termina en la casilla)
-// El tramo posterior casilla→Perú es un envío independiente que se gestiona
-// desde /envios — no es responsabilidad de esta OC.
-function buildPreviewNodes(
-  cfg: ConfigLogistica
-): React.ComponentProps<typeof RouteVisual>['nodes'] {
-  const nodoProveedor = {
-    flag: getFlag(cfg.paisOrigen),
-    tipo: 'proveedor' as const,
-    nombre: cfg.proveedorNombre.split(' ')[0] || 'Proveedor',
-    state: 'done' as const,
-  };
-  if (cfg.llegadaPeru === 'ddp_directo') {
-    return [
-      nodoProveedor,
-      {
-        flag: '🇵🇪',
-        tipo: 'destino' as const,
-        nombre: 'Perú',
-        state: 'done' as const,
-      },
-    ];
-  }
-  return [
-    nodoProveedor,
-    {
-      tipo: 'casilla' as const,
-      codigo: cfg.casillaDestinoCodigo || undefined,
-      nombre: cfg.casillaDestinoNombre?.split(' ')[0] || 'Casilla',
-      state: 'done' as const,
-    },
-  ];
-}
-
-// Helper: bandera emoji por país
-function getFlag(pais?: string): string {
-  if (!pais) return '🌐';
-  const flags: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    CHINA: '🇨🇳',
-    China: '🇨🇳',
-    COREA: '🇰🇷',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    JAPÓN: '🇯🇵',
-    Japón: '🇯🇵',
-    MÉXICO: '🇲🇽',
-    México: '🇲🇽',
-    PERÚ: '🇵🇪',
-    Perú: '🇵🇪',
-  };
-  return flags[pais] ?? '🌐';
-}
+// S53.4 — buildPreviewNodes() y getFlag() ELIMINADOS.
+// La ruta visual ahora vive en OCRutaVerticalSidebar con el patrón v7
+// del Wizard de Envíos Unificado (3 bloques verticales + chip tipo).
