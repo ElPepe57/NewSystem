@@ -385,6 +385,61 @@ Cada `tipoX.config.ts` tiene ~40 líneas, el shell común tiene ~300 líneas, y 
 
 **Justificación del usuario:** "en la medida de lo posible que exista un buscador y se apilen asi como en esta version… que cuando lo escojas el desplegable se centre solo en ese, y que cuando le vuelvas a dar click a la misma seccion se vuelva abrir, asi como en Nueva Orden de Compra". Aplica también para el buscador de unidades.
 
+### D-9 · Costos del envío — modalidad "Variable" con tabla inline (Paso 3)
+
+**Contexto:** el Paso 3 "Logística" ofrece 3 modalidades de costos del envío: `Monto total` / `Por unidad` / `Variable`. El mockup v6 muestra las 3 opciones pero no detalla la UX de "Variable".
+
+**Decisión:** al seleccionar "Variable", se despliega una **tabla inline** debajo del selector de modalidad con una fila por cada producto elegido en el Paso 1 Unidades:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  Producto                  │ Cant  │ Costo unit.  │ Subtotal     │
+├──────────────────────────────────────────────────────────────────┤
+│  💊 Ashwagandha KSM-66     │  8    │  [$ 12.00 ]  │  $ 96.00     │
+│  🧴 Soothing Cream         │  6    │  [$ 25.00 ]  │  $ 150.00    │
+│  💧 DHA para Bebés         │  0    │  [$ 18.00 ]  │  $ 0.00      │
+├──────────────────────────────────────────────────────────────────┤
+│                                      TOTAL FLETE:  $ 246.00      │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Reglas:**
+- Solo el campo "Costo unit." es editable, el subtotal es derivado (`cant × costo`).
+- El total reemplaza el valor del campo "Monto total del flete" global.
+- Si el usuario vuelve al Paso 1 Unidades y cambia cantidades, la tabla se re-renderiza (keep los costos unitarios ya ingresados).
+- Si agrega un producto nuevo en Paso 1, aparece nueva fila con costo vacío.
+
+**Justificación:** los productos tienen peso/volumen heterogéneo (una crema vs una cápsula). El modo "Variable" permite calibrar el costo real por SKU cuando el prorrateo por unidad o por peso no refleja la realidad.
+
+### D-10 · Tipo de cambio auto-poblado desde la sección TC del sistema (Paso 3)
+
+**Contexto:** el mockup v6 muestra el TC como un input editable. Esto contradice la política del sistema: el TC vive en una sección dedicada (`tiposDeCambio`) que todos los módulos consumen como fuente única de verdad.
+
+**Decisión:** el campo "Tipo de cambio (PEN/USD)" del Paso 3 **no es un input editable por defecto**. Es un **chip read-only** auto-poblado con la tasa activa del día, con opción de override manual explícito (con warning).
+
+**Comportamiento correcto:**
+
+```
+┌────────────────────────────────────────────────────────┐
+│  💱 Tipo de cambio: 3.780 PEN/USD                      │
+│     Tasa del día · SBS · actualizada 22-abr-2026 08:00 │
+│     [Editar manualmente ↗]                             │
+└────────────────────────────────────────────────────────┘
+```
+
+**Reglas:**
+- Al entrar al Paso 3, se lee la tasa activa desde `tiposDeCambio` del sistema.
+- Chip muestra: TC + fuente (SBS / Google / manual) + timestamp.
+- Link "Editar manualmente" abre modal de confirmación con texto: "Estás reemplazando el TC oficial del día. Se registrará en auditoría quién y cuándo lo hizo."
+- Si el usuario overridea, el chip cambia a color amber: "TC manual · editado por [usuario] · [fecha/hora]".
+- El TC override se persiste en el envío pero NO actualiza la tabla `tiposDeCambio` global.
+
+**Aplica también a:**
+- OCWizardV3 (ya usa TC del sistema — verificar consistencia)
+- Cualquier otro módulo con operaciones en USD (ventas internacionales, CxP proveedor USD, etc.)
+
+**Justificación del usuario:** "el sistema ya maneja un tipo de cambio establecido que viene desde la seccion TC, asi que la referencia de la compra se toma de ahi". Evita inconsistencias entre módulos y cumple con la política de fuente única de verdad para variables financieras.
+
 ---
 
 ## 📦 Tareas derivadas (fuera del alcance de Fase 5)
@@ -462,4 +517,5 @@ Una vez que T-F y T-G estén implementadas y validadas, se pueden eliminar:
 | 2026-04-22 | 3.0 | Sidebar con ruta vertical persistente (chip tipo + 3 bloques Origen/Tránsito/Destino + KPIs). 5 refinamientos R1-R5 (llenado progresivo 2 niveles, 3 estados visuales, chip tipo, jump-back en bloque completo, iconos por rol). D-3 cerrada (no se muestran tipos auto-creados). D-4 cerrada (reemplazo directo sin flag). D-5 cerrada (labels genéricos fijos). Banner "DETECTADO AUTOMÁTICAMENTE" del Paso 1 eliminado. |
 | 2026-04-22 | 4.0 | Paso 1 con formulario apilado vertical en columna izquierda (ORIGEN arriba, DESTINO abajo, cada uno con sus opciones una debajo de la otra). Proporción 65/35 formulario/sidebar. Colapsable "Ejemplo combinación no estándar" eliminado (chip + mensaje admin cuando aplique ya cubren el caso). |
 | 2026-04-22 | 5.0 | Wizard de 5 → 4 pasos. Paso 1 integrado con progressive disclosure (categoría origen → casillas disponibles → categoría destino → ubicación destino → unidades). Paso 2 condicional (solo E e I). D-6 y D-7 cerradas. El Paso 1 del v4 + el Paso 2 del v4 se integran en el Paso 1 del v5 según pedido del usuario ("me gustan ambas interfaces"). |
-| 2026-04-22 | **6.0** | **APROBADO.** Paso 1 rediseñado estilo OCWizardV3. 3 secciones numeradas [1] [2] [3] colapsables (Origen / Destino / Unidades). Cada sección: buscador 🔍 + cards apiladas verticales en estado EXPANDED; resumen + link "Cambiar" en estado COLLAPSED. D-8 cerrada. Buscador también en Unidades según pedido del usuario. |
+| 2026-04-22 | 6.0 | Paso 1 rediseñado estilo OCWizardV3. 3 secciones numeradas [1] [2] [3] colapsables (Origen / Destino / Unidades). Cada sección: buscador 🔍 + cards apiladas verticales en estado EXPANDED; resumen + link "Cambiar" en estado COLLAPSED. D-8 cerrada. Buscador también en Unidades según pedido del usuario. |
+| 2026-04-22 | **6.1** | Decisiones D-9 y D-10 añadidas para la implementación del Paso 3 Logística (no se modifica mockup). D-9: la modalidad "Variable" de costos despliega tabla inline con una fila por producto (costo unit. editable, subtotal derivado, total reemplaza el campo global). D-10: el TC se auto-puebla desde la sección `tiposDeCambio` del sistema (read-only por defecto, override manual explícito con modal de confirmación y auditoría). |
