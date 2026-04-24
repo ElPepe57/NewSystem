@@ -154,6 +154,40 @@ async function resetSaldosCuentasCaja(db: Firestore): Promise<number> {
   return snap.size;
 }
 
+/**
+ * S53.10 FIX — Resetea contadores desnormalizados de casillas.
+ *
+ * Las casillas son collection maestra (NO se borran) pero tienen campos
+ * desnormalizados que se incrementan cuando se reciben/envían unidades:
+ *   - unidadesActuales
+ *   - totalUnidadesRecibidas
+ *   - totalUnidadesEnviadas
+ *   - valorInventarioUSD
+ *
+ * Al borrar todas las unidades en el reset transaccional, estos contadores
+ * quedan desactualizados mostrando "N uds disponibles" en la UI cuando
+ * realmente no hay unidades en Firestore. Bug reportado por usuario en UAT
+ * ciclo 2: después del reset, Casa-Angie seguía mostrando "22 uds" fantasma.
+ */
+async function resetContadoresCasillas(db: Firestore): Promise<number> {
+  const snap = await db.collection('casillas').get();
+  if (snap.empty) return 0;
+
+  const batch = db.batch();
+  snap.docs.forEach(doc => {
+    batch.update(doc.ref, {
+      unidadesActuales: 0,
+      totalUnidadesRecibidas: 0,
+      totalUnidadesEnviadas: 0,
+      valorInventarioUSD: 0,
+      resetPor: 'S53.10-reset-transactional',
+      ultimaActualizacionContadores: FieldValue.serverTimestamp(),
+    });
+  });
+  await batch.commit();
+  return snap.size;
+}
+
 function prompt(question: string): Promise<string> {
   return new Promise(resolve => {
     const rl = readline.createInterface({
@@ -201,6 +235,10 @@ async function main() {
   console.log(
     `\n  📁  cuentasCaja (preservada, reset saldos): ${cuentasCount} cuentas`
   );
+  const casillasCount = await countDocs(db, 'casillas');
+  console.log(
+    `  📁  casillas (preservada, reset contadores): ${casillasCount} casillas`
+  );
 
   console.log('\n' + '─'.repeat(70));
   console.log(`  TOTAL a borrar: ${totalDocs.toLocaleString()} documentos`);
@@ -245,6 +283,13 @@ async function main() {
   const cuentasReseteadas = await resetSaldosCuentasCaja(db);
   console.log(`   ${cuentasReseteadas} cuentas · saldo → 0`);
 
+  // ─ Fase 3.5: Reset contadores casillas (S53.10 fix) ─
+  console.log('\n📦 Reseteando contadores desnormalizados de casillas...');
+  const casillasReseteadas = await resetContadoresCasillas(db);
+  console.log(
+    `   ${casillasReseteadas} casillas · unidadesActuales/totalRecibidas/totalEnviadas/valorInventarioUSD → 0`
+  );
+
   // ─ Resumen final ─
   const totalDeleted = resultados.reduce((sum, r) => sum + r.deleted, 0);
   const totalDurMs = Date.now() - startTotal;
@@ -255,6 +300,7 @@ async function main() {
   console.log(`  Collections procesadas: ${COLLECTIONS_A_BORRAR.length}`);
   console.log(`  Documentos borrados:    ${totalDeleted.toLocaleString()}`);
   console.log(`  Cuentas reseteadas:     ${cuentasReseteadas}`);
+  console.log(`  Casillas reseteadas:    ${casillasReseteadas}`);
   console.log(`  Duración total:         ${(totalDurMs / 1000).toFixed(1)}s`);
   console.log('═'.repeat(70));
   console.log('\n  El sistema está listo para UAT limpio.\n');
