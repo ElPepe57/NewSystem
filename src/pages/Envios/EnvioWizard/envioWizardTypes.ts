@@ -275,7 +275,9 @@ export type EnvioWizardAction =
   | { type: 'SUBMIT_ERROR'; error: string }
   | { type: 'SUBMIT_SUCCESS' }
   // Reset
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  // S53.23 — Cargar state completo desde un borrador (sobrescribe todo)
+  | { type: 'LOAD_STATE'; state: EnvioWizardState };
 
 // ============================================================================
 // Reducer
@@ -538,6 +540,11 @@ export function envioWizardReducer(
 
     case 'RESET':
       return initialEnvioWizardState;
+
+    case 'LOAD_STATE':
+      // S53.23 — Reemplaza el state completo con el borrador. Usado al hacer
+      // click en "Continuar" desde el BorradorEnvioBanner.
+      return { ...action.state };
 
     default:
       return state;
