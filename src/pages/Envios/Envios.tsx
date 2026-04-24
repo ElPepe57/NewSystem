@@ -49,6 +49,7 @@ import { useToastStore } from "../../store/toastStore";
 
 // Sub-componentes
 import { EnvioCard } from "./EnvioCard";
+import { EnvioCardSimple } from "./EnvioCardSimple";
 // S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza
 // S53.26 — NuevoEnvioMenu reemplazado por un botón directo "+ Nuevo envío"
 // en el PageHeader, igual al patrón de /compras (Package manager pending T-F/T-G).
@@ -1164,22 +1165,17 @@ export const Envios: React.FC = () => {
         </Card>
       ) : viewMode === 'card' ? (
         <>
-          {/* S53.27 — Vista de cards en stack vertical (1 por fila, ancho
-               completo) igual al patrón de /compras, dentro de contenedor
-               slate-50 para consistencia visual. Antes se renderizaba en
-               grid 3 columnas lo que hacía que cada card se viera
-               "recortada" en la pantalla. */}
+          {/* S53.29 — Vista estándar: EnvioCardSimple con layout 5-columnas
+               (igual a CompraCard). Elegante, alargado, consistente con
+               /compras. El EnvioCard legacy queda disponible para el modal
+               de detalle cuando el usuario hace click. */}
           <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
             {enviosFiltrados.slice(0, itemsVisiblesEnv).map(envio => (
-              <EnvioCard
+              <EnvioCardSimple
                 key={envio.id}
                 envio={envio}
                 productosMap={productosMapGlobal}
                 onSelect={setSelectedEnvio}
-                onConfirmar={handleConfirmar}
-                onEnviar={handleEnviar}
-                onCancelar={handleCancelar}
-                onIniciarRecepcion={handleIniciarRecepcion}
               />
             ))}
           </div>
