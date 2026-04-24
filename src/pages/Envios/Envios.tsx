@@ -850,7 +850,10 @@ export const Envios: React.FC = () => {
           del mockup (`docs/mockups/envios-transversal-s43.html`).
           El "Distribución por tipo + Pipeline" debajo fue ELIMINADO: redundante con
           las pills A-J del filtro por tipo de ruta logística. */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* S53.25 — Grid 3x2 (igual a /compras) en vez de 6x1 apretado. Los
+           KPIs quedan con tamaño legible y el layout "alargado" que el
+           usuario prefiere, consistente con la vista de Compras. */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
           <div className="text-xs text-slate-600 font-medium">Total activos</div>
           <div className="text-3xl font-bold text-slate-900 tabular-nums mt-1">
