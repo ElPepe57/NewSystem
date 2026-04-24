@@ -261,47 +261,56 @@ export const EnvioWizardPage: React.FC = () => {
 
   return (
     <>
-      {/* S53.23 — Banner de borrador (ver BorradorEnvioBanner) */}
-      {showBannerInterno && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          <BorradorEnvioBanner
-            key={`envio-banner-${openCount}`}
-            refreshKey={openCount}
-            onContinuar={handleContinuarBorrador}
-          />
+      {/* S53.24 — Look de modal flotante sobre backdrop oscuro (mismo patrón
+           visual que OCWizardV3 en /compras). El backdrop-blur desenfoca el
+           dashboard por detrás, dando sensación de diálogo superpuesto en
+           lugar de página completa. */}
+      <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
+        {/* Banner de borrador (arriba del WizardShell) */}
+        {showBannerInterno && (
+          <div className="w-full max-w-7xl mx-auto mb-3 flex-shrink-0">
+            <BorradorEnvioBanner
+              key={`envio-banner-${openCount}`}
+              refreshKey={openCount}
+              onContinuar={handleContinuarBorrador}
+            />
+          </div>
+        )}
+
+        <div className="w-full max-w-7xl mx-auto flex-1 min-h-0">
+          <WizardShell
+            title="Nuevo envío"
+            subtitle="Completá los 4 pasos para crear el envío. El tipo se infiere automáticamente del origen y destino."
+            steps={WIZARD_STEPS}
+            currentStep={state.pasoActual - 1}
+            onStepChange={handleStepChange}
+            previewPanel={
+              <RutaVerticalSidebar
+                state={state}
+                tipoConfig={tipoConfig}
+                totalUnidades={totalUnidades}
+                totalSKUs={totalSKUs}
+                totalPrevendidas={totalPrevendidas}
+                totalFleteUSD={totalFleteUSD}
+                onJumpToPaso={irAPaso}
+              />
+            }
+            onCancel={handleCancel}
+            onPrev={state.pasoActual > 1 ? pasoAnterior : undefined}
+            onNext={!esUltimoPaso ? siguientePaso : undefined}
+            onConfirm={esUltimoPaso ? handleConfirm : undefined}
+            confirmLabel={tipoConfig?.botonCrearLabel || 'Crear envío'}
+            nextDisabled={!puedeAvanzar}
+            loading={state.estadoSubmit === 'saving'}
+            variant="page"
+            className="h-full"
+          >
+            {renderPaso()}
+          </WizardShell>
         </div>
-      )}
+      </div>
 
-      <WizardShell
-        title="Nuevo envío"
-        subtitle="Completá los 4 pasos para crear el envío. El tipo se infiere automáticamente del origen y destino."
-        steps={WIZARD_STEPS}
-        currentStep={state.pasoActual - 1}
-        onStepChange={handleStepChange}
-        previewPanel={
-          <RutaVerticalSidebar
-            state={state}
-            tipoConfig={tipoConfig}
-            totalUnidades={totalUnidades}
-            totalSKUs={totalSKUs}
-            totalPrevendidas={totalPrevendidas}
-            totalFleteUSD={totalFleteUSD}
-            onJumpToPaso={irAPaso}
-          />
-        }
-        onCancel={handleCancel}
-        onPrev={state.pasoActual > 1 ? pasoAnterior : undefined}
-        onNext={!esUltimoPaso ? siguientePaso : undefined}
-        onConfirm={esUltimoPaso ? handleConfirm : undefined}
-        confirmLabel={tipoConfig?.botonCrearLabel || 'Crear envío'}
-        nextDisabled={!puedeAvanzar}
-        loading={state.estadoSubmit === 'saving'}
-        variant="page"
-      >
-        {renderPaso()}
-      </WizardShell>
-
-      {/* S53.23 — Modal de confirmación al cancelar con cambios */}
+      {/* Modal de confirmación al cancelar con cambios (z-60, por encima del overlay) */}
       <ConfirmarSalidaWizardModal
         isOpen={showExitConfirm}
         resumen={resumenExit}
