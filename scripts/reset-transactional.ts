@@ -188,6 +188,69 @@ async function resetContadoresCasillas(db: Firestore): Promise<number> {
   return snap.size;
 }
 
+/**
+ * S53.14 FIX — Resetea campo `metricas` desnormalizado en collections maestras.
+ *
+ * Varias entidades maestras (proveedores, clientes, colaboradores, marcas,
+ * categorías, competidores, tiposProducto) tienen un campo `metricas` que
+ * se incrementa cuando hay operaciones transaccionales:
+ *   - proveedor.metricas.ordenesCompra (conteo de OCs)
+ *   - proveedor.metricas.montoTotalUSD
+ *   - cliente.metricas.ventasTotales
+ *   - colaborador.metricas.enviosRealizados
+ *   - etc.
+ *
+ * Al borrar todas las transacciones, estos contadores quedan fantasma.
+ * El fix elimina el campo `metricas` completo de cada doc (la app lee
+ * con `proveedor.metricas?.ordenesCompra ?? 0` → retorna 0 cuando no existe).
+ *
+ * Bug reportado en UAT ciclo 2: el wizard de nueva OC mostraba "5 OCs previas"
+ * para Amazon cuando no había ninguna OC en Firestore.
+ */
+const COLLECTIONS_CON_METRICAS = [
+  'proveedores',
+  'clientes',
+  'colaboradores',
+  'marcas',
+  'categorias',
+  'competidores',
+  'tiposProducto',
+];
+
+async function resetMetricasMaestros(
+  db: Firestore
+): Promise<Array<{ coleccion: string; reseteados: number }>> {
+  const resultados: Array<{ coleccion: string; reseteados: number }> = [];
+
+  for (const coleccion of COLLECTIONS_CON_METRICAS) {
+    try {
+      const snap = await db.collection(coleccion).get();
+      if (snap.empty) {
+        resultados.push({ coleccion, reseteados: 0 });
+        continue;
+      }
+
+      const batch = db.batch();
+      snap.docs.forEach(doc => {
+        batch.update(doc.ref, {
+          metricas: FieldValue.delete(),
+          metricasReseteadasEn: FieldValue.serverTimestamp(),
+          metricasReseteadasPor: 'S53.14-reset-transactional',
+        });
+      });
+      await batch.commit();
+      resultados.push({ coleccion, reseteados: snap.size });
+    } catch (err: any) {
+      console.warn(
+        `   ⚠️  Error al resetear métricas de ${coleccion}: ${err?.message || err}`
+      );
+      resultados.push({ coleccion, reseteados: 0 });
+    }
+  }
+
+  return resultados;
+}
+
 function prompt(question: string): Promise<string> {
   return new Promise(resolve => {
     const rl = readline.createInterface({
@@ -290,6 +353,18 @@ async function main() {
     `   ${casillasReseteadas} casillas · unidadesActuales/totalRecibidas/totalEnviadas/valorInventarioUSD → 0`
   );
 
+  // ─ Fase 3.6: Reset metricas maestros (S53.14 fix) ─
+  console.log('\n📊 Reseteando métricas desnormalizadas de maestros...');
+  const metricasResultados = await resetMetricasMaestros(db);
+  let totalMetricasReseteadas = 0;
+  for (const r of metricasResultados) {
+    totalMetricasReseteadas += r.reseteados;
+    if (r.reseteados > 0) {
+      console.log(`   ${r.coleccion.padEnd(20)} ${r.reseteados} docs · metricas → deleted`);
+    }
+  }
+  console.log(`   Total: ${totalMetricasReseteadas} docs con metricas reseteadas`);
+
   // ─ Resumen final ─
   const totalDeleted = resultados.reduce((sum, r) => sum + r.deleted, 0);
   const totalDurMs = Date.now() - startTotal;
@@ -301,6 +376,7 @@ async function main() {
   console.log(`  Documentos borrados:    ${totalDeleted.toLocaleString()}`);
   console.log(`  Cuentas reseteadas:     ${cuentasReseteadas}`);
   console.log(`  Casillas reseteadas:    ${casillasReseteadas}`);
+  console.log(`  Metricas maestros:      ${totalMetricasReseteadas} docs`);
   console.log(`  Duración total:         ${(totalDurMs / 1000).toFixed(1)}s`);
   console.log('═'.repeat(70));
   console.log('\n  El sistema está listo para UAT limpio.\n');
