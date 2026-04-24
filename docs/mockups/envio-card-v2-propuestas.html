@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>EnvioCard v2 · 3 Propuestas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: #f8fafc; }
+    .card-wrapper { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .section-title { font-size: 13px; font-weight: 600; color: #334155; margin: 32px 0 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .filosofia { font-size: 11px; color: #64748b; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #0d9488; }
+  </style>
+</head>
+<body>
+  <div class="card-wrapper">
+    <h1 class="text-2xl font-bold text-slate-900 mb-2">EnvioCard — 3 alternativas para /envios</h1>
+    <p class="text-sm text-slate-600 mb-6">Comparativa visual. Cada variante ataca los problemas reportados: redundancia de "CN", 🌐 genérico para destinos locales, columna de ruta que wrappea, y productos como lista plana.</p>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- ACTUAL — referencia -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div class="section-title">Actual (S53.29 · referencia)</div>
+    <div class="filosofia">Layout 5 columnas copiado de /compras. Problemas: ruta wrappea, "CN" redundante, productos como string con puntos.</div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-all">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <div class="font-mono font-bold text-slate-900 text-sm">ENV-2026-001</div>
+          <div class="mt-1"><span class="inline-block text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Recibido completo</span></div>
+          <div class="text-[10px] text-slate-400 mt-1">hace 2 h</div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
+              <span>🏭→📦</span><span>Proveedor-Casilla</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">· A</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
+            <span class="text-sm">🇨🇳</span><span>Asian Beauty Wholesale</span>
+            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <span class="inline-flex items-center gap-1 text-[10px] bg-slate-50 border border-slate-200 rounded-full px-1.5 py-0.5">🚚 <span>Angie Price</span></span>
+            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <span class="text-sm">🌐</span><span>Casa - Angie</span>
+          </div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+        <div class="flex-shrink-0 w-56">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">Productos</div>
+          <div class="text-[11px] text-slate-600">Ashwagandha (x6) · Omega 3 (x8) · +1 más</div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+        <div class="flex-shrink-0 w-32 text-right">
+          <div class="text-lg font-bold text-slate-900 tabular-nums">20/20</div>
+          <div class="text-[10px] text-slate-500 mb-1">unidades</div>
+          <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 100%"></div></div>
+          <div class="text-[10px] text-slate-500 mt-0.5">100% recibido</div>
+          <div class="text-[10px] text-slate-600 mt-1 tabular-nums">$ 452.11 USD</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- OPCIÓN A — Ruta minimalista + productos como pills -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div class="section-title">Opción A · Ruta limpia + productos como pills</div>
+    <div class="filosofia">🎯 <b>Filosofía:</b> menos texto, más iconografía. Elimina "CN" redundante, usa solo banderas. Productos como píldoras suaves con cantidad destacada. Ruta en una sola línea con origen/destino prioritarios y transportador compacto. <b>Mejor para:</b> listados largos con muchos envíos, escaneo rápido.</div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-all">
+      <div class="flex items-start gap-3">
+        <!-- Col 1: Identificador + estado (ancho fijo) -->
+        <div class="flex-shrink-0 w-44">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold border border-sky-200">A</span>
+            <div class="min-w-0">
+              <div class="font-mono font-bold text-slate-900 text-sm leading-none truncate">ENV-2026-001</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">hace 2 h</div>
+            </div>
+          </div>
+          <div class="mt-2"><span class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">● Recibido</span></div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 2: Ruta horizontal en 2 sub-filas (origen/destino arriba, transportador abajo) -->
+        <div class="flex-1 min-w-0">
+          <!-- Sub-fila 1: Origen → Destino (prioridad visual) -->
+          <div class="flex items-center gap-2 min-w-0">
+            <!-- Origen -->
+            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+              <span class="text-base flex-shrink-0">🇨🇳</span>
+              <div class="min-w-0">
+                <div class="text-[13px] font-semibold text-slate-900 truncate">Asian Beauty Wholesale</div>
+                <div class="text-[10px] text-slate-500">Proveedor</div>
+              </div>
+            </div>
+            <!-- Flecha separadora -->
+            <svg class="w-4 h-4 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            <!-- Destino -->
+            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+              <span class="text-base flex-shrink-0">🏠</span>
+              <div class="min-w-0">
+                <div class="text-[13px] font-semibold text-slate-900 truncate">Casa - Angie</div>
+                <div class="text-[10px] text-slate-500">Casilla · Perú</div>
+              </div>
+            </div>
+          </div>
+          <!-- Sub-fila 2: Transportador (opcional, pequeño debajo) -->
+          <div class="mt-1.5 flex items-center gap-1.5 text-[10px] text-slate-500">
+            <span class="inline-flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5">
+              <span>✈️</span><span>Angie Price</span>
+            </span>
+            <span class="text-slate-300">· vía casilla intl</span>
+          </div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 3: Productos como pills (ancho fijo más generoso) -->
+        <div class="flex-shrink-0 w-64">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1.5">Contenido</div>
+          <div class="flex flex-wrap gap-1">
+            <span class="inline-flex items-center gap-1 text-[11px] bg-slate-50 border border-slate-200 rounded-md pl-2 pr-1 py-0.5">
+              Ashwagandha <span class="bg-slate-200 text-slate-700 rounded px-1 text-[10px] font-semibold">×6</span>
+            </span>
+            <span class="inline-flex items-center gap-1 text-[11px] bg-slate-50 border border-slate-200 rounded-md pl-2 pr-1 py-0.5">
+              Omega 3 <span class="bg-slate-200 text-slate-700 rounded px-1 text-[10px] font-semibold">×8</span>
+            </span>
+            <span class="inline-flex items-center text-[11px] bg-teal-50 text-teal-700 border border-teal-200 rounded-md px-2 py-0.5 font-medium">+1 más</span>
+          </div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 4: Métricas (ancho fijo) -->
+        <div class="flex-shrink-0 w-28 text-right">
+          <div class="text-xl font-bold text-slate-900 tabular-nums leading-none">20<span class="text-slate-400">/20</span></div>
+          <div class="text-[10px] text-slate-500 mt-0.5 mb-1">unidades</div>
+          <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width: 100%"></div></div>
+          <div class="text-[10px] text-emerald-700 mt-0.5 font-medium">100% recibido</div>
+          <div class="text-[13px] font-bold text-slate-900 mt-2 tabular-nums">$452<span class="text-[11px] text-slate-400">.11</span></div>
+          <div class="text-[9px] text-slate-400 uppercase">Landed</div>
+        </div>
+
+        <!-- Col 5: Acciones (ancho fijo) -->
+        <div class="flex-shrink-0 flex flex-col gap-1">
+          <button class="p-1.5 rounded-lg text-teal-600 hover:bg-teal-50 transition-colors" title="Ver"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- OPCIÓN B — Timeline vertical + avatares apilados -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div class="section-title">Opción B · Timeline vertical + avatares apilados</div>
+    <div class="filosofia">🎯 <b>Filosofía:</b> ruta como timeline vertical compacto (claridad espacial), productos con avatares circulares apilados (patrón Linear/GitHub). Más denso verticalmente pero 100% claro. <b>Mejor para:</b> operaciones complejas con ruta en 3+ tramos, usuarios logísticos que revisan muchos productos.</div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-all">
+      <div class="flex items-start gap-4">
+        <!-- Col 1 -->
+        <div class="flex-shrink-0">
+          <div class="font-mono font-bold text-slate-900 text-sm">ENV-2026-001</div>
+          <div class="text-[10px] text-slate-400">hace 2 h</div>
+          <div class="mt-2"><span class="inline-block text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Recibido</span></div>
+          <div class="mt-1"><span class="inline-flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">A · Prov-Cas</span></div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 2: Timeline vertical -->
+        <div class="flex-1 min-w-0">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1.5">Ruta</div>
+          <div class="relative pl-5">
+            <!-- Origen -->
+            <div class="relative flex items-center gap-2 mb-0.5">
+              <div class="absolute -left-5 w-3 h-3 rounded-full bg-slate-900 border-2 border-white shadow-sm z-10"></div>
+              <span class="text-sm">🇨🇳</span>
+              <span class="text-[12px] font-semibold text-slate-900 truncate">Asian Beauty Wholesale</span>
+              <span class="text-[10px] text-slate-400">· Proveedor</span>
+            </div>
+            <!-- Línea punteada + transportador inline -->
+            <div class="absolute left-[-14px] top-3 bottom-3 w-0.5 border-l-2 border-dashed border-slate-300"></div>
+            <div class="ml-0 py-1 text-[10px] text-slate-500 italic">✈️ Angie Price</div>
+            <!-- Destino -->
+            <div class="relative flex items-center gap-2">
+              <div class="absolute -left-5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-sm z-10"></div>
+              <span class="text-sm">🏠</span>
+              <span class="text-[12px] font-semibold text-slate-900 truncate">Casa - Angie</span>
+              <span class="text-[10px] text-slate-400">· Casilla PE</span>
+            </div>
+          </div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 3: Avatares apilados -->
+        <div class="flex-shrink-0 w-56">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1.5">Productos <span class="text-slate-400 font-normal">(3 SKUs)</span></div>
+          <div class="flex items-center">
+            <!-- Avatares apilados con overlap -->
+            <div class="flex -space-x-2">
+              <div class="w-9 h-9 rounded-full bg-amber-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-amber-700" title="Ashwagandha x6">A<sup class="ml-0.5">6</sup></div>
+              <div class="w-9 h-9 rounded-full bg-sky-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-sky-700" title="Omega 3 x8">O<sup class="ml-0.5">8</sup></div>
+              <div class="w-9 h-9 rounded-full bg-purple-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-purple-700" title="Magnesio x6">M<sup class="ml-0.5">6</sup></div>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-1.5">Ashwagandha · Omega 3 · +1</div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 4: Métricas simplificadas -->
+        <div class="flex-shrink-0 w-28 text-right">
+          <div class="flex items-center justify-end gap-1">
+            <div class="text-xl font-bold text-emerald-700 tabular-nums">20</div>
+            <div class="text-xs text-slate-400 tabular-nums">/ 20</div>
+          </div>
+          <div class="text-[10px] text-slate-500 -mt-0.5">unidades</div>
+          <div class="mt-2 pt-2 border-t border-slate-100">
+            <div class="text-[13px] font-bold text-slate-900 tabular-nums">$452.11</div>
+            <div class="text-[9px] text-slate-400 uppercase tracking-wide">Valor landed</div>
+          </div>
+        </div>
+
+        <!-- Col 5: Acciones -->
+        <div class="flex-shrink-0 flex flex-col gap-1">
+          <button class="p-1.5 rounded-lg text-teal-600 hover:bg-teal-50"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- OPCIÓN C — Sticker de ruta + tabla de productos -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div class="section-title">Opción C · Sticker de ruta + tabla compacta de productos</div>
+    <div class="filosofia">🎯 <b>Filosofía:</b> ruta como "sticker" visual elegante (el nombre del tipo es la etiqueta principal), productos como mini-tabla de 2 columnas con separadores. Muy "dashboard gerencial". <b>Mejor para:</b> vista ejecutiva, priorizar operaciones importantes.</div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-all">
+      <div class="flex items-start gap-4">
+        <!-- Col 1 -->
+        <div class="flex-shrink-0 text-center">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 text-base">✓</div>
+          <div class="font-mono font-bold text-slate-900 text-xs mt-1">ENV-2026-001</div>
+          <div class="text-[9px] text-slate-400">hace 2 h</div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 2: Sticker de ruta + subtítulo -->
+        <div class="flex-1 min-w-0">
+          <!-- Sticker de tipo de ruta (grande, visual) -->
+          <div class="inline-flex items-center gap-2 bg-sky-50 border border-sky-200 rounded-lg px-3 py-1.5">
+            <span class="text-[10px] font-bold text-sky-900 bg-sky-200 rounded px-1.5 py-0.5">A</span>
+            <span class="text-[12px] font-semibold text-sky-900">Proveedor → Casilla</span>
+          </div>
+          <!-- Subtítulo con ruta específica en 1 línea ultra compacta -->
+          <div class="flex items-center gap-1 mt-2 text-[11px]">
+            <span class="text-slate-900 font-medium">🇨🇳 Asian Beauty</span>
+            <span class="text-slate-300">—</span>
+            <span class="text-slate-500 italic">✈️ Angie Price</span>
+            <span class="text-slate-300">—</span>
+            <span class="text-slate-900 font-medium">🏠 Casa - Angie</span>
+          </div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 3: Mini tabla de productos -->
+        <div class="flex-shrink-0 w-64">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">Productos <span class="text-slate-400 font-normal">(20 uds)</span></div>
+          <div class="space-y-0.5 bg-slate-50 border border-slate-100 rounded-lg p-1.5">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-700 truncate">Ashwagandha</span>
+              <span class="font-mono font-semibold text-slate-900">×6</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-700 truncate">Omega 3</span>
+              <span class="font-mono font-semibold text-slate-900">×8</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] pt-0.5 border-t border-slate-200">
+              <span class="text-teal-700 italic">+1 más</span>
+              <span class="font-mono font-semibold text-teal-700">×6</span>
+            </div>
+          </div>
+        </div>
+        <div class="w-px bg-slate-200 self-stretch"></div>
+
+        <!-- Col 4: Valor landed destacado -->
+        <div class="flex-shrink-0 w-28 text-right">
+          <div class="text-[9px] text-slate-400 uppercase tracking-wide">Valor landed</div>
+          <div class="text-2xl font-bold text-slate-900 tabular-nums leading-none mt-1">$452<span class="text-[14px] text-slate-400">.11</span></div>
+          <div class="mt-3 pt-2 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-1 text-[12px] font-semibold text-emerald-700">
+              <span>20/20</span>
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            </div>
+            <div class="text-[9px] text-slate-400 uppercase tracking-wide">Recibidas</div>
+          </div>
+        </div>
+
+        <!-- Col 5: Acciones -->
+        <div class="flex-shrink-0 flex flex-col gap-1">
+          <button class="p-1.5 rounded-lg text-teal-600 hover:bg-teal-50"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- Comparativa rápida -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div class="section-title">Comparativa rápida</div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 text-[12px]">
+      <table class="w-full">
+        <thead>
+          <tr class="text-left text-slate-500 text-[11px] uppercase tracking-wide border-b border-slate-200">
+            <th class="py-2 pr-2">Aspecto</th>
+            <th class="py-2 pr-2">Opción A · Pills</th>
+            <th class="py-2 pr-2">Opción B · Timeline</th>
+            <th class="py-2">Opción C · Sticker</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-700 divide-y divide-slate-100">
+          <tr><td class="py-2 pr-2 font-medium">Ruta visual</td><td class="py-2 pr-2">Horizontal limpia</td><td class="py-2 pr-2">Timeline vertical</td><td class="py-2">Sticker grande</td></tr>
+          <tr><td class="py-2 pr-2 font-medium">Productos</td><td class="py-2 pr-2">Pills con cantidad</td><td class="py-2 pr-2">Avatares apilados</td><td class="py-2">Mini-tabla</td></tr>
+          <tr><td class="py-2 pr-2 font-medium">Densidad</td><td class="py-2 pr-2">Media</td><td class="py-2 pr-2">Alta</td><td class="py-2">Media-baja</td></tr>
+          <tr><td class="py-2 pr-2 font-medium">Valor landed</td><td class="py-2 pr-2">Pequeño debajo</td><td class="py-2 pr-2">Separado visual</td><td class="py-2">Grande protagonista</td></tr>
+          <tr><td class="py-2 pr-2 font-medium">Mejor para</td><td class="py-2 pr-2">Listas largas, escaneo rápido</td><td class="py-2 pr-2">Operaciones complejas, muchos SKUs</td><td class="py-2">Vista ejecutiva, foco en $$</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-8 p-4 bg-teal-50 border border-teal-200 rounded-xl">
+      <div class="text-sm font-semibold text-teal-900">Mi recomendación</div>
+      <p class="text-[13px] text-teal-800 mt-1">
+        <b>Opción A</b> para el uso diario — mantiene el look elegante y es la más limpia para escanear rápido. Es la evolución natural del actual eliminando el ruido visual.
+        Si querés una vista más ejecutiva o con foco en valor $, vamos con <b>Opción C</b>.
+        <b>Opción B</b> es la más técnica y es ideal si el equipo operativo revisa muchos envíos con 5+ SKUs.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
