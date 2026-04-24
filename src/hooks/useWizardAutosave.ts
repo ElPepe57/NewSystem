@@ -95,21 +95,22 @@ export function useWizardAutosave<TState>({
   //
   // Detectamos la transición enabled: true → false y reseteamos todo para
   // que la próxima apertura re-lea localStorage/Firestore desde cero.
-  const wasEnabledRef = useRef(false);
+  // ─── Lectura del borrador cada vez que el wizard se abre ────────────────
+  // S53.18 FIX v2 — En wizards tipo modal (OCWizardV3) el componente NO se
+  // desmonta al cerrar, solo deja de renderizar. Los refs persisten.
+  //
+  // Estrategia: cada vez que `enabled` pasa a true (wizard abierto), RE-LEER
+  // el borrador desde localStorage + Firestore, sin importar si ya se leyó
+  // antes. Al cerrar (enabled=false) hacemos early return y limpiamos flag.
+  //
+  // Ventaja: no depende del orden de ejecución de efectos ni de batching;
+  // cada apertura del modal siempre hace un load fresh.
   useEffect(() => {
-    if (wasEnabledRef.current && !enabled) {
+    if (!enabled || !userId) {
+      // Wizard cerrado — marcamos que la próxima apertura debe releer
       initialLoadDoneRef.current = false;
-      lastFirestoreSaveRef.current = 0;
-      setBorradorExistente(null);
-      setLoadingBorrador(true);
-      setIsDirty(false);
+      return;
     }
-    wasEnabledRef.current = enabled;
-  }, [enabled]);
-
-  // ─── Lectura inicial al abrir el wizard ──────────────────────────────────
-  useEffect(() => {
-    if (!enabled || !userId || initialLoadDoneRef.current) return;
 
     let cancelled = false;
     const load = async () => {
