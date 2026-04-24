@@ -17,13 +17,13 @@
  */
 import React, { useEffect, useState } from 'react';
 import { FileText, Trash2, ArrowRight } from 'lucide-react';
-import { auth } from '../../lib/firebase';
-import { borradorWizardService } from '../../services/borradorWizard.service';
+import { auth } from '../../../lib/firebase';
+import { borradorWizardService } from '../../../services/borradorWizard.service';
 import {
   buildBorradorLocalStorageKey,
   type BorradorWizard,
-} from '../../types/borradorWizard.types';
-import { formatFechaRelativa } from '../../design-system';
+} from '../../../types/borradorWizard.types';
+import { formatFechaRelativa } from '../../../design-system';
 
 interface Props {
   /** Versión reactiva — al cambiar, el banner relee el borrador. */

@@ -9,7 +9,7 @@ import { useToastStore } from '../../store/toastStore';
 // Toda la creacion/edicion de OC pasa por OCWizardV3. Lista en tarjetas unicamente.
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
 import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
-import { BorradorOCBanner } from './BorradorOCBanner';
+import { BorradorOCBanner } from '../../components/modules/ordenCompra/BorradorOCBanner';
 import type { BorradorWizard } from '../../types/borradorWizard.types';
 import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
 import { PipelineCompras } from '../../components/modules/ordenCompra/PipelineCompras';

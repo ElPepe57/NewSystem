@@ -13,11 +13,9 @@ import { StepInteligencia } from './StepInteligencia';
 import { StepConfirm } from './StepConfirm';
 import { OCWizardPreview } from './OCWizardPreview';
 import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
-import {
-  DraftBanner,
-  formatFechaRelativa,
-  ConfirmarSalidaWizardModal,
-} from '../../../../design-system';
+import { ConfirmarSalidaWizardModal } from '../../../../design-system';
+import { BorradorOCBanner } from '../BorradorOCBanner';
+import type { BorradorWizard } from '../../../../types/borradorWizard.types';
 
 // ════════════════════════════════════════════════════════════════════════════
 // Types
@@ -148,15 +146,23 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
   const [draftAceptado, setDraftAceptado] = React.useState(false);
   // S53.19 — Modal de confirmación al cerrar con cambios sin guardar
   const [showExitConfirm, setShowExitConfirm] = React.useState(false);
+  // S53.21 — Contador de aperturas: cada vez que el wizard se abre, incrementa.
+  // Se usa como `key` del BorradorOCBanner interno para forzar re-mount y que
+  // re-lea el borrador desde cero en cada apertura (ignora refs persistentes).
+  const [openCount, setOpenCount] = React.useState(0);
+  React.useEffect(() => {
+    if (isOpen) setOpenCount((n) => n + 1);
+  }, [isOpen]);
 
   // ─── Autoguardado 2 capas ────────────────────────────────────────────────
+  // S53.21 — El wizard ya NO usa `borradorExistente` ni `continuarBorrador`
+  // del hook: la lectura del borrador ahora la hace el componente
+  // `BorradorOCBanner` (interno y el de /compras). El hook solo se usa para
+  // las capas de escritura (Capa 1/2 en autosave + forceSave + descartar).
   const {
-    borradorExistente,
-    continuarBorrador,
     descartarBorrador,
     clearDraft,
     forceSave,
-    lastSavedAt,
   } = useWizardAutosave<OCWizardState>({
     tipo: 'oc',
     state,
@@ -180,48 +186,6 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
         0
       ),
   });
-
-  const handleContinuarDraft = () => {
-    const draft = continuarBorrador();
-    if (draft) {
-      // Restaurar estado paso a paso usando SET_* actions
-      // Para simplicidad: hacemos replace completo con RESET + assign manual
-      dispatch({ type: 'RESET' } as OCWizardAction);
-      // Reproducir state restaurado — usamos dispatches atómicas
-      if (draft.proveedorId) {
-        dispatch({
-          type: 'SET_PROVEEDOR',
-          id: draft.proveedorId,
-          nombre: draft.proveedorNombre,
-        } as OCWizardAction);
-      }
-      if (draft.configLogistica) {
-        dispatch({ type: 'SET_CONFIG_LOGISTICA', config: draft.configLogistica } as OCWizardAction);
-      }
-      if (draft.productos && draft.productos.length > 0) {
-        dispatch({ type: 'SET_PRODUCTOS', productos: draft.productos } as OCWizardAction);
-      }
-      (draft.cargosOC || []).forEach((c) => dispatch({ type: 'ADD_CARGO', cargo: c } as OCWizardAction));
-      (draft.descuentosOC || []).forEach((d) =>
-        dispatch({ type: 'ADD_DESCUENTO', descuento: d } as OCWizardAction)
-      );
-      (draft.impuestosOC || []).forEach((i) =>
-        dispatch({ type: 'ADD_IMPUESTO', impuesto: i } as OCWizardAction)
-      );
-      if (draft.tcCompra) dispatch({ type: 'SET_TC', tc: draft.tcCompra } as OCWizardAction);
-      if (draft.observaciones) {
-        dispatch({ type: 'SET_OBSERVACIONES', text: draft.observaciones } as OCWizardAction);
-      }
-      // Restaurar paso
-      setCurrentStep((borradorExistente?.pasoActual as number) ?? 0);
-    }
-    setDraftAceptado(true);
-  };
-
-  const handleDescartarDraft = async () => {
-    await descartarBorrador();
-    setDraftAceptado(true);
-  };
 
   // S53.20 — Borrador precargado desde /compras (click "Continuar" en el
   // BorradorOCBanner). Al abrir el wizard con este prop, cargamos el state
@@ -561,19 +525,65 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     : 'Captura los datos de la orden paso a paso';
 
   // ─── Render wizard ───────────────────────────────────────────────────────
-  const showDraftBanner = !!borradorExistente && !draftAceptado;
+  // S53.21 — Handler cuando el usuario hace click en "Continuar" desde el
+  // BorradorOCBanner interno: carga el state del borrador y marca
+  // draftAceptado=true para que el banner desaparezca hasta cerrar.
+  const handleContinuarDesdeBannerInterno = (borrador: BorradorWizard) => {
+    const draft = borrador.estado as OCWizardState | undefined;
+    if (!draft) {
+      setDraftAceptado(true);
+      return;
+    }
+    dispatch({ type: 'RESET' } as OCWizardAction);
+    if (draft.proveedorId) {
+      dispatch({
+        type: 'SET_PROVEEDOR',
+        id: draft.proveedorId,
+        nombre: draft.proveedorNombre,
+      } as OCWizardAction);
+    }
+    if (draft.configLogistica) {
+      dispatch({
+        type: 'SET_CONFIG_LOGISTICA',
+        config: draft.configLogistica,
+      } as OCWizardAction);
+    }
+    if (draft.productos && draft.productos.length > 0) {
+      dispatch({ type: 'SET_PRODUCTOS', productos: draft.productos } as OCWizardAction);
+    }
+    (draft.cargosOC || []).forEach((c) =>
+      dispatch({ type: 'ADD_CARGO', cargo: c } as OCWizardAction)
+    );
+    (draft.descuentosOC || []).forEach((d) =>
+      dispatch({ type: 'ADD_DESCUENTO', descuento: d } as OCWizardAction)
+    );
+    (draft.impuestosOC || []).forEach((i) =>
+      dispatch({ type: 'ADD_IMPUESTO', impuesto: i } as OCWizardAction)
+    );
+    if (draft.tcCompra) dispatch({ type: 'SET_TC', tc: draft.tcCompra } as OCWizardAction);
+    if (draft.observaciones) {
+      dispatch({
+        type: 'SET_OBSERVACIONES',
+        text: draft.observaciones,
+      } as OCWizardAction);
+    }
+    setCurrentStep((borrador.pasoActual as number) ?? 0);
+    setDraftAceptado(true);
+  };
+
+  // Mostrar banner interno solo si: el wizard está abierto + no es edición +
+  // no hay borrador precargado desde /compras + el usuario no lo aceptó aún.
+  const showBannerInterno =
+    isOpen && !esEdicion && !borradorPrecargado && !draftAceptado;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
-      {showDraftBanner && (
+      {showBannerInterno && (
         <div className="w-full max-w-7xl mx-auto mb-3 flex-shrink-0">
-          <DraftBanner
-            show={showDraftBanner}
-            descripcion={borradorExistente.resumen ?? 'OC sin terminar de sesión anterior'}
-            fechaLegible={formatFechaRelativa(borradorExistente.fechaActualizacion)}
-            pasoActual={`Paso ${(borradorExistente.pasoActual ?? 0) + 1} de ${STEPS.length}`}
-            onContinuar={handleContinuarDraft}
-            onDescartar={handleDescartarDraft}
+          <BorradorOCBanner
+            key={`banner-interno-${openCount}`}
+            refreshKey={openCount}
+            onContinuar={handleContinuarDesdeBannerInterno}
           />
         </div>
       )}
