@@ -1164,7 +1164,12 @@ export const Envios: React.FC = () => {
         </Card>
       ) : viewMode === 'card' ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* S53.27 — Vista de cards en stack vertical (1 por fila, ancho
+               completo) igual al patrón de /compras, dentro de contenedor
+               slate-50 para consistencia visual. Antes se renderizaba en
+               grid 3 columnas lo que hacía que cada card se viera
+               "recortada" en la pantalla. */}
+          <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
             {enviosFiltrados.slice(0, itemsVisiblesEnv).map(envio => (
               <EnvioCard
                 key={envio.id}
