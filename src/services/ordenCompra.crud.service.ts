@@ -731,13 +731,21 @@ export async function confirmarOC(
     }
   }
 
-  // 2. Actualizar OC a 'confirmada'
+  // 2. Actualizar OC — S53.12 FIX: cuando es recojo en origen, la OC salta
+  // directamente a 'completada' porque el colaborador ya compro todo fisicamente.
+  // No pasa por 'confirmada' ni 'en_proceso' porque no hay envio en transito:
+  // las unidades estan inmediatamente disponibles en la casilla destino.
+  // Para via_casilla/DDP, la OC nace 'confirmada' y transita normalmente segun
+  // vaya llegando el envio.
   const ocRef = doc(db, ORDENES_COLLECTION, ocId);
   // S38-009: DDP se detecta por modoEntregaDetallado, no por un sentinel en destinoCasillaId.
   // El destino SIEMPRE es una casilla real (en DDP: la casilla Peru principal del cliente).
   const esDDP = orden.modoEntregaDetallado === 'ddp_directo';
+  const estadoInicial: 'completada' | 'confirmada' = orden.recojoEnOrigen
+    ? 'completada'
+    : 'confirmada';
   const ocUpdate: Record<string, unknown> = {
-    estado: 'confirmada',
+    estado: estadoInicial,
     inventarioGenerado: true,
     unidadesGeneradas: unidadIds,
     almacenDestino: destinoCasillaId,
