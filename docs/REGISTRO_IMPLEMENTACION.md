@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-22 (Sesion 52 CIERRE — Diseno del Wizard de Envios Unificado Fase 5.0. 100% diseno: 9 commits de docs, 7 versiones iterativas (v1→v7 aprobada), 11 decisiones cerradas. Sin cambios de codigo ni deploy. Proxima sesion: S53 = Fase 5.1 Fundaciones — shell + sidebar + Paso 1 + Paso 4.)
+**Ultima actualizacion:** 2026-04-22 (Sesion 53 + S53.1 CIERRE — Wizard de Envios Unificado implementado completo. 7 commits: F0 prerequisito D-11 + F1 fundaciones + F2 Paso1 + F3 Pasos2y3 + F4 Paso4+servicio + F5 delete 46 archivos legacy + fix trazabilidad unidades y variante J1/J2. Balance neto -8,368 lineas. Deploy confirmado. Rutas preservadas: /envios/nuevo-f y /envios/nuevo-g hasta T-F/T-G.)
 **Branch activo:** main
 
 ---
@@ -12,7 +12,7 @@
 | Indicador | Valor |
 |-----------|-------|
 | Modulos en produccion | 15 de 17 |
-| Sesiones de trabajo registradas | 52 |
+| Sesiones de trabajo registradas | 53 (+1 fix S53.1) |
 | Rondas de full review completadas | **6 de 6 — FULL REVIEW COMPLETO** |
 | Hallazgos totales identificados | 230+ |
 | Fixes aplicados | ~650 (409 S1-S31 + 26 S37 + 18 S38 + 35 S39 + 0 S40 + 65 S41 + 11 S42 + 2 S42b + 4 S42c + 2 S42d + 1 S42e + 1 S42f + 2 S42g + 3 S42h + ~71 S42i→S42bl) |
@@ -166,6 +166,222 @@ CONFIGURACIONES ESPECIALES ACTIVAS:
   - varianteLabel: removido de la columna SKU, integrado en el area descriptiva junto a los demas atributos (S20b)
   - Deploy functions + hosting: vitaskinperu.web.app (S20b)
 ```
+
+---
+
+## SESION 53 CIERRE — 2026-04-22 — Wizard de Envios Unificado (Fase 5.1 → 5.3 completa + fix S53.1)
+
+### Metadata
+
+- Build: `npx tsc -b` 0 errores post cada fase | `npx vite build` 23.37s (final)
+- Commits totales: 7
+  - `c286ce4` F0: prerequisito D-11 (TramoPeso + TramosPesoSection)
+  - `f6f64f2` F1: fundaciones EnvioWizard/ (shell + registry + state + placeholders)
+  - `0231486` F2: Paso 1 estilo OCWizardV3 (3 secciones colapsables)
+  - `4f8a5bd` F3: Pasos 2 y 3 (Paso2DestinoDetalles + Paso3Logistica + TCChip + TablaCalculoTramos)
+  - `f543bb3` F4: Paso 4 + servicio unificado (Paso4Confirmar + envio.unificado.service)
+  - `ab65ea2` F5: delete masivo + cleanup (46 archivos eliminados, legacy-shared/ extraido)
+  - `60ee214` S53.1: fix deudas criticas (trazabilidad real de unidades + variante J1/J2)
+- Deploy: https://vitaskinperu.web.app completado al cierre de sesion
+- Archivos nuevos: 20 (16 en EnvioWizard/ + 4 en legacy-shared/)
+- Archivos eliminados: 46 (5 carpetas de wizards legacy completas)
+- Lineas nuevas: ~2,457 (incluyendo S53.1)
+- Lineas eliminadas: ~10,825
+- Balance neto: -8,368 lineas (reduccion real de superficie de codigo)
+
+### Resumen ejecutivo
+
+S53 es la sesion de implementacion del Wizard de Envios Unificado disenado y aprobado en S52 v7. El objetivo declarado era reemplazar los 4 wizards legacy (EnvioWizardT2/J/E/I) mas EnvioWizardV2 por una sola implementacion unificada. Se ejecuto completo en 6 fases mas un fix post-cierre (S53.1).
+
+El resultado es un wizard con inferencia inteligente de tipo (C/J/E/I segun par origen+destino), 4 pasos con Paso 2 condicional solo para E e I, sidebar persistente con ruta vertical pixel-perfect v7, y 4 modalidades de costo en Paso 3 (flete total / tarifa por unidad / por producto / por tramos de peso). La decision D-4 (reemplazo directo sin feature flag) se ejecuto en F5 con la eliminacion de 46 archivos legacy en un unico commit.
+
+El fix S53.1 corrigio dos deudas criticas declaradas al cerrar la sesion base: la trazabilidad rota de unidades (expandirUnidades() replicaba el mismo ID en lugar de usar IDs reales del pool), y la inferencia de variante J1/J2 que estaba hardcodeada a J2.
+
+Casos F (despacho venta) y G (retorno devolucion) quedaron preservados en sus carpetas y rutas originales hasta que T-F y T-G los integren en sus modulos respectivos.
+
+### Fases ejecutadas
+
+**F0 — Prerequisito D-11** (commit `c286ce4`)
+
+Antes de poder implementar la modalidad "Por tramos de peso" del Paso 3, era necesario que el modelo de Colaborador soportara el campo de tarifas escalonadas. F0 resolvio esta dependencia.
+
+| Artefacto | Descripcion |
+|-----------|-------------|
+| `src/types/colaborador.types.ts` | Nuevo tipo `TramoPeso` + campo opcional `tarifaPorTramos?: TramoPeso[]` en `TarifasColaborador` |
+| `src/pages/RedLogistica/shared/TramosPesoSection.tsx` | Componente reutilizable + helper `validarTramos` exportado |
+| `src/pages/RedLogistica/ColaboradorFormModal.tsx` | Integracion de TramosPesoSection (solo viajero/courier_externo) |
+
+Invariantes validadas: primer tramo `pesoDesde=0`, ultimo `pesoHasta=null` (infinito), sin gaps entre tramos, costos >= 0.
+
+**F1 — Fundaciones** (commit `f6f64f2`)
+
+Creacion de la carpeta `src/pages/Envios/EnvioWizard/` con 16 archivos. Estructura completa del state management, registry de tipos y shell del wizard.
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `EnvioWizardPage.tsx` | Shell con WizardShell del design-system, WIZARD_STEPS, handleConfirm |
+| `envioWizardTypes.ts` | State + 27 acciones + reducer + selectors |
+| `useEnvioWizardState.ts` | Hook central con validaciones por paso |
+| `useTipoInferido.ts` | Inferencia C/J/E/I segun origen+destino + COMBINACIONES_VALIDAS |
+| `registry/index.ts` | Barrel del registry |
+| `registry/tipoC.config.ts` | Paleta, moneda, transportadores permitidos, botonCrearLabel para tipo C |
+| `registry/tipoJ.config.ts` | Idem tipo J |
+| `registry/tipoE.config.ts` | Idem tipo E |
+| `registry/tipoI.config.ts` | Idem tipo I |
+| `shared/RutaVerticalSidebar.tsx` | Sidebar persistente pixel-perfect v7 (chip tipo + 3 bloques + KPIs) |
+| `steps/` | 4 placeholders minimos para tsc limpio |
+| `App.tsx` (modificado) | Ruta `/envios/nuevo` con lazy import |
+
+**F2 — Paso 1 estilo OCWizardV3** (commit `0231486`)
+
+Implementacion de las 3 secciones colapsables del Paso 1 (D-8) con el patron de OCWizardV3.
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `shared/SeccionColapsableWizard.tsx` | Atomo reutilizable: estados EXPANDED (buscador + cards) / COLLAPSED (chip resumen + "Cambiar") |
+| `steps/paso1/SeccionOrigen.tsx` | Categoria origen + buscador + cards apiladas + auto-collapse al seleccionar |
+| `steps/paso1/SeccionDestino.tsx` | 3 categorias con matriz de inferencia + banner D-9 cuando hay cambio de pais (tipo J) |
+| `steps/paso1/SeccionUnidades.tsx` | Buscador + stepper por producto + banner de unidades pre-vendidas |
+| `Paso1OrigenDestinoUnidades.tsx` | Ensamblaje con gating secuencial + banner D-B para combinaciones invalidas |
+
+**F3 — Pasos 2 y 3** (commit `4f8a5bd`)
+
+Paso 2 condicional para tipos E e I, y Paso 3 de logistica con las 4 modalidades de costo.
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `steps/Paso2DestinoDetalles.tsx` | Tipo E: motivo obligatorio (5 opciones + detalle libre si "otro"). Tipo I: tipo relacion grid 4 opciones + referencia + banner rojo bloqueo stock |
+| `steps/Paso3Logistica.tsx` | Selector tipo transportador filtrado + picker colaborador + modo transporte 3 opciones + tracking + 4 modalidades costo + recordatorio cierre operativo≠financiero |
+| `shared/TCChip.tsx` | Chip read-only con auto-carga desde useTipoCambio + override manual con modal + auditoria (D-10) |
+| `shared/TablaCalculoTramos.tsx` | Calculo automatico del flete por producto usando pesoLibras (D-11) |
+
+**F4 — Paso 4 + servicio unificado** (commit `f543bb3`)
+
+Pantalla de confirmacion y primer punto end-to-end funcional del wizard.
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `steps/Paso4Confirmar.tsx` | Header con chipColor del registry + ruta visual 3 columnas + KPIs 4 cols + bloque efectos condicionales por tipo + notas + gran total + error box |
+| `services/envio.unificado.service.ts` | Adaptador state→payload legacy con builders buildPayloadC/J/E/I, expandirUnidades(), modalidadAMetodoProrrateo(), calcularDetalleVariado() |
+| `EnvioWizardPage.tsx` (modificado) | handleConfirm completo: envioUnificadoService.crear() + dispatch SUBMIT_START/SUCCESS/ERROR + toast + navigate |
+
+**F5 — Delete masivo + cleanup** (commit `ab65ea2`)
+
+Ejecucion de D-4: reemplazo directo sin feature flag. 46 archivos eliminados en un unico commit.
+
+Carpetas eliminadas completas:
+
+| Carpeta | Archivos | Lineas aprox. |
+|---------|----------|---------------|
+| `src/pages/Envios/EnvioWizardT2/` | 15 | ~3,675 |
+| `src/pages/Envios/EnvioWizardJ/` | 11 | ~2,738 |
+| `src/pages/Envios/EnvioWizardE/` | 7 | ~1,711 |
+| `src/pages/Envios/EnvioWizardI/` | 7 | ~1,726 |
+| `src/pages/Envios/EnvioWizardV2/` | 6 | ~1,752 |
+
+Extraidos a `src/pages/Envios/legacy-shared/` para preservar F y G (3 archivos ~640 ln):
+- `ProductoPickingGroup.tsx` + tipos
+- `UnidadPickerItem.tsx` + tipos
+- `EnvioT2WizardPreview.tsx` + tipos
+- `index.ts` barrel
+
+Otros archivos actualizados en F5:
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/App.tsx` | Eliminadas 4 lazy imports + 4 rutas de wizards legacy |
+| `src/config/features.ts` | Eliminados flags WIZARD_T2/J/E/I + helpers asociados |
+| `src/pages/Envios/Envios.tsx` | Eliminado import V2 + showCreateModal + handleCrearEnvio + render modal. Triggers redirigen a /envios/nuevo |
+| `src/pages/Envios/NuevoEnvioMenu.tsx` | Reescrito 251→34 ln: un boton "Nuevo envio" → /envios/nuevo |
+| EnvioWizardF/G (3 archivos) | Imports actualizados para leer de legacy-shared/ |
+
+### Fix post-merge S53.1 (commit `60ee214`)
+
+Al cerrar S53 base, el usuario pidio resolver inmediatamente las dos deudas tecnicas declaradas.
+
+**Deuda 1 — Trazabilidad de unidades (CRITICA, de datos)**
+
+Problema: `expandirUnidades()` replicaba el `unidadId` representativo N veces. Payload legacy recibia `[unidad-001, unidad-001, ...]` con el mismo ID repetido. Esto rompia trazabilidad de stock, lotes, vencimientos, recepciones parciales y distribucion CTRU.
+
+Ajuste de negocio revelado: en casillas internacionales las unidades NO se asignan por FIFO automatico. El viajero/courier toma manualmente las que fisicamente lleva. El wizard debe exponer el pool real para seleccion manual (patron D-2 hibrido, consistente con legacy T2).
+
+Cambios implementados:
+
+| Componente | Cambio |
+|-----------|--------|
+| `UnidadSeleccionadaWizard` (type) | `unidadId: string` → `unidadIdsAsignados: string[]` + nuevo campo `unidadIdsDisponibles: string[]` + `cantidadPrevendida` |
+| `envioWizardTypes.ts` (reducer) | Nuevas acciones AGREGAR_UNIDAD_ID / QUITAR_UNIDAD_ID / QUITAR_PRODUCTO_ENTERO (reemplazan TOGGLE_UNIDAD + SET_CANTIDAD_UNIDAD) |
+| `steps/paso1/SeccionUnidades.tsx` | Reescrita: stepper +/- agrega/quita del pool. Chevron expandible por fila con checkboxes + lote + fecha vencimiento + OC referencia + badge pre-vendida por unidad individual |
+| `services/envio.unificado.service.ts` | `expandirUnidades()` itera `grupo.unidadIdsAsignados` en lugar de replicar el ID representativo |
+
+**Deuda 2 — Variante J1/J2 (cosmetica, de datos)**
+
+Problema: `buildPayloadJ` tenia hardcodeado `variante='J2'` sin importar si origen y destino pertenecian al mismo colaborador.
+
+Cambios implementados:
+
+| Componente | Cambio |
+|-----------|--------|
+| `envioWizardTypes.ts` (state) | Nuevos campos `ubicacionOrigenColaboradorId` + `ubicacionDestinoColaboradorId` |
+| `steps/paso1/SeccionOrigen.tsx` | `handleSeleccionar` pasa `casilla.colaboradorId` al dispatch |
+| `steps/paso1/SeccionDestino.tsx` | Idem |
+| `services/envio.unificado.service.ts` | `buildPayloadJ`: `variante = origenColab === destinoColab ? 'J1' : 'J2'` |
+
+### Decisiones aplicadas en S53
+
+| ID | Titulo | Estado |
+|----|--------|--------|
+| D-1 | Borrador incompleto se elimina automaticamente | Aplicada — politica documentada en EnvioWizardPage |
+| D-2 | Inferencia del tipo de envio | Aplicada — `useTipoInferido.ts` como hook central |
+| D-3 | Tipos auto-creados excluidos del Paso 1 | Aplicada — A, B, D, F, G no accesibles desde el wizard |
+| D-4 | Reemplazo directo sin feature flag | Ejecutada en F5 — 46 archivos legacy eliminados |
+| D-5 | Labels genericos en el stepper | Aplicada — WIZARD_STEPS fijo en EnvioWizardPage |
+| D-6 | Integracion Paso 1 + Paso 2 del v4 | Aplicada — Paso 1 unificado, 4 pasos totales |
+| D-7 | Campos especificos del destino en Paso 2 condicional | Aplicada — solo E e I acceden a Paso 2 |
+| D-8 | Paso 1 con secciones colapsables estilo OCWizardV3 | Aplicada — SeccionColapsableWizard atomo reutilizable |
+| D-9 | Modalidad "Por producto" con tabla inline | Aplicada — tabla editable en Paso3Logistica |
+| D-10 | TC auto-poblado desde seccion TC del sistema | Aplicada — TCChip + useTipoCambio |
+| D-11 | Modalidad "Por tramos de peso" | Aplicada — TablaCalculoTramos + TramosPesoSection (F0) |
+| D-A | Casos F y G fuera del wizard | Aplicada — preserved en EnvioWizardF/G con rutas /envios/nuevo-f y /envios/nuevo-g |
+| D-B | Combinaciones invalidas → banner admin | Aplicada — COMBINACIONES_VALIDAS en useTipoInferido |
+| D-R | Sidebar con ruta vertical persistente | Aplicada — RutaVerticalSidebar visible en todos los pasos |
+
+### Metricas S53 + S53.1
+
+| Metrica | Valor |
+|---------|-------|
+| Commits | 7 (6 de S53 + 1 de S53.1) |
+| Archivos nuevos | 20 (16 en EnvioWizard/ + 4 en legacy-shared/) |
+| Archivos eliminados | 46 (5 carpetas legacy completas) |
+| Lineas nuevas | ~2,457 |
+| Lineas eliminadas | ~10,825 |
+| Balance neto | -8,368 lineas |
+| Feature flag | Ninguno (D-4: reemplazo directo) |
+| Decisiones aplicadas | D-1 a D-11 + D-A + D-B + D-R (14 decisiones) |
+| Build final | tsc 0 errores · vite 23.37s |
+| Deploy | vitaskinperu.web.app confirmado |
+
+### Rutas activas post-S53
+
+| Ruta | Descripcion | Estado |
+|------|-------------|--------|
+| `/envios/nuevo` | Wizard unificado (todos los tipos C/J/E/I) | ACTIVA — sin flag |
+| `/envios/nuevo-f` | Despacho venta (EnvioWizardF) | PRESERVADA — pendiente T-F |
+| `/envios/nuevo-g` | Retorno devolucion (EnvioWizardG) | PRESERVADA — pendiente T-G |
+
+### Deudas activas post-S53.1
+
+1. **UAT end-to-end:** los 4 tipos (C/J/E/I) no han sido probados con data real de produccion. Nada del wizard unificado tiene cobertura UAT formal.
+2. **Deudas heredadas sin cambios:** UAT S44+S45+S46 sin iniciar · DEUDA-CTRU-001 (revision completa CTRU) · UX-D2 (flujo CxP deudor=colaborador).
+
+### Tareas derivadas de S53
+
+| ID | Descripcion | Prioridad | Prerequisito |
+|----|-------------|-----------|-------------|
+| T-F | Integrar despacho venta en modulo Ventas (EnvioWizardF) | Media | UAT wizard unificado |
+| T-G | Integrar retorno devolucion en modulo Devoluciones (EnvioWizardG) | Media | UAT wizard unificado |
+| T-Cleanup | Eliminar legacy-shared/ + carpetas F y G post T-F/T-G | Baja | T-F y T-G completadas |
+| T-UAT-S53 | UAT end-to-end de los 4 tipos con data real de produccion | Alta | — |
 
 ---
 

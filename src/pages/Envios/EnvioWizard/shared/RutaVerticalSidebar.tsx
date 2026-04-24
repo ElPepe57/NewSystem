@@ -156,21 +156,6 @@ const Bloque: React.FC<BloqueProps> = ({
 };
 
 // ============================================================================
-// Conector vertical entre bloques
-// ============================================================================
-
-const ConectorVertical: React.FC<{ active?: boolean }> = ({ active }) => (
-  // S53.15 — h-6 → h-4 para compactar el espaciado vertical entre bloques
-  <div
-    className={`w-[2px] h-4 mx-auto ${
-      active
-        ? 'bg-green-500'
-        : 'bg-[linear-gradient(to_bottom,#94a3b8_50%,transparent_50%)] bg-[length:2px_6px] bg-repeat-y'
-    }`}
-  />
-);
-
-// ============================================================================
 // Componente principal
 // ============================================================================
 
@@ -328,50 +313,48 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
         </div>
       )}
 
-      {/* Ruta vertical — 3 bloques */}
+      {/* Ruta vertical — 3 bloques (S53.17: sin conector, estilo minimalista) */}
       <div className="bg-white border border-slate-200 rounded-xl p-3">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2 px-1">
           Ruta del envío
         </div>
 
-        <Bloque
-          estado={estadoOrigen}
-          icono="📦"
-          labelRol="Origen"
-          nombre={origenNombre}
-          metadata={origenMetadata}
-          pasoRef={1}
-          badge={estadoOrigen === 'complete' || estadoOrigen === 'complete-category' ? '✓' : '1'}
-          onClick={() => onJumpToPaso?.(1)}
-        />
+        <div className="space-y-2">
+          <Bloque
+            estado={estadoOrigen}
+            icono="📦"
+            labelRol="Origen"
+            nombre={origenNombre}
+            metadata={origenMetadata}
+            pasoRef={1}
+            badge={estadoOrigen === 'complete' || estadoOrigen === 'complete-category' ? '✓' : '1'}
+            onClick={() => onJumpToPaso?.(1)}
+          />
 
-        <ConectorVertical active={estadoOrigen === 'complete'} />
+          <Bloque
+            estado={estadoTransito}
+            icono={estadoTransito === 'pending' ? '✈️' : tIcon}
+            labelRol={tLabelRol}
+            nombre={transitoNombre}
+            metadata={transitoMetadata}
+            pasoRef={3}
+            badge={estadoTransito === 'complete' ? '✓' : estadoTransito === 'current' ? '⟳' : '3'}
+            extra={transitoExtra}
+            onClick={() => onJumpToPaso?.(3)}
+          />
 
-        <Bloque
-          estado={estadoTransito}
-          icono={estadoTransito === 'pending' ? '✈️' : tIcon}
-          labelRol={tLabelRol}
-          nombre={transitoNombre}
-          metadata={transitoMetadata}
-          pasoRef={3}
-          badge={estadoTransito === 'complete' ? '✓' : estadoTransito === 'current' ? '⟳' : '3'}
-          extra={transitoExtra}
-          onClick={() => onJumpToPaso?.(3)}
-        />
-
-        <ConectorVertical active={estadoTransito === 'complete'} />
-
-        <Bloque
-          estado={estadoDestino}
-          icono="🏠"
-          labelRol="Destino"
-          nombre={destinoNombre}
-          metadata={destinoMetadata}
-          pasoRef={1}
-          badge={estadoDestino === 'complete' || estadoDestino === 'complete-category' ? '✓' : state.pasoActual === 2 ? '⟳' : '1'}
-          extra={destinoExtra}
-          onClick={() => onJumpToPaso?.(1)}
-        />
+          <Bloque
+            estado={estadoDestino}
+            icono="🏠"
+            labelRol="Destino"
+            nombre={destinoNombre}
+            metadata={destinoMetadata}
+            pasoRef={1}
+            badge={estadoDestino === 'complete' || estadoDestino === 'complete-category' ? '✓' : state.pasoActual === 2 ? '⟳' : '1'}
+            extra={destinoExtra}
+            onClick={() => onJumpToPaso?.(1)}
+          />
+        </div>
       </div>
 
       {/* Panel de resumen · KPIs */}

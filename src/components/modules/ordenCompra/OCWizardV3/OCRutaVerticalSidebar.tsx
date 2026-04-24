@@ -180,16 +180,6 @@ const Bloque: React.FC<BloqueProps> = ({
   );
 };
 
-const ConectorVertical: React.FC<{ active?: boolean }> = ({ active }) => (
-  <div
-    className={`w-[2px] h-6 mx-auto ${
-      active
-        ? 'bg-green-500'
-        : 'bg-[linear-gradient(to_bottom,#94a3b8_50%,transparent_50%)] bg-[length:2px_6px] bg-repeat-y'
-    }`}
-  />
-);
-
 // ============================================================================
 // Componente principal
 // ============================================================================
@@ -324,43 +314,41 @@ export const OCRutaVerticalSidebar: React.FC<Props> = ({ state, currentStep }) =
         </div>
       )}
 
-      {/* Ruta vertical · 3 bloques */}
+      {/* Ruta vertical · 3 bloques (S53.17: sin conector, estilo minimalista) */}
       <div className="bg-white border border-slate-200 rounded-xl p-3">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2 px-1">
           Ruta de la OC
         </div>
 
-        <Bloque
-          estado={estadoProveedor}
-          icono="📦"
-          labelRol="Proveedor"
-          nombre={proveedorNombre}
-          metadata={proveedorMetadata}
-          badge={estadoProveedor === 'complete' ? '✓' : estadoProveedor === 'current' ? '⟳' : '1'}
-        />
+        <div className="space-y-2">
+          <Bloque
+            estado={estadoProveedor}
+            icono="📦"
+            labelRol="Proveedor"
+            nombre={proveedorNombre}
+            metadata={proveedorMetadata}
+            badge={estadoProveedor === 'complete' ? '✓' : estadoProveedor === 'current' ? '⟳' : '1'}
+          />
 
-        <ConectorVertical active={estadoProveedor === 'complete'} />
+          <Bloque
+            estado={estadoTransito}
+            icono={transitoIcono}
+            labelRol={transitoLabelRol}
+            nombre={transitoNombre}
+            metadata={transitoMetadata}
+            extra={transitoExtra}
+            badge={estadoTransito === 'complete' ? '✓' : estadoTransito === 'current' ? '⟳' : '1'}
+          />
 
-        <Bloque
-          estado={estadoTransito}
-          icono={transitoIcono}
-          labelRol={transitoLabelRol}
-          nombre={transitoNombre}
-          metadata={transitoMetadata}
-          extra={transitoExtra}
-          badge={estadoTransito === 'complete' ? '✓' : estadoTransito === 'current' ? '⟳' : '1'}
-        />
-
-        <ConectorVertical active={estadoTransito === 'complete'} />
-
-        <Bloque
-          estado={estadoDestino}
-          icono={destinoIcono}
-          labelRol={destinoLabelRol}
-          nombre={destinoNombre}
-          metadata={destinoMetadata}
-          badge={estadoDestino === 'complete' ? '✓' : estadoDestino === 'current' ? '⟳' : '1'}
-        />
+          <Bloque
+            estado={estadoDestino}
+            icono={destinoIcono}
+            labelRol={destinoLabelRol}
+            nombre={destinoNombre}
+            metadata={destinoMetadata}
+            badge={estadoDestino === 'complete' ? '✓' : estadoDestino === 'current' ? '⟳' : '1'}
+          />
+        </div>
       </div>
 
       {/* Deudor alternativo (si aplica) */}
