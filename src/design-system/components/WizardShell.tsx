@@ -227,12 +227,12 @@ export const WizardShell: React.FC<WizardShellProps> = ({
       </div>
 
       {/* Body — grid responsive: contenido + preview panel opcional.
-           S53.15 — Sidebar visible desde md: (≥768px) en vez de lg: (≥1024px)
-           y ancho aumentado a 360px para mejor respiración de la ruta vertical. */}
+           S53.16 — Sidebar visible desde sm: (≥640px) en vez de md: (≥768px)
+           para aparecer en más viewports. Ancho fijo 360px. */}
       <div
         className={cn(
           'flex-1 overflow-hidden',
-          previewPanel ? 'grid grid-cols-1 md:grid-cols-[1fr_360px]' : ''
+          previewPanel ? 'grid grid-cols-1 sm:grid-cols-[1fr_360px]' : ''
         )}
       >
         <div className="overflow-y-auto p-6">
@@ -240,7 +240,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
         </div>
 
         {previewPanel && (
-          <aside className="hidden md:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-4">
+          <aside className="hidden sm:block overflow-y-auto border-l border-slate-200 bg-slate-50 p-4">
             <div className="sticky top-0">{previewPanel}</div>
           </aside>
         )}
