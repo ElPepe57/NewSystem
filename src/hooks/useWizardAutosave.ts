@@ -83,6 +83,30 @@ export function useWizardAutosave<TState>({
   const userId = auth.currentUser?.uid || '';
   const lsKey = userId ? buildBorradorLocalStorageKey(userId, tipo) : '';
 
+  // ─── Reset del estado interno cuando el wizard se cierra ────────────────
+  // S53.18 FIX — En wizards tipo modal (como OCWizardV3) el componente NO se
+  // desmonta al cerrar: solo hace `if (!isOpen) return null`. Por eso los
+  // refs y el estado interno del hook persisten entre aperturas.
+  //
+  // Sin este reset, `initialLoadDoneRef.current` queda en `true` después del
+  // primer load, y al reabrir el wizard el useEffect de lectura inicial
+  // hace `if (initialLoadDoneRef.current) return` y nunca relee el borrador
+  // → el banner jamás aparece aunque haya un borrador válido guardado.
+  //
+  // Detectamos la transición enabled: true → false y reseteamos todo para
+  // que la próxima apertura re-lea localStorage/Firestore desde cero.
+  const wasEnabledRef = useRef(false);
+  useEffect(() => {
+    if (wasEnabledRef.current && !enabled) {
+      initialLoadDoneRef.current = false;
+      lastFirestoreSaveRef.current = 0;
+      setBorradorExistente(null);
+      setLoadingBorrador(true);
+      setIsDirty(false);
+    }
+    wasEnabledRef.current = enabled;
+  }, [enabled]);
+
   // ─── Lectura inicial al abrir el wizard ──────────────────────────────────
   useEffect(() => {
     if (!enabled || !userId || initialLoadDoneRef.current) return;

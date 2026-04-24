@@ -334,9 +334,15 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
   };
 
   const handleClose = () => {
-    dispatch({ type: 'RESET' } as OCWizardAction);
-    setCurrentStep(0);
-    setDraftAceptado(false);
+    // S53.18 FIX — NO resetear el state acá. El dispatch RESET antes de
+    // onClose() dispara el useEffect de Capa 1 (localStorage) con el state
+    // ya vacío mientras isOpen todavía es true → guarda un borrador vacío
+    // sobre el real, y al reabrir el usuario pierde su progreso.
+    //
+    // El reset se hace en el useEffect de línea 252, que detecta la
+    // transición isOpen true→false. En ese momento `enabled` ya es false,
+    // entonces la Capa 1 no guarda y el borrador en localStorage queda
+    // intacto con los datos buenos para ser detectado al reabrir.
     onClose();
   };
 
