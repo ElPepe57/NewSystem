@@ -38,13 +38,6 @@ interface OCWizardV3Props {
    * Solo permitido para OCs en estado 'borrador' (el servicio bloquea el resto).
    */
   ordenEditar?: import('../../../../types/ordenCompra.types').OrdenCompra;
-  /**
-   * S53.20 — Borrador pre-cargado desde la página /compras. Cuando el usuario
-   * hizo click en "Continuar" en el BorradorOCBanner, el borrador se pasa
-   * directamente como prop — el wizard lo carga al abrirse sin mostrar su
-   * banner interno de "Tienes un borrador".
-   */
-  borradorPrecargado?: import('../../../../types/borradorWizard.types').BorradorWizard;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -136,7 +129,6 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
   requerimientoIds,
   requerimientoNumeros,
   ordenEditar,
-  borradorPrecargado,
 }) => {
   const [state, dispatch] = useReducer(ocWizardReducer, initialWizardState);
   // S53.9 — modo edición activo cuando se pasa una OC existente
@@ -186,56 +178,6 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
         0
       ),
   });
-
-  // S53.20 — Borrador precargado desde /compras (click "Continuar" en el
-  // BorradorOCBanner). Al abrir el wizard con este prop, cargamos el state
-  // directamente sin mostrar el banner interno "¿Continuar borrador?".
-  const borradorPrecargadoIdRef = useRef<string | null>(null);
-  React.useEffect(() => {
-    if (!isOpen || !borradorPrecargado) return;
-    // Evitar recargar si ya procesamos este mismo borrador
-    if (borradorPrecargadoIdRef.current === borradorPrecargado.id) return;
-    borradorPrecargadoIdRef.current = borradorPrecargado.id;
-
-    const draft = borradorPrecargado.estado as OCWizardState | undefined;
-    if (!draft) return;
-
-    dispatch({ type: 'RESET' } as OCWizardAction);
-    if (draft.proveedorId) {
-      dispatch({
-        type: 'SET_PROVEEDOR',
-        id: draft.proveedorId,
-        nombre: draft.proveedorNombre,
-      } as OCWizardAction);
-    }
-    if (draft.configLogistica) {
-      dispatch({
-        type: 'SET_CONFIG_LOGISTICA',
-        config: draft.configLogistica,
-      } as OCWizardAction);
-    }
-    if (draft.productos && draft.productos.length > 0) {
-      dispatch({ type: 'SET_PRODUCTOS', productos: draft.productos } as OCWizardAction);
-    }
-    (draft.cargosOC || []).forEach((c) =>
-      dispatch({ type: 'ADD_CARGO', cargo: c } as OCWizardAction)
-    );
-    (draft.descuentosOC || []).forEach((d) =>
-      dispatch({ type: 'ADD_DESCUENTO', descuento: d } as OCWizardAction)
-    );
-    (draft.impuestosOC || []).forEach((i) =>
-      dispatch({ type: 'ADD_IMPUESTO', impuesto: i } as OCWizardAction)
-    );
-    if (draft.tcCompra) dispatch({ type: 'SET_TC', tc: draft.tcCompra } as OCWizardAction);
-    if (draft.observaciones) {
-      dispatch({
-        type: 'SET_OBSERVACIONES',
-        text: draft.observaciones,
-      } as OCWizardAction);
-    }
-    setCurrentStep((borradorPrecargado.pasoActual as number) ?? 0);
-    setDraftAceptado(true); // no mostrar banner interno, ya cargamos
-  }, [isOpen, borradorPrecargado]);
 
   // ─── S53.9 — Modo edición: pre-cargar state desde la OC al abrir ─────────
   React.useEffect(() => {
@@ -571,10 +513,9 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     setDraftAceptado(true);
   };
 
-  // Mostrar banner interno solo si: el wizard está abierto + no es edición +
-  // no hay borrador precargado desde /compras + el usuario no lo aceptó aún.
-  const showBannerInterno =
-    isOpen && !esEdicion && !borradorPrecargado && !draftAceptado;
+  // Mostrar banner interno solo si: el wizard está abierto + no es edición
+  // + el usuario no lo aceptó aún en esta sesión.
+  const showBannerInterno = isOpen && !esEdicion && !draftAceptado;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 flex flex-col">
