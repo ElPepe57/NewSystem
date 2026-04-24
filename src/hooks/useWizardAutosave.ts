@@ -32,6 +32,8 @@ interface UseWizardAutosaveResult<TState> {
   descartarBorrador: () => Promise<void>;
   /** Guardar inmediatamente (útil al completar el wizard) */
   clearDraft: () => Promise<void>;
+  /** Forzar un save inmediato a Firestore (p.ej. al cerrar con "Guardar borrador") */
+  forceSave: () => Promise<void>;
   /** Último timestamp de guardado en Firestore */
   lastSavedAt: Date | null;
   /** Si hay cambios pendientes sin guardar en Firestore */
@@ -83,28 +85,18 @@ export function useWizardAutosave<TState>({
   const userId = auth.currentUser?.uid || '';
   const lsKey = userId ? buildBorradorLocalStorageKey(userId, tipo) : '';
 
-  // ─── Reset del estado interno cuando el wizard se cierra ────────────────
-  // S53.18 FIX — En wizards tipo modal (como OCWizardV3) el componente NO se
+  // ─── Lectura del borrador cada vez que el wizard se abre ────────────────
+  // S53.18 FIX — En wizards tipo modal (OCWizardV3) el componente NO se
   // desmonta al cerrar: solo hace `if (!isOpen) return null`. Por eso los
   // refs y el estado interno del hook persisten entre aperturas.
   //
-  // Sin este reset, `initialLoadDoneRef.current` queda en `true` después del
-  // primer load, y al reabrir el wizard el useEffect de lectura inicial
-  // hace `if (initialLoadDoneRef.current) return` y nunca relee el borrador
-  // → el banner jamás aparece aunque haya un borrador válido guardado.
-  //
-  // Detectamos la transición enabled: true → false y reseteamos todo para
-  // que la próxima apertura re-lea localStorage/Firestore desde cero.
-  // ─── Lectura del borrador cada vez que el wizard se abre ────────────────
-  // S53.18 FIX v2 — En wizards tipo modal (OCWizardV3) el componente NO se
-  // desmonta al cerrar, solo deja de renderizar. Los refs persisten.
-  //
-  // Estrategia: cada vez que `enabled` pasa a true (wizard abierto), RE-LEER
+  // Estrategia: cada vez que `enabled` pasa a true (wizard se abre), RE-LEER
   // el borrador desde localStorage + Firestore, sin importar si ya se leyó
-  // antes. Al cerrar (enabled=false) hacemos early return y limpiamos flag.
+  // antes. Al cerrar (enabled=false) hacemos early return y dejamos el flag
+  // en `false` para que la siguiente apertura garantice un nuevo load.
   //
   // Ventaja: no depende del orden de ejecución de efectos ni de batching;
-  // cada apertura del modal siempre hace un load fresh.
+  // cada apertura del modal siempre hace un load fresh del borrador.
   useEffect(() => {
     if (!enabled || !userId) {
       // Wizard cerrado — marcamos que la próxima apertura debe releer
@@ -236,12 +228,49 @@ export function useWizardAutosave<TState>({
     setIsDirty(false);
   }, [userId, lsKey, tipo]);
 
+  // S53.19 — Force save inmediato a Firestore (sin esperar el intervalo de Capa 2).
+  // Útil cuando el usuario confirma "Guardar borrador" al cerrar el wizard y
+  // queremos asegurar persistencia cross-device antes de cerrar.
+  const forceSave = useCallback(async () => {
+    if (!userId) return;
+    try {
+      // Asegurar snapshot en localStorage también (por si aún no se había guardado)
+      const payload = {
+        id: `${userId}_${tipo}`,
+        tipo,
+        userId,
+        pasoActual,
+        estado: state,
+        fechaActualizacion: new Date().toISOString(),
+      };
+      localStorage.setItem(lsKey, JSON.stringify(payload));
+    } catch {
+      /* silencioso */
+    }
+    try {
+      await borradorWizardService.save({
+        tipo,
+        userId,
+        pasoActual,
+        estado: state as any,
+        resumen: buildResumen?.(state),
+        montoEstimado: buildMonto?.(state),
+      });
+      lastFirestoreSaveRef.current = Date.now();
+      setLastSavedAt(new Date());
+      setIsDirty(false);
+    } catch {
+      /* silencioso — al menos localStorage quedó guardado */
+    }
+  }, [userId, tipo, pasoActual, state, lsKey, buildResumen, buildMonto]);
+
   return {
     borradorExistente,
     loadingBorrador,
     continuarBorrador,
     descartarBorrador,
     clearDraft,
+    forceSave,
     lastSavedAt,
     isDirty,
   };

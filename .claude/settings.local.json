@@ -287,7 +287,11 @@
       "Bash(awk -v start=1160 '$1+0>=start && $1+0<=1280')",
       "Bash(awk 'NR>=1062 && NR<=1130 {print NR\": \"substr\\($0,1,100\\)}' src/pages/OrdenesCompra/OrdenesCompra.tsx)",
       "Bash(awk 'NR>=1215 && NR<=1240 {print NR\": \"substr\\($0,1,120\\)}' src/pages/OrdenesCompra/OrdenesCompra.tsx)",
-      "Bash(awk '/^export interface [A-Z]/{name=$3} /metricas\\\\??:/{print name}' src/types/entidadesMaestras.types.ts src/types/categoria.types.ts src/types/colaborador.types.ts src/types/tipoProducto.types.ts src/types/ordenCompra.types.ts)"
+      "Bash(awk '/^export interface [A-Z]/{name=$3} /metricas\\\\??:/{print name}' src/types/entidadesMaestras.types.ts src/types/categoria.types.ts src/types/colaborador.types.ts src/types/tipoProducto.types.ts src/types/ordenCompra.types.ts)",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, @{Name=\"CommandLine\"; Expression={\\(Get-CimInstance Win32_Process -Filter \"ProcessId = $\\($_.Id\\)\"\\).CommandLine}} | Format-Table -Wrap)",
+      "PowerShell(Stop-Process -Id 7600 -Force)",
+      "Bash(echo \"Started with PID $!\")",
+      "PowerShell(Stop-Process -Id 1053 -Force -ErrorAction SilentlyContinue; Get-Process -Name node -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $PID } | Stop-Process -Force; Start-Sleep -Seconds 1; Write-Output \"node processes remaining:\"; Get-Process -Name node -ErrorAction SilentlyContinue | Select-Object Id)"
     ],
     "deny": [],
     "ask": []

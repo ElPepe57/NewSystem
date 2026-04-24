@@ -13,7 +13,11 @@ import { StepInteligencia } from './StepInteligencia';
 import { StepConfirm } from './StepConfirm';
 import { OCWizardPreview } from './OCWizardPreview';
 import { useWizardAutosave } from '../../../../hooks/useWizardAutosave';
-import { DraftBanner, formatFechaRelativa } from '../../../../design-system';
+import {
+  DraftBanner,
+  formatFechaRelativa,
+  ConfirmarSalidaWizardModal,
+} from '../../../../design-system';
 
 // ════════════════════════════════════════════════════════════════════════════
 // Types
@@ -134,6 +138,8 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
   const submittedRef = useRef(false);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [draftAceptado, setDraftAceptado] = React.useState(false);
+  // S53.19 — Modal de confirmación al cerrar con cambios sin guardar
+  const [showExitConfirm, setShowExitConfirm] = React.useState(false);
 
   // ─── Autoguardado 2 capas ────────────────────────────────────────────────
   const {
@@ -141,6 +147,7 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     continuarBorrador,
     descartarBorrador,
     clearDraft,
+    forceSave,
     lastSavedAt,
   } = useWizardAutosave<OCWizardState>({
     tipo: 'oc',
@@ -333,17 +340,58 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
     if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
+  // S53.19 — Detectar si hay cambios significativos en el wizard que
+  // merezcan preguntar al usuario antes de cerrar. Evita molestar si el
+  // usuario solo abrió el wizard y no tocó nada.
+  const hayCambiosSignificativos = React.useMemo(() => {
+    if (esEdicion) return false; // en edición siempre cerrar directo
+    return (
+      !!state.configLogistica.proveedorId ||
+      state.productos.length > 0 ||
+      state.cargosOC.length > 0 ||
+      state.descuentosOC.length > 0 ||
+      state.impuestosOC.length > 0 ||
+      !!state.observaciones
+    );
+  }, [
+    esEdicion,
+    state.configLogistica.proveedorId,
+    state.productos.length,
+    state.cargosOC.length,
+    state.descuentosOC.length,
+    state.impuestosOC.length,
+    state.observaciones,
+  ]);
+
   const handleClose = () => {
-    // S53.18 FIX — NO resetear el state acá. El dispatch RESET antes de
-    // onClose() dispara el useEffect de Capa 1 (localStorage) con el state
-    // ya vacío mientras isOpen todavía es true → guarda un borrador vacío
-    // sobre el real, y al reabrir el usuario pierde su progreso.
-    //
-    // El reset se hace en el useEffect de línea 252, que detecta la
-    // transición isOpen true→false. En ese momento `enabled` ya es false,
-    // entonces la Capa 1 no guarda y el borrador en localStorage queda
-    // intacto con los datos buenos para ser detectado al reabrir.
+    // Si hay cambios, preguntar qué hacer en lugar de cerrar directo.
+    // El autosave ya guardó silenciosamente en localStorage, pero darle
+    // al usuario control explícito es mejor UX (patrón Gmail/Notion).
+    if (hayCambiosSignificativos) {
+      setShowExitConfirm(true);
+      return;
+    }
     onClose();
+  };
+
+  const handleGuardarBorradorYCerrar = async () => {
+    // Asegurar persistencia en Firestore (además de localStorage que ya tiene).
+    // Así el banner aparece al reabrir incluso desde otro navegador/dispositivo.
+    await forceSave();
+    setShowExitConfirm(false);
+    onClose();
+  };
+
+  const handleDescartarYCerrar = async () => {
+    // Borrar el borrador (localStorage + Firestore) antes de cerrar.
+    await descartarBorrador();
+    setShowExitConfirm(false);
+    onClose();
+  };
+
+  const handleSeguirEditando = () => {
+    // Solo cerrar el modal — mantener el wizard abierto con todos los datos.
+    setShowExitConfirm(false);
   };
 
   const handleSubmit = () => {
@@ -516,6 +564,36 @@ export const OCWizardV3: React.FC<OCWizardV3Props> = ({
           {renderStep()}
         </WizardShell>
       </div>
+
+      {/* S53.19 — Modal de confirmación al cerrar con cambios sin guardar */}
+      <ConfirmarSalidaWizardModal
+        isOpen={showExitConfirm}
+        resumen={(() => {
+          const prov =
+            state.configLogistica.proveedorNombre || state.proveedorNombre;
+          const unidades = state.productos.reduce(
+            (s, p) => s + (p.cantidad || 0),
+            0
+          );
+          const total = grandTotal;
+          const partes: string[] = [];
+          if (prov) partes.push(prov);
+          if (state.productos.length > 0) {
+            partes.push(
+              `${state.productos.length} ${
+                state.productos.length === 1 ? 'producto' : 'productos'
+              }${unidades > 0 ? ` · ${unidades} uds` : ''}`
+            );
+          }
+          if (total > 0) partes.push(`$${total.toFixed(2)}`);
+          return partes.length > 0 ? partes.join(' · ') : undefined;
+        })()}
+        pasoActual={`Paso ${currentStep + 1} de ${STEPS.length}`}
+        contextoSingular="esta orden de compra"
+        onGuardarBorrador={handleGuardarBorradorYCerrar}
+        onDescartar={handleDescartarYCerrar}
+        onSeguirEditando={handleSeguirEditando}
+      />
     </div>
   );
 };

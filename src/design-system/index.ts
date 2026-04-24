@@ -62,6 +62,8 @@ export type { ProductoDisplayData } from './components/ProductoDisplay';
 
 // Banner de borrador de wizard (autoguardado 2 capas)
 export { DraftBanner, formatFechaRelativa } from './components/DraftBanner';
+// Modal de confirmación al cerrar wizard con cambios sin guardar (S53.19)
+export { ConfirmarSalidaWizardModal } from './components/ConfirmarSalidaWizardModal';
 
 // ─── S52 — Capa 3: Plantillas de dominio ─────────────────────────────────
 // Patrones canónicos del ERP derivados del estándar OrdenCompraCard.
