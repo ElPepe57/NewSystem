@@ -160,8 +160,9 @@ const Bloque: React.FC<BloqueProps> = ({
 // ============================================================================
 
 const ConectorVertical: React.FC<{ active?: boolean }> = ({ active }) => (
+  // S53.15 — h-6 → h-4 para compactar el espaciado vertical entre bloques
   <div
-    className={`w-[2px] h-6 mx-auto ${
+    className={`w-[2px] h-4 mx-auto ${
       active
         ? 'bg-green-500'
         : 'bg-[linear-gradient(to_bottom,#94a3b8_50%,transparent_50%)] bg-[length:2px_6px] bg-repeat-y'
@@ -283,7 +284,7 @@ export const RutaVerticalSidebar: React.FC<Props> = ({
       : undefined;
 
   return (
-    <div className="sticky top-24 space-y-3">
+    <div className="sticky top-24 space-y-2.5">
       {/* Chip de tipo inferido */}
       {tipoConfig ? (
         <div
