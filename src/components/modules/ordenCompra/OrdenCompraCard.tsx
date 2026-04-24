@@ -360,11 +360,49 @@ export const OrdenCompraCard: React.FC<OrdenCompraCardProps> = ({
       </div>
 
       {/* S52 — Pipeline migrado a <EntityPipeline> (plantilla Capa 3).
-           4 nodos para OC: Borrador → Confirmada → En Despacho → Completada.
+           Nodos adaptables según modalidad de entrega (S53.13):
+             - Via casilla / DDP → 4 nodos (Borrador → Confirmada → En Despacho → Completada)
+             - Recojo en origen → 3 nodos (Borrador → Compra física → Completada)
            Preserva el mapeo de estado OC → índice + la lógica "→ ?" cuando
            current sin fecha (ver EntityPipeline.tsx). */}
       {!(orden.subOrdenes?.length) && (() => {
-        // Mapeo de estado OC a índice del pipeline (4 etapas)
+        // S53.13 — Recojo en origen usa pipeline reducido de 3 nodos
+        const esRecojoEnOrigen = orden.recojoEnOrigen === true;
+
+        if (esRecojoEnOrigen) {
+          // Pipeline de 3 nodos para recojo en origen:
+          // 0=Borrador, 1=Compra física (colaborador en proveedor), 2=Completada
+          // Al confirmar OC con recojo en origen, el estado salta directo a
+          // 'completada' (ver S53.12), por lo que indexActual va de 0 a 2.
+          const indexActual = orden.estado === 'borrador' ? 0
+            : (orden.estado === 'recibida' || orden.estado === 'completada') ? 2
+            : 1; // cualquier estado intermedio (por retro-compat)
+
+          const stepsRecojo: EntityPipelineStep[] = [
+            {
+              id: 'borrador',
+              label: 'Borrador',
+              fecha: orden.fechaCreacion,
+              status: indexActual > 0 ? 'completed' : 'current',
+            },
+            {
+              id: 'compra-fisica',
+              label: 'Compra física',
+              fecha: orden.fechaEnviada,
+              status: indexActual > 1 ? 'completed' : indexActual === 1 ? 'current' : 'pending',
+            },
+            {
+              id: 'completada',
+              label: 'Completada',
+              fecha: orden.fechaRecibida,
+              status: indexActual === 2 ? 'completed' : 'pending',
+            },
+          ];
+
+          return <EntityPipeline steps={stepsRecojo} size="md" />;
+        }
+
+        // Pipeline de 4 nodos para via_casilla / DDP directo (flujo normal)
         // 0=Borrador, 1=Confirmada, 2=En Despacho, 3=Completada
         const indexActual =
           orden.estado === 'borrador' ? 0
