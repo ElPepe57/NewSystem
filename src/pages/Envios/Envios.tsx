@@ -50,7 +50,8 @@ import { useToastStore } from "../../store/toastStore";
 // Sub-componentes
 import { EnvioCard } from "./EnvioCard";
 // S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza
-import { NuevoEnvioMenu } from "./NuevoEnvioMenu";
+// S53.26 — NuevoEnvioMenu reemplazado por un botón directo "+ Nuevo envío"
+// en el PageHeader, igual al patrón de /compras (Package manager pending T-F/T-G).
 import { RecepcionModal } from "./RecepcionModal";
 import { PagoUnificadoForm } from '../../components/modules/pagos/PagoUnificadoForm';
 import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUnificadoForm';
@@ -777,7 +778,20 @@ export const Envios: React.FC = () => {
         subtitle="Hub logístico · Todos los movimientos físicos del negocio"
         icon={ArrowRightLeft}
         actions={
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
+            {/* S53.26 — Search global + Exportar + Nuevo envío dentro del header,
+                 igual que el patrón de /compras. Deja el header como un card
+                 único de borde a borde con todos los controles principales. */}
+            <div className="relative hidden md:block">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar envío, proveedor, destino..."
+                className="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 w-60"
+              />
+            </div>
             <Button
               variant="ghost"
               onClick={() => {
@@ -790,6 +804,24 @@ export const Envios: React.FC = () => {
               title="Actualizar"
             >
               <RefreshCw className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportService.exportEnvios(enviosPorLinea)}
+              disabled={enviosPorLinea.length === 0}
+            >
+              <Download className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Exportar</span>
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/envios/nuevo')}
+            >
+              <Plus className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Nuevo envío</span>
+              <span className="sm:hidden">Nuevo</span>
             </Button>
           </div>
         }
@@ -1051,20 +1083,9 @@ export const Envios: React.FC = () => {
         </div>
       </div>
 
-      {/* S52 — Acciones principales debajo de pills (matching mockup: + Nuevo envío · Exportar) */}
-      <div className="flex items-center gap-3 mt-2">
-        {/* S53 F5 · NuevoEnvioMenu ahora navega siempre a /envios/nuevo (wizard unificado) */}
-        <NuevoEnvioMenu onNuevoGenerico={() => navigate('/envios/nuevo')} />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => exportService.exportEnvios(enviosPorLinea)}
-          disabled={enviosPorLinea.length === 0}
-        >
-          <Download className="h-4 w-4 mr-1.5" />
-          Exportar
-        </Button>
-      </div>
+      {/* S53.26 — El botón "Nuevo envío" y "Exportar" se movieron al PageHeader
+           (arriba) para consolidar los controles principales en un solo card
+           alargado, igual al patrón de /compras. */}
 
       {/* Toolbar */}
       <Toolbar
