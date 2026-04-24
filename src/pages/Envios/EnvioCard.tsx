@@ -79,8 +79,20 @@ const COUNTRY_CODE: Record<string, string> = {
   PE: 'PE',
 };
 
-const flagDe = (pais?: string): string => (pais ? FLAG_MAP[pais] ?? '🌐' : '🌐');
-const codDe = (pais?: string): string => (pais ? COUNTRY_CODE[pais] ?? '??' : '??');
+// S53.28 — Normaliza el input para aceptar variaciones (trim, case) antes de
+// consultar los mapas. Si no se encuentra, devuelve string vacío para que
+// el JSX oculte el badge (en vez de mostrar "??" como ruido visual).
+const _lookupMap = <T extends string>(
+  pais: string | undefined,
+  map: Record<string, T>
+): T | '' => {
+  if (!pais) return '';
+  const raw = pais.trim();
+  if (!raw) return '';
+  return (map[raw] || map[raw.toUpperCase()] || map[raw.toLowerCase()] || '') as T | '';
+};
+const flagDe = (pais?: string): string => _lookupMap(pais, FLAG_MAP) || '🌐';
+const codDe = (pais?: string): string => _lookupMap(pais, COUNTRY_CODE);
 
 // Estado badge (pastel, sin dot) matching mockup colors
 const ESTADO_STYLE: Record<EstadoEnvio, { label: string; className: string }> = {
@@ -391,9 +403,11 @@ const RutaMockup: React.FC<RutaMockupProps> = ({
   <div className="flex items-center gap-3">
     {/* Origen */}
     <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-      <span className="text-xs text-slate-400 font-semibold tracking-wider w-5 text-center">
-        {origenCod}
-      </span>
+      {origenCod && (
+        <span className="text-xs text-slate-400 font-semibold tracking-wider w-5 text-center">
+          {origenCod}
+        </span>
+      )}
       <span className="text-lg leading-none" aria-hidden>
         {origenFlag}
       </span>
@@ -419,9 +433,11 @@ const RutaMockup: React.FC<RutaMockupProps> = ({
 
     {/* Destino */}
     <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-      <span className="text-xs text-slate-400 font-semibold tracking-wider w-5 text-center">
-        {destinoCod}
-      </span>
+      {destinoCod && (
+        <span className="text-xs text-slate-400 font-semibold tracking-wider w-5 text-center">
+          {destinoCod}
+        </span>
+      )}
       <span className="text-lg leading-none" aria-hidden>
         {destinoFlag}
       </span>
