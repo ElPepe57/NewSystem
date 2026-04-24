@@ -10,6 +10,7 @@ import {
   Loader2,
   Percent,
   DollarSign,
+  UserCheck,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import type {
@@ -596,8 +597,12 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
         </div>
         )}
 
-        {/* ─── S42ax Embedded: toggle como banner al nivel del banner CTA ─── */}
-        {embedded && (
+        {/* ─── S42ax Embedded: toggle como banner al nivel del banner CTA ───
+             S53.11 — NO mostrar el toggle si la OC es recojo en origen: en ese
+             caso el colaborador compra TODO en una sola visita física al
+             proveedor (Costco, iHerb en persona, etc.) y no tiene sentido
+             dividir en tandas. La OC va directo como única. */}
+        {embedded && !orden.recojoEnOrigen && (
           <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="w-10 h-10 rounded-full bg-white border border-teal-200 flex items-center justify-center flex-shrink-0">
@@ -646,6 +651,27 @@ export const ConfirmarOCModal: React.FC<ConfirmarOCModalProps> = ({
                   ? `Sí, dividir en ${subOrdenIds.length}`
                   : 'Sí, dividir'}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* S53.11 — Banner informativo cuando es recojo en origen: explica
+             por qué no aparece el toggle de dividir. */}
+        {embedded && orden.recojoEnOrigen && (
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center flex-shrink-0">
+              <UserCheck className="w-5 h-5 text-slate-600" />
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-slate-900">
+                OC con recojo en origen — no se divide
+              </div>
+              <div className="text-xs text-slate-600 mt-0.5">
+                El colaborador compra todos los productos en una sola visita
+                física al proveedor. La OC nace como única y las unidades
+                quedan disponibles inmediatamente en la casilla destino al
+                confirmar.
+              </div>
             </div>
           </div>
         )}
