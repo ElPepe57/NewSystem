@@ -9,6 +9,8 @@ import { useToastStore } from '../../store/toastStore';
 // Toda la creacion/edicion de OC pasa por OCWizardV3. Lista en tarjetas unicamente.
 import { OrdenCompraCard } from '../../components/modules/ordenCompra/OrdenCompraCard';
 import { OCWizardV3 } from '../../components/modules/ordenCompra/OCWizardV3/OCWizardV3';
+import { BorradorOCBanner } from './BorradorOCBanner';
+import type { BorradorWizard } from '../../types/borradorWizard.types';
 import { CompraCard } from '../../components/modules/ordenCompra/CompraCard';
 import { PipelineCompras } from '../../components/modules/ordenCompra/PipelineCompras';
 import type { EstadoPipelineCompras, PipelineComprasStage } from '../../components/modules/ordenCompra/PipelineCompras';
@@ -152,6 +154,12 @@ export const OrdenesCompra: React.FC = () => {
   // La vista tabla se mantiene como opción pero no es el default.
   // S53.9 — viewMode eliminado. Vista de tarjetas es la única opción.
   const [isWizardV2Open, setIsWizardV2Open] = useState(false);
+  // S53.20 — Borrador pre-cargado desde el banner en /compras (click "Continuar")
+  const [borradorPrecargado, setBorradorPrecargado] =
+    useState<BorradorWizard | null>(null);
+  // Versión que incrementamos al cerrar el wizard o descartar — hace que el
+  // banner relea el borrador para reflejar cambios (aparecer/desaparecer).
+  const [borradorRefreshKey, setBorradorRefreshKey] = useState(0);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isPagoModalOpen, setIsPagoModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
@@ -879,6 +887,15 @@ export const OrdenesCompra: React.FC = () => {
         }
       />
 
+      {/* S53.20 — Banner de borrador de OC (solo si hay uno activo del usuario) */}
+      <BorradorOCBanner
+        refreshKey={borradorRefreshKey}
+        onContinuar={(borrador) => {
+          setBorradorPrecargado(borrador);
+          setIsWizardV2Open(true);
+        }}
+      />
+
       {/* Alerta si no hay proveedores */}
       {proveedoresActivos.length === 0 && (
         <Card padding="md">
@@ -1228,10 +1245,14 @@ export const OrdenesCompra: React.FC = () => {
           setIsWizardV2Open(false);
           setOrdenEditando(null);
           setInitialFormData(null);
+          setBorradorPrecargado(null);
+          // Refresca el banner para reflejar si el borrador fue guardado/descartado
+          setBorradorRefreshKey((k) => k + 1);
         }}
         onSubmit={handleCreateOrden}
         isSubmitting={isSubmitting}
         ordenEditar={ordenEditando || undefined}
+        borradorPrecargado={borradorPrecargado || undefined}
         requerimientoId={initialFormData?.requerimientoId}
         requerimientoNumero={initialFormData?.requerimientoNumero}
         requerimientoIds={initialFormData?.requerimientoIds}
