@@ -27,10 +27,11 @@ import {
   useConfirmDialog,
 } from "../../components/common";
 import type { PipelineStage } from "../../components/common";
-import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader, DataTable, StatusBadge } from '../../design-system';
-import type { DataTableColumn } from '../../design-system';
+import { KPIBar as DSKPIBar, StatCard as DSStatCard, Toolbar, FilterDrawer, FilterSection, PageShell, PageHeader } from '../../design-system';
 import { FileText, CheckCircle2, XOctagon } from "lucide-react";
 import { useEnvioStore } from '../../store/envioStore';
+// S55 Fase 4 — pagos al colaborador viven en CC
+import { usePagosEnvio } from '../../hooks/usePagosEnvio';
 import { useProductoStore } from "../../store/productoStore";
 import { useAlmacenStore } from '../../store/casillaStore';
 import { useAuthStore } from "../../store/authStore";
@@ -176,6 +177,8 @@ export const Envios: React.FC = () => {
   const [showPagoModal, setShowPagoModal] = useState(false);
   const [envioParaRecepcion, setEnvioParaRecepcion] = useState<Envio | null>(null);
   const [envioParaPago, setEnvioParaPago] = useState<Envio | null>(null);
+  // S55 Fase 4 — Pagos del envío en pago (CC). Reemplaza envio.pagosColaborador[].
+  const { pagos: pagosEnvioParaPago } = usePagosEnvio(envioParaPago?.id ?? null);
   const [selectedEnvio, setSelectedEnvio] = useState<Envio | null>(null);
   const [showEditFleteModal, setShowEditFleteModal] = useState(false);
   const [envioParaFlete, setEnvioParaFlete] = useState<Envio | null>(null);
@@ -183,8 +186,8 @@ export const Envios: React.FC = () => {
   const [envioParaDespachar, setEnvioParaDespachar] = useState<Envio | null>(null);
   const { colaboradores, fetchColaboradores } = useColaboradorStore();
 
-  // Estado de vista
-  const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
+  // S57.x — viewMode ELIMINADO. Vista de tarjetas es la única opción
+  // (alineado con /compras, referencia canónica S54.x).
 
   // Estado de filtros
   const [activeTab, setActiveTab] = useState<'todas' | 'en_transito' | 'pendientes' | 'incidencias'>('todas');
@@ -635,142 +638,10 @@ export const Envios: React.FC = () => {
     }
   }, [user, envioParaFlete, actualizarFlete, toast]);
 
-  // Mapeo de estado → variante visual
-  const estadoVariant = (estado: EstadoEnvio): 'neutral' | 'info' | 'warning' | 'success' | 'danger' => {
-    const map: Record<EstadoEnvio, 'neutral' | 'info' | 'warning' | 'success' | 'danger'> = {
-      borrador: 'neutral',
-      confirmado: 'info',
-      en_transito: 'warning',
-      retenida_aduana: 'danger',
-      recibida_parcial: 'warning',
-      recibida_completa: 'success',
-      perdida_total: 'danger',
-      cancelada: 'danger',
-    };
-    return map[estado] ?? 'neutral';
-  };
-
-  const estadoLabel = (estado: EstadoEnvio): string => {
-    const map: Record<EstadoEnvio, string> = {
-      borrador: 'Borrador',
-      confirmado: 'Confirmado',
-      en_transito: 'En Transito',
-      retenida_aduana: 'Aduana',
-      recibida_parcial: 'Parcial',
-      recibida_completa: 'Completa',
-      perdida_total: 'Perdida',
-      cancelada: 'Cancelada',
-    };
-    return map[estado] ?? estado;
-  };
-
-  // Columnas de la tabla
-  const envioColumns: DataTableColumn<Envio>[] = [
-    {
-      key: 'numero',
-      header: 'Numero',
-      render: (e) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="font-mono text-sm font-medium text-slate-900">{e.numeroEnvio}</span>
-          <span className="text-xs text-slate-500 capitalize">
-            {e.tipo === 'internacional_peru' ? 'Internacional' : 'Interna'}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: 'ruta',
-      header: 'Ruta',
-      render: (e) => (
-        <div className="flex items-center gap-1 text-sm text-slate-700">
-          <span className="truncate max-w-[90px]" title={e.origenCasillaNombre ?? e.origenProveedorNombre}>
-            {e.origenCasillaNombre ?? e.origenProveedorNombre ?? '—'}
-          </span>
-          <ArrowRightLeft className="h-3 w-3 text-slate-400 shrink-0" />
-          <span className="truncate max-w-[90px]" title={e.destinoCasillaNombre}>
-            {e.destinoCasillaNombre}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: 'estado',
-      header: 'Estado',
-      render: (e) => (
-        <StatusBadge variant={estadoVariant(e.estado)} dot>
-          {estadoLabel(e.estado)}
-        </StatusBadge>
-      ),
-    },
-    {
-      key: 'unidades',
-      header: 'Unidades',
-      align: 'right',
-      render: (e) => (
-        <span className="text-sm text-slate-700">{e.totalUnidades ?? e.unidades?.length ?? 0}</span>
-      ),
-      hideOnMobile: true,
-    },
-    {
-      key: 'flete',
-      header: 'Flete',
-      align: 'right',
-      render: (e) => (
-        <span className="text-sm text-slate-700">
-          {e.costoFleteTotal != null
-            ? `$${e.costoFleteTotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
-            : '—'}
-        </span>
-      ),
-      hideOnMobile: true,
-    },
-    {
-      key: 'fecha',
-      header: 'Fecha',
-      align: 'right',
-      render: (e) => (
-        <span className="text-sm text-slate-500">
-          {e.fechaCreacion?.toDate
-            ? e.fechaCreacion.toDate().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' })
-            : '—'}
-        </span>
-      ),
-      hideOnMobile: true,
-    },
-    {
-      key: 'acciones',
-      header: '',
-      align: 'right',
-      render: (e) => (
-        <div className="flex items-center justify-end gap-1" onClick={(ev) => ev.stopPropagation()}>
-          {e.estado === 'borrador' && (
-            <button
-              onClick={() => handleConfirmar(e.id)}
-              className="text-xs px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors"
-            >
-              Confirmar
-            </button>
-          )}
-          {e.estado === 'confirmado' && (
-            <button
-              onClick={() => handleEnviar(e.id)}
-              className="text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
-            >
-              Enviar
-            </button>
-          )}
-          {(e.estado === 'en_transito' || e.estado === 'recibida_parcial') && (
-            <button
-              onClick={() => handleIniciarRecepcion(e)}
-              className="text-xs px-2 py-1 rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
-            >
-              Recibir
-            </button>
-          )}
-        </div>
-      ),
-    },
-  ];
+  // S57.x — envioColumns + helpers de tabla ELIMINADOS (vista DataTable removida).
+  // La página renderiza únicamente EnvioCardSimple en stack vertical,
+  // alineado con /compras (referencia canónica S54.x). Los helpers
+  // estadoVariant/estadoLabel vivían solo dentro de envioColumns.
 
   return (
     <PageShell>
@@ -886,10 +757,13 @@ export const Envios: React.FC = () => {
       {/* S53.25 — Grid 3x2 (igual a /compras) en vez de 6x1 apretado. Los
            KPIs quedan con tamaño legible y el layout "alargado" que el
            usuario prefiere, consistente con la vista de Compras. */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      {/* S54 — Grid auto-adaptable: cada card ≥140px, `auto-fit` acomoda
+           tantas cols como quepan. 6x1 en pantallas amplias, 3x2 en
+           medianas, 2x3 en móvil. Nunca overflow horizontal. */}
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
           <div className="text-xs text-slate-600 font-medium">Total activos</div>
-          <div className="text-3xl font-bold text-slate-900 tabular-nums mt-1">
+          <div className="text-2xl font-bold text-slate-900 tabular-nums mt-1">
             {enviosPorLinea.length}
           </div>
           <div className="text-[11px] text-slate-500 mt-0.5">envíos en curso</div>
@@ -897,14 +771,14 @@ export const Envios: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab(activeTab === 'en_transito' ? 'todas' : 'en_transito')}
-          className={`rounded-xl border text-left p-4 transition-colors ${
+          className={`rounded-xl border text-left p-3 transition-colors ${
             activeTab === 'en_transito'
               ? 'border-sky-400 bg-sky-100 ring-2 ring-sky-200'
               : 'border-sky-200 bg-sky-50 hover:bg-sky-100'
           }`}
         >
           <div className="text-xs text-sky-700 font-medium">En tránsito</div>
-          <div className="text-3xl font-bold text-sky-900 tabular-nums mt-1">
+          <div className="text-2xl font-bold text-sky-900 tabular-nums mt-1">
             {resumen?.enTransito || 0}
           </div>
           <div className="text-[11px] text-sky-700/80 mt-0.5">
@@ -916,14 +790,14 @@ export const Envios: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab(activeTab === 'pendientes' ? 'todas' : 'pendientes')}
-          className={`rounded-xl border text-left p-4 transition-colors ${
+          className={`rounded-xl border text-left p-3 transition-colors ${
             activeTab === 'pendientes'
               ? 'border-amber-400 bg-amber-100 ring-2 ring-amber-200'
               : 'border-amber-200 bg-amber-50 hover:bg-amber-100'
           }`}
         >
           <div className="text-xs text-amber-800 font-medium">Pendientes recepción</div>
-          <div className="text-3xl font-bold text-amber-900 tabular-nums mt-1">
+          <div className="text-2xl font-bold text-amber-900 tabular-nums mt-1">
             {resumen?.pendientesRecepcion || 0}
           </div>
           <div className="text-[11px] text-amber-700/80 mt-0.5">recepción parcial</div>
@@ -931,14 +805,14 @@ export const Envios: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab(activeTab === 'incidencias' ? 'todas' : 'incidencias')}
-          className={`rounded-xl border text-left p-4 transition-colors ${
+          className={`rounded-xl border text-left p-3 transition-colors ${
             activeTab === 'incidencias'
               ? 'border-rose-400 bg-rose-100 ring-2 ring-rose-200'
               : 'border-rose-200 bg-rose-50 hover:bg-rose-100'
           }`}
         >
           <div className="text-xs text-rose-800 font-medium">Incidencias</div>
-          <div className="text-3xl font-bold text-rose-900 tabular-nums mt-1">
+          <div className="text-2xl font-bold text-rose-900 tabular-nums mt-1">
             {resumen?.enviosConIncidencias || 0}
           </div>
           <div className="text-[11px] text-rose-700/80 mt-0.5">sin resolver</div>
@@ -946,10 +820,10 @@ export const Envios: React.FC = () => {
         <button
           type="button"
           onClick={() => setTabEnvios('reclamos')}
-          className="rounded-xl border border-fuchsia-200 bg-fuchsia-50 hover:bg-fuchsia-100 text-left p-4 transition-colors"
+          className="rounded-xl border border-fuchsia-200 bg-fuchsia-50 hover:bg-fuchsia-100 text-left p-3 transition-colors"
         >
           <div className="text-xs text-fuchsia-800 font-medium">En reclamo</div>
-          <div className="text-3xl font-bold text-fuchsia-900 tabular-nums mt-1">
+          <div className="text-2xl font-bold text-fuchsia-900 tabular-nums mt-1">
             {resumenReclamos?.reclamosPendientes || 0}
           </div>
           <div className="text-[11px] text-fuchsia-700/80 mt-0.5">
@@ -958,9 +832,9 @@ export const Envios: React.FC = () => {
               : 'sin reclamos'}
           </div>
         </button>
-        <div className="rounded-xl border border-teal-200 bg-teal-50 p-4">
+        <div className="rounded-xl border border-teal-200 bg-teal-50 p-3">
           <div className="text-xs text-teal-800 font-medium">Valor landed</div>
-          <div className="text-3xl font-bold text-teal-900 tabular-nums mt-1">
+          <div className="text-2xl font-bold text-teal-900 tabular-nums mt-1">
             {enviosStatsExtra.tc > 0
               ? `S/ ${(enviosStatsExtra.valorLandedPEN / 1000).toFixed(1)}k`
               : `$${(valorEnTransito / 1000).toFixed(1)}k`}
@@ -1088,14 +962,12 @@ export const Envios: React.FC = () => {
            (arriba) para consolidar los controles principales en un solo card
            alargado, igual al patrón de /compras. */}
 
-      {/* Toolbar */}
+      {/* Toolbar — sin toggle de vista (S57.x: cards únicamente) */}
       <Toolbar
         search={{ value: busqueda, onChange: setBusqueda, placeholder: 'Buscar envios...' }}
         filterCount={[filtroTipo !== 'todas' ? filtroTipo : '', filtroEstado, activeTab !== 'todas' ? activeTab : ''].filter(Boolean).length}
         onFilterToggle={() => setShowFilters(true)}
         resultCount={enviosFiltrados.length}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
       />
 
       {/* FilterDrawer */}
@@ -1163,12 +1035,13 @@ export const Envios: React.FC = () => {
             )}
           </div>
         </Card>
-      ) : viewMode === 'card' ? (
+      ) : (
         <>
           {/* S53.29 — Vista estándar: EnvioCardSimple con layout 5-columnas
                (igual a CompraCard). Elegante, alargado, consistente con
                /compras. El EnvioCard legacy queda disponible para el modal
-               de detalle cuando el usuario hace click. */}
+               de detalle cuando el usuario hace click.
+               S57.x — Vista de tarjetas única (DataTable eliminada). */}
           <div className="bg-slate-50 rounded-xl p-4 md:p-5 space-y-3 border border-slate-100">
             {enviosFiltrados.slice(0, itemsVisiblesEnv).map(envio => (
               <EnvioCardSimple
@@ -1195,17 +1068,6 @@ export const Envios: React.FC = () => {
             </div>
           )}
         </>
-      ) : (
-        <Card padding="none">
-          <DataTable
-            columns={envioColumns}
-            data={enviosFiltrados}
-            keyExtractor={(e) => e.id}
-            onRowClick={(e) => setSelectedEnvio(e)}
-            compact
-            emptyMessage="No hay envios con los filtros actuales"
-          />
-        </Card>
       )}
 
       {/* S53 F5 · EnvioWizardV2 ELIMINADO — el wizard unificado (/envios/nuevo) lo reemplaza.
@@ -1242,8 +1104,8 @@ export const Envios: React.FC = () => {
 
       {/* Modal: Pago al Colaborador (Unificado) */}
       {showPagoModal && envioParaPago && (() => {
-        const pagosAnteriores = envioParaPago.pagosColaborador ?? [];
-        const pagadoUSD = pagosAnteriores.reduce((s, p) => s + (p.montoUSD || 0), 0);
+        // S55 Fase 4 — pagosEnvioParaPago viene del hook (CC)
+        const pagadoUSD = pagosEnvioParaPago.reduce((s, p) => s + (p.montoUSD || 0), 0);
         const pendienteUSD = (envioParaPago.costoFleteTotal || 0) - pagadoUSD;
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -1255,7 +1117,7 @@ export const Envios: React.FC = () => {
                 montoPendiente={Math.max(0, pendienteUSD)}
                 monedaOriginal="USD"
                 tcDocumento={tipoCambioActual?.tasaVenta}
-                pagosAnteriores={pagosAnteriores.map(p => ({
+                pagosAnteriores={pagosEnvioParaPago.map(p => ({
                   id: p.id,
                   fecha: p.fecha?.toDate?.() || new Date(),
                   monto: p.montoUSD || p.montoOriginal || 0,
