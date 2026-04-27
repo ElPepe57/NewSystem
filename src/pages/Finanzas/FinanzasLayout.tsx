@@ -17,6 +17,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { ChartPie, Handshake, ArrowRightLeft, Coins } from 'lucide-react';
 import { PageShell, PageHeader } from '../../design-system';
 import { cn } from '../../design-system';
+import { FinanzasKPIBar } from './FinanzasKPIBar';
 
 // ─── Outlet context type ───────────────────────────────────────────────
 
@@ -84,6 +85,9 @@ const FinanzasLayout: React.FC = () => {
           })}
         </div>
       </div>
+
+      {/* KPI strip compartido — visible en las 3 sub-vistas */}
+      <FinanzasKPIBar />
 
       {/* Contenido específico de la sub-vista */}
       <Outlet context={{ setActions } satisfies FinanzasOutletContext} />
