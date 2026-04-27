@@ -249,19 +249,29 @@ export const EntidadCCDetailModal: React.FC<EntidadCCDetailModalProps> = ({
       >
         {/* ─── Header (sticky · breadcrumb + close) ─────────────────────── */}
         <div className="sticky top-0 z-20 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm">
-            <Coins className="w-4 h-4 text-teal-600" />
+          <div className="flex items-center gap-2 text-sm min-w-0">
+            <Coins className="w-4 h-4 text-teal-600 flex-shrink-0" />
             <span className="font-semibold text-slate-900">Cuenta corriente</span>
             <span className="text-slate-400">·</span>
             <span className="text-slate-700 truncate">{cc.entidadNombre}</span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <a
+              href={`/finanzas/cash-flow?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
+              className="text-[11px] px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md font-medium flex items-center gap-1.5 transition"
+              title="Ver los movimientos de tesorería vinculados a esta entidad"
+            >
+              <ArrowRightLeft className="w-3 h-3" />
+              Ver en Cash flow
+            </a>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* ─── Hero ──────────────────────────────────────────────────────── */}

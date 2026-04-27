@@ -19,6 +19,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   X,
   Coins,
@@ -32,6 +33,7 @@ import {
   Calendar,
   Receipt,
   ExternalLink,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import { cuentaCorrienteService } from '../../../services/cuentaCorriente.service';
@@ -427,16 +429,24 @@ export const EntidadCCDrawer: React.FC<EntidadCCDrawerProps> = (props) => {
 
         {/* Footer */}
         {cc && !loading && !error && (
-          <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex gap-2 flex-shrink-0">
+          <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex flex-col gap-2 flex-shrink-0">
             <button
               type="button"
               onClick={() => onVerCompleto?.(cc)}
-              className="flex-1 text-[11px] px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium flex items-center justify-center gap-1.5 transition"
+              className="text-[11px] px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium flex items-center justify-center gap-1.5 transition"
             >
               <ExternalLink className="w-3 h-3" />
               Ver detalle completo
               <ArrowRight className="w-3 h-3" />
             </button>
+            <Link
+              to={`/finanzas/cash-flow?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
+              onClick={onClose}
+              className="text-[11px] px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md font-medium flex items-center justify-center gap-1.5 transition"
+            >
+              <ArrowRightLeft className="w-3 h-3" />
+              Ver movimientos en Cash flow
+            </Link>
           </div>
         )}
       </div>
