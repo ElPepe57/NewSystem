@@ -26,8 +26,6 @@ import {
   TrendingDown,
   Scale,
   Users,
-  ListFilter,
-  LayoutGrid,
   Wallet,
 } from 'lucide-react';
 import { PageShell, PageHeader } from '../../design-system';
@@ -307,22 +305,7 @@ const FinanzasSaldos: React.FC = () => {
             <option value="ultima_act">Última actividad</option>
             <option value="nombre">Nombre A-Z</option>
           </select>
-          <div className="flex bg-slate-100 rounded-md p-0.5">
-            <button
-              type="button"
-              className="px-2 py-1 text-[11px] bg-white shadow-sm rounded font-medium text-slate-900"
-              title="Vista lista"
-            >
-              <ListFilter className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              className="px-2 py-1 text-[11px] text-slate-500 hover:text-slate-700"
-              title="Vista grid"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          {/* S57.x — Toggle list/grid ELIMINADO. Solo cards (alineado con /compras y /envios). */}
         </div>
       </Card>
 
