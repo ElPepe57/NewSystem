@@ -12,22 +12,12 @@
  * dentro de un useEffect.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { ChartPie, Handshake, ArrowRightLeft, Coins } from 'lucide-react';
 import { PageShell, PageHeader } from '../../design-system';
 import { cn } from '../../design-system';
 import { FinanzasKPIBar } from './FinanzasKPIBar';
-
-// ─── Outlet context type ───────────────────────────────────────────────
-
-export interface FinanzasOutletContext {
-  /**
-   * Declara los actions (botones) que el layout mostrará en el header.
-   * Llamar dentro de un useEffect; recordar resetear con `null` en cleanup.
-   */
-  setActions: (actions: React.ReactNode) => void;
-}
 
 // ─── Tabs config ───────────────────────────────────────────────────────
 
@@ -44,10 +34,16 @@ const SUBTITLES: Record<string, string> = {
 };
 
 // ─── Componente ────────────────────────────────────────────────────────
+//
+// IMPORTANTE: Este layout NO tiene state ni Outlet context.
+// Cada sub-vista renderiza sus propios actions inline (no en el header
+// global). Esto evita re-renders del layout cuando las hijas montan/
+// desmontan, lo cual causaba un bug raro en React 18 + StrictMode +
+// React Router donde el Outlet quedaba congelado en la sub-vista
+// anterior tras un click de tab.
 
 const FinanzasLayout: React.FC = () => {
   const location = useLocation();
-  const [actions, setActions] = useState<React.ReactNode>(null);
   const subtitle = SUBTITLES[location.pathname] ?? 'Hub financiero';
 
   return (
@@ -56,7 +52,6 @@ const FinanzasLayout: React.FC = () => {
         title="Finanzas"
         subtitle={subtitle}
         icon={Coins}
-        actions={actions}
       />
 
       {/* Tabs sticky — debajo del header global */}
@@ -90,7 +85,7 @@ const FinanzasLayout: React.FC = () => {
       <FinanzasKPIBar />
 
       {/* Contenido específico de la sub-vista */}
-      <Outlet context={{ setActions } satisfies FinanzasOutletContext} />
+      <Outlet />
     </PageShell>
   );
 };

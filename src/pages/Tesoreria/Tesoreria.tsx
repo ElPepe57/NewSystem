@@ -16,8 +16,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { Toolbar, KPIBar, StatCard } from '../../design-system';
-import { useOutletContext, useSearchParams } from 'react-router-dom';
-import type { FinanzasOutletContext } from '../Finanzas/FinanzasLayout';
+import { useSearchParams } from 'react-router-dom';
 import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { TesoreriaService } from '../../services/tesoreria.service';
@@ -784,12 +783,11 @@ export const Tesoreria: React.FC = () => {
 
   const isAdmin = userProfile?.role === 'admin';
 
-  // ── Declarar actions del header (vía outlet context del FinanzasLayout) ──
-  const ctx = useOutletContext<FinanzasOutletContext | undefined>();
-  useEffect(() => {
-    if (!ctx?.setActions) return;
-    ctx.setActions(
-      <>
+  // ============ Render ============
+  return (
+    <>
+      {/* Actions inline (sub-header Stripe-style) */}
+      <div className="flex items-center justify-end gap-2 mb-3 px-1">
         {!statsOptimizadas && (
           <Button
             variant="secondary"
@@ -813,14 +811,8 @@ export const Tesoreria: React.FC = () => {
         >
           <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
         </Button>
-      </>,
-    );
-    return () => ctx.setActions(null);
-  }, [ctx, statsOptimizadas, isRecalculando, isRefreshing, loading, handleRecalcularEstadisticas, handleRefresh]);
+      </div>
 
-  // ============ Render ============
-  return (
-    <>
       {/* Banner: filtro por entidad activo (cross-link desde Saldos / drawer CC) */}
       {entidadIdParam && (
         <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-2.5 mb-3 flex items-center justify-between gap-3">

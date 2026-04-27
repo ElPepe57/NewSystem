@@ -17,7 +17,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Download,
   Plus,
@@ -29,7 +29,6 @@ import {
   Wallet,
 } from 'lucide-react';
 import { Card, Button } from '../../components/common';
-import type { FinanzasOutletContext } from './FinanzasLayout';
 import {
   cuentaCorrienteService,
 } from '../../services/cuentaCorriente.service';
@@ -190,12 +189,10 @@ const FinanzasSaldos: React.FC = () => {
     return sorted;
   }, [ccs, estadoFiltro, tipoFiltro, busqueda, orden]);
 
-  // ── Declarar actions del header (vía outlet context del FinanzasLayout) ──
-  const ctx = useOutletContext<FinanzasOutletContext | undefined>();
-  useEffect(() => {
-    if (!ctx?.setActions) return;
-    ctx.setActions(
-      <div className="flex gap-2">
+  return (
+    <>
+      {/* Actions inline (sub-header Stripe-style) */}
+      <div className="flex items-center justify-end gap-2 mb-3 px-1">
         <Button variant="secondary" size="sm">
           <Download className="w-4 h-4 mr-1.5" />
           Exportar
@@ -204,13 +201,8 @@ const FinanzasSaldos: React.FC = () => {
           <Plus className="w-4 h-4 mr-1.5" />
           Nuevo movimiento
         </Button>
-      </div>,
-    );
-    return () => ctx.setActions(null);
-  }, [ctx]);
+      </div>
 
-  return (
-    <>
       {/* Hero con KPIs ejecutivos */}
       {resumen && (
         <Card padding="lg" className="mb-4">
