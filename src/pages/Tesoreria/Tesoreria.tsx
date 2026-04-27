@@ -16,8 +16,9 @@ import {
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { Toolbar, KPIBar, StatCard } from '../../design-system';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import type { FinanzasOutletContext } from '../Finanzas/FinanzasLayout';
+import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { TesoreriaService } from '../../services/tesoreria.service';
 
@@ -76,7 +77,59 @@ export const Tesoreria: React.FC = () => {
   } = useTesoreriaStore();
 
   // Filtrar movimientos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
-  const movimientosFiltrados = useLineaFilter(movimientos, m => m.lineaNegocioId, { allowUndefined: true });
+  const movimientosPorLinea = useLineaFilter(movimientos, m => m.lineaNegocioId, { allowUndefined: true });
+
+  // ── Filtro adicional por entidad CC (S57 Fase C+) ──
+  // Si la URL trae ?entidadId=XYZ&entidadTipo=proveedor, filtramos los
+  // movimientos de tesorería para mostrar solo los que tienen contraparte
+  // en la CC de esa entidad (mediante movimientoTesoreriaId del libro CC).
+  const [searchParams, setSearchParams] = useSearchParams();
+  const entidadIdParam = searchParams.get('entidadId');
+  const entidadTipoParam = searchParams.get('entidadTipo') as
+    | 'cliente' | 'proveedor' | 'colaborador' | 'empleado' | null;
+  const entidadNombreParam = searchParams.get('entidadNombre');
+
+  const [tesoreriaIdsDeEntidad, setTesoreriaIdsDeEntidad] = useState<Set<string> | null>(null);
+  const [filtroEntidadCargando, setFiltroEntidadCargando] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!entidadIdParam || !entidadTipoParam) {
+      setTesoreriaIdsDeEntidad(null);
+      return;
+    }
+    setFiltroEntidadCargando(true);
+    const ccId = `${entidadTipoParam}_${entidadIdParam}`;
+    cuentaCorrienteService
+      .getMovimientos(ccId, { limit: 500 })
+      .then((movsCC) => {
+        if (cancelled) return;
+        const ids = new Set<string>();
+        for (const m of movsCC) {
+          if (m.movimientoTesoreriaId) ids.add(m.movimientoTesoreriaId);
+        }
+        setTesoreriaIdsDeEntidad(ids);
+      })
+      .finally(() => {
+        if (!cancelled) setFiltroEntidadCargando(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [entidadIdParam, entidadTipoParam]);
+
+  const movimientosFiltrados = useMemo(() => {
+    if (!tesoreriaIdsDeEntidad) return movimientosPorLinea;
+    return movimientosPorLinea.filter((m) => tesoreriaIdsDeEntidad.has(m.id));
+  }, [movimientosPorLinea, tesoreriaIdsDeEntidad]);
+
+  const limpiarFiltroEntidad = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('entidadId');
+    next.delete('entidadTipo');
+    next.delete('entidadNombre');
+    setSearchParams(next, { replace: true });
+  };
 
   const [tabActiva, setTabActiva] = useState<TabActiva>('movimientos');
   const [loadingLocal, setLoadingLocal] = useState(true);
@@ -768,6 +821,38 @@ export const Tesoreria: React.FC = () => {
   // ============ Render ============
   return (
     <>
+      {/* Banner: filtro por entidad activo (cross-link desde Saldos / drawer CC) */}
+      {entidadIdParam && (
+        <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-2.5 mb-3 flex items-center justify-between gap-3">
+          <div className="text-[12px] text-teal-900 min-w-0">
+            <span className="font-semibold">Filtrando por entidad:</span>{' '}
+            <span className="truncate">
+              {entidadNombreParam || entidadIdParam.slice(0, 8)}
+            </span>
+            {entidadTipoParam && (
+              <span className="ml-2 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-teal-100 text-teal-700">
+                {entidadTipoParam}
+              </span>
+            )}
+            {filtroEntidadCargando && (
+              <span className="ml-2 text-[10px] text-teal-600 italic">cargando vínculos...</span>
+            )}
+            {!filtroEntidadCargando && tesoreriaIdsDeEntidad && (
+              <span className="ml-2 text-[11px] text-teal-700">
+                · {tesoreriaIdsDeEntidad.size} movimiento{tesoreriaIdsDeEntidad.size !== 1 ? 's' : ''} vinculado{tesoreriaIdsDeEntidad.size !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={limpiarFiltroEntidad}
+            className="text-[11px] px-2.5 py-1 bg-white border border-teal-300 text-teal-700 rounded-md hover:bg-teal-50 font-medium whitespace-nowrap"
+          >
+            Quitar filtro
+          </button>
+        </div>
+      )}
+
       {/* Pool USD Widget */}
       <PoolUSDWidget />
 
