@@ -138,17 +138,20 @@ const Finanzas: React.FC = () => {
 
   return (
     <>
-      {/* Mini-info bar + actions inline (estilo Stripe sub-header) */}
+      {/* Mini-info bar + actions inline (estilo Stripe sub-header).
+           Acciones utilitarias (refresh, export): ghost / outline en vez
+           de secondary oscuro, para que no compitan con el primary teal
+           de las Acciones rápidas más abajo. */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="text-[11px] text-slate-500">
           {fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1)} · Última actualización {tiempoUltActStr}
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={cargar} disabled={loading}>
+          <Button variant="ghost" size="sm" onClick={cargar} disabled={loading}>
             <RotateCw className={loading ? 'w-4 h-4 mr-1.5 animate-spin' : 'w-4 h-4 mr-1.5'} />
             Actualizar
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-1.5" />
             Reporte mensual
           </Button>

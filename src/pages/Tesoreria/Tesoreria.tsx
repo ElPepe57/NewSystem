@@ -786,30 +786,33 @@ export const Tesoreria: React.FC = () => {
   // ============ Render ============
   return (
     <>
-      {/* Actions inline (sub-header Stripe-style) */}
+      {/* Actions inline (sub-header Stripe-style). Optimizar = outline,
+           Refresh = ghost (icon-only). Consistente con las otras 2
+           sub-vistas del hub Finanzas. */}
       <div className="flex items-center justify-end gap-2 mb-3 px-1">
         {!statsOptimizadas && (
           <Button
-            variant="secondary"
+            variant="outline"
+            size="sm"
             onClick={handleRecalcularEstadisticas}
             disabled={isRecalculando || loading}
             title="Inicializar estadisticas optimizadas (solo una vez)"
-            className="text-xs"
           >
             {isRecalculando ? (
-              <><RefreshCw className="h-4 w-4 mr-1 animate-spin" /><span className="hidden sm:inline">Calculando...</span></>
+              <><RefreshCw className="h-4 w-4 mr-1.5 animate-spin" /><span className="hidden sm:inline">Calculando...</span></>
             ) : (
-              <><TrendingUp className="h-4 w-4 mr-1" /><span className="hidden sm:inline">Optimizar</span></>
+              <><TrendingUp className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Optimizar</span></>
             )}
           </Button>
         )}
         <Button
           variant="ghost"
+          size="sm"
           onClick={handleRefresh}
           disabled={isRefreshing || loading}
           title="Actualizar datos"
         >
-          <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 
