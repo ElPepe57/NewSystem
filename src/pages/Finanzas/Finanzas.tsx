@@ -17,7 +17,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   RotateCw,
   Download,
@@ -50,6 +50,8 @@ import { AlertasFinanzas } from './Overview/AlertasFinanzas';
 import { EntidadCCDetailModal } from './components/EntidadCCDetailModal';
 
 const Finanzas: React.FC = () => {
+  const navigate = useNavigate();
+
   // ── Datos ──
   const [resumenCC, setResumenCC] = useState<SaldosResumen | null>(null);
   const [ccs, setCCs] = useState<CuentaCorriente[]>([]);
@@ -163,46 +165,32 @@ const Finanzas: React.FC = () => {
           loading={loading}
         />
 
-        {/* Quick actions */}
+        {/* Quick actions — todos usan el componente Button del design system
+             para consistencia visual con el sub-header (Actualizar / Reporte). */}
         <div className="flex items-center gap-2 flex-wrap mt-5">
           <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mr-2">
             Acciones rápidas
           </span>
-          <Link
-            to="/finanzas/cash-flow"
-            className="text-[12px] px-3 py-1.5 bg-slate-900 text-white rounded-md hover:bg-slate-800 flex items-center gap-1.5"
-          >
-            <Plus className="w-3 h-3" />
+          <Button variant="primary" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
+            <Plus className="w-4 h-4 mr-1.5" />
             Nuevo movimiento
-          </Link>
-          <Link
-            to="/finanzas/cash-flow"
-            className="text-[12px] px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 flex items-center gap-1.5"
-          >
-            <RotateCw className="w-3 h-3" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
+            <RotateCw className="w-4 h-4 mr-1.5" />
             Conversión USD/PEN
-          </Link>
-          <Link
-            to="/finanzas/cash-flow"
-            className="text-[12px] px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 flex items-center gap-1.5"
-          >
-            <ArrowRightLeft className="w-3 h-3" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
+            <ArrowRightLeft className="w-4 h-4 mr-1.5" />
             Transferencia interna
-          </Link>
-          <Link
-            to="/finanzas/saldos?estado=por_cobrar"
-            className="text-[12px] px-3 py-1.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 flex items-center gap-1.5"
-          >
-            <CircleDollarSign className="w-3 h-3" />
+          </Button>
+          <Button variant="success" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_cobrar')}>
+            <CircleDollarSign className="w-4 h-4 mr-1.5" />
             Registrar cobro
-          </Link>
-          <Link
-            to="/finanzas/saldos?estado=por_pagar"
-            className="text-[12px] px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-1.5"
-          >
-            <Banknote className="w-3 h-3" />
+          </Button>
+          <Button variant="danger" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_pagar')}>
+            <Banknote className="w-4 h-4 mr-1.5" />
             Registrar pago
-          </Link>
+          </Button>
         </div>
       </Card>
 
