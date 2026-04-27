@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Finanzas Overview · Mockup S57</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .gradient-emerald { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%); }
+  .gradient-red { background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%); }
+  .gradient-amber { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); }
+  .gradient-sky { background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); }
+  .gradient-purple { background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%); }
+  .scroll-anchor { scroll-margin-top: 80px; }
+  .modal-shell { background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); }
+  .hover-lift { transition: all 0.15s ease; }
+  .hover-lift:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-color: #14b8a6; }
+  .pulse-dot { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  /* Drawer slide */
+  .drawer-slide { animation: slideInRight 0.25s ease-out; }
+  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  /* Mini chart */
+  .chart-bar { transition: opacity 0.15s; }
+  .chart-bar:hover { opacity: 0.85; }
+</style>
+</head>
+<body class="p-6">
+
+<!-- ============================================================================
+     STICKY NAV
+============================================================================ -->
+<div class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200 -mx-6 px-6 py-3 mb-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i class="fa-solid fa-coins text-teal-600"></i>
+      <span class="font-bold text-slate-900">Finanzas Overview</span>
+      <span class="text-[11px] text-slate-500 ml-2">S57 · Mockup de diseño</span>
+    </div>
+    <div class="flex gap-1.5 flex-wrap">
+      <a href="#sidebar" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">1 · Sidebar</a>
+      <a href="#dashboard" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">2 · Dashboard</a>
+      <a href="#cashflow" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">3 · Cash flow</a>
+      <a href="#cross" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">4 · Cross-link drawer</a>
+      <a href="#plan" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">5 · Plan</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     1 — SIDEBAR REORGANIZADO
+============================================================================ -->
+<section id="sidebar" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">1 · Sidebar refactorizado · grupo "Finanzas"</div>
+  <p class="text-sm text-slate-600 mb-4">
+    "Finanzas" como entrada principal con sub-items expandibles. Tesorería deja de ser ítem propio
+    (sus 6 sub-funciones se vuelven sub-rutas de Finanzas). Gastos Fijos · Contabilidad · Planilla
+    quedan como módulos planos del mismo grupo.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- ANTES -->
+    <div class="card p-4">
+      <div class="text-[10px] uppercase text-slate-500 font-semibold mb-3">❌ Antes</div>
+      <div class="space-y-1">
+        <div class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider px-2 mb-1">Finanzas</div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-coins text-slate-400 text-xs"></i> Cuentas y saldos
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-receipt text-slate-400 text-xs"></i> Gastos Fijos
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-wallet text-slate-400 text-xs"></i> Tesorería
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-book text-slate-400 text-xs"></i> Contabilidad
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-money-check text-slate-400 text-xs"></i> Planilla
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-dollar-sign text-slate-400 text-xs"></i> Tipo de Cambio
+        </div>
+      </div>
+      <div class="text-[10px] text-slate-400 italic mt-3 px-2">6 ítems planos · sin jerarquía visual</div>
+    </div>
+
+    <!-- DESPUES -->
+    <div class="card p-4 border-teal-200">
+      <div class="text-[10px] uppercase text-emerald-700 font-semibold mb-3">✅ Después</div>
+      <div class="space-y-1">
+        <div class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider px-2 mb-1">Finanzas</div>
+
+        <!-- Finanzas como entrada principal expandida -->
+        <div class="bg-teal-50 border border-teal-200 rounded-md">
+          <div class="px-3 py-1.5 hover:bg-teal-100 rounded cursor-pointer text-sm text-teal-900 font-semibold flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-coins text-teal-600"></i> Finanzas
+            </span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-teal-600"></i>
+          </div>
+          <div class="ml-6 border-l border-teal-200 my-1">
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-slate-400 text-[10px]"></i> Overview
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-handshake text-slate-400 text-[10px]"></i> Saldos
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-arrow-right-arrow-left text-slate-400 text-[10px]"></i> Cash flow
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-building-columns text-slate-400 text-[10px]"></i> Cuentas bancarias
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-rotate text-slate-400 text-[10px]"></i> Conversiones
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-shuffle text-slate-400 text-[10px]"></i> Transferencias
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-credit-card text-slate-400 text-[10px]"></i> Tarjetas
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-slate-400 text-[10px]"></i> Pagos masivos
+            </div>
+            <div class="pl-2 py-1 hover:bg-white rounded text-[12px] text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-dollar-sign text-slate-400 text-[10px]"></i> Tipo de Cambio
+            </div>
+          </div>
+        </div>
+
+        <!-- Otros módulos planos del grupo -->
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2 mt-2">
+          <i class="fa-solid fa-receipt text-slate-400 text-xs"></i> Gastos Fijos
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-book text-slate-400 text-xs"></i> Contabilidad
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-100 rounded text-sm text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-money-check text-slate-400 text-xs"></i> Planilla
+        </div>
+      </div>
+      <div class="text-[10px] text-emerald-700 italic mt-3 px-2">
+        1 entrada principal expandible + 3 módulos especializados
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     2 — DASHBOARD EJECUTIVO /finanzas
+============================================================================ -->
+<section id="dashboard" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">2 · Dashboard ejecutivo · /finanzas (overview)</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Scroll vertical estilo Mercury/Stripe. Todo a la vista en una pantalla. Pensado para el CFO/dueño:
+    decisiones rápidas con un solo vistazo.
+  </p>
+
+  <!-- HERO -->
+  <div class="card p-6 mb-4">
+    <div class="flex items-start justify-between mb-1">
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Finanzas · Overview ejecutivo</span>
+      </div>
+    </div>
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Vista financiera consolidada</h1>
+        <p class="text-sm text-slate-500 mt-1">Lunes, 27 de abril de 2026 · Última actualización hace 2 minutos</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 bg-white border border-slate-300 rounded-md hover:bg-slate-50 flex items-center gap-1.5 text-slate-700">
+          <i class="fa-solid fa-rotate text-xs"></i> Actualizar
+        </button>
+        <button class="text-[12px] px-3 py-1.5 bg-white border border-slate-300 rounded-md hover:bg-slate-50 flex items-center gap-1.5 text-slate-700">
+          <i class="fa-solid fa-download text-xs"></i> Reporte mensual
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs combinados -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <!-- Saldo en cuentas bancarias (Tesorería) -->
+      <div class="gradient-sky border border-sky-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-sky-700 font-semibold">Saldo en cuentas</span>
+          <i class="fa-solid fa-building-columns text-sky-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-sky-700 num-tab">S/ 145,820.50</div>
+        <div class="text-xs text-sky-600 num-tab mt-0.5">+ US$ 28,450.00</div>
+        <div class="text-[10px] text-sky-700/70 mt-2">5 cuentas activas</div>
+      </div>
+
+      <!-- Por cobrar (CC) -->
+      <div class="gradient-emerald border border-emerald-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Por cobrar</span>
+          <i class="fa-solid fa-arrow-down text-emerald-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-emerald-700 num-tab">S/ 12,450.00</div>
+        <div class="text-xs text-emerald-600 num-tab mt-0.5">+ US$ 2,180.00</div>
+        <div class="text-[10px] text-emerald-700/70 mt-2">8 entidades</div>
+      </div>
+
+      <!-- Por pagar (CC) -->
+      <div class="gradient-red border border-red-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-red-700 font-semibold">Por pagar</span>
+          <i class="fa-solid fa-arrow-up text-red-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-red-700 num-tab">S/ 8,234.00</div>
+        <div class="text-xs text-red-600 num-tab mt-0.5">+ US$ 5,420.00</div>
+        <div class="text-[10px] text-red-700/70 mt-2">12 entidades · 3 vencidos</div>
+      </div>
+
+      <!-- Cash flow del mes -->
+      <div class="gradient-purple border border-purple-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-purple-700 font-semibold">Flujo este mes</span>
+          <i class="fa-solid fa-chart-line text-purple-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-purple-700 num-tab">+S/ 22,400</div>
+        <div class="text-xs text-purple-600 num-tab mt-0.5">vs S/ 18,200 mes ant.</div>
+        <div class="text-[10px] text-purple-700/70 mt-2">↑ 23% · positivo</div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mr-2">Acciones rápidas</span>
+      <button class="text-[12px] px-3 py-1.5 bg-slate-900 text-white rounded-md hover:bg-slate-800 flex items-center gap-1.5">
+        <i class="fa-solid fa-plus text-[10px]"></i> Nuevo movimiento
+      </button>
+      <button class="text-[12px] px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 flex items-center gap-1.5">
+        <i class="fa-solid fa-rotate text-[10px]"></i> Conversión USD/PEN
+      </button>
+      <button class="text-[12px] px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 flex items-center gap-1.5">
+        <i class="fa-solid fa-shuffle text-[10px]"></i> Transferencia interna
+      </button>
+      <button class="text-[12px] px-3 py-1.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 flex items-center gap-1.5">
+        <i class="fa-solid fa-circle-dollar-to-slot text-[10px]"></i> Registrar cobro
+      </button>
+      <button class="text-[12px] px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-1.5">
+        <i class="fa-solid fa-money-bill-wave text-[10px]"></i> Registrar pago
+      </button>
+    </div>
+  </div>
+
+  <!-- FILA: Tendencia + Top entidades -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+    <!-- TENDENCIA · 6 meses -->
+    <div class="card p-5 lg:col-span-2">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Tendencia 6 meses</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Ingresos vs egresos en PEN</p>
+        </div>
+        <div class="flex items-center gap-2 text-[11px]">
+          <span class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span class="text-slate-600">Ingresos</span>
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+            <span class="text-slate-600">Egresos</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Mini chart bars -->
+      <div class="grid grid-cols-6 gap-2 items-end h-40 mt-4">
+        <!-- Nov -->
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-full flex gap-0.5 items-end h-32">
+            <div class="flex-1 bg-emerald-400 rounded-t chart-bar" style="height: 60%"></div>
+            <div class="flex-1 bg-red-400 rounded-t chart-bar" style="height: 45%"></div>
+          </div>
+          <span class="text-[10px] text-slate-500">Nov</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-full flex gap-0.5 items-end h-32">
+            <div class="flex-1 bg-emerald-400 rounded-t chart-bar" style="height: 70%"></div>
+            <div class="flex-1 bg-red-400 rounded-t chart-bar" style="height: 50%"></div>
+          </div>
+          <span class="text-[10px] text-slate-500">Dic</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-full flex gap-0.5 items-end h-32">
+            <div class="flex-1 bg-emerald-400 rounded-t chart-bar" style="height: 55%"></div>
+            <div class="flex-1 bg-red-400 rounded-t chart-bar" style="height: 60%"></div>
+          </div>
+          <span class="text-[10px] text-slate-500">Ene</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-full flex gap-0.5 items-end h-32">
+            <div class="flex-1 bg-emerald-400 rounded-t chart-bar" style="height: 75%"></div>
+            <div class="flex-1 bg-red-400 rounded-t chart-bar" style="height: 55%"></div>
+          </div>
+          <span class="text-[10px] text-slate-500">Feb</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-full flex gap-0.5 items-end h-32">
+            <div class="flex-1 bg-emerald-400 rounded-t chart-bar" style="height: 80%"></div>
+            <div class="flex-1 bg-red-400 rounded-t chart-bar" style="height: 65%"></div>
+          </div>
+          <span class="text-[10px] text-slate-500">Mar</span>
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-full flex gap-0.5 items-end h-32">
+            <div class="flex-1 bg-emerald-500 rounded-t chart-bar" style="height: 95%"></div>
+            <div class="flex-1 bg-red-500 rounded-t chart-bar" style="height: 70%"></div>
+          </div>
+          <span class="text-[10px] text-slate-700 font-semibold">Abr</span>
+        </div>
+      </div>
+
+      <!-- Resumen del mes activo -->
+      <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
+        <div>
+          <div class="text-[10px] text-slate-500 uppercase tracking-wider">Ingresos abr</div>
+          <div class="text-base font-bold text-emerald-700 num-tab">S/ 89,500</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-500 uppercase tracking-wider">Egresos abr</div>
+          <div class="text-base font-bold text-red-700 num-tab">S/ 67,100</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-500 uppercase tracking-wider">Diferencia</div>
+          <div class="text-base font-bold text-purple-700 num-tab">+S/ 22,400</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP 5 entidades -->
+    <div class="card p-5">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">TOP 5 saldos</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Mayor magnitud actual</p>
+        </div>
+        <a href="#" class="text-[11px] text-teal-600 hover:underline">Ver todos →</a>
+      </div>
+
+      <div class="space-y-2 mt-3">
+        <!-- Top 1 -->
+        <div class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer">
+          <div class="w-7 h-7 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">AB</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-medium text-slate-900 truncate">Asian Beauty Wholesale</div>
+            <div class="text-[10px] text-slate-500">Proveedor</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-bold text-red-700 num-tab">−US$ 2,450</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer">
+          <div class="w-7 h-7 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">AR</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-medium text-slate-900 truncate">Ana Rodríguez</div>
+            <div class="text-[10px] text-slate-500">Empleado</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-bold text-red-700 num-tab">−S/ 1,650</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer">
+          <div class="w-7 h-7 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">DH</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-medium text-slate-900 truncate">DHL Express</div>
+            <div class="text-[10px] text-slate-500">Colaborador</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-bold text-red-700 num-tab">−US$ 1,200</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer">
+          <div class="w-7 h-7 rounded-md bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">MG</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-medium text-slate-900 truncate">María González</div>
+            <div class="text-[10px] text-slate-500">Cliente</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-bold text-emerald-700 num-tab">+S/ 850</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-md cursor-pointer">
+          <div class="w-7 h-7 rounded-md bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-[10px] flex-shrink-0">CP</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-medium text-slate-900 truncate">Carlos Pérez</div>
+            <div class="text-[10px] text-slate-500">Cliente</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-[12px] font-bold text-purple-700 num-tab">−S/ 250</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILA: Alertas + Cards sub-módulos -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+    <!-- ALERTAS -->
+    <div class="card p-5 lg:col-span-2">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Alertas y vencimientos</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Acciones que requieren tu atención</p>
+        </div>
+        <span class="text-[11px] px-2 py-0.5 rounded-md bg-red-100 text-red-700 font-semibold">5 activas</span>
+      </div>
+
+      <div class="space-y-2 mt-3">
+        <!-- Alerta 1: Vencido grave -->
+        <div class="border-l-4 border-red-500 bg-red-50/40 rounded-r-md p-3 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-md bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-red-900">OC-2026-008 vencida hace 12 días</div>
+            <div class="text-[11px] text-red-700">Asian Beauty Wholesale · Pendiente US$ 1,300.00</div>
+          </div>
+          <button class="text-[11px] px-2.5 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium whitespace-nowrap">Ver</button>
+        </div>
+
+        <div class="border-l-4 border-amber-500 bg-amber-50/40 rounded-r-md p-3 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-clock text-xs"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-amber-900">Boleta abril vence en 2 días</div>
+            <div class="text-[11px] text-amber-700">Ana Rodríguez · S/ 1,650.00 pendiente</div>
+          </div>
+          <button class="text-[11px] px-2.5 py-1.5 bg-amber-600 text-white rounded-md hover:bg-amber-700 font-medium whitespace-nowrap">Pagar</button>
+        </div>
+
+        <div class="border-l-4 border-amber-500 bg-amber-50/40 rounded-r-md p-3 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-clock text-xs"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-amber-900">2 conversiones USD/PEN sin TC asignado</div>
+            <div class="text-[11px] text-amber-700">Verificar y completar antes del cierre mensual</div>
+          </div>
+          <button class="text-[11px] px-2.5 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium whitespace-nowrap">Revisar</button>
+        </div>
+
+        <div class="border-l-4 border-sky-400 bg-sky-50/40 rounded-r-md p-3 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-md bg-sky-100 text-sky-700 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-info text-xs"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-sky-900">Saldo a favor con Carlos Pérez · S/ 250</div>
+            <div class="text-[11px] text-sky-700">Aplicable a su próxima venta</div>
+          </div>
+          <button class="text-[11px] px-2.5 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium whitespace-nowrap">Aplicar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS DE SUB-MÓDULOS DESTACADOS -->
+    <div class="space-y-3">
+      <div class="text-[11px] uppercase text-slate-500 font-semibold tracking-wider">Acceso rápido</div>
+
+      <a href="#" class="card p-4 block hover-lift cursor-pointer">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">
+            <i class="fa-solid fa-handshake"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-slate-900 text-sm">Saldos</div>
+            <div class="text-[11px] text-slate-500">28 entidades activas</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300"></i>
+        </div>
+      </a>
+
+      <a href="#" class="card p-4 block hover-lift cursor-pointer">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-slate-900 text-sm">Cash flow</div>
+            <div class="text-[11px] text-slate-500">187 movimientos este mes</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300"></i>
+        </div>
+      </a>
+
+      <a href="#" class="card p-4 block hover-lift cursor-pointer">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-slate-900 text-sm">Cuentas bancarias</div>
+            <div class="text-[11px] text-slate-500">5 cuentas · 2 monedas</div>
+          </div>
+          <i class="fa-solid fa-arrow-right text-slate-300"></i>
+        </div>
+      </a>
+
+      <button class="w-full text-center text-[12px] text-teal-600 hover:underline py-2">
+        Ver todos los módulos →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     3 — CASH FLOW (refactor visual de Tesorería)
+============================================================================ -->
+<section id="cashflow" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">3 · /finanzas/cash-flow · refactor visual de Tesorería</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Misma lógica que la Tesorería actual (cuentas bancarias + movimientos). Lenguaje visual alineado con
+    el resto de Finanzas (gradientes, pipeline filtrable estilo chips, mismo header).
+  </p>
+
+  <div class="card p-6">
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-1">
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+        <span>Finanzas · Cash flow</span>
+      </div>
+    </div>
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Movimientos de tesorería</h1>
+        <p class="text-sm text-slate-500 mt-1">Cash flow real por cuenta bancaria</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 bg-white border border-slate-300 rounded-md hover:bg-slate-50 flex items-center gap-1.5 text-slate-700">
+          <i class="fa-solid fa-download text-xs"></i> Exportar
+        </button>
+        <button class="text-[12px] px-3 py-1.5 bg-slate-900 text-white rounded-md hover:bg-slate-800 flex items-center gap-1.5">
+          <i class="fa-solid fa-plus text-xs"></i> Nuevo movimiento
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs por cuenta (estilo nuevo) -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+      <div class="gradient-emerald border border-emerald-200 rounded-xl p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i class="fa-solid fa-building-columns text-emerald-600 text-xs"></i>
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">BCP</span>
+        </div>
+        <div class="text-base font-bold text-emerald-700 num-tab">S/ 85,420</div>
+        <div class="text-[10px] text-emerald-600 num-tab">+ US$ 12,500</div>
+      </div>
+      <div class="gradient-emerald border border-emerald-200 rounded-xl p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i class="fa-solid fa-building-columns text-emerald-600 text-xs"></i>
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">IBK</span>
+        </div>
+        <div class="text-base font-bold text-emerald-700 num-tab">S/ 32,100</div>
+        <div class="text-[10px] text-emerald-600 num-tab">+ US$ 8,200</div>
+      </div>
+      <div class="gradient-purple border border-purple-200 rounded-xl p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i class="fa-solid fa-mobile-screen text-purple-600 text-xs"></i>
+          <span class="text-[10px] uppercase tracking-wider text-purple-700 font-semibold">MercadoPago</span>
+        </div>
+        <div class="text-base font-bold text-purple-700 num-tab">S/ 18,200</div>
+      </div>
+      <div class="gradient-amber border border-amber-200 rounded-xl p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i class="fa-solid fa-money-bill text-amber-600 text-xs"></i>
+          <span class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">Caja</span>
+        </div>
+        <div class="text-base font-bold text-amber-700 num-tab">S/ 10,100</div>
+      </div>
+      <div class="gradient-sky border border-sky-200 rounded-xl p-3">
+        <div class="flex items-center gap-1.5 mb-1">
+          <i class="fa-solid fa-credit-card text-sky-600 text-xs"></i>
+          <span class="text-[10px] uppercase tracking-wider text-sky-700 font-semibold">PayPal</span>
+        </div>
+        <div class="text-base font-bold text-sky-700 num-tab">US$ 7,750</div>
+      </div>
+    </div>
+
+    <!-- Pipeline de filtros -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Filtrar movimientos</div>
+      <div class="flex items-center gap-2 overflow-x-auto pb-1">
+        <button class="px-3 py-1.5 bg-slate-900 text-white rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap font-medium">
+          <i class="fa-solid fa-list text-[10px]"></i> Todos
+          <span class="bg-white/20 px-1.5 py-0.5 rounded-md text-[10px]">187</span>
+        </button>
+        <button class="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-emerald-200">
+          <i class="fa-solid fa-arrow-down text-[10px]"></i> Ingresos
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">98</span>
+        </button>
+        <button class="px-3 py-1.5 bg-red-100 text-red-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-red-200">
+          <i class="fa-solid fa-arrow-up text-[10px]"></i> Egresos
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">76</span>
+        </button>
+        <button class="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-purple-100">
+          <i class="fa-solid fa-rotate text-[10px]"></i> Conversiones
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">8</span>
+        </button>
+        <button class="px-3 py-1.5 bg-sky-50 text-sky-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-sky-100">
+          <i class="fa-solid fa-shuffle text-[10px]"></i> Transferencias
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">5</span>
+        </button>
+
+        <div class="h-6 w-px bg-slate-200 mx-1"></div>
+
+        <select class="text-[12px] px-3 py-1.5 border border-slate-300 rounded-md bg-white">
+          <option>Todas las cuentas</option>
+          <option>BCP</option>
+          <option>IBK</option>
+          <option>MercadoPago</option>
+        </select>
+        <select class="text-[12px] px-3 py-1.5 border border-slate-300 rounded-md bg-white">
+          <option>Abril 2026</option>
+          <option>Marzo 2026</option>
+          <option>Últimos 30 días</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tabla movimientos preview -->
+    <div class="border border-slate-200 rounded-lg overflow-hidden mt-4">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-600">
+          <tr>
+            <th class="text-left px-3 py-2 font-semibold">Fecha</th>
+            <th class="text-left px-3 py-2 font-semibold">Concepto</th>
+            <th class="text-left px-3 py-2 font-semibold">Cuenta</th>
+            <th class="text-left px-3 py-2 font-semibold">Vínculo CC</th>
+            <th class="text-right px-3 py-2 font-semibold">Monto</th>
+            <th class="text-right px-3 py-2 font-semibold">Saldo cta.</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-slate-50/50">
+            <td class="px-3 py-2 text-[11px] text-slate-600 num-tab whitespace-nowrap">25-abr-26</td>
+            <td class="px-3 py-2">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                  <i class="fa-solid fa-arrow-down text-[9px]"></i>
+                </div>
+                <div>
+                  <div class="text-[12px] text-slate-900">Cobro venta VT-026</div>
+                  <div class="text-[10px] text-slate-500">María González · Yape</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-3 py-2 text-[11px] text-slate-700">BCP Soles</td>
+            <td class="px-3 py-2">
+              <a href="#" class="text-[11px] text-teal-600 hover:underline flex items-center gap-1">
+                <i class="fa-solid fa-link text-[9px]"></i>
+                María González
+              </a>
+            </td>
+            <td class="px-3 py-2 text-right text-[12px] text-emerald-700 font-medium num-tab">+S/ 850.00</td>
+            <td class="px-3 py-2 text-right text-[12px] text-slate-700 font-bold num-tab">S/ 85,420.00</td>
+          </tr>
+          <tr class="hover:bg-slate-50/50">
+            <td class="px-3 py-2 text-[11px] text-slate-600 num-tab whitespace-nowrap">23-abr-26</td>
+            <td class="px-3 py-2">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
+                  <i class="fa-solid fa-arrow-up text-[9px]"></i>
+                </div>
+                <div>
+                  <div class="text-[12px] text-slate-900">Pago OC-2026-008</div>
+                  <div class="text-[10px] text-slate-500">Asian Beauty · Transferencia</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-3 py-2 text-[11px] text-slate-700">BCP USD</td>
+            <td class="px-3 py-2">
+              <a href="#" class="text-[11px] text-teal-600 hover:underline flex items-center gap-1">
+                <i class="fa-solid fa-link text-[9px]"></i>
+                Asian Beauty
+              </a>
+            </td>
+            <td class="px-3 py-2 text-right text-[12px] text-red-700 font-medium num-tab">−US$ 800.00</td>
+            <td class="px-3 py-2 text-right text-[12px] text-slate-700 font-bold num-tab">US$ 12,500.00</td>
+          </tr>
+          <tr class="hover:bg-slate-50/50">
+            <td class="px-3 py-2 text-[11px] text-slate-600 num-tab whitespace-nowrap">22-abr-26</td>
+            <td class="px-3 py-2">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
+                  <i class="fa-solid fa-rotate text-[9px]"></i>
+                </div>
+                <div>
+                  <div class="text-[12px] text-slate-900">Conversión USD → PEN</div>
+                  <div class="text-[10px] text-slate-500">TC: 3.50</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-3 py-2 text-[11px] text-slate-700">BCP USD → BCP PEN</td>
+            <td class="px-3 py-2 text-[11px] text-slate-300">—</td>
+            <td class="px-3 py-2 text-right text-[12px] text-purple-700 font-medium num-tab">US$ 1,000 → S/ 3,500</td>
+            <td class="px-3 py-2 text-right text-[12px] text-slate-300 num-tab">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-[10px] text-slate-400 italic mt-2 px-2">
+      <i class="fa-solid fa-link text-teal-600 mr-1"></i>
+      Click en "Vínculo CC" abre drawer lateral con detalle de la cuenta corriente del proveedor/cliente.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     4 — CROSS-LINKING · DRAWER LATERAL
+============================================================================ -->
+<section id="cross" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">4 · Cross-linking bidireccional · drawer lateral</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Cuando hago click en un movimiento que tiene vínculo con el otro módulo, se abre un drawer
+    lateral (estilo Stripe/Linear/Notion) sin perder el contexto del modal/página actual.
+  </p>
+
+  <!-- Mock: modal CC abierto + drawer slide-in -->
+  <div class="relative bg-slate-100 rounded-xl p-4 overflow-hidden" style="min-height: 520px;">
+    <!-- Modal CC base (atrás) -->
+    <div class="absolute inset-4 bg-white rounded-xl border border-slate-200 shadow-md p-5 opacity-50">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2 text-sm">
+          <i class="fa-solid fa-coins text-teal-600"></i>
+          <span class="font-semibold text-slate-900">Cuenta corriente · Asian Beauty Wholesale</span>
+        </div>
+        <i class="fa-solid fa-xmark text-slate-400"></i>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="rounded-lg p-3 border-2 border-red-200 bg-gradient-to-br from-red-50 to-white">
+          <div class="text-[10px] uppercase text-red-700 font-semibold mb-1">Saldo USD</div>
+          <div class="text-2xl font-bold text-red-700 num-tab">−US$ 2,450.00</div>
+        </div>
+        <div class="rounded-lg p-3 border border-slate-200 bg-white">
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1">Saldo PEN</div>
+          <div class="text-2xl font-bold text-slate-400 num-tab">S/ 0.00</div>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-500 mb-2">Tab activo: Extracto · 5 movimientos</div>
+      <table class="w-full text-sm">
+        <tbody>
+          <tr class="hover:bg-slate-50/50">
+            <td class="text-[11px] py-1.5 text-slate-600">23-abr-26</td>
+            <td class="text-[12px] py-1.5">Pago a proveedor</td>
+            <td class="text-[11px] py-1.5 text-slate-700 font-mono">OC-2026-008</td>
+            <td class="text-right text-[12px] py-1.5 text-red-600 font-medium num-tab">US$ 800.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Drawer lateral (slide-in derecha) -->
+    <div class="absolute top-4 right-4 bottom-4 w-96 bg-white rounded-xl border-2 border-teal-300 shadow-xl drawer-slide overflow-hidden flex flex-col">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
+        <div class="flex items-center gap-2 text-sm">
+          <i class="fa-solid fa-arrow-right-arrow-left text-purple-600"></i>
+          <span class="font-semibold text-slate-900">Movimiento de tesorería</span>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700 p-1 hover:bg-slate-100 rounded">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 space-y-4 overflow-y-auto flex-1">
+        <!-- Tipo y monto destacado -->
+        <div class="bg-gradient-to-br from-red-50 to-white border border-red-200 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-8 h-8 rounded-md bg-red-100 text-red-700 flex items-center justify-center">
+              <i class="fa-solid fa-arrow-up text-xs"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[10px] uppercase tracking-wider text-red-700 font-semibold">Pago a proveedor</div>
+              <div class="text-[11px] text-slate-600">Tipo: pago_orden_compra</div>
+            </div>
+          </div>
+          <div class="text-2xl font-bold text-red-700 num-tab">−US$ 800.00</div>
+          <div class="text-[11px] text-red-600">≈ S/ 2,800.00 al TC 3.500</div>
+        </div>
+
+        <!-- Detalles -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-[12px]">
+            <span class="text-slate-500">Fecha</span>
+            <span class="text-slate-900 font-medium">23 abr 2026 · 14:32</span>
+          </div>
+          <div class="flex items-center justify-between text-[12px]">
+            <span class="text-slate-500">Cuenta</span>
+            <span class="text-slate-900 font-medium">BCP USD · ***4521</span>
+          </div>
+          <div class="flex items-center justify-between text-[12px]">
+            <span class="text-slate-500">Método</span>
+            <span class="text-slate-900 font-medium">Transferencia bancaria</span>
+          </div>
+          <div class="flex items-center justify-between text-[12px]">
+            <span class="text-slate-500">Referencia</span>
+            <span class="text-slate-900 font-mono text-[11px]">OP-4421-2026</span>
+          </div>
+          <div class="flex items-center justify-between text-[12px]">
+            <span class="text-slate-500">Tipo de cambio</span>
+            <span class="text-slate-900 font-medium num-tab">3.500</span>
+          </div>
+        </div>
+
+        <!-- Documento vinculado -->
+        <div class="border-t border-slate-100 pt-3">
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">Documento vinculado</div>
+          <a href="#" class="block border border-slate-200 rounded-md p-3 hover:bg-slate-50 hover:border-teal-300 transition">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-receipt text-amber-600 text-xs"></i>
+              <span class="text-[12px] font-mono font-bold text-slate-900">OC-2026-008</span>
+              <span class="text-[10px] text-slate-500">·</span>
+              <span class="text-[11px] text-slate-600">Asian Beauty</span>
+              <i class="fa-solid fa-arrow-right text-slate-300 text-[10px] ml-auto"></i>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-1">Click para ver la OC completa</div>
+          </a>
+        </div>
+
+        <!-- Saldo de cuenta post-movimiento -->
+        <div class="border-t border-slate-100 pt-3">
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">Impacto en cuenta</div>
+          <div class="bg-slate-50 rounded-md p-3">
+            <div class="flex items-center justify-between text-[12px]">
+              <span class="text-slate-600">Saldo antes</span>
+              <span class="text-slate-700 num-tab">US$ 13,300.00</span>
+            </div>
+            <div class="flex items-center justify-between text-[12px] mt-1">
+              <span class="text-red-600">Movimiento</span>
+              <span class="text-red-700 font-medium num-tab">−US$ 800.00</span>
+            </div>
+            <div class="flex items-center justify-between text-[13px] mt-2 pt-2 border-t border-slate-200">
+              <span class="text-slate-700 font-semibold">Saldo después</span>
+              <span class="text-slate-900 font-bold num-tab">US$ 12,500.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas si hay -->
+        <div class="border-t border-slate-100 pt-3">
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">Notas</div>
+          <div class="text-[11px] text-slate-600 italic">
+            Pago parcial OC-2026-008. ≈ S/ 2,800.00.
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer del drawer -->
+      <div class="px-4 py-3 border-t border-slate-200 bg-slate-50 flex gap-2">
+        <button class="flex-1 text-[11px] px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium">
+          Editar
+        </button>
+        <button class="flex-1 text-[11px] px-3 py-2 bg-white border border-red-300 text-red-700 rounded-md hover:bg-red-50 font-medium">
+          Anular
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explicación -->
+  <div class="card p-4 mt-4 bg-sky-50/50 border-sky-200">
+    <div class="text-sm text-sky-900 space-y-2">
+      <div class="font-semibold">Cómo funciona el cross-link bidireccional:</div>
+      <div class="text-[12px] text-sky-800 space-y-1">
+        <div>📍 <strong>Desde Modal CC (Extracto)</strong> → click en mov con <code class="text-[11px] bg-white px-1 rounded">tesoreriaMovimientoId</code> abre drawer con detalle del movimiento bancario.</div>
+        <div>📍 <strong>Desde Cash Flow (Movimientos)</strong> → click en columna "Vínculo CC" abre drawer con detalle de la entidad y su saldo.</div>
+        <div>📍 El drawer mantiene el contexto · ESC o click fuera lo cierra · click en "Ver completo" navega al detalle full.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     5 — PLAN DE IMPLEMENTACIÓN
+============================================================================ -->
+<section id="plan" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">5 · Plan de implementación · 3 fases</div>
+
+  <div class="card p-6">
+    <h2 class="text-xl font-bold text-slate-900">Total: 2.5-3 sesiones · riesgo bajo-medio</h2>
+    <p class="text-sm text-slate-600 mt-1">Fases independientes y entregables. Cada fase deja el sistema funcionando.</p>
+
+    <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Fase A -->
+      <div class="border border-emerald-300 bg-emerald-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-emerald-700">FASE A · Refactor visual Tesorería</div>
+        <div class="text-base font-bold text-slate-900 mt-1">≈ 1 sesión</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ KPIs estilo nuevo (gradientes verde/rojo/sky/ámbar/purple)</li>
+          <li>✓ PageHeader unificado con icono <code class="bg-slate-100 px-1 rounded">ArrowRightLeft</code></li>
+          <li>✓ Reemplazar tabs underline por chips clickables</li>
+          <li>✓ Mover ruta de <code class="bg-slate-100 px-1 rounded">/tesoreria</code> a <code class="bg-slate-100 px-1 rounded">/finanzas/cash-flow</code> (redirect)</li>
+          <li>✓ Eliminar entry "Tesorería" del sidebar (queda dentro de Finanzas)</li>
+        </ul>
+        <div class="text-[10px] text-emerald-700/80 italic mt-2">Sin cambios de lógica · solo UI</div>
+      </div>
+
+      <!-- Fase B -->
+      <div class="border border-amber-300 bg-amber-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-amber-700">FASE B · Cross-linking drawer</div>
+        <div class="text-base font-bold text-slate-900 mt-1">≈ ½ sesión</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ Componente <code class="bg-slate-100 px-1 rounded">MovimientoTesoreriaDrawer</code> (slide-in derecha)</li>
+          <li>✓ Componente <code class="bg-slate-100 px-1 rounded">EntidadCCDrawer</code> (lateral compacto)</li>
+          <li>✓ En modal CC tab Extracto · click en mov con <code class="bg-slate-100 px-1 rounded">tesoreriaMovimientoId</code> → abre drawer Tesorería</li>
+          <li>✓ En tab Movimientos de Cash flow · columna "Vínculo CC" con click → abre drawer CC</li>
+          <li>✓ ESC + click fuera cierran</li>
+        </ul>
+        <div class="text-[10px] text-amber-700/80 italic mt-2">Conectividad bidireccional</div>
+      </div>
+
+      <!-- Fase C -->
+      <div class="border border-teal-300 bg-teal-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-teal-700">FASE C · Dashboard ejecutivo</div>
+        <div class="text-base font-bold text-slate-900 mt-1">≈ 1-1.5 sesiones</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ Renombrar <code class="bg-slate-100 px-1 rounded">/finanzas</code> actual a <code class="bg-slate-100 px-1 rounded">/finanzas/saldos</code></li>
+          <li>✓ Crear nueva <code class="bg-slate-100 px-1 rounded">/finanzas</code> overview con scroll vertical</li>
+          <li>✓ Componentes nuevos: <code class="bg-slate-100 px-1 rounded">KPIsCombinados</code>, <code class="bg-slate-100 px-1 rounded">TendenciaChart</code>, <code class="bg-slate-100 px-1 rounded">TopEntidades</code>, <code class="bg-slate-100 px-1 rounded">AlertasFinanzas</code></li>
+          <li>✓ Reorganizar sidebar: "Finanzas" como entrada principal expandible</li>
+          <li>✓ Quick actions con FAB o botones flotantes</li>
+        </ul>
+        <div class="text-[10px] text-teal-700/80 italic mt-2">Vista ejecutiva del CFO/dueño</div>
+      </div>
+    </div>
+
+    <div class="mt-6 p-3 bg-sky-50 border border-sky-200 rounded-lg text-[12px] text-sky-900">
+      <strong>Recomendación:</strong> ejecutar en orden A → B → C. Cada fase deja el sistema funcional
+      y agrega valor incrementalmente. Si en algún punto se prefiere pausar, lo hecho ya está estable.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="max-w-7xl mx-auto text-center text-[11px] text-slate-400 py-6">
+  Mockup S57 · finanzas-overview-s57.html · Hecho para discutir antes de implementar
+</div>
+
+</body>
+</html>

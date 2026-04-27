@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Finanzas Unificadas · Mockup S56</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+  .tab { font-variant-numeric: tabular-nums; }
+  .dashed-line { background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%); background-size: 8px 2px; background-repeat: repeat-x; }
+  .gradient-emerald { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%); }
+  .gradient-red { background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%); }
+  .gradient-amber { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); }
+  .gradient-sky { background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); }
+  .scroll-anchor { scroll-margin-top: 80px; }
+  .modal-shell { background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); }
+  .pulse-dot { animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .hover-lift { transition: all 0.15s ease; }
+  .hover-lift:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-color: #14b8a6; }
+  /* Stripe-like number tabular */
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+</style>
+</head>
+<body class="p-6">
+
+<!-- ============================================================================
+     STICKY NAV
+============================================================================ -->
+<div class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200 -mx-6 px-6 py-3 mb-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i class="fa-solid fa-coins text-teal-600"></i>
+      <span class="font-bold text-slate-900">Finanzas Unificadas</span>
+      <span class="text-[11px] text-slate-500 ml-2">S56 · Mockup de diseño</span>
+    </div>
+    <div class="flex gap-1.5 flex-wrap">
+      <a href="#problema" class="text-[11px] px-2.5 py-1 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300">1 · Problema</a>
+      <a href="#arq" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">2 · Arquitectura</a>
+      <a href="#hub" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">3 · Hub principal</a>
+      <a href="#card" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">4 · Card entidad</a>
+      <a href="#detalle" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">5 · Detalle entidad</a>
+      <a href="#extracto" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">6 · Extracto</a>
+      <a href="#decisiones" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">7 · Decisiones</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     1 — PROBLEMA
+============================================================================ -->
+<section id="problema" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">1 · El problema que resolvemos</div>
+  <div class="card p-6">
+    <h1 class="text-2xl font-bold text-slate-900">CxC + CxP + Cuenta Corriente: 3 vistas, 1 dominio</h1>
+    <p class="text-sm text-slate-600 mt-2 max-w-3xl">
+      Hoy hay 3 reportes/tabs separados (CxC, CxP, Cuentas Corrientes) que responden preguntas diferentes
+      pero del mismo dominio: <strong>quién nos debe y a quién le debemos</strong>. El usuario se mueve
+      entre 3 pantallas con UX inconsistente.
+    </p>
+    <p class="text-sm text-slate-600 mt-3 max-w-3xl">
+      Después de implementar Cuenta Corriente Unificada (S55), tenemos la oportunidad de unificar la
+      experiencia visual aplicando el modelo que el usuario ya validó como ideal en
+      <strong>Compras y Envíos</strong> (cards densas + pipeline + detalle modal con tabs sticky).
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <div class="border border-red-200 rounded-lg p-4 bg-red-50/40">
+        <div class="text-[11px] font-semibold uppercase text-red-700 mb-2">❌ Hoy</div>
+        <ul class="text-sm text-slate-700 space-y-1.5">
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>3 tabs separados sin consistencia visual</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>CxC/CxP por documento · CC por entidad → confunde</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>No hay dashboard ejecutivo único</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>Acciones rápidas (pagar/cobrar) requieren navegar a otras páginas</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>UX inconsistente con el modelo Compras/Envíos del usuario</li>
+        </ul>
+      </div>
+      <div class="border border-emerald-200 rounded-lg p-4 bg-emerald-50/40">
+        <div class="text-[11px] font-semibold uppercase text-emerald-700 mb-2">✅ Propuesta</div>
+        <ul class="text-sm text-slate-700 space-y-1.5">
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Hub único <code class="text-xs bg-white px-1 rounded">/finanzas</code> con pipeline + cards</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Lenguaje visual consistente con Compras/Envíos</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Dashboard ejecutivo siempre visible (KPIs arriba)</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Acciones rápidas inline en cada card (Cobrar / Pagar / Aplicar saldo)</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Detalle modal con tabs (Extracto · Documentos · Histórico)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 p-3 bg-sky-50 border border-sky-200 rounded-lg text-sm text-sky-900">
+      <strong>Inspiración visual:</strong> Stripe Dashboard · Linear · Mercury Banking · Notion ·
+      Plaid Dashboard. Combinada con el modelo Compras/Envios del usuario (cards densas + pipeline
+      clickable + detalle modal con tabs).
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     2 — ARQUITECTURA
+============================================================================ -->
+<section id="arq" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">2 · Arquitectura propuesta</div>
+  <div class="card p-6">
+    <h2 class="text-xl font-bold text-slate-900">Una página, tres vistas que conviven</h2>
+    <p class="text-sm text-slate-600 mt-1">
+      Mantenemos las 3 perspectivas pero las unificamos visualmente bajo un solo módulo.
+    </p>
+
+    <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-down-to-line text-sm"></i>
+          </div>
+          <div class="font-semibold text-slate-900">Por cobrar</div>
+        </div>
+        <div class="text-[12px] text-slate-600">Filtro: <code class="text-[10px] bg-slate-100 px-1 rounded">CC.saldo &gt; 0</code></div>
+        <div class="text-[11px] text-slate-500 mt-1">Equivalente a CxC tradicional · clientes/proveedores que nos deben</div>
+      </div>
+
+      <div class="border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-up-from-bracket text-sm"></i>
+          </div>
+          <div class="font-semibold text-slate-900">Por pagar</div>
+        </div>
+        <div class="text-[12px] text-slate-600">Filtro: <code class="text-[10px] bg-slate-100 px-1 rounded">CC.saldo &lt; 0</code></div>
+        <div class="text-[11px] text-slate-500 mt-1">Equivalente a CxP tradicional · proveedores/colaboradores/empleados a quien debemos</div>
+      </div>
+
+      <div class="border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">
+            <i class="fa-solid fa-list-ul text-sm"></i>
+          </div>
+          <div class="font-semibold text-slate-900">Todas las cuentas</div>
+        </div>
+        <div class="text-[12px] text-slate-600">Filtro: <code class="text-[10px] bg-slate-100 px-1 rounded">sin filtro</code></div>
+        <div class="text-[11px] text-slate-500 mt-1">Vista relacional completa · extracto bancario por entidad</div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="text-base font-semibold text-slate-900 mb-3">Mapeo desde lo viejo</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden">
+          <thead class="bg-slate-50 text-[11px] uppercase text-slate-600">
+            <tr>
+              <th class="text-left px-3 py-2 font-semibold">Antes</th>
+              <th class="text-left px-3 py-2 font-semibold">Ubicación nueva</th>
+              <th class="text-left px-3 py-2 font-semibold">Comportamiento</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-3 py-2"><code class="text-xs bg-slate-100 px-1 rounded">/reportes → CxC</code></td>
+              <td class="px-3 py-2"><code class="text-xs bg-slate-100 px-1 rounded">/finanzas → "Por cobrar"</code></td>
+              <td class="px-3 py-2 text-slate-600">Pipeline tab + filtro automático CC saldo &gt; 0</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2"><code class="text-xs bg-slate-100 px-1 rounded">/reportes → CxP</code></td>
+              <td class="px-3 py-2"><code class="text-xs bg-slate-100 px-1 rounded">/finanzas → "Por pagar"</code></td>
+              <td class="px-3 py-2 text-slate-600">Pipeline tab + filtro automático CC saldo &lt; 0</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2"><code class="text-xs bg-slate-100 px-1 rounded">/reportes → Cuentas Corrientes</code></td>
+              <td class="px-3 py-2"><code class="text-xs bg-slate-100 px-1 rounded">/finanzas → "Todas"</code></td>
+              <td class="px-3 py-2 text-slate-600">Vista por defecto del hub</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 text-slate-400">Tab CC en ficha proveedor/cliente</td>
+              <td class="px-3 py-2 text-slate-400">Se mantiene</td>
+              <td class="px-3 py-2 text-slate-500">Acceso por contexto · sin cambios</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     3 — HUB PRINCIPAL
+============================================================================ -->
+<section id="hub" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">3 · Hub principal · /finanzas</div>
+
+  <!-- Hero con KPIs ejecutivos -->
+  <div class="card p-6 mb-4">
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-coins"></i>
+          <span>Finanzas</span>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900">Cuentas y saldos</h1>
+        <p class="text-sm text-slate-500 mt-1">Vista relacional de todas las entidades con saldo</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 bg-white border border-slate-300 rounded-md hover:bg-slate-50 flex items-center gap-1.5 text-slate-700">
+          <i class="fa-solid fa-download text-xs"></i> Exportar
+        </button>
+        <button class="text-[12px] px-3 py-1.5 bg-slate-900 text-white rounded-md hover:bg-slate-800 flex items-center gap-1.5">
+          <i class="fa-solid fa-plus text-xs"></i> Nuevo movimiento
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs ejecutivos · estilo Mercury/Stripe -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <!-- A favor -->
+      <div class="gradient-emerald border border-emerald-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Por cobrar</span>
+          <i class="fa-solid fa-arrow-trend-up text-emerald-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-emerald-700 num-tab">S/ 12,450.00</div>
+        <div class="text-xs text-emerald-600 num-tab mt-0.5">+ US$ 2,180.00</div>
+        <div class="text-[10px] text-emerald-700/70 mt-2">8 entidades · Última act: hoy</div>
+      </div>
+
+      <!-- Por pagar -->
+      <div class="gradient-red border border-red-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-red-700 font-semibold">Por pagar</span>
+          <i class="fa-solid fa-arrow-trend-down text-red-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-red-700 num-tab">S/ 8,234.00</div>
+        <div class="text-xs text-red-600 num-tab mt-0.5">+ US$ 5,420.00</div>
+        <div class="text-[10px] text-red-700/70 mt-2">12 entidades · 3 vencidos</div>
+      </div>
+
+      <!-- Saldo neto -->
+      <div class="gradient-sky border border-sky-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-sky-700 font-semibold">Saldo neto</span>
+          <i class="fa-solid fa-scale-balanced text-sky-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-sky-700 num-tab">S/ 4,216.00</div>
+        <div class="text-xs text-sky-600 num-tab mt-0.5">−US$ 3,240.00</div>
+        <div class="text-[10px] text-sky-700/70 mt-2">PEN positivo · USD deudor</div>
+      </div>
+
+      <!-- Total entidades activas -->
+      <div class="gradient-amber border border-amber-200 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">Entidades activas</span>
+          <i class="fa-solid fa-users text-amber-500 text-xs"></i>
+        </div>
+        <div class="text-2xl font-bold text-amber-700 num-tab">28</div>
+        <div class="text-xs text-amber-600 mt-0.5">de 156 totales</div>
+        <div class="text-[10px] text-amber-700/70 mt-2">Con saldo distinto de 0</div>
+      </div>
+    </div>
+
+    <!-- Pipeline interactivo · estilo Compras -->
+    <div>
+      <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Filtrar por estado</div>
+      <div class="flex items-center gap-2 overflow-x-auto pb-1">
+        <button class="px-3 py-1.5 bg-slate-900 text-white rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap font-medium">
+          <i class="fa-solid fa-list text-[10px]"></i>
+          Todas
+          <span class="bg-white/20 px-1.5 py-0.5 rounded-md text-[10px]">28</span>
+        </button>
+        <button class="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-emerald-200">
+          <i class="fa-solid fa-arrow-down-to-line text-[10px]"></i>
+          Por cobrar
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">8</span>
+        </button>
+        <button class="px-3 py-1.5 bg-red-100 text-red-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-red-200">
+          <i class="fa-solid fa-arrow-up-from-bracket text-[10px]"></i>
+          Por pagar
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">12</span>
+        </button>
+        <button class="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-amber-200">
+          <i class="fa-solid fa-clock text-[10px]"></i>
+          Vencidas
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">3</span>
+        </button>
+        <button class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-slate-200">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          Saldadas
+          <span class="bg-white/60 px-1.5 py-0.5 rounded-md text-[10px] font-semibold">128</span>
+        </button>
+
+        <div class="h-6 w-px bg-slate-200 mx-1"></div>
+
+        <button class="px-3 py-1.5 bg-sky-50 text-sky-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-sky-100">
+          <i class="fa-solid fa-user text-[10px]"></i>
+          Clientes
+        </button>
+        <button class="px-3 py-1.5 bg-amber-50 text-amber-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-amber-100">
+          <i class="fa-solid fa-building text-[10px]"></i>
+          Proveedores
+        </button>
+        <button class="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-purple-100">
+          <i class="fa-solid fa-truck text-[10px]"></i>
+          Colaboradores
+        </button>
+        <button class="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap hover:bg-emerald-100">
+          <i class="fa-solid fa-id-badge text-[10px]"></i>
+          Empleados
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar (search + sort + view) -->
+  <div class="card p-3 mb-4">
+    <div class="flex items-center gap-2 flex-wrap">
+      <div class="relative flex-1 min-w-[240px]">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input
+          type="text"
+          placeholder="Buscar entidad por nombre, RUC, email..."
+          class="w-full pl-8 pr-3 py-1.5 text-[13px] border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+        />
+      </div>
+      <select class="text-[12px] px-3 py-1.5 border border-slate-300 rounded-md bg-white">
+        <option>Mayor saldo primero</option>
+        <option>Última actividad</option>
+        <option>Nombre A-Z</option>
+        <option>Más antiguos primero</option>
+      </select>
+      <div class="flex bg-slate-100 rounded-md p-0.5">
+        <button class="px-2 py-1 text-[11px] bg-white shadow-sm rounded font-medium text-slate-900">
+          <i class="fa-solid fa-list text-xs"></i>
+        </button>
+        <button class="px-2 py-1 text-[11px] text-slate-500 hover:text-slate-700">
+          <i class="fa-solid fa-table text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     4 — CARD DE ENTIDAD (3 ejemplos)
+============================================================================ -->
+<section id="card" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">4 · Cards de entidad · estilo CompraCard</div>
+
+  <p class="text-sm text-slate-600 mb-4">
+    Layout dual @container (NARROW = stack vertical · WIDE = 5 columnas con dividers).
+    Mismo lenguaje visual que CompraCard pero adaptado a entidades financieras.
+  </p>
+
+  <!-- Card 1: Proveedor con saldo POR PAGAR (les debemos) -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-3 hover-lift cursor-pointer">
+    <div class="grid grid-cols-12 items-center gap-3">
+      <!-- Col 1-3: Avatar + Nombre + Tipo -->
+      <div class="col-span-3 flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
+          AB
+        </div>
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900 truncate text-sm">Asian Beauty Wholesale</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 font-medium">Proveedor</span>
+            <span class="text-[10px] text-slate-400">🇨🇳 China</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 4-5: Pipeline mini con estado -->
+      <div class="col-span-2">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Estado</div>
+        <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500 pulse-dot"></span>
+          Vencido 12d
+        </span>
+      </div>
+
+      <!-- Col 6-7: Saldos -->
+      <div class="col-span-3 text-right">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Saldo</div>
+        <div class="num-tab">
+          <span class="text-lg font-bold text-red-700">−US$ 2,450.00</span>
+          <div class="text-[11px] text-red-600">≈ S/ 8,575.00 · Por pagar</div>
+        </div>
+      </div>
+
+      <!-- Col 8-9: Documentos asociados (mini visual) -->
+      <div class="col-span-2 border-l border-slate-100 pl-3">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Documentos</div>
+        <div class="text-[11px] text-slate-700 font-medium">3 OCs activas</div>
+        <div class="text-[10px] text-slate-500">2 vencidas · 1 al día</div>
+      </div>
+
+      <!-- Col 10-12: Acciones -->
+      <div class="col-span-2 flex justify-end gap-1.5">
+        <button class="text-[11px] px-2.5 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium flex items-center gap-1">
+          <i class="fa-solid fa-money-bill-wave text-[10px]"></i>
+          Pagar
+        </button>
+        <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md" title="Ver detalle">
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Cliente con saldo POR COBRAR (nos debe) -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-3 hover-lift cursor-pointer">
+    <div class="grid grid-cols-12 items-center gap-3">
+      <div class="col-span-3 flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
+          MG
+        </div>
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900 truncate text-sm">María González Pérez</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700 font-medium">Cliente</span>
+            <span class="text-[10px] text-slate-400">🇵🇪 Lima</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-2">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Estado</div>
+        <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Al día
+        </span>
+      </div>
+
+      <div class="col-span-3 text-right">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Saldo</div>
+        <div class="num-tab">
+          <span class="text-lg font-bold text-emerald-700">+S/ 850.00</span>
+          <div class="text-[11px] text-emerald-600">Por cobrar</div>
+        </div>
+      </div>
+
+      <div class="col-span-2 border-l border-slate-100 pl-3">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Documentos</div>
+        <div class="text-[11px] text-slate-700 font-medium">2 ventas</div>
+        <div class="text-[10px] text-slate-500">VT-026 · VT-031</div>
+      </div>
+
+      <div class="col-span-2 flex justify-end gap-1.5">
+        <button class="text-[11px] px-2.5 py-1.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 font-medium flex items-center gap-1">
+          <i class="fa-solid fa-circle-dollar-to-slot text-[10px]"></i>
+          Cobrar
+        </button>
+        <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md" title="Ver detalle">
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Cliente con SALDO A FAVOR (sobrepago) -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-3 hover-lift cursor-pointer">
+    <div class="grid grid-cols-12 items-center gap-3">
+      <div class="col-span-3 flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
+          CP
+        </div>
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900 truncate text-sm">Carlos Pérez Linares</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700 font-medium">Cliente</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-700 font-medium">Empleado</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-2">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Estado</div>
+        <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+          <i class="fa-solid fa-coins text-[8px]"></i>
+          Saldo a favor
+        </span>
+      </div>
+
+      <div class="col-span-3 text-right">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Saldo</div>
+        <div class="num-tab">
+          <span class="text-lg font-bold text-purple-700">−S/ 250.00</span>
+          <div class="text-[11px] text-purple-600">A favor del cliente</div>
+        </div>
+      </div>
+
+      <div class="col-span-2 border-l border-slate-100 pl-3">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Origen</div>
+        <div class="text-[11px] text-slate-700 font-medium">Sobrepago VT-018</div>
+        <div class="text-[10px] text-slate-500">Hace 5 días</div>
+      </div>
+
+      <div class="col-span-2 flex justify-end gap-1.5">
+        <button class="text-[11px] px-2.5 py-1.5 bg-white border border-purple-300 text-purple-700 rounded-md hover:bg-purple-50 font-medium flex items-center gap-1">
+          <i class="fa-solid fa-arrow-right-arrow-left text-[10px]"></i>
+          Aplicar
+        </button>
+        <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md" title="Ver detalle">
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: Empleado con boleta pendiente -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-3 hover-lift cursor-pointer">
+    <div class="grid grid-cols-12 items-center gap-3">
+      <div class="col-span-3 flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
+          AR
+        </div>
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900 truncate text-sm">Ana Rodríguez · Vendedora</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 font-medium">Empleado</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-2">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Estado</div>
+        <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+          <i class="fa-solid fa-clock text-[8px]"></i>
+          Boleta pendiente
+        </span>
+      </div>
+
+      <div class="col-span-3 text-right">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Saldo</div>
+        <div class="num-tab">
+          <span class="text-lg font-bold text-red-700">−S/ 1,650.00</span>
+          <div class="text-[11px] text-red-600">Por pagar (boleta abril)</div>
+        </div>
+      </div>
+
+      <div class="col-span-2 border-l border-slate-100 pl-3">
+        <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Documentos</div>
+        <div class="text-[11px] text-slate-700 font-medium">Boleta abril</div>
+        <div class="text-[10px] text-slate-500">Sueldo + 3 comisiones</div>
+      </div>
+
+      <div class="col-span-2 flex justify-end gap-1.5">
+        <button class="text-[11px] px-2.5 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium flex items-center gap-1">
+          <i class="fa-solid fa-money-bill-wave text-[10px]"></i>
+          Pagar
+        </button>
+        <button class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md" title="Ver detalle">
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Versión NARROW preview -->
+  <div class="mt-6">
+    <div class="text-[11px] uppercase text-slate-500 font-semibold mb-2">Versión NARROW (móvil/PWA)</div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 max-w-sm hover-lift cursor-pointer">
+      <!-- Row 1 -->
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">AB</div>
+          <div class="min-w-0">
+            <div class="font-semibold text-slate-900 truncate text-sm">Asian Beauty Wholesale</div>
+            <div class="text-[10px] text-slate-500">Proveedor · 🇨🇳</div>
+          </div>
+        </div>
+        <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 whitespace-nowrap flex-shrink-0">
+          Vencido 12d
+        </span>
+      </div>
+      <!-- Row 2: saldo destacado -->
+      <div class="bg-slate-50 rounded-lg p-3 mb-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider">Saldo</div>
+            <div class="text-lg font-bold text-red-700 num-tab">−US$ 2,450.00</div>
+            <div class="text-[10px] text-red-600 num-tab">≈ S/ 8,575.00</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-slate-500 uppercase tracking-wider">Docs</div>
+            <div class="text-sm font-bold text-slate-900">3 OCs</div>
+            <div class="text-[10px] text-slate-500">2 vencidas</div>
+          </div>
+        </div>
+      </div>
+      <!-- Row 3: acciones -->
+      <div class="flex gap-2">
+        <button class="flex-1 text-[12px] py-2 bg-red-600 text-white rounded-md font-medium">
+          Pagar
+        </button>
+        <button class="flex-1 text-[12px] py-2 bg-white border border-slate-300 text-slate-700 rounded-md font-medium">
+          Ver detalle
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     5 — DETALLE DE ENTIDAD (modal)
+============================================================================ -->
+<section id="detalle" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">5 · Modal detalle de entidad · estilo OrdenCompraCard</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Header hero pixel-perfect alineado a OrdenCompraCard. Pipeline contextual + 4 KPIs +
+    tabs sticky con scroll independiente.
+  </p>
+
+  <div class="modal-shell w-full max-w-5xl mx-auto">
+    <!-- Header del modal -->
+    <div class="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-white sticky top-0 z-10 rounded-t-2xl">
+      <div class="flex items-center gap-2 text-sm">
+        <i class="fa-solid fa-coins text-teal-600"></i>
+        <span class="font-semibold text-slate-900">Cuenta corriente · Asian Beauty Wholesale</span>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Content scroll -->
+    <div class="max-h-[80vh] overflow-y-auto">
+      <!-- Hero · estilo OrdenCompraCard -->
+      <div class="p-6">
+        <div class="flex items-start justify-between mb-1">
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+            <i class="fa-solid fa-building"></i>
+            <span>Proveedor · 🇨🇳 China · Activo desde 2024</span>
+          </div>
+        </div>
+        <div class="flex items-start justify-between mb-3">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Asian Beauty Wholesale</h2>
+            <div class="text-xs text-slate-500 mt-0.5">RUC: 12345678901 · contacto@asianbeauty.cn · +86 138 0013 8000</div>
+          </div>
+          <div class="flex flex-col items-end gap-1">
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium border border-amber-200">
+              ● Categoría: Mayorista
+            </span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200">
+              Saldo en contra
+            </span>
+          </div>
+        </div>
+
+        <!-- Saldos hero (USD + PEN destacados) -->
+        <div class="grid grid-cols-2 gap-3 mt-4">
+          <div class="border-2 border-red-200 rounded-xl p-4 bg-gradient-to-br from-red-50 to-white">
+            <div class="text-[10px] uppercase tracking-wider text-red-700 font-semibold mb-1">Saldo USD</div>
+            <div class="text-3xl font-bold text-red-700 num-tab">−US$ 2,450.00</div>
+            <div class="text-[11px] text-red-600 mt-1">Le debemos por OCs vigentes</div>
+          </div>
+          <div class="border border-slate-200 rounded-xl p-4 bg-white">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Saldo PEN</div>
+            <div class="text-3xl font-bold text-slate-400 num-tab">S/ 0.00</div>
+            <div class="text-[11px] text-slate-400 mt-1">Sin saldo en moneda local</div>
+          </div>
+        </div>
+
+        <!-- Pipeline contextual · estilo Compras -->
+        <div class="mt-5 bg-slate-50 rounded-xl p-3 border border-slate-100">
+          <div class="grid grid-cols-4 gap-2 items-center relative">
+            <div class="absolute left-[12.5%] right-[12.5%] top-5 h-0.5 bg-slate-200 -z-0"></div>
+            <div class="text-center relative z-10">
+              <div class="w-10 h-10 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white border-4 border-white">
+                <i class="fa-solid fa-check text-sm"></i>
+              </div>
+              <div class="text-xs font-semibold mt-1.5">Cuenta abierta</div>
+              <div class="text-[10px] text-slate-500">Ene 2024</div>
+            </div>
+            <div class="text-center relative z-10">
+              <div class="w-10 h-10 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white border-4 border-white">
+                <i class="fa-solid fa-check text-sm"></i>
+              </div>
+              <div class="text-xs font-semibold mt-1.5">Compras activas</div>
+              <div class="text-[10px] text-slate-500">3 OCs</div>
+            </div>
+            <div class="text-center relative z-10">
+              <div class="w-10 h-10 mx-auto bg-amber-500 rounded-full flex items-center justify-center text-white border-4 border-white">
+                <i class="fa-solid fa-clock text-sm"></i>
+              </div>
+              <div class="text-xs font-semibold mt-1.5">Pagos parciales</div>
+              <div class="text-[10px] text-amber-700">2 vencidas</div>
+            </div>
+            <div class="text-center relative z-10">
+              <div class="w-10 h-10 mx-auto bg-slate-200 rounded-full flex items-center justify-center text-slate-400 border-4 border-white">
+                <i class="fa-solid fa-flag-checkered text-sm"></i>
+              </div>
+              <div class="text-xs font-semibold mt-1.5 text-slate-400">Saldada</div>
+              <div class="text-[10px] text-slate-400">Pendiente</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPIs · 4 columnas -->
+        <div class="grid grid-cols-4 gap-2 mt-4">
+          <div class="border border-slate-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Total facturado</div>
+            <div class="text-base font-bold text-slate-900 num-tab">US$ 24,800</div>
+            <div class="text-[10px] text-slate-500">17 OCs históricas</div>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Total pagado</div>
+            <div class="text-base font-bold text-emerald-700 num-tab">US$ 22,350</div>
+            <div class="text-[10px] text-emerald-600">90% saldado</div>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Deuda más antigua</div>
+            <div class="text-base font-bold text-red-700 num-tab">42 días</div>
+            <div class="text-[10px] text-red-600">OC-2026-008</div>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Última actividad</div>
+            <div class="text-base font-bold text-slate-900 num-tab">Hace 2d</div>
+            <div class="text-[10px] text-slate-500">Pago parcial OC-002</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs sticky -->
+      <div class="sticky top-12 bg-white border-y border-slate-200 z-[5]">
+        <div class="px-6 flex items-center gap-1">
+          <button class="text-[12px] px-3 py-2.5 border-b-2 border-teal-600 text-teal-700 font-semibold flex items-center gap-1.5">
+            <i class="fa-solid fa-receipt text-xs"></i>
+            Extracto
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">23</span>
+          </button>
+          <button class="text-[12px] px-3 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-file-lines text-xs"></i>
+            Documentos
+            <span class="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">17</span>
+          </button>
+          <button class="text-[12px] px-3 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+            Histórico pagos
+          </button>
+          <button class="text-[12px] px-3 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt text-xs"></i>
+            Acciones
+          </button>
+          <div class="ml-auto flex items-center gap-2 py-2.5">
+            <button class="text-[11px] px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium flex items-center gap-1.5">
+              <i class="fa-solid fa-money-bill-wave text-[10px]"></i>
+              Registrar pago
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido del tab "Extracto" -->
+      <div id="extracto-content" class="px-6 py-5">
+        <!-- Sub-filtro moneda + búsqueda -->
+        <div class="flex items-center gap-2 mb-3">
+          <div class="flex bg-slate-100 rounded-md p-0.5">
+            <button class="px-2.5 py-1 text-[11px] bg-white shadow-sm rounded font-medium text-slate-900">Todas</button>
+            <button class="px-2.5 py-1 text-[11px] text-slate-500 hover:text-slate-700">PEN</button>
+            <button class="px-2.5 py-1 text-[11px] bg-white shadow-sm rounded font-medium text-slate-900">USD</button>
+          </div>
+          <div class="text-[11px] text-slate-500">23 movimientos</div>
+        </div>
+
+        <!-- Tabla extracto -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-600">
+              <tr>
+                <th class="text-left px-3 py-2.5 font-semibold">Fecha</th>
+                <th class="text-left px-3 py-2.5 font-semibold">Concepto</th>
+                <th class="text-left px-3 py-2.5 font-semibold">Doc</th>
+                <th class="text-right px-3 py-2.5 font-semibold">Débito</th>
+                <th class="text-right px-3 py-2.5 font-semibold">Crédito</th>
+                <th class="text-right px-3 py-2.5 font-semibold">Saldo</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50/50">
+                <td class="px-3 py-2.5 text-[11px] text-slate-600 num-tab whitespace-nowrap">25-abr-26</td>
+                <td class="px-3 py-2.5">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                      <i class="fa-solid fa-arrow-up text-[9px]"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[12px] text-slate-900">OC emitida</div>
+                      <div class="text-[10px] text-slate-500">3 productos · Recojo en origen</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-2.5 text-[11px] text-slate-700 font-mono">OC-2026-012</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-emerald-700 font-medium num-tab">US$ 1,250.00</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-slate-300">—</td>
+                <td class="px-3 py-2.5 text-right text-[12px] font-bold text-red-700 num-tab">−US$ 2,450.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50">
+                <td class="px-3 py-2.5 text-[11px] text-slate-600 num-tab whitespace-nowrap">23-abr-26</td>
+                <td class="px-3 py-2.5">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
+                      <i class="fa-solid fa-arrow-down text-[9px]"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[12px] text-slate-900">Pago a proveedor</div>
+                      <div class="text-[10px] text-slate-500">Transferencia BCP · Voucher 4421</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-2.5 text-[11px] text-slate-700 font-mono">OC-2026-008</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-slate-300">—</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-red-600 font-medium num-tab">US$ 800.00</td>
+                <td class="px-3 py-2.5 text-right text-[12px] font-bold text-red-700 num-tab">−US$ 3,700.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50">
+                <td class="px-3 py-2.5 text-[11px] text-slate-600 num-tab whitespace-nowrap">15-abr-26</td>
+                <td class="px-3 py-2.5">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                      <i class="fa-solid fa-arrow-up text-[9px]"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[12px] text-slate-900">OC emitida</div>
+                      <div class="text-[10px] text-slate-500">5 productos · Vía courier FedEx</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-2.5 text-[11px] text-slate-700 font-mono">OC-2026-008</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-emerald-700 font-medium num-tab">US$ 2,100.00</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-slate-300">—</td>
+                <td class="px-3 py-2.5 text-right text-[12px] font-bold text-red-700 num-tab">−US$ 4,500.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50">
+                <td class="px-3 py-2.5 text-[11px] text-slate-600 num-tab whitespace-nowrap">10-abr-26</td>
+                <td class="px-3 py-2.5">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0">
+                      <i class="fa-solid fa-shield text-[9px]"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[12px] text-slate-900">Crédito por reclamo</div>
+                      <div class="text-[10px] text-slate-500">REC-2026-003 · Unidades dañadas</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-2.5 text-[11px] text-slate-700 font-mono">REC-2026-003</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-slate-300">—</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-red-600 font-medium num-tab">US$ 150.00</td>
+                <td class="px-3 py-2.5 text-right text-[12px] font-bold text-red-700 num-tab">−US$ 2,400.00</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50">
+                <td class="px-3 py-2.5 text-[11px] text-slate-600 num-tab whitespace-nowrap">02-abr-26</td>
+                <td class="px-3 py-2.5">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-red-100 text-red-700 flex items-center justify-center flex-shrink-0">
+                      <i class="fa-solid fa-arrow-down text-[9px]"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[12px] text-slate-900">Pago completo</div>
+                      <div class="text-[10px] text-slate-500">Cierra OC-2026-005</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-2.5 text-[11px] text-slate-700 font-mono">OC-2026-005</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-slate-300">—</td>
+                <td class="px-3 py-2.5 text-right text-[12px] text-red-600 font-medium num-tab">US$ 1,800.00</td>
+                <td class="px-3 py-2.5 text-right text-[12px] font-bold text-slate-500 num-tab">−US$ 2,250.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer leyenda -->
+        <div class="text-[10px] text-slate-400 italic mt-3 px-2">
+          <span class="text-emerald-700 font-medium">Débito</span> = OC emitida (la deuda crece) ·
+          <span class="text-red-700 font-medium">Crédito</span> = pago efectivo (la deuda baja) ·
+          <span class="text-purple-700 font-medium">Reclamo</span> = compensación.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     6 — TAB DOCUMENTOS (preview)
+============================================================================ -->
+<section id="extracto" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">6 · Tab "Documentos" del modal detalle</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Vista por documento (la "CxP/CxC tradicional"). Para cuando el usuario quiere ver
+    qué OCs/ventas específicas siguen pendientes (caso contable/auditor).
+  </p>
+
+  <div class="modal-shell max-w-5xl mx-auto p-0">
+    <div class="px-6 py-4">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="flex bg-slate-100 rounded-md p-0.5">
+          <button class="px-2.5 py-1 text-[11px] bg-white shadow-sm rounded font-medium text-slate-900">Todas</button>
+          <button class="px-2.5 py-1 text-[11px] text-slate-500 hover:text-slate-700">Pendientes</button>
+          <button class="px-2.5 py-1 text-[11px] text-slate-500 hover:text-slate-700">Vencidas</button>
+          <button class="px-2.5 py-1 text-[11px] text-slate-500 hover:text-slate-700">Saldadas</button>
+        </div>
+        <div class="text-[11px] text-slate-500 ml-auto">17 documentos · 3 vigentes</div>
+      </div>
+
+      <div class="space-y-2">
+        <!-- Doc 1: OC vencida -->
+        <div class="border border-red-200 bg-red-50/30 rounded-lg p-3 hover:bg-red-50/50 transition cursor-pointer">
+          <div class="grid grid-cols-12 gap-3 items-center">
+            <div class="col-span-1">
+              <div class="w-8 h-8 rounded-md bg-red-100 text-red-700 flex items-center justify-center">
+                <i class="fa-solid fa-receipt text-xs"></i>
+              </div>
+            </div>
+            <div class="col-span-3">
+              <div class="font-mono text-sm font-bold text-slate-900">OC-2026-008</div>
+              <div class="text-[10px] text-slate-500">Emitida 15-abr-26 · 5 productos</div>
+            </div>
+            <div class="col-span-2">
+              <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-red-100 text-red-700">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 pulse-dot"></span>
+                Vencida 12d
+              </span>
+            </div>
+            <div class="col-span-2 text-[11px] text-slate-600">
+              <div>Total: <span class="num-tab font-medium text-slate-900">US$ 2,100</span></div>
+              <div>Pagado: <span class="num-tab text-emerald-700">US$ 800</span></div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="text-[10px] text-slate-400 uppercase">Pendiente</div>
+              <div class="text-base font-bold text-red-700 num-tab">US$ 1,300.00</div>
+              <!-- Progress -->
+              <div class="h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                <div class="h-full bg-amber-500" style="width:38%"></div>
+              </div>
+            </div>
+            <div class="col-span-2 flex justify-end gap-1.5">
+              <button class="text-[11px] px-2.5 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium">Pagar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doc 2: OC parcial al día -->
+        <div class="border border-amber-200 bg-amber-50/20 rounded-lg p-3 hover:bg-amber-50/40 transition cursor-pointer">
+          <div class="grid grid-cols-12 gap-3 items-center">
+            <div class="col-span-1">
+              <div class="w-8 h-8 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center">
+                <i class="fa-solid fa-receipt text-xs"></i>
+              </div>
+            </div>
+            <div class="col-span-3">
+              <div class="font-mono text-sm font-bold text-slate-900">OC-2026-012</div>
+              <div class="text-[10px] text-slate-500">Emitida 25-abr-26 · 3 productos</div>
+            </div>
+            <div class="col-span-2">
+              <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-700">
+                <i class="fa-solid fa-clock text-[8px]"></i>
+                Vence 28-abr
+              </span>
+            </div>
+            <div class="col-span-2 text-[11px] text-slate-600">
+              <div>Total: <span class="num-tab font-medium text-slate-900">US$ 1,250</span></div>
+              <div>Pagado: <span class="num-tab text-slate-400">US$ 0</span></div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="text-[10px] text-slate-400 uppercase">Pendiente</div>
+              <div class="text-base font-bold text-amber-700 num-tab">US$ 1,250.00</div>
+              <div class="h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                <div class="h-full bg-slate-300" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="col-span-2 flex justify-end gap-1.5">
+              <button class="text-[11px] px-2.5 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium">Pagar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doc 3: OC saldada -->
+        <div class="border border-slate-200 rounded-lg p-3 hover:bg-slate-50 transition cursor-pointer opacity-70">
+          <div class="grid grid-cols-12 gap-3 items-center">
+            <div class="col-span-1">
+              <div class="w-8 h-8 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <i class="fa-solid fa-check text-xs"></i>
+              </div>
+            </div>
+            <div class="col-span-3">
+              <div class="font-mono text-sm font-bold text-slate-900">OC-2026-005</div>
+              <div class="text-[10px] text-slate-500">Saldada 02-abr-26 · 8 productos</div>
+            </div>
+            <div class="col-span-2">
+              <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <i class="fa-solid fa-check text-[8px]"></i>
+                Pagada
+              </span>
+            </div>
+            <div class="col-span-2 text-[11px] text-slate-600">
+              <div>Total: <span class="num-tab font-medium text-slate-900">US$ 1,800</span></div>
+              <div>Pagado: <span class="num-tab text-emerald-700">US$ 1,800</span></div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="text-[10px] text-slate-400 uppercase">Pendiente</div>
+              <div class="text-base font-bold text-slate-500 num-tab">US$ 0.00</div>
+              <div class="h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                <div class="h-full bg-emerald-500" style="width:100%"></div>
+              </div>
+            </div>
+            <div class="col-span-2 flex justify-end gap-1.5">
+              <button class="text-[11px] px-2.5 py-1.5 text-slate-500 rounded-md hover:bg-slate-100 font-medium">Ver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     7 — DECISIONES Y PLAN
+============================================================================ -->
+<section id="decisiones" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">7 · Decisiones a confirmar y plan</div>
+
+  <div class="card p-6">
+    <h2 class="text-xl font-bold text-slate-900">Decisiones de diseño (a confirmar contigo)</h2>
+
+    <div class="mt-5 space-y-3">
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-FIN-1 · Hub único en /finanzas</div>
+        <div class="text-sm text-slate-700 mt-1">Crear ruta nueva <code class="text-xs bg-slate-100 px-1 rounded">/finanzas</code>
+          que reemplaza los 3 tabs de Reportes (CxC, CxP, Cuentas Corrientes). Aparece en sidebar como módulo independiente.
+          Las tabs viejas se eliminan o redirigen.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-FIN-2 · Pipeline clickable como filtro principal</div>
+        <div class="text-sm text-slate-700 mt-1">5 chips visibles arriba: Todas · Por cobrar · Por pagar · Vencidas · Saldadas.
+          Click filtra la lista. Estado activo en slate-900 (tipo Stripe). Más chips secundarios por tipo de entidad.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-FIN-3 · Cards estilo CompraCard con layout 12-col</div>
+        <div class="text-sm text-slate-700 mt-1">Cada entidad es una card con 5 zonas:
+          (1) Avatar + nombre + tipo · (2) Estado/pipeline · (3) Saldo destacado · (4) Documentos asociados · (5) Acciones.
+          Layout dual @container narrow/wide.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-FIN-4 · Modal detalle estilo OrdenCompraCard</div>
+        <div class="text-sm text-slate-700 mt-1">Click en card abre modal con: Header hero (saldos USD/PEN destacados) +
+          Pipeline contextual (cuenta abierta → compras → pagos → saldada) + 4 KPIs + Tabs sticky:
+          Extracto · Documentos · Histórico · Acciones.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-FIN-5 · Acciones rápidas inline</div>
+        <div class="text-sm text-slate-700 mt-1">Cada card tiene CTA contextual según el saldo:
+          <strong>Cobrar</strong> (verde) si entidad nos debe ·
+          <strong>Pagar</strong> (rojo) si le debemos ·
+          <strong>Aplicar saldo</strong> (morado) si tiene saldo a favor.
+          Abre <code class="text-xs bg-slate-100 px-1 rounded">PagoUnificadoForm</code> ya existente.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-FIN-6 · Mantener tabs CC en fichas Proveedor/Cliente</div>
+        <div class="text-sm text-slate-700 mt-1">El acceso por contexto (entrar a la ficha de un proveedor y ver su CC) se preserva.
+          Lo que cambia es la VISTA GLOBAL, no las vistas por contexto.</div>
+      </div>
+
+      <div class="border-l-4 border-amber-500 bg-amber-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-amber-700">D-FIN-7 · ¿Eliminar tabs CxP/CxC viejos de /reportes?</div>
+        <div class="text-sm text-slate-700 mt-1">Mi recomendación: eliminarlos del módulo Reportes y mover toda la funcionalidad
+          a <code class="text-xs bg-slate-100 px-1 rounded">/finanzas</code>. La vista por documento se accede via tab "Documentos"
+          dentro del modal de detalle de la entidad.
+          <strong>¿O preferís dejar copia en Reportes para auditores?</strong></div>
+        <div class="text-[11px] text-amber-700 italic mt-1">Pendiente decisión.</div>
+      </div>
+
+      <div class="border-l-4 border-amber-500 bg-amber-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-amber-700">D-FIN-8 · ¿Personas con multi-rol unificadas en una card?</div>
+        <div class="text-sm text-slate-700 mt-1">Carlos puede ser cliente Y empleado a la vez (CC separadas en BD).
+          ¿En la lista del hub mostramos 2 cards (una por rol) o 1 card con badges múltiples y saldos agregados?</div>
+        <div class="text-[11px] text-amber-700 italic mt-1">Mi voto: <strong>1 card por persona física con badges múltiples</strong>
+          (más limpio). Pendiente confirmación.</div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-900 mt-8">Plan de implementación (3 fases)</h2>
+
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-emerald-300 bg-emerald-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-emerald-700">FASE 1 · Componentes base (1-1.5 sesiones)</div>
+        <div class="text-base font-bold text-slate-900 mt-1">Cards + Pipeline + Toolbar</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ Componente <code class="bg-slate-100 px-1 rounded text-[10px]">EntidadCCCard</code> (estilo CompraCard)</li>
+          <li>✓ Componente <code class="bg-slate-100 px-1 rounded text-[10px]">PipelineFinanzas</code> (chips clickables)</li>
+          <li>✓ Página <code class="bg-slate-100 px-1 rounded text-[10px]">/finanzas</code> con hero + filtros</li>
+        </ul>
+      </div>
+
+      <div class="border border-amber-300 bg-amber-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-amber-700">FASE 2 · Modal detalle (1 sesión)</div>
+        <div class="text-base font-bold text-slate-900 mt-1">EntidadCCDetailModal</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ Header hero con saldos PEN/USD</li>
+          <li>✓ Pipeline contextual + 4 KPIs</li>
+          <li>✓ Tabs sticky: Extracto · Documentos · Histórico · Acciones</li>
+          <li>✓ Tab Documentos con cards de OCs/ventas/envíos</li>
+        </ul>
+      </div>
+
+      <div class="border border-slate-300 bg-slate-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-slate-700">FASE 3 · Acciones e integración (½ sesión)</div>
+        <div class="text-base font-bold text-slate-900 mt-1">CTAs + cleanup</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ Conectar CTAs Pagar/Cobrar/Aplicar a <code class="bg-slate-100 px-1 rounded text-[10px]">PagoUnificadoForm</code></li>
+          <li>✓ Sidebar: agregar enlace "Finanzas"</li>
+          <li>? Eliminar tabs CxP/CxC viejos de Reportes (pendiente D-FIN-7)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 p-3 bg-sky-50 border border-sky-200 rounded-lg text-[12px] text-sky-900">
+      <strong>Total estimado:</strong> 2.5-3 sesiones · riesgo bajo · sin migración de datos (la CC ya está poblada).
+      <strong>Recomendación:</strong> arrancar con Fase 1 una vez confirmadas las decisiones D-FIN-7 y D-FIN-8.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="max-w-7xl mx-auto text-center text-[11px] text-slate-400 py-6">
+  Mockup S56 · finanzas-unificadas-s56.html · Hecho para discutir antes de implementar
+</div>
+
+</body>
+</html>

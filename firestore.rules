@@ -181,6 +181,16 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // INCIDENCIAS DE OC (S54 · Tanda 2)
+    // ============================================================
+    match /incidenciasOC/{docId} {
+      // Mismos permisos que OC: cualquier activo puede leer, los roles
+      // operativos pueden crear/actualizar incidencias.
+      allow read: if isActiveUser();
+      allow write: if hasAnyRole(['admin', 'gerente', 'vendedor', 'almacenero', 'comprador', 'finanzas']);
+    }
+
+    // ============================================================
     // GASTOS (admin, gerente, finanzas, vendedor para GD de entregas)
     // ============================================================
     match /gastos/{docId} {
@@ -510,6 +520,35 @@ service cloud.firestore {
       allow create: if hasAnyRole(['admin', 'gerente']);
       allow update: if hasAnyRole(['admin', 'gerente']);
       allow delete: if isAdmin();
+    }
+
+    // ============================================================
+    // S55 · CUENTA CORRIENTE UNIFICADA
+    // ============================================================
+    // Doc raíz por entidad (cliente/proveedor/colaborador/empleado).
+    // El saldo se actualiza SOLO desde el service vía transacción
+    // atómica que también escribe en movimientosCC. La regla previene
+    // updates manuales del saldo desde el cliente, pero permite update
+    // dentro de transacciones (Firestore evalúa la regla post-batch).
+    //
+    // Decisiones cerradas:
+    //  - Permisos: todos los admins ven todo (por ahora)
+    //  - CCs nunca se eliminan (audit trail histórico)
+    //  - Movimientos son inmutables (no update, no delete)
+    match /cuentasCorrientes/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow delete: if false;
+    }
+
+    // Movimientos CC = libro contable inmutable. NUNCA se editan ni borran.
+    // Solo se crean (atómicamente con update de la CC padre vía transacción).
+    match /movimientosCC/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow update: if false;
+      allow delete: if false;
     }
 
     // ============================================================

@@ -733,9 +733,9 @@ export const Tesoreria: React.FC = () => {
   return (
     <PageShell>
       <PageHeader
-        title="Tesoreria"
-        subtitle="Gestion de caja, movimientos y conversiones"
-        icon={Wallet}
+        title="Movimientos de tesorería"
+        subtitle="Cash flow real por cuenta bancaria"
+        icon={ArrowLeftRight}
         actions={
           <>
             {!statsOptimizadas && (
@@ -771,48 +771,91 @@ export const Tesoreria: React.FC = () => {
       {/* Toolbar */}
       <Toolbar />
 
-      {/* KPIs */}
+      {/* S57 Fase A — KPIs estilo gradiente alineados con /finanzas */}
       {stats && (
-        <>
-          <KPIBar columns={2}>
-            <StatCard label="Saldo PEN" value={`S/${stats.saldoTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`} icon={Banknote} variant="success" />
-            <StatCard label="Saldo USD" value={`$${stats.saldoTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`} icon={DollarSign} variant="brand" />
-          </KPIBar>
-          <KPIBar columns={4}>
-            <StatCard label="Conversiones Mes" value={stats.conversionesMes || 0} variant="neutral" size="sm" />
-            <StatCard label="TC Promedio" value={(stats.tcPromedioMes || tcDefault).toFixed(3)} variant="neutral" size="sm" />
-            <StatCard label="Pendiente USD" value={`$${(stats.pagosPendientesUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`} variant="warning" size="sm" />
-            <StatCard label="Pendiente PEN" value={`S/${(stats.pagosPendientesPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`} variant="warning" size="sm" />
-          </KPIBar>
-        </>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          {/* Saldo PEN total */}
+          <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Saldo PEN</span>
+              <Banknote className="w-3.5 h-3.5 text-emerald-500" />
+            </div>
+            <div className="text-2xl font-bold text-emerald-700 tabular-nums">
+              {`S/ ${stats.saldoTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`}
+            </div>
+            <div className="text-[10px] text-emerald-700/70 mt-2">Total en cuentas locales</div>
+          </div>
+
+          {/* Saldo USD total */}
+          <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] uppercase tracking-wider text-sky-700 font-semibold">Saldo USD</span>
+              <DollarSign className="w-3.5 h-3.5 text-sky-500" />
+            </div>
+            <div className="text-2xl font-bold text-sky-700 tabular-nums">
+              {`US$ ${stats.saldoTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+            </div>
+            <div className="text-[10px] text-sky-700/70 mt-2">Total en moneda extranjera</div>
+          </div>
+
+          {/* Pendientes (combinado) */}
+          <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">Pendientes</span>
+              <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
+            </div>
+            <div className="text-2xl font-bold text-amber-700 tabular-nums">
+              {`S/ ${(stats.pagosPendientesPEN || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`}
+            </div>
+            {(stats.pagosPendientesUSD || 0) > 0 && (
+              <div className="text-xs text-amber-600 tabular-nums mt-0.5">
+                + US$ {(stats.pagosPendientesUSD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </div>
+            )}
+            <div className="text-[10px] text-amber-700/70 mt-2">Por cobrar/pagar</div>
+          </div>
+
+          {/* Conversiones del mes */}
+          <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] uppercase tracking-wider text-purple-700 font-semibold">Conversiones</span>
+              <RefreshCw className="w-3.5 h-3.5 text-purple-500" />
+            </div>
+            <div className="text-2xl font-bold text-purple-700 tabular-nums">
+              {stats.conversionesMes || 0}
+            </div>
+            <div className="text-[10px] text-purple-700/70 mt-2">
+              Este mes · TC prom: {(stats.tcPromedioMes || tcDefault).toFixed(3)}
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Tabs Navigation */}
-      <div className="border-b border-slate-200">
-        <nav className="-mb-px flex sm:space-x-8">
+      {/* S57 Fase A — Tabs estilo chips clickables (alineado con PipelineFinanzas) */}
+      <div className="mb-4">
+        <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Sub-módulo</div>
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {([
-            { key: 'movimientos', icon: Wallet, label: 'Movimientos', labelSm: 'Mov.' },
-            { key: 'conversiones', icon: RefreshCw, label: 'Conversiones', labelSm: 'Conv.' },
-            { key: 'transferencias', icon: ArrowLeftRight, label: 'Transferencias', labelSm: 'Transf.' },
-            { key: 'cuentas', icon: Building2, label: 'Cuentas', labelSm: 'Ctas.' },
-            { key: 'tarjetas', icon: CreditCard, label: 'Tarjetas', labelSm: 'TC' },
-            { key: 'pagosMasivos', icon: Layers, label: 'Pagos Masivos', labelSm: 'Lotes' },
-          ] as { key: TabActiva; icon: any; label: string; labelSm: string }[]).map(({ key, icon: Icon, label, labelSm }) => (
-            <button
-              key={key}
-              onClick={() => setTabActiva(key)}
-              className={`flex-1 sm:flex-none py-2.5 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center justify-center sm:justify-start gap-1 sm:gap-2 ${
-                tabActiva === key
-                  ? 'border-teal-500 text-teal-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-              <span className="hidden sm:inline">{label}</span>
-              <span className="sm:hidden">{labelSm}</span>
-            </button>
-          ))}
-        </nav>
+            { key: 'movimientos', icon: Wallet, label: 'Movimientos', activo: 'bg-slate-900 text-white', inactivo: 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' },
+            { key: 'conversiones', icon: RefreshCw, label: 'Conversiones', activo: 'bg-purple-600 text-white', inactivo: 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200' },
+            { key: 'transferencias', icon: ArrowLeftRight, label: 'Transferencias', activo: 'bg-sky-600 text-white', inactivo: 'bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200' },
+            { key: 'cuentas', icon: Building2, label: 'Cuentas bancarias', activo: 'bg-emerald-600 text-white', inactivo: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' },
+            { key: 'tarjetas', icon: CreditCard, label: 'Tarjetas', activo: 'bg-amber-600 text-white', inactivo: 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' },
+            { key: 'pagosMasivos', icon: Layers, label: 'Pagos masivos', activo: 'bg-slate-700 text-white', inactivo: 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200' },
+          ] as { key: TabActiva; icon: any; label: string; activo: string; inactivo: string }[]).map(({ key, icon: Icon, label, activo, inactivo }) => {
+            const isActive = tabActiva === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setTabActiva(key)}
+                className={`px-3 py-1.5 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap transition-colors font-medium ${isActive ? activo : inactivo}`}
+              >
+                <Icon className="w-3 h-3" />
+                {label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tab Content */}

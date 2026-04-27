@@ -418,3 +418,49 @@ CAPA DE NEGOCIO (10):
   16 legal-compliance-consultant | 19 financial-credit-manager
   20 accounting-manager | 21 financial-planning-analyst
   22 system-auditor | 23 implementation-controller
+
+---
+
+## ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS DECLARADAS (S54.x)
+
+### Decisión tomada: 2026-04-25
+
+Las páginas de /compras y /envios (en su estado actual S54.x) son la FUENTE DE VERDAD visual
+del sistema. El resto del sistema debe alinearse a ellas, no al revés.
+
+Cita literal del usuario: "ya teniendo mejor aterrizada la situacion, tengo claridad de que
+el como estan diseñadas paginas como compras y envios, son las referencias finales".
+
+### Las 5 Referencias Canónicas del Sistema
+
+Estos son los archivos de referencia. NO se modifican durante la alineación del resto.
+Cualquier cambio en ellos requiere autorización explícita del usuario.
+
+| # | Referencia | Archivo | Para qué aplica |
+|---|-----------|---------|----------------|
+| 1 | Vista de lista de entidades | `src/pages/Envios/EnvioCardSimple.tsx` | Cards de fila en listado scrolleable |
+| 2 | Vista de lista con sub-entidades | `src/components/modules/ordenCompra/CompraCard.tsx` | Cards con sub-órdenes anidadas |
+| 3 | Detalle de entidad | `src/components/modules/ordenCompra/OrdenCompraCard.tsx` | Header + pipeline + KPIs + tabs en modal de detalle |
+| 4 | Detalle con scroll y muchos tabs | `src/pages/Envios/EnvioDetailModal.tsx` | Modales con contenido extenso, tabs sticky |
+| 5 | Pipeline de listado | `src/components/modules/ordenCompra/PipelineCompras.tsx` | Pipelines clickables arriba de listados |
+
+### Regla Operativa de Alineación
+
+Cualquier nueva implementación o refactor de página/modal/card debe:
+1. Identificar qué referencia aplica a su caso (de la tabla anterior).
+2. Abrir ese archivo y observar su estructura visual y de componentes.
+3. Replicar el patrón en la nueva pantalla.
+4. Si ninguna referencia resuelve el caso (Kanban, dashboards, escáner), escalar al usuario
+   antes de inventar. Existen "excepciones legítimas" declaradas (ver REGISTRO_IMPLEMENTACION.md).
+
+### Documentación complementaria
+
+- `docs/DESIGN_PATTERNS.md` seccion "Referencias de Diseño Canónicas (S54.x)" — detalle técnico.
+- `docs/REGISTRO_IMPLEMENTACION.md` seccion "SESIÓN S54.x — DECISIÓN ESTRATÉGICA: ALINEACIÓN
+  GLOBAL DE DISEÑO" — plan de migración en 5 fases, riesgos, prerequisitos.
+- Los 5 archivos referencia llevan un header de comentario en su código.
+
+### Estado
+
+La migración de páginas al estándar NO se ejecuta hasta que se completen los prerequisitos
+declarados en REGISTRO_IMPLEMENTACION.md. Solo se dejó la decisión registrada y los marcadores.

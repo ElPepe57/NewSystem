@@ -34,11 +34,17 @@ export const TabCxP: React.FC = () => {
   }, [ordenes]);
 
   const totalDeuda = ocPendientes.reduce((sum, oc) => sum + (oc.totalUSD || 0), 0);
-  const totalPagado = ocPendientes.reduce((sum, oc) => {
-    const pagos = oc.historialPagos || [];
-    return sum + pagos.reduce((s, p) => s + (p.montoUSD || 0), 0);
+  // S55 Fase 2 — Saldo pendiente desde campo denormalizado `montoPendiente`
+  // (mantenido por ordenCompra.pagos.service al escribir en CC).
+  // Para detalle de pagos individuales, leer movimientosCC.
+  const saldoPendiente = ocPendientes.reduce((sum, oc) => {
+    const tcRef = oc.tcReferencial || oc.tcCompra || 1;
+    const pendUSD = oc.montoPendiente
+      ? oc.montoPendiente / tcRef
+      : (oc.totalUSD || 0);
+    return sum + Math.max(0, pendUSD);
   }, 0);
-  const saldoPendiente = totalDeuda - totalPagado;
+  const totalPagado = totalDeuda - saldoPendiente;
 
   if (loading) return <div className="text-center py-8 text-slate-500">Cargando CxP...</div>;
 
@@ -106,8 +112,12 @@ export const TabCxP: React.FC = () => {
               },
               { key: 'total', header: 'Total USD', align: 'right' as const, render: (oc: OrdenCompra) => fmtUSD(oc.totalUSD) },
               { key: 'pendiente', header: 'Pendiente', align: 'right' as const, render: (oc: OrdenCompra) => {
-                const pagado = (oc.historialPagos || []).reduce((s, p) => s + (p.montoUSD || 0), 0);
-                return <span className="font-medium text-red-600">{fmtUSD((oc.totalUSD || 0) - pagado)}</span>;
+                // S55 Fase 2 — Pendiente derivado de `montoPendiente` denormalizado
+                const tcRef = oc.tcReferencial || oc.tcCompra || 1;
+                const pendUSD = oc.montoPendiente
+                  ? oc.montoPendiente / tcRef
+                  : (oc.totalUSD || 0);
+                return <span className="font-medium text-red-600">{fmtUSD(Math.max(0, pendUSD))}</span>;
               }},
               { key: 'estado', header: 'Estado', align: 'center' as const, render: (oc: OrdenCompra) => (
                 <Badge variant={oc.estadoPago === 'parcial' ? 'warning' : 'danger'} className="text-xs">

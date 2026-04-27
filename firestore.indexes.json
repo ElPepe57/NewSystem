@@ -257,6 +257,54 @@
         { "fieldPath": "creadoPor", "order": "ASCENDING" },
         { "fieldPath": "fechaVenta", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "cuentasCorrientes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "fechaUltimoMovimiento", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "cuentasCorrientes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "entidadNombre", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "movimientosCC",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "cuentaCorrienteId", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "movimientosCC",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "cuentaCorrienteId", "order": "ASCENDING" },
+        { "fieldPath": "fechaRegistro", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "movimientosCC",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "refDocumentoId", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "movimientosCC",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -35,7 +35,10 @@ import {
   Target,
   MapPin,
   Banknote,
-  Network
+  Network,
+  Coins,
+  ChartPie,
+  Handshake
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
@@ -94,11 +97,18 @@ const menuGroups: MenuGroup[] = [
     icon: Wallet,
     defaultOpen: false,
     items: [
+      // S57 Fase C — Hub Finanzas con Overview ejecutivo + sub-rutas
+      // /finanzas         → Overview ejecutivo (Dashboard CFO)
+      // /finanzas/saldos  → Cuentas Corrientes (lista de entidades con saldo)
+      // /finanzas/cash-flow → Tesorería (movimientos por cuenta bancaria)
+      { icon: ChartPie, label: 'Overview', path: '/finanzas', permiso: PERMISOS.VER_TESORERIA },
+      { icon: Handshake, label: 'Saldos', path: '/finanzas/saldos', permiso: PERMISOS.VER_TESORERIA },
+      { icon: ArrowRightLeft, label: 'Cash flow', path: '/finanzas/cash-flow', permiso: PERMISOS.VER_TESORERIA },
+      { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
+      // Otros módulos planos del grupo
       { icon: Receipt, label: 'Gastos Fijos', path: '/gastos', permiso: PERMISOS.VER_GASTOS },
-      { icon: Wallet, label: 'Tesorería', path: '/tesoreria', permiso: PERMISOS.VER_TESORERIA },
       { icon: BookOpen, label: 'Contabilidad', path: '/contabilidad', permiso: PERMISOS.VER_TESORERIA },
       { icon: Banknote, label: 'Planilla', path: '/planilla', permiso: PERMISOS.VER_PLANILLA },
-      { icon: DollarSign, label: 'Tipo de Cambio', path: '/tipo-cambio', permiso: PERMISOS.VER_TESORERIA },
     ]
   },
   {

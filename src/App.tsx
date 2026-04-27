@@ -40,6 +40,11 @@ const BorradoresWizardPanel = React.lazy(() => import('./pages/Configuracion/Bor
 const Cotizaciones = React.lazy(() => import('./pages/Cotizaciones/Cotizaciones').then(m => ({ default: m.Cotizaciones })));
 const Requerimientos = React.lazy(() => import('./pages/Requerimientos/Requerimientos').then(m => ({ default: m.Requerimientos })));
 const Tesoreria = React.lazy(() => import('./pages/Tesoreria/Tesoreria').then(m => ({ default: m.Tesoreria })));
+// S56 — Hub Finanzas (CC unificada + acciones rápidas)
+// S57 Fase C — Finanzas ahora es Overview ejecutivo;
+// la lista de saldos por entidad se movió a /finanzas/saldos
+const Finanzas = React.lazy(() => import('./pages/Finanzas/Finanzas'));
+const FinanzasSaldos = React.lazy(() => import('./pages/Finanzas/FinanzasSaldos'));
 const RendimientoCambiario = React.lazy(() => import('./pages/RendimientoCambiario/RendimientoCambiario').then(m => ({ default: m.RendimientoCambiario })));
 const Maestros = React.lazy(() => import('./pages/Maestros/Maestros').then(m => ({ default: m.Maestros })));
 const Usuarios = React.lazy(() => import('./pages/Usuarios/Usuarios').then(m => ({ default: m.Usuarios })));
@@ -176,8 +181,15 @@ function App() {
               <Route path="requerimientos" element={<Requerimientos />} />
 
               {/* Finanzas */}
+              {/* S57 Fase C —
+                   /finanzas         → Overview ejecutivo (Dashboard CFO)
+                   /finanzas/saldos  → Lista de cuentas corrientes con pipeline
+                   /finanzas/cash-flow → Tesorería (movimientos por cuenta bancaria) */}
+              <Route path="finanzas" element={<Finanzas />} />
+              <Route path="finanzas/saldos" element={<FinanzasSaldos />} />
+              <Route path="finanzas/cash-flow" element={<Tesoreria />} />
+              <Route path="tesoreria" element={<Navigate to="/finanzas/cash-flow" replace />} />
               <Route path="gastos" element={<Gastos />} />
-              <Route path="tesoreria" element={<Tesoreria />} />
               <Route path="contabilidad" element={<Contabilidad />} />
               <Route path="tipo-cambio" element={<TipoCambio />} />
               <Route path="ctru" element={<CTRUDashboard />} />

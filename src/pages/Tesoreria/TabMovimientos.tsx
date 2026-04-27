@@ -16,6 +16,8 @@ import {
   RefreshCw,
   User,
   X,
+  Link2,
+  Coins,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
 import { FormModal, DataTable } from '../../design-system';
@@ -30,6 +32,10 @@ import type {
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
+import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
+import type { CuentaCorriente } from '../../types/cuentaCorriente.types';
+import { EntidadCCDrawer } from '../Finanzas/components/EntidadCCDrawer';
+import { EntidadCCDetailModal } from '../Finanzas/components/EntidadCCDetailModal';
 
 interface TabMovimientosProps {
   movimientosFiltrados: MovimientoTesoreria[];
@@ -85,6 +91,46 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
   handleCerrarModalMovimiento,
 }) => {
   const [filtroTitular, setFiltroTitular] = useState<string>('');
+
+  // Cross-link CC ↔ Tesorería (S57 Fase B)
+  const [ccDrawer, setCCDrawer] = useState<{
+    cc: CuentaCorriente | null;
+    loading: boolean;
+    error: string | null;
+  } | null>(null);
+  const [ccModalAbierto, setCCModalAbierto] = useState<CuentaCorriente | null>(null);
+
+  // Lookup desde un movimiento de tesorería → CC vinculada (si existe)
+  const abrirCCDesdeMovimiento = async (movId: string) => {
+    setCCDrawer({ cc: null, loading: true, error: null });
+    try {
+      const movCC = await cuentaCorrienteService.getMovimientoByTesoreriaId(movId);
+      if (!movCC) {
+        setCCDrawer({
+          cc: null,
+          loading: false,
+          error: 'Este movimiento no tiene contraparte en cuenta corriente.',
+        });
+        return;
+      }
+      const cc = await cuentaCorrienteService.getById(movCC.cuentaCorrienteId);
+      if (!cc) {
+        setCCDrawer({
+          cc: null,
+          loading: false,
+          error: 'Cuenta corriente vinculada no encontrada.',
+        });
+        return;
+      }
+      setCCDrawer({ cc, loading: false, error: null });
+    } catch (err) {
+      setCCDrawer({
+        cc: null,
+        loading: false,
+        error: err instanceof Error ? err.message : 'Error cargando cuenta corriente',
+      });
+    }
+  };
 
   // Titulares únicos con sus cuentas
   const titularesConCuentas = useMemo(() => {
@@ -286,6 +332,33 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
           {mov.tipoCambio.toFixed(3)}
         </span>
       ),
+    },
+    {
+      key: 'cc',
+      header: 'CC',
+      align: 'center',
+      render: (mov) => {
+        // Solo movimientos con contraparte potencial en CC
+        // (los gastos sueltos, conversiones y transferencias no aplican)
+        const tieneContraparte = !!(
+          mov.ordenCompraId ||
+          mov.ventaId ||
+          mov.cotizacionId ||
+          mov.transferenciaId
+        );
+        if (!tieneContraparte) {
+          return <span className="text-slate-300 text-[10px]">—</span>;
+        }
+        return (
+          <button
+            onClick={() => abrirCCDesdeMovimiento(mov.id)}
+            className="inline-flex items-center justify-center w-7 h-7 rounded text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition"
+            title="Ver cuenta corriente vinculada"
+          >
+            <Coins className="h-4 w-4" />
+          </button>
+        );
+      },
     },
     {
       key: 'acciones',
@@ -843,6 +916,70 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
         </div>
       </FormModal>
+
+      {/* Drawer CC — abierto desde columna "CC" del listado */}
+      {ccDrawer && (
+        <>
+          {ccDrawer.loading ? (
+            <div
+              className="fixed inset-0 z-[60] flex justify-end"
+              onClick={() => setCCDrawer(null)}
+            >
+              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+              <div className="relative w-full max-w-md bg-white border-l border-slate-200 shadow-2xl flex items-center justify-center">
+                <div className="text-sm text-slate-400 italic">
+                  Cargando cuenta corriente vinculada...
+                </div>
+              </div>
+            </div>
+          ) : ccDrawer.error ? (
+            <div
+              className="fixed inset-0 z-[60] flex justify-end"
+              onClick={() => setCCDrawer(null)}
+            >
+              <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+              <div
+                className="relative w-full max-w-md bg-white border-l border-slate-200 shadow-2xl p-6 flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-semibold text-slate-900">
+                    Sin cuenta corriente
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCCDrawer(null)}
+                    className="text-slate-400 hover:text-slate-700 p-1 hover:bg-slate-100 rounded"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="text-center py-12 text-sm text-slate-500">
+                  <Coins className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                  {ccDrawer.error}
+                </div>
+              </div>
+            </div>
+          ) : ccDrawer.cc ? (
+            <EntidadCCDrawer
+              cc={ccDrawer.cc}
+              onClose={() => setCCDrawer(null)}
+              onVerCompleto={(cc) => {
+                setCCDrawer(null);
+                setCCModalAbierto(cc);
+              }}
+            />
+          ) : null}
+        </>
+      )}
+
+      {/* Modal CC completo — abierto desde el botón "Ver detalle completo" del drawer */}
+      {ccModalAbierto && (
+        <EntidadCCDetailModal
+          cc={ccModalAbierto}
+          onClose={() => setCCModalAbierto(null)}
+        />
+      )}
     </>
   );
 };
