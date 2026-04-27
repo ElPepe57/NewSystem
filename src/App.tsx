@@ -43,10 +43,12 @@ const Tesoreria = React.lazy(() => import('./pages/Tesoreria/Tesoreria').then(m 
 // S56 — Hub Finanzas (CC unificada + acciones rápidas)
 // S57 Fase C — Finanzas ahora es Overview ejecutivo;
 // la lista de saldos por entidad se movió a /finanzas/saldos
-// S57 Fase C+ — FinanzasLayout shell con tabs sticky compartidas
-const FinanzasLayout = React.lazy(() => import('./pages/Finanzas/FinanzasLayout'));
-const Finanzas = React.lazy(() => import('./pages/Finanzas/Finanzas'));
-const FinanzasSaldos = React.lazy(() => import('./pages/Finanzas/FinanzasSaldos'));
+// S57 Fase C+ — FinanzasLayout shell con tabs sticky compartidas.
+// Eager imports (no lazy) para evitar bug de Suspense compartido con
+// rutas anidadas que congelaba el Outlet en la sub-vista anterior.
+import FinanzasLayout from './pages/Finanzas/FinanzasLayout';
+import Finanzas from './pages/Finanzas/Finanzas';
+import FinanzasSaldos from './pages/Finanzas/FinanzasSaldos';
 const RendimientoCambiario = React.lazy(() => import('./pages/RendimientoCambiario/RendimientoCambiario').then(m => ({ default: m.RendimientoCambiario })));
 const Maestros = React.lazy(() => import('./pages/Maestros/Maestros').then(m => ({ default: m.Maestros })));
 const Usuarios = React.lazy(() => import('./pages/Usuarios/Usuarios').then(m => ({ default: m.Usuarios })));
