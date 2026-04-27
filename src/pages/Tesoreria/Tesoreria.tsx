@@ -15,7 +15,9 @@ import {
   CreditCard
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
-import { PageShell, PageHeader, Toolbar, KPIBar, StatCard } from '../../design-system';
+import { Toolbar, KPIBar, StatCard } from '../../design-system';
+import { useOutletContext } from 'react-router-dom';
+import type { FinanzasOutletContext } from '../Finanzas/FinanzasLayout';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { TesoreriaService } from '../../services/tesoreria.service';
 
@@ -729,42 +731,43 @@ export const Tesoreria: React.FC = () => {
 
   const isAdmin = userProfile?.role === 'admin';
 
+  // ── Declarar actions del header (vía outlet context del FinanzasLayout) ──
+  const ctx = useOutletContext<FinanzasOutletContext | undefined>();
+  useEffect(() => {
+    if (!ctx?.setActions) return;
+    ctx.setActions(
+      <>
+        {!statsOptimizadas && (
+          <Button
+            variant="secondary"
+            onClick={handleRecalcularEstadisticas}
+            disabled={isRecalculando || loading}
+            title="Inicializar estadisticas optimizadas (solo una vez)"
+            className="text-xs"
+          >
+            {isRecalculando ? (
+              <><RefreshCw className="h-4 w-4 mr-1 animate-spin" /><span className="hidden sm:inline">Calculando...</span></>
+            ) : (
+              <><TrendingUp className="h-4 w-4 mr-1" /><span className="hidden sm:inline">Optimizar</span></>
+            )}
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          onClick={handleRefresh}
+          disabled={isRefreshing || loading}
+          title="Actualizar datos"
+        >
+          <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+        </Button>
+      </>,
+    );
+    return () => ctx.setActions(null);
+  }, [ctx, statsOptimizadas, isRecalculando, isRefreshing, loading, handleRecalcularEstadisticas, handleRefresh]);
+
   // ============ Render ============
   return (
-    <PageShell>
-      <PageHeader
-        title="Movimientos de tesorería"
-        subtitle="Cash flow real por cuenta bancaria"
-        icon={ArrowLeftRight}
-        actions={
-          <>
-            {!statsOptimizadas && (
-              <Button
-                variant="secondary"
-                onClick={handleRecalcularEstadisticas}
-                disabled={isRecalculando || loading}
-                title="Inicializar estadisticas optimizadas (solo una vez)"
-                className="text-xs"
-              >
-                {isRecalculando ? (
-                  <><RefreshCw className="h-4 w-4 mr-1 animate-spin" /><span className="hidden sm:inline">Calculando...</span></>
-                ) : (
-                  <><TrendingUp className="h-4 w-4 mr-1" /><span className="hidden sm:inline">Optimizar</span></>
-                )}
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              onClick={handleRefresh}
-              disabled={isRefreshing || loading}
-              title="Actualizar datos"
-            >
-              <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </Button>
-          </>
-        }
-      />
-
+    <>
       {/* Pool USD Widget */}
       <PoolUSDWidget />
 
@@ -942,6 +945,6 @@ export const Tesoreria: React.FC = () => {
       )}
 
       <ConfirmDialog {...dialogProps} />
-    </PageShell>
+    </>
   );
 };

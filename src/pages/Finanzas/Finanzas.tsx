@@ -17,9 +17,8 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import {
-  ChartPie,
   RotateCw,
   Download,
   Plus,
@@ -30,8 +29,8 @@ import {
   Banknote,
   ArrowRight,
 } from 'lucide-react';
-import { PageShell, PageHeader } from '../../design-system';
 import { Card, Button } from '../../components/common';
+import type { FinanzasOutletContext } from './FinanzasLayout';
 import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
 import { getCuentas } from '../../services/tesoreria.cuentas.service';
 import { getMovimientos } from '../../services/tesoreria.movimientos.service';
@@ -136,25 +135,31 @@ const Finanzas: React.FC = () => {
     return `hace ${horas} ${horas === 1 ? 'hora' : 'horas'}`;
   }, [ultimaActualizacion]);
 
+  // ── Declarar actions del header (vía outlet context del FinanzasLayout) ──
+  const ctx = useOutletContext<FinanzasOutletContext | undefined>();
+  useEffect(() => {
+    if (!ctx?.setActions) return;
+    ctx.setActions(
+      <div className="flex gap-2">
+        <Button variant="secondary" size="sm" onClick={cargar} disabled={loading}>
+          <RotateCw className={loading ? 'w-4 h-4 mr-1.5 animate-spin' : 'w-4 h-4 mr-1.5'} />
+          Actualizar
+        </Button>
+        <Button variant="secondary" size="sm">
+          <Download className="w-4 h-4 mr-1.5" />
+          Reporte mensual
+        </Button>
+      </div>,
+    );
+    return () => ctx.setActions(null);
+  }, [ctx, cargar, loading]);
+
   return (
-    <PageShell>
-      <PageHeader
-        title="Vista financiera consolidada"
-        subtitle={`${fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1)} · Última actualización ${tiempoUltActStr}`}
-        icon={ChartPie}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={cargar} disabled={loading}>
-              <RotateCw className={loading ? 'w-4 h-4 mr-1.5 animate-spin' : 'w-4 h-4 mr-1.5'} />
-              Actualizar
-            </Button>
-            <Button variant="secondary" size="sm">
-              <Download className="w-4 h-4 mr-1.5" />
-              Reporte mensual
-            </Button>
-          </div>
-        }
-      />
+    <>
+      {/* Mini-info bar (fecha + última actualización) */}
+      <div className="text-[11px] text-slate-500 mb-3 px-1">
+        {fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1)} · Última actualización {tiempoUltActStr}
+      </div>
 
       {/* ─── Hero · KPIs + Quick actions ─────────────────────────────── */}
       <Card padding="lg" className="mb-4">
@@ -303,7 +308,7 @@ const Finanzas: React.FC = () => {
           onClose={() => setCCSeleccionada(null)}
         />
       )}
-    </PageShell>
+    </>
   );
 };
 

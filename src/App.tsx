@@ -43,6 +43,8 @@ const Tesoreria = React.lazy(() => import('./pages/Tesoreria/Tesoreria').then(m 
 // S56 — Hub Finanzas (CC unificada + acciones rápidas)
 // S57 Fase C — Finanzas ahora es Overview ejecutivo;
 // la lista de saldos por entidad se movió a /finanzas/saldos
+// S57 Fase C+ — FinanzasLayout shell con tabs sticky compartidas
+const FinanzasLayout = React.lazy(() => import('./pages/Finanzas/FinanzasLayout'));
 const Finanzas = React.lazy(() => import('./pages/Finanzas/Finanzas'));
 const FinanzasSaldos = React.lazy(() => import('./pages/Finanzas/FinanzasSaldos'));
 const RendimientoCambiario = React.lazy(() => import('./pages/RendimientoCambiario/RendimientoCambiario').then(m => ({ default: m.RendimientoCambiario })));
@@ -181,13 +183,16 @@ function App() {
               <Route path="requerimientos" element={<Requerimientos />} />
 
               {/* Finanzas */}
-              {/* S57 Fase C —
+              {/* S57 Fase C+ — FinanzasLayout con tabs sticky compartidas:
                    /finanzas         → Overview ejecutivo (Dashboard CFO)
                    /finanzas/saldos  → Lista de cuentas corrientes con pipeline
-                   /finanzas/cash-flow → Tesorería (movimientos por cuenta bancaria) */}
-              <Route path="finanzas" element={<Finanzas />} />
-              <Route path="finanzas/saldos" element={<FinanzasSaldos />} />
-              <Route path="finanzas/cash-flow" element={<Tesoreria />} />
+                   /finanzas/cash-flow → Tesorería (movimientos por cuenta bancaria)
+                   Las 3 viven dentro del mismo shell con header común y tabs. */}
+              <Route path="finanzas" element={<FinanzasLayout />}>
+                <Route index element={<Finanzas />} />
+                <Route path="saldos" element={<FinanzasSaldos />} />
+                <Route path="cash-flow" element={<Tesoreria />} />
+              </Route>
               <Route path="tesoreria" element={<Navigate to="/finanzas/cash-flow" replace />} />
               <Route path="gastos" element={<Gastos />} />
               <Route path="contabilidad" element={<Contabilidad />} />

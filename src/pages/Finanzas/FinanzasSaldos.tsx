@@ -17,8 +17,8 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import {
-  Coins,
   Download,
   Plus,
   Search,
@@ -28,8 +28,8 @@ import {
   Users,
   Wallet,
 } from 'lucide-react';
-import { PageShell, PageHeader } from '../../design-system';
 import { Card, Button } from '../../components/common';
+import type { FinanzasOutletContext } from './FinanzasLayout';
 import {
   cuentaCorrienteService,
 } from '../../services/cuentaCorriente.service';
@@ -164,25 +164,27 @@ const FinanzasSaldos: React.FC = () => {
     return sorted;
   }, [ccs, estadoFiltro, tipoFiltro, busqueda, orden]);
 
+  // ── Declarar actions del header (vía outlet context del FinanzasLayout) ──
+  const ctx = useOutletContext<FinanzasOutletContext | undefined>();
+  useEffect(() => {
+    if (!ctx?.setActions) return;
+    ctx.setActions(
+      <div className="flex gap-2">
+        <Button variant="secondary" size="sm">
+          <Download className="w-4 h-4 mr-1.5" />
+          Exportar
+        </Button>
+        <Button variant="primary" size="sm">
+          <Plus className="w-4 h-4 mr-1.5" />
+          Nuevo movimiento
+        </Button>
+      </div>,
+    );
+    return () => ctx.setActions(null);
+  }, [ctx]);
+
   return (
-    <PageShell>
-      <PageHeader
-        title="Saldos por entidad"
-        subtitle="Vista relacional de todas las entidades con saldo"
-        icon={Coins}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm">
-              <Download className="w-4 h-4 mr-1.5" />
-              Exportar
-            </Button>
-            <Button variant="primary" size="sm">
-              <Plus className="w-4 h-4 mr-1.5" />
-              Nuevo movimiento
-            </Button>
-          </div>
-        }
-      />
+    <>
 
       {/* Hero con KPIs ejecutivos */}
       {resumen && (
@@ -354,7 +356,7 @@ const FinanzasSaldos: React.FC = () => {
           }}
         />
       )}
-    </PageShell>
+    </>
   );
 };
 
