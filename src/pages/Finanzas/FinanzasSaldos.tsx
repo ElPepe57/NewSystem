@@ -17,7 +17,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 import {
   Download,
   Plus,
@@ -82,12 +82,38 @@ const FinanzasSaldos: React.FC = () => {
   const [ccs, setCCs] = useState<CuentaCorriente[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [estadoFiltro, setEstadoFiltro] = useState<FiltroEstado>('todas');
-  const [tipoFiltro, setTipoFiltro] = useState<TipoEntidadCC | 'todos'>('todos');
+  // ── Filtros iniciales desde query params (deep-link desde Overview, etc.) ──
+  const [searchParams] = useSearchParams();
+  const estadoParam = searchParams.get('estado');
+  const tipoParam = searchParams.get('tipo');
+  const estadosValidos: FiltroEstado[] = ['todas', 'por_cobrar', 'por_pagar', 'vencidas', 'saldadas'];
+  const tiposValidos: (TipoEntidadCC | 'todos')[] = ['todos', 'cliente', 'proveedor', 'colaborador', 'empleado'];
+  const estadoInicial: FiltroEstado =
+    estadoParam && estadosValidos.includes(estadoParam as FiltroEstado)
+      ? (estadoParam as FiltroEstado)
+      : 'todas';
+  const tipoInicial: TipoEntidadCC | 'todos' =
+    tipoParam && tiposValidos.includes(tipoParam as TipoEntidadCC | 'todos')
+      ? (tipoParam as TipoEntidadCC | 'todos')
+      : 'todos';
+
+  const [estadoFiltro, setEstadoFiltro] = useState<FiltroEstado>(estadoInicial);
+  const [tipoFiltro, setTipoFiltro] = useState<TipoEntidadCC | 'todos'>(tipoInicial);
   const [busqueda, setBusqueda] = useState('');
   const [orden, setOrden] = useState<'mayor_saldo' | 'ultima_act' | 'nombre'>('mayor_saldo');
 
   const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
+
+  // Sincronizar si cambian los params (ej: usuario navega Overview → Saldos otra vez)
+  useEffect(() => {
+    if (estadoParam && estadosValidos.includes(estadoParam as FiltroEstado)) {
+      setEstadoFiltro(estadoParam as FiltroEstado);
+    }
+    if (tipoParam && tiposValidos.includes(tipoParam as TipoEntidadCC | 'todos')) {
+      setTipoFiltro(tipoParam as TipoEntidadCC | 'todos');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estadoParam, tipoParam]);
 
   useEffect(() => {
     let cancelled = false;

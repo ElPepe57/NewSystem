@@ -198,14 +198,14 @@ const Finanzas: React.FC = () => {
             Transferencia interna
           </Link>
           <Link
-            to="/finanzas/saldos?tipo=por_cobrar"
+            to="/finanzas/saldos?estado=por_cobrar"
             className="text-[12px] px-3 py-1.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 flex items-center gap-1.5"
           >
             <CircleDollarSign className="w-3 h-3" />
             Registrar cobro
           </Link>
           <Link
-            to="/finanzas/saldos?tipo=por_pagar"
+            to="/finanzas/saldos?estado=por_pagar"
             className="text-[12px] px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-1.5"
           >
             <Banknote className="w-3 h-3" />
