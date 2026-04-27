@@ -420,7 +420,7 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               </div>
             )}
           </div>
-          <Button variant="primary" onClick={() => setIsMovimientoModalOpen(true)} className="w-full sm:w-auto">
+          <Button variant="primary-soft" onClick={() => setIsMovimientoModalOpen(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
             <span className="sm:hidden">Nuevo</span>
             <span className="hidden sm:inline">Nuevo Movimiento</span>

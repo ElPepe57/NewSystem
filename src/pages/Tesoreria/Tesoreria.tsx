@@ -854,34 +854,36 @@ export const Tesoreria: React.FC = () => {
       {/* Toolbar */}
       <Toolbar />
 
-      {/* S57 Fase A — KPIs estilo gradiente alineados con /finanzas */}
+      {/* S57 Fase A+ — KPIs alineados con la paleta del Hub Finanzas:
+           teal (marca) para saldos, amber (semántico) para pendientes,
+           slate (neutral) para conversiones. */}
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-          {/* Saldo PEN total */}
-          <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-xl p-4">
+          {/* Saldo PEN total (teal · marca) */}
+          <div className="bg-gradient-to-br from-teal-50 to-white border border-teal-200 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Saldo PEN</span>
-              <Banknote className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="text-[10px] uppercase tracking-wider text-teal-700 font-semibold">Saldo PEN</span>
+              <Banknote className="w-3.5 h-3.5 text-teal-500" />
             </div>
-            <div className="text-2xl font-bold text-emerald-700 tabular-nums">
+            <div className="text-2xl font-bold text-teal-700 tabular-nums">
               {`S/ ${stats.saldoTotalPEN.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`}
             </div>
-            <div className="text-[10px] text-emerald-700/70 mt-2">Total en cuentas locales</div>
+            <div className="text-[10px] text-teal-700/70 mt-2">Total en cuentas locales</div>
           </div>
 
-          {/* Saldo USD total */}
-          <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-200 rounded-xl p-4">
+          {/* Saldo USD total (teal · marca) */}
+          <div className="bg-gradient-to-br from-teal-50 to-white border border-teal-200 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] uppercase tracking-wider text-sky-700 font-semibold">Saldo USD</span>
-              <DollarSign className="w-3.5 h-3.5 text-sky-500" />
+              <span className="text-[10px] uppercase tracking-wider text-teal-700 font-semibold">Saldo USD</span>
+              <DollarSign className="w-3.5 h-3.5 text-teal-500" />
             </div>
-            <div className="text-2xl font-bold text-sky-700 tabular-nums">
+            <div className="text-2xl font-bold text-teal-700 tabular-nums">
               {`US$ ${stats.saldoTotalUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
             </div>
-            <div className="text-[10px] text-sky-700/70 mt-2">Total en moneda extranjera</div>
+            <div className="text-[10px] text-teal-700/70 mt-2">Total en moneda extranjera</div>
           </div>
 
-          {/* Pendientes (combinado) */}
+          {/* Pendientes (amber · semántico de atención) */}
           <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">Pendientes</span>
@@ -898,34 +900,38 @@ export const Tesoreria: React.FC = () => {
             <div className="text-[10px] text-amber-700/70 mt-2">Por cobrar/pagar</div>
           </div>
 
-          {/* Conversiones del mes */}
-          <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-xl p-4">
+          {/* Conversiones del mes (slate · neutral, contador) */}
+          <div className="bg-gradient-to-br from-slate-100 to-white border border-slate-200 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] uppercase tracking-wider text-purple-700 font-semibold">Conversiones</span>
-              <RefreshCw className="w-3.5 h-3.5 text-purple-500" />
+              <span className="text-[10px] uppercase tracking-wider text-slate-700 font-semibold">Conversiones</span>
+              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
             </div>
-            <div className="text-2xl font-bold text-purple-700 tabular-nums">
+            <div className="text-2xl font-bold text-slate-800 tabular-nums">
               {stats.conversionesMes || 0}
             </div>
-            <div className="text-[10px] text-purple-700/70 mt-2">
+            <div className="text-[10px] text-slate-600 mt-2">
               Este mes · TC prom: {(stats.tcPromedioMes || tcDefault).toFixed(3)}
             </div>
           </div>
         </div>
       )}
 
-      {/* S57 Fase A — Tabs estilo chips clickables (alineado con PipelineFinanzas) */}
+      {/* S57 Fase A+ — Tabs sub-módulo monocromáticas: teal para activo,
+           slate neutro para inactivos. Antes era 'fiesta de colores'
+           (purple/sky/emerald/amber/slate) que confundía visualmente. */}
       <div className="mb-4">
         <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Sub-módulo</div>
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {([
-            { key: 'movimientos', icon: Wallet, label: 'Movimientos', activo: 'bg-slate-900 text-white', inactivo: 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' },
-            { key: 'conversiones', icon: RefreshCw, label: 'Conversiones', activo: 'bg-purple-600 text-white', inactivo: 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200' },
-            { key: 'transferencias', icon: ArrowLeftRight, label: 'Transferencias', activo: 'bg-sky-600 text-white', inactivo: 'bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200' },
-            { key: 'cuentas', icon: Building2, label: 'Cuentas bancarias', activo: 'bg-emerald-600 text-white', inactivo: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' },
-            { key: 'tarjetas', icon: CreditCard, label: 'Tarjetas', activo: 'bg-amber-600 text-white', inactivo: 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' },
-            { key: 'pagosMasivos', icon: Layers, label: 'Pagos masivos', activo: 'bg-slate-700 text-white', inactivo: 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200' },
-          ] as { key: TabActiva; icon: any; label: string; activo: string; inactivo: string }[]).map(({ key, icon: Icon, label, activo, inactivo }) => {
+            { key: 'movimientos', icon: Wallet, label: 'Movimientos' },
+            { key: 'conversiones', icon: RefreshCw, label: 'Conversiones' },
+            { key: 'transferencias', icon: ArrowLeftRight, label: 'Transferencias' },
+            { key: 'cuentas', icon: Building2, label: 'Cuentas bancarias' },
+            { key: 'tarjetas', icon: CreditCard, label: 'Tarjetas' },
+            { key: 'pagosMasivos', icon: Layers, label: 'Pagos masivos' },
+          ] as { key: TabActiva; icon: any; label: string }[]).map(({ key, icon: Icon, label }) => {
+            const activo = 'bg-teal-600 text-white';
+            const inactivo = 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200';
             const isActive = tabActiva === key;
             return (
               <button
