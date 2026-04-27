@@ -144,23 +144,23 @@ export const KPIsCombinados: React.FC<KPIsCombinadosProps> = ({
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      {/* Saldo en cuentas bancarias (sky) */}
-      <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-200 rounded-xl p-4">
+      {/* Saldo en cuentas bancarias (teal · color de marca Vita Skin) */}
+      <div className="bg-gradient-to-br from-teal-50 to-white border border-teal-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] uppercase tracking-wider text-sky-700 font-semibold">
+          <span className="text-[10px] uppercase tracking-wider text-teal-700 font-semibold">
             Saldo en cuentas
           </span>
-          <Building2 className="w-3.5 h-3.5 text-sky-500" />
+          <Building2 className="w-3.5 h-3.5 text-teal-500" />
         </div>
-        <div className="text-2xl font-bold text-sky-700 tabular-nums">
+        <div className="text-2xl font-bold text-teal-700 tabular-nums">
           {fmt(saldosCuentas.pen, 'PEN')}
         </div>
         {saldosCuentas.usd > 0 && (
-          <div className="text-xs text-sky-600 tabular-nums mt-0.5">
+          <div className="text-xs text-teal-600 tabular-nums mt-0.5">
             + {fmt(saldosCuentas.usd, 'USD')}
           </div>
         )}
-        <div className="text-[10px] text-sky-700/70 mt-2">
+        <div className="text-[10px] text-teal-700/70 mt-2">
           {saldosCuentas.activas} cuenta{saldosCuentas.activas !== 1 ? 's' : ''} activa
           {saldosCuentas.activas !== 1 ? 's' : ''}
         </div>
@@ -209,23 +209,23 @@ export const KPIsCombinados: React.FC<KPIsCombinadosProps> = ({
         </div>
       </div>
 
-      {/* Flujo este mes (purple) */}
-      <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-xl p-4">
+      {/* Flujo este mes (slate · neutral, dato compuesto sin signo único) */}
+      <div className="bg-gradient-to-br from-slate-100 to-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] uppercase tracking-wider text-purple-700 font-semibold">
+          <span className="text-[10px] uppercase tracking-wider text-slate-700 font-semibold">
             Flujo este mes
           </span>
-          <TrendingUp className="w-3.5 h-3.5 text-purple-500" />
+          <TrendingUp className="w-3.5 h-3.5 text-slate-500" />
         </div>
-        <div className="text-2xl font-bold text-purple-700 tabular-nums">
+        <div className="text-2xl font-bold text-slate-800 tabular-nums">
           {fmtSigned(flujoMesActual.neto, 'PEN')}
         </div>
         {flujoMesActual.anterior !== 0 && (
-          <div className="text-xs text-purple-600 tabular-nums mt-0.5">
+          <div className="text-xs text-slate-600 tabular-nums mt-0.5">
             vs {fmtSigned(flujoMesActual.anterior, 'PEN')} mes ant.
           </div>
         )}
-        <div className="text-[10px] text-purple-700/70 mt-2">
+        <div className="text-[10px] text-slate-600 mt-2">
           {flujoMesActual.variacionPct !== null
             ? `${flujoMesActual.variacionPct >= 0 ? '↑' : '↓'} ${Math.abs(flujoMesActual.variacionPct)}% · ${flujoMesActual.neto >= 0 ? 'positivo' : 'negativo'}`
             : flujoMesActual.neto >= 0

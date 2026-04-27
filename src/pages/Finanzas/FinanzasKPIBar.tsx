@@ -133,19 +133,19 @@ export const FinanzasKPIBar: React.FC = () => {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-      {/* Saldo en cuentas */}
-      <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-200 rounded-lg px-3 py-2">
+      {/* Saldo en cuentas (teal · color de marca Vita Skin) */}
+      <div className="bg-gradient-to-br from-teal-50 to-white border border-teal-200 rounded-lg px-3 py-2">
         <div className="flex items-center gap-1.5 mb-0.5">
-          <Building2 className="w-3 h-3 text-sky-500" />
-          <span className="text-[9px] uppercase tracking-wider text-sky-700 font-semibold">
+          <Building2 className="w-3 h-3 text-teal-500" />
+          <span className="text-[9px] uppercase tracking-wider text-teal-700 font-semibold">
             En cuentas
           </span>
         </div>
-        <div className="text-sm font-bold text-sky-700 tabular-nums">
+        <div className="text-sm font-bold text-teal-700 tabular-nums">
           {fmtK(saldosCuentas.pen, 'PEN')}
         </div>
         {saldosCuentas.usd > 0.01 && (
-          <div className="text-[10px] text-sky-600 tabular-nums">
+          <div className="text-[10px] text-teal-600 tabular-nums">
             + {fmtK(saldosCuentas.usd, 'USD')}
           </div>
         )}
@@ -187,18 +187,18 @@ export const FinanzasKPIBar: React.FC = () => {
         )}
       </div>
 
-      {/* Flujo del mes */}
-      <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-lg px-3 py-2">
+      {/* Flujo del mes (slate · neutral, dato compuesto) */}
+      <div className="bg-gradient-to-br from-slate-100 to-white border border-slate-200 rounded-lg px-3 py-2">
         <div className="flex items-center gap-1.5 mb-0.5">
-          <TrendingUp className="w-3 h-3 text-purple-500" />
-          <span className="text-[9px] uppercase tracking-wider text-purple-700 font-semibold">
+          <TrendingUp className="w-3 h-3 text-slate-500" />
+          <span className="text-[9px] uppercase tracking-wider text-slate-700 font-semibold">
             Flujo mes
           </span>
         </div>
-        <div className="text-sm font-bold text-purple-700 tabular-nums">
+        <div className="text-sm font-bold text-slate-800 tabular-nums">
           {fmtSignedK(flujoMes, 'PEN')}
         </div>
-        <div className="text-[10px] text-purple-700/70">
+        <div className="text-[10px] text-slate-600">
           {flujoMes >= 0 ? 'positivo' : 'negativo'}
         </div>
       </div>
