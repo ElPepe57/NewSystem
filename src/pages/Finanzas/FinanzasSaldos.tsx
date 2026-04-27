@@ -211,7 +211,6 @@ const FinanzasSaldos: React.FC = () => {
 
   return (
     <>
-
       {/* Hero con KPIs ejecutivos */}
       {resumen && (
         <Card padding="lg" className="mb-4">

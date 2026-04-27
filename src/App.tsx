@@ -39,7 +39,9 @@ const Configuracion = React.lazy(() => import('./pages/Configuracion/Configuraci
 const BorradoresWizardPanel = React.lazy(() => import('./pages/Configuracion/BorradoresWizardPanel').then(m => ({ default: m.BorradoresWizardPanel })));
 const Cotizaciones = React.lazy(() => import('./pages/Cotizaciones/Cotizaciones').then(m => ({ default: m.Cotizaciones })));
 const Requerimientos = React.lazy(() => import('./pages/Requerimientos/Requerimientos').then(m => ({ default: m.Requerimientos })));
-const Tesoreria = React.lazy(() => import('./pages/Tesoreria/Tesoreria').then(m => ({ default: m.Tesoreria })));
+// S57 Fase C+ — Tesoreria eager (era lazy, pero al ser sub-ruta del FinanzasLayout
+// el Suspense compartido congelaba el Outlet en la sub-vista anterior al navegar).
+import { Tesoreria } from './pages/Tesoreria/Tesoreria';
 // S56 — Hub Finanzas (CC unificada + acciones rápidas)
 // S57 Fase C — Finanzas ahora es Overview ejecutivo;
 // la lista de saldos por entidad se movió a /finanzas/saldos
