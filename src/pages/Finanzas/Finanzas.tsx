@@ -168,13 +168,14 @@ const Finanzas: React.FC = () => {
           loading={loading}
         />
 
-        {/* Quick actions — todos usan el componente Button del design system
-             para consistencia visual con el sub-header (Actualizar / Reporte). */}
+        {/* Quick actions — variantes "soft" (tonales pastel) para que el grupo
+             de 5 botones no sea agresivo visualmente. Estilo Linear/Mercury:
+             color preservado en texto + borde, fondo apenas teñido. */}
         <div className="flex items-center gap-2 flex-wrap mt-5">
           <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mr-2">
             Acciones rápidas
           </span>
-          <Button variant="primary" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
+          <Button variant="primary-soft" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
             <Plus className="w-4 h-4 mr-1.5" />
             Nuevo movimiento
           </Button>
@@ -186,11 +187,11 @@ const Finanzas: React.FC = () => {
             <ArrowRightLeft className="w-4 h-4 mr-1.5" />
             Transferencia interna
           </Button>
-          <Button variant="success" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_cobrar')}>
+          <Button variant="success-soft" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_cobrar')}>
             <CircleDollarSign className="w-4 h-4 mr-1.5" />
             Registrar cobro
           </Button>
-          <Button variant="danger" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_pagar')}>
+          <Button variant="danger-soft" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_pagar')}>
             <Banknote className="w-4 h-4 mr-1.5" />
             Registrar pago
           </Button>

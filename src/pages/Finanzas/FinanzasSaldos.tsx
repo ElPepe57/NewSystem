@@ -191,14 +191,14 @@ const FinanzasSaldos: React.FC = () => {
 
   return (
     <>
-      {/* Actions inline (sub-header Stripe-style). Exportar = outline
-           para no competir con el primary teal de Nuevo movimiento. */}
+      {/* Actions inline (sub-header Stripe-style). Tonal soft para
+           Nuevo movimiento — preserva identidad teal sin agresividad. */}
       <div className="flex items-center justify-end gap-2 mb-3 px-1">
         <Button variant="outline" size="sm">
           <Download className="w-4 h-4 mr-1.5" />
           Exportar
         </Button>
-        <Button variant="primary" size="sm">
+        <Button variant="primary-soft" size="sm">
           <Plus className="w-4 h-4 mr-1.5" />
           Nuevo movimiento
         </Button>
