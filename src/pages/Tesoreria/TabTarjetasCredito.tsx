@@ -14,7 +14,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { CreditCard, Plus, Receipt } from 'lucide-react';
+import { CreditCard, Plus, Receipt, HandCoins } from 'lucide-react';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -25,6 +25,7 @@ import type {
 } from '../../types/tarjetaCredito.types';
 import { TarjetaCard, TarjetaFormModal } from './TarjetasCreditoV2';
 import { CargarTarjetaWizard } from './TarjetasCreditoV2/CargarTarjetaWizard';
+import { PagarEstadoCuentaWizard } from './TarjetasCreditoV2/PagarEstadoCuentaWizard';
 
 export const TabTarjetasCredito: React.FC = () => {
   const {
@@ -45,6 +46,11 @@ export const TabTarjetasCredito: React.FC = () => {
   // S58d F3 — Wizard cargar a tarjeta
   const [showCargar, setShowCargar] = useState(false);
   const [tarjetaParaCargo, setTarjetaParaCargo] =
+    useState<TarjetaCredito | undefined>(undefined);
+
+  // S58d F4 — Wizard pagar estado de cuenta
+  const [showPagar, setShowPagar] = useState(false);
+  const [tarjetaParaPago, setTarjetaParaPago] =
     useState<TarjetaCredito | undefined>(undefined);
 
   useEffect(() => {
@@ -124,19 +130,34 @@ export const TabTarjetasCredito: React.FC = () => {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {tarjetasActivas.length > 0 && (
-            <Button
-              variant="primary-soft"
-              size="sm"
-              onClick={() => {
-                setTarjetaParaCargo(undefined);
-                setShowCargar(true);
-              }}
-              disabled={submitting}
-              title="Cargar deudas a una tarjeta"
-            >
-              <Receipt className="h-4 w-4 mr-1.5" />
-              Cargar a tarjeta
-            </Button>
+            <>
+              <Button
+                variant="primary-soft"
+                size="sm"
+                onClick={() => {
+                  setTarjetaParaCargo(undefined);
+                  setShowCargar(true);
+                }}
+                disabled={submitting}
+                title="Cargar deudas a una tarjeta"
+              >
+                <Receipt className="h-4 w-4 mr-1.5" />
+                Cargar a tarjeta
+              </Button>
+              <Button
+                variant="primary-soft"
+                size="sm"
+                onClick={() => {
+                  setTarjetaParaPago(undefined);
+                  setShowPagar(true);
+                }}
+                disabled={submitting}
+                title="Pagar estado de cuenta o reembolsar al titular"
+              >
+                <HandCoins className="h-4 w-4 mr-1.5" />
+                Pagar estado de cuenta
+              </Button>
+            </>
           )}
           <Button
             variant="primary-soft"
@@ -188,7 +209,28 @@ export const TabTarjetasCredito: React.FC = () => {
                   setShowCargar(true);
                 }}
               />
-              <div className="flex items-center justify-end gap-1 px-1">
+              <div className="flex items-center justify-between gap-1 px-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTarjetaParaPago(tarjeta);
+                    setShowPagar(true);
+                  }}
+                  className={
+                    tarjeta.titularidad === 'personal'
+                      ? 'text-[11px] text-sky-700 hover:text-sky-800 hover:underline px-2 py-0.5 font-medium'
+                      : 'text-[11px] text-amber-700 hover:text-amber-800 hover:underline px-2 py-0.5 font-medium'
+                  }
+                  title={
+                    tarjeta.titularidad === 'personal'
+                      ? 'Reembolsar al titular'
+                      : 'Pagar al banco emisor'
+                  }
+                >
+                  {tarjeta.titularidad === 'personal'
+                    ? 'Reembolsar al titular →'
+                    : 'Pagar al banco →'}
+                </button>
                 <button
                   type="button"
                   onClick={() => abrirEditar(tarjeta)}
@@ -224,6 +266,19 @@ export const TabTarjetasCredito: React.FC = () => {
         tarjetaPreseleccionada={tarjetaParaCargo}
         onSuccess={() => {
           // Refresh datos tras cargo exitoso
+          void fetchTarjetas();
+        }}
+      />
+
+      {/* S58d F4 — Wizard pagar estado de cuenta (TX-2) */}
+      <PagarEstadoCuentaWizard
+        isOpen={showPagar}
+        onClose={() => {
+          setShowPagar(false);
+          setTarjetaParaPago(undefined);
+        }}
+        tarjetaPreseleccionada={tarjetaParaPago}
+        onSuccess={() => {
           void fetchTarjetas();
         }}
       />
