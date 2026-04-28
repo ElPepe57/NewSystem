@@ -8,7 +8,13 @@ import { useColaboradorStore } from '../../store/colaboradorStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import type { Colaborador, TipoColaborador, ColaboradorFormData, SubtipoTransportistaLocal, TramoPeso } from '../../types/colaborador.types';
+import type { DatoBancarioPasivo } from '../../types/tesoreria.types';
 import { TramosPesoSection, validarTramos } from './shared/TramosPesoSection';
+// F-DatosBanc · S58c — Panel de cuentas bancarias pasivas
+import { DatosBancariosPanel } from '../../components/finanzas/DatosBancarios';
+import { doc, updateDoc, Timestamp as FsTimestamp } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { COLLECTIONS } from '../../config/collections';
 
 interface Props {
   isOpen: boolean;
@@ -61,6 +67,9 @@ export const ColaboradorFormModal: React.FC<Props> = ({
   // S52 · D-11 — Tramos de peso escalonados (solo viajero/courier_externo)
   const [tramosPeso, setTramosPeso] = useState<TramoPeso[]>([]);
 
+  // F-DatosBanc · S58c — Datos bancarios pasivos (solo en modo edición)
+  const [datosBancarios, setDatosBancarios] = useState<DatoBancarioPasivo[]>([]);
+
   useEffect(() => {
     if (colaborador) {
       setForm({
@@ -77,6 +86,7 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         subtipoTransportista: colaborador.subtipoTransportista || 'interno',
       });
       setTramosPeso(colaborador.tarifas?.tarifaPorTramos || []);
+      setDatosBancarios(colaborador.datosBancarios || []);
     } else {
       setForm({
         nombre: '',
@@ -87,6 +97,7 @@ export const ColaboradorFormModal: React.FC<Props> = ({
         subtipoTransportista: subtipoPreseleccionado || 'interno',
       });
       setTramosPeso([]);
+      setDatosBancarios([]);
     }
   }, [colaborador, isOpen, tipoPreseleccionado, subtipoPreseleccionado]);
 
@@ -287,6 +298,33 @@ export const ColaboradorFormModal: React.FC<Props> = ({
           <label className={labelCls}>Notas</label>
           <textarea value={form.notas} onChange={e => setForm({ ...form, notas: e.target.value })} className={inputCls} rows={2} />
         </div>
+
+        {/* F-DatosBanc · S58c — Cuentas bancarias pasivas (solo en edición) */}
+        {colaborador && (
+          <div className="pt-4 border-t border-slate-100">
+            <DatosBancariosPanel
+              datos={datosBancarios}
+              onChange={async (nuevos) => {
+                try {
+                  await updateDoc(doc(db, COLLECTIONS.COLABORADORES, colaborador.id), {
+                    datosBancarios: nuevos,
+                    fechaActualizacion: FsTimestamp.now(),
+                    actualizadoPor: user?.uid || 'system',
+                  });
+                  setDatosBancarios(nuevos);
+                  toast.success('Cuentas bancarias actualizadas');
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : 'Error desconocido';
+                  toast.error(msg, 'No se pudo guardar');
+                  throw err;
+                }
+              }}
+              entidadTipo="colaborador"
+              userId={user?.uid || 'system'}
+              subtitle={`Cuentas/billeteras de ${colaborador.nombre} para pagar fletes. Datos pasivos sin saldo trackeado.`}
+            />
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">

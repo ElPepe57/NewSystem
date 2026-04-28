@@ -344,6 +344,108 @@ export interface CuentaCaja {
   fechaActualizacion?: Timestamp;
 }
 
+// ═════════════════════════════════════════════════════════════════════════
+// DATOS BANCARIOS PASIVOS — F-DatosBanc · Decisión D-S58-21
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Dato bancario PASIVO — referencia de cuenta de un tercero.
+ *
+ * Vive embebido en la ficha de Proveedor / Cliente / Colaborador / Empleado
+ * como `datosBancarios?: DatoBancarioPasivo[]`. NO es CuentaCaja — solo es
+ * información de contacto bancario para hacer pagos / cobros sin trackear
+ * saldo.
+ *
+ * Cuando un dato bancario empieza a recibir dinero del negocio (típicamente
+ * cuando un agente recaudador cobra al yape registrado), el sistema puede
+ * proponer "promover a CuentaCaja" para empezar a trackear saldo (UI de
+ * promoción · F-DatosBanc parte 2).
+ *
+ * Tipos soportados (reflejan los productos que también soporta CuentaCaja):
+ *   - 'banco'         · Cuenta bancaria (BCP, IBK, BBVA)
+ *   - 'yape' / 'plin' · Billeteras vinculadas a cuenta bancaria
+ *   - 'mercadopago' / 'paypal' / 'zelle' / 'wise' · Billeteras independientes
+ *   - 'otro'          · Catch-all para casos no contemplados
+ */
+export interface DatoBancarioPasivo {
+  /** ID local determinístico (no es Firestore id, vive embebido). */
+  id: string;
+
+  tipo:
+    | 'banco'
+    | 'yape'
+    | 'plin'
+    | 'mercadopago'
+    | 'paypal'
+    | 'zelle'
+    | 'wise'
+    | 'otro';
+
+  /** Etiqueta humana (ej: "BCP Cta Corriente · Pago facturas"). */
+  etiqueta: string;
+
+  /** Banco si tipo='banco' (alias corto: BCP, IBK, BBVA). */
+  banco?: string;
+  bancoNombreCompleto?: string;
+
+  /** Moneda de la cuenta. Solo informativo — no afecta saldo. */
+  moneda?: MonedaTesoreria;
+
+  /** Producto financiero específico para tipo='banco'. */
+  productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente';
+
+  /** Número de cuenta. Solo dígitos / guiones. */
+  numeroCuenta?: string;
+
+  /** CCI (código interbancario). */
+  cci?: string;
+
+  /**
+   * Identificador para billeteras (teléfono Yape/Plin, email PayPal,
+   * username Wise, etc.). Para tipo='banco' puede ir el último segmento
+   * legible del número.
+   */
+  identificador?: string;
+
+  /** Notas adicionales (ej: "preferida para pagos > S/ 5,000"). */
+  notas?: string;
+
+  /** Marca el principal de la entidad (uno solo). */
+  esPrincipal?: boolean;
+
+  /**
+   * Si esta cuenta ya fue promovida a CuentaCaja (caso agente recaudador),
+   * apunta al ID de la CuentaCaja. La promoción NO duplica datos — desde
+   * ese momento el saldo se trackea en CuentaCaja, y este DatoBancario
+   * queda como referencia histórica.
+   */
+  promovidaACuentaCajaId?: string;
+
+  // Auditoría
+  creadoPor: string;
+  fechaCreacion: Timestamp;
+  ultimaEdicion?: Timestamp;
+  editadoPor?: string;
+}
+
+/**
+ * Form data para crear/editar un DatoBancarioPasivo.
+ * Sin id ni auditoría — el caller los inyecta.
+ */
+export interface DatoBancarioPasivoFormData {
+  tipo: DatoBancarioPasivo['tipo'];
+  etiqueta: string;
+  banco?: string;
+  bancoNombreCompleto?: string;
+  moneda?: MonedaTesoreria;
+  productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente';
+  numeroCuenta?: string;
+  cci?: string;
+  identificador?: string;
+  notas?: string;
+  esPrincipal?: boolean;
+}
+
 // ===============================================
 // DIFERENCIA CAMBIARIA ACUMULADA
 // ===============================================

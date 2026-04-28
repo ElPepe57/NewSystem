@@ -157,6 +157,11 @@ export interface Colaborador {
   // Notas
   notas?: string;
 
+  // ========== F-DatosBanc · Datos bancarios pasivos (S58c) ==========
+  // Cuentas/billeteras del colaborador. Útiles para pagar fletes a viajeros,
+  // courier locales, etc. Solo referencia (sin saldo trackeado).
+  datosBancarios?: import('./tesoreria.types').DatoBancarioPasivo[];
+
   // Auditoria
   creadoPor: string;
   fechaCreacion: Timestamp;

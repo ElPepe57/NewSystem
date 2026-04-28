@@ -33,6 +33,13 @@ export interface PerfilLaboral {
   numeroCuenta?: string;
   cci?: string;
   activo: boolean;
+
+  // ========== F-DatosBanc · Datos bancarios pasivos (S58c) ==========
+  // Cuentas/billeteras del empleado. Útiles para pagar nómina, adelantos,
+  // comisiones. Solo referencia (sin saldo trackeado). Los campos legacy
+  // banco/numeroCuenta/cci se mantienen — datosBancarios es un superset
+  // estructurado (puede contener múltiples cuentas).
+  datosBancarios?: import('./tesoreria.types').DatoBancarioPasivo[];
 }
 
 // ============================================

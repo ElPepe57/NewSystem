@@ -6,19 +6,28 @@ import type { DataTableColumn } from '../../design-system';
 import {
   User, Phone, Mail, MapPin, Calendar, ShoppingCart, DollarSign,
   TrendingUp, TrendingDown, Package, Star, AlertTriangle, Clock,
-  BarChart3, Target, Award, RefreshCw, ExternalLink, MessageSquare
+  BarChart3, Target, Award, RefreshCw, ExternalLink, MessageSquare,
+  Banknote
 } from 'lucide-react';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
 import type { Cliente } from '../../types/entidadesMaestras.types';
+import type { DatoBancarioPasivo } from '../../types/tesoreria.types';
 import { useCanalVentaStore } from '../../store/canalVentaStore';
+import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
 import {
   clienteAnalyticsService,
   type ClienteAnalytics,
   type CompraHistorial,
   type ProductoFavorito
 } from '../../services/cliente.analytics.service';
+// F-DatosBanc · S58c — Panel de cuentas bancarias pasivas
+import { DatosBancariosPanel } from '../finanzas/DatosBancarios';
+import { doc, updateDoc, Timestamp as FsTimestamp } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { COLLECTIONS } from '../../config/collections';
 
-type DetailTab = 'resumen' | 'historial' | 'productos' | 'analytics' | 'predicciones';
+type DetailTab = 'resumen' | 'historial' | 'productos' | 'analytics' | 'predicciones' | 'datos_bancarios';
 
 interface ClienteDetailViewProps {
   cliente: Cliente;
@@ -32,6 +41,36 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
   const [analytics, setAnalytics] = useState<ClienteAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const { canales } = useCanalVentaStore();
+
+  // F-DatosBanc · S58c
+  const [datosBancarios, setDatosBancarios] = useState(
+    cliente.datosBancarios ?? [],
+  );
+  const userId = useAuthStore((s) => s.user?.uid ?? '');
+  const toastSuccess = useToastStore((s) => s.success);
+  const toastError = useToastStore((s) => s.error);
+
+  useEffect(() => {
+    setDatosBancarios(cliente.datosBancarios ?? []);
+  }, [cliente.datosBancarios, cliente.id]);
+
+  const handleGuardarDatosBancariosCliente = async (
+    nuevos: DatoBancarioPasivo[],
+  ) => {
+    try {
+      await updateDoc(doc(db, COLLECTIONS.CLIENTES, cliente.id), {
+        datosBancarios: nuevos,
+        fechaActualizacion: FsTimestamp.now(),
+        actualizadoPor: userId,
+      });
+      setDatosBancarios(nuevos);
+      toastSuccess('Cuentas bancarias actualizadas');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error desconocido';
+      toastError(msg, 'No se pudo guardar');
+      throw err;
+    }
+  };
 
   const resolverNombreCanal = (canalOrigen: string) => {
     const canal = canales.find(c => c.id === canalOrigen || c.codigo === canalOrigen || c.nombre.toLowerCase() === canalOrigen.toLowerCase());
@@ -885,7 +924,8 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
               { id: 'historial', label: 'Historial', icon: ShoppingCart },
               { id: 'productos', label: 'Productos', icon: Package },
               { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-              { id: 'predicciones', label: 'Predicciones', icon: Target }
+              { id: 'predicciones', label: 'Predicciones', icon: Target },
+              { id: 'datos_bancarios', label: 'Cuentas bancarias', icon: Banknote }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -910,6 +950,15 @@ export function ClienteDetailView({ cliente, onClose, onEdit, onWhatsApp }: Clie
           {activeTab === 'productos' && renderProductos()}
           {activeTab === 'analytics' && renderAnalytics()}
           {activeTab === 'predicciones' && renderPredicciones()}
+          {activeTab === 'datos_bancarios' && (
+            <DatosBancariosPanel
+              datos={datosBancarios}
+              onChange={handleGuardarDatosBancariosCliente}
+              entidadTipo="cliente"
+              userId={userId}
+              subtitle={`Cuentas/billeteras de ${cliente.nombre} para devoluciones, depósitos. Datos pasivos sin saldo trackeado.`}
+            />
+          )}
         </div>
       </div>
     </div>

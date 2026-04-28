@@ -120,6 +120,12 @@ export interface Proveedor {
   evaluacion?: EvaluacionProveedor;
   evaluacionesHistorial?: HistorialEvaluacionProveedor[];
 
+  // ========== F-DatosBanc · Datos bancarios pasivos (S58c) ==========
+  // Lista de cuentas/billeteras del proveedor para hacerle pagos. NO trackea
+  // saldo — solo es referencia. Si una cuenta empieza a recibir dinero del
+  // negocio (caso agente recaudador), se puede promover a CuentaCaja.
+  datosBancarios?: import('./tesoreria.types').DatoBancarioPasivo[];
+
   // Auditoría
   creadoPor: string;
   fechaCreacion: Timestamp;
@@ -156,8 +162,17 @@ export interface ProductoOrden {
 }
 
 /**
- * Registro de pago de orden de compra
- * Permite pagos en USD o PEN con tracking de conversión
+ * @deprecated S55 Fase 2 — Este tipo se reemplazó por `MovimientoCC` con
+ * `tipo: 'credito_pago_oc'` en la nueva colección `movimientosCC`.
+ *
+ * Para nuevos consumidores, usar:
+ *   - Hook reactivo: `usePagosOC(ocId)` desde `src/hooks/usePagosOC.ts`
+ *   - Query directa: `getPagosOC(ocId)` desde `src/services/cuentaCorriente.adaptadores.ts`
+ *
+ * Este tipo se mantiene SOLO porque algunos consumers (UIs, services) aún no
+ * fueron migrados. El adaptador `cuentaCorriente.adaptadores.ts` provee
+ * `PagoOCLegacy` con la misma forma para compatibilidad. Borrar este tipo
+ * cuando todos los consumers usen el modelo nuevo (probable Fase 8 o post).
  */
 export interface PagoOrdenCompra {
   id: string;                       // PAG-OC-{timestamp}
@@ -300,15 +315,20 @@ export interface OrdenCompra {
   fechaEnTransito?: Timestamp;
   fechaRecibida?: Timestamp;
 
-  // Fechas financieras
-  fechaPago?: Timestamp;            // Fecha del pago completo
-  fechasPagoParcial?: Timestamp[];  // Fechas de pagos parciales (legacy)
-  montosPagados?: number[];         // Montos de cada pago parcial (legacy)
-  montoPendiente?: number;          // Monto que falta por pagar
+  // ── Saldos financieros denormalizados (S55 Fase 2) ──
+  // La fuente de verdad ahora es la Cuenta Corriente del proveedor.
+  // `montoPendiente` se actualiza automáticamente al registrar pagos vía
+  // `registrarPago`. Decisión D-CC-8: estado denormalizado para queries.
+  /** Saldo pendiente de pago en PEN (denormalizado · derivado de CC). */
+  montoPendiente?: number;
 
-  // ========== Historial de pagos estructurado ==========
-  historialPagos?: PagoOrdenCompra[];
-  
+  // CAMPOS LEGACY ELIMINADOS en S55 Fase 2 (movidos a movimientosCC):
+  //   - fechaPago               → MovimientoCC.fecha del último pago
+  //   - fechasPagoParcial[]     → MovimientoCC.fecha por cada pago
+  //   - montosPagados[]         → MovimientoCC.monto por cada pago
+  //   - historialPagos[]        → query movimientosCC con refDocumentoId=ocId
+  //                                (usar `getPagosOC()` o hook `usePagosOC()`)
+
   // Tracking y logística
   numeroTracking?: string;
   courier?: string;
@@ -536,7 +556,8 @@ export interface SubOrdenCompra {
   courier?: string;
   fechaEnvio?: any;                    // Timestamp
   fechaRecepcion?: any;                // Timestamp
-  fechaPago?: any;                     // Timestamp
+  // S55 Fase 2 — `fechaPago` eliminada. Última fecha de pago vive en
+  // MovimientoCC.fecha (filtrar por refDocumentoId=ocId + heurística subId en notas).
   envioId?: string;
   envioNumero?: string;
 }

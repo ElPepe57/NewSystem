@@ -33,7 +33,9 @@ import {
   Zap,
   RefreshCw,
   Scale,
-  TrendingUp as ChartLine
+  TrendingUp as ChartLine,
+  Wallet,
+  Banknote,
 } from 'lucide-react';
 import { Button, Card, Badge } from '../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../common/Modal';
@@ -41,7 +43,19 @@ import { ProveedorAnalyticsService, type ProveedorAnalytics, type ComparativoPre
 import { useOrdenCompraStore } from '../../store/ordenCompraStore';
 import { useProductoStore } from '../../store/productoStore';
 import { useProveedorStore } from '../../store/proveedorStore';
+import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
 import type { Proveedor, ClasificacionProveedor } from '../../types/ordenCompra.types';
+import type { DatoBancarioPasivo } from '../../types/tesoreria.types';
+// BUG-INC-004 fix (S54.x) — Tab "Reclamos" en ficha de proveedor.
+import { ReclamosDeEntidadTab } from '../modules/envio/ReclamosDeEntidadTab';
+// S55 Fase 7 — Tab "Cuenta Corriente" en ficha de proveedor.
+import { CuentaCorrienteTab } from '../modules/cuentaCorriente';
+// F-DatosBanc · S58c — Panel de cuentas bancarias pasivas
+import { DatosBancariosPanel } from '../finanzas/DatosBancarios';
+import { doc, updateDoc, Timestamp as FsTimestamp } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { PROVEEDORES_COLLECTION } from '../../services/ordenCompra.shared';
 
 interface ProveedorDetailViewProps {
   proveedor: Proveedor;
@@ -49,7 +63,7 @@ interface ProveedorDetailViewProps {
   onEdit?: () => void;
 }
 
-type TabType = 'resumen' | 'historial' | 'productos' | 'comparativo' | 'predicciones';
+type TabType = 'resumen' | 'historial' | 'productos' | 'comparativo' | 'predicciones' | 'reclamos' | 'cuenta_corriente' | 'datos_bancarios';
 
 export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
   proveedor,
@@ -60,6 +74,40 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
   const [analytics, setAnalytics] = useState<ProveedorAnalytics | null>(null);
   const [comparativoPrecios, setComparativoPrecios] = useState<ComparativoPrecioProducto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // F-DatosBanc · S58c — Estado local de datos bancarios para refrescar UI sin
+  // recargar la entidad completa (la prop `proveedor` queda igual hasta que
+  // el padre la refresque). Inicializa desde la prop, después se actualiza
+  // directamente al guardar.
+  const [datosBancarios, setDatosBancarios] = useState(
+    proveedor.datosBancarios ?? [],
+  );
+  const userId = useAuthStore((s) => s.user?.uid ?? '');
+  const toastSuccess = useToastStore((s) => s.success);
+  const toastError = useToastStore((s) => s.error);
+
+  // Re-sincronizar si cambia la prop (caller hace fetch)
+  useEffect(() => {
+    setDatosBancarios(proveedor.datosBancarios ?? []);
+  }, [proveedor.datosBancarios, proveedor.id]);
+
+  const handleGuardarDatosBancarios = async (
+    nuevos: DatoBancarioPasivo[],
+  ) => {
+    try {
+      await updateDoc(doc(db, PROVEEDORES_COLLECTION, proveedor.id), {
+        datosBancarios: nuevos,
+        ultimaEdicion: FsTimestamp.now(),
+        editadoPor: userId,
+      });
+      setDatosBancarios(nuevos);
+      toastSuccess('Cuentas bancarias actualizadas');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error desconocido';
+      toastError(msg, 'No se pudo guardar');
+      throw err;
+    }
+  };
 
   // Registrar modal abierto
   useLayoutEffect(() => {
@@ -143,7 +191,13 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
     { id: 'historial', label: 'Historial OC', icon: FileText },
     { id: 'productos', label: 'Productos', icon: Package },
     { id: 'comparativo', label: 'Comparativo', icon: Scale },
-    { id: 'predicciones', label: 'Predicciones', icon: Target }
+    { id: 'predicciones', label: 'Predicciones', icon: Target },
+    // BUG-INC-004 fix (S54.x) — visibilidad de reclamos contra este proveedor.
+    { id: 'reclamos', label: 'Reclamos', icon: AlertTriangle },
+    // S55 Fase 7 — extracto de Cuenta Corriente con este proveedor.
+    { id: 'cuenta_corriente', label: 'Cuenta Corriente', icon: Wallet },
+    // F-DatosBanc · S58c — datos bancarios pasivos del proveedor
+    { id: 'datos_bancarios', label: 'Cuentas bancarias', icon: Banknote },
   ];
 
   const clasificacionConfig = getClasificacionConfig(proveedor.evaluacion?.clasificacion);
@@ -837,6 +891,34 @@ export const ProveedorDetailView: React.FC<ProveedorDetailViewProps> = ({
                 </div>
               </Card>
             </div>
+          )}
+
+          {/* TAB: RECLAMOS — BUG-INC-004 fix (S54.x) */}
+          {activeTab === 'reclamos' && (
+            <ReclamosDeEntidadTab
+              entidadId={proveedor.id}
+              tipoEntidad="proveedor"
+            />
+          )}
+
+          {/* TAB: CUENTA CORRIENTE — S55 Fase 7 */}
+          {activeTab === 'cuenta_corriente' && (
+            <CuentaCorrienteTab
+              entidadId={proveedor.id}
+              tipo="proveedor"
+              entidadNombre={proveedor.nombre}
+            />
+          )}
+
+          {/* TAB: DATOS BANCARIOS — F-DatosBanc · S58c */}
+          {activeTab === 'datos_bancarios' && (
+            <DatosBancariosPanel
+              datos={datosBancarios}
+              onChange={handleGuardarDatosBancarios}
+              entidadTipo="proveedor"
+              userId={userId}
+              subtitle={`Cuentas/billeteras de ${proveedor.nombre} para hacer pagos. Datos pasivos sin saldo trackeado.`}
+            />
           )}
         </div>
       </div>

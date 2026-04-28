@@ -145,6 +145,11 @@ export interface Cliente {
   notas?: string;
   etiquetas?: string[];       // Tags para segmentación: "mayorista", "puntual", "frecuente"
 
+  // ========== F-DatosBanc · Datos bancarios pasivos (S58c) ==========
+  // Cuentas/billeteras del cliente. Solo referencia (sin saldo trackeado).
+  // Útiles para devoluciones, depósitos directos, etc.
+  datosBancarios?: import('./tesoreria.types').DatoBancarioPasivo[];
+
   // Auditoría
   creadoPor: string;
   fechaCreacion: Timestamp;
