@@ -340,8 +340,17 @@ export interface Gasto {
   esRecurrente: boolean;
 
   // Proveedor/Responsable
-  proveedor?: string;              // Nombre del proveedor
+  proveedor?: string;              // Nombre del proveedor (texto libre · legacy + display rápido)
   responsable?: string;            // Quién autorizó el gasto
+
+  // S58b F5 — Vinculación estructurada a Cuenta Corriente.
+  // Cuando estos campos están presentes, los pagos crean MovimientoCC en la
+  // CC de la entidad referenciada (igual que OCs y envíos). Son OPCIONALES
+  // por retrocompat — gastos legacy sin proveedorId siguen usando el flujo
+  // tradicional (solo gasto.pagos[] + tesorería).
+  proveedorId?: string;
+  proveedorTipo?: 'proveedor' | 'colaborador' | 'empleado';
+  proveedorNombre?: string;        // Desnormalizado (suele coincidir con `proveedor`)
 
   // Pago
   estado: EstadoGasto;
@@ -388,6 +397,10 @@ export interface GastoFormData {
   frecuencia: FrecuenciaGasto;
   proveedor?: string;
   responsable?: string;
+  // S58b F5 — Vinculación estructurada opcional a CC
+  proveedorId?: string;
+  proveedorTipo?: 'proveedor' | 'colaborador' | 'empleado';
+  proveedorNombre?: string;
   estado: EstadoGasto;
   // Información de pago
   metodoPago?: string;

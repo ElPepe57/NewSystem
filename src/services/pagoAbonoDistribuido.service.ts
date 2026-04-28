@@ -47,10 +47,15 @@ import type {
 import type { MovimientoTesoreriaFormData } from '../types/tesoreria.types';
 import type { OrdenCompra } from '../types/ordenCompra.types';
 import type { Envio } from '../types/envio.types';
+import type { Gasto, PagoGasto } from '../types/gasto.types';
 import { tesoreriaService } from './tesoreria.service';
 import { cuentaCorrienteService } from './cuentaCorriente.service';
 import { ORDENES_COLLECTION } from './ordenCompra.shared';
-import { getPagosOC, getPagosEnvio } from './cuentaCorriente.adaptadores';
+import {
+  getPagosOC,
+  getPagosEnvio,
+  getPagosGasto,
+} from './cuentaCorriente.adaptadores';
 import { normalizarEstadoPagoOC } from '../types/ordenCompra.types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -66,8 +71,14 @@ const DIAS_VENCIMIENTO_DEFAULT_OC = 30;
 /** Días de vencimiento heurístico para envíos (flete suele ser inmediato). */
 const DIAS_VENCIMIENTO_DEFAULT_ENVIO = 14;
 
+/** Días de vencimiento heurístico para gastos (servicios suelen mensuales). */
+const DIAS_VENCIMIENTO_DEFAULT_GASTO = 30;
+
 /** Colección de envíos. */
 const ENVIOS_COLLECTION = COLLECTIONS.ENVIOS;
+
+/** Colección de gastos. */
+const GASTOS_COLLECTION = COLLECTIONS.GASTOS;
 
 // ═════════════════════════════════════════════════════════════════════════
 // HELPERS PRIVADOS
@@ -145,6 +156,88 @@ async function calcularPendienteEnvioDesdeCC(envio: Envio): Promise<number> {
 }
 
 /**
+ * Calcula el monto pendiente de un gasto.
+ *
+ * Si el gasto tiene `proveedorId` (S58b F5+), lee desde CC y suma los pagos
+ * en CC para sustraer del monto del gasto. Si NO tiene proveedorId (legacy),
+ * lee del array `gasto.pagos[]` denormalizado (montoPagado).
+ *
+ * Retorna en la moneda nativa del gasto.
+ */
+async function calcularPendienteGasto(gasto: Gasto): Promise<number> {
+  const montoTotal =
+    gasto.moneda === 'USD' ? gasto.montoOriginal : gasto.montoPEN;
+
+  // Si tiene proveedorId vinculado, fuente de verdad = CC
+  if (gasto.proveedorId) {
+    const pagos = await getPagosGasto(gasto.id);
+    if (gasto.moneda === 'USD') {
+      // Sumar pagos en USD; los PEN se convierten con TC del propio pago
+      const totalPagadoUSD = pagos.reduce((s, p) => {
+        if (p.monedaPago === 'USD') return s + p.montoOriginal;
+        // Sin TC explícito en PagoGastoLegacy, fallback al TC del gasto
+        const tc = gasto.tipoCambio || 1;
+        return s + (tc > 0 ? p.montoOriginal / tc : 0);
+      }, 0);
+      return Math.max(0, gasto.montoOriginal - totalPagadoUSD);
+    }
+    // PEN nativo
+    const totalPagadoPEN = pagos.reduce((s, p) => {
+      if (p.monedaPago === 'PEN') return s + p.montoOriginal;
+      const tc = gasto.tipoCambio || 1;
+      return s + p.montoOriginal * tc;
+    }, 0);
+    return Math.max(0, gasto.montoPEN - totalPagadoPEN);
+  }
+
+  // Legacy sin proveedorId: usar pagos[] denormalizado
+  const pagosLegacy: PagoGasto[] = gasto.pagos || [];
+  if (gasto.moneda === 'USD') {
+    const totalPagadoUSD = pagosLegacy.reduce(
+      (s, p) => s + (p.montoUSD ?? 0),
+      0,
+    );
+    return Math.max(0, gasto.montoOriginal - totalPagadoUSD);
+  }
+  const totalPagadoPEN = pagosLegacy.reduce(
+    (s, p) => s + (p.montoPEN ?? 0),
+    0,
+  );
+  return Math.max(0, gasto.montoPEN - totalPagadoPEN);
+}
+
+/**
+ * Convierte un Gasto crudo → DeudaDistribuible.
+ * Solo aplica para gastos con proveedorId (vinculación a CC).
+ */
+function gastoADeuda(gasto: Gasto, montoPendiente: number): DeudaDistribuible {
+  const fechaCreacion = gasto.fecha;
+  const ahora = Date.now();
+
+  const baseMs = fechaCreacion?.toMillis?.() ?? ahora;
+  const msVencimiento = DIAS_VENCIMIENTO_DEFAULT_GASTO * 24 * 60 * 60 * 1000;
+  const fechaVencMs = baseMs + msVencimiento;
+  const diasVenc = Math.floor((fechaVencMs - ahora) / (24 * 60 * 60 * 1000));
+
+  const montoTotal =
+    gasto.moneda === 'USD' ? gasto.montoOriginal : gasto.montoPEN;
+
+  return {
+    tipo: 'gasto',
+    documentoId: gasto.id,
+    documentoNumero: gasto.numeroGasto,
+    fechaCreacion,
+    fechaVencimiento: Timestamp.fromMillis(fechaVencMs),
+    montoTotal,
+    montoPagado: montoTotal - montoPendiente,
+    montoPendiente,
+    moneda: gasto.moneda === 'USD' ? 'USD' : 'PEN',
+    diasVencimiento: diasVenc,
+    estaVencido: diasVenc < 0,
+  };
+}
+
+/**
  * Convierte un Envio crudo → DeudaDistribuible.
  * Solo aplica para envíos internacionales con flete > 0.
  */
@@ -185,16 +278,18 @@ function envioADeuda(envio: Envio, montoPendienteUSD: number): DeudaDistribuible
  *  - tipo='oc' para entidadTipo='proveedor' (caso default)
  *  - tipo='oc' para entidadTipo='colaborador' (deudor alternativo · recojo en origen)
  *  - tipo='envio' para entidadTipo='colaborador' (S58b F4 · flete pendiente)
+ *  - tipo='gasto' para entidadTipo en {proveedor,colaborador,empleado} (S58b F5 ·
+ *    solo gastos con proveedorId estructurado · gastos legacy NO aparecen)
  *
  * Filtra por estado != cancelado y estadoPago/estadoPagoColaborador != pagado.
  * Excluye documentos sin pendiente real (verificado contra CC, fuente de verdad).
  *
- * Default tipos: ['oc', 'envio'] — el caller puede limitarlo si necesita.
+ * Default tipos: ['oc', 'envio', 'gasto'] — el caller puede limitarlo si necesita.
  */
 export async function obtenerDeudasPorEntidad(
   filtro: DeudasFiltro,
 ): Promise<DeudaDistribuible[]> {
-  const tipos = filtro.tipos ?? ['oc', 'envio'];
+  const tipos = filtro.tipos ?? ['oc', 'envio', 'gasto'];
   const deudas: DeudaDistribuible[] = [];
 
   // ── Tipo: OC ──
@@ -270,6 +365,34 @@ export async function obtenerDeudasPorEntidad(
       if (pendienteUSD <= TOLERANCIA) continue;
 
       deudas.push(envioADeuda(envio, pendienteUSD));
+    }
+  }
+
+  // ── Tipo: Gasto (servicios, alquiler, etc.) — S58b F5 ──
+  // Solo gastos con proveedorId estructurado vinculado a esta entidad.
+  // Gastos legacy con proveedor=string pero sin proveedorId NO aparecen
+  // (siguen pagándose individualmente vía gasto.service.registrarPago).
+  if (
+    tipos.includes('gasto') &&
+    (filtro.entidadTipo === 'proveedor' ||
+      filtro.entidadTipo === 'colaborador' ||
+      filtro.entidadTipo === 'empleado')
+  ) {
+    const q = query(
+      collection(db, GASTOS_COLLECTION),
+      where('proveedorId', '==', filtro.entidadId),
+    );
+    const snap = await getDocs(q);
+
+    for (const d of snap.docs) {
+      const gasto = { id: d.id, ...d.data() } as Gasto;
+      if (gasto.estado === 'cancelado') continue;
+      if (gasto.estado === 'pagado') continue;
+
+      const pendiente = await calcularPendienteGasto(gasto);
+      if (pendiente <= TOLERANCIA) continue;
+
+      deudas.push(gastoADeuda(gasto, pendiente));
     }
   }
 
@@ -488,6 +611,115 @@ async function aplicarPagoEnvio(
   });
 }
 
+/**
+ * Aplica un item de distribución a un Gasto: crea MovCC en CC del proveedor,
+ * agrega entry a `gasto.pagos[]` legacy y actualiza denormalización
+ * (estado, montoPagado, montoPendiente).
+ *
+ * El gasto DEBE tener proveedorId estructurado (ya validado en ejecutar()).
+ */
+async function aplicarPagoGasto(
+  item: DistribucionItem,
+  gasto: Gasto,
+  input: PagoAbonoDistribuidoInput,
+  movimientoTesoreriaId: string,
+  idempotencyKey: string,
+  userId: string,
+  movimientosCCIds: string[],
+): Promise<void> {
+  if (!gasto.proveedorId || !gasto.proveedorTipo) {
+    throw new Error(
+      `Gasto ${gasto.numeroGasto} sin proveedorId — no se puede registrar en CC`,
+    );
+  }
+
+  // 1. MovCC en CC del proveedor (en la moneda del abono)
+  const ccResult = await cuentaCorrienteService.registrarMovimiento(
+    {
+      entidadId: gasto.proveedorId,
+      tipo: gasto.proveedorTipo,
+      entidadNombre:
+        gasto.proveedorNombre || gasto.proveedor || 'Proveedor',
+      tipoMovimiento: 'credito_pago_gasto',
+      descripcion:
+        `Pago distribuido gasto ${gasto.numeroGasto} · ` +
+        `${input.monedaAbono} ${item.montoAplicado.toFixed(2)} ` +
+        `(parte de pago total ${input.monedaAbono} ${input.montoAbono.toFixed(2)})`,
+      moneda: input.monedaAbono,
+      monto: item.montoAplicado,
+      fecha: input.fecha,
+      refDocumentoTipo: 'gasto',
+      refDocumentoId: gasto.id,
+      refDocumentoNumero: gasto.numeroGasto,
+      movimientoTesoreriaId,
+      notas: input.notas,
+      idempotencyKey: `${idempotencyKey}:${item.documentoId}`,
+    },
+    userId,
+  );
+  movimientosCCIds.push(ccResult.movimientoId);
+
+  // 2. Calcular equivalencias para el PagoGasto legacy entry
+  const montoUSD =
+    input.monedaAbono === 'USD'
+      ? item.montoAplicado
+      : item.montoAplicado / input.tipoCambio;
+  const montoPENPago =
+    input.monedaAbono === 'PEN'
+      ? item.montoAplicado
+      : item.montoAplicado * input.tipoCambio;
+
+  // 3. Agregar entry a gasto.pagos[] (legacy + denormalizado)
+  const pagoId = `PAG-GAS-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+  const nuevoPago: PagoGasto = {
+    id: pagoId,
+    fecha: Timestamp.fromDate(input.fecha),
+    monedaPago: input.monedaAbono,
+    montoOriginal: item.montoAplicado,
+    montoUSD,
+    montoPEN: montoPENPago,
+    tipoCambio: input.tipoCambio,
+    metodoPago: input.metodo,
+    movimientoTesoreriaId,
+    registradoPor: userId,
+    fechaRegistro: Timestamp.now(),
+  };
+  if (input.cuentaId) nuevoPago.cuentaOrigenId = input.cuentaId;
+  if (input.cuentaNombre) nuevoPago.cuentaOrigenNombre = input.cuentaNombre;
+  if (input.referencia) nuevoPago.referencia = input.referencia;
+  if (input.notas) nuevoPago.notas = input.notas;
+
+  // 4. Recalcular pendiente y estado
+  const pagosLegacy: PagoGasto[] = gasto.pagos || [];
+  const nuevosPagos = [...pagosLegacy, nuevoPago];
+  const nuevoMontoPagadoPEN = nuevosPagos.reduce(
+    (s, p) => s + (p.montoPEN ?? 0),
+    0,
+  );
+  const nuevoMontoPendiente = Math.max(0, gasto.montoPEN - nuevoMontoPagadoPEN);
+  const nuevoEstado: 'pendiente' | 'parcial' | 'pagado' =
+    nuevoMontoPendiente <= TOLERANCIA
+      ? 'pagado'
+      : nuevoMontoPagadoPEN > TOLERANCIA
+        ? 'parcial'
+        : 'pendiente';
+
+  const updates: Record<string, unknown> = {
+    estado: nuevoEstado,
+    pagos: nuevosPagos,
+    montoPagado: nuevoMontoPagadoPEN,
+    montoPendiente: nuevoMontoPendiente,
+    ultimaEdicion: Timestamp.now(),
+    editadoPor: userId,
+  };
+  if (nuevoEstado === 'pagado') {
+    updates.fechaPago = Timestamp.fromDate(input.fecha);
+    updates.metodoPago = input.metodo;
+  }
+
+  await updateDoc(doc(db, GASTOS_COLLECTION, gasto.id), updates);
+}
+
 // ═════════════════════════════════════════════════════════════════════════
 // API PÚBLICA: EJECUTAR PAGO DISTRIBUIDO
 // ═════════════════════════════════════════════════════════════════════════
@@ -544,11 +776,11 @@ export async function ejecutar(
     }
   }
 
-  // Tipos soportados en S58b F4: 'oc' y 'envio'
+  // Tipos soportados en S58b F5: 'oc', 'envio', 'gasto'
   for (const d of input.distribucion) {
-    if (d.tipo !== 'oc' && d.tipo !== 'envio') {
+    if (d.tipo !== 'oc' && d.tipo !== 'envio' && d.tipo !== 'gasto') {
       throw new Error(
-        `Tipo de documento '${d.tipo}' aún no soportado. Versión actual soporta 'oc' y 'envio'.`,
+        `Tipo de documento '${d.tipo}' aún no soportado. Versión actual soporta 'oc', 'envio' y 'gasto'.`,
       );
     }
   }
@@ -556,6 +788,7 @@ export async function ejecutar(
   // Validar que cada documento existe y su pendiente >= montoAplicado
   const ocsResolvedas: Map<string, OrdenCompra> = new Map();
   const enviosResolvidos: Map<string, Envio> = new Map();
+  const gastosResolvidos: Map<string, Gasto> = new Map();
   for (const item of input.distribucion) {
     // Convertir montoAplicado a USD si abono está en PEN
     const montoAplicadoUSD =
@@ -580,8 +813,7 @@ export async function ejecutar(
         );
       }
       ocsResolvedas.set(item.documentoId, oc);
-    } else {
-      // tipo === 'envio'
+    } else if (item.tipo === 'envio') {
       const envioSnap = await getDoc(doc(db, ENVIOS_COLLECTION, item.documentoId));
       if (!envioSnap.exists()) {
         throw new Error(
@@ -607,6 +839,45 @@ export async function ejecutar(
         );
       }
       enviosResolvidos.set(item.documentoId, envio);
+    } else {
+      // tipo === 'gasto'
+      const gastoSnap = await getDoc(doc(db, GASTOS_COLLECTION, item.documentoId));
+      if (!gastoSnap.exists()) {
+        throw new Error(
+          `Gasto ${item.documentoNumero} (${item.documentoId}) no existe`,
+        );
+      }
+      const gasto = { id: gastoSnap.id, ...gastoSnap.data() } as Gasto;
+      if (gasto.estado === 'cancelado') {
+        throw new Error(
+          `Gasto ${gasto.numeroGasto} está cancelado — no se puede pagar`,
+        );
+      }
+      if (gasto.estado === 'pagado') {
+        throw new Error(`Gasto ${gasto.numeroGasto} ya está pagado`);
+      }
+      if (!gasto.proveedorId) {
+        throw new Error(
+          `Gasto ${gasto.numeroGasto} no tiene proveedor estructurado · ` +
+            `pagar individualmente desde el módulo Gastos`,
+        );
+      }
+      const pendiente = await calcularPendienteGasto(gasto);
+      // Comparar en la moneda nativa del gasto
+      const montoAplicadoEnMonedaGasto =
+        input.monedaAbono === gasto.moneda
+          ? item.montoAplicado
+          : input.monedaAbono === 'USD'
+            ? item.montoAplicado * input.tipoCambio
+            : item.montoAplicado / input.tipoCambio;
+      if (montoAplicadoEnMonedaGasto > pendiente + TOLERANCIA) {
+        const sym = gasto.moneda === 'USD' ? '$' : 'S/';
+        throw new Error(
+          `Gasto ${gasto.numeroGasto}: monto a aplicar (${sym}${montoAplicadoEnMonedaGasto.toFixed(2)}) ` +
+            `excede el pendiente (${sym}${pendiente.toFixed(2)})`,
+        );
+      }
+      gastosResolvidos.set(item.documentoId, gasto);
     }
   }
 
@@ -622,16 +893,20 @@ export async function ejecutar(
 
   // Tipo de movimiento de tesorería · 1 solo desembolso para todo el lote.
   // Heurística por entidad + composición de la distribución:
-  //   - cliente            → ingreso_venta (cobranza)
-  //   - colaborador + envíos → pago_viajero (consistente con envio.pagos.service)
-  //   - otros (proveedor, colaborador con OCs deudor alt, empleado) → pago_orden_compra
+  //   - cliente             → ingreso_venta (cobranza)
+  //   - colaborador + envíos puros → pago_viajero (consistente con envio.pagos.service)
+  //   - distribución solo gastos → gasto_operativo
+  //   - resto (proveedor, mixta, etc.) → pago_orden_compra
   const distribUsaSoloEnvios = input.distribucion.every((d) => d.tipo === 'envio');
+  const distribUsaSoloGastos = input.distribucion.every((d) => d.tipo === 'gasto');
   const tipoMov =
     input.entidadTipo === 'cliente'
       ? 'ingreso_venta'
       : input.entidadTipo === 'colaborador' && distribUsaSoloEnvios
         ? 'pago_viajero'
-        : 'pago_orden_compra';
+        : distribUsaSoloGastos
+          ? 'gasto_operativo'
+          : 'pago_orden_compra';
 
   const tesoreriaData: MovimientoTesoreriaFormData = {
     tipo: tipoMov,
@@ -696,8 +971,7 @@ export async function ejecutar(
           userId,
           movimientosCCIds,
         );
-      } else {
-        // tipo === 'envio'
+      } else if (item.tipo === 'envio') {
         await aplicarPagoEnvio(
           item,
           enviosResolvidos.get(item.documentoId)!,
@@ -707,10 +981,26 @@ export async function ejecutar(
           userId,
           movimientosCCIds,
         );
+      } else {
+        // tipo === 'gasto'
+        await aplicarPagoGasto(
+          item,
+          gastosResolvidos.get(item.documentoId)!,
+          input,
+          movimientoTesoreriaId,
+          idempotencyKey,
+          userId,
+          movimientosCCIds,
+        );
       }
       documentosActualizados++;
     } catch (err) {
-      const prefix = item.tipo === 'oc' ? 'OC' : 'Envío';
+      const prefix =
+        item.tipo === 'oc'
+          ? 'OC'
+          : item.tipo === 'envio'
+            ? 'Envío'
+            : 'Gasto';
       const msg = `${prefix} ${item.documentoNumero}: ${
         err instanceof Error ? err.message : 'error desconocido'
       }`;

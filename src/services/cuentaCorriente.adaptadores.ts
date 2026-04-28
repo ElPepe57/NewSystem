@@ -351,6 +351,81 @@ export async function getTotalPagadoEnvioUSD(envioId: string): Promise<number> {
   );
 }
 
+// ─── Gastos (S58b F5) ─────────────────────────────────────────────────────
+
+/**
+ * Forma legacy de un pago de gasto. Mismo shape que PagoGasto en el tipo,
+ * con conversión USD↔PEN que el consumer puede usar para sumar pendiente.
+ */
+export interface PagoGastoLegacy {
+  id: string;
+  fecha: Timestamp;
+  monedaPago: 'USD' | 'PEN';
+  montoOriginal: number;
+  montoUSD: number;
+  montoPEN: number;
+  tipoCambio: number;
+  movimientoTesoreriaId?: string;
+  registradoPor: string;
+  fechaRegistro: Timestamp;
+}
+
+function movimientoCCAPagoGastoLegacy(mov: MovimientoCC): PagoGastoLegacy {
+  const isUSD = mov.moneda === 'USD';
+  return {
+    id: mov.id,
+    fecha: mov.fecha,
+    monedaPago: mov.moneda as 'USD' | 'PEN',
+    montoOriginal: mov.monto,
+    // Heurística: si CC guarda USD, montoUSD=monto; PEN no derivable sin TC
+    // → consumer debería leer movimientoTesoreriaId para TC real.
+    montoUSD: isUSD ? mov.monto : 0,
+    montoPEN: !isUSD ? mov.monto : 0,
+    tipoCambio: 1,
+    movimientoTesoreriaId: mov.movimientoTesoreriaId,
+    registradoPor: mov.registradoPor,
+    fechaRegistro: mov.fechaRegistro,
+  };
+}
+
+/**
+ * Lee los pagos de un gasto desde `movimientosCC`. Solo devuelve resultados
+ * para gastos que tienen `proveedorId` vinculado (S58b F5+). Para gastos
+ * legacy sin vinculación, los pagos siguen viviendo en `gasto.pagos[]` y
+ * este adaptador retorna [].
+ */
+export async function getPagosGasto(
+  gastoId: string,
+): Promise<PagoGastoLegacy[]> {
+  if (!gastoId) return [];
+
+  const q = query(
+    collection(db, COLLECTIONS.MOVIMIENTOS_CC),
+    where('refDocumentoTipo', '==', 'gasto'),
+    where('refDocumentoId', '==', gastoId),
+    where('tipo', '==', 'credito_pago_gasto'),
+    orderBy('fecha', 'asc'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const mov = { id: d.id, ...d.data() } as MovimientoCC;
+    return movimientoCCAPagoGastoLegacy(mov);
+  });
+}
+
+/** Total pagado de un gasto en PEN, desde CC. */
+export async function getTotalPagadoGastoPEN(
+  gastoId: string,
+  tipoCambioFallback = 1,
+): Promise<number> {
+  const pagos = await getPagosGasto(gastoId);
+  return pagos.reduce((sum, p) => {
+    if (p.monedaPago === 'PEN') return sum + p.montoOriginal;
+    // Para USD, sin TC del mov original, multiplicar por fallback
+    return sum + p.montoOriginal * tipoCambioFallback;
+  }, 0);
+}
+
 // ─── Re-exports para conveniencia ─────────────────────────────────────────
 
 /** @deprecated Mantenida por compatibilidad. Usar PagoOCLegacy nuevo nombre. */

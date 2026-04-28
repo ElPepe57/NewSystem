@@ -14,6 +14,9 @@ import { CATEGORIAS_GASTO, type Gasto, type GastoFormData, type CategoriaGasto, 
 import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
+import { Combobox } from '../../design-system/components/forms';
+import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
+import type { CuentaCorriente, TipoEntidadCC } from '../../types/cuentaCorriente.types';
 
 interface GastoFormProps {
   onClose: () => void;
@@ -56,6 +59,9 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
         impactaCTRU: gastoEditar.impactaCTRU || false,
         ventaId: gastoEditar.ventaId,
         proveedor: gastoEditar.proveedor,
+        proveedorId: gastoEditar.proveedorId,
+        proveedorTipo: gastoEditar.proveedorTipo,
+        proveedorNombre: gastoEditar.proveedorNombre,
         numeroComprobante: gastoEditar.numeroComprobante,
         notas: gastoEditar.notas,
       };
@@ -317,6 +323,71 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     } finally {
       setLoading(false);
     }
+  };
+
+  // ── S58b F5 — Combobox de entidades para vincular proveedor estructurado ──
+  const [entidadesCC, setEntidadesCC] = useState<CuentaCorriente[]>([]);
+  const [entidadesLoading, setEntidadesLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setEntidadesLoading(true);
+    cuentaCorrienteService
+      .getAll()
+      .then((list) => {
+        if (cancelled) return;
+        // Solo proveedores/colaboradores/empleados (no clientes)
+        const filtradas = list.filter(
+          (cc) =>
+            cc.tipo === 'proveedor' ||
+            cc.tipo === 'colaborador' ||
+            cc.tipo === 'empleado',
+        );
+        setEntidadesCC(filtradas);
+      })
+      .catch(() => {
+        if (!cancelled) setEntidadesCC([]);
+      })
+      .finally(() => {
+        if (!cancelled) setEntidadesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const proveedorComboboxValue = formData.proveedorId
+    ? `${formData.proveedorTipo}_${formData.proveedorId}`
+    : undefined;
+
+  const handleSeleccionarEntidad = (compositeKey: string) => {
+    if (!compositeKey) {
+      // Limpiar vinculación
+      setFormData((prev) => ({
+        ...prev,
+        proveedorId: undefined,
+        proveedorTipo: undefined,
+        proveedorNombre: undefined,
+      }));
+      return;
+    }
+    // Parsear "tipo_entidadId"
+    const idx = compositeKey.indexOf('_');
+    if (idx < 0) return;
+    const tipo = compositeKey.slice(0, idx) as TipoEntidadCC;
+    const entidadId = compositeKey.slice(idx + 1);
+    const cc = entidadesCC.find(
+      (e) => e.entidadId === entidadId && e.tipo === tipo,
+    );
+    if (!cc) return;
+    setFormData((prev) => ({
+      ...prev,
+      proveedorId: cc.entidadId,
+      proveedorTipo: cc.tipo as 'proveedor' | 'colaborador' | 'empleado',
+      proveedorNombre: cc.entidadNombre,
+      // Auto-llenar el texto libre con el nombre de la entidad
+      proveedor: prev.proveedor || cc.entidadNombre,
+    }));
   };
 
   const handleChange = (field: keyof GastoFormData, value: any) => {
@@ -822,22 +893,65 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
           <div className="space-y-3 sm:space-y-4">
             <h3 className="text-base sm:text-lg font-semibold text-slate-900">Información Adicional</h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <Input
-                label="Proveedor (Opcional)"
-                type="text"
-                value={formData.proveedor || ''}
-                onChange={(e) => handleChange('proveedor', e.target.value)}
-                placeholder="Nombre del proveedor"
+            {/* S58b F5 — Vincular a CC + texto libre */}
+            <div className="space-y-3">
+              <Combobox<string>
+                label="Vincular a entidad (opcional · habilita CC)"
+                value={proveedorComboboxValue}
+                onChange={handleSeleccionarEntidad}
+                groups={[
+                  {
+                    label: `${entidadesCC.length} ${entidadesCC.length === 1 ? 'entidad' : 'entidades'} disponibles`,
+                    options: entidadesCC.map((cc) => ({
+                      value: `${cc.tipo}_${cc.entidadId}`,
+                      label: cc.entidadNombre,
+                      subLabel:
+                        cc.tipo === 'proveedor'
+                          ? 'Proveedor'
+                          : cc.tipo === 'colaborador'
+                            ? 'Colaborador'
+                            : 'Empleado',
+                    })),
+                  },
+                ]}
+                placeholder={
+                  entidadesLoading ? 'Cargando...' : 'Sin vínculo (legacy)'
+                }
+                hint={
+                  formData.proveedorId
+                    ? '✓ Pagos de este gasto crearán movimientos en CC del proveedor'
+                    : 'Sin vínculo: el gasto no afectará el saldo CC del proveedor (modo legacy)'
+                }
+                emptyMessage="No hay entidades en CC"
               />
 
-              <Input
-                label="Nº Comprobante (Opcional)"
-                type="text"
-                value={formData.numeroComprobante || ''}
-                onChange={(e) => handleChange('numeroComprobante', e.target.value)}
-                placeholder="Factura, boleta, etc."
-              />
+              {formData.proveedorId && (
+                <button
+                  type="button"
+                  onClick={() => handleSeleccionarEntidad('')}
+                  className="text-[11px] text-slate-500 hover:text-slate-700 underline"
+                >
+                  Quitar vínculo
+                </button>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <Input
+                  label="Proveedor / descripción libre (Opcional)"
+                  type="text"
+                  value={formData.proveedor || ''}
+                  onChange={(e) => handleChange('proveedor', e.target.value)}
+                  placeholder="Nombre del proveedor"
+                />
+
+                <Input
+                  label="Nº Comprobante (Opcional)"
+                  type="text"
+                  value={formData.numeroComprobante || ''}
+                  onChange={(e) => handleChange('numeroComprobante', e.target.value)}
+                  placeholder="Factura, boleta, etc."
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

@@ -298,9 +298,9 @@ export const Paso1Entidad: React.FC<Paso1Props> = ({ state, setState }) => {
 
           {!loadingDeudas && state.deudas.length === 0 && (
             <div className="mt-3 pt-3 border-t border-teal-200/60 text-[11px] text-amber-700 bg-amber-50 -mx-4 -mb-4 px-4 py-2.5 rounded-b-lg">
-              Esta entidad no tiene documentos pendientes de pago en esta versión.
+              Esta entidad no tiene documentos pendientes de pago.
               <span className="block text-[10px] text-amber-600 mt-0.5">
-                (Soporta órdenes de compra y envíos · gastos en próximas fases)
+                (Soporta órdenes de compra, envíos y gastos vinculados)
               </span>
             </div>
           )}

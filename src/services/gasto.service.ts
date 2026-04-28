@@ -88,6 +88,10 @@ export const gastoService = {
       if (data.frecuencia) gasto.frecuencia = data.frecuencia;
       if (data.proveedor) gasto.proveedor = data.proveedor;
       if (data.responsable) gasto.responsable = data.responsable;
+      // S58b F5 — Vinculación estructurada a CC
+      if (data.proveedorId) gasto.proveedorId = data.proveedorId;
+      if (data.proveedorTipo) gasto.proveedorTipo = data.proveedorTipo;
+      if (data.proveedorNombre) gasto.proveedorNombre = data.proveedorNombre;
       if (data.metodoPago) gasto.metodoPago = data.metodoPago;
       if (data.estado === 'pagado') gasto.fechaPago = Timestamp.now();
       if (data.numeroComprobante) gasto.numeroComprobante = data.numeroComprobante;
@@ -100,6 +104,46 @@ export const gastoService = {
       }
 
       const docRef = await addDoc(collection(db, GASTOS_COLLECTION), gasto);
+
+      // ── S58b F5 — MovimientoCC débito en CC del proveedor ───────────
+      // Crear el débito al momento de registrar el gasto, igual que las OCs.
+      // Solo si tiene proveedorId estructurado y no nace ya como 'pagado'
+      // (en ese caso, el flujo de pago ya creará el crédito automáticamente y
+      // el saldo neto sería 0 — más limpio no crear el débito que crear ambos).
+      const naceYaPagado = data.estado === 'pagado';
+      if (data.proveedorId && data.proveedorTipo && !naceYaPagado) {
+        try {
+          const { cuentaCorrienteService } = await import(
+            './cuentaCorriente.service'
+          );
+          const monedaCC: 'USD' | 'PEN' =
+            data.moneda === 'USD' ? 'USD' : 'PEN';
+          await cuentaCorrienteService.registrarMovimiento(
+            {
+              entidadId: data.proveedorId,
+              tipo: data.proveedorTipo,
+              entidadNombre:
+                data.proveedorNombre || data.proveedor || 'Proveedor',
+              tipoMovimiento: 'debito_gasto',
+              descripcion:
+                `Gasto registrado ${numeroGasto} · ` +
+                `${data.descripcion} · ${data.moneda} ${data.montoOriginal.toFixed(2)}`,
+              moneda: monedaCC,
+              monto: data.montoOriginal,
+              fecha: data.fecha,
+              refDocumentoTipo: 'gasto',
+              refDocumentoId: docRef.id,
+              refDocumentoNumero: numeroGasto,
+            },
+            userId,
+          );
+        } catch (ccErr) {
+          logger.warn(
+            '[CC] No se pudo crear debito_gasto (no bloqueante): ' +
+              (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+          );
+        }
+      }
 
       // Si el gasto se crea directamente como "pagado" con cuenta de origen,
       // registrar el movimiento de tesorería y crear el registro de pago
@@ -1005,6 +1049,45 @@ export const gastoService = {
           data.tipoCambio,
           userId
         );
+      }
+
+      // ── S58b F5 — MovimientoCC en CC del proveedor ──────────────────
+      // Solo si el gasto tiene proveedorId estructurado. Gastos legacy sin
+      // vinculación NO crean entradas en CC (siguen usando solo gasto.pagos[]).
+      // No bloqueante: si falla, el pago queda registrado y se puede
+      // reconciliar luego.
+      if (gasto.proveedorId && gasto.proveedorTipo) {
+        try {
+          const { cuentaCorrienteService } = await import(
+            './cuentaCorriente.service'
+          );
+          await cuentaCorrienteService.registrarMovimiento(
+            {
+              entidadId: gasto.proveedorId,
+              tipo: gasto.proveedorTipo,
+              entidadNombre:
+                gasto.proveedorNombre || gasto.proveedor || 'Proveedor',
+              tipoMovimiento: 'credito_pago_gasto',
+              descripcion:
+                `Pago ${esPagoCompleto ? '' : 'parcial '}gasto ${gasto.numeroGasto} · ` +
+                `${data.monedaPago} ${data.montoPago.toFixed(2)} vía ${data.metodoPago}`,
+              moneda: data.monedaPago,
+              monto: data.montoPago,
+              fecha: data.fechaPago,
+              refDocumentoTipo: 'gasto',
+              refDocumentoId: gastoId,
+              refDocumentoNumero: gasto.numeroGasto,
+              movimientoTesoreriaId: nuevoPago.movimientoTesoreriaId,
+              notas: data.notas,
+            },
+            userId,
+          );
+        } catch (ccErr) {
+          logger.warn(
+            '[CC] No se pudo crear credito_pago_gasto (no bloqueante): ' +
+              (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+          );
+        }
       }
     } catch (error: any) {
       logger.error('Error al registrar pago de gasto:', error);

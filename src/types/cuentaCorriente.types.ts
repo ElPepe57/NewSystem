@@ -66,6 +66,7 @@ export type TipoMovimientoCC =
   | 'debito_oc'
   | 'debito_venta'
   | 'debito_envio'
+  | 'debito_gasto'
   | 'debito_adelanto_empleado'
   | 'debito_prestamo_empleado'
   | 'debito_boleta_emitida'
@@ -74,6 +75,7 @@ export type TipoMovimientoCC =
   | 'credito_pago_oc'
   | 'credito_cobro_venta'
   | 'credito_pago_envio'
+  | 'credito_pago_gasto'
   | 'credito_pago_boleta'
   | 'credito_descuento_adelanto'
   | 'credito_reclamo'
@@ -93,6 +95,7 @@ export type RefDocumentoCC =
   | 'oc'
   | 'venta'
   | 'envio'
+  | 'gasto'
   | 'reclamo'
   | 'boleta'
   | 'adelanto'
@@ -229,6 +232,7 @@ export const TIPOS_DEBITO: TipoMovimientoCC[] = [
   'debito_oc',
   'debito_venta',
   'debito_envio',
+  'debito_gasto',
   'debito_adelanto_empleado',
   'debito_prestamo_empleado',
   'debito_boleta_emitida',
@@ -240,6 +244,7 @@ export const TIPOS_CREDITO: TipoMovimientoCC[] = [
   'credito_pago_oc',
   'credito_cobro_venta',
   'credito_pago_envio',
+  'credito_pago_gasto',
   'credito_pago_boleta',
   'credito_descuento_adelanto',
   'credito_reclamo',
@@ -385,6 +390,7 @@ export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
   debito_oc: 'OC emitida',
   debito_venta: 'Venta emitida',
   debito_envio: 'Envío devengado',
+  debito_gasto: 'Gasto registrado',
   debito_adelanto_empleado: 'Adelanto pagado',
   debito_prestamo_empleado: 'Préstamo otorgado',
   debito_boleta_emitida: 'Boleta emitida',
@@ -393,6 +399,7 @@ export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
   credito_pago_oc: 'Pago a proveedor',
   credito_cobro_venta: 'Cobro de venta',
   credito_pago_envio: 'Pago a colaborador',
+  credito_pago_gasto: 'Pago de gasto',
   credito_pago_boleta: 'Pago de boleta',
   credito_descuento_adelanto: 'Adelanto descontado',
   credito_reclamo: 'Crédito por reclamo',
