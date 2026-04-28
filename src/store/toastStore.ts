@@ -2,12 +2,21 @@ import { create } from 'zustand';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
+export interface ToastAction {
+  /** Etiqueta del botón (ej: "Deshacer"). */
+  label: string;
+  /** Callback al hacer click. Toast se remueve después de ejecutar. */
+  onClick: () => void;
+}
+
 export interface Toast {
   id: string;
   type: ToastType;
   message: string;
   title?: string;
   duration: number;
+  /** S58 Fase 3 — botón opcional con callback (ej: "Deshacer"). */
+  action?: ToastAction;
   /** Para animacion de salida */
   isLeaving?: boolean;
 }
@@ -16,12 +25,21 @@ interface ToastState {
   toasts: Toast[];
   addToast: (type: ToastType, message: string, duration?: number) => void;
   addToastWithTitle: (type: ToastType, title: string, message: string, duration?: number) => void;
+  /** S58 Fase 3 — toast con acción tipo undo. */
+  addToastWithAction: (
+    type: ToastType,
+    message: string,
+    action: ToastAction,
+    options?: { title?: string; duration?: number },
+  ) => string;
   removeToast: (id: string) => void;
   /** Helpers para uso mas facil */
   success: (message: string, title?: string) => void;
   error: (message: string, title?: string) => void;
   warning: (message: string, title?: string) => void;
   info: (message: string, title?: string) => void;
+  /** S58 Fase 3 — helper success + acción undo (5s default). */
+  successWithUndo: (message: string, onUndo: () => void, title?: string) => string;
 }
 
 export const useToastStore = create<ToastState>((set, get) => ({
@@ -76,6 +94,34 @@ export const useToastStore = create<ToastState>((set, get) => ({
     }
   },
 
+  addToastWithAction: (type, message, action, options) => {
+    const id = Date.now().toString() + Math.random().toString(36).substring(2);
+    const duration = options?.duration ?? 5000;
+    const title = options?.title;
+
+    set((state) => ({
+      toasts: [...state.toasts, { id, type, message, title, duration, action }],
+    }));
+
+    if (duration > 0) {
+      setTimeout(() => {
+        set((state) => ({
+          toasts: state.toasts.map((t) =>
+            t.id === id ? { ...t, isLeaving: true } : t,
+          ),
+        }));
+      }, duration - 300);
+
+      setTimeout(() => {
+        set((state) => ({
+          toasts: state.toasts.filter((t) => t.id !== id),
+        }));
+      }, duration);
+    }
+
+    return id;
+  },
+
   removeToast: (id) => {
     // Animacion de salida
     set((state) => ({
@@ -122,7 +168,16 @@ export const useToastStore = create<ToastState>((set, get) => ({
     } else {
       get().addToast('info', message);
     }
-  }
+  },
+
+  successWithUndo: (message, onUndo, title) => {
+    return get().addToastWithAction(
+      'success',
+      message,
+      { label: 'Deshacer', onClick: onUndo },
+      { title, duration: 5000 },
+    );
+  },
 }));
 
 // Alias para compatibilidad con codigo existente

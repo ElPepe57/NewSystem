@@ -78,6 +78,19 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: () => void }> = ({ toast, on
           </p>
         </div>
 
+        {/* S58 Fase 3 — Botón de acción opcional (ej: "Deshacer") */}
+        {toast.action && (
+          <button
+            onClick={() => {
+              toast.action?.onClick();
+              onRemove();
+            }}
+            className="flex-shrink-0 text-[12px] px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 rounded-md font-semibold transition-colors"
+          >
+            {toast.action.label}
+          </button>
+        )}
+
         {/* Boton cerrar */}
         <button
           onClick={onRemove}

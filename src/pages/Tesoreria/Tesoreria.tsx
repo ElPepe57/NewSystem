@@ -25,6 +25,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
+// S58 Fase 3 — submit optimista con toast undo
+import { useOptimisticSubmit } from '../../hooks/useOptimisticSubmit';
 import type {
   MovimientoTesoreria,
   CuentaCaja,
@@ -376,21 +378,52 @@ export const Tesoreria: React.FC = () => {
     if (!user || !movimientoForm.monto || !movimientoForm.tipo) return;
     setIsSubmitting(true);
     try {
+      const dataNormalizada = {
+        ...movimientoForm,
+        fecha: movimientoForm.fecha || new Date(),
+        tipoCambio: movimientoForm.tipoCambio || tcDefault,
+        metodo: movimientoForm.metodo || 'efectivo',
+      } as MovimientoTesoreriaFormData;
+
       if (movimientoEditando) {
+        // Edit: sin undo (revert sería complejo), solo toast normal
         await TesoreriaService.actualizarMovimiento(
           movimientoEditando.id,
-          { ...movimientoForm, fecha: movimientoForm.fecha || new Date(), tipoCambio: movimientoForm.tipoCambio || tcDefault, metodo: movimientoForm.metodo || 'efectivo' } as MovimientoTesoreriaFormData,
-          user.uid
+          dataNormalizada,
+          user.uid,
         );
+        handleCerrarModalMovimiento();
+        toast.success('Movimiento actualizado');
+        loadData();
       } else {
-        await TesoreriaService.registrarMovimiento(
-          { ...movimientoForm, fecha: movimientoForm.fecha || new Date(), tipoCambio: movimientoForm.tipoCambio || tcDefault, metodo: movimientoForm.metodo || 'efectivo' } as MovimientoTesoreriaFormData,
-          user.uid
+        // S58 Fase 3 — Optimistic submit + toast con undo
+        const movId = await TesoreriaService.registrarMovimiento(dataNormalizada, user.uid);
+        handleCerrarModalMovimiento();
+        loadData();
+
+        // Recuperar el numeroMovimiento para mensaje legible (best-effort)
+        let numero = movId.slice(-6).toUpperCase();
+        try {
+          const created = await TesoreriaService.getMovimientoById(movId);
+          if (created?.numeroMovimiento) numero = created.numeroMovimiento;
+        } catch {
+          /* fallback al id corto */
+        }
+
+        toast.successWithUndo(
+          `Movimiento ${numero} creado`,
+          async () => {
+            try {
+              await TesoreriaService.eliminarMovimiento(movId, user.uid);
+              toast.info('Movimiento anulado');
+              loadData();
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : 'No se pudo deshacer';
+              toast.error(msg);
+            }
+          },
         );
       }
-      handleCerrarModalMovimiento();
-      toast.success('Movimiento guardado');
-      loadData();
     } catch (error: any) {
       toast.error(error.message, 'Error al guardar movimiento');
     } finally {
@@ -401,7 +434,18 @@ export const Tesoreria: React.FC = () => {
   const handleCerrarModalMovimiento = () => {
     setIsMovimientoModalOpen(false);
     setMovimientoEditando(null);
-    setMovimientoForm({ tipo: 'ingreso_venta', moneda: 'PEN', fecha: new Date(), tipoCambio: tcDefault, metodo: 'efectivo' });
+    // S58 Fase 3 — Smart defaults: fecha=hoy, TC=día, cuenta destino por defecto
+    const cuentaPorDefectoPEN = cuentas.find(
+      (c) => c.activa && c.esCuentaPorDefecto && (c.esBiMoneda || c.moneda === 'PEN'),
+    );
+    setMovimientoForm({
+      tipo: 'ingreso_venta',
+      moneda: 'PEN',
+      fecha: new Date(),
+      tipoCambio: tcDefault,
+      metodo: 'efectivo',
+      cuentaDestino: cuentaPorDefectoPEN?.id,
+    });
   };
 
   const handleAnularMovimiento = async (mov: MovimientoTesoreria) => {
