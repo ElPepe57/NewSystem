@@ -14,7 +14,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { CreditCard, Plus } from 'lucide-react';
+import { CreditCard, Plus, Receipt } from 'lucide-react';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -24,6 +24,7 @@ import type {
   TarjetaCreditoFormData,
 } from '../../types/tarjetaCredito.types';
 import { TarjetaCard, TarjetaFormModal } from './TarjetasCreditoV2';
+import { CargarTarjetaWizard } from './TarjetasCreditoV2/CargarTarjetaWizard';
 
 export const TabTarjetasCredito: React.FC = () => {
   const {
@@ -40,6 +41,11 @@ export const TabTarjetasCredito: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [tarjetaEditar, setTarjetaEditar] = useState<TarjetaCredito | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // S58d F3 — Wizard cargar a tarjeta
+  const [showCargar, setShowCargar] = useState(false);
+  const [tarjetaParaCargo, setTarjetaParaCargo] =
+    useState<TarjetaCredito | undefined>(undefined);
 
   useEffect(() => {
     void fetchTarjetas();
@@ -116,15 +122,32 @@ export const TabTarjetasCredito: React.FC = () => {
               ` · Total deuda con banco: US$ ${totalDeudaEmpresaUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
         </div>
-        <Button
-          variant="primary-soft"
-          size="sm"
-          onClick={abrirNueva}
-          disabled={submitting}
-        >
-          <Plus className="h-4 w-4 mr-1.5" />
-          Nueva tarjeta
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {tarjetasActivas.length > 0 && (
+            <Button
+              variant="primary-soft"
+              size="sm"
+              onClick={() => {
+                setTarjetaParaCargo(undefined);
+                setShowCargar(true);
+              }}
+              disabled={submitting}
+              title="Cargar deudas a una tarjeta"
+            >
+              <Receipt className="h-4 w-4 mr-1.5" />
+              Cargar a tarjeta
+            </Button>
+          )}
+          <Button
+            variant="primary-soft"
+            size="sm"
+            onClick={abrirNueva}
+            disabled={submitting}
+          >
+            <Plus className="h-4 w-4 mr-1.5" />
+            Nueva tarjeta
+          </Button>
+        </div>
       </div>
 
       {/* Lista o empty state */}
@@ -156,11 +179,25 @@ export const TabTarjetasCredito: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {tarjetas.map((tarjeta) => (
-            <TarjetaCard
-              key={tarjeta.id}
-              tarjeta={tarjeta}
-              onClick={(t) => abrirEditar(t)}
-            />
+            <div key={tarjeta.id} className="space-y-2">
+              <TarjetaCard
+                tarjeta={tarjeta}
+                onClick={(t) => {
+                  // Click en la card → cargar a tarjeta (caso más frecuente)
+                  setTarjetaParaCargo(t);
+                  setShowCargar(true);
+                }}
+              />
+              <div className="flex items-center justify-end gap-1 px-1">
+                <button
+                  type="button"
+                  onClick={() => abrirEditar(tarjeta)}
+                  className="text-[10px] text-slate-500 hover:text-slate-700 hover:underline px-2 py-0.5"
+                >
+                  Editar tarjeta
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -175,6 +212,20 @@ export const TabTarjetasCredito: React.FC = () => {
         onGuardar={handleGuardar}
         tarjetaEditar={tarjetaEditar}
         isSubmitting={submitting}
+      />
+
+      {/* S58d F3 — Wizard cargar deudas a tarjeta (TX-1) */}
+      <CargarTarjetaWizard
+        isOpen={showCargar}
+        onClose={() => {
+          setShowCargar(false);
+          setTarjetaParaCargo(undefined);
+        }}
+        tarjetaPreseleccionada={tarjetaParaCargo}
+        onSuccess={() => {
+          // Refresh datos tras cargo exitoso
+          void fetchTarjetas();
+        }}
       />
     </div>
   );
