@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Modales Finanzas v2 · Mockup S58</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+  .modal-shell { background:#fff; border-radius:1rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.18); border:1px solid #e2e8f0; overflow:hidden; }
+  .kbd { display:inline-block; padding:1px 6px; font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:10px; background:#f1f5f9; border:1px solid #cbd5e1; border-bottom-width:2px; border-radius:4px; color:#475569; }
+  /* tonal soft hover */
+  .btn-soft-teal { background:#f0fdfa; color:#0f766e; border:1px solid #99f6e4; }
+  .btn-soft-teal:hover { background:#ccfbf1; }
+  .btn-soft-emerald { background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; }
+  .btn-soft-emerald:hover { background:#d1fae5; }
+  .btn-soft-red { background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; }
+  .btn-soft-red:hover { background:#fee2e2; }
+  .btn-outline { background:#fff; color:#334155; border:1px solid #cbd5e1; }
+  .btn-outline:hover { background:#f8fafc; }
+  .btn-ghost { background:transparent; color:#475569; }
+  .btn-ghost:hover { background:#f1f5f9; }
+  /* Toast undo */
+  @keyframes slideUpFade { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .toast-anim { animation: slideUpFade 0.3s ease-out; }
+  /* Pulse para "live" indicators */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-dot { animation: pulse 2s infinite; }
+  /* Skeleton */
+  @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+  .skeleton { background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%); background-size: 1000px 100%; animation: shimmer 2s infinite; border-radius: 4px; }
+  /* Combobox dropdown */
+  .combobox-shadow { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.06), 0 4px 6px -4px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body class="p-6">
+
+<!-- ============================================================================
+     STICKY NAV
+============================================================================ -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 -mx-6 px-6 py-3 mb-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i class="fa-solid fa-window-restore text-teal-600"></i>
+      <span class="font-bold text-slate-900">Modales Finanzas v2</span>
+      <span class="text-[11px] text-slate-500 ml-2">S58 · Mockup de diseño · Banking-grade</span>
+    </div>
+    <div class="flex gap-1.5 flex-wrap">
+      <a href="#filosofia" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">1·Filosofía</a>
+      <a href="#anatomia" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">2·Anatomía</a>
+      <a href="#inputs" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">3·Inputs</a>
+      <a href="#smart" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">4·Smart defaults</a>
+      <a href="#movimiento" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">5·Movimiento</a>
+      <a href="#conversion" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">6·Conversión</a>
+      <a href="#transferencia" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">7·Transferencia</a>
+      <a href="#cuenta" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">8·Cuenta</a>
+      <a href="#patterns" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">9·UX Patterns</a>
+      <a href="#plan" class="text-[11px] px-2.5 py-1 bg-slate-700 text-white rounded-md hover:bg-slate-800">10·Plan</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     1 — FILOSOFÍA
+============================================================================ -->
+<section id="filosofia" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">1 · Filosofía del sistema</div>
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h1 class="text-2xl font-bold text-slate-900 mb-2">Crear datos no debería ser un trámite.</h1>
+    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+      Las grandes empresas (Stripe, Mercury, Linear) tratan los formularios como conversaciones — no como obstáculos.
+      El usuario llega con una intención (registrar un movimiento, hacer una conversión) y el sistema lo guía con
+      <strong>defaults inteligentes</strong>, <strong>validación en vivo</strong>, <strong>atajos</strong> y
+      <strong>feedback inmediato</strong>. Si todo va bien, el usuario sale en menos de 8 segundos.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1">PRINCIPIO 1</div>
+        <div class="text-sm font-semibold text-slate-900">Default is friend</div>
+        <div class="text-[11px] text-slate-600 mt-1">Cada campo arranca con el valor más probable. Fecha = hoy, TC = del día, cuenta = la más usada.</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1">PRINCIPIO 2</div>
+        <div class="text-sm font-semibold text-slate-900">Validate as you go</div>
+        <div class="text-[11px] text-slate-600 mt-1">El error aparece en el campo, en el momento, no al hacer submit. Verde cuando OK, rojo cuando no.</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1">PRINCIPIO 3</div>
+        <div class="text-sm font-semibold text-slate-900">Optimistic by default</div>
+        <div class="text-[11px] text-slate-600 mt-1">Al hacer submit, el modal se cierra al instante. Si algo falla, banner discreto con [Deshacer].</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1">PRINCIPIO 4</div>
+        <div class="text-sm font-semibold text-slate-900">Don't lose work</div>
+        <div class="text-[11px] text-slate-600 mt-1">Si cierras por accidente, tu borrador se guarda. Al volver, "¿Continuar borrador del miércoles?".</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1">PRINCIPIO 5</div>
+        <div class="text-sm font-semibold text-slate-900">Keyboard first</div>
+        <div class="text-[11px] text-slate-600 mt-1">TAB navega, <span class="kbd">Esc</span> cierra, <span class="kbd">⌘</span><span class="kbd">↵</span> guarda. Mostrados en el footer del modal.</div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1">PRINCIPIO 6</div>
+        <div class="text-sm font-semibold text-slate-900">Calm color, loud action</div>
+        <div class="text-[11px] text-slate-600 mt-1">Fondo blanco. Botones tonales. La acción primaria sobresale por <em>contraste</em>, no por saturación.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     2 — ANATOMÍA DEL MODAL
+============================================================================ -->
+<section id="anatomia" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">2 · Anatomía del modal v2</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Tres zonas con responsabilidades claras: header sticky (identidad), body scrollable (contenido), footer sticky (decisión).
+  </p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- ANATOMÍA -->
+    <div class="modal-shell">
+      <!-- Header -->
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-white sticky top-0 z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+            <i class="fa-solid fa-arrow-right-arrow-left text-teal-700 text-sm"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Nuevo movimiento</h3>
+            <p class="text-[11px] text-slate-500">Cash flow · Movimiento de tesorería</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700 p-1 hover:bg-slate-100 rounded">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Body (placeholder) -->
+      <div class="px-5 py-5 space-y-4 max-h-[280px] overflow-auto">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Tipo</label>
+          <div class="h-10 bg-slate-50 border border-slate-200 rounded-md"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+            <div class="h-10 bg-slate-50 border border-slate-200 rounded-md"></div>
+          </div>
+          <div>
+            <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Moneda</label>
+            <div class="h-10 bg-slate-50 border border-slate-200 rounded-md"></div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Concepto</label>
+          <div class="h-10 bg-slate-50 border border-slate-200 rounded-md"></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between sticky bottom-0">
+        <div class="flex items-center gap-3 text-[10px] text-slate-500">
+          <span><span class="kbd">Esc</span> cerrar</span>
+          <span><span class="kbd">⌘</span><span class="kbd">↵</span> guardar</span>
+        </div>
+        <div class="flex gap-2">
+          <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium">Cancelar</button>
+          <button class="text-[12px] px-3 py-1.5 btn-soft-teal rounded-md font-medium">
+            Crear movimiento
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHEAT-SHEET -->
+    <div class="space-y-3">
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">HEADER · sticky</div>
+        <ul class="text-[12px] text-slate-700 space-y-1.5">
+          <li>• <strong>Icon tonal</strong> (40×40, bg-teal-50 border-teal-200) — identidad inmediata</li>
+          <li>• <strong>Título</strong> (text-base font-bold) — qué se está creando</li>
+          <li>• <strong>Breadcrumb</strong> (text-[11px] text-slate-500) — contexto: "Cash flow · Movimiento"</li>
+          <li>• <strong>Close</strong> (sólo X, no "Cancelar"; cancelar va en el footer)</li>
+        </ul>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">BODY · scrollable</div>
+        <ul class="text-[12px] text-slate-700 space-y-1.5">
+          <li>• <strong>Sin secciones de colores</strong> — la jerarquía la da tipografía y espaciado</li>
+          <li>• <strong>Labels uppercase</strong> tracking-wider text-[11px] (Stripe Atlas)</li>
+          <li>• <strong>Inputs height 40px</strong>, border-slate-300, focus-ring-teal-500</li>
+          <li>• <strong>Validación inline</strong> debajo de cada input</li>
+          <li>• <strong>max-h-[80vh]</strong> + overflow-auto si hay muchos campos</li>
+        </ul>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">FOOTER · sticky</div>
+        <ul class="text-[12px] text-slate-700 space-y-1.5">
+          <li>• <strong>Atajos teclado visibles</strong> a la izquierda (kbd-style)</li>
+          <li>• <strong>Cancelar</strong> = ghost (no llama la atención)</li>
+          <li>• <strong>Acción primaria</strong> = primary-soft (no saturado)</li>
+          <li>• Si hay <strong>auto-save</strong>, indicador "Guardado hace 2s" en lugar de atajos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     3 — INPUTS AVANZADOS
+============================================================================ -->
+<section id="inputs" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">3 · Sistema de inputs</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Cada input es un componente reusable con: label uppercase, placeholder hint, validación inline, hint debajo, estados claros (default / focus / error / success / disabled).
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <!-- TextField -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">TextField — input de texto base</div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Concepto</label>
+      <input type="text" placeholder="Pago factura proveedor abril" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white" />
+      <div class="text-[11px] text-slate-500 mt-1.5">Descripción libre del movimiento.</div>
+
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">Estados</div>
+        <div class="space-y-2">
+          <input type="text" value="Pago factura abril" class="w-full h-9 px-3 text-sm border-2 border-teal-500 rounded-md outline-none bg-white" />
+          <div class="text-[10px] text-teal-600 -mt-1">↑ focused</div>
+
+          <input type="text" value="Pa" class="w-full h-9 px-3 text-sm border border-red-400 rounded-md outline-none bg-red-50/30" />
+          <div class="text-[10px] text-red-600 -mt-1 flex items-center gap-1"><i class="fa-solid fa-circle-exclamation"></i> Mínimo 5 caracteres</div>
+
+          <input type="text" value="Pago factura abril ✓" class="w-full h-9 px-3 text-sm border border-emerald-300 rounded-md outline-none bg-emerald-50/30" />
+          <div class="text-[10px] text-emerald-600 -mt-1 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Disponible</div>
+
+          <input type="text" disabled value="Auto-generado" class="w-full h-9 px-3 text-sm border border-slate-200 rounded-md outline-none bg-slate-50 text-slate-500 cursor-not-allowed" />
+          <div class="text-[10px] text-slate-400 -mt-1">↑ disabled (auto-llenado)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MoneyField -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">MoneyField — input de monto</div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">S/</span>
+        <input type="text" value="1,234.56" class="w-full h-10 pl-10 pr-3 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white num-tab font-medium text-right" />
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1.5">≈ US$ 333.40 al TC 3.703 del día</div>
+
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">Comportamiento</div>
+        <ul class="text-[11px] text-slate-600 space-y-1">
+          <li>• Formato live mientras escribes: 1234.5 → 1,234.50</li>
+          <li>• Solo dígitos, punto y coma. Otros chars ignorados</li>
+          <li>• Equivalente USD/PEN automático debajo</li>
+          <li>• Símbolo S/ o US$ pegado a la izquierda</li>
+          <li>• Alineación derecha (estándar contable)</li>
+          <li>• <span class="kbd">Tab</span> al siguiente, no submit accidental</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Combobox -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Combobox — reemplazo de select gigante</div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Cuenta origen</label>
+      <div class="relative">
+        <input type="text" placeholder="Buscar cuenta..." value="BCP" class="w-full h-10 px-3 pr-9 text-sm border-2 border-teal-500 rounded-md outline-none bg-white" />
+        <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+      </div>
+
+      <!-- Dropdown -->
+      <div class="mt-1 bg-white border border-slate-200 rounded-md combobox-shadow overflow-hidden">
+        <div class="text-[10px] uppercase text-slate-400 font-semibold px-3 py-1.5 bg-slate-50 border-b border-slate-100">Recientes</div>
+        <button class="w-full px-3 py-2 hover:bg-teal-50 flex items-center justify-between text-left">
+          <div>
+            <div class="text-[12px] font-medium text-slate-900">BCP Soles</div>
+            <div class="text-[10px] text-slate-500">Banco · Cta corriente · S/ 85,420.00</div>
+          </div>
+          <i class="fa-solid fa-check text-teal-600 text-xs"></i>
+        </button>
+        <button class="w-full px-3 py-2 hover:bg-slate-50 flex items-center justify-between text-left">
+          <div>
+            <div class="text-[12px] font-medium text-slate-900">BCP Dólares</div>
+            <div class="text-[10px] text-slate-500">Banco · Cta corriente · US$ 12,500.00</div>
+          </div>
+        </button>
+        <div class="text-[10px] uppercase text-slate-400 font-semibold px-3 py-1.5 bg-slate-50 border-y border-slate-100">Todas las cuentas</div>
+        <button class="w-full px-3 py-2 hover:bg-slate-50 flex items-center justify-between text-left">
+          <div>
+            <div class="text-[12px] font-medium text-slate-900">Interbank Soles</div>
+            <div class="text-[10px] text-slate-500">Banco · Cta ahorros · S/ 32,100.00</div>
+          </div>
+        </button>
+        <button class="w-full px-3 py-2 hover:bg-slate-50 flex items-center justify-between text-left">
+          <div>
+            <div class="text-[12px] font-medium text-slate-900">Mercado Pago</div>
+            <div class="text-[10px] text-slate-500">Digital · S/ 18,200.00</div>
+          </div>
+        </button>
+        <div class="border-t border-slate-100">
+          <button class="w-full px-3 py-2 hover:bg-teal-50 text-left flex items-center gap-2 text-[12px] text-teal-700 font-medium">
+            <i class="fa-solid fa-plus text-xs"></i> Crear cuenta nueva
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-3 text-[11px] text-slate-500">
+        Atajos en dropdown: <span class="kbd">↑</span><span class="kbd">↓</span> navegar · <span class="kbd">↵</span> seleccionar · <span class="kbd">Esc</span> cerrar
+      </div>
+    </div>
+
+    <!-- DateField -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">DateField — fecha con shortcuts</div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Fecha</label>
+      <div class="relative">
+        <input type="text" value="27 de abril de 2026" class="w-full h-10 px-3 pr-9 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" />
+        <i class="fa-solid fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+      </div>
+      <div class="mt-2 flex items-center gap-1.5 flex-wrap">
+        <button class="text-[10px] px-2 py-0.5 bg-teal-50 text-teal-700 border border-teal-200 rounded">Hoy</button>
+        <button class="text-[10px] px-2 py-0.5 bg-slate-50 text-slate-700 border border-slate-200 rounded hover:bg-slate-100">Ayer</button>
+        <button class="text-[10px] px-2 py-0.5 bg-slate-50 text-slate-700 border border-slate-200 rounded hover:bg-slate-100">Esta semana</button>
+        <button class="text-[10px] px-2 py-0.5 bg-slate-50 text-slate-700 border border-slate-200 rounded hover:bg-slate-100">Este mes</button>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-2">Shortcut chips arriba para acceso rápido. Default: <strong>hoy</strong>.</div>
+    </div>
+
+    <!-- ToggleGroup -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">ToggleGroup — selección de 2-4 opciones</div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Dirección</label>
+      <div class="flex bg-slate-100 rounded-lg p-1 w-full">
+        <button class="flex-1 text-[12px] px-3 py-1.5 bg-white text-emerald-700 shadow-sm rounded font-semibold flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-arrow-down"></i> Ingreso
+        </button>
+        <button class="flex-1 text-[12px] px-3 py-1.5 text-slate-500 hover:text-slate-700 rounded font-medium flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-arrow-up"></i> Egreso
+        </button>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-2">Reemplaza al "select" cuando hay 2-4 opciones excluyentes. Visualmente más claro.</div>
+    </div>
+
+    <!-- Validation summary -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Validación — sumario al hacer submit</div>
+      <div class="bg-red-50 border border-red-200 rounded-md p-3 mb-3">
+        <div class="flex items-center gap-2 text-[12px] text-red-800 font-semibold mb-1.5">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          Hay 2 errores que corregir
+        </div>
+        <ul class="text-[11px] text-red-700 space-y-0.5 ml-5 list-disc">
+          <li><a href="#" class="underline">Concepto</a> debe tener al menos 5 caracteres</li>
+          <li><a href="#" class="underline">Cuenta origen</a> es obligatoria</li>
+        </ul>
+      </div>
+      <div class="text-[11px] text-slate-500">
+        Aparece SOLO al intentar submit con errores. Cada error linkea al campo (focus + scroll).
+        En estado normal, los errores viven inline en cada campo.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     4 — SMART DEFAULTS
+============================================================================ -->
+<section id="smart" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">4 · Smart defaults · "el sistema te ayuda"</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Cada vez que abres un modal, los campos llegan PRE-LLENADOS con la mejor adivinanza del sistema. El usuario solo cambia lo distinto.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Modal · Nuevo movimiento (recién abierto)</div>
+      <div class="space-y-3">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Fecha</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Default · hoy</span>
+          </div>
+          <input type="text" value="27 de abril de 2026" class="w-full h-9 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Tipo de cambio</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Default · TC del día (3.703)</span>
+          </div>
+          <input type="text" value="3.703" class="w-full h-9 px-3 text-sm border border-slate-300 rounded-md bg-white num-tab" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Cuenta origen</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Sugerido · más usada</span>
+          </div>
+          <input type="text" value="BCP Soles" class="w-full h-9 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Método</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Sugerido · último usado</span>
+          </div>
+          <input type="text" value="Transferencia bancaria" class="w-full h-9 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold mb-2">Tipos de hint</div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Default</span>
+            <span class="text-[11px] text-slate-600">Valor estándar (fecha hoy, TC del día). Cambiar es excepción.</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Sugerido</span>
+            <span class="text-[11px] text-slate-600">Inferido de tu historial (cuenta más usada, último titular).</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200 font-medium">Detectado</span>
+            <span class="text-[11px] text-slate-600">Auto-llenado por contexto (ej: si vienes de una OC, el proveedor ya está).</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 font-medium">Calculado</span>
+            <span class="text-[11px] text-slate-600">Derivado en vivo (equivalente USD del monto, TCEA según monto+plazo).</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-teal-50 border border-teal-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase text-teal-700 font-bold mb-2">¿Por qué es valioso?</div>
+        <ul class="text-[11px] text-teal-900 space-y-1">
+          <li>• Reduce tiempo de creación de ~30s a ~8s</li>
+          <li>• Reduce errores: usar TC del día > tipearlo de memoria</li>
+          <li>• Reduce friction: menos campos vacíos = menos ansiedad</li>
+          <li>• El usuario aprende qué se considera "estándar"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     5 — MODAL: NUEVO MOVIMIENTO (FULL)
+============================================================================ -->
+<section id="movimiento" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">5 · Modal completo · Nuevo movimiento de tesorería</div>
+  <p class="text-sm text-slate-600 mb-4">
+    El más usado del sistema. ~10 campos pero con smart defaults solo 3-4 requieren input. Wizard en 1 paso (no fragmentamos).
+  </p>
+
+  <div class="modal-shell max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-white">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-arrow-right-arrow-left text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Nuevo movimiento</h3>
+          <p class="text-[11px] text-slate-500">Cash flow · Movimiento de tesorería</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Auto-save banner -->
+    <div class="px-6 py-2 bg-teal-50 border-b border-teal-100 flex items-center gap-2 text-[11px] text-teal-700">
+      <span class="w-1.5 h-1.5 rounded-full bg-teal-500 pulse-dot"></span>
+      Borrador guardado automáticamente · hace 3 segundos
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-5 space-y-5 max-h-[60vh] overflow-auto">
+      <!-- Direction toggle -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Dirección</label>
+        <div class="flex bg-slate-100 rounded-lg p-1">
+          <button class="flex-1 text-[13px] px-3 py-2 bg-white text-emerald-700 shadow-sm rounded font-semibold flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-arrow-down"></i> Ingreso
+          </button>
+          <button class="flex-1 text-[13px] px-3 py-2 text-slate-500 hover:text-slate-700 rounded font-medium flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-arrow-up"></i> Egreso
+          </button>
+        </div>
+      </div>
+
+      <!-- Tipo + fecha -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Tipo</label>
+          <input type="text" value="Cobro de venta" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Fecha</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Hoy</span>
+          </div>
+          <div class="relative">
+            <input type="text" value="27 abr 2026" class="w-full h-10 px-3 pr-9 text-sm border border-slate-300 rounded-md bg-white" />
+            <i class="fa-solid fa-calendar absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monto + moneda + TC -->
+      <div class="grid grid-cols-12 gap-3">
+        <div class="col-span-6">
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">S/</span>
+            <input type="text" value="1,234.56" class="w-full h-10 pl-10 pr-3 text-sm border border-slate-300 rounded-md bg-white num-tab font-medium text-right focus:ring-2 focus:ring-teal-500 focus:border-teal-500" />
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1.5">≈ US$ 333.40 al TC 3.703</div>
+        </div>
+        <div class="col-span-3">
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Moneda</label>
+          <input type="text" value="PEN" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div class="col-span-3">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">TC</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Día</span>
+          </div>
+          <input type="text" value="3.703" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white num-tab" />
+        </div>
+      </div>
+
+      <!-- Cuenta destino -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Cuenta destino</label>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Sugerido · más usada</span>
+        </div>
+        <div class="relative">
+          <input type="text" value="BCP Soles" class="w-full h-10 px-3 pr-9 text-sm border border-slate-300 rounded-md bg-white" />
+          <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-1.5">Saldo actual: <span class="num-tab font-medium text-slate-700">S/ 85,420.00</span> → tras movimiento: <span class="num-tab font-medium text-emerald-700">S/ 86,654.56</span></div>
+      </div>
+
+      <!-- Cliente / vinculación -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Vincular a venta (opcional)</label>
+        <div class="relative">
+          <input type="text" placeholder="Buscar venta por número..." class="w-full h-10 px-3 pr-9 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400" />
+          <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-1.5">Si dejas vacío, se registrará como ingreso libre.</div>
+      </div>
+
+      <!-- Concepto -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Concepto</label>
+        <input type="text" placeholder="Pago factura proveedor abril..." class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400" />
+      </div>
+
+      <!-- Método + referencia -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Método</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Último</span>
+          </div>
+          <input type="text" value="Transferencia bancaria" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Referencia (opcional)</label>
+          <input type="text" placeholder="Nro operación, voucher..." class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400" />
+        </div>
+      </div>
+
+      <!-- Línea de negocio -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Línea de negocio (opcional)</label>
+        <div class="flex bg-slate-100 rounded-lg p-1">
+          <button class="flex-1 text-[12px] px-3 py-1.5 text-slate-500 hover:text-slate-700 rounded font-medium">Ninguna</button>
+          <button class="flex-1 text-[12px] px-3 py-1.5 bg-white text-teal-700 shadow-sm rounded font-semibold">Skincare</button>
+          <button class="flex-1 text-[12px] px-3 py-1.5 text-slate-500 hover:text-slate-700 rounded font-medium">Nutricos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-3 text-[10px] text-slate-500">
+        <span><span class="kbd">Esc</span> cerrar</span>
+        <span><span class="kbd">⌘</span><span class="kbd">↵</span> guardar</span>
+        <label class="flex items-center gap-1 ml-1 cursor-pointer">
+          <input type="checkbox" class="rounded border-slate-300 text-teal-600" />
+          <span>Crear otro al guardar</span>
+        </label>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium">Cancelar</button>
+        <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          Crear movimiento
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     6 — MODAL: NUEVA CONVERSIÓN
+============================================================================ -->
+<section id="conversion" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">6 · Modal · Conversión USD/PEN</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Operación específica con visualización clara del flujo "de → a", spread visual vs TC referencia.
+  </p>
+
+  <div class="modal-shell max-w-xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-rotate text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Nueva conversión</h3>
+          <p class="text-[11px] text-slate-500">Cash flow · Conversión cambiaria</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="px-6 py-5 space-y-5">
+      <!-- Visualización del flujo -->
+      <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-4">
+        <div class="grid grid-cols-12 gap-3 items-center">
+          <!-- DE -->
+          <div class="col-span-5">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Vendes</div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl font-bold text-slate-800 num-tab">US$ 1,000</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-0.5">desde BCP Dólares</div>
+          </div>
+          <!-- ARROW -->
+          <div class="col-span-2 flex justify-center">
+            <div class="w-9 h-9 rounded-full bg-teal-100 border-2 border-teal-300 flex items-center justify-center">
+              <i class="fa-solid fa-arrow-right text-teal-700 text-sm"></i>
+            </div>
+          </div>
+          <!-- A -->
+          <div class="col-span-5 text-right">
+            <div class="text-[10px] uppercase tracking-wider text-teal-700 font-semibold mb-1">Recibes</div>
+            <div class="text-2xl font-bold text-teal-700 num-tab">S/ 3,700</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">en BCP Soles</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monto + cuenta origen -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto a convertir</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">US$</span>
+            <input type="text" value="1,000.00" class="w-full h-10 pl-12 pr-3 text-sm border border-slate-300 rounded-md bg-white num-tab font-medium text-right" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Cuenta origen</label>
+          <input type="text" value="BCP Dólares" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+      </div>
+
+      <!-- TC + cuenta destino -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">TC aplicado</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 font-medium">Calculado</span>
+          </div>
+          <input type="text" value="3.700" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white num-tab" />
+          <div class="text-[11px] text-slate-500 mt-1.5">
+            TC referencia hoy: <span class="num-tab font-medium">3.703</span> · Spread: <span class="num-tab font-medium text-amber-700">−0.08%</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Cuenta destino</label>
+          <input type="text" value="BCP Soles" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+      </div>
+
+      <!-- Entidad de cambio -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Casa de cambio (opcional)</label>
+        <input type="text" value="BCP" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+      </div>
+
+      <!-- Notas -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Motivo (opcional)</label>
+        <textarea rows="2" placeholder="Ej: Convertir saldo USD para pagar planilla en soles" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400 resize-none"></textarea>
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500">
+        <span><span class="kbd">Esc</span> cerrar · <span class="kbd">⌘</span><span class="kbd">↵</span> ejecutar</span>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium">Cancelar</button>
+        <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate text-[10px]"></i>
+          Ejecutar conversión
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     7 — MODAL: TRANSFERENCIA INTERNA
+============================================================================ -->
+<section id="transferencia" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">7 · Modal · Transferencia entre cuentas</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Mismo patrón que conversión pero sin TC (misma moneda). El "from → to" arriba es protagonista.
+  </p>
+
+  <div class="modal-shell max-w-xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-shuffle text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Transferencia interna</h3>
+          <p class="text-[11px] text-slate-500">Cash flow · Movimiento entre cuentas propias</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="px-6 py-5 space-y-5">
+      <!-- Visualización del flujo -->
+      <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-4">
+        <div class="grid grid-cols-12 gap-3 items-center">
+          <div class="col-span-5">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Sale de</div>
+            <div class="text-base font-bold text-slate-800">BCP Soles</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Saldo: S/ 85,420 → S/ 80,420</div>
+          </div>
+          <div class="col-span-2 flex justify-center">
+            <div class="w-9 h-9 rounded-full bg-teal-100 border-2 border-teal-300 flex items-center justify-center">
+              <i class="fa-solid fa-arrow-right text-teal-700 text-sm"></i>
+            </div>
+          </div>
+          <div class="col-span-5 text-right">
+            <div class="text-[10px] uppercase tracking-wider text-teal-700 font-semibold mb-1">Entra a</div>
+            <div class="text-base font-bold text-teal-700">Mercado Pago</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Saldo: S/ 18,200 → S/ 23,200</div>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 text-center">
+          <span class="text-[10px] uppercase text-slate-500 font-semibold">Monto</span>
+          <div class="text-2xl font-bold text-slate-900 num-tab">S/ 5,000.00</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Cuenta origen</label>
+          <input type="text" value="BCP Soles" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Cuenta destino</label>
+          <input type="text" value="Mercado Pago" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">S/</span>
+            <input type="text" value="5,000.00" class="w-full h-10 pl-10 pr-3 text-sm border border-slate-300 rounded-md bg-white num-tab font-medium text-right" />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Fecha</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Hoy</span>
+          </div>
+          <input type="text" value="27 abr 2026" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Concepto</label>
+        <input type="text" placeholder="Recargar Mercado Pago para pagos digitales" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400" />
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500">
+        <span><span class="kbd">⌘</span><span class="kbd">↵</span> transferir</span>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium">Cancelar</button>
+        <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-shuffle text-[10px]"></i>
+          Transferir
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     8 — MODAL: NUEVA CUENTA BANCARIA
+============================================================================ -->
+<section id="cuenta" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">8 · Modal · Nueva cuenta bancaria</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Wizard de 2 pasos para no abrumar. Paso 1: identidad. Paso 2: configuración técnica (saldo inicial, productos asociados).
+  </p>
+
+  <div class="modal-shell max-w-xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-building-columns text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Nueva cuenta bancaria</h3>
+          <p class="text-[11px] text-slate-500">Cash flow · Cuentas y caja</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Stepper -->
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-100">
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">1</div>
+          <span class="text-[12px] font-semibold text-slate-900">Identidad</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-300 mx-2"></div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-white border-2 border-slate-300 text-slate-500 text-[11px] font-bold flex items-center justify-center">2</div>
+          <span class="text-[12px] text-slate-500">Configuración</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-5 space-y-5">
+      <!-- Tipo (toggle group) -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Tipo de cuenta</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border-2 border-teal-500 rounded-lg text-teal-700">
+            <i class="fa-solid fa-building-columns text-lg"></i>
+            <span class="text-[11px] font-semibold">Banco</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-mobile-screen text-lg"></i>
+            <span class="text-[11px] font-medium">Digital</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-money-bill text-lg"></i>
+            <span class="text-[11px] font-medium">Caja</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-credit-card text-lg"></i>
+            <span class="text-[11px] font-medium">Crédito</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Banco + producto -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Entidad</label>
+          <input type="text" placeholder="Buscar banco..." class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400" />
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Producto</label>
+          <input type="text" value="Cuenta corriente" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+      </div>
+
+      <!-- Nombre -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Nombre interno</label>
+        <input type="text" placeholder="Ej: BCP Soles operaciones" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400" />
+        <div class="text-[11px] text-slate-500 mt-1.5">Cómo verás esta cuenta en listados internos.</div>
+      </div>
+
+      <!-- Moneda + bi-moneda -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Moneda</label>
+        <div class="flex bg-slate-100 rounded-lg p-1">
+          <button class="flex-1 text-[12px] px-3 py-1.5 bg-white text-teal-700 shadow-sm rounded font-semibold">PEN</button>
+          <button class="flex-1 text-[12px] px-3 py-1.5 text-slate-500 hover:text-slate-700 rounded font-medium">USD</button>
+          <button class="flex-1 text-[12px] px-3 py-1.5 text-slate-500 hover:text-slate-700 rounded font-medium">Bi-moneda</button>
+        </div>
+      </div>
+
+      <!-- Titular -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Titular</label>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Sugerido · "Vita Skin"</span>
+        </div>
+        <input type="text" value="Vita Skin Peru SAC" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500">Paso <strong class="text-slate-700">1</strong> de 2</div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium">Cancelar</button>
+        <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+          Continuar <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     9 — UX PATTERNS
+============================================================================ -->
+<section id="patterns" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">9 · UX patterns · cómo se sienten los modales</div>
+  <p class="text-sm text-slate-600 mb-4">
+    No basta con que se vean bonitos. Tienen que comportarse bien.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+    <!-- Auto-save banner -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Auto-save de borradores</div>
+      <div class="bg-teal-50 border border-teal-100 rounded-md px-3 py-2 flex items-center gap-2 text-[11px] text-teal-700 mb-3">
+        <span class="w-1.5 h-1.5 rounded-full bg-teal-500 pulse-dot"></span>
+        Borrador guardado automáticamente · hace 3 segundos
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-md px-3 py-2.5 mb-3">
+        <div class="text-[12px] font-semibold text-amber-900 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left"></i> Tienes un borrador del miércoles a las 15:42
+        </div>
+        <div class="text-[11px] text-amber-700 mb-2">Movimiento "Cobro factura abril · S/ 1,234.56"</div>
+        <div class="flex gap-2">
+          <button class="text-[11px] px-2.5 py-1 bg-amber-600 text-white rounded font-semibold">Continuar</button>
+          <button class="text-[11px] px-2.5 py-1 bg-white border border-slate-300 text-slate-700 rounded font-medium">Descartar</button>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-600">Cada cambio se guarda en localStorage. TTL 24h. Limpia tras submit.</div>
+    </div>
+
+    <!-- Toast undo -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Submit optimista + undo</div>
+      <div class="space-y-3">
+        <div class="text-[11px] text-slate-600">El modal cierra al click. Banner abajo:</div>
+        <div class="bg-slate-900 text-white rounded-lg px-4 py-3 flex items-center justify-between gap-4 toast-anim">
+          <div class="flex items-center gap-2.5 text-[12px]">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span>Movimiento creado · <span class="text-slate-400">MOV-2026-487</span></span>
+          </div>
+          <button class="text-[11px] px-3 py-1 btn-soft-teal rounded font-semibold">
+            Deshacer
+          </button>
+        </div>
+        <div class="text-[11px] text-slate-600">5 segundos visible. Click en "Deshacer" → revierte el insert + reabre el modal con los valores.</div>
+
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-1.5">Si falla el submit</div>
+          <div class="bg-red-50 border border-red-200 rounded-md px-3 py-2 text-[11px] text-red-700 flex items-center gap-2">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <span>No se pudo guardar. <a href="#" class="underline font-semibold">Reintentar</a></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Atajos teclado -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Atajos de teclado · siempre visibles</div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-[12px]">
+          <span class="text-slate-700">Cerrar el modal</span>
+          <span class="kbd">Esc</span>
+        </div>
+        <div class="flex items-center justify-between text-[12px]">
+          <span class="text-slate-700">Guardar y cerrar</span>
+          <div class="flex gap-1"><span class="kbd">⌘</span><span class="kbd">↵</span></div>
+        </div>
+        <div class="flex items-center justify-between text-[12px]">
+          <span class="text-slate-700">Guardar y crear otro</span>
+          <div class="flex gap-1"><span class="kbd">⌘</span><span class="kbd">⇧</span><span class="kbd">↵</span></div>
+        </div>
+        <div class="flex items-center justify-between text-[12px]">
+          <span class="text-slate-700">Navegar campos</span>
+          <span class="kbd">Tab</span>
+        </div>
+        <div class="flex items-center justify-between text-[12px]">
+          <span class="text-slate-700">En combobox abierto</span>
+          <div class="flex gap-1"><span class="kbd">↑</span><span class="kbd">↓</span><span class="kbd">↵</span></div>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-4">
+        Visibles en el footer del modal todo el tiempo. No es un easter egg — el power user entra y sale en 5s sin tocar el mouse.
+      </div>
+    </div>
+
+    <!-- Validación inline -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Validación · 3 momentos</div>
+      <div class="space-y-3">
+        <div>
+          <div class="text-[11px] uppercase text-slate-500 font-semibold mb-1">1. Mientras escribes</div>
+          <div class="text-[12px] text-slate-600">Solo errores graves (ej: "monto debe ser mayor a 0"). No molestar al usuario que aún está escribiendo.</div>
+        </div>
+        <div>
+          <div class="text-[11px] uppercase text-slate-500 font-semibold mb-1">2. Al salir del campo (blur)</div>
+          <div class="text-[12px] text-slate-600">Validación completa del campo: formato, longitud, unicidad. Mensaje rojo debajo si falla.</div>
+        </div>
+        <div>
+          <div class="text-[11px] uppercase text-slate-500 font-semibold mb-1">3. Al hacer submit</div>
+          <div class="text-[12px] text-slate-600">Si quedan errores: banner rojo arriba con sumario + scroll al primer campo en error.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state interno -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Empty state dentro del modal</div>
+      <div class="border border-dashed border-slate-300 rounded-lg p-6 text-center">
+        <div class="w-12 h-12 rounded-full bg-slate-50 mx-auto mb-3 flex items-center justify-center">
+          <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+        </div>
+        <div class="text-[13px] font-semibold text-slate-700 mb-1">Sin resultados</div>
+        <div class="text-[11px] text-slate-500 mb-3">No encontramos ventas con ese número.</div>
+        <button class="text-[11px] px-3 py-1.5 btn-soft-teal rounded font-semibold">
+          <i class="fa-solid fa-plus text-[10px] mr-1"></i> Crear venta nueva
+        </button>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-3">
+        Cuando un combobox o búsqueda no encuentra nada, ofrecer crear el recurso ahí mismo (mini-modal anidado).
+      </div>
+    </div>
+
+    <!-- Skeleton loading -->
+    <div class="bg-white border border-slate-200 rounded-xl p-5">
+      <div class="text-[10px] uppercase text-teal-600 font-bold mb-3">Loading · skeleton, no spinner</div>
+      <div class="space-y-2.5">
+        <div class="space-y-1.5">
+          <div class="skeleton h-3 w-20"></div>
+          <div class="skeleton h-9 w-full"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-1.5">
+            <div class="skeleton h-3 w-16"></div>
+            <div class="skeleton h-9 w-full"></div>
+          </div>
+          <div class="space-y-1.5">
+            <div class="skeleton h-3 w-12"></div>
+            <div class="skeleton h-9 w-full"></div>
+          </div>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-4">
+        El skeleton respeta el layout final. El usuario no ve un spinner girando — ve la estructura llenándose.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================================
+     10 — PLAN DE IMPLEMENTACIÓN
+============================================================================ -->
+<section id="plan" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">10 · Plan · cómo se implementa esto</div>
+
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-200">
+      <h2 class="text-xl font-bold text-slate-900 mb-1">5 fases · ~5-7 sesiones</h2>
+      <p class="text-sm text-slate-600">Granular, con piloto antes de replicar. Cada fase termina commiteable y deployable.</p>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      <!-- F1 -->
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F1</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Sistema visual del modal v2</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">FormModal v2 (header sticky · body scrollable · footer sticky · atajos), aplicado al piloto: Nuevo movimiento.</div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 1 sesión</span>
+            <span><i class="fa-solid fa-file-code mr-1"></i> ~3 archivos nuevos</span>
+            <span><i class="fa-solid fa-shield-check mr-1"></i> bajo riesgo</span>
+          </div>
+        </div>
+      </div>
+      <!-- F2 -->
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F2</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Inputs + validación inline (react-hook-form + zod)</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">TextField, MoneyField, DateField, ToggleGroup, Combobox + sumario de errores. Aplicado al piloto.</div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 1 sesión</span>
+            <span><i class="fa-solid fa-file-code mr-1"></i> ~6 componentes</span>
+            <span><i class="fa-solid fa-cube mr-1"></i> +20KB gzipped</span>
+          </div>
+        </div>
+      </div>
+      <!-- F3 -->
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F3</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Smart defaults + UX inteligente</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">Auto-llenar fecha/TC/cuenta más usada. Toast undo (5s). "Crear otro" toggle. Optimistic submit.</div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 1 sesión</span>
+            <span><i class="fa-solid fa-file-code mr-1"></i> hooks nuevos</span>
+          </div>
+        </div>
+      </div>
+      <!-- F4 -->
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F4</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Auto-save de borradores</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">localStorage TTL 24h, banner "tienes un borrador" al reabrir. Aplicado al piloto.</div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 0.5 sesión</span>
+            <span><i class="fa-solid fa-database mr-1"></i> useDraft hook</span>
+          </div>
+        </div>
+      </div>
+      <!-- F5 -->
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F5</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Replicar a Conversión + Transferencia + Cuenta</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">Una vez el piloto está pulido, migrar los otros 3 modales operativos del Cash flow.</div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 1-2 sesiones</span>
+            <span><i class="fa-solid fa-file-code mr-1"></i> 3 modales</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center gap-3">
+      <i class="fa-solid fa-circle-info text-teal-600"></i>
+      <div class="text-[12px] text-slate-700">
+        <strong>Después del Cash flow:</strong> el sistema FormModal v2 + inputs + UX patterns queda disponible para el resto del ERP.
+        Compras, Ventas, Productos, Maestros, etc. pueden migrarse modal por modal sin urgencia.
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-5">
+    <div class="text-[10px] uppercase text-amber-700 font-bold mb-2">DECISIONES NECESARIAS ANTES DE EMPEZAR</div>
+    <ul class="text-[12px] text-amber-900 space-y-1.5 ml-4 list-disc">
+      <li><strong>Referente confirmado:</strong> Mercury / Stripe Atlas (banking-grade, mucho whitespace, tonales soft) — ¿OK?</li>
+      <li><strong>Stack:</strong> agregar <code class="bg-white px-1 rounded">react-hook-form</code> + <code class="bg-white px-1 rounded">zod</code> al proyecto (~20KB) — ¿OK?</li>
+      <li><strong>Piloto:</strong> empezar por "Nuevo movimiento" como showcase, después replicar — ¿OK?</li>
+      <li><strong>Modales fuera de Cash flow</strong> (CC actions, OC pago, etc.): se migran después en sesiones separadas — ¿OK?</li>
+    </ul>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto py-8 text-center text-[11px] text-slate-400">
+  S58 · Mockup de diseño · Modales Finanzas v2 · Vita Skin Peru
+</div>
+
+</body>
+</html>

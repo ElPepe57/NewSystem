@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Pago con abono distribuido · Mockup S58b</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+  .modal-shell { background:#fff; border-radius:1rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.18); border:1px solid #e2e8f0; overflow:hidden; }
+  .kbd { display:inline-block; padding:1px 6px; font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:10px; background:#f1f5f9; border:1px solid #cbd5e1; border-bottom-width:2px; border-radius:4px; color:#475569; }
+  .btn-soft-teal { background:#f0fdfa; color:#0f766e; border:1px solid #99f6e4; }
+  .btn-soft-teal:hover { background:#ccfbf1; }
+  .btn-outline { background:#fff; color:#334155; border:1px solid #cbd5e1; }
+  .btn-outline:hover { background:#f8fafc; }
+  .btn-ghost { background:transparent; color:#475569; }
+  .btn-ghost:hover { background:#f1f5f9; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-dot { animation: pulse 2s infinite; }
+  .progress-bar-fill { transition: width 0.4s ease-out; }
+</style>
+</head>
+<body class="p-6">
+
+<!-- STICKY NAV -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 -mx-6 px-6 py-3 mb-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i class="fa-solid fa-money-bill-wave text-teal-600"></i>
+      <span class="font-bold text-slate-900">Pago con abono distribuido</span>
+      <span class="text-[11px] text-slate-500 ml-2">S58b · Mockup · "1 desembolso → N deudas"</span>
+    </div>
+    <div class="flex gap-1.5 flex-wrap">
+      <a href="#concepto" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">1·Concepto</a>
+      <a href="#diferencia" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">2·vs PagosMasivos</a>
+      <a href="#flujo" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">3·Flujo</a>
+      <a href="#paso1" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">4·Paso 1</a>
+      <a href="#paso2" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">5·Paso 2</a>
+      <a href="#paso3" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">6·Paso 3</a>
+      <a href="#paso4" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">7·Paso 4</a>
+      <a href="#casos" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">8·Casos especiales</a>
+      <a href="#plan" class="text-[11px] px-2.5 py-1 bg-slate-700 text-white rounded-md hover:bg-slate-800">9·Plan</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     1 — CONCEPTO
+============================================================================ -->
+<section id="concepto" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">1 · Concepto</div>
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h1 class="text-2xl font-bold text-slate-900 mb-2">Un solo desembolso. N deudas. Distribución inteligente.</h1>
+    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+      Es el flujo más natural cuando pagas a un proveedor / colaborador: haces una sola transferencia bancaria por el total,
+      y el sistema lo aplica automáticamente a las deudas pendientes (oldest first / por monto / manual). Si sobra, queda
+      saldo a favor en su cuenta corriente. Si falta, las deudas quedan parcialmente pagadas.
+    </p>
+
+    <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
+      <div class="text-[10px] uppercase tracking-wider text-teal-700 font-bold mb-2">EJEMPLO REAL</div>
+      <div class="text-[13px] text-teal-900 leading-relaxed">
+        <strong>Situación:</strong> Le debes a Asian Beauty Wholesale US$ 15,200 distribuidos en 5 OCs.<br>
+        <strong>Acción:</strong> Haces UNA transferencia de US$ 12,000 desde BCP Dólares.<br>
+        <strong>Resultado:</strong>
+        <ul class="ml-5 mt-1.5 list-disc space-y-0.5">
+          <li>OC-2026-001 (US$ 2,500) → <span class="text-emerald-700 font-semibold">pagada total</span></li>
+          <li>OC-2026-008 (US$ 3,400) → <span class="text-emerald-700 font-semibold">pagada total</span></li>
+          <li>OC-2026-014 (US$ 4,100) → <span class="text-emerald-700 font-semibold">pagada total</span></li>
+          <li>OC-2026-019 (US$ 3,200) → <span class="text-amber-700 font-semibold">parcial · S/ 2,000 aplicados, US$ 1,200 pendiente</span></li>
+          <li>OC-2026-023 (US$ 2,000) → sigue pendiente completa</li>
+        </ul>
+        <div class="mt-2 pt-2 border-t border-teal-200/60">
+          <strong>Banco ve:</strong> 1 transferencia de US$ 12,000 al Asian Beauty Wholesale.<br>
+          <strong>Sistema registra:</strong> 1 movimiento de tesorería (egreso) + 4 movimientos en CC del proveedor.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     2 — DIFERENCIA CON PAGOS MASIVOS ACTUAL
+============================================================================ -->
+<section id="diferencia" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">2 · Diferencia con el módulo "Pagos masivos" actual</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Ya existe un módulo "Pagos masivos" en el Cash flow (TAREA-101). Este flujo nuevo es <strong>complementario</strong>, no sustituto.
+    Cubren casos de uso distintos.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- ACTUAL -->
+    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div class="bg-slate-50 border-b border-slate-200 px-4 py-2.5">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-slate-500"></i>
+          <span class="font-semibold text-slate-700 text-sm">Pagos masivos (actual)</span>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-0.5">"N pagos individuales agrupados en un lote"</div>
+      </div>
+      <div class="p-4 space-y-3 text-[12px]">
+        <div>
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Caso de uso</div>
+          <div class="text-slate-700">Pagar a 5 viajeros distintos en una corrida.</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Resultado banco</div>
+          <div class="text-slate-700">5 transferencias separadas a 5 cuentas distintas</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Movs tesorería</div>
+          <div class="text-slate-700">5 egresos (1 por viajero)</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-slate-500 font-semibold mb-0.5">Documentos</div>
+          <div class="text-slate-700">Pueden ser de entidades distintas (5 viajeros distintos)</div>
+        </div>
+        <div class="pt-3 border-t border-slate-100">
+          <div class="text-[10px] uppercase text-emerald-700 font-semibold mb-0.5">SE QUEDA</div>
+          <div class="text-emerald-800">No tocamos. Sigue siendo útil.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NUEVO -->
+    <div class="bg-white border-2 border-teal-300 rounded-xl overflow-hidden">
+      <div class="bg-teal-50 border-b border-teal-200 px-4 py-2.5">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-money-bill-wave text-teal-700"></i>
+          <span class="font-semibold text-teal-900 text-sm">Pago con abono distribuido (nuevo)</span>
+        </div>
+        <div class="text-[11px] text-teal-700 mt-0.5">"1 desembolso → N deudas de la misma entidad"</div>
+      </div>
+      <div class="p-4 space-y-3 text-[12px]">
+        <div>
+          <div class="text-[10px] uppercase text-teal-700 font-semibold mb-0.5">Caso de uso</div>
+          <div class="text-slate-700">Le pago US$ 12K al proveedor X que tiene 5 OCs vencidas.</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-teal-700 font-semibold mb-0.5">Resultado banco</div>
+          <div class="text-slate-700">1 transferencia de US$ 12K a la cuenta del proveedor</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-teal-700 font-semibold mb-0.5">Movs tesorería</div>
+          <div class="text-slate-700">1 egreso único</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-teal-700 font-semibold mb-0.5">Documentos</div>
+          <div class="text-slate-700">N OCs/envíos/boletas de la <strong>MISMA entidad</strong></div>
+        </div>
+        <div class="pt-3 border-t border-teal-200/60">
+          <div class="text-[10px] uppercase text-teal-700 font-semibold mb-0.5">A IMPLEMENTAR</div>
+          <div class="text-teal-900">Reemplaza el flujo perdido en la migración.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-4 text-[12px] text-slate-700">
+    <strong>Acceso al nuevo flujo:</strong> botón "<i class="fa-solid fa-money-bill-wave text-teal-700"></i> Pagar al proveedor" desde:
+    <ul class="ml-5 mt-1.5 list-disc">
+      <li>Detalle de cuenta corriente de un proveedor (cuando saldo &lt; 0)</li>
+      <li>EntidadCCDrawer (drawer compacto)</li>
+      <li>Listado de Saldos (acción inline en cards con saldo negativo)</li>
+      <li>Quick action del Overview ("Registrar pago" → flujo elige entidad primero)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================================
+     3 — FLUJO DE 4 PASOS
+============================================================================ -->
+<section id="flujo" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">3 · Flujo · 4 pasos</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Wizard guiado, NO modal de un solo paso. La distribución del abono es la pieza clave y necesita pantalla dedicada.
+  </p>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div class="border border-teal-200 bg-teal-50/40 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1.5">
+          <div class="w-7 h-7 rounded-full bg-teal-600 text-white text-[12px] font-bold flex items-center justify-center">1</div>
+          <span class="text-[12px] font-semibold text-slate-900">Entidad</span>
+        </div>
+        <div class="text-[11px] text-slate-600">A quién le pagas. Vemos su saldo y deudas pendientes.</div>
+      </div>
+      <div class="border border-teal-200 bg-teal-50/40 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1.5">
+          <div class="w-7 h-7 rounded-full bg-teal-600 text-white text-[12px] font-bold flex items-center justify-center">2</div>
+          <span class="text-[12px] font-semibold text-slate-900">Abono</span>
+        </div>
+        <div class="text-[11px] text-slate-600">Cuánto pagas. De qué cuenta sale. Método y referencia.</div>
+      </div>
+      <div class="border border-teal-200 bg-teal-50/40 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1.5">
+          <div class="w-7 h-7 rounded-full bg-teal-600 text-white text-[12px] font-bold flex items-center justify-center">3</div>
+          <span class="text-[12px] font-semibold text-slate-900">Distribución</span>
+        </div>
+        <div class="text-[11px] text-slate-600">Cómo se reparte entre los documentos. Auto o manual.</div>
+      </div>
+      <div class="border border-teal-200 bg-teal-50/40 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1.5">
+          <div class="w-7 h-7 rounded-full bg-teal-600 text-white text-[12px] font-bold flex items-center justify-center">4</div>
+          <span class="text-[12px] font-semibold text-slate-900">Confirmar</span>
+        </div>
+        <div class="text-[11px] text-slate-600">Resumen visual. Click → todo se ejecuta atómicamente.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     4 — PASO 1: ENTIDAD
+============================================================================ -->
+<section id="paso1" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">4 · Paso 1 · Identificar entidad</div>
+
+  <div class="modal-shell max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-money-bill-wave text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Pago con abono distribuido</h3>
+          <p class="text-[11px] text-slate-500">Cash flow · 1 desembolso → varias deudas</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Stepper -->
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-100">
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">1</div><span class="text-[12px] font-semibold text-slate-900">Entidad</span></div>
+        <div class="flex-1 h-px bg-slate-300 mx-1"></div>
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-white border-2 border-slate-300 text-slate-500 text-[11px] font-bold flex items-center justify-center">2</div><span class="text-[12px] text-slate-500">Abono</span></div>
+        <div class="flex-1 h-px bg-slate-300 mx-1"></div>
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-white border-2 border-slate-300 text-slate-500 text-[11px] font-bold flex items-center justify-center">3</div><span class="text-[12px] text-slate-500">Distribución</span></div>
+        <div class="flex-1 h-px bg-slate-300 mx-1"></div>
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-white border-2 border-slate-300 text-slate-500 text-[11px] font-bold flex items-center justify-center">4</div><span class="text-[12px] text-slate-500">Confirmar</span></div>
+      </div>
+    </div>
+
+    <div class="px-6 py-5 space-y-5">
+      <!-- Tipo de entidad -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Tipo de entidad</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border-2 border-teal-500 rounded-lg text-teal-700">
+            <i class="fa-solid fa-truck text-lg"></i>
+            <span class="text-[11px] font-semibold">Proveedor</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-people-arrows text-lg"></i>
+            <span class="text-[11px] font-medium">Colaborador</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-id-card text-lg"></i>
+            <span class="text-[11px] font-medium">Empleado</span>
+          </button>
+          <button class="flex flex-col items-center gap-1 p-3 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[11px] font-medium">Cliente</span>
+          </button>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-2">Solo entidades con <strong>saldo en contra</strong> (a las que les debes) aparecerán en la búsqueda.</div>
+      </div>
+
+      <!-- Combobox -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Buscar proveedor</label>
+        <div class="relative">
+          <input type="text" value="Asian" class="w-full h-10 px-3 pr-9 text-sm border-2 border-teal-500 rounded-md outline-none bg-white" />
+          <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        </div>
+
+        <div class="mt-1 bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
+          <div class="text-[10px] uppercase text-slate-400 font-semibold px-3 py-1.5 bg-slate-50 border-b border-slate-100">Con saldo · 3 resultados</div>
+          <button class="w-full px-3 py-2 hover:bg-teal-50 flex items-center justify-between text-left">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-[10px]">AB</div>
+              <div>
+                <div class="text-[12px] font-medium text-slate-900">Asian Beauty Wholesale</div>
+                <div class="text-[10px] text-slate-500">Proveedor · 5 OCs pendientes</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[12px] font-bold text-red-700 num-tab">−US$ 15,200</div>
+              <div class="text-[9px] text-red-600">2 vencidas</div>
+            </div>
+          </button>
+          <button class="w-full px-3 py-2 hover:bg-slate-50 flex items-center justify-between text-left">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-[10px]">AS</div>
+              <div>
+                <div class="text-[12px] font-medium text-slate-900">Asian Skincare Co.</div>
+                <div class="text-[10px] text-slate-500">Proveedor · 1 OC pendiente</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[12px] font-bold text-red-700 num-tab">−US$ 1,200</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen entidad seleccionada -->
+      <div class="bg-gradient-to-br from-teal-50 to-white border border-teal-200 rounded-lg p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-[12px]">AB</div>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">Asian Beauty Wholesale</div>
+            <div class="text-[11px] text-slate-500">Proveedor · USA</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] uppercase tracking-wider text-red-700 font-semibold">Total adeudado</div>
+            <div class="text-xl font-bold text-red-700 num-tab">US$ 15,200</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-teal-200/60 text-center">
+          <div>
+            <div class="text-[10px] uppercase text-slate-500">Documentos</div>
+            <div class="text-base font-bold text-slate-800">5</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase text-amber-700">Vencidas</div>
+            <div class="text-base font-bold text-amber-700">2</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase text-slate-500">Más antigua</div>
+            <div class="text-base font-bold text-slate-800">68 días</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500">Paso <strong class="text-slate-700">1</strong> de 4</div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium">Cancelar</button>
+        <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+          Continuar <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     5 — PASO 2: ABONO
+============================================================================ -->
+<section id="paso2" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">5 · Paso 2 · Definir el abono</div>
+
+  <div class="modal-shell max-w-2xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-money-bill-wave text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Pago a Asian Beauty Wholesale</h3>
+          <p class="text-[11px] text-slate-500">Total adeudado: US$ 15,200 · 5 documentos</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Stepper -->
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-100">
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center"><i class="fa-solid fa-check"></i></div><span class="text-[12px] text-slate-700">Entidad</span></div>
+        <div class="flex-1 h-px bg-teal-300 mx-1"></div>
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center">2</div><span class="text-[12px] font-semibold text-slate-900">Abono</span></div>
+        <div class="flex-1 h-px bg-slate-300 mx-1"></div>
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-white border-2 border-slate-300 text-slate-500 text-[11px] font-bold flex items-center justify-center">3</div><span class="text-[12px] text-slate-500">Distribución</span></div>
+        <div class="flex-1 h-px bg-slate-300 mx-1"></div>
+        <div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-white border-2 border-slate-300 text-slate-500 text-[11px] font-bold flex items-center justify-center">4</div><span class="text-[12px] text-slate-500">Confirmar</span></div>
+      </div>
+    </div>
+
+    <div class="px-6 py-5 space-y-5">
+      <!-- Monto -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Monto del abono</label>
+          <div class="flex gap-1.5">
+            <button class="text-[10px] px-2 py-0.5 bg-teal-50 text-teal-700 border border-teal-200 rounded">Pagar todo (US$ 15,200)</button>
+            <button class="text-[10px] px-2 py-0.5 bg-slate-50 text-slate-700 border border-slate-200 rounded hover:bg-slate-100">Solo vencidas</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-12 gap-3">
+          <div class="col-span-9">
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">US$</span>
+              <input type="text" value="12,000.00" class="w-full h-10 pl-12 pr-3 text-sm border border-slate-300 rounded-md bg-white num-tab font-medium text-right focus:ring-2 focus:ring-teal-500 focus:border-teal-500" />
+            </div>
+            <div class="text-[11px] text-slate-500 mt-1.5">≈ S/ 44,400 al TC 3.700 · Cubre <strong>3 OCs completas + 1 parcial</strong></div>
+          </div>
+          <div class="col-span-3">
+            <div class="bg-slate-100 rounded-lg p-1 flex">
+              <button class="flex-1 text-[12px] py-1.5 bg-white text-slate-900 shadow-sm rounded font-semibold">USD</button>
+              <button class="flex-1 text-[12px] py-1.5 text-slate-500 rounded">PEN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuenta + fecha -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Sale de</label>
+          <input type="text" value="BCP Dólares" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+          <div class="text-[11px] text-slate-500 mt-1.5">Saldo: US$ 28,450 → US$ 16,450</div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Fecha</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Hoy</span>
+          </div>
+          <input type="text" value="27 abr 2026" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+      </div>
+
+      <!-- Método + TC -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Método</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 font-medium">Último usado</span>
+          </div>
+          <input type="text" value="Transferencia (Zelle)" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">TC</label>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Día (3.703)</span>
+          </div>
+          <input type="text" value="3.700" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white num-tab" />
+        </div>
+      </div>
+
+      <!-- Referencia -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Nro de operación / referencia (opcional)</label>
+        <input type="text" placeholder="Ej: Zelle #ZL-2026-0427-001" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400" />
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-left text-[10px]"></i> Atrás
+        </button>
+      </div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+          Continuar <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     6 — PASO 3: DISTRIBUCIÓN
+============================================================================ -->
+<section id="paso3" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">6 · Paso 3 · Distribuir el abono ⭐ pieza clave</div>
+  <p class="text-sm text-slate-600 mb-4">
+    El usuario decide a qué documentos aplicar el abono. Auto-distribución por defecto + modo manual disponible.
+  </p>
+
+  <div class="modal-shell max-w-3xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-money-bill-wave text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Distribuir US$ 12,000</h3>
+          <p class="text-[11px] text-slate-500">Asian Beauty Wholesale · 5 documentos pendientes</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Estrategia de distribución -->
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-1.5">
+        <span class="text-[10px] uppercase text-slate-500 font-semibold mr-1">Estrategia</span>
+        <button class="text-[11px] px-2.5 py-1 bg-white text-teal-700 shadow-sm border border-teal-300 rounded font-semibold">
+          <i class="fa-solid fa-clock-rotate-left text-[10px] mr-1"></i> Más antiguas primero
+        </button>
+        <button class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-50">
+          <i class="fa-solid fa-circle-exclamation text-[10px] mr-1"></i> Solo vencidas
+        </button>
+        <button class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-50">
+          <i class="fa-solid fa-arrow-down-wide-short text-[10px] mr-1"></i> Mayor monto
+        </button>
+        <button class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded hover:bg-slate-50">
+          <i class="fa-solid fa-pencil text-[10px] mr-1"></i> Manual
+        </button>
+      </div>
+      <button class="text-[11px] text-teal-700 hover:underline font-medium">
+        <i class="fa-solid fa-rotate text-[10px] mr-1"></i> Reaplicar
+      </button>
+    </div>
+
+    <!-- Tabla de documentos -->
+    <div class="px-6 py-4 max-h-[400px] overflow-auto">
+      <table class="w-full text-[12px]">
+        <thead>
+          <tr class="text-[10px] uppercase text-slate-500 font-semibold border-b border-slate-200">
+            <th class="text-left py-2 pr-2 w-8"><input type="checkbox" checked class="rounded text-teal-600" /></th>
+            <th class="text-left py-2 pr-2">Documento</th>
+            <th class="text-right py-2 pr-2">Pendiente</th>
+            <th class="text-right py-2 pr-2">A pagar</th>
+            <th class="text-left py-2 pl-2 w-32">Resultado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <!-- Row 1: pagada total -->
+          <tr class="hover:bg-slate-50/50">
+            <td class="py-2.5"><input type="checkbox" checked class="rounded text-teal-600" /></td>
+            <td class="py-2.5">
+              <div class="font-mono font-semibold text-slate-900">OC-2026-001</div>
+              <div class="text-[10px] text-amber-700 flex items-center gap-1"><i class="fa-solid fa-circle-exclamation"></i> Vencida hace 68 días</div>
+            </td>
+            <td class="py-2.5 text-right num-tab">US$ 2,500.00</td>
+            <td class="py-2.5 text-right">
+              <input type="text" value="2,500.00" class="w-24 h-7 px-2 text-[11px] border border-slate-300 rounded text-right num-tab bg-white" />
+            </td>
+            <td class="py-2.5 pl-2">
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Total</span>
+            </td>
+          </tr>
+          <!-- Row 2: pagada total -->
+          <tr class="hover:bg-slate-50/50">
+            <td class="py-2.5"><input type="checkbox" checked class="rounded text-teal-600" /></td>
+            <td class="py-2.5">
+              <div class="font-mono font-semibold text-slate-900">OC-2026-008</div>
+              <div class="text-[10px] text-amber-700 flex items-center gap-1"><i class="fa-solid fa-circle-exclamation"></i> Vencida hace 42 días</div>
+            </td>
+            <td class="py-2.5 text-right num-tab">US$ 3,400.00</td>
+            <td class="py-2.5 text-right">
+              <input type="text" value="3,400.00" class="w-24 h-7 px-2 text-[11px] border border-slate-300 rounded text-right num-tab bg-white" />
+            </td>
+            <td class="py-2.5 pl-2">
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Total</span>
+            </td>
+          </tr>
+          <!-- Row 3: pagada total -->
+          <tr class="hover:bg-slate-50/50">
+            <td class="py-2.5"><input type="checkbox" checked class="rounded text-teal-600" /></td>
+            <td class="py-2.5">
+              <div class="font-mono font-semibold text-slate-900">OC-2026-014</div>
+              <div class="text-[10px] text-slate-500">Vence en 12 días</div>
+            </td>
+            <td class="py-2.5 text-right num-tab">US$ 4,100.00</td>
+            <td class="py-2.5 text-right">
+              <input type="text" value="4,100.00" class="w-24 h-7 px-2 text-[11px] border border-slate-300 rounded text-right num-tab bg-white" />
+            </td>
+            <td class="py-2.5 pl-2">
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Total</span>
+            </td>
+          </tr>
+          <!-- Row 4: parcial -->
+          <tr class="hover:bg-slate-50/50 bg-amber-50/30">
+            <td class="py-2.5"><input type="checkbox" checked class="rounded text-teal-600" /></td>
+            <td class="py-2.5">
+              <div class="font-mono font-semibold text-slate-900">OC-2026-019</div>
+              <div class="text-[10px] text-slate-500">Vence en 22 días</div>
+            </td>
+            <td class="py-2.5 text-right num-tab">US$ 3,200.00</td>
+            <td class="py-2.5 text-right">
+              <input type="text" value="2,000.00" class="w-24 h-7 px-2 text-[11px] border border-amber-400 rounded text-right num-tab bg-white" />
+            </td>
+            <td class="py-2.5 pl-2">
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-semibold">Parcial</span>
+              <div class="text-[9px] text-amber-700 mt-0.5">Resta US$ 1,200</div>
+            </td>
+          </tr>
+          <!-- Row 5: sin pagar -->
+          <tr class="hover:bg-slate-50/50 opacity-60">
+            <td class="py-2.5"><input type="checkbox" class="rounded text-teal-600" /></td>
+            <td class="py-2.5">
+              <div class="font-mono font-semibold text-slate-900">OC-2026-023</div>
+              <div class="text-[10px] text-slate-500">Vence en 34 días</div>
+            </td>
+            <td class="py-2.5 text-right num-tab">US$ 2,000.00</td>
+            <td class="py-2.5 text-right text-slate-300">—</td>
+            <td class="py-2.5 pl-2 text-[10px] text-slate-400">No incluida</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Resumen de balance -->
+    <div class="px-6 py-3 bg-teal-50 border-t border-teal-100">
+      <div class="grid grid-cols-3 gap-3 text-center text-[12px]">
+        <div>
+          <div class="text-[10px] uppercase text-slate-500 font-semibold">Abono</div>
+          <div class="font-bold text-slate-900 num-tab">US$ 12,000.00</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-slate-500 font-semibold">Distribuido</div>
+          <div class="font-bold text-teal-700 num-tab">US$ 12,000.00</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase text-slate-500 font-semibold">Restante</div>
+          <div class="font-bold text-emerald-700 num-tab">US$ 0.00</div>
+        </div>
+      </div>
+      <div class="mt-2 w-full h-1.5 bg-white rounded-full overflow-hidden">
+        <div class="h-full bg-teal-600 progress-bar-fill" style="width: 100%"></div>
+      </div>
+      <div class="text-[10px] text-emerald-700 text-center mt-1.5 font-medium">
+        <i class="fa-solid fa-circle-check"></i> Distribución completa · 100% del abono asignado
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium flex items-center gap-1.5">
+        <i class="fa-solid fa-arrow-left text-[10px]"></i> Atrás
+      </button>
+      <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+        Continuar <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     7 — PASO 4: CONFIRMAR
+============================================================================ -->
+<section id="paso4" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">7 · Paso 4 · Confirmar y ejecutar</div>
+
+  <div class="modal-shell max-w-2xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-clipboard-check text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Confirmar pago</h3>
+          <p class="text-[11px] text-slate-500">Revisa antes de ejecutar</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="px-6 py-5 space-y-4">
+      <!-- Hero del pago -->
+      <div class="bg-gradient-to-br from-teal-50 to-white border-2 border-teal-200 rounded-xl p-4">
+        <div class="text-center">
+          <div class="text-[11px] uppercase tracking-wider text-teal-700 font-semibold mb-1">Pagarás</div>
+          <div class="text-3xl font-bold text-teal-700 num-tab">US$ 12,000.00</div>
+          <div class="text-[12px] text-slate-600 mt-1">≈ S/ 44,400 al TC 3.700</div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-teal-200/60">
+          <div>
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">A</div>
+            <div class="text-[13px] font-semibold text-slate-900">Asian Beauty Wholesale</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">Desde</div>
+            <div class="text-[13px] font-semibold text-slate-900">BCP Dólares</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-2 text-[11px] text-slate-600">
+          <div>27 abril 2026 · Zelle</div>
+          <div class="text-right">Ref: ZL-2026-0427-001</div>
+        </div>
+      </div>
+
+      <!-- Lo que va a pasar -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Al confirmar se ejecutará</div>
+        <div class="space-y-2">
+          <div class="flex items-start gap-2 p-2.5 border border-slate-200 rounded-md">
+            <i class="fa-solid fa-arrow-right-arrow-left text-teal-600 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="text-[12px] font-semibold text-slate-900">1 movimiento de tesorería</div>
+              <div class="text-[11px] text-slate-500">Egreso de US$ 12,000 desde BCP Dólares</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 p-2.5 border border-slate-200 rounded-md">
+            <i class="fa-solid fa-coins text-teal-600 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="text-[12px] font-semibold text-slate-900">4 créditos en cuenta corriente</div>
+              <div class="text-[11px] text-slate-500">Asian Beauty Wholesale · OCs 001, 008, 014, 019 (parcial)</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 p-2.5 border border-slate-200 rounded-md">
+            <i class="fa-solid fa-circle-check text-teal-600 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="text-[12px] font-semibold text-slate-900">3 OCs cerradas</div>
+              <div class="text-[11px] text-slate-500">OC-001, OC-008, OC-014 pasan a estado "Pagada"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notas -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Notas internas (opcional)</label>
+        <textarea rows="2" placeholder="Ej: Pago consolidado mensual abril" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400 resize-none"></textarea>
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium flex items-center gap-1.5">
+        <i class="fa-solid fa-arrow-left text-[10px]"></i> Atrás
+      </button>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-outline rounded-md font-medium">Cancelar</button>
+        <button class="text-[12px] px-4 py-1.5 bg-teal-600 text-white hover:bg-teal-700 rounded-md font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          Confirmar y ejecutar
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     8 — CASOS ESPECIALES
+============================================================================ -->
+<section id="casos" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">8 · Casos especiales</div>
+  <p class="text-sm text-slate-600 mb-4">Tres situaciones que el usuario va a encontrar y cómo resuelve cada una.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Caso 1: abono = deudas -->
+    <div class="bg-white border border-emerald-200 rounded-xl p-4">
+      <div class="text-[10px] uppercase text-emerald-700 font-bold mb-2">CASO 1 · MATCH PERFECTO</div>
+      <div class="text-[13px] text-slate-900 font-semibold mb-1">Abono = Total deudas</div>
+      <div class="text-[11px] text-slate-600 mb-3">Le debes US$ 15,200, pagas US$ 15,200.</div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-md p-2.5 text-[11px] text-emerald-900">
+        ✓ Las 5 OCs quedan pagadas<br>
+        ✓ Saldo CC: US$ 0<br>
+        ✓ Cuenta cerrada
+      </div>
+    </div>
+
+    <!-- Caso 2: abono < deudas -->
+    <div class="bg-white border border-amber-200 rounded-xl p-4">
+      <div class="text-[10px] uppercase text-amber-700 font-bold mb-2">CASO 2 · ABONO PARCIAL</div>
+      <div class="text-[13px] text-slate-900 font-semibold mb-1">Abono &lt; Total deudas</div>
+      <div class="text-[11px] text-slate-600 mb-3">Le debes US$ 15,200, pagas US$ 12,000.</div>
+      <div class="bg-amber-50 border border-amber-200 rounded-md p-2.5 text-[11px] text-amber-900">
+        ✓ 3 OCs pagadas total<br>
+        ◐ 1 OC parcial<br>
+        ⚠ 1 OC sigue pendiente<br>
+        Saldo CC: US$ −3,200
+      </div>
+    </div>
+
+    <!-- Caso 3: abono > deudas -->
+    <div class="bg-white border border-sky-200 rounded-xl p-4">
+      <div class="text-[10px] uppercase text-sky-700 font-bold mb-2">CASO 3 · SOBRA</div>
+      <div class="text-[13px] text-slate-900 font-semibold mb-1">Abono &gt; Total deudas</div>
+      <div class="text-[11px] text-slate-600 mb-3">Le debes US$ 15,200, pagas US$ 16,000.</div>
+      <div class="bg-sky-50 border border-sky-200 rounded-md p-2.5 text-[11px] text-sky-900">
+        ✓ 5 OCs pagadas<br>
+        💰 US$ 800 = saldo a favor<br>
+        Saldo CC: US$ +800<br>
+        <span class="text-[10px] italic">Aplicable a futuras OCs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Atomicidad -->
+  <div class="mt-5 bg-slate-50 border-l-4 border-slate-400 rounded-r-md p-4">
+    <div class="flex items-start gap-3">
+      <i class="fa-solid fa-shield-halved text-slate-600 mt-0.5"></i>
+      <div>
+        <div class="text-[12px] font-semibold text-slate-900 mb-1">Atomicidad garantizada</div>
+        <div class="text-[11px] text-slate-700 leading-relaxed">
+          Todo el flujo (1 movimiento tesorería + N créditos CC + N actualizaciones de doc origen) se ejecuta en una sola
+          <code class="bg-white px-1 rounded text-[10px]">runTransaction</code> de Firestore. Si algo falla, nada se persiste.
+          Idempotencia vía <code class="bg-white px-1 rounded text-[10px]">idempotencyKey</code> (ya implementada en CC) — los reintentos no duplican.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     9 — PLAN
+============================================================================ -->
+<section id="plan" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">9 · Plan de implementación</div>
+
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-200">
+      <h2 class="text-xl font-bold text-slate-900 mb-1">3 fases · ~2-3 sesiones</h2>
+      <p class="text-sm text-slate-600">Construye sobre la fundación CC unificada. Reutiliza FormModal v2 (S58).</p>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F1</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Service + types · "abono distribuido"</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">
+            <code class="bg-slate-100 px-1 rounded text-[11px]">pagoAbonoDistribuido.service.ts</code> con <code class="bg-slate-100 px-1 rounded text-[11px]">ejecutar(input)</code>
+            que hace todo en 1 transacción: insert mov tesorería + N movs CC + actualizar docs origen.
+            Idempotencia, validación de monto vs distribución, manejo de saldo restante (a favor o partial).
+          </div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 1 sesión</span>
+            <span><i class="fa-solid fa-shield-check mr-1"></i> sin UI · solo backend</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F2</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Wizard UI · 4 pasos</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">
+            <code class="bg-slate-100 px-1 rounded text-[11px]">PagoAbonoWizard.tsx</code> con los 4 pasos del mockup.
+            Reutiliza componentes de FormModal v2 (S58). Estrategias de auto-distribución (oldest first / vencidas / mayor monto / manual).
+            Validación: total distribuido = total abono.
+          </div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 1 sesión</span>
+            <span><i class="fa-solid fa-link mr-1"></i> depende de S58 F1+F2</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-teal-50 border-2 border-teal-300 text-teal-700 text-sm font-bold flex items-center justify-center flex-shrink-0 mt-0.5">F3</div>
+        <div class="flex-1">
+          <div class="font-semibold text-slate-900">Entry points · accesos al flujo</div>
+          <div class="text-[12px] text-slate-600 mt-0.5">
+            Botones "Pagar al proveedor" / "Cobrar a cliente" en:<br>
+            · EntidadCCDetailModal (cuando saldo &lt; 0)<br>
+            · EntidadCCDrawer<br>
+            · Cards de Saldos con saldo negativo<br>
+            · Quick action del Overview (con selección previa de entidad)
+          </div>
+          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-500">
+            <span><i class="fa-solid fa-clock mr-1"></i> 0.5 sesión</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
+      <div class="text-[12px] text-slate-700">
+        <strong>Importante:</strong> el módulo "Pagos masivos" actual (TAREA-101) no se toca. Sigue siendo útil para pagar a N entidades distintas en una corrida.
+        Este nuevo flujo cubre el caso "1 desembolso a 1 entidad → N documentos".
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-5">
+    <div class="text-[10px] uppercase text-amber-700 font-bold mb-2">PRE-REQUISITOS</div>
+    <ul class="text-[12px] text-amber-900 space-y-1.5 ml-4 list-disc">
+      <li>S58 Fase 1 (FormModal v2) implementada → wizard reutiliza el shell</li>
+      <li>S58 Fase 2 (Inputs avanzados: MoneyField, Combobox) → Paso 1+2 los necesitan</li>
+      <li>Aprobación de mockup (este documento) — ¿OK?</li>
+    </ul>
+    <div class="text-[12px] text-amber-900 mt-3">
+      <strong>Recomendación de orden:</strong> S58 F1+F2 → este flujo F1 (service) → S58 F3 (smart defaults) → este flujo F2+F3 (wizard + entry points).
+      Total combinado: ~5 sesiones.
+    </div>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto py-8 text-center text-[11px] text-slate-400">
+  S58b · Mockup · Pago con abono distribuido · Vita Skin Peru
+</div>
+
+</body>
+</html>

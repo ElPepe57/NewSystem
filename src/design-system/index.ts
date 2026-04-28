@@ -30,6 +30,14 @@ export { StatusBadge } from './components/StatusBadge';
 // Forms
 export { FormModal } from './components/FormModal';
 export { FormField } from './components/FormField';
+// S58 Fase 1 — Modal banking-grade (header rico + atajos + auto-save banner)
+// Se usa por modal en lugar de FormModal (migración progresiva).
+export { FormModalV2 } from './components/FormModalV2';
+export type {
+  FormModalV2Props,
+  FormModalV2SubmitVariant,
+  FormModalV2AutoSaveStatus,
+} from './components/FormModalV2';
 
 // ─── S41 Rework — Infra reutilizable (Bloque 0) ──────────────────────────
 // Wizards multi-paso (Nueva OC, Nuevo Envío)
@@ -48,6 +56,20 @@ export type {
   RouteNodeType,
   RouteNodeState,
 } from './components/RouteVisual';
+
+// S54 — Tarjeta de ruta V2 (pill modalidad arriba + 2/3 nodos grandes).
+// Patrón unificado entre detalle de OC y detalle de Envío.
+export { RouteCardV2, getFlagFromPais } from './components/RouteCardV2';
+export type {
+  RouteCardV2Node,
+  RouteCardV2Pill,
+  RouteCardV2Props,
+  RouteCardV2PillVariant,
+  RouteNodeBadgeVariant,
+  RouteCardV2Pipeline,
+  RouteCardV2PipelineStep,
+  RouteCardV2PipelineStepStatus,
+} from './components/RouteCardV2';
 
 // Cargos/descuentos/impuestos agregables dinámicamente
 export { DynamicChargesSection } from './components/DynamicChargesSection';

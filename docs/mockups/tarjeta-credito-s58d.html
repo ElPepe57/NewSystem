@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Tarjeta de crédito · Mockup S58d v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+  .modal-shell { background:#fff; border-radius:1rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.18); border:1px solid #e2e8f0; overflow:hidden; }
+  .kbd { display:inline-block; padding:1px 6px; font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:10px; background:#f1f5f9; border:1px solid #cbd5e1; border-bottom-width:2px; border-radius:4px; color:#475569; }
+  .btn-soft-teal { background:#f0fdfa; color:#0f766e; border:1px solid #99f6e4; }
+  .btn-soft-teal:hover { background:#ccfbf1; }
+  .btn-soft-amber { background:#fffbeb; color:#b45309; border:1px solid #fde68a; }
+  .btn-soft-amber:hover { background:#fef3c7; }
+  .btn-outline { background:#fff; color:#334155; border:1px solid #cbd5e1; }
+  .btn-outline:hover { background:#f8fafc; }
+  .btn-ghost { background:transparent; color:#475569; }
+  .btn-ghost:hover { background:#f1f5f9; }
+  .credit-card-bbva { background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%); }
+  .credit-card-bcp { background: linear-gradient(135deg, #1e40af 0%, #0ea5e9 100%); }
+</style>
+</head>
+<body class="p-6">
+
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 -mx-6 px-6 py-3 mb-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i class="fa-solid fa-credit-card text-teal-600"></i>
+      <span class="font-bold text-slate-900">Tarjeta de crédito · v2 final</span>
+      <span class="text-[11px] text-slate-500 ml-2">S58d · sin tope · saldo = deuda con titular · modo banco/reembolso</span>
+    </div>
+    <div class="flex gap-1.5 flex-wrap">
+      <a href="#concepto" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">1·Concepto v2</a>
+      <a href="#listado" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">2·Listado</a>
+      <a href="#crear" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">3·Crear</a>
+      <a href="#cargar" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">4·Cargar</a>
+      <a href="#pagar-banco" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">5·Pagar al banco</a>
+      <a href="#reembolso" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">6·Reembolso</a>
+    </div>
+  </div>
+</div>
+
+<!-- 1. CONCEPTO -->
+<section id="concepto" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">1 · Concepto v2 · cambios clave</div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h1 class="text-2xl font-bold text-slate-900 mb-2">La TC tiene disponibilidad total. El sistema solo trackea cargos del negocio.</h1>
+    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+      A diferencia de v1, v2 reconoce que la <strong>realidad de tu uso</strong> es distinta: la tarjeta de crédito es del titular,
+      pero la usas en <strong>mix con gastos personales que no van al sistema</strong>. Por eso:
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-rose-50 border border-rose-100 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-rose-700 font-bold mb-1">CAMBIO 1 · SIN SALDO INICIAL</div>
+        <div class="text-[11px] text-rose-900">No se pide saldo de arranque. La deuda inicial (real con el banco emisor) está mezclada con personal — no nos compete. El sistema solo trackea cargos del negocio.</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-100 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-amber-700 font-bold mb-1">CAMBIO 2 · SIN LÍMITE COMO TOPE</div>
+        <div class="text-[11px] text-amber-900">No hay barrera de "límite excedido" porque la tarjeta tiene disponibilidad total real. Solo un campo "tope de control" opcional para alertar cuando los cargos del negocio crecen mucho.</div>
+      </div>
+      <div class="bg-teal-50 border border-teal-100 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-teal-700 font-bold mb-1">CAMBIO 3 · SALDO = DEUDA CON TITULAR</div>
+        <div class="text-[11px] text-teal-900">El saldo negativo de la TC = "lo que el negocio le debe al titular por compartir su tarjeta". El "pago de estado de cuenta" se ramifica: modo banco emisor (TC empresa) o modo reembolso (TC personal).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. LISTADO -->
+<section id="listado" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">2 · Listado de tarjetas</div>
+  <p class="text-sm text-slate-600 mb-4">Las cards muestran "deuda actual con titular/banco" y "tope de control" (opcional). <strong>Sin barra de utilizado/disponible</strong> porque la TC tiene disponibilidad total.</p>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">Tarjetas de crédito</h3>
+        <p class="text-[11px] text-slate-500">2 tarjetas · Total deuda con titulares: US$ 11,600 · Total deuda con banco: US$ 0</p>
+      </div>
+      <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold flex items-center gap-1.5">
+        <i class="fa-solid fa-plus text-[10px]"></i> Nueva tarjeta
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- TC Personal (titular = Jose) -->
+      <div class="cursor-pointer group">
+        <div class="credit-card-bbva text-white rounded-xl p-4 mb-2 shadow-md group-hover:shadow-lg transition relative">
+          <div class="absolute top-2 right-2 text-[8px] uppercase tracking-wider bg-white/20 px-1.5 py-0.5 rounded">Personal · Jose</div>
+          <div class="flex items-center justify-between mb-6">
+            <div class="text-[10px] uppercase tracking-wider opacity-80">BBVA</div>
+            <div class="text-[10px] uppercase tracking-wider opacity-80">Visa</div>
+          </div>
+          <div class="text-[11px] font-mono opacity-70 tracking-widest">•••• •••• •••• 6411</div>
+          <div class="flex items-end justify-between mt-3">
+            <div>
+              <div class="text-[8px] uppercase tracking-wider opacity-60">Titular</div>
+              <div class="text-[11px] font-medium">JOSE PEREZ</div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">El negocio le debe a Jose</span>
+            <span class="text-[14px] font-bold text-red-700 num-tab">−US$ 8,400</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-500">
+            <span>5 cargos pendientes</span>
+            <span>Tope alerta: US$ 12,000</span>
+          </div>
+          <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 mt-1.5">
+            <span class="text-[10px] text-slate-500"><i class="fa-solid fa-id-card text-sky-600"></i> Personal · reembolso al titular</span>
+            <button class="text-[10px] text-teal-600 hover:underline font-medium">Ver detalle →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TC Empresarial -->
+      <div class="cursor-pointer group">
+        <div class="credit-card-bcp text-white rounded-xl p-4 mb-2 shadow-md group-hover:shadow-lg transition relative">
+          <div class="absolute top-2 right-2 text-[8px] uppercase tracking-wider bg-white/20 px-1.5 py-0.5 rounded">Empresarial</div>
+          <div class="flex items-center justify-between mb-6">
+            <div class="text-[10px] uppercase tracking-wider opacity-80">BCP</div>
+            <div class="text-[10px] uppercase tracking-wider opacity-80">Mastercard</div>
+          </div>
+          <div class="text-[11px] font-mono opacity-70 tracking-widest">•••• •••• •••• 8203</div>
+          <div class="flex items-end justify-between mt-3">
+            <div>
+              <div class="text-[8px] uppercase tracking-wider opacity-60">Titular</div>
+              <div class="text-[11px] font-medium">VITA SKIN PERU SAC</div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Deuda con BCP (banco emisor)</span>
+            <span class="text-[14px] font-bold text-red-700 num-tab">−US$ 3,200</span>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-500">
+            <span>3 cargos pendientes</span>
+            <span>Sin tope</span>
+          </div>
+          <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 mt-1.5">
+            <span class="text-[10px] text-slate-500"><i class="fa-solid fa-building text-emerald-600"></i> Empresarial · pago al banco</span>
+            <button class="text-[10px] text-teal-600 hover:underline font-medium">Ver detalle →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. CREAR -->
+<section id="crear" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">3 · Crear tarjeta · v2 sin saldo inicial, con titularidad ramificada</div>
+
+  <div class="modal-shell max-w-xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <i class="fa-solid fa-credit-card text-teal-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Nueva tarjeta de crédito</h3>
+          <p class="text-[11px] text-slate-500">Cash flow · Tarjetas</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="px-6 py-5 space-y-5">
+      <!-- Titularidad PRIMERO (define lógica posterior) -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Titularidad ⭐</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button class="p-3 border border-slate-200 rounded-lg text-left bg-white hover:bg-slate-50">
+            <div class="flex items-center gap-2 mb-0.5">
+              <i class="fa-solid fa-building text-slate-500"></i>
+              <span class="text-[12px] font-medium text-slate-700">Empresarial</span>
+            </div>
+            <div class="text-[10px] text-slate-500">TC del negocio. Pago va al banco emisor.</div>
+          </button>
+          <button class="p-3 border-2 border-teal-500 rounded-lg text-left bg-white">
+            <div class="flex items-center gap-2 mb-0.5">
+              <i class="fa-solid fa-id-card text-teal-700"></i>
+              <span class="text-[12px] font-semibold text-teal-700">Personal · de empleado/colaborador</span>
+            </div>
+            <div class="text-[10px] text-slate-600">TC del titular. Pago = reembolso al titular.</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de titular (solo si personal) -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Titular</label>
+        <input type="text" value="Jose Pérez · empleado" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        <div class="text-[11px] text-slate-500 mt-1.5">El saldo de esta tarjeta se interpretará como deuda con Jose.</div>
+      </div>
+
+      <!-- Banco emisor + nombre + últimos 4 -->
+      <div class="grid grid-cols-12 gap-3">
+        <div class="col-span-4">
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Banco emisor</label>
+          <input type="text" value="BBVA" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div class="col-span-5">
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Nombre interno</label>
+          <input type="text" value="BBVA Visa Jose" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        </div>
+        <div class="col-span-3">
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Últimos 4</label>
+          <input type="text" value="6411" maxlength="4" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white num-tab text-center font-mono" />
+        </div>
+      </div>
+
+      <!-- Marca y moneda -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Marca</label>
+          <div class="grid grid-cols-3 gap-1">
+            <button class="text-[11px] py-1.5 bg-white border-2 border-teal-500 rounded font-semibold text-teal-700">Visa</button>
+            <button class="text-[11px] py-1.5 bg-white border border-slate-200 rounded text-slate-500">Master</button>
+            <button class="text-[11px] py-1.5 bg-white border border-slate-200 rounded text-slate-500">Amex</button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Moneda de cargos</label>
+          <div class="flex bg-slate-100 rounded-lg p-1">
+            <button class="flex-1 text-[12px] py-1.5 bg-white text-teal-700 shadow-sm rounded font-semibold">USD</button>
+            <button class="flex-1 text-[12px] py-1.5 text-slate-500 rounded font-medium">PEN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tope de control (opcional, no es límite) -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">
+          Tope de control <span class="text-[9px] normal-case text-slate-400">(opcional · NO es el límite del banco)</span>
+        </label>
+        <div class="relative max-w-xs">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">US$</span>
+          <input type="text" placeholder="12,000.00" class="w-full h-10 pl-12 pr-3 text-sm border border-slate-300 rounded-md bg-white num-tab font-medium text-right placeholder:text-slate-300" />
+        </div>
+        <div class="text-[11px] text-slate-500 mt-1.5">
+          Monto MÁXIMO de cargos del negocio que quieres acumular antes de exigir reembolso al titular.
+          Si lo dejas vacío, no hay alerta.
+        </div>
+      </div>
+
+      <!-- Ciclo (informativo) -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Día de corte</label>
+          <input type="text" value="5" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white num-tab text-center" />
+          <div class="text-[10px] text-slate-500 mt-1">Referencial · estado de cuenta del titular</div>
+        </div>
+        <div>
+          <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Día de pago al banco</label>
+          <input type="text" value="28" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white num-tab text-center" />
+          <div class="text-[10px] text-slate-500 mt-1">Referencial · cuándo el titular paga al banco</div>
+        </div>
+      </div>
+
+      <!-- NOTA: NO HAY CAMPO "saldo inicial" -->
+      <div class="bg-amber-50 border border-amber-200 rounded-md p-3 text-[11px] text-amber-900">
+        <i class="fa-solid fa-info-circle"></i>
+        <strong>Sin saldo inicial.</strong> El saldo de la tarjeta arranca en 0 y se construye con los cargos del negocio que registres.
+        La deuda real de la tarjeta con el banco emisor (mezclada con gastos personales) no es del sistema.
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="text-[10px] text-slate-500"><span class="kbd">⌘</span><span class="kbd">↵</span> guardar</div>
+      <div class="flex gap-2">
+        <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium">Cancelar</button>
+        <button class="text-[12px] px-4 py-1.5 btn-soft-teal rounded-md font-semibold">Crear tarjeta</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. CARGAR (idéntico al v1, solo nota de TC automático) -->
+<section id="cargar" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">4 · Cargar OC/gasto a tarjeta · sin cambios estructurales (TC ahora automático)</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Mismo wizard de 3 pasos del v1 (selección documentos → confirmar cargo → ejecutar).
+    <strong>Único cambio:</strong> el TC del día se obtiene automático desde <code class="bg-slate-100 px-1 rounded text-[11px]">tipoCambio.service</code> y se muestra como info-line, no como campo editable.
+  </p>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-4">
+    <div class="text-[10px] uppercase text-slate-500 font-bold mb-3">PASO 2 · CONFIRMAR EL CARGO (extracto)</div>
+    <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+      <div class="text-center mb-3">
+        <div class="text-[11px] uppercase tracking-wider text-amber-700 font-semibold mb-1">Cargo a tarjeta</div>
+        <div class="text-3xl font-bold text-amber-700 num-tab">US$ 5,900.00</div>
+        <div class="text-[12px] text-slate-600 mt-1">≈ S/ 21,847.70</div>
+      </div>
+
+      <!-- TC automático info-line -->
+      <div class="mt-4 pt-3 border-t border-amber-200/60 bg-white rounded-lg p-3 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-[12px]">
+          <i class="fa-solid fa-circle-info text-teal-600"></i>
+          <div>
+            <div class="text-slate-700">TC del día (auto): <strong class="num-tab">3.703</strong></div>
+            <div class="text-[10px] text-slate-500">Fuente: tipoCambio.service · 27 abr 2026 · 14:32 hrs</div>
+          </div>
+        </div>
+        <button class="text-[10px] px-2 py-1 btn-outline rounded font-medium flex items-center gap-1">
+          <i class="fa-solid fa-pen text-[9px]"></i> Override con motivo
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-3 text-[12px] text-slate-700">
+      <strong>Override:</strong> al click abre mini-popover con campo TC manual + textarea "motivo del override". Se registra en auditoría. Casos: TC pactado contractual, error del feed automático, etc.
+    </div>
+  </div>
+</section>
+
+<!-- 5. PAGAR ESTADO DE CUENTA · MODO BANCO EMISOR (TC empresarial) -->
+<section id="pagar-banco" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">5 · Pagar estado de cuenta · MODO BANCO EMISOR (TC empresarial)</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Aplica cuando <code class="bg-slate-100 px-1 rounded text-[11px]">tarjeta.titularidad = 'empresa'</code>. El negocio paga al banco emisor con su cuenta empresarial.
+    Aquí SÍ hay diferencial cambiario real que tracker.
+  </p>
+
+  <div class="modal-shell max-w-3xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center">
+          <i class="fa-solid fa-money-check-dollar text-amber-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Pagar al banco emisor · BCP Mastercard ····8203</h3>
+          <p class="text-[11px] text-slate-500">Empresarial · 3 cargos pendientes · US$ 3,200</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 flex items-center gap-2 text-[12px] text-slate-700">
+      <i class="fa-solid fa-building text-emerald-600"></i>
+      <strong>Modo: Banco emisor</strong> — el dinero sale de cuenta empresarial al BCP. Diferencial cambiario calculado contra TCPA del Pool USD.
+    </div>
+
+    <div class="px-6 py-5 space-y-4">
+      <!-- Tabla diferencial cambiario -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Vista previa del diferencial cambiario</div>
+
+        <div class="bg-white border border-slate-200 rounded-lg p-3 mb-3 flex items-center justify-between text-[12px]">
+          <div class="text-slate-700">Pagas <strong class="num-tab">US$ 3,200</strong> desde <strong>BCP Dólares</strong></div>
+          <div class="text-slate-500">TCPA Pool USD (auto): <strong class="num-tab">3.674</strong></div>
+        </div>
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <table class="w-full text-[11px]">
+            <thead>
+              <tr class="text-[9px] uppercase tracking-wider text-slate-600 font-semibold bg-slate-50 border-b border-slate-200">
+                <th class="text-left px-3 py-2">Cargo</th>
+                <th class="text-right px-3 py-2">Monto</th>
+                <th class="text-right px-3 py-2">TC cargo</th>
+                <th class="text-right px-3 py-2">TC pago</th>
+                <th class="text-right px-3 py-2">Δ (PEN)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr><td class="px-3 py-2.5 font-mono">CARG-2026-001</td><td class="px-3 py-2.5 text-right num-tab">US$ 1,800</td><td class="px-3 py-2.5 text-right num-tab">3.703</td><td class="px-3 py-2.5 text-right num-tab">3.674</td><td class="px-3 py-2.5 text-right num-tab font-bold text-emerald-700">+S/ 52.20</td></tr>
+              <tr><td class="px-3 py-2.5 font-mono">CARG-2026-007</td><td class="px-3 py-2.5 text-right num-tab">US$ 900</td><td class="px-3 py-2.5 text-right num-tab">3.711</td><td class="px-3 py-2.5 text-right num-tab">3.674</td><td class="px-3 py-2.5 text-right num-tab font-bold text-emerald-700">+S/ 33.30</td></tr>
+              <tr><td class="px-3 py-2.5 font-mono">CARG-2026-012</td><td class="px-3 py-2.5 text-right num-tab">US$ 500</td><td class="px-3 py-2.5 text-right num-tab">3.715</td><td class="px-3 py-2.5 text-right num-tab">3.674</td><td class="px-3 py-2.5 text-right num-tab font-bold text-emerald-700">+S/ 20.50</td></tr>
+            </tbody>
+            <tfoot>
+              <tr class="bg-slate-50 border-t-2 border-slate-300">
+                <td class="px-3 py-3 font-bold text-slate-900">Total</td>
+                <td class="px-3 py-3 text-right num-tab font-bold">US$ 3,200</td>
+                <td class="px-3 py-3 text-slate-400">—</td>
+                <td class="px-3 py-3 text-slate-400">—</td>
+                <td class="px-3 py-3 text-right num-tab font-bold text-emerald-700">+S/ 106.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-emerald-50 border-l-4 border-emerald-500 rounded-r-md p-3 flex items-start gap-2">
+        <i class="fa-solid fa-lightbulb text-emerald-600 mt-0.5"></i>
+        <div class="text-[12px] text-emerald-900">
+          <strong>Estás ganando S/ 106.00</strong> en este pago. El USD del Pool entró a TCPA 3.674 (más barato) y los cargos
+          fueron registrados a TC más altos (3.703 - 3.715). <a href="#" class="underline">Ver en Rendimiento Cambiario →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium flex items-center gap-1.5">
+        <i class="fa-solid fa-arrow-left text-[10px]"></i> Atrás
+      </button>
+      <button class="text-[12px] px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-md font-semibold flex items-center gap-1.5">
+        <i class="fa-solid fa-check text-[10px]"></i> Pagar al banco
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- 6. PAGAR ESTADO · MODO REEMBOLSO AL TITULAR -->
+<section id="reembolso" class="max-w-5xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">6 · Pagar estado de cuenta · MODO REEMBOLSO AL TITULAR ⭐ tu caso</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Aplica cuando <code class="bg-slate-100 px-1 rounded text-[11px]">tarjeta.titularidad = 'personal'</code>. El negocio reembolsa al titular el monto que él pagó al banco con plata mixta.
+    <strong>NO hay diferencial cambiario</strong> (lo asumió el titular).
+  </p>
+
+  <div class="modal-shell max-w-2xl mx-auto">
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center">
+          <i class="fa-solid fa-hand-holding-dollar text-sky-700"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Reembolsar a Jose Pérez</h3>
+          <p class="text-[11px] text-slate-500">Por uso de su BBVA Visa ····6411 en cargos del negocio</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="px-6 py-3 bg-sky-50 border-b border-sky-100 flex items-start gap-2 text-[12px] text-sky-900">
+      <i class="fa-solid fa-id-card text-sky-700 mt-0.5"></i>
+      <div>
+        <strong>Modo: Reembolso al titular</strong> — el negocio le paga directamente a Jose por compartir su tarjeta. Sin diferencial cambiario (Jose ya lo asumió en su pago real al banco).
+      </div>
+    </div>
+
+    <div class="px-6 py-5 space-y-4">
+      <!-- Hero del reembolso -->
+      <div class="bg-gradient-to-br from-sky-50 to-white border-2 border-sky-200 rounded-xl p-4">
+        <div class="text-center">
+          <div class="text-[11px] uppercase tracking-wider text-sky-700 font-semibold mb-1">A reembolsar a Jose</div>
+          <div class="text-3xl font-bold text-sky-700 num-tab">US$ 8,400.00</div>
+          <div class="text-[12px] text-slate-600 mt-1">≈ S/ 31,025.20 · TC del día (auto): 3.694</div>
+        </div>
+      </div>
+
+      <!-- Cargos a saldar -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Cargos a saldar</div>
+          <button class="text-[10px] text-teal-600 hover:underline font-medium">Seleccionar todos · 5</button>
+        </div>
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <table class="w-full text-[11px]">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr class="text-[9px] uppercase text-slate-600 font-semibold">
+                <th class="text-left px-3 py-2 w-8"></th>
+                <th class="text-left px-3 py-2">Cargo</th>
+                <th class="text-left px-3 py-2">Documentos</th>
+                <th class="text-right px-3 py-2">Monto</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr><td class="px-3 py-2"><input type="checkbox" checked class="rounded text-teal-600"/></td><td class="px-3 py-2 font-mono">CARG-001</td><td class="px-3 py-2 text-slate-600">OC-001 · OC-008</td><td class="px-3 py-2 text-right num-tab">US$ 5,900</td></tr>
+              <tr><td class="px-3 py-2"><input type="checkbox" checked class="rounded text-teal-600"/></td><td class="px-3 py-2 font-mono">CARG-002</td><td class="px-3 py-2 text-slate-600">GAS-0042</td><td class="px-3 py-2 text-right num-tab">US$ 320</td></tr>
+              <tr><td class="px-3 py-2"><input type="checkbox" checked class="rounded text-teal-600"/></td><td class="px-3 py-2 font-mono">CARG-003</td><td class="px-3 py-2 text-slate-600">ENV-014 · OC-014</td><td class="px-3 py-2 text-right num-tab">US$ 1,800</td></tr>
+              <tr><td class="px-3 py-2"><input type="checkbox" checked class="rounded text-teal-600"/></td><td class="px-3 py-2 font-mono">CARG-004</td><td class="px-3 py-2 text-slate-600">OC-019 (parcial · resto US$ 200)</td><td class="px-3 py-2 text-right num-tab">US$ 380</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cuenta origen del reembolso -->
+      <div>
+        <label class="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Pagar desde</label>
+        <input type="text" value="BCP Dólares Empresa · saldo US$ 28,450" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white" />
+        <div class="text-[11px] text-slate-500 mt-1.5">Tras reembolso: <strong class="text-slate-700">US$ 20,050</strong></div>
+      </div>
+
+      <!-- Lo que va a pasar -->
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Al confirmar se ejecutará</div>
+        <div class="space-y-2">
+          <div class="flex items-start gap-2 p-2.5 border border-slate-200 rounded-md">
+            <i class="fa-solid fa-arrow-right-arrow-left text-amber-600 mt-0.5"></i>
+            <div class="flex-1 text-[12px]">
+              <div class="font-semibold text-slate-900">1 movimiento de tesorería</div>
+              <div class="text-[11px] text-slate-500">Egreso de US$ 8,400 desde BCP Dólares Empresa</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 p-2.5 border border-slate-200 rounded-md">
+            <i class="fa-solid fa-coins text-emerald-600 mt-0.5"></i>
+            <div class="flex-1 text-[12px]">
+              <div class="font-semibold text-slate-900">1 crédito en CC de la tarjeta</div>
+              <div class="text-[11px] text-slate-500">BBVA Visa ····6411: +US$ 8,400 → saldo 0</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 p-2.5 border border-slate-200 rounded-md">
+            <i class="fa-solid fa-id-card text-sky-600 mt-0.5"></i>
+            <div class="flex-1 text-[12px]">
+              <div class="font-semibold text-slate-900">1 ingreso en CC de Jose (empleado)</div>
+              <div class="text-[11px] text-slate-500">Jose recibe US$ 8,400 directamente · su CC personal queda en 0 con la deuda saldada</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 p-2.5 border border-slate-200 rounded-md opacity-60">
+            <i class="fa-solid fa-circle-info text-slate-500 mt-0.5"></i>
+            <div class="flex-1 text-[12px]">
+              <div class="font-semibold text-slate-700">Sin diferencial cambiario</div>
+              <div class="text-[11px] text-slate-500">Jose asume su propio diferencial al pagar al banco con plata mixta. El sistema solo registra el reembolso.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <button class="text-[12px] px-3 py-1.5 btn-ghost rounded-md font-medium flex items-center gap-1.5">
+        <i class="fa-solid fa-arrow-left text-[10px]"></i> Atrás
+      </button>
+      <button class="text-[12px] px-4 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-md font-semibold flex items-center gap-1.5">
+        <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i> Reembolsar a Jose
+      </button>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-5xl mx-auto py-8 text-center text-[11px] text-slate-400">
+  S58d v2 · Mockup · Tarjeta de crédito + workflows · Vita Skin Peru
+</div>
+
+</body>
+</html>
