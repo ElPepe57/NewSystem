@@ -27,6 +27,8 @@ import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 // S58 Fase 3 — submit optimista con toast undo
 import { useOptimisticSubmit } from '../../hooks/useOptimisticSubmit';
+// S58 Fase 4 — auto-save de borradores en localStorage
+import { useDraft } from '../../hooks/useDraft';
 import type {
   MovimientoTesoreria,
   CuentaCaja,
@@ -182,6 +184,20 @@ export const Tesoreria: React.FC = () => {
       setTransferenciaForm(prev => ({ ...prev, tipoCambio: prev.tipoCambio === 3.70 ? tcVenta : prev.tipoCambio }));
     }
   }, [tcActual]);
+
+  // ─── S58 Fase 4 · Auto-save de borradores del modal Nuevo Movimiento ───
+  // Solo activo cuando el modal está abierto en modo NUEVO (no edit).
+  // El borrador se salva en cada cambio del form (debounced 600ms) y se
+  // ofrece restaurar al reabrir el modal.
+  const movimientoDraft = useDraft<Partial<MovimientoTesoreriaFormData>>(
+    'movimiento-tesoreria',
+    movimientoForm,
+    {
+      enabled: isMovimientoModalOpen && !movimientoEditando,
+      onRestore: (data) => setMovimientoForm(data),
+      ttlMs: 24 * 60 * 60 * 1000, // 24h
+    },
+  );
 
   useEffect(() => {
     loadData();
@@ -392,12 +408,17 @@ export const Tesoreria: React.FC = () => {
           dataNormalizada,
           user.uid,
         );
+        // En modo edit el draft no aplica · pero por seguridad limpiamos cualquier
+        // borrador residual que pudiera estar (ej: usuario editó antes de submit).
+        movimientoDraft.clearDraft();
         handleCerrarModalMovimiento();
         toast.success('Movimiento actualizado');
         loadData();
       } else {
         // S58 Fase 3 — Optimistic submit + toast con undo
         const movId = await TesoreriaService.registrarMovimiento(dataNormalizada, user.uid);
+        // S58 Fase 4 — limpiar borrador tras submit exitoso
+        movimientoDraft.clearDraft();
         handleCerrarModalMovimiento();
         loadData();
 
@@ -1015,6 +1036,14 @@ export const Tesoreria: React.FC = () => {
           handleAnularMovimiento={handleAnularMovimiento}
           handleGuardarMovimiento={handleGuardarMovimiento}
           handleCerrarModalMovimiento={handleCerrarModalMovimiento}
+          // S58 Fase 4 — Auto-save de borradores
+          draftHasDraft={movimientoDraft.hasDraft}
+          draftRestored={movimientoDraft.restored}
+          draftSavedAt={movimientoDraft.savedAt}
+          draftSaveStatus={movimientoDraft.saveStatus}
+          draftSavedAgo={movimientoDraft.savedAgo}
+          onDraftRestore={movimientoDraft.restore}
+          onDraftDiscard={movimientoDraft.discard}
         />
       )}
 

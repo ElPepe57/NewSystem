@@ -76,6 +76,14 @@ interface TabMovimientosProps {
   handleAnularMovimiento: (mov: MovimientoTesoreria) => void;
   handleGuardarMovimiento: () => void;
   handleCerrarModalMovimiento: () => void;
+  // S58 Fase 4 — Auto-save de borradores (opcional)
+  draftHasDraft?: boolean;
+  draftRestored?: boolean;
+  draftSavedAt?: Date | null;
+  draftSaveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  draftSavedAgo?: string | null;
+  onDraftRestore?: () => void;
+  onDraftDiscard?: () => void;
 }
 
 export const TabMovimientos: React.FC<TabMovimientosProps> = ({
@@ -98,6 +106,14 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
   getTipoLabel,
   handleEditarMovimiento,
   handleAnularMovimiento,
+  // S58 Fase 4
+  draftHasDraft,
+  draftRestored,
+  draftSavedAt,
+  draftSaveStatus = 'idle',
+  draftSavedAgo,
+  onDraftRestore,
+  onDraftDiscard,
   handleGuardarMovimiento,
   handleCerrarModalMovimiento,
 }) => {
@@ -682,8 +698,48 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
         submitVariant="primary-soft"
         submitIcon={Check}
         onSubmit={handleGuardarMovimiento}
+        // S58 Fase 4 — indicador auto-save (solo en modo nuevo, después de restaurar)
+        autoSaveStatus={
+          !movimientoEditando && draftRestored && draftSaveStatus === 'saved' ? 'saved' : 'idle'
+        }
+        autoSaveLabel={draftSavedAgo ?? undefined}
       >
         <div className="space-y-6">
+          {/* S58 Fase 4 — Banner "Tienes un borrador" cuando hay draft sin restaurar */}
+          {!movimientoEditando && draftHasDraft && !draftRestored && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-start gap-3">
+              <span className="w-8 h-8 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                <RefreshCw className="w-4 h-4" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-semibold text-amber-900">
+                  Tienes un borrador sin guardar
+                </div>
+                <div className="text-[11px] text-amber-700">
+                  {draftSavedAt
+                    ? `Última edición: ${draftSavedAt.toLocaleString('es-PE', { weekday: 'long', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`
+                    : 'Borrador detectado'}
+                </div>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={onDraftRestore}
+                  className="text-[11px] px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-md font-semibold"
+                >
+                  Continuar
+                </button>
+                <button
+                  type="button"
+                  onClick={onDraftDiscard}
+                  className="text-[11px] px-3 py-1.5 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-md font-medium"
+                >
+                  Descartar
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Bloque 1: Dirección + Tipo + Fecha */}
           <div>
             <div className="flex items-center gap-2 mb-3">
