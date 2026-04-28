@@ -40,6 +40,9 @@ import type {
 import { EntidadCCCard } from './components/EntidadCCCard';
 import { EntidadCCDetailModal } from './components/EntidadCCDetailModal';
 import { PagoAbonoWizard } from './components/PagoAbonoWizard';
+import { TarjetaDetailModal } from '../Tesoreria/TarjetasCreditoV2';
+import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
+import type { TarjetaCredito } from '../../types/tarjetaCredito.types';
 import {
   PipelineFinanzas,
   type FiltroEstado,
@@ -103,6 +106,28 @@ const FinanzasSaldos: React.FC = () => {
   const [orden, setOrden] = useState<'mayor_saldo' | 'ultima_act' | 'nombre'>('mayor_saldo');
 
   const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
+
+  // S58d F5 — Modal detalle de tarjeta (cuando el CC seleccionada es de tipo TC)
+  const [tarjetaDetalle, setTarjetaDetalle] = useState<TarjetaCredito | null>(null);
+  const { tarjetas, fetchTarjetas } = useTarjetaCreditoStore();
+
+  // Asegurar que las tarjetas estén cargadas (para resolver CC tipo='tarjeta_credito')
+  useEffect(() => {
+    if (tarjetas.length === 0) void fetchTarjetas();
+  }, [tarjetas.length, fetchTarjetas]);
+
+  // Handler unificado: abre el modal correcto según el tipo de la CC
+  const abrirCCDetalle = (cc: CuentaCorriente) => {
+    if (cc.tipo === 'tarjeta_credito') {
+      const t = tarjetas.find((x) => x.id === cc.entidadId);
+      if (t) {
+        setTarjetaDetalle(t);
+        return;
+      }
+      // Si no encontró, fallback al modal genérico
+    }
+    setCCSeleccionada(cc);
+  };
 
   // ── Wizard de pago/cobro distribuido ──
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -387,8 +412,15 @@ const FinanzasSaldos: React.FC = () => {
             <EntidadCCCard
               key={cc.id}
               cc={cc}
-              onView={() => setCCSeleccionada(cc)}
-              onAccionPrincipal={() => abrirWizardConCC(cc)}
+              onView={() => abrirCCDetalle(cc)}
+              onAccionPrincipal={() => {
+                // Para tarjetas, no aplica abono distribuido — abrir detalle
+                if (cc.tipo === 'tarjeta_credito') {
+                  abrirCCDetalle(cc);
+                } else {
+                  abrirWizardConCC(cc);
+                }
+              }}
             />
           ))}
         </div>
@@ -414,6 +446,13 @@ const FinanzasSaldos: React.FC = () => {
         onSuccess={() => {
           void recargarCCs();
         }}
+      />
+
+      {/* ─── S58d F5 · Modal detalle TC (cuando cc.tipo='tarjeta_credito') ─── */}
+      <TarjetaDetailModal
+        isOpen={!!tarjetaDetalle}
+        onClose={() => setTarjetaDetalle(null)}
+        tarjeta={tarjetaDetalle}
       />
     </>
   );

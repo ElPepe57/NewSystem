@@ -9,7 +9,10 @@
 import { useEffect, useState } from 'react';
 import { getSaldoCCTarjeta } from '../../../services/cuentaCorriente.adaptadores';
 import { pagoEstadoCuentaTarjetaService } from '../../../services/pagoEstadoCuentaTarjeta.service';
-import type { CargoTarjeta } from '../../../types/tarjetaCredito.types';
+import type {
+  CargoTarjeta,
+  PagoEstadoCuentaTarjeta,
+} from '../../../types/tarjetaCredito.types';
 
 // ═════════════════════════════════════════════════════════════════════════
 // useSaldoCCTarjeta
@@ -113,4 +116,96 @@ export function useCargosPendientes(
   }, [tarjetaCreditoId]);
 
   return { cargos, loading, error, refetch };
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// useCargosTarjeta · todos los cargos (incl. pagados)
+// ═════════════════════════════════════════════════════════════════════════
+
+export interface CargosTarjetaState {
+  cargos: CargoTarjeta[];
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export function useCargosTarjeta(
+  tarjetaCreditoId: string | undefined,
+): CargosTarjetaState {
+  const [cargos, setCargos] = useState<CargoTarjeta[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refetch = async () => {
+    if (!tarjetaCreditoId) {
+      setCargos([]);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const list = await pagoEstadoCuentaTarjetaService.getCargosByTarjeta(
+        tarjetaCreditoId,
+      );
+      // Ordenar por fecha desc
+      list.sort((a, b) => b.fecha.toMillis() - a.fecha.toMillis());
+      setCargos(list);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tarjetaCreditoId]);
+
+  return { cargos, loading, error, refetch };
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// usePagosTarjeta · pagos de estado de cuenta
+// ═════════════════════════════════════════════════════════════════════════
+
+export interface PagosTarjetaState {
+  pagos: PagoEstadoCuentaTarjeta[];
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export function usePagosTarjeta(
+  tarjetaCreditoId: string | undefined,
+): PagosTarjetaState {
+  const [pagos, setPagos] = useState<PagoEstadoCuentaTarjeta[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refetch = async () => {
+    if (!tarjetaCreditoId) {
+      setPagos([]);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const list = await pagoEstadoCuentaTarjetaService.getPagosByTarjeta(
+        tarjetaCreditoId,
+      );
+      setPagos(list);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tarjetaCreditoId]);
+
+  return { pagos, loading, error, refetch };
 }

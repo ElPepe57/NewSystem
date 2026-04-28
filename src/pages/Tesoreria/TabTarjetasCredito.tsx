@@ -23,7 +23,11 @@ import type {
   TarjetaCredito,
   TarjetaCreditoFormData,
 } from '../../types/tarjetaCredito.types';
-import { TarjetaCard, TarjetaFormModal } from './TarjetasCreditoV2';
+import {
+  TarjetaCard,
+  TarjetaFormModal,
+  TarjetaDetailModal,
+} from './TarjetasCreditoV2';
 import { CargarTarjetaWizard } from './TarjetasCreditoV2/CargarTarjetaWizard';
 import { PagarEstadoCuentaWizard } from './TarjetasCreditoV2/PagarEstadoCuentaWizard';
 
@@ -52,6 +56,11 @@ export const TabTarjetasCredito: React.FC = () => {
   const [showPagar, setShowPagar] = useState(false);
   const [tarjetaParaPago, setTarjetaParaPago] =
     useState<TarjetaCredito | undefined>(undefined);
+
+  // S58d F5 — Modal detalle de tarjeta
+  const [tarjetaDetalle, setTarjetaDetalle] = useState<TarjetaCredito | null>(
+    null,
+  );
 
   useEffect(() => {
     void fetchTarjetas();
@@ -204,39 +213,52 @@ export const TabTarjetasCredito: React.FC = () => {
               <TarjetaCard
                 tarjeta={tarjeta}
                 onClick={(t) => {
-                  // Click en la card → cargar a tarjeta (caso más frecuente)
-                  setTarjetaParaCargo(t);
-                  setShowCargar(true);
+                  // Click en la card → abre detalle (vista completa con tabs)
+                  setTarjetaDetalle(t);
                 }}
               />
               <div className="flex items-center justify-between gap-1 px-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTarjetaParaPago(tarjeta);
-                    setShowPagar(true);
-                  }}
-                  className={
-                    tarjeta.titularidad === 'personal'
-                      ? 'text-[11px] text-sky-700 hover:text-sky-800 hover:underline px-2 py-0.5 font-medium'
-                      : 'text-[11px] text-amber-700 hover:text-amber-800 hover:underline px-2 py-0.5 font-medium'
-                  }
-                  title={
-                    tarjeta.titularidad === 'personal'
-                      ? 'Reembolsar al titular'
-                      : 'Pagar al banco emisor'
-                  }
-                >
-                  {tarjeta.titularidad === 'personal'
-                    ? 'Reembolsar al titular →'
-                    : 'Pagar al banco →'}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTarjetaParaCargo(tarjeta);
+                      setShowCargar(true);
+                    }}
+                    className="text-[11px] text-amber-700 hover:text-amber-800 hover:underline px-2 py-0.5 font-medium"
+                    title="Cargar deudas a esta tarjeta"
+                  >
+                    Cargar
+                  </button>
+                  <span className="text-[10px] text-slate-300">·</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTarjetaParaPago(tarjeta);
+                      setShowPagar(true);
+                    }}
+                    className={
+                      tarjeta.titularidad === 'personal'
+                        ? 'text-[11px] text-sky-700 hover:text-sky-800 hover:underline px-2 py-0.5 font-medium'
+                        : 'text-[11px] text-amber-700 hover:text-amber-800 hover:underline px-2 py-0.5 font-medium'
+                    }
+                    title={
+                      tarjeta.titularidad === 'personal'
+                        ? 'Reembolsar al titular'
+                        : 'Pagar al banco emisor'
+                    }
+                  >
+                    {tarjeta.titularidad === 'personal'
+                      ? 'Reembolsar'
+                      : 'Pagar al banco'}
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => abrirEditar(tarjeta)}
                   className="text-[10px] text-slate-500 hover:text-slate-700 hover:underline px-2 py-0.5"
                 >
-                  Editar tarjeta
+                  Editar
                 </button>
               </div>
             </div>
@@ -280,6 +302,27 @@ export const TabTarjetasCredito: React.FC = () => {
         tarjetaPreseleccionada={tarjetaParaPago}
         onSuccess={() => {
           void fetchTarjetas();
+        }}
+      />
+
+      {/* S58d F5 — Detalle de tarjeta con tabs */}
+      <TarjetaDetailModal
+        isOpen={!!tarjetaDetalle}
+        onClose={() => setTarjetaDetalle(null)}
+        tarjeta={tarjetaDetalle}
+        onCargar={(t) => {
+          setTarjetaDetalle(null);
+          setTarjetaParaCargo(t);
+          setShowCargar(true);
+        }}
+        onPagar={(t) => {
+          setTarjetaDetalle(null);
+          setTarjetaParaPago(t);
+          setShowPagar(true);
+        }}
+        onEditar={(t) => {
+          setTarjetaDetalle(null);
+          abrirEditar(t);
         }}
       />
     </div>

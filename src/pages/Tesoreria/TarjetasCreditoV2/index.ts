@@ -8,5 +8,18 @@ export type { TarjetaCardProps } from './TarjetaCard';
 export { TarjetaFormModal } from './TarjetaFormModal';
 export type { TarjetaFormModalProps } from './TarjetaFormModal';
 
-export { useSaldoCCTarjeta, useCargosPendientes } from './hooks';
-export type { SaldoCCTarjeta, CargosPendientesState } from './hooks';
+export { TarjetaDetailModal } from './TarjetaDetailModal';
+export type { TarjetaDetailModalProps } from './TarjetaDetailModal';
+
+export {
+  useSaldoCCTarjeta,
+  useCargosPendientes,
+  useCargosTarjeta,
+  usePagosTarjeta,
+} from './hooks';
+export type {
+  SaldoCCTarjeta,
+  CargosPendientesState,
+  CargosTarjetaState,
+  PagosTarjetaState,
+} from './hooks';

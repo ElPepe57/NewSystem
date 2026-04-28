@@ -432,6 +432,26 @@ export async function getCargosByTarjeta(
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as CargoTarjeta);
 }
 
+/**
+ * Lista todos los pagos de estado de cuenta de una tarjeta.
+ * Ordenados por fecha desc (los más recientes primero).
+ */
+export async function getPagosByTarjeta(
+  tarjetaCreditoId: string,
+): Promise<PagoEstadoCuentaTarjeta[]> {
+  const q = query(
+    collection(db, PAGOS_COLL),
+    where('tarjetaCreditoId', '==', tarjetaCreditoId),
+  );
+  const snap = await getDocs(q);
+  const pagos = snap.docs.map(
+    (d) => ({ id: d.id, ...d.data() }) as PagoEstadoCuentaTarjeta,
+  );
+  // Ordenar por fecha desc en memoria (Firestore index podría requerir composite)
+  pagos.sort((a, b) => b.fecha.toMillis() - a.fecha.toMillis());
+  return pagos;
+}
+
 // ═════════════════════════════════════════════════════════════════════════
 // FACADE
 // ═════════════════════════════════════════════════════════════════════════
@@ -440,6 +460,7 @@ export const pagoEstadoCuentaTarjetaService = {
   ejecutar,
   getCargosPendientes,
   getCargosByTarjeta,
+  getPagosByTarjeta,
 };
 
 export type { PagoEstadoCuentaTarjeta };
