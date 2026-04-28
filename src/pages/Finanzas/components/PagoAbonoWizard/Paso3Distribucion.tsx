@@ -356,7 +356,7 @@ export const Paso3Distribucion: React.FC<Paso3Props> = ({ state, setState }) => 
           completo
             ? 'bg-teal-50 border-teal-200'
             : restante > 0
-              ? 'bg-amber-50 border-amber-200'
+              ? 'bg-emerald-50 border-emerald-200'
               : 'bg-red-50 border-red-200',
         )}
       >
@@ -379,7 +379,7 @@ export const Paso3Distribucion: React.FC<Paso3Props> = ({ state, setState }) => 
           </div>
           <div>
             <div className="text-[10px] uppercase text-slate-500 font-semibold tracking-wider">
-              Restante
+              {restante > TOLERANCIA ? 'Saldo a favor' : 'Restante'}
             </div>
             <div
               className={cn(
@@ -387,7 +387,7 @@ export const Paso3Distribucion: React.FC<Paso3Props> = ({ state, setState }) => 
                 completo
                   ? 'text-emerald-700'
                   : restante > 0
-                    ? 'text-amber-700'
+                    ? 'text-emerald-700'
                     : 'text-red-700',
               )}
             >
@@ -404,7 +404,7 @@ export const Paso3Distribucion: React.FC<Paso3Props> = ({ state, setState }) => 
               completo
                 ? 'bg-teal-600'
                 : restante > 0
-                  ? 'bg-amber-500'
+                  ? 'bg-emerald-500'
                   : 'bg-red-500',
             )}
             style={{
@@ -419,8 +419,9 @@ export const Paso3Distribucion: React.FC<Paso3Props> = ({ state, setState }) => 
               ✓ Distribución completa · 100% del abono asignado
             </span>
           ) : restante > 0 ? (
-            <span className="text-amber-700">
-              Falta distribuir {formatMoney(restante, state.monedaAbono)}
+            <span className="text-emerald-700">
+              ✓ {formatMoney(restante, state.monedaAbono)} quedará como saldo a favor en CC
+              {state.entidad ? ` de ${state.entidad.entidadNombre}` : ''}
             </span>
           ) : (
             <span className="text-red-700">

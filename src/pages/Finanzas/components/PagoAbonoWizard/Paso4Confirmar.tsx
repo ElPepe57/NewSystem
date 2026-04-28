@@ -6,7 +6,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { ArrowLeftRight, Coins, CircleCheck, FileText } from 'lucide-react';
+import { ArrowLeftRight, Coins, CircleCheck, FileText, PiggyBank } from 'lucide-react';
 import type { PagoAbonoState } from './types';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -51,6 +51,16 @@ export const Paso4Confirmar: React.FC<Paso4Props> = ({ state, setState }) => {
   }, [state.distribucion, state.deudas]);
 
   const docsParciales = state.distribucion.length - docsTotalmentePagados.length;
+
+  // S58b F6 — Saldo a favor (Σ distribución < montoAbono)
+  const saldoAFavor = useMemo(() => {
+    const sumaDistribuido = state.distribucion.reduce(
+      (s, d) => s + d.montoAplicado,
+      0,
+    );
+    const dif = (state.montoAbono ?? 0) - sumaDistribuido;
+    return dif > 0.01 ? dif : 0;
+  }, [state.distribucion, state.montoAbono]);
 
   const equivalente = useMemo(() => {
     if (!state.montoAbono || !state.tipoCambio) return null;
@@ -141,8 +151,8 @@ export const Paso4Confirmar: React.FC<Paso4Props> = ({ state, setState }) => {
             <Coins className="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="text-[12px] font-semibold text-slate-900">
-                {state.distribucion.length}{' '}
-                {state.distribucion.length === 1
+                {state.distribucion.length + (saldoAFavor > 0.01 ? 1 : 0)}{' '}
+                {state.distribucion.length + (saldoAFavor > 0.01 ? 1 : 0) === 1
                   ? 'movimiento'
                   : 'movimientos'}{' '}
                 en cuenta corriente
@@ -150,6 +160,10 @@ export const Paso4Confirmar: React.FC<Paso4Props> = ({ state, setState }) => {
               <div className="text-[11px] text-slate-500 truncate">
                 {state.entidad?.entidadNombre} ·{' '}
                 {state.distribucion.map((d) => d.documentoNumero).join(', ')}
+                {saldoAFavor > 0.01 && state.distribucion.length > 0 && ', '}
+                {saldoAFavor > 0.01 && (
+                  <span className="text-sky-700">anticipo</span>
+                )}
               </div>
             </div>
           </div>
@@ -183,6 +197,23 @@ export const Paso4Confirmar: React.FC<Paso4Props> = ({ state, setState }) => {
                 </div>
                 <div className="text-[11px] text-amber-700">
                   Quedará{docsParciales === 1 ? '' : 'n'} con saldo pendiente
+                </div>
+              </div>
+            </div>
+          )}
+
+          {saldoAFavor > 0.01 && (
+            <div className="flex items-start gap-2 p-2.5 border border-sky-200 bg-sky-50/40 rounded-md">
+              <PiggyBank className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-[12px] font-semibold text-sky-900">
+                  Saldo a favor en CC ·{' '}
+                  {formatMoney(saldoAFavor, state.monedaAbono)}
+                </div>
+                <div className="text-[11px] text-sky-700">
+                  {state.entidad?.entidadTipo === 'cliente'
+                    ? `Quedará como anticipo del cliente · aplicable a futuras ventas`
+                    : `Quedará como anticipo a aplicar · usable en futuras ${state.entidad?.entidadTipo === 'proveedor' ? 'OCs' : 'transacciones'}`}
                 </div>
               </div>
             </div>

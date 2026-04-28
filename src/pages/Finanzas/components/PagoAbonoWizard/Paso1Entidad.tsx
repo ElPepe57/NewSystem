@@ -56,15 +56,15 @@ export const Paso1Entidad: React.FC<Paso1Props> = ({ state, setState }) => {
   const [loadingDeudas, setLoadingDeudas] = useState(false);
 
   // ── Cargar CCs por tipo (con saldo en contra) ──
-  // Para proveedores/colaboradores/empleados: saldoUSD/PEN < 0 (les debemos)
-  // Para clientes: saldoUSD/PEN > 0 (nos deben)
+  // Convención del sistema: en TODAS las CC, saldo > 0 representa una deuda
+  // comercial activa con esa entidad — independientemente del tipo. Se
+  // construye con débitos (debito_oc, debito_venta, debito_envio, debito_gasto)
+  // y se reduce con créditos (credito_pago_*, credito_cobro_venta).
+  // Por lo tanto `soloDeudoras` (saldo > 0) aplica para los 4 tipos.
   useEffect(() => {
     let cancelled = false;
     setLoadingCCs(true);
-    const filtros = {
-      tipo,
-      ...(tipo === 'cliente' ? { soloDeudoras: true } : { soloAcreedoras: true }),
-    };
+    const filtros = { tipo, soloDeudoras: true };
     cuentaCorrienteService
       .getAll(filtros)
       .then((res) => {
@@ -114,16 +114,17 @@ export const Paso1Entidad: React.FC<Paso1Props> = ({ state, setState }) => {
   // ── Combobox groups (entidades con saldo) ──
   const groups = useMemo(() => {
     const opts = ccs.map((cc) => {
-      // Saldo a mostrar: el negativo más grande en valor absoluto
+      // Saldo a mostrar: la moneda con mayor magnitud absoluta.
+      // Convención del sistema: saldo > 0 = deuda activa (la entidad debe pagar
+      // o le debemos pagar — depende del tipo). Para entidades en el wizard
+      // (entidades con soloDeudoras: saldo > 0), el saldo es siempre positivo.
       const saldoUSD = cc.saldoUSD;
       const saldoPEN = cc.saldoPEN;
       const labelMonto =
         Math.abs(saldoUSD) > Math.abs(saldoPEN)
-          ? `${saldoUSD < 0 ? '−' : ''}US$ ${Math.abs(saldoUSD).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-          : `${saldoPEN < 0 ? '−' : ''}S/ ${Math.abs(saldoPEN).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      const tono = saldoUSD < 0 || saldoPEN < 0
-        ? 'text-red-700'
-        : 'text-emerald-700';
+          ? `US$ ${Math.abs(saldoUSD).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+          : `S/ ${Math.abs(saldoPEN).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const tono = 'text-red-700';
 
       const initial = cc.entidadNombre
         .split(/\s+/)

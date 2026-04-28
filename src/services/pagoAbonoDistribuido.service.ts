@@ -720,6 +720,60 @@ async function aplicarPagoGasto(
   await updateDoc(doc(db, GASTOS_COLLECTION, gasto.id), updates);
 }
 
+/**
+ * Aplica el sobrante (`saldoAFavor`) cuando el abono excede la suma de las
+ * deudas distribuidas. Crea un MovCC sin `refDocumento` con el tipo correcto
+ * según la dirección de la entidad:
+ *
+ *   - Cliente → `credito_anticipo` (resta del saldo del cliente, queda en
+ *     negativo: el negocio le debe al cliente · saldo a favor del cliente)
+ *   - Proveedor / Colaborador / Empleado → `debito_anticipo` (suma al saldo,
+ *     queda en positivo: la entidad nos debe ese monto en futuras OCs/etc ·
+ *     saldo a favor del negocio)
+ *
+ * Ambos tipos comparten el mismo `movimientoTesoreriaId` con el resto del
+ * lote para preservar la trazabilidad del desembolso.
+ */
+async function aplicarSaldoAFavor(
+  saldoAFavor: number,
+  input: PagoAbonoDistribuidoInput,
+  movimientoTesoreriaId: string,
+  idempotencyKey: string,
+  userId: string,
+  movimientosCCIds: string[],
+): Promise<void> {
+  if (saldoAFavor <= TOLERANCIA) return;
+
+  const tipoMov: 'debito_anticipo' | 'credito_anticipo' =
+    input.entidadTipo === 'cliente' ? 'credito_anticipo' : 'debito_anticipo';
+
+  const descripcion =
+    input.entidadTipo === 'cliente'
+      ? `Anticipo del cliente · ${input.monedaAbono} ${saldoAFavor.toFixed(2)} ` +
+        `(sobrante de cobro ${input.monedaAbono} ${input.montoAbono.toFixed(2)})`
+      : `Anticipo a aplicar · ${input.monedaAbono} ${saldoAFavor.toFixed(2)} ` +
+        `(sobrante de pago ${input.monedaAbono} ${input.montoAbono.toFixed(2)})`;
+
+  const ccResult = await cuentaCorrienteService.registrarMovimiento(
+    {
+      entidadId: input.entidadId,
+      tipo: input.entidadTipo,
+      entidadNombre: input.entidadNombre,
+      tipoMovimiento: tipoMov,
+      descripcion,
+      moneda: input.monedaAbono,
+      monto: saldoAFavor,
+      fecha: input.fecha,
+      // Sin refDocumento — es un saldo flotante a aplicar a futuro
+      movimientoTesoreriaId,
+      notas: input.notas,
+      idempotencyKey: `${idempotencyKey}:saldo_a_favor`,
+    },
+    userId,
+  );
+  movimientosCCIds.push(ccResult.movimientoId);
+}
+
 // ═════════════════════════════════════════════════════════════════════════
 // API PÚBLICA: EJECUTAR PAGO DISTRIBUIDO
 // ═════════════════════════════════════════════════════════════════════════
@@ -752,20 +806,22 @@ export async function ejecutar(
     throw new Error('Debe haber al menos 1 documento en la distribución');
   }
 
-  // Σ(montoAplicado) === montoAbono
+  // Σ(montoAplicado) <= montoAbono · S58b F6 permite saldo a favor
+  // (la diferencia se aplica como anticipo en CC de la entidad).
   const sumaDistribuido = input.distribucion.reduce(
     (s, d) => s + d.montoAplicado,
     0,
   );
   const diferencia = input.montoAbono - sumaDistribuido;
-  if (Math.abs(diferencia) > TOLERANCIA) {
+  if (diferencia < -TOLERANCIA) {
+    // Sobre-distribución: la suma de la distribución excede el monto del abono
     throw new Error(
-      `La distribución (${sumaDistribuido.toFixed(2)}) no coincide con el ` +
-        `monto del abono (${input.montoAbono.toFixed(2)}). Diferencia: ${diferencia.toFixed(
-          2,
-        )}.`,
+      `La distribución (${sumaDistribuido.toFixed(2)}) excede el monto del abono ` +
+        `(${input.montoAbono.toFixed(2)}). Sobrante: ${Math.abs(diferencia).toFixed(2)}.`,
     );
   }
+  // Si diferencia > 0 → saldoAFavor; se aplicará como MovCC sin documento.
+  const saldoAFavorCalc = diferencia > TOLERANCIA ? diferencia : 0;
 
   // Cada montoAplicado > 0
   for (const d of input.distribucion) {
@@ -1010,8 +1066,31 @@ export async function ejecutar(
     }
   }
 
+  // ─── 4b. Saldo a favor (S58b F6) ────────────────────────────────────
+  // Si Σ(distribución) < montoAbono, el sobrante se aplica como MovCC sin
+  // refDocumento (anticipo). Es no-bloqueante: si falla, queda registrado
+  // en errores[] pero el resto del flujo se mantiene.
+  if (saldoAFavorCalc > TOLERANCIA) {
+    try {
+      await aplicarSaldoAFavor(
+        saldoAFavorCalc,
+        input,
+        movimientoTesoreriaId,
+        idempotencyKey,
+        userId,
+        movimientosCCIds,
+      );
+    } catch (err) {
+      const msg = `Saldo a favor (${saldoAFavorCalc.toFixed(2)}): ${
+        err instanceof Error ? err.message : 'error desconocido'
+      }`;
+      logger.error(`[PagoAbonoDistribuido] ${msg}`, err);
+      errores.push(msg);
+    }
+  }
+
   // ─── 5. Resultado ───────────────────────────────────────────────────
-  const saldoAFavor = 0; // En esta versión la validación previene saldoAFavor
+  const saldoAFavor = saldoAFavorCalc;
   const result: PagoAbonoDistribuidoResult = {
     movimientoTesoreriaId,
     movimientosCCIds,
@@ -1022,9 +1101,13 @@ export async function ejecutar(
   };
 
   if (errores.length === 0) {
+    const sufijoSaldo =
+      saldoAFavor > TOLERANCIA
+        ? ` · saldo a favor ${input.monedaAbono} ${saldoAFavor.toFixed(2)}`
+        : '';
     logger.success(
       `[PagoAbonoDistribuido] OK · ${input.monedaAbono} ${input.montoAbono.toFixed(2)} ` +
-        `→ ${documentosActualizados} documentos · TX ${movimientoTesoreriaId}`,
+        `→ ${documentosActualizados} documentos${sufijoSaldo} · TX ${movimientoTesoreriaId}`,
     );
   } else {
     logger.warn(

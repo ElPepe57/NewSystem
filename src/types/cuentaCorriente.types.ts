@@ -71,6 +71,7 @@ export type TipoMovimientoCC =
   | 'debito_prestamo_empleado'
   | 'debito_boleta_emitida'
   | 'debito_comision'
+  | 'debito_anticipo'
   // Créditos
   | 'credito_pago_oc'
   | 'credito_cobro_venta'
@@ -82,6 +83,7 @@ export type TipoMovimientoCC =
   | 'credito_descuento_comercial'
   | 'credito_adelanto_cotizacion'
   | 'credito_devolucion_cliente'
+  | 'credito_anticipo'
   // Aplicaciones / especiales
   | 'aplicacion_saldo'
   | 'devolucion_cash'
@@ -237,6 +239,7 @@ export const TIPOS_DEBITO: TipoMovimientoCC[] = [
   'debito_prestamo_empleado',
   'debito_boleta_emitida',
   'debito_comision',
+  'debito_anticipo',
 ];
 
 /** Tipos de movimiento que RESTAN al saldo (saldamos / nos pagan). */
@@ -251,6 +254,7 @@ export const TIPOS_CREDITO: TipoMovimientoCC[] = [
   'credito_descuento_comercial',
   'credito_adelanto_cotizacion',
   'credito_devolucion_cliente',
+  'credito_anticipo',
 ];
 
 /**
@@ -395,6 +399,7 @@ export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
   debito_prestamo_empleado: 'Préstamo otorgado',
   debito_boleta_emitida: 'Boleta emitida',
   debito_comision: 'Comisión devengada',
+  debito_anticipo: 'Anticipo a aplicar (sobre-pago)',
   // Créditos
   credito_pago_oc: 'Pago a proveedor',
   credito_cobro_venta: 'Cobro de venta',
@@ -406,6 +411,7 @@ export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
   credito_descuento_comercial: 'Descuento comercial',
   credito_adelanto_cotizacion: 'Adelanto de cotización',
   credito_devolucion_cliente: 'Devolución del cliente',
+  credito_anticipo: 'Anticipo del cliente (sobre-cobro)',
   // Aplicaciones / especiales
   aplicacion_saldo: 'Aplicación de saldo a favor',
   devolucion_cash: 'Devolución de dinero',

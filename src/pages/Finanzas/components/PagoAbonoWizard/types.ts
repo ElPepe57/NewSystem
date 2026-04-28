@@ -118,17 +118,27 @@ export function validarPaso(paso: PasoWizard, state: PagoAbonoState): Validacion
   }
 
   if (paso === 3) {
-    if (state.distribucion.length === 0)
-      errores.push('Distribuye el abono entre al menos 1 documento');
+    // S58b F6: permitir distribución parcial. La diferencia (montoAbono -
+    // sumaDistribuido) se aplica como saldo a favor. Solo bloqueamos sobre-
+    // distribución (Σ > abono).
+    if (state.distribucion.length === 0 && (state.montoAbono ?? 0) > 0) {
+      // Aceptamos distribución vacía SOLO si el usuario quiere registrar todo
+      // como saldo a favor (caso poco común pero válido). Por UX preferimos
+      // exigir al menos 1 doc seleccionado para evitar errores.
+      errores.push('Distribuye el abono entre al menos 1 documento o reduce el abono');
+    }
     const sumaDistribuido = state.distribucion.reduce(
       (s, d) => s + d.montoAplicado,
       0,
     );
-    if (Math.abs(sumaDistribuido - (state.montoAbono ?? 0)) > TOLERANCIA) {
+    const diferencia = (state.montoAbono ?? 0) - sumaDistribuido;
+    if (diferencia < -TOLERANCIA) {
       errores.push(
-        `Distribuido (${sumaDistribuido.toFixed(2)}) ≠ Abono (${(state.montoAbono ?? 0).toFixed(2)})`,
+        `Distribuido (${sumaDistribuido.toFixed(2)}) excede el abono ` +
+          `(${(state.montoAbono ?? 0).toFixed(2)})`,
       );
     }
+    // Si diferencia > TOLERANCIA: válido — se aplicará como saldo a favor.
     for (const item of state.distribucion) {
       if (item.montoAplicado <= 0) {
         errores.push(`${item.documentoNumero}: monto inválido`);
