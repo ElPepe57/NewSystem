@@ -1,74 +1,99 @@
+/**
+ * TabTarjetasCredito — S58d v2 · Lista de tarjetas con cards visuales
+ *
+ * Reemplaza la UI legacy v1 (con barra utilizado/disponible) por la versión
+ * banking-grade del mockup S58c-d:
+ *   - Header con stats (total deuda titulares · total deuda banco)
+ *   - Botón "Nueva tarjeta" prominente
+ *   - Grid de 2 columnas de TarjetaCards con plástico gradient
+ *   - Click en card → abre detalle (próxima fase F3)
+ *   - Click en "Nueva tarjeta" → TarjetaFormModal v2
+ *
+ * El saldo se lee desde la CC espejo (fuente de verdad), no del campo
+ * legacy `saldoActualUSD` de la tarjeta.
+ */
+
 import React, { useEffect, useState } from 'react';
-import { CreditCard, Plus, X } from 'lucide-react';
+import { CreditCard, Plus } from 'lucide-react';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import { Card, Badge, Button, Input, Select } from '../../components/common';
-import { FormModal } from '../../design-system';
-import type { TarjetaCreditoFormData } from '../../types/tarjetaCredito.types';
-
-const FORM_INITIAL: TarjetaCreditoFormData = {
-  nombre: '',
-  banco: '',
-  ultimosDigitos: '',
-  moneda: 'USD',
-  limiteUSD: 0,
-  diaCorte: 15,
-  diaPago: 5,
-  activa: true,
-};
+import { Button } from '../../components/common';
+import type {
+  TarjetaCredito,
+  TarjetaCreditoFormData,
+} from '../../types/tarjetaCredito.types';
+import { TarjetaCard, TarjetaFormModal } from './TarjetasCreditoV2';
 
 export const TabTarjetasCredito: React.FC = () => {
-  const { tarjetas, tarjetasActivas, saldoTotalUSD, loading, fetchTarjetas, crearTarjeta, actualizarTarjeta } = useTarjetaCreditoStore();
-  const user = useAuthStore(s => s.user);
+  const {
+    tarjetas,
+    tarjetasActivas,
+    loading,
+    fetchTarjetas,
+    crearTarjeta,
+    actualizarTarjeta,
+  } = useTarjetaCreditoStore();
+  const user = useAuthStore((s) => s.user);
   const toast = useToastStore();
+
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<TarjetaCreditoFormData>(FORM_INITIAL);
+  const [tarjetaEditar, setTarjetaEditar] = useState<TarjetaCredito | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchTarjetas();
+    void fetchTarjetas();
   }, [fetchTarjetas]);
 
-  const openEdit = (tarjeta: any) => {
-    setFormData({
-      nombre: tarjeta.nombre,
-      banco: tarjeta.banco,
-      ultimosDigitos: tarjeta.ultimosDigitos,
-      moneda: tarjeta.moneda || 'USD',
-      limiteUSD: tarjeta.limiteUSD,
-      diaCorte: tarjeta.diaCorte,
-      diaPago: tarjeta.diaPago,
-      activa: tarjeta.activa,
-    });
-    setEditingId(tarjeta.id);
+  // ── Stats ──
+  // Las stats se calculan a partir de las tarjetas legacy; en v2 los saldos
+  // viven en CC. Para una visión consolidada se podría agregar un useEffect
+  // que sume saldos CC, pero la card individual ya muestra el saldo real.
+  const totalDeudaPersonalUSD = tarjetasActivas
+    .filter((t) => t.titularidad === 'personal')
+    .reduce((s, t) => s + (t.saldoActualUSD || 0), 0);
+  const totalDeudaEmpresaUSD = tarjetasActivas
+    .filter((t) => (t.titularidad ?? 'empresa') === 'empresa')
+    .reduce((s, t) => s + (t.saldoActualUSD || 0), 0);
+
+  // ── Handlers ──
+  const abrirNueva = () => {
+    setTarjetaEditar(null);
     setShowForm(true);
   };
 
-  const closeForm = () => {
-    setShowForm(false);
-    setEditingId(null);
-    setFormData(FORM_INITIAL);
+  const abrirEditar = (tarjeta: TarjetaCredito) => {
+    setTarjetaEditar(tarjeta);
+    setShowForm(true);
   };
 
-  const handleSubmit = async () => {
-    if (!user || !formData.nombre || !formData.banco || !formData.ultimosDigitos) {
-      toast.error('Completa todos los campos obligatorios');
-      return;
+  const handleGuardar = async (
+    data: TarjetaCreditoFormData,
+    editingId: string | null,
+  ) => {
+    if (!user) {
+      toast.error('Sesión inválida');
+      throw new Error('No user');
     }
     setSubmitting(true);
     try {
       if (editingId) {
-        await actualizarTarjeta(editingId, formData, user.uid);
+        await actualizarTarjeta(editingId, data, user.uid);
         toast.success('Tarjeta actualizada');
       } else {
-        await crearTarjeta(formData, user.uid);
-        toast.success(`Tarjeta ${formData.nombre} creada`);
+        await crearTarjeta(data, user.uid);
+        toast.success(
+          `Tarjeta "${data.nombre}" creada${
+            data.titularidad === 'personal' && data.titularNombre
+              ? ` · titular: ${data.titularNombre}`
+              : ''
+          }`,
+        );
       }
-      closeForm();
-    } catch (error: any) {
-      toast.error(error.message, 'Error');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error desconocido';
+      toast.error(msg, 'No se pudo guardar');
+      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -76,106 +101,81 @@ export const TabTarjetasCredito: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* Header con boton crear */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-slate-900">Tarjetas de Cr\u00e9dito</h3>
-        <Button size="sm" onClick={() => setShowForm(true)}>
-          <Plus className="h-4 w-4 mr-1" /> Nueva Tarjeta
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h3 className="text-base font-bold text-slate-900">
+            Tarjetas de crédito
+          </h3>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            {tarjetasActivas.length}{' '}
+            {tarjetasActivas.length === 1 ? 'tarjeta' : 'tarjetas'}
+            {totalDeudaPersonalUSD > 0 &&
+              ` · Total deuda con titulares: US$ ${totalDeudaPersonalUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            {totalDeudaEmpresaUSD > 0 &&
+              ` · Total deuda con banco: US$ ${totalDeudaEmpresaUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+          </p>
+        </div>
+        <Button
+          variant="primary-soft"
+          size="sm"
+          onClick={abrirNueva}
+          disabled={submitting}
+        >
+          <Plus className="h-4 w-4 mr-1.5" />
+          Nueva tarjeta
         </Button>
       </div>
 
-      {/* Resumen */}
-      {tarjetas.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Card className="p-3 text-center">
-            <div className="text-xs text-slate-500">Tarjetas activas</div>
-            <div className="text-2xl font-bold text-slate-900">{tarjetasActivas.length}</div>
-          </Card>
-          <Card className="p-3 text-center">
-            <div className="text-xs text-slate-500">Saldo adeudado</div>
-            <div className="text-2xl font-bold text-red-600">${saldoTotalUSD.toFixed(2)}</div>
-          </Card>
-          <Card className="p-3 text-center">
-            <div className="text-xs text-slate-500">Disponible total</div>
-            <div className="text-2xl font-bold text-emerald-600">
-              ${tarjetasActivas.reduce((s, t) => s + t.disponibleUSD, 0).toFixed(2)}
-            </div>
-          </Card>
-        </div>
-      )}
-
       {/* Lista o empty state */}
-      {tarjetas.length === 0 ? (
+      {loading && tarjetas.length === 0 ? (
         <div className="text-center py-12 text-slate-500">
+          <CreditCard className="h-12 w-12 mx-auto mb-3 text-slate-300 animate-pulse" />
+          <p className="font-medium">Cargando tarjetas…</p>
+        </div>
+      ) : tarjetas.length === 0 ? (
+        <div className="text-center py-12 px-4 bg-slate-50/50 border border-dashed border-slate-200 rounded-lg">
           <CreditCard className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-          <p className="font-medium">Sin tarjetas registradas</p>
-          <p className="text-sm mt-1">Agrega tu primera tarjeta para registrar compras como pasivos.</p>
+          <p className="font-medium text-slate-500">
+            Sin tarjetas registradas
+          </p>
+          <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+            Agrega tu primera tarjeta de crédito (empresarial o personal de un
+            empleado) para registrar cargos como pasivos.
+          </p>
+          <Button
+            variant="primary-soft"
+            size="sm"
+            onClick={abrirNueva}
+            className="mt-4"
+          >
+            <Plus className="h-4 w-4 mr-1.5" />
+            Crear primera tarjeta
+          </Button>
         </div>
       ) : (
-        <div className="space-y-3">
-          {tarjetas.map(tarjeta => {
-            const uso = tarjeta.limiteUSD > 0 ? (tarjeta.saldoActualUSD / tarjeta.limiteUSD) * 100 : 0;
-            return (
-              <Card key={tarjeta.id} className="p-4 cursor-pointer hover:border-sky-300 transition-colors" onClick={() => openEdit(tarjeta)}>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-100 rounded-lg">
-                      <CreditCard className="h-5 w-5 text-slate-600" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-slate-900">{tarjeta.nombre}</div>
-                      <div className="text-xs text-slate-500">{tarjeta.banco} &middot; ****{tarjeta.ultimosDigitos}</div>
-                    </div>
-                  </div>
-                  <Badge variant={tarjeta.activa ? 'success' : 'secondary'} className="text-xs">
-                    {tarjeta.activa ? 'Activa' : 'Inactiva'}
-                  </Badge>
-                </div>
-                <div className="mt-3">
-                  <div className="flex justify-between text-xs text-slate-500 mb-1">
-                    <span>Usado: ${tarjeta.saldoActualUSD.toFixed(2)}</span>
-                    <span>L\u00edmite: ${tarjeta.limiteUSD.toFixed(2)}</span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all ${uso > 80 ? 'bg-red-500' : uso > 50 ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${Math.min(uso, 100)}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-slate-400 mt-1 text-right">
-                    Disponible: ${tarjeta.disponibleUSD.toFixed(2)}
-                  </div>
-                </div>
-                <div className="mt-2 flex gap-4 text-xs text-slate-400">
-                  <span>Corte: d\u00eda {tarjeta.diaCorte}</span>
-                  <span>Pago: d\u00eda {tarjeta.diaPago}</span>
-                </div>
-              </Card>
-            );
-          })}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {tarjetas.map((tarjeta) => (
+            <TarjetaCard
+              key={tarjeta.id}
+              tarjeta={tarjeta}
+              onClick={(t) => abrirEditar(t)}
+            />
+          ))}
         </div>
       )}
 
-      {/* Modal crear tarjeta */}
-      <FormModal
+      {/* Modal nueva/editar tarjeta */}
+      <TarjetaFormModal
         isOpen={showForm}
-        onClose={closeForm}
-        title={editingId ? 'Editar Tarjeta' : 'Nueva Tarjeta de Cr\u00e9dito'}
-        onSubmit={handleSubmit}
-        loading={submitting}
-        variant={editingId ? 'edit' : 'create'}
-      >
-        <Input label="Nombre" placeholder="Visa BBVA ****6411" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} required />
-        <div className="grid grid-cols-2 gap-3">
-          <Input label="Banco" placeholder="BBVA, BCP, Interbank..." value={formData.banco} onChange={e => setFormData({ ...formData, banco: e.target.value })} required />
-          <Input label="Ultimos 4 digitos" placeholder="6411" maxLength={4} value={formData.ultimosDigitos} onChange={e => setFormData({ ...formData, ultimosDigitos: e.target.value.replace(/\D/g, '').slice(0, 4) })} required />
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <Input label="Limite USD" type="number" min={0} value={formData.limiteUSD || ''} onChange={e => setFormData({ ...formData, limiteUSD: parseFloat(e.target.value) || 0 })} required />
-          <Input label="Dia corte" type="number" min={1} max={31} value={formData.diaCorte} onChange={e => setFormData({ ...formData, diaCorte: parseInt(e.target.value) || 15 })} />
-          <Input label="Dia pago" type="number" min={1} max={31} value={formData.diaPago} onChange={e => setFormData({ ...formData, diaPago: parseInt(e.target.value) || 5 })} />
-        </div>
-      </FormModal>
+        onClose={() => {
+          setShowForm(false);
+          setTarjetaEditar(null);
+        }}
+        onGuardar={handleGuardar}
+        tarjetaEditar={tarjetaEditar}
+        isSubmitting={submitting}
+      />
     </div>
   );
 };

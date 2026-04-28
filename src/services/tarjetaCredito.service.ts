@@ -44,15 +44,32 @@ export const tarjetaCreditoService = {
       banco: data.banco,
       ultimosDigitos: data.ultimosDigitos,
       moneda: data.moneda,
-      limiteUSD: data.limiteUSD,
+      // Legacy v1 (mantener para retrocompat con UI v1)
+      limiteUSD: data.limiteUSD ?? 0,
       saldoActualUSD: 0,
-      disponibleUSD: data.limiteUSD,
+      disponibleUSD: data.limiteUSD ?? 0,
       diaCorte: data.diaCorte,
       diaPago: data.diaPago,
       activa: data.activa,
       creadoPor: userId,
       fechaCreacion: Timestamp.now(),
     };
+
+    // Campos v2 (S58d) — solo si están presentes
+    if (data.bancoNombreCompleto) nuevoDoc.bancoNombreCompleto = data.bancoNombreCompleto;
+    if (data.marca) nuevoDoc.marca = data.marca;
+    if (data.esBiMoneda !== undefined) nuevoDoc.esBiMoneda = data.esBiMoneda;
+    if (data.titularidad) nuevoDoc.titularidad = data.titularidad;
+    if (data.titularEntidadId) nuevoDoc.titularEntidadId = data.titularEntidadId;
+    if (data.titularEntidadTipo)
+      nuevoDoc.titularEntidadTipo = data.titularEntidadTipo;
+    if (data.titularNombre) nuevoDoc.titularNombre = data.titularNombre;
+    if (data.topeControlUSD !== undefined && data.topeControlUSD > 0)
+      nuevoDoc.topeControlUSD = data.topeControlUSD;
+    if (data.topeControlPEN !== undefined && data.topeControlPEN > 0)
+      nuevoDoc.topeControlPEN = data.topeControlPEN;
+    if (data.cuentaPagoDefaultId)
+      nuevoDoc.cuentaPagoDefaultId = data.cuentaPagoDefaultId;
 
     const docRef = await addDoc(collection(db, COLL), nuevoDoc);
     logger.success(`Tarjeta ${codigo} creada: ${data.nombre}`);

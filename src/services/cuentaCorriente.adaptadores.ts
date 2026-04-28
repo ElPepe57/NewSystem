@@ -19,6 +19,8 @@
 
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   query,
   where,
@@ -424,6 +426,34 @@ export async function getTotalPagadoGastoPEN(
     // Para USD, sin TC del mov original, multiplicar por fallback
     return sum + p.montoOriginal * tipoCambioFallback;
   }, 0);
+}
+
+// ─── Tarjeta de Crédito (S58d v2) ──────────────────────────────────────
+
+/**
+ * Obtiene el saldo de la CC de una tarjeta (entidad 'tarjeta_credito').
+ * Saldo positivo = el negocio le debe al titular/banco.
+ * Saldo cero = no hay cargos pendientes.
+ *
+ * Devuelve los 2 saldos por si la TC es bi-moneda.
+ */
+export async function getSaldoCCTarjeta(
+  tarjetaCreditoId: string,
+): Promise<{ saldoUSD: number; saldoPEN: number; existe: boolean }> {
+  if (!tarjetaCreditoId) return { saldoUSD: 0, saldoPEN: 0, existe: false };
+
+  const id = `tarjeta_credito_${tarjetaCreditoId}`;
+  const ref = doc(collection(db, COLLECTIONS.CUENTAS_CORRIENTES), id);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    return { saldoUSD: 0, saldoPEN: 0, existe: false };
+  }
+  const data = snap.data() as { saldoUSD?: number; saldoPEN?: number };
+  return {
+    saldoUSD: data.saldoUSD ?? 0,
+    saldoPEN: data.saldoPEN ?? 0,
+    existe: true,
+  };
 }
 
 // ─── Re-exports para conveniencia ─────────────────────────────────────────
