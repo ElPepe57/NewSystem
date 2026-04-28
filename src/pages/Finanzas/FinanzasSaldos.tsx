@@ -172,7 +172,7 @@ const FinanzasSaldos: React.FC = () => {
       porPagar: 0,
       vencidas: 0,
       saldadas: 0,
-      porTipo: { cliente: 0, proveedor: 0, colaborador: 0, empleado: 0 },
+      porTipo: { cliente: 0, proveedor: 0, colaborador: 0, empleado: 0, tarjeta_credito: 0 },
     };
     for (const cc of ccs) {
       const estados = clasificarCC(cc);

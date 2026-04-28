@@ -22,6 +22,7 @@ import {
   Building,
   ArrowUpRight,
   ArrowDownRight,
+  CreditCard,
 } from 'lucide-react';
 import { Card, Badge } from '../../components/common';
 import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
@@ -40,6 +41,7 @@ const ICONOS_TIPO: Record<TipoEntidadCC, React.ComponentType<{ className?: strin
   proveedor: Building,
   colaborador: Truck,
   empleado: UserCheck,
+  tarjeta_credito: CreditCard,
 };
 
 const COLOR_TIPO: Record<TipoEntidadCC, string> = {
@@ -47,6 +49,7 @@ const COLOR_TIPO: Record<TipoEntidadCC, string> = {
   proveedor: 'amber',
   colaborador: 'purple',
   empleado: 'emerald',
+  tarjeta_credito: 'rose',
 };
 
 function fmtPEN(n: number): string {

@@ -25,6 +25,7 @@ const COLOR_TIPO: Record<TipoEntidadCC, string> = {
   proveedor: 'bg-amber-100 text-amber-700',
   colaborador: 'bg-purple-100 text-purple-700',
   empleado: 'bg-emerald-100 text-emerald-700',
+  tarjeta_credito: 'bg-rose-100 text-rose-700',
 };
 
 function getInitials(nombre: string): string {

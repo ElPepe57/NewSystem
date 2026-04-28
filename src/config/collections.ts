@@ -81,6 +81,10 @@ export const COLLECTIONS = {
   KITS_EMPAQUE: 'kitsEmpaque',
   TARJETAS_CREDITO: 'tarjetasCredito',
 
+  // === S58d v2 — Tarjetas de crédito (cargos + pagos estado de cuenta) ===
+  CARGOS_TARJETA: 'cargosTarjeta',
+  PAGOS_ESTADO_CUENTA_TC: 'pagosEstadoCuentaTC',
+
   // === Colaboración ===
   PRESENCIA: 'presencia',
   ACTIVIDAD: 'actividad',
@@ -121,6 +125,13 @@ export const COLLECTIONS = {
 
   // === Sistema: Error Log ===
   ERROR_LOG: '_errorLog',
+
+  // === S55 · Cuenta Corriente Unificada ===
+  // Doc raíz por entidad (cliente/proveedor/colaborador/empleado).
+  // ID determinístico: `{tipo}_{entidadId}`. Ver cuentaCorriente.types.ts
+  CUENTAS_CORRIENTES: 'cuentasCorrientes',
+  // Movimientos del libro de cada CC. Inmutables (audit trail).
+  MOVIMIENTOS_CC: 'movimientosCC',
 } as const;
 
 /** Tipo union de todos los nombres de colección */

@@ -35,6 +35,7 @@ import {
   ExternalLink,
   ArrowRightLeft,
   Wallet,
+  CreditCard,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import { cuentaCorrienteService } from '../../../services/cuentaCorriente.service';
@@ -75,6 +76,7 @@ const ICONO_TIPO: Record<TipoEntidadCC, React.ComponentType<{ className?: string
   proveedor: Building,
   colaborador: Truck,
   empleado: IdCard,
+  tarjeta_credito: CreditCard,
 };
 
 const COLOR_TIPO: Record<TipoEntidadCC, { badge: string; ring: string }> = {
@@ -82,6 +84,7 @@ const COLOR_TIPO: Record<TipoEntidadCC, { badge: string; ring: string }> = {
   proveedor: { badge: 'bg-amber-100 text-amber-700 border-amber-200', ring: 'ring-amber-200' },
   colaborador: { badge: 'bg-purple-100 text-purple-700 border-purple-200', ring: 'ring-purple-200' },
   empleado: { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', ring: 'ring-emerald-200' },
+  tarjeta_credito: { badge: 'bg-rose-100 text-rose-700 border-rose-200', ring: 'ring-rose-200' },
 };
 
 function fmt(monto: number, moneda: MonedaCC): string {

@@ -280,6 +280,7 @@ export const cuentaCorrienteService = {
       proveedor: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },
       colaborador: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },
       empleado: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },
+      tarjeta_credito: { cantidadEntidades: 0, debenAEmpresa: { PEN: 0, USD: 0 }, empresaDebe: { PEN: 0, USD: 0 } },
     };
 
     for (const cc of ccs) {

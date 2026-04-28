@@ -31,7 +31,19 @@ import { Timestamp } from 'firebase/firestore';
  * sus 3 CCs viven separadas en BD para limpieza contable, y la UI las
  * agrega en su ficha de Maestros.
  */
-export type TipoEntidadCC = 'cliente' | 'proveedor' | 'colaborador' | 'empleado';
+/**
+ * S58d v2 · D-S58-8 — Las tarjetas de crédito tienen CC espejo.
+ * Cada cargo a la TC genera un débito en su CC ('debito_cargo_tc').
+ * Cada pago de estado de cuenta genera un crédito ('credito_pago_estado_cuenta_tc').
+ * El saldo de la CC = "deuda del negocio con el titular" (titularidad='personal')
+ * o "deuda del negocio con el banco emisor" (titularidad='empresa').
+ */
+export type TipoEntidadCC =
+  | 'cliente'
+  | 'proveedor'
+  | 'colaborador'
+  | 'empleado'
+  | 'tarjeta_credito';
 
 /**
  * Tipo de movimiento del libro de la CC.
@@ -72,6 +84,7 @@ export type TipoMovimientoCC =
   | 'debito_boleta_emitida'
   | 'debito_comision'
   | 'debito_anticipo'
+  | 'debito_cargo_tc'                  // S58d v2 · cargo a tarjeta crédito (sube saldo TC)
   // Créditos
   | 'credito_pago_oc'
   | 'credito_cobro_venta'
@@ -84,6 +97,8 @@ export type TipoMovimientoCC =
   | 'credito_adelanto_cotizacion'
   | 'credito_devolucion_cliente'
   | 'credito_anticipo'
+  | 'credito_pago_estado_cuenta_tc'    // S58d v2 · pago al banco / reembolso titular
+  | 'credito_aplicacion_cargo_tc'      // S58d v2 · aplicación de cargo a docs (saldo doc baja)
   // Aplicaciones / especiales
   | 'aplicacion_saldo'
   | 'devolucion_cash'
@@ -103,7 +118,9 @@ export type RefDocumentoCC =
   | 'adelanto'
   | 'pago_unificado'
   | 'devolucion'
-  | 'cotizacion';
+  | 'cotizacion'
+  | 'cargo_tc'                         // S58d · CargoTarjeta
+  | 'pago_estado_cuenta_tc';           // S58d · PagoEstadoCuentaTarjeta
 
 // ═════════════════════════════════════════════════════════════════════════
 // DOCUMENTOS PRINCIPALES
@@ -240,6 +257,7 @@ export const TIPOS_DEBITO: TipoMovimientoCC[] = [
   'debito_boleta_emitida',
   'debito_comision',
   'debito_anticipo',
+  'debito_cargo_tc',
 ];
 
 /** Tipos de movimiento que RESTAN al saldo (saldamos / nos pagan). */
@@ -255,6 +273,8 @@ export const TIPOS_CREDITO: TipoMovimientoCC[] = [
   'credito_adelanto_cotizacion',
   'credito_devolucion_cliente',
   'credito_anticipo',
+  'credito_pago_estado_cuenta_tc',
+  'credito_aplicacion_cargo_tc',
 ];
 
 /**
@@ -387,6 +407,7 @@ export const TIPO_ENTIDAD_CC_LABELS: Record<TipoEntidadCC, string> = {
   proveedor: 'Proveedor',
   colaborador: 'Colaborador',
   empleado: 'Empleado',
+  tarjeta_credito: 'Tarjeta de crédito',
 };
 
 export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
@@ -400,6 +421,7 @@ export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
   debito_boleta_emitida: 'Boleta emitida',
   debito_comision: 'Comisión devengada',
   debito_anticipo: 'Anticipo a aplicar (sobre-pago)',
+  debito_cargo_tc: 'Cargo a tarjeta de crédito',
   // Créditos
   credito_pago_oc: 'Pago a proveedor',
   credito_cobro_venta: 'Cobro de venta',
@@ -412,6 +434,8 @@ export const TIPO_MOVIMIENTO_CC_LABELS: Record<TipoMovimientoCC, string> = {
   credito_adelanto_cotizacion: 'Adelanto de cotización',
   credito_devolucion_cliente: 'Devolución del cliente',
   credito_anticipo: 'Anticipo del cliente (sobre-cobro)',
+  credito_pago_estado_cuenta_tc: 'Pago al banco emisor / reembolso al titular',
+  credito_aplicacion_cargo_tc: 'Documento cancelado con cargo a TC',
   // Aplicaciones / especiales
   aplicacion_saldo: 'Aplicación de saldo a favor',
   devolucion_cash: 'Devolución de dinero',

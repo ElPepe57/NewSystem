@@ -29,6 +29,7 @@ import {
   Users as UsersIcon,
   Truck,
   IdCard,
+  CreditCard as CreditCardIcon,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import type {
@@ -60,6 +61,7 @@ const ICONO_TIPO: Record<TipoEntidadCC, React.ComponentType<{ className?: string
   proveedor: Building,
   colaborador: Truck,
   empleado: IdCard,
+  tarjeta_credito: CreditCardIcon,
 };
 
 const COLOR_TIPO: Record<TipoEntidadCC, { bg: string; text: string; badge: string }> = {
@@ -67,6 +69,7 @@ const COLOR_TIPO: Record<TipoEntidadCC, { bg: string; text: string; badge: strin
   proveedor: { bg: 'bg-amber-100', text: 'text-amber-700', badge: 'bg-amber-100 text-amber-700' },
   colaborador: { bg: 'bg-purple-100', text: 'text-purple-700', badge: 'bg-purple-100 text-purple-700' },
   empleado: { bg: 'bg-emerald-100', text: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-700' },
+  tarjeta_credito: { bg: 'bg-rose-100', text: 'text-rose-700', badge: 'bg-rose-100 text-rose-700' },
 };
 
 /** Calcula el saldo dominante (el de mayor magnitud absoluta) y su moneda. */
