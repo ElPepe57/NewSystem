@@ -47,6 +47,7 @@ import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
 import type { CuentaCorriente } from '../../types/cuentaCorriente.types';
 import { EntidadCCDrawer } from '../Finanzas/components/EntidadCCDrawer';
 import { EntidadCCDetailModal } from '../Finanzas/components/EntidadCCDetailModal';
+import { PagoAbonoWizard } from '../Finanzas/components/PagoAbonoWizard';
 
 interface TabMovimientosProps {
   movimientosFiltrados: MovimientoTesoreria[];
@@ -126,6 +127,27 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
     error: string | null;
   } | null>(null);
   const [ccModalAbierto, setCCModalAbierto] = useState<CuentaCorriente | null>(null);
+
+  // Wizard de pago/cobro distribuido (S58b F3)
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardEntidad, setWizardEntidad] = useState<{
+    entidadId: string;
+    entidadTipo: CuentaCorriente['tipo'];
+    entidadNombre: string;
+    saldoUSD: number;
+    saldoPEN: number;
+  } | null>(null);
+
+  const abrirWizardConCC = (cc: CuentaCorriente) => {
+    setWizardEntidad({
+      entidadId: cc.entidadId,
+      entidadTipo: cc.tipo,
+      entidadNombre: cc.entidadNombre,
+      saldoUSD: cc.saldoUSD,
+      saldoPEN: cc.saldoPEN,
+    });
+    setWizardOpen(true);
+  };
 
   // Lookup desde un movimiento de tesorería → CC vinculada (si existe)
   const abrirCCDesdeMovimiento = async (movId: string) => {
@@ -1060,6 +1082,10 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
                 setCCDrawer(null);
                 setCCModalAbierto(cc);
               }}
+              onAccionPrincipal={(cc) => {
+                setCCDrawer(null);
+                abrirWizardConCC(cc);
+              }}
             />
           ) : null}
         </>
@@ -1070,8 +1096,20 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
         <EntidadCCDetailModal
           cc={ccModalAbierto}
           onClose={() => setCCModalAbierto(null)}
+          onAccionPrincipal={() => {
+            const cc = ccModalAbierto;
+            setCCModalAbierto(null);
+            abrirWizardConCC(cc);
+          }}
         />
       )}
+
+      {/* Wizard de pago/cobro distribuido — S58b F3 */}
+      <PagoAbonoWizard
+        isOpen={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        entidadPreseleccionada={wizardEntidad ?? undefined}
+      />
     </>
   );
 };

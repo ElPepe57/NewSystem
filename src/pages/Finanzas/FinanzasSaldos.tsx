@@ -39,6 +39,7 @@ import type {
 } from '../../types/cuentaCorriente.types';
 import { EntidadCCCard } from './components/EntidadCCCard';
 import { EntidadCCDetailModal } from './components/EntidadCCDetailModal';
+import { PagoAbonoWizard } from './components/PagoAbonoWizard';
 import {
   PipelineFinanzas,
   type FiltroEstado,
@@ -102,6 +103,36 @@ const FinanzasSaldos: React.FC = () => {
   const [orden, setOrden] = useState<'mayor_saldo' | 'ultima_act' | 'nombre'>('mayor_saldo');
 
   const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
+
+  // ── Wizard de pago/cobro distribuido ──
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardEntidad, setWizardEntidad] = useState<{
+    entidadId: string;
+    entidadTipo: TipoEntidadCC;
+    entidadNombre: string;
+    saldoUSD: number;
+    saldoPEN: number;
+  } | null>(null);
+
+  const abrirWizardConCC = (cc: CuentaCorriente) => {
+    setWizardEntidad({
+      entidadId: cc.entidadId,
+      entidadTipo: cc.tipo,
+      entidadNombre: cc.entidadNombre,
+      saldoUSD: cc.saldoUSD,
+      saldoPEN: cc.saldoPEN,
+    });
+    setWizardOpen(true);
+  };
+
+  const recargarCCs = async () => {
+    const [r, list] = await Promise.all([
+      cuentaCorrienteService.getResumen(),
+      cuentaCorrienteService.getAll(),
+    ]);
+    setResumen(r);
+    setCCs(list);
+  };
 
   // Sincronizar si cambian los params (ej: usuario navega Overview → Saldos otra vez)
   useEffect(() => {
@@ -357,9 +388,7 @@ const FinanzasSaldos: React.FC = () => {
               key={cc.id}
               cc={cc}
               onView={() => setCCSeleccionada(cc)}
-              onAccionPrincipal={() => {
-                setCCSeleccionada(cc);
-              }}
+              onAccionPrincipal={() => abrirWizardConCC(cc)}
             />
           ))}
         </div>
@@ -370,10 +399,22 @@ const FinanzasSaldos: React.FC = () => {
           cc={ccSeleccionada}
           onClose={() => setCCSeleccionada(null)}
           onAccionPrincipal={() => {
-            console.log('Acción CC principal:', ccSeleccionada.id);
+            const cc = ccSeleccionada;
+            setCCSeleccionada(null);
+            abrirWizardConCC(cc);
           }}
         />
       )}
+
+      {/* ─── Wizard pago/cobro distribuido ──────────────────────────── */}
+      <PagoAbonoWizard
+        isOpen={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        entidadPreseleccionada={wizardEntidad ?? undefined}
+        onSuccess={() => {
+          void recargarCCs();
+        }}
+      />
     </>
   );
 };

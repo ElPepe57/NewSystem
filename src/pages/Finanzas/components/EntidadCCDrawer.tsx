@@ -34,6 +34,7 @@ import {
   Receipt,
   ExternalLink,
   ArrowRightLeft,
+  Wallet,
 } from 'lucide-react';
 import { cn } from '../../../design-system';
 import { cuentaCorrienteService } from '../../../services/cuentaCorriente.service';
@@ -60,6 +61,8 @@ type EntidadCCDrawerProps = {
   onClose: () => void;
   /** Click en "Ver detalle completo" — el padre abre el modal grande. */
   onVerCompleto?: (cc: CuentaCorriente) => void;
+  /** Click en "Pagar al proveedor" / "Cobrar a cliente" — abre el wizard. */
+  onAccionPrincipal?: (cc: CuentaCorriente) => void;
 } & (
   | { cc: CuentaCorriente; entidadId?: never; tipo?: never }
   | { cc?: never; entidadId: string; tipo: TipoEntidadCC }
@@ -144,7 +147,7 @@ function fmtMontoMov(m: MovimientoCC): { texto: string; clase: string; signo: st
 // ─── Componente ─────────────────────────────────────────────────────────
 
 export const EntidadCCDrawer: React.FC<EntidadCCDrawerProps> = (props) => {
-  const { onClose, onVerCompleto } = props;
+  const { onClose, onVerCompleto, onAccionPrincipal } = props;
   const [cc, setCC] = useState<CuentaCorriente | null>(props.cc ?? null);
   const [movs, setMovs] = useState<MovimientoCC[]>([]);
   const [loading, setLoading] = useState(true);
@@ -428,27 +431,53 @@ export const EntidadCCDrawer: React.FC<EntidadCCDrawerProps> = (props) => {
         </div>
 
         {/* Footer */}
-        {cc && !loading && !error && (
-          <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex flex-col gap-2 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => onVerCompleto?.(cc)}
-              className="text-[11px] px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-medium flex items-center justify-center gap-1.5 transition"
-            >
-              <ExternalLink className="w-3 h-3" />
-              Ver detalle completo
-              <ArrowRight className="w-3 h-3" />
-            </button>
-            <Link
-              to={`/finanzas/cash-flow?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
-              onClick={onClose}
-              className="text-[11px] px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md font-medium flex items-center justify-center gap-1.5 transition"
-            >
-              <ArrowRightLeft className="w-3 h-3" />
-              Ver movimientos en Cash flow
-            </Link>
-          </div>
-        )}
+        {cc && !loading && !error && (() => {
+          const tieneSaldoEnContra =
+            cc.saldoPEN < -0.01 || cc.saldoUSD < -0.01;
+          const tieneSaldoAFavor =
+            cc.saldoPEN > 0.01 || cc.saldoUSD > 0.01;
+          const accionLabel = tieneSaldoEnContra
+            ? `Pagar a ${cc.tipo === 'cliente' ? 'cliente' : cc.tipo}`
+            : tieneSaldoAFavor && cc.tipo === 'cliente'
+              ? 'Cobrar a cliente'
+              : null;
+          return (
+            <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex flex-col gap-2 flex-shrink-0">
+              {accionLabel && onAccionPrincipal && (
+                <button
+                  type="button"
+                  onClick={() => onAccionPrincipal(cc)}
+                  className="text-[11px] px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-md font-semibold flex items-center justify-center gap-1.5 transition"
+                >
+                  <Wallet className="w-3 h-3" />
+                  {accionLabel}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => onVerCompleto?.(cc)}
+                className={cn(
+                  'text-[11px] px-3 py-2 rounded-md font-medium flex items-center justify-center gap-1.5 transition',
+                  accionLabel && onAccionPrincipal
+                    ? 'bg-white border border-slate-300 hover:bg-slate-50 text-slate-700'
+                    : 'bg-teal-600 hover:bg-teal-700 text-white',
+                )}
+              >
+                <ExternalLink className="w-3 h-3" />
+                Ver detalle completo
+                <ArrowRight className="w-3 h-3" />
+              </button>
+              <Link
+                to={`/finanzas/cash-flow?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
+                onClick={onClose}
+                className="text-[11px] px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md font-medium flex items-center justify-center gap-1.5 transition"
+              >
+                <ArrowRightLeft className="w-3 h-3" />
+                Ver movimientos en Cash flow
+              </Link>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

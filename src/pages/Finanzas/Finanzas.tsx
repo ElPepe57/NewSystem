@@ -48,6 +48,7 @@ import { TendenciaChart } from './Overview/TendenciaChart';
 import { TopEntidades } from './Overview/TopEntidades';
 import { AlertasFinanzas } from './Overview/AlertasFinanzas';
 import { EntidadCCDetailModal } from './components/EntidadCCDetailModal';
+import { PagoAbonoWizard } from './components/PagoAbonoWizard';
 
 const Finanzas: React.FC = () => {
   const navigate = useNavigate();
@@ -62,6 +63,31 @@ const Finanzas: React.FC = () => {
 
   // ── Modal de detalle ──
   const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
+
+  // ── Wizard de pago/cobro distribuido ──
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardEntidad, setWizardEntidad] = useState<{
+    entidadId: string;
+    entidadTipo: CuentaCorriente['tipo'];
+    entidadNombre: string;
+    saldoUSD: number;
+    saldoPEN: number;
+  } | null>(null);
+
+  const abrirWizard = React.useCallback((cc?: CuentaCorriente) => {
+    setWizardEntidad(
+      cc
+        ? {
+            entidadId: cc.entidadId,
+            entidadTipo: cc.tipo,
+            entidadNombre: cc.entidadNombre,
+            saldoUSD: cc.saldoUSD,
+            saldoPEN: cc.saldoPEN,
+          }
+        : null,
+    );
+    setWizardOpen(true);
+  }, []);
 
   // ── Fetch ──
   const cargar = React.useCallback(async () => {
@@ -187,11 +213,11 @@ const Finanzas: React.FC = () => {
             <ArrowRightLeft className="w-4 h-4 mr-1.5" />
             Transferencia interna
           </Button>
-          <Button variant="success-soft" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_cobrar')}>
+          <Button variant="success-soft" size="sm" onClick={() => abrirWizard()}>
             <CircleDollarSign className="w-4 h-4 mr-1.5" />
             Registrar cobro
           </Button>
-          <Button variant="danger-soft" size="sm" onClick={() => navigate('/finanzas/saldos?estado=por_pagar')}>
+          <Button variant="danger-soft" size="sm" onClick={() => abrirWizard()}>
             <Banknote className="w-4 h-4 mr-1.5" />
             Registrar pago
           </Button>
@@ -290,8 +316,24 @@ const Finanzas: React.FC = () => {
         <EntidadCCDetailModal
           cc={ccSeleccionada}
           onClose={() => setCCSeleccionada(null)}
+          onAccionPrincipal={() => {
+            const cc = ccSeleccionada;
+            setCCSeleccionada(null);
+            abrirWizard(cc);
+          }}
         />
       )}
+
+      {/* ─── Wizard pago/cobro distribuido ──────────────────────────── */}
+      <PagoAbonoWizard
+        isOpen={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        entidadPreseleccionada={wizardEntidad ?? undefined}
+        onSuccess={() => {
+          // Refrescar datos tras pago exitoso
+          void cargar();
+        }}
+      />
     </>
   );
 };
