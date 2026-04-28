@@ -16,8 +16,7 @@ import { TextField } from '../../../design-system/components/forms/TextField';
 import { MoneyField } from '../../../design-system/components/forms/MoneyField';
 import { ToggleGroup } from '../../../design-system/components/forms/ToggleGroup';
 import { Combobox } from '../../../design-system/components/forms/Combobox';
-import { cuentaCorrienteService } from '../../../services/cuentaCorriente.service';
-import type { CuentaCorriente, TipoEntidadCC } from '../../../types/cuentaCorriente.types';
+import { useEntidadesPorTipo } from '../../../hooks/useEntidadesPorTipo';
 import type {
   TarjetaCredito,
   TarjetaCreditoFormData,
@@ -126,9 +125,12 @@ export const TarjetaFormModal: React.FC<TarjetaFormModalProps> = ({
   const [state, setState] = useState<FormState>(INITIAL_STATE);
   const [loading, setLoading] = useState(false);
 
-  // Cargar entidades CC del tipo seleccionado para el combobox
-  const [entidadesCC, setEntidadesCC] = useState<CuentaCorriente[]>([]);
-  const [entidadesLoading, setEntidadesLoading] = useState(false);
+  // S58c v2.1 fix — usar stores reales (no CC) para listar TODAS las entidades
+  // del tipo, incluyendo las que aún no tienen movimientos previos.
+  const tipoActivo =
+    state.titularidad === 'personal' ? state.titularEntidadTipo : undefined;
+  const { activas: entidadesActivas, loading: entidadesLoading } =
+    useEntidadesPorTipo(tipoActivo);
 
   // ── Hidratación al abrir ──
   useEffect(() => {
@@ -156,30 +158,6 @@ export const TarjetaFormModal: React.FC<TarjetaFormModalProps> = ({
       setState(INITIAL_STATE);
     }
   }, [isOpen, tarjetaEditar]);
-
-  // ── Cargar entidades CC cuando cambia tipo titular ──
-  useEffect(() => {
-    if (state.titularidad !== 'personal' || !state.titularEntidadTipo) {
-      setEntidadesCC([]);
-      return;
-    }
-    let cancelled = false;
-    setEntidadesLoading(true);
-    cuentaCorrienteService
-      .getAll({ tipo: state.titularEntidadTipo as TipoEntidadCC })
-      .then((list) => {
-        if (!cancelled) setEntidadesCC(list);
-      })
-      .catch(() => {
-        if (!cancelled) setEntidadesCC([]);
-      })
-      .finally(() => {
-        if (!cancelled) setEntidadesLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [state.titularidad, state.titularEntidadTipo]);
 
   // ── Auto-generar nombre interno cuando cambia banco/marca/últimos4 ──
   useEffect(() => {
@@ -219,12 +197,12 @@ export const TarjetaFormModal: React.FC<TarjetaFormModalProps> = ({
 
   // ── Handlers ──
   const handleSeleccionarEntidad = (entidadId: string) => {
-    const cc = entidadesCC.find((e) => e.entidadId === entidadId);
-    if (!cc) return;
+    const e = entidadesActivas.find((x) => x.id === entidadId);
+    if (!e) return;
     setState((s) => ({
       ...s,
-      titularEntidadId: cc.entidadId,
-      titularNombre: cc.entidadNombre,
+      titularEntidadId: e.id,
+      titularNombre: e.nombre,
     }));
   };
 
@@ -405,17 +383,18 @@ export const TarjetaFormModal: React.FC<TarjetaFormModalProps> = ({
                 onChange={handleSeleccionarEntidad}
                 groups={[
                   {
-                    label: `${entidadesCC.length} ${state.titularEntidadTipo}${entidadesCC.length === 1 ? '' : 's'}`,
-                    options: entidadesCC.map((cc) => ({
-                      value: cc.entidadId,
-                      label: cc.entidadNombre,
+                    label: `${entidadesActivas.length} ${state.titularEntidadTipo}${entidadesActivas.length === 1 ? '' : 's'} activos`,
+                    options: entidadesActivas.map((e) => ({
+                      value: e.id,
+                      label: e.nombre,
+                      subLabel: e.subLabel,
                     })),
                   },
                 ]}
                 placeholder={
                   entidadesLoading
                     ? 'Cargando...'
-                    : entidadesCC.length === 0
+                    : entidadesActivas.length === 0
                       ? `No hay ${state.titularEntidadTipo}s registrados`
                       : `Seleccionar ${state.titularEntidadTipo}...`
                 }

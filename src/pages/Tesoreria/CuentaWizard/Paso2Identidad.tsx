@@ -14,9 +14,8 @@ import { Building, User, Truck, IdCard, Users as UsersIcon } from 'lucide-react'
 import { TextField } from '../../../design-system/components/forms/TextField';
 import { Combobox } from '../../../design-system/components/forms/Combobox';
 import { ToggleGroup } from '../../../design-system/components/forms/ToggleGroup';
-import { cuentaCorrienteService } from '../../../services/cuentaCorriente.service';
 import { tesoreriaService } from '../../../services/tesoreria.service';
-import type { CuentaCorriente } from '../../../types/cuentaCorriente.types';
+import { useEntidadesPorTipo } from '../../../hooks/useEntidadesPorTipo';
 import type { CuentaCaja } from '../../../types/tesoreria.types';
 import { cn } from '../../../design-system/utils';
 import type { CuentaWizardState } from './types';
@@ -54,33 +53,14 @@ const TIPO_ENTIDAD_OPTIONS = [
 ] as const;
 
 export const Paso2Identidad: React.FC<Paso2Props> = ({ state, setState }) => {
-  const [entidadesCC, setEntidadesCC] = useState<CuentaCorriente[]>([]);
-  const [loadingEntidades, setLoadingEntidades] = useState(false);
-  const [cuentasAhorros, setCuentasAhorros] = useState<CuentaCaja[]>([]);
+  // S58c v2.1 fix — usar stores reales de cada entidad (no CC) para que
+  // clientes/empleados/etc. nuevos sin movimientos previos también aparezcan.
+  const tipoActivo =
+    state.titularidad === 'personal' ? state.titularEntidadTipo : undefined;
+  const { activas: entidadesActivas, loading: loadingEntidades } =
+    useEntidadesPorTipo(tipoActivo);
 
-  // ── Cargar CCs por tipo seleccionado ──
-  useEffect(() => {
-    if (state.titularidad !== 'personal' || !state.titularEntidadTipo) {
-      setEntidadesCC([]);
-      return;
-    }
-    let cancelled = false;
-    setLoadingEntidades(true);
-    cuentaCorrienteService
-      .getAll({ tipo: state.titularEntidadTipo })
-      .then((list) => {
-        if (!cancelled) setEntidadesCC(list);
-      })
-      .catch(() => {
-        if (!cancelled) setEntidadesCC([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingEntidades(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [state.titularidad, state.titularEntidadTipo]);
+  const [cuentasAhorros, setCuentasAhorros] = useState<CuentaCaja[]>([]);
 
   // ── Cargar cuentas de ahorros para tarjeta_debito ──
   useEffect(() => {
@@ -102,29 +82,26 @@ export const Paso2Identidad: React.FC<Paso2Props> = ({ state, setState }) => {
   }, [state.tipo, state.productoFinanciero]);
 
   const entidadGroups = useMemo(() => {
-    if (entidadesCC.length === 0) return [];
+    if (entidadesActivas.length === 0) return [];
     return [
       {
-        label: `${entidadesCC.length} ${state.titularEntidadTipo}${entidadesCC.length === 1 ? '' : 's'}`,
-        options: entidadesCC.map((cc) => ({
-          value: cc.entidadId,
-          label: cc.entidadNombre,
-          subLabel:
-            cc.cantidadMovimientos > 0
-              ? `${cc.cantidadMovimientos} movimiento${cc.cantidadMovimientos !== 1 ? 's' : ''}`
-              : 'Sin movimientos previos',
+        label: `${entidadesActivas.length} ${state.titularEntidadTipo}${entidadesActivas.length === 1 ? '' : 's'} activos`,
+        options: entidadesActivas.map((e) => ({
+          value: e.id,
+          label: e.nombre,
+          subLabel: e.subLabel,
         })),
       },
     ];
-  }, [entidadesCC, state.titularEntidadTipo]);
+  }, [entidadesActivas, state.titularEntidadTipo]);
 
   const handleSeleccionarEntidad = (entidadId: string) => {
-    const cc = entidadesCC.find((e) => e.entidadId === entidadId);
-    if (!cc) return;
+    const e = entidadesActivas.find((x) => x.id === entidadId);
+    if (!e) return;
     setState((s) => ({
       ...s,
-      titularEntidadId: cc.entidadId,
-      titularNombre: cc.entidadNombre,
+      titularEntidadId: e.id,
+      titularNombre: e.nombre,
     }));
   };
 
@@ -412,7 +389,7 @@ export const Paso2Identidad: React.FC<Paso2Props> = ({ state, setState }) => {
                 placeholder={
                   loadingEntidades
                     ? 'Cargando...'
-                    : entidadesCC.length === 0
+                    : entidadesActivas.length === 0
                       ? `No hay ${state.titularEntidadTipo}s registrados`
                       : `Seleccionar ${state.titularEntidadTipo}...`
                 }

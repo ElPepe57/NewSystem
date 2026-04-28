@@ -15,8 +15,7 @@ import type { CuentaCaja, MetodoTesoreria } from '../../types/tesoreria.types';
 import type { Venta } from '../../types/venta.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { Combobox } from '../../design-system/components/forms';
-import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
-import type { CuentaCorriente, TipoEntidadCC } from '../../types/cuentaCorriente.types';
+import { useEntidadesPorTipo } from '../../hooks/useEntidadesPorTipo';
 
 interface GastoFormProps {
   onClose: () => void;
@@ -326,35 +325,17 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   };
 
   // ── S58b F5 — Combobox de entidades para vincular proveedor estructurado ──
-  const [entidadesCC, setEntidadesCC] = useState<CuentaCorriente[]>([]);
-  const [entidadesLoading, setEntidadesLoading] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    setEntidadesLoading(true);
-    cuentaCorrienteService
-      .getAll()
-      .then((list) => {
-        if (cancelled) return;
-        // Solo proveedores/colaboradores/empleados (no clientes)
-        const filtradas = list.filter(
-          (cc) =>
-            cc.tipo === 'proveedor' ||
-            cc.tipo === 'colaborador' ||
-            cc.tipo === 'empleado',
-        );
-        setEntidadesCC(filtradas);
-      })
-      .catch(() => {
-        if (!cancelled) setEntidadesCC([]);
-      })
-      .finally(() => {
-        if (!cancelled) setEntidadesLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // S58c v2.1 fix · usa stores reales (no CC) para listar TODAS las entidades.
+  // Combina proveedores + colaboradores + empleados (los gastos no van a clientes).
+  const proveedoresEnt = useEntidadesPorTipo('proveedor');
+  const colaboradoresEnt = useEntidadesPorTipo('colaborador');
+  const empleadosEnt = useEntidadesPorTipo('empleado');
+  const entidadesLoading =
+    proveedoresEnt.loading || colaboradoresEnt.loading || empleadosEnt.loading;
+  const totalEntidades =
+    proveedoresEnt.activas.length +
+    colaboradoresEnt.activas.length +
+    empleadosEnt.activas.length;
 
   const proveedorComboboxValue = formData.proveedorId
     ? `${formData.proveedorTipo}_${formData.proveedorId}`
@@ -374,19 +355,26 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     // Parsear "tipo_entidadId"
     const idx = compositeKey.indexOf('_');
     if (idx < 0) return;
-    const tipo = compositeKey.slice(0, idx) as TipoEntidadCC;
+    const tipo = compositeKey.slice(0, idx) as
+      | 'proveedor'
+      | 'colaborador'
+      | 'empleado';
     const entidadId = compositeKey.slice(idx + 1);
-    const cc = entidadesCC.find(
-      (e) => e.entidadId === entidadId && e.tipo === tipo,
-    );
-    if (!cc) return;
+    const fuente =
+      tipo === 'proveedor'
+        ? proveedoresEnt.activas
+        : tipo === 'colaborador'
+          ? colaboradoresEnt.activas
+          : empleadosEnt.activas;
+    const e = fuente.find((x) => x.id === entidadId);
+    if (!e) return;
     setFormData((prev) => ({
       ...prev,
-      proveedorId: cc.entidadId,
-      proveedorTipo: cc.tipo as 'proveedor' | 'colaborador' | 'empleado',
-      proveedorNombre: cc.entidadNombre,
+      proveedorId: e.id,
+      proveedorTipo: tipo,
+      proveedorNombre: e.nombre,
       // Auto-llenar el texto libre con el nombre de la entidad
-      proveedor: prev.proveedor || cc.entidadNombre,
+      proveedor: prev.proveedor || e.nombre,
     }));
   };
 
@@ -900,29 +888,56 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 value={proveedorComboboxValue}
                 onChange={handleSeleccionarEntidad}
                 groups={[
-                  {
-                    label: `${entidadesCC.length} ${entidadesCC.length === 1 ? 'entidad' : 'entidades'} disponibles`,
-                    options: entidadesCC.map((cc) => ({
-                      value: `${cc.tipo}_${cc.entidadId}`,
-                      label: cc.entidadNombre,
-                      subLabel:
-                        cc.tipo === 'proveedor'
-                          ? 'Proveedor'
-                          : cc.tipo === 'colaborador'
-                            ? 'Colaborador'
-                            : 'Empleado',
-                    })),
-                  },
+                  ...(proveedoresEnt.activas.length > 0
+                    ? [
+                        {
+                          label: `Proveedores · ${proveedoresEnt.activas.length}`,
+                          options: proveedoresEnt.activas.map((e) => ({
+                            value: `proveedor_${e.id}`,
+                            label: e.nombre,
+                            subLabel: e.subLabel,
+                          })),
+                        },
+                      ]
+                    : []),
+                  ...(colaboradoresEnt.activas.length > 0
+                    ? [
+                        {
+                          label: `Colaboradores · ${colaboradoresEnt.activas.length}`,
+                          options: colaboradoresEnt.activas.map((e) => ({
+                            value: `colaborador_${e.id}`,
+                            label: e.nombre,
+                            subLabel: e.subLabel,
+                          })),
+                        },
+                      ]
+                    : []),
+                  ...(empleadosEnt.activas.length > 0
+                    ? [
+                        {
+                          label: `Empleados · ${empleadosEnt.activas.length}`,
+                          options: empleadosEnt.activas.map((e) => ({
+                            value: `empleado_${e.id}`,
+                            label: e.nombre,
+                            subLabel: e.subLabel,
+                          })),
+                        },
+                      ]
+                    : []),
                 ]}
                 placeholder={
-                  entidadesLoading ? 'Cargando...' : 'Sin vínculo (legacy)'
+                  entidadesLoading
+                    ? 'Cargando...'
+                    : totalEntidades === 0
+                      ? 'No hay entidades activas registradas'
+                      : 'Sin vínculo (legacy)'
                 }
                 hint={
                   formData.proveedorId
                     ? '✓ Pagos de este gasto crearán movimientos en CC del proveedor'
                     : 'Sin vínculo: el gasto no afectará el saldo CC del proveedor (modo legacy)'
                 }
-                emptyMessage="No hay entidades en CC"
+                emptyMessage="No hay entidades activas"
               />
 
               {formData.proveedorId && (
