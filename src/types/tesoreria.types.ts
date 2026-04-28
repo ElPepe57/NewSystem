@@ -268,16 +268,53 @@ export interface CuentaCaja {
   cci?: string;
   numerosCuenta?: NumeroCuentaBancaria[];  // Para cuentas con múltiples números (legacy)
 
-  // Producto financiero
-  productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente' | 'tarjeta_debito' | 'tarjeta_credito' | 'caja' | 'billetera_digital';
+  // Producto financiero (S58c v2: agregados productos digitales independientes)
+  // - banco       → cuenta_ahorros, cuenta_corriente
+  // - digital     → mercadopago, paypal, zelle, wise, binance (independientes con saldo)
+  // - efectivo    → caja
+  // - credito     → tarjeta_debito (vinculada a ahorros)
+  // Productos legacy:
+  // - billetera_digital (genérico) → reemplazado por productos específicos
+  // - tarjeta_credito → migrado a TarjetaCredito (entidad propia, S58d)
+  productoFinanciero?:
+    | 'cuenta_ahorros'
+    | 'cuenta_corriente'
+    | 'tarjeta_debito'
+    | 'caja'
+    | 'mercadopago'
+    | 'paypal'
+    | 'zelle'
+    | 'wise'
+    | 'binance'
+    | 'tarjeta_credito'    // @deprecated migrado a TarjetaCredito
+    | 'billetera_digital'; // @deprecated reemplazado por productos específicos
+
   titularidad?: 'empresa' | 'personal';  // Si es cuenta del negocio o personal usada para el negocio
+
+  // S58c v2 — Vinculación estructurada del titular cuando titularidad='personal'.
+  // Permite agrupar cuentas por persona/entidad en /finanzas/cash-flow y soporta
+  // cajas chicas de viajeros y agentes recaudadores (proveedores con caja).
+  titularEntidadId?: string;
+  titularEntidadTipo?: 'empleado' | 'colaborador' | 'proveedor' | 'cliente';
+  titularNombre?: string;        // Desnormalizado para display rápido (espejo de `titular`)
+
   cuentaVinculadaId?: string;    // Para tarjeta débito: la cuenta de ahorros de donde sale el dinero
 
   // Métodos de pago disponibles en esta cuenta
   metodosDisponibles?: string[];  // ej: ['transferencia', 'yape'] para BCP PEN
 
-  // Detalle de canales digitales vinculados (Yape, Plin, etc.)
-  // Clave = nombre del método, valor = info del canal
+  // S58c v2 — Canales digitales asociados a una cuenta bancaria.
+  // Yape, Plin, SIP, Ágora, BIM son canales del banco titular, NO cuentas
+  // separadas. El dinero entra/sale de la cuenta bancaria (`saldoActual` o
+  // `saldoPEN`). Solo aplica para tipo='banco'.
+  canalesDigitales?: Array<{
+    tipo: 'yape' | 'plin' | 'sip' | 'agora' | 'bim';
+    identificador: string;        // teléfono o alias
+  }>;
+
+  // Detalle de canales digitales vinculados (Yape, Plin, etc.) — LEGACY
+  // @deprecated Usar `canalesDigitales` (shape estructurado).
+  // Mantenido por retrocompat hasta migración de datos completa.
   metodosDetalle?: Record<string, {
     identificador?: string;        // Ej: teléfono para Yape/Plin
     cuentaVinculadaId?: string;    // ID de la CuentaCaja donde entra el dinero
@@ -415,11 +452,37 @@ export interface CuentaCajaFormData {
   cci?: string;
   numerosCuenta?: NumeroCuentaBancaria[];  // Legacy
 
-  // Producto financiero
-  productoFinanciero?: 'cuenta_ahorros' | 'cuenta_corriente' | 'tarjeta_debito' | 'tarjeta_credito' | 'caja' | 'billetera_digital';
+  // Producto financiero (S58c v2)
+  productoFinanciero?:
+    | 'cuenta_ahorros'
+    | 'cuenta_corriente'
+    | 'tarjeta_debito'
+    | 'caja'
+    | 'mercadopago'
+    | 'paypal'
+    | 'zelle'
+    | 'wise'
+    | 'binance'
+    | 'tarjeta_credito'    // @deprecated
+    | 'billetera_digital'; // @deprecated
+
   titularidad?: 'empresa' | 'personal';
+
+  // S58c v2 — Vinculación estructurada del titular
+  titularEntidadId?: string;
+  titularEntidadTipo?: 'empleado' | 'colaborador' | 'proveedor' | 'cliente';
+  titularNombre?: string;
+
   cuentaVinculadaId?: string;    // Para tarjeta débito → cuenta de ahorros
   metodosDisponibles?: string[];  // Métodos de pago que acepta esta cuenta
+
+  // S58c v2 — Canales digitales estructurados
+  canalesDigitales?: Array<{
+    tipo: 'yape' | 'plin' | 'sip' | 'agora' | 'bim';
+    identificador: string;
+  }>;
+
+  // @deprecated Usar canalesDigitales
   metodosDetalle?: Record<string, { identificador?: string; cuentaVinculadaId?: string }>;
 
   // Línea de crédito (solo tarjeta_credito)

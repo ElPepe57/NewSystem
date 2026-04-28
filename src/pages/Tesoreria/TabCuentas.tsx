@@ -25,6 +25,7 @@ import { CuentaBancoForm } from './CuentaBancoForm';
 import { EditarMetodosBancoModal } from './EditarMetodosBancoModal';
 import { DigitalForm } from './DigitalForm';
 import { EfectivoForm } from './EfectivoForm';
+import { CuentaWizard } from './CuentaWizard';
 import type {
   MovimientoTesoreria,
   CuentaCaja,
@@ -72,6 +73,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   const [showDigital, setShowDigital] = useState(false);
   const [showEfectivo, setShowEfectivo] = useState(false);
   const [showCuentaBanco, setShowCuentaBanco] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [bancoParaCuenta, setBancoParaCuenta] = useState('');
   const [cuentaEditando, setCuentaEditando] = useState<CuentaCaja | null>(null);
   const [showMetodos, setShowMetodos] = useState(false);
@@ -272,16 +274,28 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           <h3 className="text-base sm:text-lg font-semibold text-slate-900">
             Cuentas de Caja ({cuentas.length})
           </h3>
-          <Button variant="outline" onClick={handleReconciliarPagos}
-            disabled={isSubmitting} title="Reconciliar pagos huérfanos">
-            <ShieldCheck className={`h-4 w-4 mr-1`} />
-            <span className="hidden sm:inline">Reconciliar</span>
-          </Button>
-          <Button variant="outline" onClick={handleRecalcularSaldos}
-            disabled={isSubmitting || cuentas.length === 0} title="Recalcular saldos">
-            <RefreshCw className={`h-4 w-4 mr-1 ${isSubmitting ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Recalcular</span>
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="primary-soft"
+              size="sm"
+              onClick={() => setShowWizard(true)}
+              disabled={isSubmitting}
+              title="Crear cuenta paso a paso"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Nueva cuenta
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleReconciliarPagos}
+              disabled={isSubmitting} title="Reconciliar pagos huérfanos">
+              <ShieldCheck className={`h-4 w-4 mr-1`} />
+              <span className="hidden sm:inline">Reconciliar</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleRecalcularSaldos}
+              disabled={isSubmitting || cuentas.length === 0} title="Recalcular saldos">
+              <RefreshCw className={`h-4 w-4 mr-1 ${isSubmitting ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Recalcular</span>
+            </Button>
+          </div>
         </div>
 
         <div className="p-4 sm:p-6 space-y-4">
@@ -672,6 +686,16 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
       <EfectivoForm isOpen={showEfectivo} onClose={() => setShowEfectivo(false)}
         onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowEfectivo(false); }} isSubmitting={isSubmitting}
         titularesExistentes={titularesExistentes} />
+
+      {/* S58c v2 — Wizard de creación de cuenta (4 pasos banking-grade) */}
+      <CuentaWizard
+        isOpen={showWizard}
+        onClose={() => setShowWizard(false)}
+        onGuardar={async (data) => {
+          await handleGuardarCuentaNueva(data);
+        }}
+        isSubmitting={isSubmitting}
+      />
     </>
   );
 };
