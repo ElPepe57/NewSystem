@@ -300,7 +300,7 @@ export const Paso1Entidad: React.FC<Paso1Props> = ({ state, setState }) => {
             <div className="mt-3 pt-3 border-t border-teal-200/60 text-[11px] text-amber-700 bg-amber-50 -mx-4 -mb-4 px-4 py-2.5 rounded-b-lg">
               Esta entidad no tiene documentos pendientes de pago en esta versión.
               <span className="block text-[10px] text-amber-600 mt-0.5">
-                (V1 solo soporta órdenes de compra · envíos y gastos en próximas fases)
+                (Soporta órdenes de compra y envíos · gastos en próximas fases)
               </span>
             </div>
           )}
