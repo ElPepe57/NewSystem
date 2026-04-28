@@ -38,6 +38,9 @@ export type {
   FormModalV2SubmitVariant,
   FormModalV2AutoSaveStatus,
 } from './components/FormModalV2';
+// S58 Fase 2 — Inputs avanzados banking-grade
+// (TextField · MoneyField · DateField · ToggleGroup · Combobox · ValidationSummary)
+export * from './components/forms';
 
 // ─── S41 Rework — Infra reutilizable (Bloque 0) ──────────────────────────
 // Wizards multi-paso (Nueva OC, Nuevo Envío)

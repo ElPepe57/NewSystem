@@ -22,7 +22,16 @@ import {
   Check,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
-import { FormModalV2, DataTable } from '../../design-system';
+import {
+  FormModalV2,
+  DataTable,
+  TextField,
+  MoneyField,
+  DateField,
+  ToggleGroup,
+  Combobox,
+} from '../../design-system';
+import type { ComboboxGroup } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import type {
   MovimientoTesoreria,
@@ -695,52 +704,48 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Tipo de movimiento</label>
-                <select
-                  value={movimientoForm.tipo}
-                  onChange={(e) => setMovimientoForm({ ...movimientoForm, tipo: e.target.value as TipoMovimientoTesoreria })}
-                  className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                >
-                  <optgroup label="Ingresos">
-                    <option value="ingreso_venta">Ingreso por Venta</option>
-                    <option value="ingreso_anticipo">Anticipo / Adelanto</option>
-                    <option value="ingreso_otro">Otro Ingreso</option>
-                    <option value="aporte_capital">Aporte de Capital (Socio)</option>
-                    <option value="ajuste_positivo">Ajuste Positivo</option>
-                  </optgroup>
-                  <optgroup label="Egresos">
-                    <option value="pago_orden_compra">Pago Orden de Compra</option>
-                    <option value="pago_viajero">Pago a Viajero</option>
-                    <option value="pago_proveedor_local">Pago Proveedor Local</option>
-                    <option value="gasto_operativo">Gasto Operativo</option>
-                    <option value="retiro_socio">Retiro Socio</option>
-                    <option value="ajuste_negativo">Ajuste Negativo</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Fecha</label>
-                <input
-                  type="date"
-                  value={(() => {
-                    if (!movimientoForm.fecha) return new Date().toISOString().split('T')[0];
-                    if (movimientoForm.fecha instanceof Date && !isNaN(movimientoForm.fecha.getTime())) {
-                      return movimientoForm.fecha.toISOString().split('T')[0];
-                    }
-                    return new Date().toISOString().split('T')[0];
-                  })()}
-                  onChange={(e) => {
-                    if (!e.target.value) return;
-                    const [year, month, day] = e.target.value.split('-').map(Number);
-                    const nuevaFecha = new Date(year, month - 1, day, new Date().getHours(), new Date().getMinutes());
-                    if (!isNaN(nuevaFecha.getTime())) {
-                      setMovimientoForm({ ...movimientoForm, fecha: nuevaFecha });
-                    }
-                  }}
-                  className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                />
-              </div>
+              <Combobox<TipoMovimientoTesoreria>
+                label="Tipo de movimiento"
+                value={movimientoForm.tipo}
+                onChange={(v) => setMovimientoForm({ ...movimientoForm, tipo: v })}
+                groups={[
+                  {
+                    label: 'Ingresos',
+                    options: [
+                      { value: 'ingreso_venta', label: 'Ingreso por venta' },
+                      { value: 'ingreso_anticipo', label: 'Anticipo / Adelanto' },
+                      { value: 'ingreso_otro', label: 'Otro ingreso' },
+                      { value: 'aporte_capital', label: 'Aporte de capital (Socio)' },
+                      { value: 'ajuste_positivo', label: 'Ajuste positivo' },
+                    ],
+                  },
+                  {
+                    label: 'Egresos',
+                    options: [
+                      { value: 'pago_orden_compra', label: 'Pago orden de compra' },
+                      { value: 'pago_viajero', label: 'Pago a viajero' },
+                      { value: 'pago_proveedor_local', label: 'Pago proveedor local' },
+                      { value: 'gasto_operativo', label: 'Gasto operativo' },
+                      { value: 'retiro_socio', label: 'Retiro socio' },
+                      { value: 'ajuste_negativo', label: 'Ajuste negativo' },
+                    ],
+                  },
+                ]}
+              />
+              <DateField
+                label="Fecha"
+                value={
+                  movimientoForm.fecha instanceof Date && !isNaN(movimientoForm.fecha.getTime())
+                    ? movimientoForm.fecha
+                    : new Date()
+                }
+                onChange={(d) =>
+                  setMovimientoForm({
+                    ...movimientoForm,
+                    fecha: d ?? new Date(),
+                  })
+                }
+              />
             </div>
           </div>
 
@@ -751,58 +756,53 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Monto</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Moneda</label>
-                <select
-                  value={movimientoForm.moneda}
-                  onChange={(e) => setMovimientoForm({ ...movimientoForm, moneda: e.target.value as MonedaTesoreria })}
-                  className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                >
-                  <option value="PEN">PEN · Soles</option>
-                  <option value="USD">USD · Dólares</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">
-                    {movimientoForm.moneda === 'USD' ? 'US$' : 'S/'}
+              <ToggleGroup<MonedaTesoreria>
+                label="Moneda"
+                value={movimientoForm.moneda ?? 'PEN'}
+                onChange={(v) => setMovimientoForm({ ...movimientoForm, moneda: v })}
+                options={[
+                  { value: 'PEN', label: 'PEN' },
+                  { value: 'USD', label: 'USD' },
+                ]}
+              />
+              <MoneyField
+                label="Monto"
+                value={movimientoForm.monto}
+                onChange={(v) => setMovimientoForm({ ...movimientoForm, monto: v ?? 0 })}
+                moneda={movimientoForm.moneda ?? 'PEN'}
+                equivalente={
+                  movimientoForm.monto && movimientoForm.tipoCambio
+                    ? {
+                        valor:
+                          movimientoForm.moneda === 'USD'
+                            ? movimientoForm.monto * movimientoForm.tipoCambio
+                            : movimientoForm.monto / movimientoForm.tipoCambio,
+                        moneda: movimientoForm.moneda === 'USD' ? 'PEN' : 'USD',
+                        tcUsado: movimientoForm.tipoCambio,
+                      }
+                    : undefined
+                }
+              />
+              <TextField
+                label="Tipo de cambio"
+                value={movimientoForm.tipoCambio?.toString() ?? ''}
+                onChange={(v) => {
+                  const num = parseFloat(v);
+                  setMovimientoForm({
+                    ...movimientoForm,
+                    tipoCambio: isNaN(num) ? undefined : num,
+                  });
+                }}
+                placeholder="3.703"
+                rightHint={
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">
+                    Día
                   </span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={movimientoForm.monto || ''}
-                    onChange={(e) => setMovimientoForm({ ...movimientoForm, monto: parseFloat(e.target.value) })}
-                    className={`w-full h-10 ${movimientoForm.moneda === 'USD' ? 'pl-12' : 'pl-10'} pr-3 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 tabular-nums font-medium text-right`}
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Tipo de cambio</label>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">Día</span>
-                </div>
-                <input
-                  type="number"
-                  step="0.001"
-                  value={movimientoForm.tipoCambio || ''}
-                  onChange={(e) => setMovimientoForm({ ...movimientoForm, tipoCambio: parseFloat(e.target.value) })}
-                  className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 tabular-nums"
-                  placeholder="3.703"
-                />
-              </div>
+                }
+                hint="Auto-llenado desde tipoCambio.service del día"
+                className="[&_input]:tabular-nums"
+              />
             </div>
-            {movimientoForm.monto && movimientoForm.tipoCambio ? (
-              <div className="mt-2 text-[11px] text-slate-500 text-right">
-                ≈ <span className="font-medium text-slate-700 tabular-nums">
-                  {movimientoForm.moneda === 'USD'
-                    ? `S/ ${(movimientoForm.monto * movimientoForm.tipoCambio).toFixed(2)}`
-                    : `US$ ${(movimientoForm.monto / movimientoForm.tipoCambio).toFixed(2)}`
-                  }
-                </span>
-              </div>
-            ) : null}
           </div>
 
           {/* Bloque 3: Cuenta y método */}
@@ -812,59 +812,79 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Cuenta y método</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">
-                  {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Cuenta destino' : 'Cuenta origen'}
-                </label>
-                <select
-                  value={(esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? movimientoForm.cuentaDestino : movimientoForm.cuentaOrigen) || ''}
-                  onChange={(e) => {
-                    const value = e.target.value || undefined;
-                    if (esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria)) {
-                      setMovimientoForm({ ...movimientoForm, cuentaDestino: value });
-                    } else {
-                      setMovimientoForm({ ...movimientoForm, cuentaOrigen: value });
-                    }
-                  }}
-                  className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                >
-                  <option value="">Seleccionar cuenta...</option>
-                  {cuentas
-                    .filter(c => c.activa && (c.esBiMoneda || c.moneda === movimientoForm.moneda))
-                    .map(cuenta => {
+              {(() => {
+                const esIng = esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria);
+                const cuentaSelected = esIng
+                  ? movimientoForm.cuentaDestino
+                  : movimientoForm.cuentaOrigen;
+
+                const cuentasFiltradas = cuentas.filter(
+                  (c) => c.activa && (c.esBiMoneda || c.moneda === movimientoForm.moneda),
+                );
+
+                const cuentaGroups: ComboboxGroup<string>[] = [
+                  {
+                    options: cuentasFiltradas.map((cuenta) => {
                       const saldoActual = cuenta.esBiMoneda
-                        ? (movimientoForm.moneda === 'USD' ? cuenta.saldoUSD : cuenta.saldoPEN)
+                        ? movimientoForm.moneda === 'USD'
+                          ? cuenta.saldoUSD
+                          : cuenta.saldoPEN
                         : cuenta.saldoActual;
-                      return (
-                        <option key={cuenta.id} value={cuenta.id}>
-                          {cuenta.nombre} — {movimientoForm.moneda === 'USD' ? 'US$' : 'S/'}{(saldoActual ?? 0).toFixed(2)}
-                        </option>
-                      );
-                    })}
-                </select>
-                <div className="text-[10px] text-slate-500 mt-1">
-                  {esIngreso(movimientoForm.tipo as TipoMovimientoTesoreria) ? 'Donde entra el dinero' : 'De donde sale el dinero'}
-                </div>
-              </div>
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Método de pago</label>
-                <select
-                  value={movimientoForm.metodo || 'efectivo'}
-                  onChange={(e) => setMovimientoForm({ ...movimientoForm, metodo: e.target.value as any })}
-                  className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                >
-                  <option value="efectivo">Efectivo</option>
-                  <option value="transferencia_bancaria">Transferencia bancaria</option>
-                  <option value="yape">Yape</option>
-                  <option value="plin">Plin</option>
-                  <option value="mercado_pago">Mercado Pago</option>
-                  <option value="tarjeta">Tarjeta débito</option>
-                  <option value="tarjeta_credito">Tarjeta crédito</option>
-                  <option value="paypal">PayPal</option>
-                  <option value="zelle">Zelle</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </div>
+                      const sym = movimientoForm.moneda === 'USD' ? 'US$' : 'S/';
+                      return {
+                        value: cuenta.id,
+                        label: cuenta.nombre,
+                        subLabel: `Saldo ${sym} ${(saldoActual ?? 0).toFixed(2)}`,
+                      };
+                    }),
+                  },
+                ];
+
+                return (
+                  <Combobox<string>
+                    label={esIng ? 'Cuenta destino' : 'Cuenta origen'}
+                    value={cuentaSelected}
+                    onChange={(v) => {
+                      if (esIng) {
+                        setMovimientoForm({ ...movimientoForm, cuentaDestino: v });
+                      } else {
+                        setMovimientoForm({ ...movimientoForm, cuentaOrigen: v });
+                      }
+                    }}
+                    groups={cuentaGroups}
+                    placeholder="Seleccionar cuenta..."
+                    hint={esIng ? 'Donde entra el dinero' : 'De donde sale el dinero'}
+                    emptyMessage={`No hay cuentas activas en ${movimientoForm.moneda}`}
+                  />
+                );
+              })()}
+              <Combobox<string>
+                label="Método de pago"
+                value={movimientoForm.metodo || 'efectivo'}
+                onChange={(v) =>
+                  setMovimientoForm({
+                    ...movimientoForm,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    metodo: v as any,
+                  })
+                }
+                groups={[
+                  {
+                    options: [
+                      { value: 'efectivo', label: 'Efectivo' },
+                      { value: 'transferencia_bancaria', label: 'Transferencia bancaria' },
+                      { value: 'yape', label: 'Yape' },
+                      { value: 'plin', label: 'Plin' },
+                      { value: 'mercado_pago', label: 'Mercado Pago' },
+                      { value: 'tarjeta', label: 'Tarjeta débito' },
+                      { value: 'tarjeta_credito', label: 'Tarjeta crédito' },
+                      { value: 'paypal', label: 'PayPal' },
+                      { value: 'zelle', label: 'Zelle' },
+                      { value: 'otro', label: 'Otro' },
+                    ],
+                  },
+                ]}
+              />
             </div>
             {movimientoEditando && (
               <div className="mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2.5 py-1.5">
@@ -880,37 +900,27 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Detalle</span>
             </div>
             <div className="space-y-3">
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Concepto</label>
-                <input
-                  type="text"
-                  value={movimientoForm.concepto || ''}
-                  onChange={(e) => setMovimientoForm({ ...movimientoForm, concepto: e.target.value })}
-                  className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                  placeholder="Descripción del movimiento"
-                />
-              </div>
+              <TextField
+                label="Concepto"
+                value={movimientoForm.concepto || ''}
+                onChange={(v) => setMovimientoForm({ ...movimientoForm, concepto: v })}
+                placeholder="Descripción del movimiento"
+              />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Referencia <span className="text-[9px] normal-case text-slate-400">(opcional)</span></label>
-                  <input
-                    type="text"
-                    value={movimientoForm.referencia || ''}
-                    onChange={(e) => setMovimientoForm({ ...movimientoForm, referencia: e.target.value })}
-                    className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                    placeholder="N° operación, factura..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Notas <span className="text-[9px] normal-case text-slate-400">(opcional)</span></label>
-                  <input
-                    type="text"
-                    value={movimientoForm.notas || ''}
-                    onChange={(e) => setMovimientoForm({ ...movimientoForm, notas: e.target.value })}
-                    className="w-full h-10 px-3 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                    placeholder="Notas adicionales"
-                  />
-                </div>
+                <TextField
+                  label="Referencia"
+                  optional
+                  value={movimientoForm.referencia || ''}
+                  onChange={(v) => setMovimientoForm({ ...movimientoForm, referencia: v })}
+                  placeholder="N° operación, factura..."
+                />
+                <TextField
+                  label="Notas"
+                  optional
+                  value={movimientoForm.notas || ''}
+                  onChange={(v) => setMovimientoForm({ ...movimientoForm, notas: v })}
+                  placeholder="Notas adicionales"
+                />
               </div>
             </div>
           </div>
