@@ -8,11 +8,23 @@ import {
   Building2,
   Banknote,
   CreditCard,
-  AlertTriangle
+  AlertTriangle,
+  Shuffle,
+  Check,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
-import { FormModal, DataTable } from '../../design-system';
-import type { DataTableColumn } from '../../design-system';
+import {
+  FormModalV2,
+  DataTable,
+  TextField,
+  MoneyField,
+  ToggleGroup,
+  Combobox,
+} from '../../design-system';
+import type {
+  DataTableColumn,
+  ComboboxGroup,
+} from '../../design-system';
 import type {
   CuentaCaja,
   TransferenciaEntreCuentasFormData,
@@ -217,235 +229,197 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
         </div>
       </Card>
 
-      {/* Modal Transferencia entre Cuentas */}
-      <FormModal
-        isOpen={isTransferenciaModalOpen}
-        onClose={() => {
-          setIsTransferenciaModalOpen(false);
-          setTransferenciaForm({ moneda: 'PEN', fecha: new Date(), tipoCambio: tcDefault });
-        }}
-        title="Transferencia entre Cuentas"
-        size="lg"
-        variant="create"
-        submitLabel={isSubmitting ? 'Procesando...' : 'Realizar Transferencia'}
-        onSubmit={handleCrearTransferencia}
-        loading={isSubmitting}
-        disabled={
-          isSubmitting ||
-          !transferenciaForm.monto ||
-          !transferenciaForm.cuentaOrigenId ||
-          !transferenciaForm.cuentaDestinoId
-        }
-      >
-        <div className="space-y-4">
-          {/* Saldos de cuentas - resumen rapido */}
-          <div className="bg-slate-50 rounded-xl p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] uppercase tracking-wide font-medium text-slate-400">
-                Saldos en {moneda}
-              </span>
-              <div className="flex gap-1">
-                {(['PEN', 'USD'] as MonedaTesoreria[]).map(m => (
-                  <button
-                    key={m}
-                    onClick={() => setTransferenciaForm({
-                      ...transferenciaForm,
-                      moneda: m,
-                      cuentaOrigenId: undefined,
-                      cuentaDestinoId: undefined
-                    })}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
-                      moneda === m ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
-                    }`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {cuentasCompatibles.map(c => {
-                const saldo = getSaldo(c);
-                const isOrigen = c.id === transferenciaForm.cuentaOrigenId;
-                const isDestino = c.id === transferenciaForm.cuentaDestinoId;
-                return (
-                  <div
-                    key={c.id}
-                    className={`rounded-lg p-2 text-xs transition-all ${
-                      isOrigen ? 'bg-red-50 border border-red-200 ring-1 ring-red-200' :
-                      isDestino ? 'bg-emerald-50 border border-emerald-200 ring-1 ring-emerald-200' :
-                      'bg-white border border-slate-100'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1 text-slate-400 mb-0.5">
-                      {getTipoIcon(c.tipo, c.productoFinanciero)}
-                      <span className="truncate font-medium text-slate-600">
-                        {c.banco ? `${c.banco} · ` : ''}{c.nombre}
-                      </span>
-                    </div>
-                    {c.titular && <div className="text-[9px] text-slate-400 truncate -mt-0.5">{c.titular}</div>}
-                    <div className={`text-sm font-bold ${
-                      saldo < 0 ? 'text-red-600' : isOrigen ? 'text-red-700' : isDestino ? 'text-emerald-700' : 'text-slate-900'
-                    }`}>
-                      {simbolo} {saldo.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </div>
-                    {isOrigen && <span className="text-[9px] text-red-400 font-medium">ORIGEN</span>}
-                    {isDestino && <span className="text-[9px] text-emerald-500 font-medium">DESTINO</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      {/* Modal Transferencia entre Cuentas — S58 Fase 5 con FormModalV2 */}
+      {(() => {
+        // Construir grupos de Combobox de cuentas filtradas
+        const buildCuentaGroups = (excludeId?: string): ComboboxGroup<string>[] => [
+          {
+            options: cuentasCompatibles
+              .filter((c) => c.id !== excludeId)
+              .map((cuenta) => ({
+                value: cuenta.id,
+                label: getCuentaLabel(cuenta),
+                subLabel: `${cuenta.titular ? `${cuenta.titular} · ` : ''}Saldo ${simbolo} ${getSaldo(cuenta).toFixed(2)}`,
+              })),
+          },
+        ];
 
-          {/* Monto */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Monto a Transferir</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">{simbolo}</span>
-              <input
-                type="number"
-                step="0.01"
-                value={transferenciaForm.monto || ''}
-                onChange={(e) => setTransferenciaForm({ ...transferenciaForm, monto: parseFloat(e.target.value) })}
-                className="w-full pl-10 rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-lg font-semibold"
-                placeholder="0.00"
+        return (
+          <FormModalV2
+            isOpen={isTransferenciaModalOpen}
+            onClose={() => {
+              setIsTransferenciaModalOpen(false);
+              setTransferenciaForm({ moneda: 'PEN', fecha: new Date(), tipoCambio: tcDefault });
+            }}
+            title="Transferencia entre cuentas"
+            breadcrumb="Cash flow · Movimiento entre cuentas propias"
+            icon={Shuffle}
+            iconTone="sky"
+            size="lg"
+            loading={isSubmitting}
+            disabled={
+              isSubmitting ||
+              !transferenciaForm.monto ||
+              !transferenciaForm.cuentaOrigenId ||
+              !transferenciaForm.cuentaDestinoId ||
+              fondosInsuficientes
+            }
+            submitLabel="Realizar transferencia"
+            submitVariant="primary-soft"
+            submitIcon={Check}
+            onSubmit={handleCrearTransferencia}
+          >
+            <div className="space-y-6">
+              {/* Bloque 1: Moneda + monto */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">1</span>
+                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Moneda y monto</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <ToggleGroup<MonedaTesoreria>
+                    label="Moneda"
+                    value={moneda}
+                    onChange={(v) =>
+                      setTransferenciaForm({
+                        ...transferenciaForm,
+                        moneda: v,
+                        cuentaOrigenId: undefined,
+                        cuentaDestinoId: undefined,
+                      })
+                    }
+                    options={[
+                      { value: 'PEN', label: 'PEN' },
+                      { value: 'USD', label: 'USD' },
+                    ]}
+                    hint="Solo cuentas en esta moneda aparecerán abajo"
+                  />
+                  <MoneyField
+                    label="Monto a transferir"
+                    value={transferenciaForm.monto}
+                    onChange={(v) =>
+                      setTransferenciaForm({ ...transferenciaForm, monto: v ?? 0 })
+                    }
+                    moneda={moneda}
+                  />
+                </div>
+              </div>
+
+              {/* Bloque 2: Cuentas */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">2</span>
+                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Cuentas</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Combobox<string>
+                    label="Cuenta origen (sale)"
+                    value={transferenciaForm.cuentaOrigenId ?? ''}
+                    onChange={(v) =>
+                      setTransferenciaForm({
+                        ...transferenciaForm,
+                        cuentaOrigenId: v || undefined,
+                      })
+                    }
+                    groups={buildCuentaGroups(transferenciaForm.cuentaDestinoId)}
+                    placeholder="Seleccionar cuenta origen..."
+                    error={
+                      fondosInsuficientes
+                        ? `Fondos insuficientes. Disponible: ${simbolo} ${saldoOrigen.toFixed(2)}`
+                        : undefined
+                    }
+                    hint={
+                      cuentaOrigen && monto > 0 && !fondosInsuficientes
+                        ? `Saldo después: ${simbolo} ${saldoOrigenPost.toFixed(2)}`
+                        : undefined
+                    }
+                  />
+                  <Combobox<string>
+                    label="Cuenta destino (entra)"
+                    value={transferenciaForm.cuentaDestinoId ?? ''}
+                    onChange={(v) =>
+                      setTransferenciaForm({
+                        ...transferenciaForm,
+                        cuentaDestinoId: v || undefined,
+                      })
+                    }
+                    groups={buildCuentaGroups(transferenciaForm.cuentaOrigenId)}
+                    placeholder="Seleccionar cuenta destino..."
+                    hint={
+                      cuentaDestino && monto > 0
+                        ? `Saldo después: ${simbolo} ${saldoDestinoPost.toFixed(2)}`
+                        : undefined
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Warnings adicionales (mínimo) */}
+              {!fondosInsuficientes && origenBajoMinimo && (
+                <div className="bg-amber-50 border border-amber-200 rounded-md px-3 py-2 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-[12px] text-amber-800">
+                    <strong>Alerta de saldo mínimo.</strong> Esta transferencia dejará la cuenta origen por debajo de su saldo mínimo configurado.
+                  </div>
+                </div>
+              )}
+
+              {/* Bloque 3: Concepto */}
+              <TextField
+                label="Concepto / motivo"
+                optional
+                value={transferenciaForm.concepto || ''}
+                onChange={(v) =>
+                  setTransferenciaForm({ ...transferenciaForm, concepto: v })
+                }
+                placeholder="Ej: Reposición de caja chica, fondeo de cuenta..."
               />
-            </div>
-          </div>
 
-          {/* Cuenta Origen y Destino */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
-                Cuenta Origen (Sale)
-              </label>
-              <select
-                value={transferenciaForm.cuentaOrigenId || ''}
-                onChange={(e) => setTransferenciaForm({ ...transferenciaForm, cuentaOrigenId: e.target.value || undefined })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-              >
-                <option value="">Seleccionar cuenta...</option>
-                {cuentasCompatibles
-                  .filter(c => c.id !== transferenciaForm.cuentaDestinoId)
-                  .map(cuenta => (
-                    <option key={cuenta.id} value={cuenta.id}>
-                      {getCuentaLabel(cuenta)} — {simbolo} {getSaldo(cuenta).toFixed(2)}
-                    </option>
-                  ))}
-              </select>
-              {cuentaOrigen && (
-                <div className={`mt-1.5 rounded-lg p-2 text-xs ${fondosInsuficientes ? 'bg-red-50 border border-red-200' : 'bg-slate-50'}`}>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Saldo actual</span>
-                    <span className="font-semibold text-slate-700">{simbolo} {saldoOrigen.toFixed(2)}</span>
+              {/* Vista previa visual */}
+              {monto > 0 && cuentaOrigen && cuentaDestino && (
+                <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-200 rounded-xl p-4">
+                  <div className="text-[10px] uppercase tracking-wider text-sky-700 font-bold mb-3">
+                    Vista previa
                   </div>
-                  {monto > 0 && (
-                    <div className="flex justify-between mt-0.5">
-                      <span className="text-slate-500">Saldo despues</span>
-                      <span className={`font-bold ${saldoOrigenPost < 0 ? 'text-red-600' : 'text-slate-900'}`}>
-                        {simbolo} {saldoOrigenPost.toFixed(2)}
-                      </span>
+                  <div className="grid grid-cols-12 gap-3 items-center">
+                    <div className="col-span-5">
+                      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Sale de</div>
+                      <div className="text-base font-bold text-slate-800 truncate">{cuentaOrigen.nombre}</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        Saldo: {simbolo} {saldoOrigen.toFixed(2)} →{' '}
+                        <span className={saldoOrigenPost < 0 ? 'text-red-600 font-semibold' : 'text-slate-700 font-semibold'}>
+                          {simbolo} {saldoOrigenPost.toFixed(2)}
+                        </span>
+                      </div>
                     </div>
-                  )}
+                    <div className="col-span-2 flex justify-center">
+                      <div className="w-9 h-9 rounded-full bg-sky-100 border-2 border-sky-300 flex items-center justify-center">
+                        <ArrowLeftRight className="text-sky-700 w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="col-span-5 text-right">
+                      <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold mb-1">Entra a</div>
+                      <div className="text-base font-bold text-emerald-700 truncate">{cuentaDestino.nombre}</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        Saldo: {simbolo} {saldoDestino.toFixed(2)} →{' '}
+                        <span className="text-emerald-700 font-semibold">
+                          {simbolo} {saldoDestinoPost.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-sky-200/60 text-center">
+                    <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Monto</span>
+                    <div className="text-2xl font-bold text-slate-900 tabular-nums">
+                      {simbolo} {monto.toFixed(2)}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                <ArrowDownCircle className="inline h-4 w-4 mr-1 text-emerald-500" />
-                Cuenta Destino (Entra)
-              </label>
-              <select
-                value={transferenciaForm.cuentaDestinoId || ''}
-                onChange={(e) => setTransferenciaForm({ ...transferenciaForm, cuentaDestinoId: e.target.value || undefined })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-              >
-                <option value="">Seleccionar cuenta...</option>
-                {cuentasCompatibles
-                  .filter(c => c.id !== transferenciaForm.cuentaOrigenId)
-                  .map(cuenta => (
-                    <option key={cuenta.id} value={cuenta.id}>
-                      {getCuentaLabel(cuenta)} — {simbolo} {getSaldo(cuenta).toFixed(2)}
-                    </option>
-                  ))}
-              </select>
-              {cuentaDestino && (
-                <div className="mt-1.5 rounded-lg p-2 text-xs bg-slate-50">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Saldo actual</span>
-                    <span className="font-semibold text-slate-700">{simbolo} {saldoDestino.toFixed(2)}</span>
-                  </div>
-                  {monto > 0 && (
-                    <div className="flex justify-between mt-0.5">
-                      <span className="text-slate-500">Saldo despues</span>
-                      <span className="font-bold text-emerald-600">{simbolo} {saldoDestinoPost.toFixed(2)}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Warnings */}
-          {fondosInsuficientes && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-2.5 flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-red-700">
-                <strong>Fondos insuficientes.</strong> La cuenta origen solo tiene {simbolo} {saldoOrigen.toFixed(2)} disponibles.
-              </div>
-            </div>
-          )}
-          {!fondosInsuficientes && origenBajoMinimo && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-700">
-                <strong>Alerta:</strong> Esta transferencia dejara la cuenta origen por debajo de su saldo minimo configurado.
-              </div>
-            </div>
-          )}
-
-          {/* Concepto */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Concepto / Motivo (Opcional)</label>
-            <input
-              type="text"
-              value={transferenciaForm.concepto || ''}
-              onChange={(e) => setTransferenciaForm({ ...transferenciaForm, concepto: e.target.value })}
-              className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-              placeholder="Ej: Reposicion de caja chica, fondeo de cuenta..."
-            />
-          </div>
-
-          {/* Preview visual */}
-          {monto > 0 && cuentaOrigen && cuentaDestino && (
-            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
-              <div className="flex items-center justify-center gap-3 sm:gap-6">
-                <div className="text-center flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">Sale de</p>
-                  <p className="text-xs font-semibold text-slate-900 truncate">{cuentaOrigen.nombre}</p>
-                  <p className="text-sm text-slate-400 line-through">{simbolo} {saldoOrigen.toFixed(2)}</p>
-                  <p className="text-base font-bold text-red-600">{simbolo} {saldoOrigenPost.toFixed(2)}</p>
-                </div>
-                <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
-                    <ArrowLeftRight className="h-4 w-4 text-purple-500" />
-                  </div>
-                  <span className="text-xs font-bold text-purple-600">{simbolo} {monto.toFixed(2)}</span>
-                </div>
-                <div className="text-center flex-1 min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-400 mb-0.5">Entra a</p>
-                  <p className="text-xs font-semibold text-slate-900 truncate">{cuentaDestino.nombre}</p>
-                  <p className="text-sm text-slate-400 line-through">{simbolo} {saldoDestino.toFixed(2)}</p>
-                  <p className="text-base font-bold text-emerald-600">{simbolo} {saldoDestinoPost.toFixed(2)}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </div>
-      </FormModal>
+          </FormModalV2>
+        );
+      })()}
     </>
   );
 };

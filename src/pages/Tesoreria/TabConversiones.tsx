@@ -5,11 +5,22 @@ import {
   ArrowDownCircle,
   Plus,
   RefreshCw,
-  Wallet
+  Rotate3d,
+  Check,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
-import { FormModal, DataTable } from '../../design-system';
-import type { DataTableColumn as Column } from '../../design-system';
+import {
+  FormModalV2,
+  DataTable,
+  TextField,
+  MoneyField,
+  ToggleGroup,
+  Combobox,
+} from '../../design-system';
+import type {
+  DataTableColumn as Column,
+  ComboboxGroup,
+} from '../../design-system';
 import type {
   ConversionCambiaria,
   CuentaCaja,
@@ -167,241 +178,283 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
         </div>
       </Card>
 
-      {/* Modal Nueva Conversion */}
-      <FormModal
-        isOpen={isConversionModalOpen}
-        onClose={() => setIsConversionModalOpen(false)}
-        title="Nueva Conversion de Moneda"
-        size="lg"
-        variant="create"
-        submitLabel={isSubmitting ? 'Guardando...' : 'Guardar'}
-        onSubmit={handleCrearConversion}
-        loading={isSubmitting}
-        disabled={!conversionForm.montoOrigen || !conversionForm.tipoCambio || (() => {
-          if (!conversionForm.cuentaOrigenId || !conversionForm.montoOrigen) return false;
-          const ctaOrigen = cuentas.find(c => c.id === conversionForm.cuentaOrigenId);
-          if (!ctaOrigen) return false;
-          const saldo = ctaOrigen.esBiMoneda
-            ? (conversionForm.monedaOrigen === 'USD' ? (ctaOrigen.saldoUSD || 0) : (ctaOrigen.saldoPEN || 0))
-            : (ctaOrigen.saldoActual || 0);
-          return saldo < (conversionForm.montoOrigen ?? 0);
-        })()}
-      >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Moneda Origen</label>
-              <select
-                value={conversionForm.monedaOrigen}
-                onChange={(e) =>
-                  setConversionForm({
-                    ...conversionForm,
-                    monedaOrigen: e.target.value as MonedaTesoreria,
-                    cuentaOrigenId: undefined,
-                    cuentaDestinoId: undefined
-                  })
-                }
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-              >
-                <option value="USD">USD (Dolares)</option>
-                <option value="PEN">PEN (Soles)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Monto Origen</label>
-              <input
-                type="number"
-                step="0.01"
-                value={conversionForm.montoOrigen || ''}
-                onChange={(e) => setConversionForm({ ...conversionForm, montoOrigen: parseFloat(e.target.value) })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
+      {/* Modal Nueva Conversion — S58 Fase 5 con FormModalV2 */}
+      {(() => {
+        const monedaOrigen = conversionForm.monedaOrigen ?? 'USD';
+        const monedaDestino: MonedaTesoreria = monedaOrigen === 'USD' ? 'PEN' : 'USD';
+        const ctaOrigen = cuentas.find((c) => c.id === conversionForm.cuentaOrigenId);
+        const saldoOrigen = ctaOrigen
+          ? ctaOrigen.esBiMoneda
+            ? monedaOrigen === 'USD'
+              ? ctaOrigen.saldoUSD || 0
+              : ctaOrigen.saldoPEN || 0
+            : ctaOrigen.saldoActual || 0
+          : null;
+        const saldoInsuficiente =
+          ctaOrigen != null &&
+          conversionForm.montoOrigen != null &&
+          saldoOrigen != null &&
+          saldoOrigen < conversionForm.montoOrigen;
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Cambio</label>
-              <input
-                type="number"
-                step="0.001"
-                value={conversionForm.tipoCambio || ''}
-                onChange={(e) => setConversionForm({ ...conversionForm, tipoCambio: parseFloat(e.target.value) })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                placeholder="3.700"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Entidad de Cambio</label>
-              <input
-                type="text"
-                value={conversionForm.entidadCambio || ''}
-                onChange={(e) => setConversionForm({ ...conversionForm, entidadCambio: e.target.value })}
-                className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                placeholder="Casa de cambio, banco, etc."
-              />
-            </div>
-          </div>
+        // Cuentas filtradas por moneda
+        const cuentasFiltradasOrigen = cuentas.filter(
+          (c) => c.activa && (c.esBiMoneda || c.moneda === monedaOrigen),
+        );
+        const cuentasFiltradasDestino = cuentas.filter(
+          (c) => c.activa && (c.esBiMoneda || c.moneda === monedaDestino),
+        );
 
-          {/* Seccion de Cuentas */}
-          <div className="border-t border-slate-200 pt-4 mt-4">
-            <h4 className="text-sm font-medium text-slate-900 mb-3 flex items-center">
-              <Wallet className="h-4 w-4 mr-2 text-teal-600" />
-              Vincular con Cuentas (Opcional)
-            </h4>
-            <p className="text-xs text-slate-500 mb-3">
-              Selecciona las cuentas para registrar automaticamente los movimientos de tesoreria
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        const buildCuentaGroups = (
+          lista: CuentaCaja[],
+          moneda: MonedaTesoreria,
+        ): ComboboxGroup<string>[] => {
+          const sym = moneda === 'USD' ? 'US$' : 'S/';
+          return [
+            {
+              options: [
+                { value: '', label: 'Sin cuenta · solo registro', subLabel: 'No afecta saldos' },
+                ...lista.map((cuenta) => {
+                  const saldoActual = cuenta.esBiMoneda
+                    ? moneda === 'USD'
+                      ? cuenta.saldoUSD || 0
+                      : cuenta.saldoPEN || 0
+                    : cuenta.saldoActual || 0;
+                  const labelParts = [cuenta.banco, cuenta.nombre].filter(Boolean) as string[];
+                  return {
+                    value: cuenta.id,
+                    label: labelParts.join(' · ') || cuenta.nombre,
+                    subLabel: `${cuenta.titular ? `${cuenta.titular} · ` : ''}Saldo ${sym} ${saldoActual.toFixed(2)}`,
+                  };
+                }),
+              ],
+            },
+          ];
+        };
+
+        return (
+          <FormModalV2
+            isOpen={isConversionModalOpen}
+            onClose={() => setIsConversionModalOpen(false)}
+            title="Nueva conversión"
+            breadcrumb="Cash flow · Conversión cambiaria"
+            icon={Rotate3d}
+            iconTone="purple"
+            size="lg"
+            loading={isSubmitting}
+            disabled={
+              isSubmitting ||
+              !conversionForm.montoOrigen ||
+              !conversionForm.tipoCambio ||
+              !!saldoInsuficiente
+            }
+            submitLabel="Ejecutar conversión"
+            submitVariant="primary-soft"
+            submitIcon={Check}
+            onSubmit={handleCrearConversion}
+          >
+            <div className="space-y-6">
+              {/* Bloque 1: Direccion de la conversion */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  <ArrowUpCircle className="inline h-4 w-4 mr-1 text-red-500" />
-                  Cuenta Origen ({conversionForm.monedaOrigen || 'USD'})
-                </label>
-                <select
-                  value={conversionForm.cuentaOrigenId || ''}
-                  onChange={(e) => setConversionForm({ ...conversionForm, cuentaOrigenId: e.target.value || undefined })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                >
-                  <option value="">Sin cuenta (solo registro)</option>
-                  {cuentas
-                    .filter(c => c.activa && (c.esBiMoneda || c.moneda === conversionForm.monedaOrigen))
-                    .map(cuenta => {
-                      const saldoActual = cuenta.esBiMoneda
-                        ? (conversionForm.monedaOrigen === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
-                        : (cuenta.saldoActual || 0);
-                      const sim = conversionForm.monedaOrigen === 'USD' ? '$' : 'S/';
-                      const label = [cuenta.banco, cuenta.nombre, cuenta.titular ? `(${cuenta.titular})` : ''].filter(Boolean).join(' · ');
-                      return (
-                        <option key={cuenta.id} value={cuenta.id}>
-                          {label} — {sim}{saldoActual.toFixed(2)}
-                        </option>
-                      );
-                    })}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  <ArrowDownCircle className="inline h-4 w-4 mr-1 text-emerald-500" />
-                  Cuenta Destino ({conversionForm.monedaOrigen === 'USD' ? 'PEN' : 'USD'})
-                </label>
-                <select
-                  value={conversionForm.cuentaDestinoId || ''}
-                  onChange={(e) => setConversionForm({ ...conversionForm, cuentaDestinoId: e.target.value || undefined })}
-                  className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                >
-                  <option value="">Sin cuenta (solo registro)</option>
-                  {cuentas
-                    .filter(c => c.activa && (c.esBiMoneda || c.moneda === (conversionForm.monedaOrigen === 'USD' ? 'PEN' : 'USD')))
-                    .map(cuenta => {
-                      const monedaDestino = conversionForm.monedaOrigen === 'USD' ? 'PEN' : 'USD';
-                      const saldoActual = cuenta.esBiMoneda
-                        ? (monedaDestino === 'USD' ? (cuenta.saldoUSD || 0) : (cuenta.saldoPEN || 0))
-                        : (cuenta.saldoActual || 0);
-                      const sim = monedaDestino === 'USD' ? '$' : 'S/';
-                      const label = [cuenta.banco, cuenta.nombre, cuenta.titular ? `(${cuenta.titular})` : ''].filter(Boolean).join(' · ');
-                      return (
-                        <option key={cuenta.id} value={cuenta.id}>
-                          {label} — {sim}{saldoActual.toFixed(2)}
-                        </option>
-                      );
-                    })}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Preview de la conversion */}
-          {conversionForm.montoOrigen && conversionForm.tipoCambio && (
-            <div className="bg-sky-50 p-4 rounded-lg border border-sky-200">
-              <h4 className="text-sm font-medium text-slate-900 mb-2">Vista Previa de Conversion</h4>
-              <div className="flex items-center justify-center space-x-4">
-                <div className="text-center">
-                  <p className="text-xs text-slate-500">Sale</p>
-                  <p className="text-lg font-bold text-red-600">
-                    {conversionForm.monedaOrigen === 'USD' ? '$' : 'S/'}{conversionForm.montoOrigen.toFixed(2)}
-                  </p>
-                  {conversionForm.cuentaOrigenId && (
-                    <p className="text-xs text-slate-500">
-                      de {cuentas.find(c => c.id === conversionForm.cuentaOrigenId)?.nombre}
-                    </p>
-                  )}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">1</span>
+                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Dirección de la conversión</span>
                 </div>
-                <RefreshCw className="h-6 w-6 text-slate-400" />
-                <div className="text-center">
-                  <p className="text-xs text-slate-500">Entra</p>
-                  <p className="text-lg font-bold text-emerald-600">
-                    {conversionForm.monedaOrigen === 'USD'
-                      ? `S/${(conversionForm.montoOrigen * conversionForm.tipoCambio).toFixed(2)}`
-                      : `$${(conversionForm.montoOrigen / conversionForm.tipoCambio).toFixed(2)}`
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <ToggleGroup<MonedaTesoreria>
+                    label="Moneda origen"
+                    value={monedaOrigen}
+                    onChange={(v) =>
+                      setConversionForm({
+                        ...conversionForm,
+                        monedaOrigen: v,
+                        cuentaOrigenId: undefined,
+                        cuentaDestinoId: undefined,
+                      })
                     }
-                  </p>
-                  {conversionForm.cuentaDestinoId && (
-                    <p className="text-xs text-slate-500">
-                      a {cuentas.find(c => c.id === conversionForm.cuentaDestinoId)?.nombre}
-                    </p>
-                  )}
+                    options={[
+                      { value: 'USD', label: 'USD' },
+                      { value: 'PEN', label: 'PEN' },
+                    ]}
+                    hint={`Convertir ${monedaOrigen} → ${monedaDestino}`}
+                  />
+                  <MoneyField
+                    label="Monto a convertir"
+                    value={conversionForm.montoOrigen}
+                    onChange={(v) =>
+                      setConversionForm({ ...conversionForm, montoOrigen: v ?? 0 })
+                    }
+                    moneda={monedaOrigen}
+                    equivalente={
+                      conversionForm.montoOrigen && conversionForm.tipoCambio
+                        ? {
+                            valor:
+                              monedaOrigen === 'USD'
+                                ? conversionForm.montoOrigen * conversionForm.tipoCambio
+                                : conversionForm.montoOrigen / conversionForm.tipoCambio,
+                            moneda: monedaDestino,
+                            tcUsado: conversionForm.tipoCambio,
+                          }
+                        : undefined
+                    }
+                  />
                 </div>
               </div>
-              <p className="text-xs text-center text-slate-500 mt-2">
-                TC: {conversionForm.tipoCambio.toFixed(3)}
-              </p>
-              {(conversionForm.cuentaOrigenId || conversionForm.cuentaDestinoId) && (
-                <div className="mt-3 pt-3 border-t border-sky-200">
-                  <p className="text-xs font-medium text-slate-700 mb-1">Movimientos a generar:</p>
-                  <ul className="text-xs text-slate-600 space-y-1">
-                    {conversionForm.cuentaOrigenId && (
-                      <li className="flex items-center">
-                        <ArrowUpCircle className="h-3 w-3 text-red-500 mr-1" />
-                        Egreso: {conversionForm.monedaOrigen === 'USD' ? '$' : 'S/'}{conversionForm.montoOrigen.toFixed(2)} de {cuentas.find(c => c.id === conversionForm.cuentaOrigenId)?.nombre}
-                      </li>
+
+              {/* Bloque 2: TC + entidad de cambio */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">2</span>
+                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Tipo de cambio aplicado</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <TextField
+                    label="Tipo de cambio"
+                    value={conversionForm.tipoCambio?.toString() ?? ''}
+                    onChange={(v) => {
+                      const num = parseFloat(v);
+                      setConversionForm({
+                        ...conversionForm,
+                        tipoCambio: isNaN(num) ? undefined : num,
+                      });
+                    }}
+                    placeholder="3.700"
+                    rightHint={
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-medium">
+                        Día
+                      </span>
+                    }
+                    hint="Auto-llenado desde tipoCambio.service. Modificar solo si negociaste un TC distinto."
+                  />
+                  <TextField
+                    label="Casa de cambio"
+                    optional
+                    value={conversionForm.entidadCambio || ''}
+                    onChange={(v) =>
+                      setConversionForm({ ...conversionForm, entidadCambio: v })
+                    }
+                    placeholder="BCP, Western, casa de cambio..."
+                  />
+                </div>
+              </div>
+
+              {/* Bloque 3: Cuentas */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[10px] font-bold">3</span>
+                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Cuentas afectadas</span>
+                  <span className="text-[10px] text-slate-400 italic">opcional</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Combobox<string>
+                    label={`Cuenta origen (${monedaOrigen})`}
+                    value={conversionForm.cuentaOrigenId ?? ''}
+                    onChange={(v) =>
+                      setConversionForm({
+                        ...conversionForm,
+                        cuentaOrigenId: v || undefined,
+                      })
+                    }
+                    groups={buildCuentaGroups(cuentasFiltradasOrigen, monedaOrigen)}
+                    placeholder="Sin cuenta · solo registro"
+                    hint="De donde sale el dinero (egreso)"
+                    error={
+                      saldoInsuficiente && ctaOrigen
+                        ? `Saldo insuficiente. Disponible: ${monedaOrigen === 'USD' ? 'US$' : 'S/'} ${(saldoOrigen ?? 0).toFixed(2)}`
+                        : undefined
+                    }
+                  />
+                  <Combobox<string>
+                    label={`Cuenta destino (${monedaDestino})`}
+                    value={conversionForm.cuentaDestinoId ?? ''}
+                    onChange={(v) =>
+                      setConversionForm({
+                        ...conversionForm,
+                        cuentaDestinoId: v || undefined,
+                      })
+                    }
+                    groups={buildCuentaGroups(cuentasFiltradasDestino, monedaDestino)}
+                    placeholder="Sin cuenta · solo registro"
+                    hint="A donde llega el dinero (ingreso)"
+                  />
+                </div>
+              </div>
+
+              {/* Vista previa de la conversión */}
+              {conversionForm.montoOrigen && conversionForm.tipoCambio && (
+                <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-xl p-4">
+                  <div className="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-2">
+                    Vista previa
+                  </div>
+                  <div className="grid grid-cols-12 gap-3 items-center">
+                    <div className="col-span-5 text-center">
+                      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">
+                        Vendes
+                      </div>
+                      <div className="text-2xl font-bold text-red-700 num-tab tabular-nums">
+                        {monedaOrigen === 'USD' ? 'US$' : 'S/'}{' '}
+                        {conversionForm.montoOrigen.toFixed(2)}
+                      </div>
+                      {conversionForm.cuentaOrigenId && (
+                        <div className="text-[10px] text-slate-500 mt-0.5 truncate">
+                          desde{' '}
+                          {cuentas.find((c) => c.id === conversionForm.cuentaOrigenId)?.nombre}
+                        </div>
+                      )}
+                    </div>
+                    <div className="col-span-2 flex justify-center">
+                      <div className="w-9 h-9 rounded-full bg-purple-100 border-2 border-purple-300 flex items-center justify-center">
+                        <RefreshCw className="text-purple-700 w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="col-span-5 text-center">
+                      <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold mb-1">
+                        Recibes
+                      </div>
+                      <div className="text-2xl font-bold text-emerald-700 tabular-nums">
+                        {monedaDestino === 'USD' ? 'US$' : 'S/'}{' '}
+                        {(monedaOrigen === 'USD'
+                          ? conversionForm.montoOrigen * conversionForm.tipoCambio
+                          : conversionForm.montoOrigen / conversionForm.tipoCambio
+                        ).toFixed(2)}
+                      </div>
+                      {conversionForm.cuentaDestinoId && (
+                        <div className="text-[10px] text-slate-500 mt-0.5 truncate">
+                          en{' '}
+                          {cuentas.find((c) => c.id === conversionForm.cuentaDestinoId)?.nombre}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-purple-200/60 flex items-center justify-between text-[11px]">
+                    <span className="text-slate-600">
+                      TC aplicado:{' '}
+                      <span className="font-semibold tabular-nums">
+                        {conversionForm.tipoCambio.toFixed(3)}
+                      </span>
+                    </span>
+                    {(conversionForm.cuentaOrigenId || conversionForm.cuentaDestinoId) && (
+                      <span className="text-purple-700 font-medium">
+                        Generará movimientos en cuentas seleccionadas
+                      </span>
                     )}
-                    {conversionForm.cuentaDestinoId && (
-                      <li className="flex items-center">
-                        <ArrowDownCircle className="h-3 w-3 text-emerald-500 mr-1" />
-                        Ingreso: {conversionForm.monedaOrigen === 'USD'
-                          ? `S/${(conversionForm.montoOrigen * conversionForm.tipoCambio).toFixed(2)}`
-                          : `$${(conversionForm.montoOrigen / conversionForm.tipoCambio).toFixed(2)}`
-                        } a {cuentas.find(c => c.id === conversionForm.cuentaDestinoId)?.nombre}
-                      </li>
-                    )}
-                  </ul>
+                  </div>
                 </div>
               )}
+
+              {/* Bloque 4: Motivo */}
+              <TextField
+                label="Motivo"
+                optional
+                value={conversionForm.motivo || ''}
+                onChange={(v) =>
+                  setConversionForm({ ...conversionForm, motivo: v })
+                }
+                placeholder="Ej: Pagar planilla en soles"
+              />
             </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Motivo</label>
-            <input
-              type="text"
-              value={conversionForm.motivo || ''}
-              onChange={(e) => setConversionForm({ ...conversionForm, motivo: e.target.value })}
-              className="w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-              placeholder="Razon de la conversion"
-            />
-          </div>
-
-          {/* Validación de saldo insuficiente */}
-          {conversionForm.cuentaOrigenId && conversionForm.montoOrigen && (() => {
-            const ctaOrigen = cuentas.find(c => c.id === conversionForm.cuentaOrigenId);
-            if (!ctaOrigen) return null;
-            const saldo = ctaOrigen.esBiMoneda
-              ? (conversionForm.monedaOrigen === 'USD' ? (ctaOrigen.saldoUSD || 0) : (ctaOrigen.saldoPEN || 0))
-              : (ctaOrigen.saldoActual || 0);
-            if (saldo < conversionForm.montoOrigen) {
-              return (
-                <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
-                  Saldo insuficiente en {ctaOrigen.nombre}. Disponible: {conversionForm.monedaOrigen === 'USD' ? '$' : 'S/'}{saldo.toFixed(2)}
-                </div>
-              );
-            }
-            return null;
-          })()}
-
-        </div>
-      </FormModal>
+          </FormModalV2>
+        );
+      })()}
     </>
   );
 };
