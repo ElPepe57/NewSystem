@@ -149,6 +149,9 @@ export const GestionIncidenciasModal: React.FC<GestionIncidenciasModalProps> = (
   const [selectedPerdidas, setSelectedPerdidas] = useState<Record<string, boolean>>({});
   const [showReclamoPanel, setShowReclamoPanel] = useState(false);
   const [incidenciasParaReclamo, setIncidenciasParaReclamo] = useState<IncidenciaEnvio[]>([]);
+  // BUG-INC-002 fix (S54.x) — Responsable elegido en el modal de gestión.
+  // Se pasa al ReclamoPanel para precargar destinatario + nombre correctos.
+  const [responsableParaReclamo, setResponsableParaReclamo] = useState<ResponsableDano | undefined>(undefined);
 
   // ─── Estado tab ADUANA ──────────────────────────────────────────────────
 
@@ -222,8 +225,16 @@ export const GestionIncidenciasModal: React.FC<GestionIncidenciasModalProps> = (
       }
 
       if (incDevoluciones.length > 0) {
-        // Pre-seleccionar incidencias y abrir panel para crear reclamo
+        // Pre-seleccionar incidencias y abrir panel para crear reclamo.
+        // BUG-INC-002 fix (S54.x): tomamos el responsable de la primera
+        // incidencia (todas las en incDevoluciones tienen responsable
+        // distinto a 'sin_responsable' por filtro arriba). Si fueran mixtas
+        // (proveedor en una, viajero en otra) tomamos el más común; en la
+        // práctica se procesan en lotes con el mismo responsable.
+        const responsableMayoritario =
+          decisiones[incDevoluciones[0].id]?.responsable;
         setIncidenciasParaReclamo(incDevoluciones);
+        setResponsableParaReclamo(responsableMayoritario);
         setShowReclamoPanel(true);
       } else {
         onSuccess();
@@ -347,14 +358,19 @@ export const GestionIncidenciasModal: React.FC<GestionIncidenciasModalProps> = (
       <ReclamoPanel
         envio={transferencia}
         incidenciasSugeridas={incidenciasParaReclamo}
+        // BUG-INC-002 + INC-003 fix (S54.x): pasamos el responsable elegido
+        // para que el panel precargue destinatario + nombre correctos.
+        responsableSugerido={responsableParaReclamo}
         userId={user.uid}
         onClose={() => {
           setShowReclamoPanel(false);
           setIncidenciasParaReclamo([]);
+          setResponsableParaReclamo(undefined);
         }}
         onSuccess={() => {
           setShowReclamoPanel(false);
           setIncidenciasParaReclamo([]);
+          setResponsableParaReclamo(undefined);
           onSuccess();
         }}
       />

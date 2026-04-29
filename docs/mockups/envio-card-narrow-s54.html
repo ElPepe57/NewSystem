@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Envío Card · Narrow · Soluciones modernas · S54</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f1f5f9; }
+  .viewport-frame { max-width: 700px; margin: 0 auto; }
+  .viewport-narrow { max-width: 400px; margin: 0 auto; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .progress-ring { transform: rotate(-90deg); }
+</style>
+</head>
+<body class="p-6">
+
+<div class="max-w-4xl mx-auto mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">Envío Card · soluciones modernas para narrow viewports</h1>
+  <p class="text-sm text-slate-600 mt-1">
+    6 propuestas para resolver elegantemente el card cuando el ancho es <~640px (móvil, ventana pequeña, split screen).
+    El look actual en narrow muestra 2 filas funcionales pero se siente "fragmentado".
+  </p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     ESTADO ACTUAL (problema)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">🔎 Look actual en narrow — funcional pero no moderno</div>
+  <div class="viewport-narrow">
+    <div class="card p-4 space-y-3">
+      <!-- Fila 1 -->
+      <div class="flex items-start gap-3">
+        <div class="flex-shrink-0 text-center">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="font-mono font-bold text-xs mt-1">ENV-2026-001</div>
+          <div class="text-[9px] text-slate-400">hace 18 h</div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="inline-flex items-center gap-2 bg-sky-50 border border-sky-200 rounded-lg px-2.5 py-1.5 mb-2">
+            <span class="text-[10px] font-bold bg-sky-200 text-sky-900 px-1.5 py-0.5 rounded">A</span>
+            <span class="text-xs font-semibold text-sky-900">Proveedor-Casilla</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1 text-[11px]">
+            <span>🇨🇳 Asian Beauty Wholesale</span>
+            <span>—</span>
+            <span class="italic text-slate-500">✈️ Angie Price</span>
+            <span>—</span>
+            <span>🌐 Casa - Angie</span>
+          </div>
+        </div>
+      </div>
+      <!-- Fila 2 -->
+      <div class="flex items-center gap-3 pt-2 border-t border-slate-100">
+        <div class="flex -space-x-2">
+          <div class="w-9 h-9 rounded-full bg-amber-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-amber-700">A⁶</div>
+          <div class="w-9 h-9 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-emerald-700">O⁸</div>
+          <div class="w-9 h-9 rounded-full bg-rose-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-rose-700">D⁶</div>
+        </div>
+        <div class="flex-1 text-right">
+          <div class="text-xl font-bold tabular">20<span class="text-slate-400">/20</span></div>
+          <div class="text-[10px] text-slate-500">unidades · 100% recibido</div>
+        </div>
+        <button class="text-teal-600 p-1.5"><i class="fa-solid fa-eye"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="text-xs text-slate-500 italic mt-2 max-w-md mx-auto">
+    ⚠️ Problema: 2 bloques desconectados (arriba info, abajo métricas), sin jerarquía visual clara. Se siente "wrap tosco".
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V1 — Header hero + body elegante (Stripe style)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V1 ⭐</span>
+    <h2 class="text-base font-bold text-slate-900">Header hero + body · estilo Stripe/Shopify</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Header con sticker como protagonista visual + número y fecha a la derecha. Body agrupa ruta + avatares en una sola línea fluida. Footer progresivo con gran número y barra.
+  </p>
+  <div class="viewport-narrow">
+    <div class="card overflow-hidden">
+      <!-- Header teal con sticker + meta a la derecha -->
+      <div class="flex items-center justify-between gap-3 px-4 py-3 bg-sky-50 border-b border-sky-100">
+        <div class="inline-flex items-center gap-2">
+          <span class="text-[10px] font-bold bg-sky-200 text-sky-900 px-1.5 py-0.5 rounded">A</span>
+          <span class="text-sm font-bold text-sky-900">Proveedor-Casilla</span>
+        </div>
+        <div class="text-right">
+          <div class="font-mono font-bold text-xs text-slate-900">ENV-2026-001</div>
+          <div class="text-[9px] text-slate-500">hace 18h</div>
+        </div>
+      </div>
+      <!-- Body: ruta + productos en una línea visual -->
+      <div class="px-4 py-3 space-y-2.5">
+        <!-- Ruta visual -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <span class="text-base">🇨🇳</span>
+          <span class="font-medium truncate">Asian Beauty</span>
+          <i class="fa-solid fa-arrow-right text-slate-300 text-[10px]"></i>
+          <span class="italic text-slate-500 text-[11px] truncate">✈️ Angie Price</span>
+          <i class="fa-solid fa-arrow-right text-slate-300 text-[10px]"></i>
+          <span class="text-base">🌐</span>
+          <span class="font-medium truncate">Casa - Angie</span>
+        </div>
+        <!-- Productos inline -->
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] text-slate-500 uppercase font-semibold">Contenido</span>
+          <div class="flex -space-x-1.5">
+            <div class="w-7 h-7 rounded-full bg-amber-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-amber-700">A⁶</div>
+            <div class="w-7 h-7 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-emerald-700">O⁸</div>
+            <div class="w-7 h-7 rounded-full bg-rose-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-rose-700">D⁶</div>
+          </div>
+          <span class="text-[11px] text-slate-600 truncate">3 SKUs</span>
+        </div>
+      </div>
+      <!-- Footer: progreso grande -->
+      <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <div>
+          <div class="text-2xl font-bold tabular leading-none">20<span class="text-slate-400 text-lg">/20</span></div>
+          <div class="text-[10px] text-emerald-700 font-semibold mt-0.5">✓ 100% recibido</div>
+        </div>
+        <div class="flex-1 mx-3">
+          <div class="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" style="width:100%"></div>
+          </div>
+        </div>
+        <button class="p-2 rounded-lg text-teal-600 hover:bg-teal-50">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-3 max-w-md mx-auto">
+    <b class="text-emerald-700">✓</b> Jerarquía clara · header/body/footer · progreso prominente · muy moderno<br>
+    <b class="text-amber-700">✗</b> Altura un poco mayor (~180px vs ~130px)
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V2 — Progress ring protagonista (estilo Apple/banking)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V2</span>
+    <h2 class="text-base font-bold text-slate-900">Progress ring como protagonista · estilo Apple/banking</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Un ring circular con el progreso visual y el número en el centro. A la derecha, info del envío. Ultra-visual, muy moderno.
+  </p>
+  <div class="viewport-narrow">
+    <div class="card p-4">
+      <div class="flex items-center gap-4">
+        <!-- Progress ring con avatares dentro -->
+        <div class="relative flex-shrink-0 w-20 h-20">
+          <svg class="progress-ring w-20 h-20" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+            <circle cx="40" cy="40" r="36" fill="none" stroke="#10b981" stroke-width="4"
+                    stroke-dasharray="226" stroke-dashoffset="0" stroke-linecap="round"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-xl font-bold text-emerald-700 leading-none">20/20</div>
+            <div class="text-[8px] text-slate-500 mt-0.5">uds</div>
+          </div>
+        </div>
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <div class="inline-flex items-center gap-1.5">
+              <span class="text-[9px] font-bold bg-sky-200 text-sky-900 px-1 py-0.5 rounded">A</span>
+              <span class="text-xs font-semibold text-slate-800">Proveedor-Casilla</span>
+            </div>
+            <button class="text-slate-400 hover:text-teal-600"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+          </div>
+          <div class="font-mono font-bold text-sm text-slate-900">ENV-2026-001</div>
+          <div class="text-[10px] text-slate-500 mb-2">hace 18 h</div>
+          <!-- Ruta inline minimal -->
+          <div class="flex items-center gap-1 text-[11px] text-slate-700 truncate">
+            <span>🇨🇳</span>
+            <span class="truncate">Asian Beauty</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 text-[9px] mx-0.5"></i>
+            <span>🌐</span>
+            <span class="truncate">Casa - Angie</span>
+          </div>
+          <!-- Productos como chips sutiles -->
+          <div class="flex items-center gap-1.5 mt-2">
+            <div class="flex -space-x-1">
+              <div class="w-5 h-5 rounded-full bg-amber-100 border border-white flex items-center justify-center text-[8px] font-bold text-amber-700">A</div>
+              <div class="w-5 h-5 rounded-full bg-emerald-100 border border-white flex items-center justify-center text-[8px] font-bold text-emerald-700">O</div>
+              <div class="w-5 h-5 rounded-full bg-rose-100 border border-white flex items-center justify-center text-[8px] font-bold text-rose-700">D</div>
+            </div>
+            <span class="text-[10px] text-slate-500">· 3 SKUs · Angie Price</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-3 max-w-md mx-auto">
+    <b class="text-emerald-700">✓</b> Muy visual · progreso es el foco · compacto (~120px altura) · estilo app moderna<br>
+    <b class="text-amber-700">✗</b> Ring con 20/20 puede verse raro en otros estados (0/20, 5/20 parcial)
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V3 — Línea tipo feed (estilo Linear/Notion)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V3</span>
+    <h2 class="text-base font-bold text-slate-900">Feed line compacto · estilo Linear/GitHub</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Una línea principal con la info crítica + mini-row de metadata debajo. Densidad máxima, mínimo scroll, muy moderno.
+  </p>
+  <div class="viewport-narrow">
+    <div class="card p-3 hover:bg-slate-50 cursor-pointer">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+          <i class="fa-solid fa-check text-xs"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-baseline gap-2">
+            <span class="font-mono font-semibold text-sm">ENV-2026-001</span>
+            <span class="text-[10px] font-bold bg-sky-200 text-sky-900 px-1.5 py-0.5 rounded">A</span>
+            <span class="text-xs text-slate-600 truncate">Proveedor-Casilla</span>
+          </div>
+          <div class="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5 truncate">
+            <span>🇨🇳 Asian Beauty</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 text-[8px] mx-0.5"></i>
+            <span>🌐 Casa - Angie</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="flex -space-x-1">
+            <div class="w-5 h-5 rounded-full bg-amber-100 border border-white text-[8px] font-bold text-amber-700 flex items-center justify-center">A</div>
+            <div class="w-5 h-5 rounded-full bg-emerald-100 border border-white text-[8px] font-bold text-emerald-700 flex items-center justify-center">O</div>
+            <div class="w-5 h-5 rounded-full bg-rose-100 border border-white text-[8px] font-bold text-rose-700 flex items-center justify-center">D</div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm font-bold tabular leading-none">20/20</div>
+            <div class="w-12 h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
+              <div class="h-full bg-emerald-500" style="width:100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Footer metadata -->
+      <div class="flex items-center gap-3 mt-2 pt-2 border-t border-slate-100 text-[10px] text-slate-400">
+        <span><i class="fa-regular fa-clock"></i> hace 18h</span>
+        <span>·</span>
+        <span><i class="fa-solid fa-plane text-[9px]"></i> Angie Price</span>
+        <span>·</span>
+        <span class="text-emerald-700 font-semibold">✓ Completado</span>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-3 max-w-md mx-auto">
+    <b class="text-emerald-700">✓</b> Súper compacto (~90px) · ideal cuando hay muchos envíos listados · densidad Linear<br>
+    <b class="text-amber-700">✗</b> Texto muy pequeño · menos presencia visual
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V4 — Stack vertical con secciones (estilo móvil app)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V4</span>
+    <h2 class="text-base font-bold text-slate-900">Stack vertical con secciones · estilo móvil app</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Secciones bien definidas apiladas verticalmente. Cada zona cumple un rol claro. Ideal para mobile.
+  </p>
+  <div class="viewport-narrow">
+    <div class="card p-4 space-y-3">
+      <!-- Header: número + estado + sticker -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <i class="fa-solid fa-check text-xs"></i>
+          </div>
+          <div>
+            <div class="font-mono font-bold text-sm">ENV-2026-001</div>
+            <div class="text-[9px] text-slate-400">hace 18 h · ✓ Completado</div>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold bg-sky-100 text-sky-800 px-2 py-1 rounded-md border border-sky-200">
+          A · Proveedor-Casilla
+        </span>
+      </div>
+      <!-- Ruta visual -->
+      <div class="bg-slate-50 rounded-lg px-3 py-2">
+        <div class="flex items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-1 flex-1 min-w-0">
+            <span class="text-sm">🇨🇳</span>
+            <span class="font-medium truncate">Asian Beauty</span>
+          </div>
+          <div class="text-[10px] italic text-slate-500 flex items-center gap-1 flex-shrink-0">
+            <i class="fa-solid fa-plane text-[9px]"></i> Angie Price
+          </div>
+          <div class="flex items-center gap-1 flex-1 min-w-0 justify-end">
+            <span class="text-sm">🌐</span>
+            <span class="font-medium truncate">Casa - Angie</span>
+          </div>
+        </div>
+      </div>
+      <!-- Productos + métrica grande -->
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <div class="flex -space-x-1.5">
+            <div class="w-8 h-8 rounded-full bg-amber-100 border-2 border-white text-[10px] font-bold text-amber-700 flex items-center justify-center">A⁶</div>
+            <div class="w-8 h-8 rounded-full bg-emerald-100 border-2 border-white text-[10px] font-bold text-emerald-700 flex items-center justify-center">O⁸</div>
+            <div class="w-8 h-8 rounded-full bg-rose-100 border-2 border-white text-[10px] font-bold text-rose-700 flex items-center justify-center">D⁶</div>
+          </div>
+          <div class="text-[10px] text-slate-500">3 SKUs</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="text-right">
+            <div class="text-lg font-bold tabular leading-none">20<span class="text-slate-400">/20</span></div>
+            <div class="text-[9px] text-emerald-700 font-medium">100%</div>
+          </div>
+          <button class="w-8 h-8 rounded-full bg-teal-50 text-teal-600 hover:bg-teal-100 flex items-center justify-center">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-3 max-w-md mx-auto">
+    <b class="text-emerald-700">✓</b> Muy claro en mobile · ruta en su propia sección visual · acción prominente<br>
+    <b class="text-amber-700">✗</b> Altura ~170px · ruta necesita ancho mínimo
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V5 — Card con sticker a todo el borde (Design award)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V5 ⭐</span>
+    <h2 class="text-base font-bold text-slate-900">Sticker lateral de color + body minimalista</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Barra vertical de color a la izquierda que identifica el tipo de ruta (reemplaza el sticker). Más espacio para contenido. Look editorial.
+  </p>
+  <div class="viewport-narrow">
+    <div class="card overflow-hidden flex">
+      <!-- Barra lateral de tipo -->
+      <div class="w-1.5 bg-sky-500 flex-shrink-0"></div>
+      <div class="flex-1 p-4 space-y-2.5">
+        <!-- Row 1: nro envío + tipo + meta -->
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold text-sky-700 uppercase tracking-wider">Tipo A</span>
+              <span class="text-slate-300">·</span>
+              <span class="text-[11px] text-slate-600">Proveedor → Casilla</span>
+            </div>
+            <div class="font-mono font-bold text-sm mt-0.5">ENV-2026-001</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-emerald-700 font-semibold">✓ Completado</div>
+            <div class="text-[10px] text-slate-400">hace 18 h</div>
+          </div>
+        </div>
+        <!-- Row 2: ruta compacta -->
+        <div class="flex items-center gap-1 text-xs text-slate-700">
+          <span>🇨🇳</span>
+          <span class="font-medium truncate max-w-[100px]">Asian Beauty</span>
+          <span class="text-slate-300 mx-1">→</span>
+          <span class="italic text-slate-500 text-[10px] truncate max-w-[80px]">Angie P.</span>
+          <span class="text-slate-300 mx-1">→</span>
+          <span>🌐</span>
+          <span class="font-medium truncate max-w-[100px]">Casa - Angie</span>
+        </div>
+        <!-- Row 3: productos + barra progreso + acción -->
+        <div class="flex items-center gap-2 pt-1.5 border-t border-slate-100">
+          <div class="flex -space-x-1.5 flex-shrink-0">
+            <div class="w-7 h-7 rounded-full bg-amber-100 border-2 border-white text-[9px] font-bold text-amber-700 flex items-center justify-center">A⁶</div>
+            <div class="w-7 h-7 rounded-full bg-emerald-100 border-2 border-white text-[9px] font-bold text-emerald-700 flex items-center justify-center">O⁸</div>
+            <div class="w-7 h-7 rounded-full bg-rose-100 border-2 border-white text-[9px] font-bold text-rose-700 flex items-center justify-center">D⁶</div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-baseline justify-between">
+              <span class="text-[10px] text-slate-500">Progreso</span>
+              <span class="text-sm font-bold tabular">20/20</span>
+            </div>
+            <div class="h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
+              <div class="h-full bg-emerald-500" style="width:100%"></div>
+            </div>
+          </div>
+          <button class="w-8 h-8 rounded-full text-teal-600 hover:bg-teal-50 flex items-center justify-center flex-shrink-0">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-3 max-w-md mx-auto">
+    <b class="text-emerald-700">✓</b> Barra lateral = identificador visual limpio · reduce clutter · muy editorial · 3 rows bien definidos<br>
+    <b class="text-amber-700">✗</b> Requiere gestión del color lateral por tipo (ya existe en tu sistema · fácil)
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V6 — Card expandible (colapsado por default)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V6</span>
+    <h2 class="text-base font-bold text-slate-900">Card expandible · lista densa con expansión al tap</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Colapsado muestra solo esencial (1 línea). Expandido muestra todo. Ideal para listas largas donde escaneas rápido.
+  </p>
+  <div class="viewport-narrow space-y-2">
+    <!-- Colapsado -->
+    <div class="card p-3 cursor-pointer hover:bg-slate-50">
+      <div class="flex items-center gap-2.5">
+        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+          <i class="fa-solid fa-check text-[10px]"></i>
+        </div>
+        <span class="font-mono font-bold text-xs">ENV-2026-001</span>
+        <span class="flex-1 text-xs text-slate-600 truncate">🇨🇳 Asian Beauty → 🌐 Casa - Angie</span>
+        <span class="text-sm font-bold tabular">20/20</span>
+        <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+      </div>
+    </div>
+    <!-- Expandido -->
+    <div class="card p-3 cursor-pointer bg-teal-50/30 border-teal-200">
+      <div class="flex items-center gap-2.5 mb-3">
+        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+          <i class="fa-solid fa-check text-[10px]"></i>
+        </div>
+        <span class="font-mono font-bold text-xs">ENV-2026-002</span>
+        <span class="flex-1 text-xs text-slate-600 truncate">🇨🇳 Asian Beauty → 🌐 Casa - Angie</span>
+        <span class="text-sm font-bold tabular">20/20</span>
+        <i class="fa-solid fa-chevron-up text-slate-400 text-xs"></i>
+      </div>
+      <div class="pl-8 space-y-2 border-t border-teal-100 pt-2">
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] font-bold bg-sky-200 text-sky-900 px-1.5 py-0.5 rounded">A</span>
+          <span class="text-xs text-slate-600">Proveedor-Casilla</span>
+          <span class="text-slate-300">·</span>
+          <span class="text-[10px] text-slate-500">hace 18h</span>
+        </div>
+        <div class="flex items-center gap-1 text-[11px]">
+          <span>✈️</span>
+          <span class="italic text-slate-600">Angie Price</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="flex -space-x-1">
+            <div class="w-6 h-6 rounded-full bg-amber-100 border-2 border-white text-[9px] font-bold text-amber-700 flex items-center justify-center">A⁶</div>
+            <div class="w-6 h-6 rounded-full bg-emerald-100 border-2 border-white text-[9px] font-bold text-emerald-700 flex items-center justify-center">O⁸</div>
+            <div class="w-6 h-6 rounded-full bg-rose-100 border-2 border-white text-[9px] font-bold text-rose-700 flex items-center justify-center">D⁶</div>
+          </div>
+          <span class="text-[10px] text-slate-500">Ashwagandha · Omega 3 · D3+K2</span>
+        </div>
+        <div class="flex items-center justify-between pt-1.5">
+          <div class="flex-1 mr-3">
+            <div class="h-1 bg-slate-200 rounded-full overflow-hidden">
+              <div class="h-full bg-emerald-500" style="width:100%"></div>
+            </div>
+            <div class="text-[9px] text-emerald-700 font-semibold mt-0.5">✓ 100% recibido · 20 uds</div>
+          </div>
+          <button class="text-xs text-teal-600 font-semibold hover:underline">Ver detalle →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-3 max-w-md mx-auto">
+    <b class="text-emerald-700">✓</b> Densidad máxima al escanear · detalles al demanda · sensación de "app pro"<br>
+    <b class="text-amber-700">✗</b> Requiere interacción para ver info · curva de descubrimiento
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     RESUMEN
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto card p-4">
+  <h2 class="text-lg font-bold text-slate-900 mb-3">🎯 Mi recomendación</h2>
+  <div class="text-xs text-slate-700 space-y-2">
+    <p><b class="text-teal-700">V5 (sticker lateral)</b> — la más elegante visualmente. El borde de color identifica el tipo inmediatamente sin saturar con badges. 3 filas bien jerarquizadas (meta / ruta / progreso). Estilo editorial premium. <b>Mi favorita para tu caso.</b></p>
+    <p><b class="text-teal-700">V1 (header hero)</b> — la más "safe" y moderna. Divide en 3 secciones claras (header sky / body / footer slate). Parece tomada de Stripe dashboard.</p>
+    <p><b>V2 (progress ring)</b> — la más visualmente impactante. Ideal si quieres que el progreso sea el protagonista. Requiere gestión de estados parciales.</p>
+    <p><b>V3 (feed line)</b> — máxima densidad, bueno para listas de 50+ envíos. Perdería algo de "premium".</p>
+    <p><b>V4 (stack con secciones)</b> — muy claro en mobile pero altura mayor.</p>
+    <p><b>V6 (expandible)</b> — alto densidad + profundidad al demanda. Requiere interacción.</p>
+  </div>
+  <div class="mt-4 p-3 bg-teal-50 border border-teal-200 rounded-lg text-sm text-teal-900">
+    <b>Siguiente paso:</b> dime cuál te gusta (V5, V1, V2, V3, V4, V6 o combinación) y la implemento. El wide viewport mantiene el layout actual (5 cols horizontales) — la solución elegida solo aplica a narrow (<640px container).
+  </div>
+</div>
+
+</body>
+</html>

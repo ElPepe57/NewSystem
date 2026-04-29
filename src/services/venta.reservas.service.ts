@@ -604,8 +604,10 @@ export async function sincronizarAdelantoDesdeCotizacion(
     pagoAdelanto.referencia = cotizacion.adelanto.referencia;
   }
 
-  const pagosExistentes = venta.pagos || [];
-  const nuevosPagos = [...pagosExistentes, pagoAdelanto];
+  // S55 Fase 3 — Ya no agregamos el adelanto a venta.pagos[] (campo eliminado).
+  // El adelanto vive en CC como `credito_adelanto_cotizacion` (lo escribió
+  // `cotizacion.adelanto.service.ts` cuando se pagó). Aquí solo actualizamos
+  // los denormalizados de la venta para reflejar el estado correcto.
   const nuevoMontoPagado = venta.montoPagado + montoAdelantoPEN;
   const nuevoMontoPendiente = venta.totalPEN - nuevoMontoPagado;
   const nuevoEstadoPago = nuevoMontoPendiente <= 0 ? 'pagado' :
@@ -627,9 +629,11 @@ export async function sincronizarAdelantoDesdeCotizacion(
   if (cotizacion.adelanto.tipoCambio) {
     adelantoComprometidoData.tipoCambio = cotizacion.adelanto.tipoCambio;
   }
+  // pagoAdelanto era el objeto que se agregaba al array — ahora solo se referencia
+  // en notas como historial informativo.
+  void pagoAdelanto;
 
   await updateDoc(doc(db, COLLECTION_NAME, ventaId), {
-    pagos: nuevosPagos,
     montoPagado: nuevoMontoPagado,
     montoPendiente: Math.max(0, nuevoMontoPendiente),
     estadoPago: nuevoEstadoPago,

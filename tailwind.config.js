@@ -27,5 +27,11 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // S54 — Container queries: permiten que componentes respondan al
+    // ancho de su CONTENEDOR PADRE, no al viewport global. Esencial
+    // para cards que viven en distintas páginas/modales con sidebars
+    // variables. Usar `@container` en el wrapper + `@md:`/`@lg:` en hijos.
+    require('@tailwindcss/container-queries'),
+  ],
 }

@@ -79,7 +79,14 @@ export const EntityHeader: React.FC<EntityHeaderProps> = ({
   className,
 }) => {
   return (
-    <div className={cn('flex items-start justify-between gap-4', className)}>
+    <div
+      className={cn(
+        // Mobile / viewport angosto: columnas apiladas (título arriba, badges+acciones abajo).
+        // md+ (≥768px): layout original side-by-side.
+        'flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4',
+        className
+      )}
+    >
       {/* Columna izquierda: breadcrumb + título + subtítulo */}
       <div className="min-w-0 flex-1">
         {breadcrumb && (
@@ -87,18 +94,24 @@ export const EntityHeader: React.FC<EntityHeaderProps> = ({
             {breadcrumb}
           </div>
         )}
-        <h2 className="text-xl font-semibold text-slate-900">{titulo}</h2>
+        <h2 className="text-xl font-semibold text-slate-900 break-words">
+          {titulo}
+        </h2>
         {subtitulo && (
           <p className="text-xs text-slate-500 mt-0.5">{subtitulo}</p>
         )}
       </div>
 
-      {/* Columna derecha: badges + acciones */}
+      {/* Columna derecha: badges + acciones.
+          - En mobile/narrow: ocupa el ancho disponible y permite wrap natural.
+          - En md+: vuelve a flex-shrink-0 sin wrap (look original). */}
       {(badges || accionesHeader) && (
-        <div className="flex items-start gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-wrap md:items-start md:flex-nowrap md:flex-shrink-0">
           {badges}
           {accionesHeader && (
-            <div className="flex items-center gap-1">{accionesHeader}</div>
+            <div className="flex items-center gap-1 flex-wrap md:flex-nowrap">
+              {accionesHeader}
+            </div>
           )}
         </div>
       )}

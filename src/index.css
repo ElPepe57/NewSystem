@@ -51,3 +51,9 @@
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+
+/* S54 — Fade dinámico para scroll horizontal (tabs OC/Envío).
+   Se aplica como mask-image sobre un contenedor scrolleable; combina con .scrollbar-hide. */
+.fade-scroll-right { mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%); -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%); }
+.fade-scroll-left { mask-image: linear-gradient(to right, transparent 0px, black 32px); -webkit-mask-image: linear-gradient(to right, transparent 0px, black 32px); }
+.fade-scroll-both { mask-image: linear-gradient(to right, transparent 0px, black 32px, black calc(100% - 32px), transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0px, black 32px, black calc(100% - 32px), transparent 100%); }

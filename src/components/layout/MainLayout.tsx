@@ -102,7 +102,11 @@ export const MainLayout: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden w-full">
+      {/* S54 — `min-w-0` crítico: sin él, el flex-1 child permite que
+           hijos internos (tablas, cards anchos) fuercen al wrapper a
+           expandirse más allá del viewport. Causa overflow horizontal
+           del body entero y cards cortados a la derecha. */}
+      <div className="flex-1 flex flex-col overflow-hidden w-full min-w-0">
         {/* Header con botón hamburguesa */}
         <Header
           onMenuClick={() => setSidebarOpen(true)}
@@ -113,8 +117,9 @@ export const MainLayout: React.FC = () => {
         {/* Banner de estado del TC */}
         <TCFreshnessBanner />
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-4 lg:p-6">
+        {/* Page Content — S54: min-w-0 + overflow-x-hidden para evitar
+             que contenido wide cause scroll horizontal global. */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6 min-w-0">
           <ErrorBoundary fallbackMessage="Ocurrió un error en esta página">
             <Outlet />
           </ErrorBoundary>

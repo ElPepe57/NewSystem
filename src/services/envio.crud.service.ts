@@ -1282,6 +1282,38 @@ export const envioCrudService = {
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now(),
     });
+
+    // S55 Fase 4 — Crear movimiento `debito_envio` en CC del colaborador.
+    // Solo si el envío tiene un colaborador con costo de flete asociado
+    // (típicamente envíos internacionales con viajero/courier).
+    // No bloqueante: si falla, queda log warning y se resuelve manual.
+    if (envio.colaboradorId && (envio.costoFleteTotal || 0) > 0) {
+      try {
+        const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+        await cuentaCorrienteService.registrarMovimiento(
+          {
+            entidadId: envio.colaboradorId,
+            tipo: 'colaborador',
+            entidadNombre: envio.colaboradorNombre || 'Colaborador',
+            tipoMovimiento: 'debito_envio',
+            descripcion: `Envío ${envio.numeroEnvio} confirmado · flete $${(envio.costoFleteTotal || 0).toFixed(2)}`,
+            moneda: 'USD',
+            monto: envio.costoFleteTotal || 0,
+            fecha: new Date(),
+            refDocumentoTipo: 'envio',
+            refDocumentoId: envioId,
+            refDocumentoNumero: envio.numeroEnvio,
+            idempotencyKey: `confirmar_envio_${envioId}`,
+          },
+          userId,
+        );
+      } catch (ccErr) {
+        logger.warn(
+          '[CC] No se pudo crear debito_envio (no bloqueante): ' +
+            (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+        );
+      }
+    }
   },
 
   /**

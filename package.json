@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "emulators": "npx firebase emulators:start --only auth,firestore,storage",
     "emulators:seed": "node scripts/seed-test-data.mjs",
-    "test:entregas": "start /B npx firebase emulators:start --only auth,firestore,storage && timeout /T 5 && vite --mode test"
+    "test:entregas": "start /B npx firebase emulators:start --only auth,firestore,storage && timeout /T 5 && vite --mode test",
+    "cleanup:pre-cc": "node scripts/cleanup-pre-cc.mjs",
+    "cleanup:pre-cc:dry": "node scripts/cleanup-pre-cc.mjs --dry-run"
   },
   "dependencies": {
     "@daily-co/daily-js": "^0.87.0",
@@ -40,6 +42,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/google.maps": "^3.58.1",

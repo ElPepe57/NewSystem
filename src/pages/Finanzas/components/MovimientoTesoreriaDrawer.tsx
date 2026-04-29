@@ -432,7 +432,7 @@ export const MovimientoTesoreriaDrawer: React.FC<MovimientoTesoreriaDrawerProps>
         {mov && (
           <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex gap-2 flex-shrink-0">
             <a
-              href={`/finanzas/cash-flow?movId=${mov.id}`}
+              href={`/tesoreria?movId=${mov.id}`}
               className="flex-1 text-[11px] px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 font-medium text-center flex items-center justify-center gap-1.5"
             >
               <Link2 className="w-3 h-3" />

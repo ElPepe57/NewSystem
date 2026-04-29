@@ -26,6 +26,8 @@ import { getNextSequenceNumber } from '../lib/sequenceGenerator';
 import { userService } from './user.service';
 import { gastoService } from './gasto.service';
 import { calcularComisionesEmpleado } from './planilla.comisiones.service';
+// S55 Fase 5 — CC del empleado
+import { cuentaCorrienteService } from './cuentaCorriente.service';
 import type { UserProfile } from '../types/auth.types';
 import type {
   PerfilLaboral,
@@ -259,6 +261,44 @@ export const planillaService = {
       aprobadoPor: userId,
       fechaAprobacion: Timestamp.now(),
     });
+
+    // S55 Fase 5 — Crear movimiento `debito_boleta_emitida` en CC del empleado.
+    // La empresa reconoce la deuda por el totalNeto. CC saldo PEN se vuelve
+    // negativo (le debemos al empleado). Cuando se pague la boleta, se salda
+    // con `credito_pago_boleta`.
+    // No bloqueante: si falla, queda log warning y se ajusta manual.
+    if (boleta.userId && (boleta.totalNeto || 0) > 0) {
+      try {
+        await cuentaCorrienteService.registrarMovimiento(
+          {
+            entidadId: boleta.userId,
+            tipo: 'empleado',
+            entidadNombre: boleta.empleadoNombre,
+            tipoMovimiento: 'debito_boleta_emitida',
+            descripcion: `Boleta ${String(boleta.mes).padStart(2, '0')}/${boleta.anio} aprobada · neto S/ ${boleta.totalNeto.toFixed(2)}`,
+            // Convención CC: debito_* SUMA al saldo. Para representar "empresa
+            // le debe al empleado", usamos signo negativo via crédito puro.
+            // Pero `debito_boleta_emitida` está en TIPOS_DEBITO (suma). El
+            // empleado nos "debe" su trabajo (devengado). Cuando le pagamos,
+            // el credito_pago_boleta resta. Saldo final 0 = todo saldado.
+            // Esto refleja la cuenta corriente del empleado como "crédito
+            // pendiente que la empresa le debe entregar en cash".
+            moneda: 'PEN',
+            monto: boleta.totalNeto,
+            refDocumentoTipo: 'boleta',
+            refDocumentoId: boletaId,
+            refDocumentoNumero: `BOL-${boleta.anio}-${String(boleta.mes).padStart(2, '0')}-${boleta.userId.slice(-4)}`,
+            idempotencyKey: `aprobar_boleta_${boletaId}`,
+          },
+          userId,
+        );
+      } catch (ccErr) {
+        logger.warn(
+          '[CC] No se pudo crear debito_boleta_emitida (no bloqueante): ' +
+            (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+        );
+      }
+    }
   },
 
   /**
@@ -328,12 +368,42 @@ export const planillaService = {
       }, userId);
     }
 
-    // 3. Marcar adelantos como descontados
+    // 3. Marcar adelantos como descontados + escribir credito_descuento_adelanto en CC
     for (const da of boleta.detalleAdelantos) {
       await updateDoc(doc(db, COLLECTIONS.ADELANTOS_NOMINA, da.adelantoId), {
         estado: 'descontado',
         boletaDescontadaId: boletaId,
       });
+
+      // S55 Fase 5 — Saldar el adelanto en CC del empleado.
+      // El adelanto vivía como `debito_adelanto_empleado` (positivo: empleado nos debe).
+      // Al descontarlo en boleta, creamos `credito_descuento_adelanto` (resta),
+      // que neutraliza el débito original. Saldo 0 = adelanto saldado.
+      if (boleta.userId && da.monto > 0) {
+        try {
+          await cuentaCorrienteService.registrarMovimiento(
+            {
+              entidadId: boleta.userId,
+              tipo: 'empleado',
+              entidadNombre: boleta.empleadoNombre,
+              tipoMovimiento: 'credito_descuento_adelanto',
+              descripcion: `Adelanto ${da.adelantoId} descontado en boleta ${String(boleta.mes).padStart(2, '0')}/${boleta.anio}`,
+              moneda: 'PEN',
+              monto: da.monto,
+              refDocumentoTipo: 'adelanto',
+              refDocumentoId: da.adelantoId,
+              refDocumentoNumero: da.adelantoId,
+              idempotencyKey: `descuento_adelanto_${da.adelantoId}_boleta_${boletaId}`,
+            },
+            userId,
+          );
+        } catch (ccErr) {
+          logger.warn(
+            '[CC] No se pudo crear credito_descuento_adelanto (no bloqueante): ' +
+              (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+          );
+        }
+      }
     }
 
     // 4. Actualizar boleta
@@ -342,6 +412,37 @@ export const planillaService = {
       gastoNominaId,
       gastoComisionId,
     });
+
+    // 5. S55 Fase 5 — Crear movimiento `credito_pago_boleta` en CC del empleado.
+    // Salda el debito_boleta_emitida que se creó al aprobarla. CC saldo PEN
+    // del empleado vuelve a 0 (todo lo devengado pagado).
+    if (boleta.userId && (boleta.totalNeto || 0) > 0) {
+      try {
+        await cuentaCorrienteService.registrarMovimiento(
+          {
+            entidadId: boleta.userId,
+            tipo: 'empleado',
+            entidadNombre: boleta.empleadoNombre,
+            tipoMovimiento: 'credito_pago_boleta',
+            descripcion: `Pago boleta ${String(boleta.mes).padStart(2, '0')}/${boleta.anio} · S/ ${boleta.totalNeto.toFixed(2)} via ${datosPago.metodoPago}`,
+            moneda: 'PEN',
+            monto: boleta.totalNeto,
+            fecha: fechaPago,
+            refDocumentoTipo: 'boleta',
+            refDocumentoId: boletaId,
+            refDocumentoNumero: `BOL-${boleta.anio}-${String(boleta.mes).padStart(2, '0')}-${boleta.userId.slice(-4)}`,
+            idempotencyKey: `pagar_boleta_${boletaId}`,
+            notas: datosPago.referencia,
+          },
+          userId,
+        );
+      } catch (ccErr) {
+        logger.warn(
+          '[CC] No se pudo crear credito_pago_boleta (no bloqueante): ' +
+            (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+        );
+      }
+    }
   },
 
   /**
@@ -352,9 +453,34 @@ export const planillaService = {
     if (!boleta) throw new Error('Boleta no encontrada');
     if (boleta.estado === 'pagada') throw new Error('No se puede anular una boleta ya pagada');
 
+    const estadoPrevio = boleta.estado;
+
     await updateDoc(doc(db, COLLECTIONS.BOLETAS, boletaId), {
       estado: 'anulada',
     });
+
+    // S55 Fase 5 — Si la boleta estaba 'aprobada', había un debito_boleta_emitida
+    // en CC. Al anular, lo revertimos con un ajuste manual (los movs CC son
+    // inmutables). Boletas en 'borrador' no tienen movimiento CC asociado.
+    if (estadoPrevio === 'aprobada' && boleta.userId && (boleta.totalNeto || 0) > 0) {
+      try {
+        await cuentaCorrienteService.ajusteManual({
+          entidadId: boleta.userId,
+          tipo: 'empleado',
+          entidadNombre: boleta.empleadoNombre,
+          monto: boleta.totalNeto,
+          moneda: 'PEN',
+          direccion: 'credito', // resta el debito_boleta_emitida original
+          motivo: `Anulación boleta ${String(boleta.mes).padStart(2, '0')}/${boleta.anio}`,
+          userId: 'system',
+        });
+      } catch (ccErr) {
+        logger.warn(
+          '[CC] No se pudo crear ajuste anulación boleta (no bloqueante): ' +
+            (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+        );
+      }
+    }
   },
 
   async eliminarBoleta(boletaId: string): Promise<void> {
@@ -431,6 +557,40 @@ export const planillaService = {
       estado: 'pagado',
       movimientoTesoreriaId,
     });
+
+    // S55 Fase 5 — Crear movimiento `debito_adelanto_empleado` en CC del empleado.
+    // El empleado nos debe ese monto (lo descontaremos en su próxima boleta).
+    // Saldo CC del empleado: positivo = empleado nos debe.
+    // Cuando se descuente en boleta, `credito_descuento_adelanto` lo salda.
+    try {
+      const adelantoSnap = await getDoc(doc(db, COLLECTIONS.ADELANTOS_NOMINA, adelantoId));
+      if (!adelantoSnap.exists()) return;
+      const adelanto = adelantoSnap.data() as AdelantoNomina;
+      if (!adelanto.userId || (adelanto.montoPEN || 0) <= 0) return;
+
+      await cuentaCorrienteService.registrarMovimiento(
+        {
+          entidadId: adelanto.userId,
+          tipo: 'empleado',
+          entidadNombre: adelanto.empleadoNombre,
+          tipoMovimiento: 'debito_adelanto_empleado',
+          descripcion: `Adelanto ${adelantoId} pagado · ${adelanto.descripcion || adelanto.tipo}`,
+          moneda: 'PEN',
+          monto: adelanto.montoPEN,
+          refDocumentoTipo: 'adelanto',
+          refDocumentoId: adelantoId,
+          refDocumentoNumero: adelantoId,
+          movimientoTesoreriaId,
+          idempotencyKey: `adelanto_pagado_${adelantoId}`,
+        },
+        adelanto.creadoPor || 'system',
+      );
+    } catch (ccErr) {
+      logger.warn(
+        '[CC] No se pudo crear debito_adelanto_empleado (no bloqueante): ' +
+          (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+      );
+    }
   },
 
   async anularAdelanto(adelantoId: string): Promise<void> {
@@ -439,6 +599,31 @@ export const planillaService = {
     if (!snap.exists()) throw new Error('Adelanto no encontrado');
     const adelanto = snap.data() as AdelantoNomina;
     if (adelanto.estado === 'descontado') throw new Error('No se puede anular un adelanto ya descontado');
+
+    const estadoPrevio = adelanto.estado;
     await updateDoc(ref, { estado: 'anulado' });
+
+    // S55 Fase 5 — Si el adelanto estaba 'pagado', había un
+    // debito_adelanto_empleado en CC. Al anular lo revertimos con ajuste
+    // manual. Adelantos en 'pendiente' no tienen movimiento CC asociado.
+    if (estadoPrevio === 'pagado' && adelanto.userId && (adelanto.montoPEN || 0) > 0) {
+      try {
+        await cuentaCorrienteService.ajusteManual({
+          entidadId: adelanto.userId,
+          tipo: 'empleado',
+          entidadNombre: adelanto.empleadoNombre,
+          monto: adelanto.montoPEN,
+          moneda: 'PEN',
+          direccion: 'credito', // resta el debito_adelanto_empleado original
+          motivo: `Anulación adelanto ${adelantoId}`,
+          userId: 'system',
+        });
+      } catch (ccErr) {
+        logger.warn(
+          '[CC] No se pudo crear ajuste anulación adelanto (no bloqueante): ' +
+            (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+        );
+      }
+    }
   },
 };

@@ -267,18 +267,8 @@ const FinanzasSaldos: React.FC = () => {
         />
       </div>
 
-      {/* Actions inline (sub-header Stripe-style). Tonal soft para
-           Nuevo movimiento — preserva identidad teal sin agresividad. */}
-      <div className="flex items-center justify-end gap-2 mb-3 px-1">
-        <Button variant="outline" size="sm">
-          <Download className="w-4 h-4 mr-1.5" />
-          Exportar
-        </Button>
-        <Button variant="primary-soft" size="sm">
-          <Plus className="w-4 h-4 mr-1.5" />
-          Nuevo movimiento
-        </Button>
-      </div>
+      {/* Imp-L11 · sub-header de actions Stripe eliminado. El usuario
+           navega a /tesoreria para registrar movimientos nuevos. */}
 
       {/* Hero con KPIs ejecutivos */}
       {resumen && (

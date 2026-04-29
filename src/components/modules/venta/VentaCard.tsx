@@ -16,6 +16,8 @@ import type { TimelineStep, NextAction } from '../../common';
 // S52 — CheckCircle para el banner CTA (Confirmar Venta en estado cotizacion)
 import { CheckCircle } from 'lucide-react';
 import type { Venta, EstadoVenta, EstadoPago } from '../../../types/venta.types';
+// S55 Fase 3 — cobros viven en CC; hook reactivo lee desde movimientosCC
+import { useCobrosVenta } from '../../../hooks/useCobrosVenta';
 import type { Requerimiento } from '../../../types/requerimiento.types';
 import type { OrdenCompra } from '../../../types/ordenCompra.types';
 import { useTipoCambio } from '../../../hooks/useTipoCambio';
@@ -128,6 +130,9 @@ export const VentaCard: React.FC<VentaCardProps> = ({
     loading: boolean;
   }>({ requerimientos: [], ordenesCompra: [], loading: true });
   const [gastosDirectosVenta, setGastosDirectosVenta] = useState<number>(0);
+
+  // S55 Fase 3 — Cobros vienen del hook reactivo (CC). Reemplaza venta.pagos[].
+  const { cobros: cobrosVentaCC } = useCobrosVenta(venta.id);
 
   // TC centralizado para conversión de costos legacy
   const { tc: tcData } = useTipoCambio();
@@ -1000,8 +1005,8 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             </div>
           </div>
 
-          {/* Historial de pagos */}
-          {venta.pagos && venta.pagos.length > 0 && (
+          {/* Historial de pagos · S55 Fase 3: lee desde CC */}
+          {cobrosVentaCC.length > 0 && (
             <div>
               <h5 className="text-sm font-medium text-slate-700 mb-2">Historial de Pagos</h5>
               <div className="bg-white rounded-lg border border-emerald-200 overflow-hidden">
@@ -1018,13 +1023,13 @@ export const VentaCard: React.FC<VentaCardProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-emerald-100">
-                    {venta.pagos.map((pago) => (
+                    {cobrosVentaCC.map((pago) => (
                       <tr key={pago.id}>
                         <td className="px-3 py-2 text-sm text-slate-900">
                           {formatDate(pago.fecha)}
                         </td>
                         <td className="px-3 py-2 text-sm text-slate-900">
-                          {metodoPagoLabels[pago.metodoPago] || pago.metodoPago}
+                          {metodoPagoLabels[pago.metodoPago as keyof typeof metodoPagoLabels] || pago.metodoPago}
                         </td>
                         <td className="px-3 py-2 text-sm text-slate-600">
                           {pago.referencia || '-'}
@@ -1051,10 +1056,11 @@ export const VentaCard: React.FC<VentaCardProps> = ({
             </div>
           )}
 
-          {/* Fecha de pago completo */}
-          {venta.fechaPagoCompleto && (
+          {/* S55 Fase 3 — fechaPagoCompleto eliminada. Si está pagada, mostrar
+              fecha del último cobro registrado en CC. */}
+          {venta.estadoPago === 'pagado' && cobrosVentaCC.length > 0 && (
             <div className="mt-3 text-sm text-emerald-600">
-              Pago completado el {formatDate(venta.fechaPagoCompleto)}
+              Pago completado el {formatDate(cobrosVentaCC[cobrosVentaCC.length - 1].fecha)}
             </div>
           )}
         </div>

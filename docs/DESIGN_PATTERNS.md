@@ -8,6 +8,136 @@
 
 ---
 
+## Referencias de Diseño Canónicas (S54.x)
+
+> Decisión tomada en sesión S54.x — 2026-04-25.
+> Estas referencias son la FUENTE DE VERDAD visual del sistema. No se modifican sin
+> autorización explícita del usuario. Todo lo demás se alinea a ellas.
+
+Las páginas /compras y /envios (estado S54.x) son los patrones vivos del sistema.
+Antes de construir o refactorizar cualquier card, modal, pipeline o listado, abrir primero
+la referencia que aplica y replicar su estructura.
+
+### Referencia 1 — Vista de lista de entidades
+
+**Archivo:** `src/pages/Envios/EnvioCardSimple.tsx`
+
+**Qué hace:** card de una fila en un listado scrolleable de entidades simples (un envío,
+una venta, un gasto). Sin sub-entidades colapsables.
+
+**Cuándo usarla:** cuando la página muestra una lista de entidades del mismo tipo, cada una
+con sus métricas clave visibles sin expandir.
+
+**Cuándo NO usarla:** cuando cada entidad tiene sub-entidades anidadas expandibles (usar
+Referencia 2). Cuando la vista es un Kanban o tabla de datos (excepciones declaradas).
+
+**Características clave:**
+- `@container` con dual layout: narrow (<640 px, stack vertical 3 filas) / wide (>=640 px,
+  5 columnas con dividers verticales `w-px bg-border/50`).
+- Fila 1 narrow / col 1 wide: ícono de estado redondeado (`rounded-full`) + número de
+  entidad + fecha relativa (`formatFechaRelativa()`).
+- Fila 2 narrow / col 2 wide: sticker semántico (color según estado) + descripción corta.
+- Fila 3 narrow / col 3 wide: avatares de productos coloreados por hash (`paletteForId()`),
+  apilados con offset negativo (`-space-x-1`).
+- Col 4 wide: métricas numéricas (unidades) con barra de progreso.
+- Col 5 wide / acción: botón de acción iconico (ojo, flecha).
+- Helpers utilizados: `paletteForId()`, `inicial()`, `formatFechaRelativa()`, `getFlag()`.
+
+### Referencia 2 — Vista de lista con sub-entidades
+
+**Archivo:** `src/components/modules/ordenCompra/CompraCard.tsx`
+
+**Qué hace:** card de una fila en un listado donde cada entidad padre tiene sub-entidades
+(sub-órdenes, tandas, líneas) que se expanden inline dentro de la misma card.
+
+**Cuándo usarla:** cuando existe una relación 1:N visible en el listado y el usuario necesita
+ver las sub-entidades sin abrir un modal completo.
+
+**Cuándo NO usarla:** cuando no hay sub-entidades (usar Referencia 1). Cuando la sub-entidad
+requiere un detalle completo (abrir Referencia 3 desde el card, no expandir inline).
+
+**Características clave:**
+- Mismo dual layout `@container` que Referencia 1 para la fila padre.
+- Expansión inline con `ChevronDown/Right` + animación `transition-all`.
+- Sub-entidades como filas anidadas con indentación visual (`pl-4 border-l-2`).
+- Estado visual diferenciado por sub-entidad (badge de estado por sub-orden).
+- Botón "Ver detalle" lleva al modal completo (Referencia 3), no expande más.
+
+### Referencia 3 — Detalle de entidad
+
+**Archivo:** `src/components/modules/ordenCompra/OrdenCompraCard.tsx`
+
+**Qué hace:** modal de detalle completo de una entidad. La "vista principal" de un registro.
+
+**Cuándo usarla:** cada vez que se necesita mostrar el detalle completo de cualquier entidad
+del sistema (venta, cotización, cliente, proveedor, envío, gasto, etc.).
+
+**Cuándo NO usarla:** cuando el contenido es solo un formulario de edición (usar un form
+modal dedicado). Cuando el detalle tiene tantísimos tabs que el scroll se vuelve problemático
+(ver Referencia 4 para esos casos).
+
+**Características clave:**
+- `EntityHeader` (nombre, estado, badges, acción primaria) — zona fija superior.
+- `RouteCardV2` — pipeline o ruta visual de la entidad.
+- `NextActionBanner` — acción contextual destacada según estado.
+- `KpiRow` — 4 KPIs en una fila horizontal.
+- Tabs sticky `top-0` con `z-10` para que el header de tabs no desaparezca al scrollear.
+- El contenido de cada tab scrollea; el shell del modal y el header NO scrollean.
+- NO usar `h-full + overflow-hidden` anidados (introduce double-scroll).
+
+### Referencia 4 — Detalle con scroll y muchos tabs
+
+**Archivo:** `src/pages/Envios/EnvioDetailModal.tsx`
+
+**Qué hace:** variante del detalle para entidades con muchos tabs o contenido extenso.
+Resuelve el problema de scroll en modales con 5+ tabs (Costos, Incidencias, Reclamos,
+Rendimiento, Timeline, etc.).
+
+**Cuándo usarla:** cuando una entidad tiene 5 o más tabs, o cuando el contenido de algún
+tab es una tabla larga o timeline extenso que requiere scroll independiente.
+
+**Cuándo NO usarla:** cuando la entidad tiene 4 tabs o menos (Referencia 3 es suficiente).
+
+**Características clave:**
+- Header compacto (no hero completo) para maximizar espacio de contenido.
+- Tabs sticky con scroll horizontal en mobile (`overflow-x-auto scrollbar-hide`).
+- Cada tab panel tiene su propio `overflow-y-auto` sin conflicto con el modal.
+- Mismo conjunto de componentes base (EntityHeader, KpiRow) pero en disposición más compacta.
+
+### Referencia 5 — Pipeline de listado
+
+**Archivo:** `src/components/modules/ordenCompra/PipelineCompras.tsx`
+
+**Qué hace:** barra de pipeline horizontal clickable que aparece encima de un listado,
+mostrando el conteo de entidades por estado y permitiendo filtrar al hacer clic.
+
+**Cuándo usarla:** encima de cualquier listado con estados secuenciales (borrador,
+confirmado, en despacho, completado) donde el usuario quiere ver el embudo de un vistazo.
+
+**Cuándo NO usarla:** cuando los estados no son secuenciales o lineales (Kanban ya tiene
+su propia visualización). Cuando hay menos de 3 estados.
+
+**Características clave:**
+- Grid 2x2 en mobile, flex horizontal con chevrones (`ChevronRight`) en `lg:`.
+- Cada etapa: ícono + label + badge de conteo + indicador activo (borde inferior o fondo).
+- Al hacer clic en una etapa, emite el estado seleccionado al padre (`onFilterChange`).
+- Etapa activa con fondo destacado; inactivas neutras con hover sutil.
+
+### Excepciones Legítimas (no siguen el patrón OC)
+
+Estas páginas tienen casos de uso distintos y NO se migran al patrón de lista/detalle OC:
+
+| Página | Patrón propio | Razón |
+|--------|--------------|-------|
+| /cotizaciones (Kanban) | Kanban tiles | Flujo visual de pipeline de ventas |
+| /requerimientos (Kanban) | Kanban tiles | Misma razón |
+| /contabilidad | Dashboard financiero | Estados financieros, no entidades operativas |
+| /reportes | Dashboard + alertas | Vistas agregadas, no registros individuales |
+| /escaner | Cards de escaneo | UX de campo, pantalla completa, sin listado |
+| /mercadolibre | Editor bulk de precios | Integración externa con UX propia |
+
+---
+
 ## 📐 Cómo está organizado el diseño
 
 El sistema tiene **3 capas de piezas**, ordenadas de más chica a más grande. Cuando construimos una pantalla nueva, **siempre partimos de la capa más alta disponible** y solo bajamos si falta algo.

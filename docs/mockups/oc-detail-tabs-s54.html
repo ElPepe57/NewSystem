@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>OC Detail · Sistema de pestañas · S54</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+  .tab { font-variant-numeric: tabular-nums; }
+  .active-tab { border-bottom: 2px solid #14b8a6; color: #0f766e; }
+</style>
+</head>
+<body class="p-6">
+
+<!-- ============================================================================
+     HEADER
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">Sistema de pestañas para el detalle de OC</h1>
+  <p class="text-sm text-slate-600 mt-1">
+    Propuesta: alinear con el estándar de Envío (tabs consistentes) + agregar tabs diferenciadoras que aprovechan la inteligencia del ERP.
+  </p>
+  <div class="mt-3 p-3 bg-teal-50 border border-teal-200 rounded-lg text-xs text-teal-900">
+    <b>Filosofía:</b> el detalle de OC es una conversación con 3 interlocutores —
+    <b>proveedor</b> (cargos, documentos, SLA),
+    <b>almacén</b> (envíos, recepción, inventario generado) y
+    <b>finanzas</b> (pagos, CTRU, FX).
+    Cada tab debe servir a uno de estos interlocutores de forma inequívoca.
+  </div>
+</div>
+
+<!-- ============================================================================
+     PROPUESTA DE TABS · VISTA GENERAL
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8 card p-5">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-3">📑 Estructura propuesta — 9 tabs + contador</div>
+
+  <!-- Barra de tabs -->
+  <div class="flex items-center gap-1 overflow-x-auto border-b border-slate-200 pb-2 mb-4">
+    <button class="px-3 py-2 text-sm font-semibold active-tab flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-box text-xs"></i> Productos <span class="text-[10px] px-1.5 bg-teal-100 text-teal-700 rounded-full">3</span>
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-receipt text-xs"></i> Cargos & Totales
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-credit-card text-xs"></i> Pagos <span class="text-[10px] px-1.5 bg-red-100 text-red-700 rounded-full">$452</span>
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-layer-group text-xs"></i> Sub-órdenes
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-paper-plane text-xs"></i> Envíos <span class="text-[10px] px-1.5 bg-slate-100 text-slate-700 rounded-full">1</span>
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-triangle-exclamation text-xs"></i> Incidencias <span class="text-[10px] px-1.5 bg-amber-100 text-amber-700 rounded-full">2</span>
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-folder-open text-xs"></i> Documentos <span class="text-[10px] px-1.5 bg-slate-100 text-slate-700 rounded-full">4</span>
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-chart-line text-xs"></i> Inteligencia
+    </button>
+    <button class="px-3 py-2 text-sm text-slate-600 hover:text-slate-900 flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-clock-rotate-left text-xs"></i> Timeline
+    </button>
+  </div>
+
+  <!-- Leyenda por nivel -->
+  <div class="grid grid-cols-3 gap-3 text-xs">
+    <div class="p-2 bg-emerald-50 border border-emerald-200 rounded">
+      <div class="font-semibold text-emerald-900 mb-1">🟢 Nivel 1 · Core</div>
+      <div class="text-slate-600">Productos · Cargos · Pagos · Envíos · Incidencias · Timeline</div>
+    </div>
+    <div class="p-2 bg-sky-50 border border-sky-200 rounded">
+      <div class="font-semibold text-sky-900 mb-1">🔵 Nivel 2 · Valor agregado</div>
+      <div class="text-slate-600">Sub-órdenes (condicional) · Documentos · CTRU embebido</div>
+    </div>
+    <div class="p-2 bg-purple-50 border border-purple-200 rounded">
+      <div class="font-semibold text-purple-900 mb-1">🟣 Nivel 3 · Diferenciador</div>
+      <div class="text-slate-600">Inteligencia · Trazabilidad · Requerimientos origen · FX</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 1 · PRODUCTOS (núcleo, casi como está hoy — mejoras incrementales)
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded inline-block mb-2">🟢 Tab 1 · Productos</div>
+  <div class="card p-5">
+    <div class="text-sm text-slate-700 mb-3">
+      <b>Mejora propuesta:</b> lo que ya tienes + <b>sparkline histórico de precio</b> del SKU con este proveedor +
+      columna "<b>Entregado</b>" (recibido / pedido) + estado landed por SKU.
+    </div>
+    <table class="w-full text-xs">
+      <thead class="bg-slate-50 text-slate-700">
+        <tr>
+          <th class="text-left p-2">SKU</th>
+          <th class="text-left p-2">Producto</th>
+          <th class="text-center p-2">Cant.</th>
+          <th class="text-center p-2">Entregado</th>
+          <th class="text-right p-2">Precio unit.</th>
+          <th class="text-right p-2">vs. avg histórico</th>
+          <th class="text-right p-2">CTRU/u</th>
+          <th class="text-right p-2">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <tr>
+          <td class="p-2 font-mono text-sky-700">SUP-0004</td>
+          <td class="p-2"><div class="font-medium">Ashwagandha</div><div class="text-[10px] text-slate-500">Cápsulas · 3000mg · 300 und</div></td>
+          <td class="text-center p-2">6</td>
+          <td class="text-center p-2"><span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">6/6 · 100%</span></td>
+          <td class="text-right p-2 tab">$16.99</td>
+          <td class="text-right p-2"><span class="text-[10px] text-emerald-600 font-semibold">−2.4% <i class="fa-solid fa-arrow-down text-[9px]"></i></span><div class="text-[9px] text-slate-500">vs $17.41 (3 OCs)</div></td>
+          <td class="text-right p-2 font-bold text-teal-700 tab">$16.38</td>
+          <td class="text-right p-2 font-semibold tab">$101.94</td>
+        </tr>
+        <tr>
+          <td class="p-2 font-mono text-sky-700">SUP-0087</td>
+          <td class="p-2"><div class="font-medium">Omega 3</div><div class="text-[10px] text-slate-500">Cápsulas · 4200mg · 240 und</div></td>
+          <td class="text-center p-2">8</td>
+          <td class="text-center p-2"><span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">8/8 · 100%</span></td>
+          <td class="text-right p-2 tab">$33.50</td>
+          <td class="text-right p-2"><span class="text-[10px] text-red-600 font-semibold">+5.8% <i class="fa-solid fa-arrow-up text-[9px]"></i></span><div class="text-[9px] text-slate-500">vs $31.67 (5 OCs)</div></td>
+          <td class="text-right p-2 font-bold text-teal-700 tab">$32.30</td>
+          <td class="text-right p-2 font-semibold tab">$268.00</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-[11px] text-amber-900">
+      <b>Alerta inteligente:</b> el precio de Omega 3 subió 5.8% vs. tu promedio histórico. ¿Negociar o buscar proveedor alternativo?
+      <button class="ml-2 text-[10px] px-2 py-0.5 bg-amber-600 text-white rounded hover:bg-amber-700">Ver comparativo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 2 · CARGOS & TOTALES
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded inline-block mb-2">🟢 Tab 2 · Cargos & Totales</div>
+  <div class="card p-5">
+    <div class="text-sm text-slate-700 mb-3">
+      Consolida cargos comerciales + impuestos + descuentos + totales USD/PEN + <b>diferencia cambiaria</b> si TC pago ≠ TC referencial.
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-slate-50 p-3 rounded-lg">
+        <div class="text-[10px] uppercase font-semibold text-slate-500 mb-2">Desglose</div>
+        <div class="space-y-1 text-sm">
+          <div class="flex justify-between"><span>Subtotal productos</span><span class="tab">$468.94</span></div>
+          <div class="flex justify-between text-emerald-700"><span>− Descuento general</span><span class="tab">-$30.00</span></div>
+          <div class="flex justify-between"><span>+ Sales tax CA (9.5%)</span><span class="tab">$13.17</span></div>
+          <div class="flex justify-between text-slate-500 text-xs"><span>+ Envío proveedor</span><span class="tab">incluido</span></div>
+          <div class="border-t border-slate-200 pt-1 flex justify-between font-bold"><span>Total OC</span><span class="tab text-teal-700">$452.11</span></div>
+        </div>
+      </div>
+      <div class="bg-sky-50 p-3 rounded-lg border border-sky-200">
+        <div class="text-[10px] uppercase font-semibold text-sky-700 mb-2">Conversión & FX</div>
+        <div class="space-y-1 text-sm">
+          <div class="flex justify-between"><span>TC referencial (creación)</span><span class="tab">3.470</span></div>
+          <div class="flex justify-between"><span>TC pago real</span><span class="tab">3.475</span></div>
+          <div class="flex justify-between text-red-600"><span>Diferencia cambiaria</span><span class="tab">+S/ 2.26</span></div>
+          <div class="border-t border-sky-200 pt-1 flex justify-between font-bold"><span>Equivalente PEN</span><span class="tab text-sky-800">S/ 1571.08</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 3 · PAGOS
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded inline-block mb-2">🟢 Tab 3 · Pagos</div>
+  <div class="card p-5 space-y-3">
+    <!-- Resumen pagos -->
+    <div class="grid grid-cols-4 gap-2 bg-slate-50 rounded-lg p-3">
+      <div><div class="text-[10px] uppercase text-slate-500">Total OC</div><div class="font-bold tab">$452.11</div></div>
+      <div><div class="text-[10px] uppercase text-slate-500">Pagado</div><div class="font-bold text-emerald-600 tab">$0.00</div></div>
+      <div><div class="text-[10px] uppercase text-slate-500">Pendiente</div><div class="font-bold text-red-600 tab">$452.11</div></div>
+      <div><div class="text-[10px] uppercase text-slate-500">Vencimiento</div><div class="font-bold text-amber-600 tab">En 5 días</div></div>
+    </div>
+    <!-- Destinatario del pago -->
+    <div class="p-3 border border-amber-200 bg-amber-50 rounded-lg text-xs">
+      <div class="text-[10px] font-semibold uppercase text-amber-700 mb-1">Destinatario del pago</div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-amber-800 font-bold text-xs">AP</div>
+        <div>
+          <div class="font-semibold">Angie Price (colaborador)</div>
+          <div class="text-[10px] text-amber-700">Adelantó el pago a Asian Beauty Wholesale · CxP al colaborador</div>
+        </div>
+      </div>
+    </div>
+    <!-- Historial -->
+    <div class="border border-slate-200 rounded-lg overflow-hidden">
+      <div class="text-[10px] uppercase font-semibold bg-slate-50 p-2 text-slate-500">Historial de pagos</div>
+      <div class="p-3 text-center text-xs text-slate-500 italic">Aún no hay pagos registrados.</div>
+      <div class="p-2 border-t border-slate-200"><button class="w-full text-xs px-3 py-1.5 bg-teal-600 text-white rounded hover:bg-teal-700">+ Registrar pago</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 4 · SUB-ÓRDENES (condicional)
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-sky-700 bg-sky-50 px-2 py-0.5 rounded inline-block mb-2">🔵 Tab 4 · Sub-órdenes (solo si existen)</div>
+  <div class="card p-5">
+    <div class="text-sm text-slate-700 mb-3">
+      Cuando la OC se divide en sub-órdenes (ej: el proveedor despacha en 2 envíos), cada sub-orden como sub-card con su propio estado,
+      productos, envío vinculado y pagos parciales. Tab se oculta si <code>subOrdenes.length === 0</code>.
+    </div>
+    <div class="text-center p-6 text-xs text-slate-500 italic border-2 border-dashed border-slate-200 rounded-lg">
+      (Ejemplo: <code>SubOrdenCard</code> reutilizado de la arquitectura existente S41)
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 5 · ENVÍOS
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded inline-block mb-2">🟢 Tab 5 · Envíos</div>
+  <div class="card p-5">
+    <div class="text-sm text-slate-700 mb-3">
+      Reemplaza el bloque <code>EnviosDeOC</code> actual. Lista mini-cards con mini-ruta visual, estado, ETA y acciones rápidas de recepción.
+    </div>
+    <div class="p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="font-semibold text-sm">ENV-2026-001</div>
+          <div class="text-[11px] text-slate-500">🇨🇳 Asian Beauty Wholesale → 🇵🇪 Casa - Angie · DHL</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Completado</span>
+          <span class="text-[11px] text-slate-600">20/20 · 100%</span>
+          <i class="fa-solid fa-chevron-right text-slate-400"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 6 · INCIDENCIAS ⭐ (el pedido explícito del usuario)
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <div class="text-[11px] font-semibold uppercase text-amber-700 bg-amber-50 px-2 py-0.5 rounded">🟢 Tab 6 · Incidencias ⭐</div>
+    <span class="text-[11px] text-amber-700 font-medium">⚡ Tab estrella — aquí es donde se gana/pierde dinero</span>
+  </div>
+  <div class="card p-5 space-y-3">
+    <div class="text-sm text-slate-700 mb-1">
+      <b>Sub-pestañas por tipo de incidencia:</b>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div class="flex gap-1 bg-slate-100 rounded-lg p-1 w-fit">
+      <button class="text-xs px-3 py-1.5 bg-white rounded shadow-sm font-semibold">Todas (4)</button>
+      <button class="text-xs px-3 py-1.5 text-slate-600 hover:bg-white rounded">📦 Recepción (2)</button>
+      <button class="text-xs px-3 py-1.5 text-slate-600 hover:bg-white rounded">💵 Facturación (1)</button>
+      <button class="text-xs px-3 py-1.5 text-slate-600 hover:bg-white rounded">🤝 Proveedor (0)</button>
+      <button class="text-xs px-3 py-1.5 text-slate-600 hover:bg-white rounded">✅ Resueltas (1)</button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex gap-2 items-center text-xs">
+      <span class="text-slate-500">Estado:</span>
+      <button class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium">🔴 Abiertas (2)</button>
+      <button class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">🟡 En gestión (1)</button>
+      <button class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">🟢 Resueltas (1)</button>
+      <button class="ml-auto text-teal-700 hover:text-teal-900 font-medium">+ Nueva incidencia</button>
+    </div>
+
+    <!-- Incidencia 1: recepción -->
+    <div class="p-3 border border-red-200 bg-red-50 rounded-lg">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-red-200 text-red-800 font-bold">ABIERTA</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-medium">📦 Recepción</span>
+            <span class="text-[10px] text-slate-500">INC-026</span>
+          </div>
+          <div class="text-sm font-semibold text-slate-900">2 unidades de Ashwagandha dañadas en recepción</div>
+          <div class="text-[11px] text-slate-600 mt-1">
+            Detectado en ENV-2026-001 · Lote: L-9921 · Pérdida estimada: $32.76 landed
+          </div>
+        </div>
+        <div class="text-right text-[10px] text-slate-500">21-abr · hace 2 días</div>
+      </div>
+      <div class="mt-2 flex gap-2">
+        <button class="text-[11px] px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700">Reclamar al proveedor</button>
+        <button class="text-[11px] px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50">Registrar como merma</button>
+        <button class="text-[11px] px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50">Pedir reemplazo</button>
+      </div>
+    </div>
+
+    <!-- Incidencia 2: facturación -->
+    <div class="p-3 border border-amber-200 bg-amber-50 rounded-lg">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 font-bold">EN GESTIÓN</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-medium">💵 Facturación</span>
+            <span class="text-[10px] text-slate-500">INC-027</span>
+          </div>
+          <div class="text-sm font-semibold text-slate-900">Factura no incluye descuento prometido de $30</div>
+          <div class="text-[11px] text-slate-600 mt-1">Factura INV-8821 llegó por $482 en vez de $452 · Esperando nota de crédito</div>
+        </div>
+        <div class="text-right text-[10px] text-slate-500">22-abr · hace 1 día</div>
+      </div>
+      <div class="mt-2 flex gap-2">
+        <button class="text-[11px] px-2 py-1 bg-amber-600 text-white rounded hover:bg-amber-700">Seguimiento NC</button>
+        <button class="text-[11px] px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50">Retener pago</button>
+      </div>
+    </div>
+
+    <!-- Tipos de incidencia propuestos -->
+    <div class="mt-3 p-3 bg-slate-50 rounded border border-slate-200 text-xs">
+      <div class="font-semibold text-slate-800 mb-2">Tipos de incidencia propuestos:</div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex items-start gap-1.5"><span class="text-base">📦</span><div><b>Recepción:</b> dañado, faltante, sobrante, mal lote, vencimiento corto</div></div>
+        <div class="flex items-start gap-1.5"><span class="text-base">💵</span><div><b>Facturación:</b> monto incorrecto, descuento no aplicado, IVA mal calculado, factura duplicada</div></div>
+        <div class="flex items-start gap-1.5"><span class="text-base">🤝</span><div><b>Proveedor:</b> retraso vs SLA, incumplimiento de calidad, cambio de precio post-confirmación</div></div>
+        <div class="flex items-start gap-1.5"><span class="text-base">🚚</span><div><b>Logística:</b> retraso courier, daño en tránsito, retención aduana, pérdida</div></div>
+        <div class="flex items-start gap-1.5"><span class="text-base">🧾</span><div><b>Impuestos:</b> retenciones, devoluciones IGV, ajustes fiscales</div></div>
+        <div class="flex items-start gap-1.5"><span class="text-base">⚖️</span><div><b>Compliance:</b> falta certificado de origen, packing list incompleto</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 7 · DOCUMENTOS
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-sky-700 bg-sky-50 px-2 py-0.5 rounded inline-block mb-2">🔵 Tab 7 · Documentos</div>
+  <div class="card p-5">
+    <div class="text-sm text-slate-700 mb-3">
+      Repositorio de todos los documentos de la OC. Drag & drop, preview inline, versiones.
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center gap-3">
+        <div class="w-10 h-10 bg-sky-100 rounded flex items-center justify-center text-sky-700"><i class="fa-solid fa-file-invoice"></i></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Factura comercial</div>
+          <div class="text-[10px] text-slate-500">INV-ABW-8821.pdf · 218 KB · 12-abr</div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-download text-xs"></i></button>
+      </div>
+      <div class="p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center gap-3">
+        <div class="w-10 h-10 bg-emerald-100 rounded flex items-center justify-center text-emerald-700"><i class="fa-solid fa-file-lines"></i></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Packing list</div>
+          <div class="text-[10px] text-slate-500">PL-8821.xlsx · 45 KB · 12-abr</div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-download text-xs"></i></button>
+      </div>
+      <div class="p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center gap-3">
+        <div class="w-10 h-10 bg-amber-100 rounded flex items-center justify-center text-amber-700"><i class="fa-solid fa-certificate"></i></div>
+        <div class="flex-1">
+          <div class="text-sm font-semibold">Certificado de origen</div>
+          <div class="text-[10px] text-slate-500">COO-CN-8821.pdf · 312 KB · 14-abr</div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-download text-xs"></i></button>
+      </div>
+      <div class="p-3 border-2 border-dashed border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer flex items-center justify-center gap-2 text-slate-500">
+        <i class="fa-solid fa-plus"></i>
+        <span class="text-sm font-medium">Agregar documento</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 8 · INTELIGENCIA ⭐ (diferenciador creativo)
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="flex items-center gap-2 mb-2">
+    <div class="text-[11px] font-semibold uppercase text-purple-700 bg-purple-50 px-2 py-0.5 rounded">🟣 Tab 8 · Inteligencia ⭐</div>
+    <span class="text-[11px] text-purple-700 font-medium">⚡ Diferenciador — convierte data en decisión</span>
+  </div>
+  <div class="card p-5 space-y-3">
+    <div class="text-sm text-slate-700 mb-1">
+      Análisis cruzado con el histórico del ERP. 4 widgets:
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <!-- Widget 1: SLA proveedor -->
+      <div class="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[10px] uppercase font-semibold text-slate-500">SLA de Asian Beauty Wholesale</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">🟢 Al día</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="text-lg font-bold text-slate-900 tab">9 días</div>
+            <div class="text-[10px] text-slate-500">Tiempo promedio confirmación → recepción (últimas 8 OCs)</div>
+          </div>
+          <div>
+            <div class="text-lg font-bold text-slate-900 tab">2.1%</div>
+            <div class="text-[10px] text-slate-500">Ratio de incidencias por OC</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget 2: precio vs competencia -->
+      <div class="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[10px] uppercase font-semibold text-slate-500">Precio vs. otros proveedores</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">🔵 Competitivo</span>
+        </div>
+        <div class="text-xs space-y-1">
+          <div class="flex justify-between"><span>SUP-0004 (Ashwagandha)</span><span class="text-emerald-700 font-semibold tab">$16.99 · -3.2% vs mercado</span></div>
+          <div class="flex justify-between"><span>SUP-0087 (Omega 3)</span><span class="text-red-600 font-semibold tab">$33.50 · +8.1% vs mercado</span></div>
+          <div class="flex justify-between"><span>SUP-0053 (D3+K2)</span><span class="text-slate-600 tab">$16.50 · −0.3% vs mercado</span></div>
+        </div>
+      </div>
+
+      <!-- Widget 3: impacto FX -->
+      <div class="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[10px] uppercase font-semibold text-slate-500">Impacto FX proyectado</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">🟡 Volátil</span>
+        </div>
+        <div class="text-xs">
+          <div class="mb-1">TC al crear: 3.470 · TC hoy: 3.495 · Impacto:<span class="text-red-600 font-bold tab ml-1">+S/ 11.30</span></div>
+          <div class="text-[10px] text-slate-500">Si pagas en 5 días y TC sube a 3.52 → costo extra ~S/ 22.6</div>
+        </div>
+        <button class="mt-2 text-[10px] text-sky-700 font-semibold hover:underline">Ver proyección en módulo FX →</button>
+      </div>
+
+      <!-- Widget 4: productos más/menos rentables de esta OC -->
+      <div class="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-[10px] uppercase font-semibold text-slate-500">Ranking rentabilidad proyectada</div>
+          <i class="fa-solid fa-chart-line text-slate-400 text-xs"></i>
+        </div>
+        <div class="text-xs space-y-1">
+          <div class="flex justify-between"><span class="text-emerald-700 font-semibold">🥇 D3+K2</span><span class="text-emerald-700 tab">+68% margen proyectado</span></div>
+          <div class="flex justify-between"><span>🥈 Ashwagandha</span><span class="tab">+52% margen</span></div>
+          <div class="flex justify-between"><span class="text-amber-700">🥉 Omega 3</span><span class="text-amber-700 tab">+34% margen (precio alto)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-[11px] text-purple-900">
+      💡 <b>Cross-link con otros módulos:</b> Inteligencia de Productos · Rendimiento FX · Proyección. Todo ya está en tu sidebar.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TAB 9 · TIMELINE
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded inline-block mb-2">🟢 Tab 9 · Timeline / Auditoría</div>
+  <div class="card p-5">
+    <div class="text-sm text-slate-700 mb-3">
+      Registro cronológico de todo lo que pasó en esta OC. Quién, cuándo, qué cambió. Fundamental para auditoría y resolución de disputas.
+    </div>
+    <div class="relative space-y-3 pl-6">
+      <div class="absolute left-[11px] top-1 bottom-1 w-0.5 bg-slate-200"></div>
+      <div class="relative">
+        <div class="absolute -left-6 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white"></div>
+        <div class="text-xs"><span class="font-semibold">OC creada</span> por <b>Jose</b> · 23-abr 09:14</div>
+        <div class="text-[10px] text-slate-500">3 SKUs · $452.11 · Proveedor Asian Beauty Wholesale</div>
+      </div>
+      <div class="relative">
+        <div class="absolute -left-6 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white"></div>
+        <div class="text-xs"><span class="font-semibold">OC confirmada</span> por <b>Jose</b> · 23-abr 10:42</div>
+        <div class="text-[10px] text-slate-500">Recojo en origen · colaborador asignado: Angie Price</div>
+      </div>
+      <div class="relative">
+        <div class="absolute -left-6 w-4 h-4 rounded-full bg-sky-500 ring-2 ring-white"></div>
+        <div class="text-xs"><span class="font-semibold">Inventario generado</span> automático · 23-abr 10:42</div>
+        <div class="text-[10px] text-slate-500">20 unidades · asignadas a casilla "Casa - Angie"</div>
+      </div>
+      <div class="relative">
+        <div class="absolute -left-6 w-4 h-4 rounded-full bg-amber-500 ring-2 ring-white"></div>
+        <div class="text-xs"><span class="font-semibold">Incidencia abierta INC-026</span> por <b>Angie</b> · 21-abr 15:22</div>
+        <div class="text-[10px] text-slate-500">2 unidades Ashwagandha dañadas en recepción</div>
+      </div>
+      <div class="relative">
+        <div class="absolute -left-6 w-4 h-4 rounded-full bg-slate-400 ring-2 ring-white"></div>
+        <div class="text-xs"><span class="font-semibold">Comentario</span> de <b>Jose</b> · 22-abr 08:10</div>
+        <div class="text-[10px] text-slate-500">"Ya hablé con proveedor, enviarán reemplazo en la próxima OC"</div>
+      </div>
+    </div>
+    <div class="mt-3 pt-3 border-t border-slate-100">
+      <textarea placeholder="Agregar un comentario interno a esta OC..." class="w-full text-xs border border-slate-200 rounded p-2" rows="2"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TABS NIVEL 3 · DIFERENCIADORES CREATIVOS
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <h2 class="text-lg font-bold text-slate-900 mb-3">🟣 Ideas nivel 3 — tabs diferenciadoras (opcionales)</h2>
+  <div class="grid grid-cols-2 gap-4">
+
+    <!-- Trazabilidad -->
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i class="fa-solid fa-route text-purple-700"></i>
+        <div class="text-sm font-bold">Trazabilidad / Inventario generado</div>
+      </div>
+      <div class="text-xs text-slate-600 mb-2">¿Dónde están hoy las 20 unidades que generó esta OC?</div>
+      <div class="grid grid-cols-4 gap-1 text-[10px] text-center">
+        <div class="p-2 bg-emerald-50 rounded"><div class="font-bold text-emerald-800 text-base">12</div><div class="text-emerald-700">Vendidas</div></div>
+        <div class="p-2 bg-sky-50 rounded"><div class="font-bold text-sky-800 text-base">5</div><div class="text-sky-700">En stock</div></div>
+        <div class="p-2 bg-amber-50 rounded"><div class="font-bold text-amber-800 text-base">1</div><div class="text-amber-700">En tránsito</div></div>
+        <div class="p-2 bg-red-50 rounded"><div class="font-bold text-red-800 text-base">2</div><div class="text-red-700">Dañadas</div></div>
+      </div>
+      <div class="text-[10px] text-slate-500 mt-2">Click para ver lote, almacén actual, vinculación con ventas.</div>
+    </div>
+
+    <!-- Requerimientos de origen -->
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i class="fa-solid fa-link text-purple-700"></i>
+        <div class="text-sm font-bold">Requerimientos de origen</div>
+      </div>
+      <div class="text-xs text-slate-600 mb-2">Esta OC fue generada para cubrir 2 requerimientos:</div>
+      <div class="space-y-1 text-xs">
+        <div class="flex justify-between"><span>REQ-2026-142 · Cliente VIP</span><span class="text-emerald-700 font-semibold">100% cubierto</span></div>
+        <div class="flex justify-between"><span>REQ-2026-155 · Reposición stock</span><span class="text-amber-700 font-semibold">65% cubierto</span></div>
+      </div>
+    </div>
+
+    <!-- FX / moneda -->
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i class="fa-solid fa-coins text-purple-700"></i>
+        <div class="text-sm font-bold">FX / Tipo de cambio</div>
+      </div>
+      <div class="text-xs text-slate-600 mb-2">Análisis profundo para OCs en moneda extranjera.</div>
+      <div class="grid grid-cols-3 gap-1 text-[10px] text-center">
+        <div class="p-2 bg-slate-50 rounded"><div class="text-slate-500">TC creación</div><div class="font-bold tab">3.470</div></div>
+        <div class="p-2 bg-amber-50 rounded"><div class="text-amber-700">TC hoy</div><div class="font-bold tab">3.495</div></div>
+        <div class="p-2 bg-red-50 rounded"><div class="text-red-700">Impacto</div><div class="font-bold tab">+S/ 11.30</div></div>
+      </div>
+    </div>
+
+    <!-- Chat proveedor -->
+    <div class="card p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <i class="fa-solid fa-comments text-purple-700"></i>
+        <div class="text-sm font-bold">Comunicación con proveedor</div>
+      </div>
+      <div class="text-xs text-slate-600 mb-2">
+        Log interno del equipo de cada comunicación (email, WhatsApp, llamada) con el proveedor sobre esta OC.
+        No es un chat real, es un <b>registro estructurado</b> con fecha, canal, responsable y resumen.
+      </div>
+      <div class="text-[10px] text-slate-500 italic">Ejemplo: "22-abr · email · Jose → Mr. Wu · 'Confirmamos envío de NC por $30'"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     TABLA RESUMEN
+============================================================================ -->
+<div class="max-w-7xl mx-auto mt-10 card p-5">
+  <h2 class="text-lg font-bold text-slate-900 mb-3">🎯 Resumen · Recomendación de prioridad</h2>
+  <table class="w-full text-xs">
+    <thead class="bg-slate-50 text-slate-700">
+      <tr>
+        <th class="text-left p-2">Tab</th>
+        <th class="text-center p-2">Nivel</th>
+        <th class="text-center p-2">Valor negocio</th>
+        <th class="text-center p-2">Esfuerzo</th>
+        <th class="text-center p-2">Tiene infra existente</th>
+        <th class="text-left p-2">Nota</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      <tr><td class="p-2 font-medium">📦 Productos</td><td class="text-center p-2">🟢 Core</td><td class="text-center p-2">🟢🟢🟢🟢🟢</td><td class="text-center p-2">🟢 Muy bajo</td><td class="text-center p-2">✅</td><td class="p-2 text-slate-600">Ya existe; mejorar con sparkline + entregado</td></tr>
+      <tr><td class="p-2 font-medium">🧾 Cargos & Totales</td><td class="text-center p-2">🟢 Core</td><td class="text-center p-2">🟢🟢🟢🟢</td><td class="text-center p-2">🟢 Bajo</td><td class="text-center p-2">✅</td><td class="p-2 text-slate-600">Ya existe; consolidar + agregar FX</td></tr>
+      <tr><td class="p-2 font-medium">💳 Pagos</td><td class="text-center p-2">🟢 Core</td><td class="text-center p-2">🟢🟢🟢🟢🟢</td><td class="text-center p-2">🟢 Bajo</td><td class="text-center p-2">✅</td><td class="p-2 text-slate-600">Ya existe como bloque; moverlo a tab</td></tr>
+      <tr><td class="p-2 font-medium">📨 Envíos</td><td class="text-center p-2">🟢 Core</td><td class="text-center p-2">🟢🟢🟢🟢🟢</td><td class="text-center p-2">🟢 Bajo</td><td class="text-center p-2">✅ EnviosDeOC</td><td class="p-2 text-slate-600">Migración directa</td></tr>
+      <tr class="bg-amber-50"><td class="p-2 font-medium">⚠️ Incidencias</td><td class="text-center p-2">🟢 Core</td><td class="text-center p-2">🟢🟢🟢🟢🟢</td><td class="text-center p-2">🟠 Medio-alto</td><td class="text-center p-2">🟡 Parcial (envío)</td><td class="p-2 text-slate-600"><b>⭐ prioridad alta</b> · requiere crear tipo `IncidenciaOC`</td></tr>
+      <tr><td class="p-2 font-medium">🕐 Timeline</td><td class="text-center p-2">🟢 Core</td><td class="text-center p-2">🟢🟢🟢🟢</td><td class="text-center p-2">🟡 Medio</td><td class="text-center p-2">🟡 Parcial (eventos)</td><td class="p-2 text-slate-600">Reconstruir con eventos existentes + comentarios</td></tr>
+      <tr><td class="p-2 font-medium">🪪 Sub-órdenes</td><td class="text-center p-2">🔵 Nivel 2</td><td class="text-center p-2">🟢🟢🟢🟢</td><td class="text-center p-2">🟢 Muy bajo</td><td class="text-center p-2">✅ SubOrdenCard</td><td class="p-2 text-slate-600">Condicional; solo cuando hay sub-órdenes</td></tr>
+      <tr><td class="p-2 font-medium">📁 Documentos</td><td class="text-center p-2">🔵 Nivel 2</td><td class="text-center p-2">🟢🟢🟢🟢</td><td class="text-center p-2">🟡 Medio</td><td class="text-center p-2">🟡 Parcial (campo URLs)</td><td class="p-2 text-slate-600">Requiere storage + preview</td></tr>
+      <tr class="bg-purple-50"><td class="p-2 font-medium">🧠 Inteligencia</td><td class="text-center p-2">🟣 Nivel 3</td><td class="text-center p-2">🟢🟢🟢🟢🟢</td><td class="text-center p-2">🟠 Medio-alto</td><td class="text-center p-2">🟡 Datos existen</td><td class="p-2 text-slate-600"><b>⭐ diferenciador</b> · querys sobre histórico OCs</td></tr>
+      <tr><td class="p-2 font-medium">🔍 Trazabilidad</td><td class="text-center p-2">🟣 Nivel 3</td><td class="text-center p-2">🟢🟢🟢🟢</td><td class="text-center p-2">🟡 Medio</td><td class="text-center p-2">✅ unidadesGeneradas</td><td class="p-2 text-slate-600">Seguimiento de las unidades creadas</td></tr>
+      <tr><td class="p-2 font-medium">🔗 Requerimientos</td><td class="text-center p-2">🟣 Nivel 3</td><td class="text-center p-2">🟢🟢🟢</td><td class="text-center p-2">🟢 Bajo</td><td class="text-center p-2">✅ requerimientoIds</td><td class="p-2 text-slate-600">Muestra requerimientos que esta OC cubre</td></tr>
+      <tr><td class="p-2 font-medium">💱 FX</td><td class="text-center p-2">🟣 Nivel 3</td><td class="text-center p-2">🟢🟢🟢</td><td class="text-center p-2">🟡 Medio</td><td class="text-center p-2">✅ Agente 18 FX</td><td class="p-2 text-slate-600">Solo para OC en USD; link a módulo FX</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mt-5 p-3 bg-teal-50 border border-teal-200 rounded-lg">
+    <div class="text-sm font-bold text-teal-900 mb-2">💡 Plan de adopción sugerido (3 tandas)</div>
+    <ol class="text-xs text-teal-900 list-decimal list-inside space-y-1">
+      <li><b>Tanda 1 (quick win · 1 sesión):</b> migrar lo que ya existe a tabs — Productos, Cargos, Pagos, Envíos, Sub-órdenes (condicional). Cero lógica nueva, solo reorganización.</li>
+      <li><b>Tanda 2 (estrella · 1-2 sesiones):</b> Incidencias con el modelo <code>IncidenciaOC</code> + sub-tipos + CTAs (reclamo, NC, merma, retención de pago). Es el tab que más valor genera.</li>
+      <li><b>Tanda 3 (diferenciador · 1 sesión):</b> Inteligencia con 4 widgets (SLA proveedor, precio vs mercado, FX, ranking rentabilidad). Queries sobre histórico que ya tienes.</li>
+      <li><b>Opcional futuro:</b> Documentos (requiere storage), Trazabilidad, Requerimientos de origen, Timeline con comentarios, FX profundo.</li>
+    </ol>
+  </div>
+</div>
+
+</body>
+</html>

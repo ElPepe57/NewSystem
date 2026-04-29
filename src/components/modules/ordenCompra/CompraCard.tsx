@@ -1,3 +1,21 @@
+/**
+ * REFERENCIA DE DISEÑO CANÓNICA — CompraCard
+ *
+ * Este archivo es la FUENTE DE VERDAD del patrón "vista de lista con sub-entidades" del
+ * sistema. Cualquier card de listado con sub-órdenes, tandas o líneas anidadas en otro
+ * módulo DEBE replicar este patrón visual.
+ *
+ * NO MODIFICAR este archivo sin autorización explícita del usuario. Cualquier
+ * cambio aquí propaga implícitamente al resto del sistema y puede introducir
+ * regresiones en módulos ya alineados.
+ *
+ * Ver:
+ *   - CLAUDE.md → "ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS"
+ *   - docs/DESIGN_PATTERNS.md → "Referencias de Diseño Canónicas (S54.x)"
+ *   - docs/REGISTRO_IMPLEMENTACION.md → "SESIÓN S54.x — DECISIÓN ESTRATÉGICA"
+ *
+ * Decisión registrada en sesión S54.x (2026-04-25).
+ */
 import React, { useState } from 'react';
 import {
   Eye,
@@ -8,6 +26,12 @@ import {
   ChevronRight,
   Info,
   ExternalLink,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Ban,
+  FileText,
+  Check,
 } from 'lucide-react';
 import { cn, StatusBadge, formatFechaRelativa } from '../../../design-system';
 import type {
@@ -113,11 +137,16 @@ const CompraCardSimple: React.FC<{
     orden.estado
   );
   const estadoPago = orden.estadoPago;
-  const totalPagado = (orden.historialPagos ?? []).reduce(
-    (s, p) => s + (p.montoUSD || 0),
-    0
-  );
-  const saldoPendiente = Math.max(0, orden.totalUSD - totalPagado);
+  // S55 Fase 2 — `oc.historialPagos[]` se eliminó. Pagos viven en CC.
+  // Para mostrar saldo pendiente sin disparar query async en cada card,
+  // usamos `oc.montoPendiente` (denormalizado) y derivamos `totalPagado`
+  // de él. Esto mantiene listados rápidos sin hacer fetch por OC.
+  const tcAprox = orden.tcReferencial || orden.tcCompra || 1;
+  const saldoPendienteUSD = orden.montoPendiente
+    ? orden.montoPendiente / tcAprox
+    : (estadoPago === 'pagado' ? 0 : orden.totalUSD);
+  const totalPagado = Math.max(0, orden.totalUSD - saldoPendienteUSD);
+  const saldoPendiente = saldoPendienteUSD;
   const porcentajePagado =
     orden.totalUSD > 0 ? Math.round((totalPagado / orden.totalUSD) * 100) : 0;
 
@@ -130,148 +159,429 @@ const CompraCardSimple: React.FC<{
     (e) => e.destinoCasillaNombre || e.destinoCasillaCodigo
   );
 
+  // ─── S54.x — Datos visuales alineados a EnvioCardSimple ───────────────
+  // Productos: top 3 con iniciales coloreadas (avatares apilados)
+  const productosTop = orden.productos.slice(0, 3).map((p, idx) => {
+    const palette = paletteForId(p.productoId || `${idx}`);
+    return {
+      productoId: p.productoId || `${idx}`,
+      nombre: p.nombreComercial,
+      inicial: inicial(p.nombreComercial),
+      cantidad: p.cantidad,
+      ...palette,
+    };
+  });
+  const prodRestantes = Math.max(0, orden.productos.length - 3);
+  const totalSKUs = orden.productos.length;
+  const totalUnidades = orden.productos.reduce((s, p) => s + (p.cantidad || 0), 0);
+  const resumenNombres =
+    productosTop.length > 0
+      ? productosTop.map((p) => p.nombre.split(' ')[0]).join(' · ') +
+        (prodRestantes > 0 ? ` · +${prodRestantes}` : '')
+      : 'Sin productos';
+
+  // Estado: ícono + colores
+  const estadoCfg = ESTADO_OC_ICON[estadoDerivado] ?? ESTADO_OC_ICON.borrador;
+  const EstadoIcon = estadoCfg.icon;
+
+  // Sticker de la fase (espejo del sticker de tipo de ruta en EnvioCardSimple)
+  const stickerCls = STICKER_OC_CLS[estadoDerivado] ?? STICKER_OC_DEFAULT;
+
+  // Pago: progreso de monto pagado
+  const barraColor =
+    estadoPago === 'pagado'
+      ? 'bg-emerald-500'
+      : estadoPago === 'parcial'
+        ? 'bg-amber-500'
+        : 'bg-slate-300';
+
+  // Casilla destino (de los envíos asociados o almacén destino de la OC)
+  const casillaNombre =
+    envioConCasilla?.destinoCasillaCodigo ||
+    envioConCasilla?.destinoCasillaNombre ||
+    orden.nombreAlmacenDestino ||
+    'Casilla';
+  const casillaPais =
+    envioConCasilla?.destinoCasillaPais || orden.paisOrigen || 'Peru';
+  const esDDP = orden.modoEntregaDetallado === 'ddp_directo';
+  const destinoNombre = esDDP ? 'Perú' : casillaNombre;
+  const destinoPais = esDDP ? 'Peru' : casillaPais;
+
+  // Transportador: tomado del primer envío con courier/colaborador
+  const transportador =
+    enviosAsociados.find((e) => e.courier || e.colaboradorNombre)?.courier ??
+    enviosAsociados.find((e) => e.colaboradorNombre)?.colaboradorNombre ??
+    null;
+
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
+        '@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
         estadoPago === 'pagado' && estadoDerivado === 'recibida' && 'opacity-80',
         className
       )}
       onClick={onView}
     >
-      <div className="flex items-start gap-4">
-        {/* ─── Columna 1: Número + estado + fecha ─── */}
-        <div className="flex-shrink-0">
-          <div className="font-mono font-bold text-slate-900">
+      {/* ═══════════════════════════════════════════════════════════════
+           S54.x — Layout DUAL espejado de EnvioCardSimple:
+
+           NARROW (@container <640px) → stack vertical 3 rows:
+             · Row 1: ícono estado + número+fecha · sticker pipeline
+             · Row 2: ruta proveedor → casilla en bloque slate
+             · Row 3: avatares productos · total + barra pago + acciones
+
+           WIDE (@container ≥640px) → 5 columnas horizontales con dividers:
+             · Col 1: ícono estado + número + fecha
+             · Col 2: sticker pipeline + ruta proveedor → courier → casilla
+             · Col 3: avatares productos + resumen
+             · Col 4: total USD + barra pago + saldo / 100%
+             · Col 5: acciones (Ver / Pagar / Envíos)
+         ═══════════════════════════════════════════════════════════════ */}
+
+      {/* ── NARROW (stack vertical · móvil-app) ─────────────────────────── */}
+      <div className="@[640px]:hidden space-y-3">
+        {/* Row 1: ícono + número/fecha + sticker pipeline */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              className={cn(
+                'inline-flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0',
+                estadoCfg.bg,
+                estadoCfg.text
+              )}
+              title={estadoCfg.label}
+            >
+              <EstadoIcon className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-mono font-bold text-slate-900 text-sm truncate">
+                {orden.numeroOrden}
+              </div>
+              <div className="text-[10px] text-slate-400">
+                {formatFechaRelativa(orden.fechaCreacion as any)} · {estadoCfg.label}
+              </div>
+            </div>
+          </div>
+          <span
+            className={cn(
+              'text-[10px] font-bold px-2 py-1 rounded-md border whitespace-nowrap flex-shrink-0',
+              stickerCls.bg,
+              stickerCls.border,
+              stickerCls.text
+            )}
+          >
+            {estadoCfg.label}
+          </span>
+        </div>
+
+        {/* Row 2: ruta proveedor → casilla en bloque */}
+        <div className="bg-slate-50 rounded-lg px-3 py-2">
+          <div className="flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-1 flex-1 min-w-0">
+              <span className="text-sm flex-shrink-0">{getFlag(orden.paisOrigen)}</span>
+              <span className="font-medium truncate" title={orden.nombreProveedor}>
+                {orden.nombreProveedor}
+              </span>
+            </div>
+            {transportador && (
+              <div
+                className="text-[10px] italic text-slate-500 flex items-center gap-1 flex-shrink-0"
+                title={transportador}
+              >
+                <span>✈️</span>
+                <span className="truncate max-w-[80px]">{transportador}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1 flex-1 min-w-0 justify-end">
+              <span className="text-sm flex-shrink-0">{getFlag(destinoPais)}</span>
+              <span className="font-medium truncate" title={destinoNombre}>
+                {destinoNombre}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: avatares + monto USD + barra + acciones circulares */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            {productosTop.length > 0 ? (
+              <>
+                <div className="flex -space-x-1.5 flex-shrink-0">
+                  {productosTop.map((p) => (
+                    <div
+                      key={p.productoId}
+                      className={cn(
+                        'w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold',
+                        p.bg,
+                        p.text
+                      )}
+                      title={`${p.nombre} ×${p.cantidad}`}
+                    >
+                      {p.inicial}
+                      <sup className="ml-0.5 text-[8px]">{p.cantidad}</sup>
+                    </div>
+                  ))}
+                  {prodRestantes > 0 && (
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600">
+                      +{prodRestantes}
+                    </div>
+                  )}
+                </div>
+                {totalSKUs > 0 && (
+                  <div className="text-[10px] text-slate-500 truncate">
+                    {totalSKUs} SKU{totalSKUs !== 1 ? 's' : ''}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-[11px] text-slate-400 italic">Sin productos</div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="text-right">
+              <div className="text-base font-bold text-slate-900 tabular-nums leading-none">
+                ${orden.totalUSD.toFixed(2)}
+              </div>
+              <div
+                className={cn(
+                  'text-[9px] font-medium mt-0.5 tabular-nums',
+                  estadoPago === 'pagado'
+                    ? 'text-emerald-700'
+                    : estadoPago === 'parcial'
+                      ? 'text-amber-700'
+                      : 'text-red-600'
+                )}
+              >
+                {estadoPago === 'pagado'
+                  ? '100% pagado'
+                  : estadoPago === 'parcial'
+                    ? `${porcentajePagado}% pagado`
+                    : 'Sin pago'}
+              </div>
+            </div>
+            <button
+              type="button"
+              title="Ver detalle"
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
+              className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 hover:bg-teal-100 flex items-center justify-center flex-shrink-0 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── WIDE (5 cols horizontales premium · ≥640px) ───────────────── */}
+      <div className="hidden @[640px]:flex flex-wrap items-start gap-y-3 gap-x-4">
+        {/* ─── Col 1: Ícono grande + N° OC + fecha ─── */}
+        <div className="flex-shrink-0 text-center">
+          <div
+            className={cn(
+              'inline-flex items-center justify-center w-10 h-10 rounded-xl',
+              estadoCfg.bg,
+              estadoCfg.text
+            )}
+            title={estadoCfg.label}
+          >
+            <EstadoIcon className="w-5 h-5" />
+          </div>
+          <div className="font-mono font-bold text-slate-900 text-xs mt-1">
             {orden.numeroOrden}
           </div>
-          <div className="mt-1">
-            <EstadoOCPill estado={estadoDerivado} />
-          </div>
-          <div className="text-[10px] text-slate-400 mt-1">
+          <div className="text-[9px] text-slate-400">
             {formatFechaRelativa(orden.fechaCreacion as any)}
           </div>
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+        <div className="w-px bg-slate-200 self-stretch hidden @[640px]:block" />
 
-        {/* ─── Columna 2: Proveedor + productos + mini-ruta ─── */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-base">{getFlag(orden.paisOrigen)}</span>
-            <span className="font-semibold text-slate-900 truncate">
-              {orden.nombreProveedor}
-            </span>
-          </div>
-          <div className="text-xs text-slate-600 mb-2 truncate">{resumen}</div>
-          {/* S42bi — Mini-ruta: DDP → Proveedor→Perú; resto → Proveedor→Casilla */}
-          <MiniRuta
-            paisOrigen={orden.paisOrigen}
-            nombreOrigen={orden.nombreProveedor}
-            paisCasilla={envioConCasilla?.destinoCasillaPais}
-            nombreCasilla={
-              envioConCasilla?.destinoCasillaCodigo ||
-              envioConCasilla?.destinoCasillaNombre ||
-              orden.nombreAlmacenDestino
-            }
-            esDDP={orden.modoEntregaDetallado === 'ddp_directo'}
-          />
-        </div>
-
-        {/* Divider */}
-        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
-
-        {/* ─── Columna 3: Envíos asociados ─── */}
-        <div className="flex-shrink-0 w-full md:w-56">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-            Envíos asociados
-          </div>
-          {enviosVisibles.length === 0 ? (
-            <div className="text-[11px] text-slate-400 italic">
-              Sin envíos generados
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {enviosVisibles.map((env) => (
-                <MiniEnvioCard
-                  key={env.id}
-                  envio={env}
-                  onClick={
-                    onVerEnvio
-                      ? (e) => {
-                          e.stopPropagation();
-                          onVerEnvio(env.id);
-                        }
-                      : undefined
-                  }
-                />
-              ))}
-              {enviosRestantes > 0 && (
-                <div className="text-[10px] text-slate-400 italic pl-1">
-                  + {enviosRestantes} más
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
-
-        {/* ─── Columna 4: Monto + estado pago + saldo ─── */}
-        <div className="flex-shrink-0 w-full md:w-32 text-right">
-          <div className="text-lg font-bold text-slate-900 tabular-nums">
-            ${orden.totalUSD.toFixed(2)}
-          </div>
-          <div className="text-[10px] text-slate-500 mb-1">Total USD</div>
-          <EstadoPagoPillConPorcentaje
-            estado={estadoPago}
-            porcentaje={porcentajePagado}
-          />
-          {saldoPendiente > 0 && estadoPago !== 'pagado' && (
-            <div
+        {/* ─── Col 2: Sticker estado pipeline + ruta proveedor → casilla ─── */}
+        <div className="flex-1 min-w-[180px]">
+          <div
+            className={cn(
+              'inline-flex items-center gap-2 rounded-lg px-3 py-1.5 border',
+              stickerCls.bg,
+              stickerCls.border
+            )}
+          >
+            <span
               className={cn(
-                'text-[10px] mt-0.5 tabular-nums',
-                estadoPago === 'parcial' ? 'text-amber-700' : 'text-red-700'
+                'text-[10px] font-bold rounded px-1.5 py-0.5',
+                stickerCls.badge
               )}
             >
-              {estadoPago === 'parcial'
-                ? `$ ${saldoPendiente.toFixed(2)} pendiente`
-                : 'Pendiente pago'}
-            </div>
-          )}
-          {estadoPago === 'pagado' && (
-            <div className="text-[10px] text-emerald-700 mt-0.5">100%</div>
+              OC
+            </span>
+            <span className={cn('text-[12px] font-semibold', stickerCls.text)}>
+              {estadoCfg.label}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 mt-2 text-[11px] flex-wrap">
+            <span className="text-slate-900 font-medium flex items-center gap-1">
+              <span className="text-sm">{getFlag(orden.paisOrigen)}</span>
+              <span className="truncate max-w-[160px]" title={orden.nombreProveedor}>
+                {orden.nombreProveedor}
+              </span>
+            </span>
+            <span className="text-slate-300">—</span>
+            {transportador && (
+              <>
+                <span className="text-slate-500 italic flex items-center gap-1">
+                  <span>✈️</span>
+                  <span className="truncate max-w-[100px]" title={transportador}>
+                    {transportador}
+                  </span>
+                </span>
+                <span className="text-slate-300">—</span>
+              </>
+            )}
+            <span className="text-slate-900 font-medium flex items-center gap-1">
+              <span className="text-sm">{getFlag(destinoPais)}</span>
+              <span className="truncate max-w-[160px]" title={destinoNombre}>
+                {destinoNombre}
+              </span>
+            </span>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="w-px bg-slate-200 self-stretch hidden @[640px]:block" />
+
+        {/* ─── Col 3: Avatares productos + resumen ─── */}
+        <div className="shrink min-w-[110px] w-40 max-w-[180px] @[800px]:w-56 @[800px]:max-w-[224px]">
+          <div className="hidden @[800px]:block text-[10px] font-semibold text-slate-500 uppercase mb-1.5 tracking-wider">
+            Productos{' '}
+            {totalSKUs > 0 && (
+              <span className="text-slate-400 font-normal">
+                ({totalSKUs} SKU{totalSKUs === 1 ? '' : 's'})
+              </span>
+            )}
+          </div>
+          {productosTop.length > 0 ? (
+            <>
+              <div className="flex items-center">
+                <div className="flex -space-x-2">
+                  {productosTop.map((p) => (
+                    <div
+                      key={p.productoId}
+                      className={cn(
+                        'w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold',
+                        p.bg,
+                        p.text
+                      )}
+                      title={`${p.nombre} ×${p.cantidad}`}
+                    >
+                      {p.inicial}
+                      <sup className="ml-0.5 text-[9px]">{p.cantidad}</sup>
+                    </div>
+                  ))}
+                  {prodRestantes > 0 && (
+                    <div
+                      className="w-9 h-9 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600"
+                      title={`${prodRestantes} producto${prodRestantes === 1 ? '' : 's'} más`}
+                    >
+                      +{prodRestantes}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div
+                className="hidden @[800px]:block text-[10px] text-slate-500 mt-1.5 truncate"
+                title={resumenNombres}
+              >
+                {resumenNombres}
+              </div>
+            </>
+          ) : (
+            <div className="text-[11px] text-slate-400 italic">Sin productos</div>
           )}
         </div>
 
-        {/* ─── Columna 5: Acciones icono verticales ─── */}
-        <div className="flex-shrink-0 flex md:flex-col gap-1">
-          <IconAction
+        {/* Divider */}
+        <div className="w-px bg-slate-200 self-stretch hidden @[640px]:block" />
+
+        {/* ─── Col 4: Total USD + barra pago + saldo ─── */}
+        <div className="shrink min-w-[100px] w-32 max-w-[140px] @[800px]:w-36 @[800px]:max-w-[160px] text-right">
+          <div className="text-xl font-bold text-slate-900 tabular-nums leading-none">
+            ${orden.totalUSD.toFixed(2)}
+          </div>
+          <div className="text-[10px] text-slate-500 mt-0.5 mb-1">Total USD</div>
+          <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className={cn('h-full transition-all', barraColor)}
+              style={{ width: `${porcentajePagado}%` }}
+            />
+          </div>
+          <div
+            className={cn(
+              'text-[10px] mt-0.5 font-medium tabular-nums',
+              estadoPago === 'pagado'
+                ? 'text-emerald-700'
+                : estadoPago === 'parcial'
+                  ? 'text-amber-700'
+                  : 'text-red-600'
+            )}
+          >
+            {estadoPago === 'pagado'
+              ? '100% pagado'
+              : estadoPago === 'parcial'
+                ? `${porcentajePagado}% pagado`
+                : 'Sin pago'}
+          </div>
+          {saldoPendiente > 0 && estadoPago !== 'pagado' && (
+            <div className="text-[9px] text-slate-400 mt-0.5 tabular-nums">
+              ${saldoPendiente.toFixed(2)} saldo
+            </div>
+          )}
+          {totalUnidades > 0 && (
+            <div className="mt-2 pt-2 border-t border-slate-100">
+              <div className="text-[10px] text-slate-500 tabular-nums">
+                {totalUnidades} und
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ─── Col 5: Acciones (Ver / Pagar / Envíos) ─── */}
+        <div className="flex-shrink-0 flex @md:flex-col gap-1">
+          <button
+            type="button"
             title="Ver detalle"
             onClick={(e) => {
               e.stopPropagation();
               onView();
             }}
-            icon={<Eye className="w-4 h-4" />}
-            tone="teal"
-          />
-          <IconAction
-            title="Registrar pago"
+            className="p-1.5 rounded-lg text-teal-600 hover:bg-teal-50 transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            title={estadoPago === 'pagado' ? 'Pagado' : 'Registrar pago'}
             onClick={
-              estadoPago === 'pagado'
+              estadoPago === 'pagado' || !onRegistrarPago
                 ? undefined
                 : (e) => {
                     e.stopPropagation();
-                    onRegistrarPago?.();
+                    onRegistrarPago();
                   }
             }
-            icon={<DollarSign className="w-4 h-4" />}
-            tone="emerald"
             disabled={estadoPago === 'pagado' || !onRegistrarPago}
-          />
-          <IconAction
+            className={cn(
+              'p-1.5 rounded-lg transition-colors',
+              estadoPago === 'pagado' || !onRegistrarPago
+                ? 'text-slate-300 cursor-not-allowed'
+                : 'text-emerald-600 hover:bg-emerald-50'
+            )}
+          >
+            <DollarSign className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
             title={
               enviosAsociados.length > 0
                 ? `Ver envíos (${enviosAsociados.length})`
@@ -285,10 +595,16 @@ const CompraCardSimple: React.FC<{
                   }
                 : undefined
             }
-            icon={<Truck className="w-4 h-4" />}
-            tone="sky"
             disabled={enviosAsociados.length === 0 || !onVerEnvios}
-          />
+            className={cn(
+              'p-1.5 rounded-lg transition-colors',
+              enviosAsociados.length === 0 || !onVerEnvios
+                ? 'text-slate-300 cursor-not-allowed'
+                : 'text-sky-600 hover:bg-sky-50'
+            )}
+          >
+            <Truck className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -737,7 +1053,7 @@ const SubOrdenExpandible: React.FC<{
         </div>
 
         <div className="flex items-center gap-4 flex-shrink-0">
-          <div className="text-right hidden md:block">
+          <div className="text-right hidden @md:block">
             <div className="text-[10px] text-slate-400">Productos</div>
             <div className="text-xs font-medium text-slate-600 truncate max-w-[14rem]">
               {productosResumen || '—'}
@@ -1109,6 +1425,69 @@ const ActionButton: React.FC<{
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+// S54.x — Avatares de productos: paleta consistente por productoId (espejo
+// del helper en EnvioCardSimple).
+const AVATAR_PALETTES = [
+  { bg: 'bg-amber-100', text: 'text-amber-700' },
+  { bg: 'bg-sky-100', text: 'text-sky-700' },
+  { bg: 'bg-purple-100', text: 'text-purple-700' },
+  { bg: 'bg-emerald-100', text: 'text-emerald-700' },
+  { bg: 'bg-pink-100', text: 'text-pink-700' },
+  { bg: 'bg-indigo-100', text: 'text-indigo-700' },
+  { bg: 'bg-teal-100', text: 'text-teal-700' },
+  { bg: 'bg-rose-100', text: 'text-rose-700' },
+];
+
+function paletteForId(id: string): { bg: string; text: string } {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  return AVATAR_PALETTES[Math.abs(hash) % AVATAR_PALETTES.length];
+}
+
+function inicial(nombre: string): string {
+  const limpio = (nombre || '').trim();
+  return limpio ? limpio[0].toUpperCase() : '?';
+}
+
+// S54.x — Ícono + colores por estado derivado de OC (espejo de
+// ESTADO_ICON en EnvioCardSimple).
+const ESTADO_OC_ICON: Record<
+  string,
+  { icon: React.ComponentType<{ className?: string }>; bg: string; text: string; label: string }
+> = {
+  borrador: { icon: FileText, bg: 'bg-slate-100', text: 'text-slate-500', label: 'Borrador' },
+  enviada: { icon: Check, bg: 'bg-sky-50', text: 'text-sky-600', label: 'Confirmada' },
+  pagada: { icon: Check, bg: 'bg-sky-50', text: 'text-sky-600', label: 'Confirmada' },
+  confirmada: { icon: Check, bg: 'bg-sky-50', text: 'text-sky-600', label: 'Confirmada' },
+  en_transito: { icon: Truck, bg: 'bg-amber-50', text: 'text-amber-600', label: 'En Despacho' },
+  en_proceso: { icon: Truck, bg: 'bg-amber-50', text: 'text-amber-600', label: 'En Despacho' },
+  despachada: { icon: Truck, bg: 'bg-amber-50', text: 'text-amber-600', label: 'En Despacho' },
+  recibida_parcial: { icon: AlertCircle, bg: 'bg-amber-50', text: 'text-amber-600', label: 'En Despacho' },
+  recibida: { icon: CheckCircle2, bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Completada' },
+  completada: { icon: CheckCircle2, bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Completada' },
+  cancelada: { icon: Ban, bg: 'bg-red-50', text: 'text-red-600', label: 'Cancelada' },
+};
+
+// S54.x — Colores del sticker de fase pipeline (espejo de TIPO_RUTA_STICKER
+// en EnvioCardSimple). Cada estado pipeline tiene su tono propio.
+const STICKER_OC_CLS: Record<
+  string,
+  { bg: string; border: string; badge: string; text: string }
+> = {
+  borrador: { bg: 'bg-slate-50', border: 'border-slate-200', badge: 'bg-slate-200 text-slate-700', text: 'text-slate-700' },
+  enviada: { bg: 'bg-sky-50', border: 'border-sky-200', badge: 'bg-sky-200 text-sky-900', text: 'text-sky-900' },
+  pagada: { bg: 'bg-sky-50', border: 'border-sky-200', badge: 'bg-sky-200 text-sky-900', text: 'text-sky-900' },
+  confirmada: { bg: 'bg-sky-50', border: 'border-sky-200', badge: 'bg-sky-200 text-sky-900', text: 'text-sky-900' },
+  en_transito: { bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-200 text-amber-900', text: 'text-amber-900' },
+  en_proceso: { bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-200 text-amber-900', text: 'text-amber-900' },
+  despachada: { bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-200 text-amber-900', text: 'text-amber-900' },
+  recibida_parcial: { bg: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-200 text-amber-900', text: 'text-amber-900' },
+  recibida: { bg: 'bg-emerald-50', border: 'border-emerald-200', badge: 'bg-emerald-200 text-emerald-900', text: 'text-emerald-900' },
+  completada: { bg: 'bg-emerald-50', border: 'border-emerald-200', badge: 'bg-emerald-200 text-emerald-900', text: 'text-emerald-900' },
+  cancelada: { bg: 'bg-red-50', border: 'border-red-200', badge: 'bg-red-200 text-red-900', text: 'text-red-900' },
+};
+const STICKER_OC_DEFAULT = STICKER_OC_CLS.borrador;
 
 function getFlag(pais?: string): string {
   if (!pais) return '🌐';

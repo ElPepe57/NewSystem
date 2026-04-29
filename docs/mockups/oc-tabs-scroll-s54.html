@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>OC · Barra de tabs con scroll · Alternativas S54</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .fade-right { mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%); -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%); }
+  .fade-both { mask-image: linear-gradient(to right, transparent 0px, black 32px, black calc(100% - 32px), transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0px, black 32px, black calc(100% - 32px), transparent 100%); }
+  .tab-btn { padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.375rem; white-space: nowrap; border-bottom: 2px solid transparent; color: rgb(100 116 139); transition: color .15s; }
+  .tab-btn:hover { color: rgb(51 65 85); }
+  .tab-btn.active { color: rgb(15 118 110); border-bottom-color: rgb(13 148 136); }
+  .tab-badge { margin-left: 0.25rem; padding: 0.125rem 0.375rem; border-radius: 9999px; font-size: 0.625rem; font-weight: 600; background: rgb(241 245 249); color: rgb(71 85 105); }
+  .tab-badge.red { background: rgb(254 226 226); color: rgb(185 28 28); }
+  .sb-item { width: 100%; text-align: left; padding: 0.5rem 0.75rem; font-size: 0.8125rem; display: flex; align-items: center; gap: 0.5rem; color: rgb(71 85 105); border-left: 2px solid transparent; }
+  .sb-item:hover { background: rgb(248 250 252); }
+  .sb-item.active { background: rgb(240 253 250); color: rgb(15 118 110); border-left-color: rgb(13 148 136); font-weight: 600; }
+</style>
+</head>
+<body class="p-6">
+
+<div class="max-w-4xl mx-auto mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">Barra de tabs con scroll horizontal · 5 alternativas modernas</h1>
+  <p class="text-sm text-slate-600 mt-1">
+    Problema actual: con 9 tabs, el contenedor activa el scrollbar oscuro nativo.
+    Abajo hay 5 alternativas modernas que lo eliminan.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     ESTADO ACTUAL (problema)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-6">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">🔎 Estado actual — scrollbar oscuro visible</div>
+  <div class="card p-1">
+    <div class="border-b border-slate-200 flex gap-0 overflow-x-auto">
+      <button class="tab-btn active"><i class="fa-solid fa-box text-xs"></i> Productos <span class="tab-badge">3</span></button>
+      <button class="tab-btn"><i class="fa-solid fa-receipt text-xs"></i> Cargos & Totales</button>
+      <button class="tab-btn"><i class="fa-solid fa-credit-card text-xs"></i> Pagos <span class="tab-badge red">$452</span></button>
+      <button class="tab-btn"><i class="fa-solid fa-paper-plane text-xs"></i> Envíos</button>
+      <button class="tab-btn"><i class="fa-solid fa-triangle-exclamation text-xs"></i> Incidencias</button>
+      <button class="tab-btn"><i class="fa-solid fa-folder-open text-xs"></i> Documentos</button>
+      <button class="tab-btn"><i class="fa-solid fa-brain text-xs"></i> Inteligencia</button>
+      <button class="tab-btn"><i class="fa-solid fa-clock-rotate-left text-xs"></i> Timeline</button>
+    </div>
+  </div>
+  <div class="mt-1 text-[10px] text-slate-400 italic">⚠️ Scrollbar nativo grueso que rompe la estética.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V1 — SCROLL INVISIBLE + FADE LATERAL
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-6">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V1 ⭐ RECOMENDADA</span>
+    <h2 class="text-base font-bold text-slate-900">Scroll invisible + fade degradado a la derecha</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-2">
+    Scrollbar oculto + degradado sutil a la derecha indica "hay más contenido".
+    Patrón usado por Notion, Linear, Vercel, Raycast.
+  </p>
+  <div class="card p-1">
+    <div class="border-b border-slate-200">
+      <div class="overflow-x-auto no-scrollbar fade-right flex gap-0">
+        <button class="tab-btn active"><i class="fa-solid fa-box text-xs"></i> Productos <span class="tab-badge">3</span></button>
+        <button class="tab-btn"><i class="fa-solid fa-receipt text-xs"></i> Cargos & Totales</button>
+        <button class="tab-btn"><i class="fa-solid fa-credit-card text-xs"></i> Pagos <span class="tab-badge red">$452</span></button>
+        <button class="tab-btn"><i class="fa-solid fa-paper-plane text-xs"></i> Envíos</button>
+        <button class="tab-btn"><i class="fa-solid fa-triangle-exclamation text-xs"></i> Incidencias</button>
+        <button class="tab-btn"><i class="fa-solid fa-folder-open text-xs"></i> Documentos</button>
+        <button class="tab-btn"><i class="fa-solid fa-brain text-xs"></i> Inteligencia</button>
+        <button class="tab-btn"><i class="fa-solid fa-clock-rotate-left text-xs"></i> Timeline</button>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-2">
+    <b class="text-emerald-700">✓</b> Minimalista · 0 UI chrome extra · responsive natural<br>
+    <b class="text-amber-700">✗</b> Algunos usuarios pueden no descubrir scroll horizontal (el fade mitiga)
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V2 — FADE + FLECHAS DISCRETAS
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-6">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V2</span>
+    <h2 class="text-base font-bold text-slate-900">Fade + flechas de navegación discretas</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-2">
+    V1 + botón-flecha circular en el extremo. Aparece solo cuando hay overflow oculto.
+    Patrón usado por Stripe, Figma, Chrome tabs.
+  </p>
+  <div class="card p-1">
+    <div class="border-b border-slate-200 relative">
+      <button class="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 hover:border-slate-300 text-slate-500">
+        <i class="fa-solid fa-chevron-right text-[11px]"></i>
+      </button>
+      <div class="overflow-x-auto no-scrollbar fade-right pr-10 flex gap-0">
+        <button class="tab-btn active"><i class="fa-solid fa-box text-xs"></i> Productos <span class="tab-badge">3</span></button>
+        <button class="tab-btn"><i class="fa-solid fa-receipt text-xs"></i> Cargos & Totales</button>
+        <button class="tab-btn"><i class="fa-solid fa-credit-card text-xs"></i> Pagos <span class="tab-badge red">$452</span></button>
+        <button class="tab-btn"><i class="fa-solid fa-paper-plane text-xs"></i> Envíos</button>
+        <button class="tab-btn"><i class="fa-solid fa-triangle-exclamation text-xs"></i> Incidencias</button>
+        <button class="tab-btn"><i class="fa-solid fa-folder-open text-xs"></i> Documentos</button>
+        <button class="tab-btn"><i class="fa-solid fa-brain text-xs"></i> Inteligencia</button>
+        <button class="tab-btn"><i class="fa-solid fa-clock-rotate-left text-xs"></i> Timeline</button>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-2">
+    <b class="text-emerald-700">✓</b> Descubribilidad explícita (flechas clickables) · soporta teclado<br>
+    <b class="text-amber-700">✗</b> Un poco más de UI chrome · requiere lógica JS para mostrar/ocultar flechas
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V3 — DROPDOWN "MÁS ▾"
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-10">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V3</span>
+    <h2 class="text-base font-bold text-slate-900">Tabs visibles + dropdown "Más ▾" con el resto</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-2">
+    Muestra solo los tabs que caben; el resto va en un menú "Más".
+    Clásico de Odoo, Zoho, Google Workspace, Gmail toolbar.
+  </p>
+  <div class="card p-1 relative" style="min-height: 180px;">
+    <div class="border-b border-slate-200 flex gap-0 items-center">
+      <button class="tab-btn active"><i class="fa-solid fa-box text-xs"></i> Productos <span class="tab-badge">3</span></button>
+      <button class="tab-btn"><i class="fa-solid fa-receipt text-xs"></i> Cargos & Totales</button>
+      <button class="tab-btn"><i class="fa-solid fa-credit-card text-xs"></i> Pagos <span class="tab-badge red">$452</span></button>
+      <button class="tab-btn"><i class="fa-solid fa-paper-plane text-xs"></i> Envíos</button>
+      <button class="tab-btn"><i class="fa-solid fa-triangle-exclamation text-xs"></i> Incidencias</button>
+      <div class="relative ml-auto">
+        <button class="tab-btn">Más <i class="fa-solid fa-chevron-down text-[10px]"></i> <span class="tab-badge">3</span></button>
+        <div class="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[180px] z-20">
+          <button class="w-full text-left px-3 py-1.5 text-sm hover:bg-slate-50 flex items-center gap-2"><i class="fa-solid fa-folder-open text-xs text-slate-400"></i> Documentos</button>
+          <button class="w-full text-left px-3 py-1.5 text-sm hover:bg-slate-50 flex items-center gap-2"><i class="fa-solid fa-brain text-xs text-slate-400"></i> Inteligencia</button>
+          <button class="w-full text-left px-3 py-1.5 text-sm hover:bg-slate-50 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-xs text-slate-400"></i> Timeline</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-2">
+    <b class="text-emerald-700">✓</b> Máxima limpieza visual · sin scroll · clásico conocido · teclado-friendly<br>
+    <b class="text-amber-700">✗</b> Requiere medir qué tabs caben en runtime · los tabs "ocultos" pueden sentirse de 2da categoría
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V4 — WRAP A 2 LÍNEAS
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-6">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V4</span>
+    <h2 class="text-base font-bold text-slate-900">Wrap a 2 líneas (todos siempre visibles)</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-2">
+    Los tabs se envuelven cuando no caben. Patrón de GitHub repo header, Jira.
+  </p>
+  <div class="card p-1">
+    <div class="border-b border-slate-200 flex gap-0 flex-wrap">
+      <button class="tab-btn active"><i class="fa-solid fa-box text-xs"></i> Productos <span class="tab-badge">3</span></button>
+      <button class="tab-btn"><i class="fa-solid fa-receipt text-xs"></i> Cargos & Totales</button>
+      <button class="tab-btn"><i class="fa-solid fa-credit-card text-xs"></i> Pagos <span class="tab-badge red">$452</span></button>
+      <button class="tab-btn"><i class="fa-solid fa-paper-plane text-xs"></i> Envíos</button>
+      <button class="tab-btn"><i class="fa-solid fa-triangle-exclamation text-xs"></i> Incidencias</button>
+      <button class="tab-btn"><i class="fa-solid fa-folder-open text-xs"></i> Documentos</button>
+      <button class="tab-btn"><i class="fa-solid fa-brain text-xs"></i> Inteligencia</button>
+      <button class="tab-btn"><i class="fa-solid fa-clock-rotate-left text-xs"></i> Timeline</button>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-2">
+    <b class="text-emerald-700">✓</b> Todos los tabs siempre visibles · 0 interacción requerida<br>
+    <b class="text-amber-700">✗</b> Altura variable según viewport · la línea del tab activo se rompe si está en la 1ra fila
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     V5 — SIDEBAR VERTICAL
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto mb-6">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">V5</span>
+    <h2 class="text-base font-bold text-slate-900">Sidebar vertical (tabs como menú lateral izquierdo)</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-2">
+    Tabs como menú vertical a la izquierda. Patrón Notion settings, Linear issue detail.
+  </p>
+  <div class="card p-0 overflow-hidden">
+    <div class="grid grid-cols-[200px_1fr]">
+      <div class="border-r border-slate-200 bg-slate-50/50 py-2">
+        <button class="sb-item active"><i class="fa-solid fa-box text-xs"></i> Productos <span class="tab-badge ml-auto">3</span></button>
+        <button class="sb-item"><i class="fa-solid fa-receipt text-xs"></i> Cargos & Totales</button>
+        <button class="sb-item"><i class="fa-solid fa-credit-card text-xs"></i> Pagos <span class="tab-badge red ml-auto">$452</span></button>
+        <button class="sb-item"><i class="fa-solid fa-paper-plane text-xs"></i> Envíos</button>
+        <button class="sb-item"><i class="fa-solid fa-triangle-exclamation text-xs"></i> Incidencias</button>
+        <button class="sb-item"><i class="fa-solid fa-folder-open text-xs"></i> Documentos</button>
+        <button class="sb-item"><i class="fa-solid fa-brain text-xs"></i> Inteligencia</button>
+        <button class="sb-item"><i class="fa-solid fa-clock-rotate-left text-xs"></i> Timeline</button>
+      </div>
+      <div class="p-4 text-xs text-slate-500 italic">
+        Contenido del tab activo (Productos)
+      </div>
+    </div>
+  </div>
+  <div class="text-[11px] text-slate-600 mt-2">
+    <b class="text-emerald-700">✓</b> Escalable a 15+ tabs · jerarquía clara · lectura vertical natural<br>
+    <b class="text-amber-700">✗</b> Cambia la estructura del modal a 2 columnas · reduce ancho del contenido · pierde consistencia con detalle Envío
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     RESUMEN
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="max-w-4xl mx-auto card p-4">
+  <h3 class="font-bold text-slate-900 mb-2">🎯 Recomendación</h3>
+  <div class="text-xs text-slate-700 space-y-1.5">
+    <p><b class="text-teal-700">V1 (fade invisible)</b> — la más simple y elegante. Funciona con trackpad / shift+rueda / drag. Patrón moderno estándar. <b>Mi recomendación.</b></p>
+    <p><b>V2 (fade + flechas)</b> — agrega descubribilidad con flechas discretas. Muy sólida si te importa la accesibilidad con ratón.</p>
+    <p><b>V3 (Más ▾)</b> — look "desktop clásico" más que "app moderna". Mejor si quieres una estética ERP tradicional.</p>
+    <p><b>V4 (wrap)</b> — mantiene todo visible pero se siente cargado con 9 tabs.</p>
+    <p><b>V5 (sidebar)</b> — mejor si el modal crece a 15+ tabs. Hoy es overkill y rompe consistencia con Envío.</p>
+  </div>
+  <div class="mt-3 p-3 bg-teal-50 border border-teal-200 rounded text-sm text-teal-900">
+    <b>Propuesta combinada ⭐:</b> implementar <b>V1 + ingrediente de V2</b> — fade+scroll invisible por default, flechitas que aparecen solo cuando el contenedor detecta overflow oculto. Lo mejor de ambos: limpio siempre, descubrible cuando hace falta.
+  </div>
+</div>
+
+</body>
+</html>

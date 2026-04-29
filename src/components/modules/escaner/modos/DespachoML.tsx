@@ -272,8 +272,8 @@ export const DespachoML = forwardRef<DespachoMLHandle>((_props, ref) => {
         setCobroPendiente(false);
         setMontoPorCobrar(0);
       } else {
-        const pagado = venta.pagos?.reduce((s, p) => s + p.monto, 0) || 0;
-        const pendiente = venta.totalPEN - pagado;
+        // S55 Fase 3 — usar montoPendiente denormalizado (no más venta.pagos[])
+        const pendiente = venta.montoPendiente ?? Math.max(0, venta.totalPEN - (venta.montoPagado || 0));
         setCobroPendiente(pendiente > 0);
         setMontoPorCobrar(pendiente > 0 ? pendiente : 0);
         if (venta.canal === 'mercado_libre') setMetodoPago('mercado_pago');

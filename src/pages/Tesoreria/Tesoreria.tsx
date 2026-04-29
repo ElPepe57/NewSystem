@@ -1058,43 +1058,15 @@ export const Tesoreria: React.FC = () => {
       )}
 
       {tabActiva === 'conversiones' && (
-        <div className="space-y-4">
-          {/* Imp-L7 · M7 wizard banking-grade unificado */}
-          <ConversionTransferenciaWizard />
-
-          {/* Listado histórico legacy preservado */}
-          <TabConversiones
-            conversiones={conversiones}
-            cuentas={cuentas}
-            isConversionModalOpen={isConversionModalOpen}
-            setIsConversionModalOpen={setIsConversionModalOpen}
-            conversionForm={conversionForm}
-            setConversionForm={setConversionForm}
-            isSubmitting={isSubmitting}
-            tcDefault={tcDefault}
-            handleCrearConversion={handleCrearConversion}
-          />
-        </div>
+        // Imp-L11 · solo el wizard banking-grade. El listado histórico
+        // de conversiones se ve en TabMovimientos con filtro tipo=conversion.
+        <ConversionTransferenciaWizard />
       )}
 
       {tabActiva === 'transferencias' && (
-        <div className="space-y-4">
-          {/* Imp-L7 · M7 wizard banking-grade unificado */}
-          <ConversionTransferenciaWizard />
-
-          {/* Listado histórico legacy preservado */}
-          <TabTransferencias
-            transferencias={transferencias}
-            cuentas={cuentas}
-            isTransferenciaModalOpen={isTransferenciaModalOpen}
-            setIsTransferenciaModalOpen={setIsTransferenciaModalOpen}
-            transferenciaForm={transferenciaForm}
-            setTransferenciaForm={setTransferenciaForm}
-            isSubmitting={isSubmitting}
-            tcDefault={tcDefault}
-            handleCrearTransferencia={handleCrearTransferencia}
-          />
-        </div>
+        // Imp-L11 · solo el wizard banking-grade. El listado histórico se ve
+        // en TabMovimientos con filtro tipo=transferencia.
+        <ConversionTransferenciaWizard />
       )}
 
       {tabActiva === 'cuentas' && (

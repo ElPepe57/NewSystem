@@ -309,11 +309,18 @@ export interface Envio {
   monedaFlete?: 'USD' | 'PEN';
   costoFletePorLibra?: number;
 
-  // Pago al colaborador (viajero/courier)
+  // ── Pago al colaborador (viajero/courier) — denormalizado · derivado de CC ──
+  // S55 Fase 4: la fuente de verdad es la Cuenta Corriente del colaborador.
+  // Estos campos se actualizan al registrar pagos via `registrarPagoColaborador`.
   estadoPagoColaborador?: 'pendiente' | 'parcial' | 'pagado';
-  pagosColaborador?: PagoColaborador[];
   montoPagadoUSD?: number;
   montoPendienteUSD?: number;
+
+  // CAMPO LEGACY ELIMINADO en S55 Fase 4 (movido a movimientosCC):
+  //   - pagosColaborador[]    → query a movimientosCC con
+  //                              refDocumentoTipo='envio' + refDocumentoId=envioId
+  //                              + tipo='credito_pago_envio'
+  //                              (usar `getPagosEnvio()` o hook `usePagosEnvio()`)
 
   // Tracking
   numeroTracking?: string;
@@ -439,6 +446,18 @@ export type EstadoSubEnvio =
 
 /**
  * Pago al colaborador (viajero/courier) por el transporte
+ */
+/**
+ * @deprecated S55 Fase 4 — Reemplazado por `MovimientoCC` con
+ * `tipo: 'credito_pago_envio'` en la nueva colección `movimientosCC`.
+ *
+ * Para nuevos consumidores, usar:
+ *   - Hook reactivo: `usePagosEnvio(envioId)` desde `src/hooks/usePagosEnvio.ts`
+ *   - Query directa: `getPagosEnvio(envioId)` desde
+ *     `src/services/cuentaCorriente.adaptadores.ts`
+ *
+ * Este tipo se mantiene SOLO porque el service interno aún lo usa para construir
+ * el retorno de `registrarPagoColaborador`. Eliminar cuando se complete migración.
  */
 export interface PagoColaborador {
   id: string;                          // PAG-COL-{timestamp}

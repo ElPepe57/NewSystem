@@ -24,10 +24,12 @@ import type {
   OrdenCompraStats,
   Proveedor,
   ProveedorFormData,
-  PagoOrdenCompra,
   RecepcionParcial
 } from '../types/ordenCompra.types';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
+// S55 Fase 2 — el tipo legacy PagoOrdenCompra se reemplazó por PagoOCLegacy
+// (alias re-exportado en cuentaCorriente.adaptadores.ts).
+import type { PagoOCLegacy } from './cuentaCorriente.adaptadores';
 
 // ─── Sub-module imports ───────────────────────────────────────────────────────
 
@@ -155,7 +157,7 @@ export class OrdenCompraService {
       notas?: string;
     },
     userId: string
-  ): Promise<PagoOrdenCompra> {
+  ): Promise<PagoOCLegacy> {
     return registrarPago(id, datos, userId);
   }
 

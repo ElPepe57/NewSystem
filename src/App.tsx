@@ -42,6 +42,7 @@ const Requerimientos = React.lazy(() => import('./pages/Requerimientos/Requerimi
 // S57 Fase C+ — Tesoreria eager (era lazy, pero al ser sub-ruta del FinanzasLayout
 // el Suspense compartido congelaba el Outlet en la sub-vista anterior al navegar).
 import { Tesoreria } from './pages/Tesoreria/Tesoreria';
+import FinanzasCashFlow from './pages/Finanzas/FinanzasCashFlow';
 // S56 — Hub Finanzas (CC unificada + acciones rápidas)
 // S57 Fase C — Finanzas ahora es Overview ejecutivo;
 // la lista de saldos por entidad se movió a /finanzas/saldos
@@ -187,17 +188,17 @@ function App() {
               <Route path="requerimientos" element={<Requerimientos />} />
 
               {/* Finanzas */}
-              {/* S57 Fase C+ — FinanzasLayout con tabs sticky compartidas:
-                   /finanzas         → Overview ejecutivo (Dashboard CFO)
-                   /finanzas/saldos  → Lista de cuentas corrientes con pipeline
-                   /finanzas/cash-flow → Tesorería (movimientos por cuenta bancaria)
-                   Las 3 viven dentro del mismo shell con header común y tabs. */}
+              {/* S57 + Imp-L11 — FinanzasLayout con tabs sticky compartidas:
+                   /finanzas           → Overview ejecutivo (Dashboard CFO)
+                   /finanzas/saldos    → Lista de cuentas corrientes con pipeline
+                   /finanzas/cash-flow → Dashboard ejecutivo de cash flow (M9)
+                   /tesoreria          → Módulo operativo de tesorería (productos+movs+pagos+pipeline) */}
               <Route path="finanzas" element={<FinanzasLayout />}>
                 <Route index element={<Finanzas />} />
                 <Route path="saldos" element={<FinanzasSaldos />} />
-                <Route path="cash-flow" element={<Tesoreria />} />
+                <Route path="cash-flow" element={<FinanzasCashFlow />} />
               </Route>
-              <Route path="tesoreria" element={<Navigate to="/finanzas/cash-flow" replace />} />
+              <Route path="tesoreria" element={<Tesoreria />} />
               <Route path="gastos" element={<Gastos />} />
               <Route path="contabilidad" element={<Contabilidad />} />
               <Route path="tipo-cambio" element={<TipoCambio />} />

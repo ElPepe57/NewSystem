@@ -212,19 +212,11 @@ export const envioRecepcionService = {
       }
     }
 
-    // Calcular totales
-    const totalRecibidas = unidadesActualizadas.filter(u => u.estadoEnvio === 'recibida').length;
-    const totalFaltantes = unidadesActualizadas.filter(u => u.estadoEnvio === 'faltante' || u.estadoEnvio === 'perdida').length;
-    const totalDanadas = unidadesActualizadas.filter(u => u.estadoEnvio === 'danada').length;
-    const totalRetenidas = unidadesActualizadas.filter(u => u.estadoEnvio === 'retenida').length;
-    const totalPendientes = unidadesActualizadas.filter(u => u.estadoEnvio === 'enviada' || u.estadoEnvio === 'pendiente').length;
-
-    // S39: solo es "completa" si TODO fue recibido (incluye dañadas como procesadas).
-    // Faltantes, retenidas = no resueltas aún = parcial.
-    const estadoFinal: EstadoEnvio =
-      totalPendientes === 0 && totalFaltantes === 0 && totalRetenidas === 0
-        ? 'recibida_completa'
-        : 'recibida_parcial';
+    // BUG-INC-006/007/008 fix (S54.x) — Cálculo del estado del envío movido
+    // al helper centralizado `utils/envio.estado.helpers.ts`. La lógica
+    // simplista que estaba acá (totalFaltantes++ → siempre parcial) se
+    // reemplazó por buildEnvioEstadoUpdates() que considera el estado de
+    // cada incidencia. Se aplica más abajo en el batch.update.
 
     const diasEnTransito = envio.fechaSalida
       ? Math.ceil((now.toMillis() - envio.fechaSalida.toMillis()) / (1000 * 60 * 60 * 24))
@@ -270,6 +262,18 @@ export const envioRecepcionService = {
     }
     const todasIncidencias = [...incidenciasExistentes, ...nuevasIncidencias];
 
+    // BUG-INC-006/007/008 fix (S54.x) — Cálculo del estado final del envío
+    // usando el helper centralizado, que considera incidencias resueltas.
+    //
+    // En este flujo (recepción), las incidencias nuevas se crean como
+    // resuelta=false, así que para una recepción que reporta faltante,
+    // el estado quedará 'recibida_parcial' como antes — pero después
+    // cuando el usuario gestione esas incidencias (vía bajaInventarioService
+    // o reclamoService), se recalculará y podrá pasar a 'recibida_completa'.
+    const { buildEnvioEstadoUpdates } = await import('../utils/envio.estado.helpers');
+    const estadoCalc = buildEnvioEstadoUpdates(unidadesActualizadas, todasIncidencias);
+    const estadoFinal = estadoCalc.estado;
+
     // Actualizar envio
     const envioRef = doc(db, ENVIOS_COLL, envioId);
     batch.update(envioRef, {
@@ -277,9 +281,9 @@ export const envioRecepcionService = {
       diasEnTransito,
       unidades: unidadesActualizadas,
       recepciones: [...recepcionesAnteriores, nuevaRecepcion],
-      totalUnidadesRecibidas: totalRecibidas,
-      totalUnidadesFaltantes: totalFaltantes,
-      totalUnidadesDanadas: totalDanadas,
+      totalUnidadesRecibidas: estadoCalc.totalUnidadesRecibidas,
+      totalUnidadesFaltantes: estadoCalc.totalUnidadesFaltantes,
+      totalUnidadesDanadas: estadoCalc.totalUnidadesDanadas,
       ...(nuevasIncidencias.length > 0 ? { incidencias: todasIncidencias } : {}),
       ...(envio.estado === 'en_transito' ? { fechaLlegadaReal: now } : {}),
       actualizadoPor: userId,

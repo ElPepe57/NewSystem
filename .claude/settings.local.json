@@ -291,7 +291,11 @@
       "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, @{Name=\"CommandLine\"; Expression={\\(Get-CimInstance Win32_Process -Filter \"ProcessId = $\\($_.Id\\)\"\\).CommandLine}} | Format-Table -Wrap)",
       "PowerShell(Stop-Process -Id 7600 -Force)",
       "Bash(echo \"Started with PID $!\")",
-      "PowerShell(Stop-Process -Id 1053 -Force -ErrorAction SilentlyContinue; Get-Process -Name node -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $PID } | Stop-Process -Force; Start-Sleep -Seconds 1; Write-Output \"node processes remaining:\"; Get-Process -Name node -ErrorAction SilentlyContinue | Select-Object Id)"
+      "PowerShell(Stop-Process -Id 1053 -Force -ErrorAction SilentlyContinue; Get-Process -Name node -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $PID } | Stop-Process -Force; Start-Sleep -Seconds 1; Write-Output \"node processes remaining:\"; Get-Process -Name node -ErrorAction SilentlyContinue | Select-Object Id)",
+      "Bash(echo \"---exit $?\")",
+      "Bash(awk '/const envioColumns/,/^  \\\\];/{print NR\": \"$0}' /c/Users/josel/businessmn-v2/src/pages/Envios/Envios.tsx)",
+      "Bash(taskkill //F //PID 37660)",
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"C:/Users/josel/AppData/Roaming/gcloud/application_default_credentials.json\" node scripts/reset-pf-001.mjs --dry-run --clean-refs)"
     ],
     "deny": [],
     "ask": []

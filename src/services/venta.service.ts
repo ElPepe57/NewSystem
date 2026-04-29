@@ -527,6 +527,37 @@ export class VentaService {
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), nuevaVenta);
 
+      // S55 Fase 3 — Si es venta directa (confirmada al crear), generar movimiento
+      // `debito_venta` en CC del cliente. La cotización NO genera movimiento — eso
+      // ocurre cuando se confirma vía `confirmarCotizacion`. Las ventas anónimas
+      // (sin clienteId) se omiten.
+      if (esVentaDirecta && clienteIdFinal && totalPEN > 0) {
+        try {
+          const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+          await cuentaCorrienteService.registrarMovimiento(
+            {
+              entidadId: clienteIdFinal,
+              tipo: 'cliente',
+              entidadNombre: data.nombreCliente,
+              tipoMovimiento: 'debito_venta',
+              descripcion: `Venta ${numeroVenta} emitida · ${productosVenta.length} producto${productosVenta.length !== 1 ? 's' : ''}`,
+              moneda: 'PEN',
+              monto: totalPEN,
+              refDocumentoTipo: 'venta',
+              refDocumentoId: docRef.id,
+              refDocumentoNumero: numeroVenta,
+              idempotencyKey: `crear_venta_${docRef.id}`,
+            },
+            userId,
+          );
+        } catch (ccErr) {
+          logger.warn(
+            '[CC] No se pudo crear debito_venta (no bloqueante): ' +
+              (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+          );
+        }
+      }
+
       actividadService.registrar({
         tipo: esVentaDirecta ? 'venta_creada' : 'cotizacion_creada',
         mensaje: esVentaDirecta
@@ -654,6 +685,38 @@ export class VentaService {
         ultimaEdicion: serverTimestamp(),
         editadoPor: userId
       });
+
+      // S55 Fase 3 — Cotización pasó a venta: crear movimiento `debito_venta`.
+      // Si la cotización tenía adelantos pagados, ya están en CC como
+      // `credito_adelanto_cotizacion`. El neto de la CC del cliente refleja
+      // el saldo real (debitos venta - créditos previos = pendiente de pago).
+      // Idempotency key evita duplicar si se re-ejecuta confirmar.
+      if (venta.clienteId && (venta.totalPEN || 0) > 0) {
+        try {
+          const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+          await cuentaCorrienteService.registrarMovimiento(
+            {
+              entidadId: venta.clienteId,
+              tipo: 'cliente',
+              entidadNombre: venta.nombreCliente,
+              tipoMovimiento: 'debito_venta',
+              descripcion: `Venta ${venta.numeroVenta} confirmada (de cotización)`,
+              moneda: 'PEN',
+              monto: venta.totalPEN,
+              refDocumentoTipo: 'venta',
+              refDocumentoId: id,
+              refDocumentoNumero: venta.numeroVenta,
+              idempotencyKey: `confirmar_cotizacion_${id}`,
+            },
+            userId,
+          );
+        } catch (ccErr) {
+          logger.warn(
+            '[CC] No se pudo crear debito_venta al confirmar cotización (no bloqueante): ' +
+              (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+          );
+        }
+      }
 
       actividadService.registrar({
         tipo: 'venta_confirmada',
@@ -1249,15 +1312,17 @@ export class VentaService {
 
       await batch.commit();
 
-      // Revertir pagos en Tesorería
-      if (venta.pagos && venta.pagos.length > 0) {
+      // S55 Fase 3 — Revertir cobros desde CC (movimientos credito_cobro_venta)
+      const { getCobrosVenta } = await import('./cuentaCorriente.adaptadores');
+      const cobrosVenta = await getCobrosVenta(id);
+      if (cobrosVenta.length > 0) {
         const pagosNoRevertidos: Array<{ monto: number; movimientoId?: string; error: unknown }> = [];
 
-        for (const pago of venta.pagos) {
+        for (const cobro of cobrosVenta) {
           try {
-            if (pago.tesoreriaMovimientoId && pago.tesoreriaMovimientoId !== 'registrado') {
-              await tesoreriaService.eliminarMovimiento(pago.tesoreriaMovimientoId, userId, true);
-            } else if (pago.tesoreriaMovimientoId === 'registrado') {
+            if (cobro.tesoreriaMovimientoId && cobro.tesoreriaMovimientoId !== 'registrado') {
+              await tesoreriaService.eliminarMovimiento(cobro.tesoreriaMovimientoId, userId, true);
+            } else if (cobro.tesoreriaMovimientoId === 'registrado') {
               const snap = await getDocs(query(
                 collection(db, COLLECTIONS.MOVIMIENTOS_TESORERIA),
                 where('ventaId', '==', id),
@@ -1265,17 +1330,17 @@ export class VentaService {
               ));
               const match = snap.docs.find(d => {
                 const data = d.data();
-                return data.estado !== 'anulado' && Math.abs(data.monto - pago.monto) < 0.01;
+                return data.estado !== 'anulado' && Math.abs(data.monto - cobro.monto) < 0.01;
               });
               if (match) {
                 await tesoreriaService.eliminarMovimiento(match.id, userId, true);
               }
             }
           } catch (tesoreriaError) {
-            logger.error(`[cancelar] Error revirtiendo pago en tesorería (monto: ${pago.monto}):`, tesoreriaError);
+            logger.error(`[cancelar] Error revirtiendo cobro en tesorería (monto: ${cobro.monto}):`, tesoreriaError);
             pagosNoRevertidos.push({
-              monto: pago.monto,
-              movimientoId: pago.tesoreriaMovimientoId,
+              monto: cobro.monto,
+              movimientoId: cobro.tesoreriaMovimientoId,
               error: tesoreriaError,
             });
           }
@@ -1284,7 +1349,7 @@ export class VentaService {
         if (pagosNoRevertidos.length > 0) {
           logBackgroundError(
             'tesoreria.cancelarVenta',
-            new Error(`${pagosNoRevertidos.length} pago(s) no revertido(s) en tesorería tras cancelar venta`),
+            new Error(`${pagosNoRevertidos.length} cobro(s) no revertido(s) en tesorería tras cancelar venta`),
             'critical',
             {
               ventaId: id,
@@ -1297,10 +1362,7 @@ export class VentaService {
       }
 
       // BUG-003 FIX: Revertir movimientos Pool USD asociados a esta venta.
-      // Los cobros en USD (Zelle/PayPal) generan movimientos Pool con
-      // documentoOrigenTipo='venta' y documentoOrigenId=ventaId.
-      // Eliminarlos uno a uno para que _estado quede consistente.
-      const hasUSDPayment = venta.pagos?.some(p => p.moneda === 'USD');
+      const hasUSDPayment = cobrosVenta.some(c => c.moneda === 'USD');
       if (hasUSDPayment) {
         try {
           const { poolUSDService } = await import('./poolUSD.service');

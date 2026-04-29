@@ -302,7 +302,7 @@ export const TabCostosLanded: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* KPIs agregados */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
         <StatCard
           label="Envíos con costos"
           value={resumen.totalEnvios}

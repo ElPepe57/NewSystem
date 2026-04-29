@@ -461,12 +461,10 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
         <div className="flex-1 min-w-0 w-full">
 
       <Card padding="none">
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="px-4 sm:px-6 py-3 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-              Movimientos ({movsRender.length})
-            </h3>
-            {/* Filtro por titular */}
+            {/* Imp-L11 · Header h3 duplicado eliminado. El título del módulo
+                vive arriba en el header banking-grade. Aquí solo filtros. */}
             {titulares.length > 0 && (
               <div className="flex items-center gap-1.5">
                 <User className="h-3.5 w-3.5 text-slate-400" />

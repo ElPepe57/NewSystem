@@ -18,6 +18,8 @@ import type {
 } from '../../../types/ordenCompra.types';
 import type { Envio } from '../../../types/envio.types';
 import { getDescripcionProducto } from '../../../utils/producto.helpers';
+// S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
+import { usePagosOC } from '../../../hooks/usePagosOC';
 
 // ════════════════════════════════════════════════════════════════════════════
 // SubOrdenDetailModal — Detalle standalone de una sub-orden (S41 Flujo 3)
@@ -94,11 +96,15 @@ export const SubOrdenDetailModal: React.FC<SubOrdenDetailModalProps> = ({
   const ajusteProveedor = subOrden.totalUSD - totalCalculado;
   const tieneAjuste = Math.abs(ajusteProveedor) > 0.01;
 
-  // S42be — Fix: totalPagado real filtrando historialPagos por subOrdenId.
-  // El campo PagoOC.subOrdenId ya existe desde S38 (ordenCompra.types.ts:194).
-  // El TODO declarado en S41 queda resuelto.
-  const totalPagado = (orden.historialPagos ?? [])
-    .filter((p) => p.subOrdenId === subOrden.id)
+  // S55 Fase 2 — Pagos vienen del hook reactivo (CC). Filtramos por sub-orden
+  // usando heurística de notas (legacy `subOrdenId` campo + nuevo formato
+  // `subOrdenId=X` en notas, ver ordenCompra.pagos.service.ts).
+  const { pagos: pagosCC } = usePagosOC(orden.id);
+  const totalPagado = pagosCC
+    .filter((p) =>
+      p.subOrdenId === subOrden.id ||
+      (p.notas && p.notas.includes(`subOrdenId=${subOrden.id}`))
+    )
     .reduce((s, p) => s + (p.montoUSD || 0), 0);
   const saldoPendiente = Math.max(0, subOrden.totalUSD - totalPagado);
   const deudorNombre =

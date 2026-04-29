@@ -780,6 +780,46 @@ export async function confirmarOC(
 
   await batch.commit();
 
+  // 2.5. S55 Fase 2 — Crear movimiento `debito_oc` en CC del proveedor.
+  // La OC representa una deuda con el proveedor: vamos a recibir mercadería
+  // y debemos pagar `totalUSD`. Esto inicializa la CC para que los pagos
+  // posteriores la salden vía `credito_pago_oc`.
+  //
+  // No bloqueante: si falla, la confirmación queda aplicada y se puede
+  // resolver con `cuentaCorrienteService.ajusteManual`. Esto evita que un
+  // problema en CC bloquee la creación de inventario.
+  if (orden.proveedorId && orden.totalUSD > 0) {
+    try {
+      const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+      await cuentaCorrienteService.registrarMovimiento(
+        {
+          entidadId: orden.proveedorId,
+          tipo: 'proveedor',
+          entidadNombre: orden.nombreProveedor,
+          tipoMovimiento: 'debito_oc',
+          descripcion: `OC ${orden.numeroOrden} confirmada · ${orden.productos.length} productos`,
+          moneda: 'USD',
+          monto: orden.totalUSD,
+          fecha: now.toDate(),
+          refDocumentoTipo: 'oc',
+          refDocumentoId: ocId,
+          refDocumentoNumero: orden.numeroOrden,
+          // Idempotencia: si se reintenta confirmar la misma OC, el debito
+          // no se duplica.
+          idempotencyKey: `confirmar_oc_${ocId}`,
+        },
+        userId,
+      );
+    } catch (err) {
+      // Log pero no fallar — la OC ya está confirmada e inventario creado
+      const msg = err instanceof Error ? err.message : 'Error desconocido';
+      console.warn(
+        `[CC] No se pudo registrar debito_oc para ${orden.numeroOrden}: ${msg}. ` +
+          `Resolver con ajusteManual.`,
+      );
+    }
+  }
+
   // 3. Crear Envio(s) T1 en 'borrador'
   const transporteColaboradorId = orden.colaboradorTransporteId || colaboradorId;
   const metodoProrrateoMap: Record<string, string> = {

@@ -260,7 +260,7 @@ export const EntidadCCDetailModal: React.FC<EntidadCCDetailModalProps> = ({
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <a
-              href={`/finanzas/cash-flow?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
+              href={`/tesoreria?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
               className="text-[11px] px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md font-medium flex items-center gap-1.5 transition"
               title="Ver los movimientos de tesorería vinculados a esta entidad"
             >

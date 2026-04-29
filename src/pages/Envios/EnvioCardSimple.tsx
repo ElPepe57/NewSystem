@@ -1,4 +1,23 @@
 /**
+ * REFERENCIA DE DISEÑO CANÓNICA — EnvioCardSimple
+ *
+ * Este archivo es la FUENTE DE VERDAD del patrón "vista de lista de entidades" del sistema.
+ * Cualquier card de listado equivalente en otro módulo (ventas, cotizaciones, gastos, etc.)
+ * DEBE replicar este patrón visual.
+ *
+ * NO MODIFICAR este archivo sin autorización explícita del usuario. Cualquier
+ * cambio aquí propaga implícitamente al resto del sistema y puede introducir
+ * regresiones en módulos ya alineados.
+ *
+ * Ver:
+ *   - CLAUDE.md → "ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS"
+ *   - docs/DESIGN_PATTERNS.md → "Referencias de Diseño Canónicas (S54.x)"
+ *   - docs/REGISTRO_IMPLEMENTACION.md → "SESIÓN S54.x — DECISIÓN ESTRATÉGICA"
+ *
+ * Decisión registrada en sesión S54.x (2026-04-25).
+ */
+
+/**
  * EnvioCardSimple — Card estándar de envío (S53.30 · layout híbrido final).
  *
  * Layout aprobado por el usuario — combinación de opciones del mockup
@@ -211,12 +230,160 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
+        '@container bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-300 transition-all cursor-pointer',
         className
       )}
       onClick={() => onSelect(envio)}
     >
-      <div className="flex items-start gap-4">
+      {/* ═══════════════════════════════════════════════════════════════
+           S54 — Layout DUAL con container queries:
+
+           NARROW (@container <640px) → Layout V4 mobile-app style:
+             · Row 1: ícono + número+fecha + sticker tipo a la derecha
+             · Row 2: ruta en bloque slate con iconografía clara
+             · Row 3: avatares + 20/20 + barra + botón acción circular
+             Se muestra como bloque apilado vertical con 3 secciones.
+
+           WIDE (@container ≥640px) → Layout 5-cols horizontal premium:
+             · Col 1-5: ícono · sticker+ruta · avatares · métricas · acción
+             Se mantiene el look desktop original sin modificaciones.
+         ═══════════════════════════════════════════════════════════════ */}
+
+      {/* ── NARROW LAYOUT (V4 · stack vertical · móvil-app) ────────────── */}
+      <div className="@[640px]:hidden space-y-3">
+        {/* Row 1: Header compacto */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div
+              className={cn(
+                'inline-flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0',
+                estadoCfg.bg,
+                estadoCfg.text
+              )}
+              title={estadoCfg.label}
+            >
+              <EstadoIcon className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-mono font-bold text-slate-900 text-sm truncate">
+                {envio.numeroEnvio}
+              </div>
+              <div className="text-[10px] text-slate-400">
+                {formatFechaRelativa((envio as any).fechaCreacion)} · {estadoCfg.label}
+              </div>
+            </div>
+          </div>
+          {infoTipo && tipoRuta && (
+            <span
+              className={cn(
+                'text-[10px] font-bold px-2 py-1 rounded-md border whitespace-nowrap flex-shrink-0',
+                stickerCls.bg,
+                stickerCls.border,
+                stickerCls.text
+              )}
+            >
+              {tipoRuta} · {infoTipo.nombreCorto}
+            </span>
+          )}
+        </div>
+
+        {/* Row 2: Ruta en bloque */}
+        <div className="bg-slate-50 rounded-lg px-3 py-2">
+          <div className="flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-1 flex-1 min-w-0">
+              <span className="text-sm flex-shrink-0">{getFlag(origenPais)}</span>
+              <span className="font-medium truncate" title={origenNombre}>
+                {origenNombre}
+              </span>
+            </div>
+            {transportador && (
+              <div
+                className="text-[10px] italic text-slate-500 flex items-center gap-1 flex-shrink-0"
+                title={transportador}
+              >
+                <span>✈️</span>
+                <span className="truncate max-w-[80px]">{transportador}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1 flex-1 min-w-0 justify-end">
+              <span className="text-sm flex-shrink-0">{getFlag(destinoPais)}</span>
+              <span className="font-medium truncate" title={destinoNombre}>
+                {destinoNombre}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: Productos + métrica grande + acción circular */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            {productosTop.length > 0 ? (
+              <>
+                <div className="flex -space-x-1.5 flex-shrink-0">
+                  {productosTop.map((p) => (
+                    <div
+                      key={p.productoId}
+                      className={cn(
+                        'w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold',
+                        p.bg,
+                        p.text
+                      )}
+                      title={`${p.nombre} ×${p.cantidad}`}
+                    >
+                      {p.inicial}
+                      <sup className="ml-0.5 text-[8px]">{p.cantidad}</sup>
+                    </div>
+                  ))}
+                  {prodRestantes > 0 && (
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600">
+                      +{prodRestantes}
+                    </div>
+                  )}
+                </div>
+                {totalSKUs > 0 && (
+                  <div className="text-[10px] text-slate-500 truncate">
+                    {totalSKUs} SKU{totalSKUs !== 1 ? 's' : ''}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-[11px] text-slate-400 italic">Sin productos</div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="text-right">
+              <div className="text-lg font-bold text-slate-900 tabular-nums leading-none">
+                {recibidas}
+                <span className="text-slate-400">/{totalUnidades}</span>
+              </div>
+              {totalUnidades > 0 && (
+                <div
+                  className={cn(
+                    'text-[9px] font-medium mt-0.5 tabular-nums',
+                    progreso === 100 ? 'text-emerald-700' : 'text-slate-500'
+                  )}
+                >
+                  {progreso}%
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              title="Ver detalle"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(envio);
+              }}
+              className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 hover:bg-teal-100 flex items-center justify-center flex-shrink-0 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── WIDE LAYOUT (look 5-cols horizontal premium · ≥640px) ─────── */}
+      <div className="hidden @[640px]:flex flex-wrap items-start gap-y-3 gap-x-4">
         {/* ─── Col 1: Ícono grande + N° envío + fecha (estilo sticker C) ─── */}
         <div className="flex-shrink-0 text-center">
           <div
@@ -238,10 +405,10 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+        <div className="w-px bg-slate-200 self-stretch hidden @[640px]:block" />
 
         {/* ─── Col 2: Sticker de tipo de ruta + ruta corta en 1 línea ─── */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-[180px]">
           {infoTipo && tipoRuta && (
             <div
               className={cn(
@@ -292,11 +459,15 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+        <div className="w-px bg-slate-200 self-stretch hidden @[640px]:block" />
 
-        {/* ─── Col 3: Avatares apilados (estilo B) + resumen ─── */}
-        <div className="flex-shrink-0 w-56">
-          <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1.5">
+        {/* ─── Col 3: Avatares apilados (estilo B) + resumen ───
+             S54 — Shrink progresivo: default=compacto (sólo avatares, sin label),
+             xl=ancho completo con label. Usamos xl en vez de lg porque la sidebar
+             lateral del layout consume ~250px, así que el "look premium" solo
+             cabe cuando el viewport supera 1280px. */}
+        <div className="shrink min-w-[110px] w-40 max-w-[180px] @[800px]:w-56 @[800px]:max-w-[224px]">
+          <div className="hidden @[800px]:block text-[10px] font-semibold text-slate-500 uppercase mb-1.5">
             Productos{' '}
             {totalSKUs > 0 && (
               <span className="text-slate-400 font-normal">
@@ -332,7 +503,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
                   )}
                 </div>
               </div>
-              <div className="text-[10px] text-slate-500 mt-1.5 truncate" title={resumenNombres}>
+              <div className="hidden @[800px]:block text-[10px] text-slate-500 mt-1.5 truncate" title={resumenNombres}>
                 {resumenNombres}
               </div>
             </>
@@ -342,10 +513,11 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-slate-200 self-stretch hidden md:block" />
+        <div className="w-px bg-slate-200 self-stretch hidden @[640px]:block" />
 
-        {/* ─── Col 4: 20/20 + barra + $ LANDED (estilo A/B) ─── */}
-        <div className="flex-shrink-0 w-32 text-right">
+        {/* ─── Col 4: 20/20 + barra + $ LANDED (estilo A/B) ───
+             S54 — Shrink progresivo, ancho completo solo en xl+. */}
+        <div className="shrink min-w-[90px] w-28 max-w-[112px] @[800px]:w-32 @[800px]:max-w-[128px] text-right">
           <div className="text-xl font-bold text-slate-900 tabular-nums leading-none">
             {recibidas}
             <span className="text-slate-400">/{totalUnidades}</span>
@@ -385,7 +557,7 @@ export const EnvioCardSimple: React.FC<EnvioCardSimpleProps> = ({
         </div>
 
         {/* ─── Col 5: Acción icono ─── */}
-        <div className="flex-shrink-0 flex md:flex-col gap-1">
+        <div className="flex-shrink-0 flex @md:flex-col gap-1">
           <button
             type="button"
             title="Ver detalle"

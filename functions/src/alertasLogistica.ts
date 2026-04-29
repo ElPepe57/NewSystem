@@ -27,7 +27,9 @@
  *   3. Descomentar trigger scheduledAlertasLogistica
  *   4. `firebase deploy --only functions:scheduledAlertasLogistica`
  */
-import * as functions from 'firebase-functions/v2';
+// `functions` solo se usa dentro del trigger comentado abajo. Descomentar
+// junto con el bloque `scheduledAlertasLogistica` cuando se active el deploy.
+// import * as functions from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
 
 const db = admin.firestore();

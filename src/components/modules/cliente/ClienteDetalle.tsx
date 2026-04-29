@@ -20,7 +20,8 @@ import {
   Hash,
   Building2,
   CreditCard,
-  Percent
+  Percent,
+  Wallet,
 } from 'lucide-react';
 import { Button, Card, Badge } from '../../common';
 import { registerModalOpen, unregisterModalOpen, getModalCount } from '../../common/Modal';
@@ -28,6 +29,8 @@ import { VentaService } from '../../../services/venta.service';
 import type { Cliente } from '../../../types/entidadesMaestras.types';
 import type { Venta } from '../../../types/venta.types';
 import { useCanalVentaStore } from '../../../store/canalVentaStore';
+// S55 Fase 7 — Tab "Cuenta Corriente" en ficha de cliente.
+import { CuentaCorrienteTab } from '../cuentaCorriente';
 
 interface ClienteDetalleProps {
   cliente: Cliente;
@@ -35,7 +38,7 @@ interface ClienteDetalleProps {
   onEdit: () => void;
 }
 
-type TabActiva = 'info' | 'ventas' | 'financiero';
+type TabActiva = 'info' | 'ventas' | 'financiero' | 'cuenta_corriente';
 
 interface HistorialCliente {
   ventas: Venta[];
@@ -221,6 +224,18 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                   {historial.porCobrar.length} pend.
                 </span>
               )}
+            </button>
+            {/* S55 Fase 7 — Cuenta Corriente */}
+            <button
+              onClick={() => setTabActiva('cuenta_corriente')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                tabActiva === 'cuenta_corriente'
+                  ? 'border-sky-500 text-sky-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+              }`}
+            >
+              <Wallet className="h-4 w-4 inline mr-2" />
+              Cuenta Corriente
             </button>
           </nav>
         </div>
@@ -636,10 +651,10 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                               <div>
                                 <div className="font-medium text-slate-900">{v.numeroVenta}</div>
                                 <div className="text-sm text-slate-500">
-                                  {v.fechaPagoCompleto
-                                    ? `Pagado: ${v.fechaPagoCompleto.toDate().toLocaleDateString('es-PE')}`
-                                    : v.fechaCreacion.toDate().toLocaleDateString('es-PE')
-                                  }
+                                  {/* S55 Fase 3 — fechaPagoCompleto eliminada. Si está pagada,
+                                       se muestra fecha de creación como aproximación (la fecha
+                                       real del pago vive en MovimientoCC del cliente). */}
+                                  {v.fechaCreacion.toDate().toLocaleDateString('es-PE')}
                                 </div>
                               </div>
                               <div className="flex items-center space-x-4">
@@ -694,6 +709,15 @@ export const ClienteDetalle: React.FC<ClienteDetalleProps> = ({
                     </Card>
                   )}
                 </div>
+              )}
+
+              {/* Tab: Cuenta Corriente — S55 Fase 7 */}
+              {tabActiva === 'cuenta_corriente' && (
+                <CuentaCorrienteTab
+                  entidadId={cliente.id}
+                  tipo="cliente"
+                  entidadNombre={cliente.nombre}
+                />
               )}
             </>
           )}

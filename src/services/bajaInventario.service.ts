@@ -63,12 +63,108 @@ export const bajaInventarioService = {
     // 0. Leer la unidad real. Sirve para:
     //    - Fallback de costo si el caller pasó 0 (DATA-001)
     //    - Validar que la unidad existe antes de actualizar
+    //
+    // BUG-INC-001 fix (S54.x): si la unidad no existe en Firestore (hueco
+    // heredado del flujo de recepción que solo actualiza unidades existentes),
+    // la creamos on-the-fly con los datos disponibles de la incidencia + envío.
+    // Esto desbloquea el cierre de incidencias que antes fallaba con
+    // "1 baja(s) fallaron · 0 procesadas".
     const unidadRef = doc(db, COLLECTIONS.UNIDADES, data.unidadId);
-    const unidadSnap = await getDoc(unidadRef);
+    let unidadSnap = await getDoc(unidadRef);
+    let unidadDoc: Unidad;
+
     if (!unidadSnap.exists()) {
-      throw new Error(`Unidad ${data.unidadId} no encontrada`);
+      logger.warn(
+        `[BUG-INC-001] Unidad ${data.unidadId} no existía al procesar baja. ` +
+        `Creando doc mínimo desde envío ${data.envioId} + incidencia ${data.incidenciaId}. ` +
+        `Investigar por qué la recepción no la creó.`
+      );
+
+      // Leer envío para tener contexto (casilla destino, OC, costos)
+      const envioRef = doc(db, COLLECTIONS.ENVIOS, data.envioId);
+      const envioSnap = await getDoc(envioRef);
+      if (!envioSnap.exists()) {
+        throw new Error(`Envío ${data.envioId} no encontrado al recuperar contexto de unidad ${data.unidadId}`);
+      }
+      const envioData = envioSnap.data() as { [k: string]: any };
+
+      // Buscar la EnvioUnidad correspondiente para tomar costos / lote
+      const envioUnidad = (envioData.unidades || []).find(
+        (u: { unidadId: string }) => u.unidadId === data.unidadId
+      );
+
+      // BUG-INC-011 fix (S54.x) — Derivar costo desde la OC para que el doc
+      // creado on-the-fly tenga CTRU calculado. Sin esto, la unidad queda
+      // con costos en 0 y los reclamos posteriores no pueden auto-cargar.
+      let costoProductoUSD = 0;
+      let tcCompra = 0;
+      if (envioData.ordenCompraId) {
+        try {
+          const ocSnap = await getDoc(
+            doc(db, COLLECTIONS.ORDENES_COMPRA, envioData.ordenCompraId)
+          );
+          if (ocSnap.exists()) {
+            const oc = ocSnap.data() as {
+              productos?: Array<{ productoId: string; costoUnitario: number }>;
+              tcCompra?: number;
+            };
+            const productoEnOC = oc.productos?.find(
+              (p) => p.productoId === data.productoId
+            );
+            costoProductoUSD = productoEnOC?.costoUnitario || 0;
+            tcCompra = oc.tcCompra || 0;
+          }
+        } catch (err) {
+          logger.warn(`[BUG-INC-001] No se pudo leer OC ${envioData.ordenCompraId} para CTRU:`, err);
+        }
+      }
+
+      const costoFleteUSD = envioUnidad?.costoFleteUSD || 0;
+      const ctruInicial = tcCompra > 0
+        ? (costoProductoUSD + costoFleteUSD) * tcCompra
+        : 0;
+
+      const unidadMinima: Partial<Unidad> & { id: string } = {
+        id: data.unidadId,
+        productoId: data.productoId,
+        productoSKU: data.sku,
+        productoNombre: data.productoNombre,
+        lote: envioUnidad?.lote || 'PENDIENTE',
+        fechaVencimiento: envioUnidad?.fechaVencimiento || Timestamp.fromDate(new Date('2099-12-31')),
+        casillaActualId: envioData.destinoCasillaId || envioData.almacenDestinoId || '',
+        casillaNombre: envioData.destinoCasillaNombre || envioData.nombreAlmacenDestino || '',
+        pais: envioData.destinoCasillaPais || 'Peru',
+        estado: 'danada',
+        costoUnitarioUSD: costoProductoUSD,
+        costoFleteUSD,
+        tcCompra,
+        ctruInicial,
+        ctruDinamico: ctruInicial,
+        ctruContable: ctruInicial,
+        ctruGerencial: ctruInicial,
+        ordenCompraId: envioData.ordenCompraId || '',
+        ordenCompraNumero: envioData.ordenCompraNumero || '',
+        fechaRecepcion: now,
+        envioId: data.envioId,
+        envioNumero: envioData.numeroEnvio || '',
+        creadoPor: userId,
+        fechaCreacion: now,
+        actualizadoPor: userId,
+        fechaActualizacion: now,
+      };
+
+      // setDoc para crear con id explícito
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(unidadRef, unidadMinima);
+
+      // Releer para tener el snap consistente
+      unidadSnap = await getDoc(unidadRef);
+      if (!unidadSnap.exists()) {
+        throw new Error(`Falló la creación defensiva de Unidad ${data.unidadId}`);
+      }
     }
-    const unidadDoc = unidadSnap.data() as Unidad;
+
+    unidadDoc = unidadSnap.data() as Unidad;
 
     // Costo efectivo: prefiere el que pasa el caller; si viene 0 usa ctruDinamico del doc.
     const costoEfectivoPEN = (data.costoUnidadPEN && data.costoUnidadPEN > 0)
@@ -155,10 +251,27 @@ export const bajaInventarioService = {
         return inc;
       });
 
+      // BUG-INC-006/007/008 fix (S54.x) — Recalcular estado del envío
+      // tomando en cuenta las incidencias resueltas. Antes la baja solo
+      // marcaba la incidencia como resuelta pero el envío seguía en
+      // 'recibida_parcial' eternamente porque la lógica miraba solo
+      // unidad.estadoEnvio sin considerar si la incidencia ya estaba cerrada.
+      const { buildEnvioEstadoUpdates } = await import('../utils/envio.estado.helpers');
+      const envioEstadoUpdates = buildEnvioEstadoUpdates(
+        transferData.unidades,
+        updatedIncidencias,
+      );
+
       await updateDoc(transferRef, {
         incidencias: updatedIncidencias,
+        ...envioEstadoUpdates,
         ultimaEdicion: now,
       });
+
+      logger.info(
+        `Envío ${data.envioId}: incidencia ${data.incidenciaId} resuelta. ` +
+        `Nuevo estado del envío: ${envioEstadoUpdates.estado}`
+      );
     }
 
     return {

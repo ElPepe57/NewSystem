@@ -29,6 +29,8 @@ import { useColaboradorStore } from '../../store/colaboradorStore';
 import { exportService } from '../../services/export.service';
 import type { OrdenCompra, OrdenCompraFormData, EstadoOrden } from '../../types/ordenCompra.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
+// S55 Fase 2 — pagos viven en CC; hook reactivo lee desde movimientosCC
+import { usePagosOC } from '../../hooks/usePagosOC';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { formatFecha } from '../../utils/dateFormatters';
 
@@ -158,6 +160,8 @@ export const OrdenesCompra: React.FC = () => {
   // S38-011: estado para el modal custom de despacho
   const [despacharCtx, setDespacharCtx] = useState<{ estadoTarget: EstadoOrden; titulo: string } | null>(null);
   const [selectedOrden, setSelectedOrdenLocal] = useState<OrdenCompra | null>(null);
+  // S55 Fase 2 — Pagos de la OC seleccionada (CC). Reemplaza orden.historialPagos.
+  const { pagos: pagosOCSeleccionada } = usePagosOC(selectedOrden?.id ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   // S42 Tanda 10 — Filtros adicionales vista Compras (mockup s40 líneas 235-254)
@@ -258,8 +262,13 @@ export const OrdenesCompra: React.FC = () => {
         montoCompletadasUSD += (o.totalUSD || 0);
       }
       if (o.estado !== 'cancelada' && (o.estadoPago === 'pendiente' || o.estadoPago === 'parcial')) {
-        const pagado = (o.historialPagos || []).reduce((s, p) => s + (p.montoUSD || 0), 0);
-        const pendiente = (o.totalUSD || 0) - pagado;
+        // S55 Fase 2 — usamos `montoPendiente` denormalizado (mantenido por
+        // ordenCompra.pagos.service al registrar pagos). Si no está, asumimos
+        // total pendiente. Para detalle de pagos individuales se consulta CC.
+        const tcRef = o.tcReferencial || o.tcCompra || 1;
+        const pendiente = o.montoPendiente
+          ? o.montoPendiente / tcRef
+          : (o.totalUSD || 0);
         if (pendiente > 0.01) {
           montoPendienteUSD += pendiente;
           ocsConPagoPendiente++;
@@ -1155,8 +1164,13 @@ export const OrdenesCompra: React.FC = () => {
               // DATA-001: para pago de OC completa, NO filtrar por subOrdenId — todos los
               // pagos (sub-orden o completa) cuentan contra el total de la OC. Sólo cuando
               // se paga una sub-orden específica filtramos por su subOrdenId.
-              const pagosRelevantes = (selectedOrden.historialPagos || []).filter(p =>
-                subOrdenPago ? p.subOrdenId === subOrdenPago : true
+              // S55 Fase 2 — Pagos vienen del hook reactivo (CC).
+              // Filtramos por sub-orden vía notas (heurística por refSubDocumentoId).
+              const pagosRelevantes = pagosOCSeleccionada.filter((p) =>
+                subOrdenPago
+                  ? (p.subOrdenId === subOrdenPago ||
+                     (p.notas && p.notas.includes(`subOrdenId=${subOrdenPago}`)))
+                  : true,
               );
               const yaPagado = pagosRelevantes.reduce((s, p) => s + p.montoUSD, 0);
               const pendiente = montoTotal - yaPagado;

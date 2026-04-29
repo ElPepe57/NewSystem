@@ -203,15 +203,15 @@ const Finanzas: React.FC = () => {
           <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mr-2">
             Acciones rápidas
           </span>
-          <Button variant="primary-soft" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
+          <Button variant="primary-soft" size="sm" onClick={() => navigate('/tesoreria')}>
             <Plus className="w-4 h-4 mr-1.5" />
             Nuevo movimiento
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/tesoreria')}>
             <RotateCw className="w-4 h-4 mr-1.5" />
             Conversión USD/PEN
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/finanzas/cash-flow')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/tesoreria')}>
             <ArrowRightLeft className="w-4 h-4 mr-1.5" />
             Transferencia interna
           </Button>
@@ -226,21 +226,11 @@ const Finanzas: React.FC = () => {
         </div>
       </Card>
 
-      {/* ─── Tendencia + Top entidades ──────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <div className="lg:col-span-2">
-          <TendenciaChart movimientos={movimientos} loading={loading} />
-        </div>
-        <div>
-          <TopEntidades
-            ccs={ccs}
-            loading={loading}
-            onEntidadClick={(cc) => setCCSeleccionada(cc)}
-          />
-        </div>
-      </div>
-
-      {/* ─── Imp-L10 · Pipeline CC + Sidebar Acciones (mockup M10) ── */}
+      {/* ─── Imp-L10/L11 · Pipeline CC + Sidebar Acciones (mockup M10)
+            Layout simplificado: las secciones legacy (Tendencia, TopEntidades,
+            Alertas, Acceso rápido) se eliminaron en Imp-L11 para alinear con
+            el mockup. El cash-flow detallado vive en /finanzas/cash-flow,
+            los saldos en /finanzas/saldos. */}
       <div className="flex gap-4 items-start flex-col lg:flex-row mb-4">
         <div className="flex-1 min-w-0 w-full">
           <PipelineCC ccs={ccs} />
@@ -249,79 +239,6 @@ const Finanzas: React.FC = () => {
           ccs={ccs}
           onSeleccionarCC={(cc) => setCCSeleccionada(cc)}
         />
-      </div>
-
-      {/* ─── Alertas + Acceso rápido ────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <div className="lg:col-span-2">
-          <AlertasFinanzas
-            ccs={ccs}
-            loading={loading}
-            onAlertaClick={(cc) => setCCSeleccionada(cc)}
-          />
-        </div>
-
-        {/* Acceso rápido sub-módulos */}
-        <div className="space-y-3">
-          <div className="text-[11px] uppercase text-slate-500 font-semibold tracking-wider">
-            Acceso rápido
-          </div>
-
-          <Link
-            to="/finanzas/saldos"
-            className="bg-white border border-slate-200 rounded-xl p-4 block hover:border-teal-300 hover:shadow-sm transition cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">
-                <Handshake className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-slate-900 text-sm">Saldos por entidad</div>
-                <div className="text-[11px] text-slate-500">
-                  {ccs.filter((cc) => Math.abs(cc.saldoPEN) > 0.01 || Math.abs(cc.saldoUSD) > 0.01).length}{' '}
-                  entidades activas
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-slate-300" />
-            </div>
-          </Link>
-
-          <Link
-            to="/finanzas/cash-flow"
-            className="bg-white border border-slate-200 rounded-xl p-4 block hover:border-teal-300 hover:shadow-sm transition cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
-                <ArrowRightLeft className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-slate-900 text-sm">Cash flow</div>
-                <div className="text-[11px] text-slate-500">
-                  {movimientos.filter((m) => m.estado !== 'anulado').length} movimientos · 6 meses
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-slate-300" />
-            </div>
-          </Link>
-
-          <Link
-            to="/finanzas/cash-flow?tab=cuentas"
-            className="bg-white border border-slate-200 rounded-xl p-4 block hover:border-teal-300 hover:shadow-sm transition cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-slate-900 text-sm">Cuentas bancarias</div>
-                <div className="text-[11px] text-slate-500">
-                  {cuentas.filter((c) => c.activa).length} cuentas · 2 monedas
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-slate-300" />
-            </div>
-          </Link>
-        </div>
       </div>
 
       {/* ─── Modal detalle CC ──────────────────────────────────────── */}

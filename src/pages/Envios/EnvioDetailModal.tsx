@@ -1,3 +1,21 @@
+/**
+ * REFERENCIA DE DISEÑO CANÓNICA — EnvioDetailModal
+ *
+ * Este archivo es la FUENTE DE VERDAD del patrón "detalle con scroll y muchos tabs" del
+ * sistema. Cualquier modal con 5+ tabs o contenido extenso en otro módulo DEBE replicar
+ * este patrón visual.
+ *
+ * NO MODIFICAR este archivo sin autorización explícita del usuario. Cualquier
+ * cambio aquí propaga implícitamente al resto del sistema y puede introducir
+ * regresiones en módulos ya alineados.
+ *
+ * Ver:
+ *   - CLAUDE.md → "ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS"
+ *   - docs/DESIGN_PATTERNS.md → "Referencias de Diseño Canónicas (S54.x)"
+ *   - docs/REGISTRO_IMPLEMENTACION.md → "SESIÓN S54.x — DECISIÓN ESTRATÉGICA"
+ *
+ * Decisión registrada en sesión S54.x (2026-04-25).
+ */
 import React, { useState, useMemo } from 'react';
 import {
   X,
@@ -33,7 +51,15 @@ import {
   type EntityPipelineStep,
   NextActionBanner,
   KpiRow,
+  RouteCardV2,
+  getFlagFromPais,
+  type RouteCardV2Node,
+  type RouteCardV2Pill,
+  type RouteCardV2Pipeline,
+  type RouteCardV2PipelineStep,
 } from '../../design-system';
+import { PersonStanding, PackageOpen, User as UserIcon, Warehouse, ChevronLeft, TrendingUp } from 'lucide-react';
+import { useHorizontalScrollFade } from '../../hooks/useHorizontalScrollFade';
 import { UserName } from './UserName';
 import { GestionIncidenciasModal } from './GestionIncidenciasModal';
 import { LiberarAduanaModal } from './LiberarAduanaModal';
@@ -50,12 +76,17 @@ import {
   INFO_TIPO_RUTA,
   badgeClassForTipoRuta,
 } from '../../utils/envio.tipoRuta.helpers';
+// BUG-INC-006/007/008 fix (S54.x) — Helper para distinguir entre
+// "esperando llegada" vs "esperando gestión de incidencia" en el envío.
+import { recalcularEstadoEnvio } from '../../utils/envio.estado.helpers';
 // S46 — Costos landed con scope + cierre financiero (D-17, D-18)
 import {
   CostosLandedPanel,
   type AgregarCostoLandedModalResult,
 } from './CostosLandedScope';
 import { useTipoCambio } from '../../hooks/useTipoCambio';
+// S55 Fase 4 — pagos a colaborador viven en CC; hook reactivo
+import { usePagosEnvio } from '../../hooks/usePagosEnvio';
 
 // ════════════════════════════════════════════════════════════════════════════
 // EnvioDetailModal — S41 Tanda 8 (reescritura completa alineada al mockup S40)
@@ -101,7 +132,7 @@ interface EnvioDetailModalProps {
 }
 
 // S45 — Tab 'tandas' solo visible para envíos T1 (casos A/B/D) cuando flag activa
-type TabActivo = 'productos' | 'recepciones' | 'costos' | 'incidencias' | 'tandas' | 'timeline';
+type TabActivo = 'productos' | 'recepciones' | 'costos' | 'pagos' | 'incidencias' | 'tandas' | 'documentos' | 'inteligencia' | 'timeline';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Main
@@ -120,6 +151,17 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
   onReconciliarPago,
 }) => {
   const [tab, setTab] = useState<TabActivo>('productos');
+  // S55 Fase 4 — Pagos al colaborador del envío (CC). Reemplaza envio.pagosColaborador[].
+  const { pagos: pagosColaboradorCC } = usePagosEnvio(envio.id);
+  // S54 — Fade + flechas para scroll horizontal de la barra de tabs (V1).
+  const {
+    ref: tabsRef,
+    fadeClass: tabsFade,
+    canScrollLeft: tabsCanLeft,
+    canScrollRight: tabsCanRight,
+    scrollPrev: tabsScrollPrev,
+    scrollNext: tabsScrollNext,
+  } = useHorizontalScrollFade<HTMLDivElement>();
   const [showGestionIncidencias, setShowGestionIncidencias] = useState(false);
   const [showLiberarAduana, setShowLiberarAduana] = useState(false);
   const [liberandoAduana, setLiberandoAduana] = useState(false);
@@ -162,30 +204,244 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
     ? Math.floor((Date.now() - envio.fechaSalida.toDate().getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
-  // ─── Origen / destino (S38-014) ─────────────────────────────────────────
-  const origenNombre =
-    envio.origenTipo === 'proveedor'
-      ? envio.origenProveedorNombre || 'Proveedor sin nombre'
-      : envio.origenCasillaNombre || 'Casilla Origen';
-  const origenSubtitulo =
-    envio.origenTipo === 'proveedor'
-      ? envio.origenProveedorPais
-        ? `Proveedor · ${envio.origenProveedorPais}`
-        : 'Proveedor'
-      : envio.origenCasillaCodigo || 'Casilla';
-  // S42bg — BUG FIX: antes era `envio.courier || envio.colaboradorNombre`.
-  // Mezclaba dos conceptos distintos:
-  //   - envio.courier: transportador explícito (FedEx, DHL, viajero real) —
-  //     se setea al DESPACHAR el envío.
-  //   - envio.colaboradorNombre: colaborador registrado al crear la OC —
-  //     normalmente es el DUEÑO de la casilla destino (no transportador).
-  // Si el envío no se ha despachado aún, courier=undefined y el fallback
-  // mostraba al dueño de la casilla como si fuera un paso intermedio de
-  // la ruta (semánticamente incorrecto).
-  // Ahora: solo se muestra en el segmento de la ruta cuando hay un
-  // transportador real. El colaborador (si existe) sigue visible en la
-  // sidebar "COLABORADOR".
-  const courierNombre = envio.courier || null;
+  // S54 — Mapeo Envío → RouteCardV2 (pill modalidad + 2 nodos grandes).
+  // S42bg — El pill arriba solo usa `envio.courier` (transportador comercial real
+  // como DHL/FedEx/Shalom, seteado al DESPACHAR). `colaboradorNombre` cae al
+  // pill con variant amber solo cuando es el transportador físico del envío
+  // (viajero/traslado interno). El colaborador "dueño de casilla" sigue
+  // visible en la sidebar derecha "COLABORADOR".
+  // La casilla intermedia real existiría como 3er nodo en envíos tipo C con
+  // consolidación multi-origen → por ahora siempre 2 nodos (estructura
+  // actual del tipo Envio no tiene "casilla de paso" explícita distinta del
+  // origen y destino). Si aparece en futuro, pasar `intermedio={...}`.
+  const rutaV2 = useMemo(() => {
+    const fechaSalida = envio.fechaSalida
+      ? new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short' }).format(
+          envio.fechaSalida.toDate()
+        )
+      : null;
+    const fechaLlegada = envio.fechaLlegadaReal
+      ? new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short' }).format(
+          envio.fechaLlegadaReal.toDate()
+        )
+      : null;
+
+    // ─── Pill: transportador + tracking ────────────────────────────────
+    let pill: RouteCardV2Pill | undefined;
+    // Tracking se pasa como prop dedicada (clickable copiable en la pill).
+    const tracking = envio.numeroTracking || undefined;
+
+    if (envio.courier) {
+      // Transportador comercial real (DHL, FedEx, Shalom, etc.) → sky
+      pill = {
+        icon: <Truck className="w-3 h-3" />,
+        text: `Transportador · ${envio.courier}`,
+        variant: 'sky',
+        tracking,
+      };
+    } else if (envio.colaboradorNombre && envio.colaboradorTipo === 'viajero') {
+      // Viajero colaborador → amber
+      pill = {
+        icon: <PersonStanding className="w-3 h-3" />,
+        text: `Viajero · ${envio.colaboradorNombre}`,
+        variant: 'amber',
+        tracking,
+      };
+    } else if (envio.colaboradorNombre) {
+      // Otro colaborador transportista → amber
+      pill = {
+        icon: <PackageOpen className="w-3 h-3" />,
+        text: `Traslado · ${envio.colaboradorNombre}`,
+        variant: 'amber',
+        tracking,
+      };
+    }
+    // else: pill queda undefined → RouteCardV2 muestra "Sin transportador asignado"
+
+    // ─── Nodo origen ──────────────────────────────────────────────────
+    const origenEstadoDone =
+      envio.estado !== 'borrador' && envio.estado !== 'confirmado';
+    let origen: RouteCardV2Node;
+    if (envio.origenTipo === 'proveedor') {
+      origen = {
+        flag: getFlagFromPais(envio.origenProveedorPais),
+        nombre: envio.origenProveedorNombre || 'Proveedor',
+        subtitulo: envio.origenProveedorPais
+          ? `Proveedor · ${envio.origenProveedorPais}`
+          : 'Proveedor',
+        badge: origenEstadoDone
+          ? {
+              label: fechaSalida ? `Despachado ${fechaSalida}` : 'Despachado',
+              variant: 'emerald',
+            }
+          : { label: 'Pendiente', variant: 'slate' },
+      };
+    } else if (envio.origenTipo === 'cliente') {
+      origen = {
+        icon: <UserIcon className="w-4 h-4 text-teal-600" />,
+        nombre: envio.origenClienteNombre || 'Cliente',
+        subtitulo: 'Cliente origen',
+        badge: origenEstadoDone
+          ? {
+              label: fechaSalida ? `Despachado ${fechaSalida}` : 'Despachado',
+              variant: 'emerald',
+            }
+          : { label: 'Pendiente', variant: 'slate' },
+      };
+    } else {
+      // origenTipo === 'casilla' (default)
+      origen = {
+        flag: envio.origenCasillaPais
+          ? getFlagFromPais(envio.origenCasillaPais)
+          : '🌐',
+        nombre: envio.origenCasillaNombre || 'Casilla Origen',
+        subtitulo: [
+          envio.origenCasillaCodigo,
+          envio.origenCasillaPais ? `Casilla · ${envio.origenCasillaPais}` : 'Casilla',
+        ]
+          .filter(Boolean)
+          .join(' · '),
+        badge: origenEstadoDone
+          ? {
+              label: fechaSalida ? `Despachado ${fechaSalida}` : 'Despachado',
+              variant: 'emerald',
+            }
+          : { label: 'Pendiente', variant: 'slate' },
+      };
+    }
+
+    // ─── Nodo destino ─────────────────────────────────────────────────
+    const destinoRecibido = envio.estado === 'recibida_completa';
+    const destinoEnTransito =
+      envio.estado === 'en_transito' || envio.estado === 'recibida_parcial';
+    const destinoBadge: RouteCardV2Node['badge'] = destinoRecibido
+      ? {
+          label: fechaLlegada ? `Recibido ${fechaLlegada}` : 'Recibido',
+          variant: 'emerald',
+        }
+      : destinoEnTransito
+        ? {
+            label: envio.estado === 'recibida_parcial' ? 'Recepción parcial' : 'En tránsito',
+            variant: 'sky',
+          }
+        : { label: 'Pendiente', variant: 'slate' };
+
+    let destino: RouteCardV2Node;
+    if (envio.destinoTipo === 'cliente') {
+      destino = {
+        icon: <UserIcon className="w-4 h-4 text-teal-600" />,
+        nombre: envio.destinoClienteNombre || 'Cliente',
+        subtitulo: envio.destinoClienteDistrito
+          ? `Cliente · ${envio.destinoClienteDistrito}`
+          : 'Cliente destino',
+        badge: destinoBadge,
+      };
+    } else if (envio.destinoTipo === 'almacen_tercero') {
+      destino = {
+        icon: <Warehouse className="w-4 h-4 text-amber-600" />,
+        nombre: envio.destinoCasillaNombre || 'Almacén tercero',
+        subtitulo: envio.destinoCasillaPais
+          ? `Almacén tercero · ${envio.destinoCasillaPais}`
+          : 'Almacén tercero',
+        badge: destinoBadge,
+      };
+    } else {
+      // destinoTipo === 'casilla' (default) — incluye almacén propio identificado como casilla
+      destino = {
+        flag: envio.destinoCasillaPais
+          ? getFlagFromPais(envio.destinoCasillaPais)
+          : '🌐',
+        nombre: envio.destinoCasillaNombre || 'Destino',
+        subtitulo: [
+          envio.destinoCasillaCodigo,
+          envio.destinoCasillaPais
+            ? `Casilla · ${envio.destinoCasillaPais}`
+            : 'Casilla',
+        ]
+          .filter(Boolean)
+          .join(' · '),
+        badge: destinoBadge,
+      };
+    }
+
+    // ─── Pipeline footer (V-C · S54 E1) ────────────────────────────────
+    // 4 pasos canónicos: Borrador → Confirmado → En tránsito → Recibida.
+    // Estados especiales (cancelada, retenida_aduana, perdida_total) se
+    // reflejan con badges adicionales en el nodo relevante (fuera del
+    // pipeline), no como pasos separados.
+    const formatDateOrDash = (ts?: { toDate: () => Date }): string =>
+      ts
+        ? new Intl.DateTimeFormat('es-PE', { day: '2-digit', month: 'short' }).format(ts.toDate())
+        : '—';
+
+    const indexEstado =
+      envio.estado === 'borrador' ? 0
+      : envio.estado === 'confirmado' ? 1
+      : envio.estado === 'en_transito' || envio.estado === 'retenida_aduana' ? 2
+      : envio.estado === 'recibida_parcial' ? 2
+      : envio.estado === 'recibida_completa' ? 3
+      : envio.estado === 'cancelada' ? -1
+      : envio.estado === 'perdida_total' ? -1
+      : 0;
+
+    const pasos: RouteCardV2PipelineStep[] = [
+      {
+        label: 'Borrador',
+        fecha: formatDateOrDash(envio.fechaCreacion),
+        status: indexEstado > 0 ? 'completed' : indexEstado === 0 ? 'current' : 'skipped',
+      },
+      {
+        label: 'Confirmado',
+        fecha: formatDateOrDash(envio.fechaConfirmacion),
+        status: indexEstado > 1 ? 'completed' : indexEstado === 1 ? 'current' : indexEstado < 0 ? 'skipped' : 'pending',
+      },
+      {
+        label: envio.estado === 'retenida_aduana' ? 'Aduana' : 'En tránsito',
+        fecha: formatDateOrDash(envio.fechaSalida),
+        status: indexEstado > 2 ? 'completed' : indexEstado === 2 ? 'current' : indexEstado < 0 ? 'skipped' : 'pending',
+      },
+      {
+        label: envio.estado === 'recibida_parcial' ? 'Recepción parcial' : 'Recibida',
+        fecha: formatDateOrDash(envio.fechaLlegadaReal),
+        status: indexEstado === 3 ? 'completed' : indexEstado === 2 && envio.estado === 'recibida_parcial' ? 'current' : indexEstado < 0 ? 'skipped' : 'pending',
+      },
+    ];
+
+    const metaPartes: string[] = [];
+    if (envio.fechaCreacion) metaPartes.push(`Creado ${formatDateOrDash(envio.fechaCreacion)}`);
+    if (envio.fechaLlegadaReal) metaPartes.push(`Recibido ${formatDateOrDash(envio.fechaLlegadaReal)}`);
+    const pipeline: RouteCardV2Pipeline = {
+      steps: pasos,
+      meta: metaPartes.length ? metaPartes.join(' · ') : undefined,
+    };
+
+    return { pill, origen, destino, pipeline };
+  }, [
+    envio.estado,
+    envio.fechaCreacion,
+    envio.fechaConfirmacion,
+    envio.fechaSalida,
+    envio.fechaLlegadaReal,
+    envio.courier,
+    envio.numeroTracking,
+    envio.colaboradorNombre,
+    envio.colaboradorTipo,
+    envio.origenTipo,
+    envio.origenProveedorNombre,
+    envio.origenProveedorPais,
+    envio.origenCasillaNombre,
+    envio.origenCasillaCodigo,
+    envio.origenCasillaPais,
+    envio.origenClienteNombre,
+    envio.destinoTipo,
+    envio.destinoCasillaNombre,
+    envio.destinoCasillaCodigo,
+    envio.destinoCasillaPais,
+    envio.destinoClienteNombre,
+    envio.destinoClienteDistrito,
+    envio.fechaSalida,
+    envio.fechaLlegadaReal,
+  ]);
 
   // ─── Handlers ───────────────────────────────────────────────────────────
   const handleLiberarAduana = async (data: {
@@ -352,15 +608,41 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
           onClick: () => onIniciarRecepcion(envio),
           variant: 'emerald',
         };
-      case 'recibida_parcial':
-        return {
-          icon: PackageCheck,
-          label: 'Registrar recepción adicional',
-          description: 'Aún quedan unidades pendientes — procesá la siguiente tanda',
-          buttonText: 'Recepcionar',
-          onClick: () => onIniciarRecepcion(envio),
-          variant: 'amber',
-        };
+      case 'recibida_parcial': {
+        // BUG-INC-006/007/008 fix (S54.x) — Antes este case mostraba
+        // siempre "Registrar recepción adicional" aunque no hubiera unidades
+        // por llegar (solo quedaban incidencias por gestionar). Ahora
+        // distinguimos los 2 casos:
+        //  · Hay unidades en tránsito esperando llegada → CTA "Recepcionar"
+        //  · No hay pendientes pero sí incidencias activas → CTA "Gestionar incidencias"
+        //  · Ninguna de las anteriores → no mostrar banner (algo raro pasó)
+        const calc = recalcularEstadoEnvio(envio.unidades, envio.incidencias);
+        if (calc.hayUnidadesEsperandoLlegada) {
+          return {
+            icon: PackageCheck,
+            label: 'Registrar recepción adicional',
+            description: `Aún quedan ${calc.totalPendientes} unidad${calc.totalPendientes !== 1 ? 'es' : ''} pendiente${calc.totalPendientes !== 1 ? 's' : ''} — procesá la siguiente tanda`,
+            buttonText: 'Recepcionar',
+            onClick: () => onIniciarRecepcion(envio),
+            variant: 'amber',
+          };
+        }
+        if (calc.hayIncidenciasActivas) {
+          const incidenciasActivas = (envio.incidencias || []).filter((i) => !i.resuelta).length;
+          return {
+            icon: AlertTriangle,
+            label: 'Gestionar incidencias pendientes',
+            description: `${incidenciasActivas} incidencia${incidenciasActivas !== 1 ? 's' : ''} sin resolver. Decidí qué hacer con cada unidad afectada.`,
+            buttonText: 'Gestionar',
+            onClick: () => setShowGestionIncidencias(true),
+            variant: 'amber',
+          };
+        }
+        // Estado raro: parcial pero sin pendientes ni incidencias activas.
+        // El estado debería recalcularse a 'recibida_completa' en la próxima
+        // operación que toque el envío.
+        return null;
+      }
       case 'retenida_aduana':
         return {
           icon: AlertTriangle,
@@ -481,7 +763,7 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
         size="full"
         contentPadding="none"
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col">
           {/* ═══ Header migrado a <EntityHeader> (Capa 3 estándar OC) ═══
               Preserva el gradient sky + icon circular + badges a la derecha
               + acciones contextuales (Imprimir / Registrar recepción / Cerrar). */}
@@ -557,43 +839,14 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               />
             </div>
 
-            {/* Ruta horizontal grande 3 nodos */}
-            <RutaGrande
-              origenNombre={origenNombre}
-              origenSubtitulo={origenSubtitulo}
-              origenPais={envio.origenProveedorPais || envio.origenCasillaPais}
-              origenEstado={
-                envio.estado === 'borrador' || envio.estado === 'confirmado'
-                  ? 'pending'
-                  : 'done'
-              }
-              courierNombre={courierNombre}
-              courierSubtitulo={
-                courierNombre ? 'Transportador' : 'Sin despachar'
-              }
-              enTransito={envio.estado === 'en_transito'}
-              destinoNombre={envio.destinoCasillaNombre || 'Destino'}
-              destinoSubtitulo={
-                // S42bk — Incluir código + país en el subtítulo (similar a
-                // como el origen muestra "Proveedor · USA"). Así el nodo
-                // destino tiene la misma densidad informativa.
-                [
-                  envio.destinoCasillaCodigo,
-                  envio.destinoCasillaPais
-                    ? `Casilla · ${envio.destinoCasillaPais}`
-                    : 'Casilla',
-                ].filter(Boolean).join(' · ')
-              }
-              destinoPais={envio.destinoCasillaPais}
-              destinoEstado={
-                envio.estado === 'recibida_completa'
-                  ? 'done'
-                  : envio.estado === 'en_transito'
-                    ? 'active'
-                    : envio.estado === 'recibida_parcial'
-                      ? 'active'
-                      : 'pending'
-              }
+            {/* S54 — Ruta V2: pill modalidad arriba + 2 nodos grandes. Reemplaza
+                RutaGrande (3 nodos con chip courier central). Ver docs/mockups/
+                oc-detail-ruta-s54.html · sección "V2 aplicada al Envío". */}
+            <RouteCardV2
+              pill={rutaV2.pill}
+              origen={rutaV2.origen}
+              destino={rutaV2.destino}
+              pipeline={rutaV2.pipeline}
             />
 
             {/* S52 — NextActionBanner contextual según estado (Capa 3).
@@ -629,11 +882,17 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                     value: ocsConsolidadas > 0 ? String(ocsConsolidadas) : '—',
                     subtitle:
                       ocsConsolidadas === 1 && envio.ordenCompraNumero
-                        ? envio.ordenCompraNumero
+                        ? `${envio.ordenCompraNumero} ↗`
                         : ocsConsolidadas > 1
                           ? 'de distintos proveedores'
                           : 'sin OC vinculada',
                     tone: 'teal',
+                    onClick: envio.ordenCompraId
+                      ? () => {
+                          // S54 — Navegar a /compras con la OC preseleccionada.
+                          window.location.href = `/compras?oc=${envio.ordenCompraId}`;
+                        }
+                      : undefined,
                   },
                   {
                     label: 'Recibidas',
@@ -669,8 +928,37 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
             </div>
           </div>
 
-          {/* ═══ Tabs internos ═══ */}
-          <div className="px-6 border-b border-slate-200 flex gap-1 overflow-x-auto bg-white flex-shrink-0">
+          {/* ═══ Tabs internos ═══ S54: scrollbar oculto + fade + flechas
+              S54.x: sticky top-0 para que sigan visibles mientras se scrollea
+              el contenido del Modal. */}
+          <div className="relative px-6 border-b border-slate-200 bg-white flex-shrink-0 sticky top-0 z-10">
+            {tabsCanLeft && (
+              <button
+                type="button"
+                onClick={tabsScrollPrev}
+                aria-label="Desplazar tabs a la izquierda"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+            )}
+            {tabsCanRight && (
+              <button
+                type="button"
+                onClick={tabsScrollNext}
+                aria-label="Desplazar tabs a la derecha"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-sm hover:bg-slate-50 hover:border-slate-300 text-slate-600 transition-colors"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <div
+              ref={tabsRef}
+              className={cn(
+                'flex gap-1 overflow-x-auto scrollbar-hide',
+                tabsFade
+              )}
+            >
             <TabButton
               active={tab === 'productos'}
               onClick={() => setTab('productos')}
@@ -692,6 +980,17 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               label="Costos landed"
               badge={badgesTab.costos}
             />
+            {/* S54 E1 — Tab Pagos dedicado (solo envíos internacionales con flete/colaborador) */}
+            {envio.tipo === 'internacional_peru' && (
+              <TabButton
+                active={tab === 'pagos'}
+                onClick={() => setTab('pagos')}
+                icon={<Banknote className="w-3 h-3" />}
+                label="Pagos"
+                badge={pagosColaboradorCC.length}
+                badgeColor={envio.estadoPagoColaborador === 'pagado' ? 'slate' : 'red'}
+              />
+            )}
             <TabButton
               active={tab === 'incidencias'}
               onClick={() => setTab('incidencias')}
@@ -711,18 +1010,35 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
               />
             )}
             <TabButton
+              active={tab === 'documentos'}
+              onClick={() => setTab('documentos')}
+              icon={<FileText className="w-3 h-3" />}
+              label="Documentos"
+              badge={0}
+            />
+            <TabButton
+              active={tab === 'inteligencia'}
+              onClick={() => setTab('inteligencia')}
+              icon={<TrendingUp className="w-3 h-3" />}
+              label="Inteligencia"
+              badge={0}
+            />
+            <TabButton
               active={tab === 'timeline'}
               onClick={() => setTab('timeline')}
               icon={<Clock className="w-3 h-3" />}
               label="Timeline"
               badge={0}
             />
+            </div>
           </div>
 
-          {/* ═══ Grid 2-col: contenido tab + sidebar ═══ */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] flex-1 overflow-hidden">
-            {/* ─── Contenido del tab ─── */}
-            <div className="p-6 overflow-y-auto space-y-4">
+          {/* ═══ Contenido del tab — S54 sidebar eliminado (datos absorbidos en pill/KPIs/pipeline/tabs) ═══
+              S54.x: removido el wrapper `flex-1 overflow-hidden` + `overflow-y-auto h-full`
+              que creaba un 2º contenedor scrolleable conflictuando con el del Modal.
+              Ahora el contenido fluye natural y la barra de scroll del Modal maneja todo. */}
+          <div>
+            <div className="p-6 space-y-4">
               {tab === 'productos' && (
                 <TabProductos envio={envio} productosMap={productosMap} />
               )}
@@ -743,6 +1059,13 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                   <TabCostos envio={envio} onEditFlete={onAbrirEditFlete} />
                 )
               )}
+              {tab === 'pagos' && (
+                <TabPagosColaborador
+                  envio={envio}
+                  onAbrirPago={() => onAbrirPagoColaborador(envio)}
+                  onReconciliar={() => onReconciliarPago(envio)}
+                />
+              )}
               {tab === 'incidencias' && (
                 <TabIncidencias
                   envio={envio}
@@ -761,218 +1084,24 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
                   onReportarIncidencia={() => setShowGestionIncidencias(true)}
                 />
               )}
+              {tab === 'documentos' && <TabDocumentosEnvio envio={envio} />}
+              {tab === 'inteligencia' && <TabInteligenciaEnvio envio={envio} />}
               {tab === 'timeline' && <TabTimeline envio={envio} />}
             </div>
 
-            {/* ─── Sidebar contextual ─── */}
-            <aside className="bg-slate-50 border-l border-slate-200 p-5 space-y-4 overflow-y-auto">
-              {/* Courier */}
-              <div>
-                <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                  Courier
-                </div>
-                <div className="text-sm font-medium text-slate-800">
-                  {envio.courier || '—'}
-                </div>
-                {envio.numeroTracking && (
-                  <button
-                    type="button"
-                    onClick={copyTracking}
-                    className="text-[11px] text-teal-600 font-mono flex items-center gap-1 hover:text-teal-800 mt-0.5"
-                    title="Copiar tracking"
-                  >
-                    <Hash className="w-3 h-3" />
-                    <span className="truncate">{envio.numeroTracking}</span>
-                    <Copy className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-
-              {/* Colaborador */}
-              {envio.colaboradorId && envio.colaboradorNombre && (
-                <div>
-                  <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                    Colaborador
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700 flex-shrink-0">
-                      {getIniciales(envio.colaboradorNombre)}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">
-                        {envio.colaboradorNombre}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* OC vinculada */}
-              {envio.ordenCompraId && envio.ordenCompraNumero && (
-                <div>
-                  <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                    OC vinculada
-                  </div>
-                  <div className="p-2 bg-white border border-slate-200 rounded-lg">
-                    <div className="text-sm font-mono font-semibold text-teal-700 flex items-center gap-1">
-                      {envio.ordenCompraNumero}
-                      <ExternalLink className="w-3 h-3" />
-                    </div>
-                    {envio.origenProveedorNombre && (
-                      <div className="text-[11px] text-slate-500 truncate">
-                        {envio.origenProveedorNombre}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Fechas */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                    Creación
-                  </div>
-                  <div className="text-sm text-slate-700">
-                    {envio.fechaCreacion.toDate().toLocaleDateString('es-PE', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </div>
-                </div>
-                {envio.fechaSalida && (
-                  <div>
-                    <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                      Salida
-                    </div>
-                    <div className="text-sm text-slate-700">
-                      {envio.fechaSalida.toDate().toLocaleDateString('es-PE', {
-                        day: '2-digit',
-                        month: 'short',
-                      })}
-                    </div>
-                  </div>
-                )}
-                {diasEnTransito !== null && diasEnTransito >= 0 && (
-                  <div>
-                    <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                      Tránsito
-                    </div>
-                    <div className="text-sm text-slate-700">
-                      {diasEnTransito}d
-                    </div>
-                  </div>
-                )}
-                {envio.fechaLlegadaReal && (
-                  <div>
-                    <div className="text-[10px] font-semibold text-slate-500 uppercase mb-1">
-                      Llegada
-                    </div>
-                    <div className="text-sm text-slate-700">
-                      {envio.fechaLlegadaReal.toDate().toLocaleDateString('es-PE', {
-                        day: '2-digit',
-                        month: 'short',
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Acciones rápidas */}
-              <div>
-                <div className="text-[10px] font-semibold text-slate-500 uppercase mb-2">
-                  Acciones rápidas
-                </div>
-                <div className="space-y-1.5">
-                  {envio.estado === 'borrador' && (
-                    <SidebarAction
-                      icon={<CheckCircle className="w-3.5 h-3.5" />}
-                      label="Confirmar envío"
-                      onClick={() => {
-                        onConfirmar(envio.id);
-                        onClose();
-                      }}
-                      variant="teal"
-                    />
-                  )}
-                  {envio.estado === 'confirmado' && (
-                    <SidebarAction
-                      icon={<Truck className="w-3.5 h-3.5" />}
-                      label="Despachar envío"
-                      onClick={() => {
-                        onEnviar(envio.id);
-                        onClose();
-                      }}
-                      variant="teal"
-                    />
-                  )}
-                  {(envio.estado === 'en_transito' || envio.estado === 'recibida_parcial') && (
-                    <SidebarAction
-                      icon={<PackageCheck className="w-3.5 h-3.5" />}
-                      label={
-                        envio.estado === 'recibida_parcial'
-                          ? 'Recepción adicional'
-                          : 'Registrar recepción'
-                      }
-                      onClick={() => onIniciarRecepcion(envio)}
-                      variant="teal"
-                    />
-                  )}
-                  {esInternacional && (
-                    <SidebarAction
-                      icon={<DollarSign className="w-3.5 h-3.5" />}
-                      label={
-                        envio.costoFleteTotal && envio.costoFleteTotal > 0
-                          ? 'Editar flete'
-                          : 'Agregar flete'
-                      }
-                      onClick={() => onAbrirEditFlete(envio)}
-                      variant="teal"
-                    />
-                  )}
-                  {incidenciasAbiertas.length > 0 && (
-                    <SidebarAction
-                      icon={<AlertTriangle className="w-3.5 h-3.5" />}
-                      label={`Gestionar incidencias (${incidenciasAbiertas.length})`}
-                      onClick={() => setShowGestionIncidencias(true)}
-                      variant="red"
-                    />
-                  )}
-                  {tieneAduanaPendiente && (
-                    <SidebarAction
-                      icon={<PackageCheck className="w-3.5 h-3.5" />}
-                      label="Liberar aduana"
-                      onClick={() => setShowLiberarAduana(true)}
-                      variant="amber"
-                    />
-                  )}
-                  {esInternacional &&
-                    (envio.estado === 'recibida_completa' ||
-                      envio.estado === 'recibida_parcial') &&
-                    envio.estadoPagoColaborador !== 'pagado' && (
-                      <SidebarAction
-                        icon={<Banknote className="w-3.5 h-3.5" />}
-                        label={
-                          envio.estadoPagoColaborador === 'parcial'
-                            ? 'Pago adicional'
-                            : 'Pago viajero'
-                        }
-                        onClick={() => onAbrirPagoColaborador(envio)}
-                        variant="emerald"
-                      />
-                    )}
-                  {envio.estadoPagoColaborador === 'pagado' && (
-                    <SidebarAction
-                      icon={<RefreshCw className="w-3.5 h-3.5" />}
-                      label="Sincronizar pago"
-                      onClick={() => onReconciliarPago(envio)}
-                      variant="slate"
-                    />
-                  )}
-                </div>
-              </div>
-            </aside>
+            {/* S54 — Sidebar ELIMINADO.
+                 Datos absorbidos en:
+                 · Tracking → pill del RouteCardV2 (clickable copiable)
+                 · OC vinculada → KPI "OCs consolidadas" (clickable)
+                 · Creación → meta del pipeline
+                 · Salida/Llegada → fechas bajo cada paso del pipeline
+                 · Acciones de transición → NextActionBanner arriba
+                 · Editar flete / gestionar incidencias / pago viajero → dentro de sus tabs respectivos
+                 Bloque de aside COMPLETO removido (layout 2col → 1col).
+            */}
+            {/* S54 — Sidebar ELIMINADO · layout 1 col.
+                 Datos absorbidos en: pill (tracking copiable) · KPI (OC vinculada clickable) ·
+                 pipeline (fechas) · NextActionBanner (transiciones) · tabs (acciones específicas). */}
           </div>
         </div>
       </Modal>
@@ -1006,97 +1135,10 @@ export const EnvioDetailModal: React.FC<EnvioDetailModalProps> = ({
 // Subcomponentes — Header
 // ════════════════════════════════════════════════════════════════════════════
 
-type NodoEstado = 'done' | 'active' | 'pending';
-
-const RutaGrande: React.FC<{
-  origenNombre: string;
-  origenSubtitulo: string;
-  origenPais?: string;
-  origenEstado: NodoEstado;
-  courierNombre: string | null;
-  courierSubtitulo: string;
-  enTransito: boolean;
-  destinoNombre: string;
-  destinoSubtitulo: string;
-  destinoPais?: string;
-  destinoEstado: NodoEstado;
-}> = ({
-  origenNombre,
-  origenSubtitulo,
-  origenPais,
-  origenEstado,
-  courierNombre,
-  enTransito,
-  destinoNombre,
-  destinoSubtitulo,
-  destinoPais,
-  destinoEstado,
-}) => (
-  <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-slate-200">
-    <NodoRuta
-      flag={getFlag(origenPais)}
-      nombre={origenNombre}
-      subtitulo={origenSubtitulo}
-      estadoBadge={origenEstado === 'done' ? 'Despachado' : origenEstado === 'active' ? 'En origen' : 'Pendiente'}
-      estadoVariant={origenEstado === 'done' ? 'success' : origenEstado === 'active' ? 'info' : 'default'}
-    />
-    <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-    {courierNombre ? (
-      <div className="flex-shrink-0 text-center px-2">
-        <div
-          className={cn(
-            'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium',
-            enTransito
-              ? 'bg-sky-100 text-sky-700'
-              : 'bg-slate-100 text-slate-600'
-          )}
-        >
-          <Truck className="w-3 h-3" />
-          {courierNombre}
-        </div>
-      </div>
-    ) : (
-      <div className="flex-shrink-0 text-center px-2">
-        <span className="text-[11px] text-slate-400 italic">Sin asignar</span>
-      </div>
-    )}
-    <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-    <NodoRuta
-      flag={getFlag(destinoPais)}
-      nombre={destinoNombre}
-      subtitulo={destinoSubtitulo}
-      estadoBadge={
-        destinoEstado === 'done'
-          ? 'Recibido'
-          : destinoEstado === 'active'
-            ? 'En tránsito'
-            : 'Pendiente'
-      }
-      estadoVariant={destinoEstado === 'done' ? 'success' : destinoEstado === 'active' ? 'info' : 'default'}
-    />
-  </div>
-);
-
-const NodoRuta: React.FC<{
-  flag: string;
-  nombre: string;
-  subtitulo: string;
-  estadoBadge: string;
-  estadoVariant: 'success' | 'info' | 'default';
-}> = ({ flag, nombre, subtitulo, estadoBadge, estadoVariant }) => (
-  <div className="flex-1 min-w-0">
-    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-      <span className="text-lg">{flag}</span>
-      <span className="font-semibold text-sm text-slate-900 truncate">
-        {nombre}
-      </span>
-      <Badge variant={estadoVariant} size="sm">
-        {estadoBadge}
-      </Badge>
-    </div>
-    <div className="text-[11px] text-slate-500 truncate">{subtitulo}</div>
-  </div>
-);
+// S54 — `RutaGrande` + `NodoRuta` + `getFlag` eliminados. La ruta ahora se
+// renderiza con el componente compartido `RouteCardV2` del design-system
+// (patrón V2: pill modalidad arriba + 2 nodos grandes). El helper para
+// banderas vive ahora como `getFlagFromPais` en el mismo módulo.
 
 const KpiRapido: React.FC<{
   label: string;
@@ -1510,33 +1552,164 @@ const TabCostos: React.FC<{
         </div>
       </div>
 
-      {/* Historial de Pagos al Colaborador */}
-      {esInternacional && (envio.pagosColaborador?.length ?? 0) > 0 && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-          <div className="text-xs text-emerald-600 uppercase mb-2 font-semibold">
-            Historial de Pagos ({envio.pagosColaborador?.length})
+      {/* S54 E1 — Historial de pagos al colaborador MOVIDO al tab Pagos dedicado. */}
+    </div>
+  );
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// S54 E1 — TabPagosColaborador: resumen + destinatario + historial + CTA.
+// Centraliza lo que antes estaba disperso entre TabCostos y sidebar.
+// ════════════════════════════════════════════════════════════════════════════
+const TabPagosColaborador: React.FC<{
+  envio: Envio;
+  onAbrirPago: () => void;
+  onReconciliar: () => void;
+}> = ({ envio, onAbrirPago, onReconciliar }) => {
+  const totalFlete = envio.costoFleteTotal || 0;
+  const moneda = envio.monedaFlete || 'USD';
+  // S55 Fase 4 — Pagos vienen del hook reactivo (CC). Reemplaza envio.pagosColaborador[].
+  const { pagos } = usePagosEnvio(envio.id);
+  const montoPagado = pagos.reduce((s, p) => s + (p.montoUSD || 0), 0);
+  const pendiente = Math.max(0, totalFlete - montoPagado);
+  const estado = envio.estadoPagoColaborador || (totalFlete > 0 ? 'pendiente' : 'pagado');
+  const puedeRegistrar =
+    (envio.estado === 'recibida_completa' || envio.estado === 'recibida_parcial') &&
+    estado !== 'pagado' &&
+    totalFlete > 0;
+
+  return (
+    <div className="space-y-3">
+      {/* Resumen */}
+      <div className="grid grid-cols-4 gap-2 bg-slate-50 rounded-xl p-3">
+        <div className="text-center">
+          <div className="text-[10px] font-semibold uppercase text-slate-500">Flete total</div>
+          <div className="text-lg font-bold tabular-nums">
+            {totalFlete > 0 ? `$${totalFlete.toFixed(2)}` : '—'}
           </div>
-          {envio.pagosColaborador?.map((pago: any, idx: number) => (
-            <div
-              key={pago.id}
-              className="flex justify-between items-center text-sm py-1.5 border-b border-emerald-100 last:border-0"
+          <div className="text-[10px] text-slate-500">{moneda}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-[10px] font-semibold uppercase text-slate-500">Pagado</div>
+          <div className="text-lg font-bold text-emerald-600 tabular-nums">
+            ${montoPagado.toFixed(2)}
+          </div>
+          <div className="text-[10px] text-slate-500">{pagos.length} pago{pagos.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-[10px] font-semibold uppercase text-slate-500">Pendiente</div>
+          <div
+            className={cn(
+              'text-lg font-bold tabular-nums',
+              estado === 'pagado' ? 'text-slate-400' : 'text-red-600'
+            )}
+          >
+            ${pendiente.toFixed(2)}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="text-[10px] font-semibold uppercase text-slate-500">Estado</div>
+          <div className="pt-1.5">
+            <Badge
+              variant={
+                estado === 'pagado' ? 'success' : estado === 'parcial' ? 'warning' : 'danger'
+              }
+              size="sm"
             >
-              <div>
-                <span className="font-medium text-slate-900">Pago {idx + 1}</span>
-                <span className="text-slate-500 ml-2">
-                  {pago.fecha?.toDate?.()?.toLocaleDateString('es-PE')}
-                </span>
-                <span className="text-slate-400 ml-2 text-xs capitalize">
-                  {pago.metodoPago?.replace(/_/g, ' ')}
-                </span>
-              </div>
-              <span className="font-semibold text-emerald-700 tabular-nums">
-                ${pago.montoUSD.toFixed(2)}
-              </span>
+              {estado === 'pagado' ? 'Pagado' : estado === 'parcial' ? 'Parcial' : 'Pendiente'}
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Destinatario */}
+      {envio.colaboradorNombre && (
+        <div className="p-3 border border-amber-200 bg-amber-50 rounded-lg text-xs">
+          <div className="text-[10px] font-semibold uppercase text-amber-700 mb-1">
+            Destinatario del pago
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-amber-800 font-bold text-xs">
+              {envio.colaboradorNombre
+                .split(' ')
+                .map((p) => p[0])
+                .slice(0, 2)
+                .join('')}
             </div>
-          ))}
+            <div>
+              <div className="font-semibold">
+                {envio.colaboradorNombre}{' '}
+                {envio.colaboradorTipo && (
+                  <span className="text-[10px] font-normal text-amber-700">
+                    ({envio.colaboradorTipo})
+                  </span>
+                )}
+              </div>
+              <div className="text-[10px] text-amber-700">
+                Transportador del envío · flete {moneda} ${totalFlete.toFixed(2)}
+              </div>
+            </div>
+          </div>
         </div>
       )}
+
+      {/* Historial */}
+      <div className="border border-slate-200 rounded-xl overflow-hidden">
+        <div className="bg-slate-50 px-3 py-2 text-[10px] font-semibold uppercase text-slate-500 tracking-wider flex items-center justify-between">
+          <span>Historial de pagos</span>
+          <span className="text-slate-400 normal-case font-normal">
+            {pagos.length} registrado{pagos.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        {pagos.length === 0 ? (
+          <div className="p-6 text-center text-xs text-slate-500 italic">
+            Aún no hay pagos registrados.
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-[11px] text-slate-500 uppercase">
+              <tr className="text-left">
+                <th className="px-3 py-2">Fecha</th>
+                <th className="px-3 py-2">Método</th>
+                <th className="px-3 py-2">Referencia</th>
+                <th className="px-3 py-2 text-right">Monto USD</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {pagos.map((pago: any, idx: number) => (
+                <tr key={pago.id || idx} className="hover:bg-slate-50/50">
+                  <td className="px-3 py-2 tabular-nums text-xs">
+                    {pago.fecha?.toDate?.()?.toLocaleDateString('es-PE') || '—'}
+                  </td>
+                  <td className="px-3 py-2 text-xs capitalize">
+                    {pago.metodoPago?.replace(/_/g, ' ') || '—'}
+                  </td>
+                  <td className="px-3 py-2 text-xs font-mono text-slate-600">
+                    {pago.referencia || '—'}
+                  </td>
+                  <td className="px-3 py-2 text-right tabular-nums font-semibold">
+                    ${(pago.montoUSD || 0).toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        <div className="p-2 border-t border-slate-200 flex gap-2">
+          {puedeRegistrar && (
+            <Button variant="primary" onClick={onAbrirPago} className="flex-1">
+              <Banknote className="h-4 w-4 mr-2" />
+              {estado === 'parcial' ? 'Registrar pago adicional' : 'Registrar pago al colaborador'}
+            </Button>
+          )}
+          {estado === 'pagado' && (
+            <Button variant="secondary" onClick={onReconciliar} className="flex-1">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Sincronizar pago
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -1548,119 +1721,225 @@ const TabIncidencias: React.FC<{
   tieneAduanaPendiente: boolean;
 }> = ({ envio, onGestionar, onLiberarAduana, tieneAduanaPendiente }) => {
   const incidencias = envio.incidencias || [];
-  const abiertas = incidencias.filter((i) => !i.resuelta);
-  const resueltas = incidencias.filter((i) => i.resuelta);
+  const [filtroTipo, setFiltroTipo] = useState<'todas' | 'faltante' | 'danada' | 'diferente' | 'aduana' | 'otro'>('todas');
+  const [filtroEstado, setFiltroEstado] = useState<'todos' | 'abiertas' | 'resueltas'>('todos');
+
+  // S54 E2 — Meta por tipo (estilo IncidenciasOCPanel)
+  const TIPO_META: Record<string, { label: string; emoji: string; colorClass: string }> = {
+    faltante: { label: 'Faltante', emoji: '📦', colorClass: 'bg-amber-100 text-amber-800' },
+    danada: { label: 'Dañada', emoji: '💥', colorClass: 'bg-red-100 text-red-800' },
+    diferente: { label: 'Diferente', emoji: '❓', colorClass: 'bg-purple-100 text-purple-800' },
+    aduana: { label: 'Aduana', emoji: '🛃', colorClass: 'bg-sky-100 text-sky-800' },
+    otro: { label: 'Otro', emoji: '📌', colorClass: 'bg-slate-100 text-slate-800' },
+  };
+
+  // Contadores por tipo y por estado
+  const contadores = {
+    porTipo: { todas: incidencias.length } as Record<string, number>,
+    porEstado: {
+      todos: incidencias.length,
+      abiertas: incidencias.filter((i) => !i.resuelta).length,
+      resueltas: incidencias.filter((i) => i.resuelta).length,
+    },
+  };
+  for (const i of incidencias) {
+    contadores.porTipo[i.tipo] = (contadores.porTipo[i.tipo] || 0) + 1;
+  }
+
+  // Filtrar
+  const filtradas = incidencias.filter((i) => {
+    if (filtroTipo !== 'todas' && i.tipo !== filtroTipo) return false;
+    if (filtroEstado === 'abiertas' && i.resuelta) return false;
+    if (filtroEstado === 'resueltas' && !i.resuelta) return false;
+    return true;
+  });
 
   if (incidencias.length === 0) {
     return (
-      <div className="text-center py-12">
-        <CheckCircle className="w-10 h-10 text-emerald-300 mx-auto mb-2" />
-        <div className="text-sm font-medium text-slate-700">Sin incidencias</div>
-        <div className="text-xs text-slate-500 mt-0.5">
-          Este envío no tiene problemas registrados
+      <div className="flex flex-col items-center justify-center py-10 px-6 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 text-center">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+          <CheckCircle className="w-6 h-6 text-emerald-500" />
         </div>
+        <h3 className="text-sm font-semibold text-slate-700 mb-1">Sin incidencias</h3>
+        <p className="text-xs text-slate-500">Este envío no tiene problemas registrados.</p>
       </div>
     );
   }
 
+  const tiposPresentes = (Object.keys(TIPO_META) as Array<keyof typeof TIPO_META>).filter(
+    (t) => (contadores.porTipo[t] || 0) > 0
+  );
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-3 text-xs">
-          {abiertas.length > 0 && (
-            <span className="text-red-700 font-medium">
-              {abiertas.length} sin resolver
-            </span>
+      {/* Sub-tabs por tipo */}
+      <div className="flex gap-1 bg-slate-100 rounded-lg p-1 w-fit max-w-full overflow-x-auto scrollbar-hide">
+        <button
+          type="button"
+          onClick={() => setFiltroTipo('todas')}
+          className={cn(
+            'text-xs px-3 py-1.5 rounded font-medium whitespace-nowrap',
+            filtroTipo === 'todas' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'
           )}
-          {resueltas.length > 0 && (
-            <span className="text-emerald-700">
-              {resueltas.length} resuelta{resueltas.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {abiertas.length > 0 && (
-            <Button variant="secondary" size="sm" onClick={onGestionar}>
-              <AlertTriangle className="w-4 h-4 mr-1.5" />
-              Gestionar ({abiertas.length})
-            </Button>
+        >
+          Todas <span className="text-[10px] text-slate-400">({contadores.porTipo.todas})</span>
+        </button>
+        {tiposPresentes.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setFiltroTipo(t as 'faltante' | 'danada' | 'diferente' | 'aduana' | 'otro')}
+            className={cn(
+              'text-xs px-3 py-1.5 rounded font-medium whitespace-nowrap',
+              filtroTipo === t ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'
+            )}
+          >
+            {TIPO_META[t].emoji} {TIPO_META[t].label}{' '}
+            <span className="text-[10px] text-slate-400">({contadores.porTipo[t] || 0})</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Filtros estado + CTAs */}
+      <div className="flex gap-2 items-center text-xs flex-wrap">
+        <span className="text-slate-500">Estado:</span>
+        {(['todos', 'abiertas', 'resueltas'] as const).map((e) => (
+          <button
+            key={e}
+            type="button"
+            onClick={() => setFiltroEstado(e)}
+            className={cn(
+              'px-2 py-0.5 rounded-full font-medium text-xs capitalize',
+              filtroEstado === e
+                ? e === 'abiertas'
+                  ? 'bg-red-200 text-red-800'
+                  : e === 'resueltas'
+                    ? 'bg-emerald-200 text-emerald-800'
+                    : 'bg-slate-300 text-slate-800'
+                : e === 'abiertas'
+                  ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                  : e === 'resueltas'
+                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            )}
+          >
+            {e} ({contadores.porEstado[e]})
+          </button>
+        ))}
+        <div className="ml-auto flex gap-2 flex-wrap">
+          {contadores.porEstado.abiertas > 0 && (
+            <button
+              onClick={onGestionar}
+              className="text-[11px] px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-50 inline-flex items-center gap-1"
+            >
+              <AlertTriangle className="w-3 h-3" /> Gestionar
+            </button>
           )}
           {tieneAduanaPendiente && (
-            <Button variant="primary" size="sm" onClick={onLiberarAduana}>
-              <PackageCheck className="w-4 h-4 mr-1.5" />
-              Liberar aduana
-            </Button>
+            <button
+              onClick={onLiberarAduana}
+              className="text-[11px] px-2 py-1 bg-sky-600 text-white rounded hover:bg-sky-700 inline-flex items-center gap-1"
+            >
+              <PackageCheck className="w-3 h-3" /> Liberar aduana
+            </button>
           )}
         </div>
       </div>
 
-      <div className="space-y-2">
-        {incidencias.map((inc) => (
-          <div
-            key={inc.id}
-            className={cn(
-              'p-3 rounded-lg border',
-              inc.resuelta ? 'bg-slate-50 border-slate-200' : 'bg-red-50 border-red-200'
-            )}
-          >
-            <div className="flex items-start gap-2">
-              {inc.resuelta ? (
-                <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-              ) : (
-                <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-semibold text-slate-700 capitalize">
-                    {inc.tipo}
-                  </span>
-                  {inc.sku && (
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      {inc.sku}
-                    </span>
-                  )}
-                  {inc.productoNombre && (
-                    <span className="text-[11px] text-slate-600">
-                      · {inc.productoNombre}
-                    </span>
-                  )}
-                </div>
-                {inc.descripcion && (
-                  <div className="text-xs text-slate-600 mt-0.5">{inc.descripcion}</div>
-                )}
-                <div className="text-[10px] text-slate-400 mt-0.5">
-                  {inc.fechaRegistro.toDate().toLocaleDateString('es-PE', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                  {inc.resuelta && inc.fechaResolucion && (
-                    <>
-                      {' '}
-                      · resuelta{' '}
-                      {inc.fechaResolucion.toDate().toLocaleDateString('es-PE', {
-                        day: '2-digit',
-                        month: 'short',
-                      })}
-                    </>
-                  )}
+      {/* Lista */}
+      {filtradas.length === 0 ? (
+        <div className="p-6 text-center text-xs text-slate-500 italic border-2 border-dashed border-slate-200 rounded-xl">
+          Ninguna incidencia coincide con los filtros.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtradas.map((inc) => {
+            const meta = TIPO_META[inc.tipo] || TIPO_META.otro;
+            const borderColor = inc.resuelta
+              ? 'border-emerald-200 bg-emerald-50/40'
+              : 'border-red-200 bg-red-50/40';
+            return (
+              <div key={inc.id} className={cn('p-3 rounded-lg border', borderColor)}>
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                      <span
+                        className={cn(
+                          'text-[10px] px-1.5 py-0.5 rounded font-bold uppercase',
+                          inc.resuelta
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-red-100 text-red-700'
+                        )}
+                      >
+                        {inc.resuelta ? 'Resuelta' : 'Abierta'}
+                      </span>
+                      <span className={cn('text-[10px] px-1.5 py-0.5 rounded font-medium', meta.colorClass)}>
+                        {meta.emoji} {meta.label}
+                      </span>
+                      {inc.sku && (
+                        <span className="text-[10px] text-slate-500 font-mono">{inc.sku}</span>
+                      )}
+                      {inc.productoNombre && (
+                        <span className="text-[11px] text-slate-600">· {inc.productoNombre}</span>
+                      )}
+                    </div>
+                    {inc.descripcion && (
+                      <div className="text-xs text-slate-700 mt-0.5">{inc.descripcion}</div>
+                    )}
+                    <div className="flex items-center gap-3 mt-1.5 text-[10px] text-slate-500 flex-wrap">
+                      <span>
+                        Registrada{' '}
+                        {inc.fechaRegistro.toDate().toLocaleDateString('es-PE', {
+                          day: '2-digit',
+                          month: 'short',
+                        })}
+                      </span>
+                      {inc.registradoPor && (
+                        <span>
+                          por <UserName userId={inc.registradoPor} />
+                        </span>
+                      )}
+                      {inc.resuelta && inc.fechaResolucion && (
+                        <span className="text-emerald-700">
+                          · resuelta{' '}
+                          {inc.fechaResolucion.toDate().toLocaleDateString('es-PE', {
+                            day: '2-digit',
+                            month: 'short',
+                          })}
+                        </span>
+                      )}
+                      {inc.montoReclamoPEN !== undefined && inc.montoReclamoPEN > 0 && (
+                        <span className="text-red-700 font-semibold">
+                          Reclamo: S/ {inc.montoReclamoPEN.toFixed(2)}
+                          {inc.estadoReclamo && ` · ${inc.estadoReclamo}`}
+                        </span>
+                      )}
+                    </div>
+                    {inc.resuelta && inc.resolucion && (
+                      <div className="mt-2 text-[11px] text-emerald-900 bg-emerald-50 border border-emerald-200 rounded px-2 py-1">
+                        <b>Resolución:</b> {inc.resolucion}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
 
 const TabTimeline: React.FC<{ envio: Envio }> = ({ envio }) => {
-  const eventos: { fecha: any; titulo: string; descripcion?: string; icon: any; color: string }[] = [];
+  const eventos: { fecha: any; titulo: string; descripcion?: React.ReactNode; icon: any; color: string }[] = [];
 
   eventos.push({
     fecha: envio.fechaCreacion,
     titulo: 'Envío creado',
-    descripcion: `Por ${envio.creadoPor ?? 'sistema'}`,
+    descripcion: envio.creadoPor ? (
+      <>Por <UserName userId={envio.creadoPor} /></>
+    ) : 'Por sistema',
     icon: FileText,
     color: 'slate',
   });
@@ -1783,26 +2062,222 @@ const getEstadoBadgeNuevo = (estado: EstadoEnvio) => {
   return <Badge variant={variant}>{label}</Badge>;
 };
 
-function getFlag(pais?: string): string {
-  if (!pais) return '🌐';
-  const flags: Record<string, string> = {
-    USA: '🇺🇸',
-    'Estados Unidos': '🇺🇸',
-    CHINA: '🇨🇳',
-    China: '🇨🇳',
-    COREA: '🇰🇷',
-    Corea: '🇰🇷',
-    'Corea del Sur': '🇰🇷',
-    JAPÓN: '🇯🇵',
-    Japón: '🇯🇵',
-    MÉXICO: '🇲🇽',
-    México: '🇲🇽',
-    PERÚ: '🇵🇪',
-    Perú: '🇵🇪',
-    Peru: '🇵🇪',
-  };
-  return flags[pais] ?? '🌐';
-}
+// ════════════════════════════════════════════════════════════════════════════
+// S54 · E3 — TabDocumentosEnvio: repositorio de documentos del envío.
+// Placeholder por ahora (la persistencia requiere storage). Preview conceptual.
+// ════════════════════════════════════════════════════════════════════════════
+const TabDocumentosEnvio: React.FC<{ envio: Envio }> = ({ envio }) => {
+  const esInternacional = envio.tipo === 'internacional_peru';
+  const documentosTipicos = esInternacional
+    ? [
+        { tipo: 'AWB / BL', descripcion: 'Air Waybill o Bill of Lading', icono: Plane, color: 'sky' },
+        { tipo: 'Packing list', descripcion: 'Lista de empaque detallada', icono: FileText, color: 'emerald' },
+        { tipo: 'Factura comercial', descripcion: 'Invoice del proveedor/courier', icono: FileText, color: 'amber' },
+        { tipo: 'Certificado de origen', descripcion: 'Para tratamientos arancelarios', icono: FileText, color: 'purple' },
+        { tipo: 'DAM (DUA)', descripcion: 'Declaración aduanera de mercancías', icono: FileText, color: 'teal' },
+        { tipo: 'Liberación aduanera', descripcion: 'Comprobante de nacionalización', icono: PackageCheck, color: 'slate' },
+      ]
+    : [
+        { tipo: 'Guía de remisión', descripcion: 'Traslado interno / local', icono: FileText, color: 'sky' },
+        { tipo: 'Acta de recepción', descripcion: 'Firmada por el destinatario', icono: PackageCheck, color: 'emerald' },
+      ];
+
+  return (
+    <div className="space-y-3">
+      <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg text-xs text-sky-900 flex items-start gap-2">
+        <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
+        <div>
+          Repositorio de documentos del envío. <b>Próximamente:</b> upload con preview inline y
+          versionado. Lista sugerida según tipo de envío ({esInternacional ? 'internacional' : 'local'}):
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {documentosTipicos.map((d) => {
+          const Icon = d.icono;
+          const colorClasses: Record<string, string> = {
+            sky: 'bg-sky-100 text-sky-700',
+            emerald: 'bg-emerald-100 text-emerald-700',
+            amber: 'bg-amber-100 text-amber-700',
+            purple: 'bg-purple-100 text-purple-700',
+            teal: 'bg-teal-100 text-teal-700',
+            slate: 'bg-slate-100 text-slate-700',
+          };
+          return (
+            <div
+              key={d.tipo}
+              className="p-3 border border-slate-200 rounded-lg flex items-center gap-3 hover:bg-slate-50 transition-colors"
+            >
+              <div className={cn('w-10 h-10 rounded flex items-center justify-center', colorClasses[d.color])}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-slate-900">{d.tipo}</div>
+                <div className="text-[10px] text-slate-500">{d.descripcion}</div>
+              </div>
+              <span className="text-[10px] text-slate-400 italic">Pendiente</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// S54 · E3 — TabInteligenciaEnvio: widgets analíticos específicos de logística.
+// Métricas cruzadas con el histórico de envíos del mismo courier/colaborador.
+// ════════════════════════════════════════════════════════════════════════════
+const TabInteligenciaEnvio: React.FC<{ envio: Envio }> = ({ envio }) => {
+  const esInternacional = envio.tipo === 'internacional_peru';
+  const costoFletePorLb = envio.costoFletePorLibra || 0;
+  const pesoTotal = envio.pesoTotalLibras || 0;
+  const courier = envio.courier || envio.colaboradorNombre;
+
+  // Placeholders de cálculo — en sesión dedicada se cruzan con colección envios
+  // para obtener promedios históricos del courier/colaborador.
+  const sinDatos = !courier;
+
+  return (
+    <div className="space-y-3">
+      <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-900 flex items-start gap-2">
+        <TrendingUp className="w-4 h-4 mt-0.5 flex-shrink-0" />
+        <div>
+          Análisis cruzado con histórico del transportador. Los widgets se
+          activan cuando hay datos suficientes de envíos anteriores.
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {/* SLA del transportador */}
+        <div className="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <Truck className="w-4 h-4 text-slate-500" />
+              <span className="text-[10px] uppercase font-semibold text-slate-500">SLA del transportador</span>
+            </div>
+          </div>
+          {sinDatos ? (
+            <div className="text-xs text-slate-500 italic py-2">Sin transportador asignado.</div>
+          ) : (
+            <div className="text-xs space-y-1">
+              <div className="flex justify-between">
+                <span className="text-slate-600">Transportador</span>
+                <span className="font-semibold">{courier}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600">Lead time (este envío)</span>
+                <span className="font-semibold tabular-nums">
+                  {envio.diasEnTransito !== undefined
+                    ? `${envio.diasEnTransito} días`
+                    : '—'}
+                </span>
+              </div>
+              <div className="text-[10px] text-slate-400 italic mt-1">
+                Próximamente: lead time promedio y ratio de incidencias históricos.
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Costo por libra vs histórico */}
+        <div className="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <DollarSign className="w-4 h-4 text-slate-500" />
+              <span className="text-[10px] uppercase font-semibold text-slate-500">Costo por libra</span>
+            </div>
+          </div>
+          {costoFletePorLb > 0 ? (
+            <div className="text-xs space-y-1">
+              <div className="text-lg font-bold text-slate-900 tabular-nums">
+                ${costoFletePorLb.toFixed(2)} <span className="text-xs font-normal text-slate-500">USD/lb</span>
+              </div>
+              <div className="text-[10px] text-slate-500">
+                Peso total: {pesoTotal.toFixed(2)} lb · Flete: ${(envio.costoFleteTotal || 0).toFixed(2)}
+              </div>
+              <div className="text-[10px] text-slate-400 italic mt-1">
+                Próximamente: comparativo vs promedio histórico del colaborador.
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-slate-500 italic py-2">
+              {esInternacional ? 'Flete aún no registrado.' : 'No aplica para envíos locales.'}
+            </div>
+          )}
+        </div>
+
+        {/* Tiempo en aduana (solo internacional) */}
+        {esInternacional && (
+          <div className="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <PackageCheck className="w-4 h-4 text-slate-500" />
+                <span className="text-[10px] uppercase font-semibold text-slate-500">Tiempo en aduana</span>
+              </div>
+            </div>
+            {envio.estado === 'retenida_aduana' ? (
+              <div className="text-xs">
+                <div className="text-red-700 font-bold">En aduana actualmente</div>
+                <div className="text-[10px] text-slate-500 mt-1">
+                  Considerar liberación inmediata para evitar recargos por almacenaje.
+                </div>
+              </div>
+            ) : (
+              <div className="text-xs text-slate-500 italic py-2">
+                Sin retención registrada en este envío.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Ratio de incidencias */}
+        <div className="p-3 border border-slate-200 rounded-lg bg-gradient-to-br from-white to-slate-50">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4 text-slate-500" />
+              <span className="text-[10px] uppercase font-semibold text-slate-500">Salud del envío</span>
+            </div>
+          </div>
+          <div className="text-xs space-y-1">
+            <div className="flex justify-between">
+              <span className="text-slate-600">Incidencias registradas</span>
+              <span
+                className={cn(
+                  'font-semibold tabular-nums',
+                  (envio.incidencias?.length ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600'
+                )}
+              >
+                {envio.incidencias?.length ?? 0}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-600">Unidades dañadas</span>
+              <span
+                className={cn(
+                  'font-semibold tabular-nums',
+                  (envio.totalUnidadesDanadas ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600'
+                )}
+              >
+                {envio.totalUnidadesDanadas ?? 0}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-600">Unidades faltantes</span>
+              <span
+                className={cn(
+                  'font-semibold tabular-nums',
+                  (envio.totalUnidadesFaltantes ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600'
+                )}
+              >
+                {envio.totalUnidadesFaltantes ?? 0}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 function getIniciales(nombre: string): string {
   return nombre

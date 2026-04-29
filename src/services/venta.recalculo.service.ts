@@ -57,13 +57,13 @@ function calcularEstadoPago(montoPagado: number, totalPEN: number): EstadoPago {
 }
 
 /**
- * Sumar el monto total pagado en PEN (convierte USD→PEN cuando corresponde).
+ * S55 Fase 3 — Sumar el monto total pagado en PEN desde CC.
+ * Reemplaza el viejo `sumarMontoPagadoPEN(venta.pagos)`.
  */
-function sumarMontoPagadoPEN(pagos: Venta['pagos']): number {
-  return (pagos || []).reduce((sum, p) => {
-    if (p.moneda === 'USD' && p.montoEquivalentePEN) return sum + p.montoEquivalentePEN;
-    return sum + p.monto;
-  }, 0);
+async function sumarMontoPagadoPENDesdeCC(ventaId: string): Promise<number> {
+  const { getCobrosVenta } = await import('./cuentaCorriente.adaptadores');
+  const cobros = await getCobrosVenta(ventaId);
+  return cobros.reduce((sum, c) => sum + c.monto, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -117,7 +117,7 @@ export async function corregirPrecioProducto(
   const margenBruto = nuevoTotalPEN > 0 ? (utilidadBrutaPEN / nuevoTotalPEN) * 100 : 0;
   const margenNeto = nuevoTotalPEN > 0 ? (utilidadNetaPEN / nuevoTotalPEN) * 100 : 0;
 
-  const nuevoMontoPagadoFinal = sumarMontoPagadoPEN(venta.pagos);
+  const nuevoMontoPagadoFinal = await sumarMontoPagadoPENDesdeCC(venta.id);
   const nuevoMontoPendienteFinal = nuevoTotalPEN - nuevoMontoPagadoFinal;
   const estadoPagoFinal = calcularEstadoPago(nuevoMontoPagadoFinal, nuevoTotalPEN);
 
@@ -542,8 +542,8 @@ export async function editarVenta(
   updates.margenNeto = nuevoTotalPEN > 0 ? (utilidadNetaPEN / nuevoTotalPEN) * 100 : 0;
   updates.margenPromedio = updates.margenBruto;
 
-  // Recalcular estado de pago
-  const montoPagadoFinal = sumarMontoPagadoPEN(venta.pagos);
+  // Recalcular estado de pago — S55 Fase 3: leer cobros desde CC
+  const montoPagadoFinal = await sumarMontoPagadoPENDesdeCC(venta.id);
   const montoPendienteFinal = nuevoTotalPEN - montoPagadoFinal;
 
   updates.montoPagado = montoPagadoFinal;
@@ -551,11 +551,13 @@ export async function editarVenta(
   updates.estadoPago = calcularEstadoPago(montoPagadoFinal, nuevoTotalPEN);
 
   if (montoPendienteFinal < 0) {
-    updates.saldoAFavor = Math.abs(montoPendienteFinal);
-    updates.tieneSobrepago = true;
-  } else {
-    updates.saldoAFavor = 0;
-    updates.tieneSobrepago = false;
+    // S55 Fase 3 — saldoAFavor eliminado del tipo Venta. El saldo a favor del
+    // cliente ahora vive como CC.saldoPEN < 0 (cliente pagó de más → empresa le
+    // debe). El monto excedente se ajusta automáticamente vía credito_cobro_venta
+    // que pasa el saldo CC a negativo. No se persiste en la venta.
+    void Math.abs(montoPendienteFinal); // valor calculado, no se usa más
+    // S55 Fase 3 — `tieneSobrepago` y `saldoAFavor` eliminados del tipo.
+    // Derivar del saldo CC negativo del cliente cuando se necesite mostrar.
   }
 
   updates.ultimaEdicion = serverTimestamp();

@@ -41,6 +41,47 @@ export type EstadoReclamo =
   | 'cerrado_sin_cobrar';
 
 /**
+ * S54.x (D-REC-4) — Tipo de evento del historial procedural del reclamo.
+ *
+ * Cada transición del ciclo (crear, enviar, marcar disputa, aceptar, cobrar,
+ * rechazar, cerrar, resolver con reemplazo) deja un evento en el array
+ * `historial` del reclamo. Permite renderizar un timeline visual completo
+ * de la negociación y auditar quién hizo qué cuándo.
+ */
+export type TipoEventoReclamo =
+  | 'creado'
+  | 'editado'
+  | 'enviado'
+  | 'marcado_en_disputa'
+  | 'aceptado'
+  | 'resuelto_con_reemplazo'
+  | 'reemplazo_recibido'
+  | 'cobrado'
+  | 'rechazado'
+  | 'cerrado_sin_cobrar';
+
+export interface ReclamoEvento {
+  id: string;                          // uuid corto del evento
+  tipo: TipoEventoReclamo;
+  fecha: Timestamp;
+  usuarioId: string;
+  /** Texto descriptivo del evento (qué pasó en lenguaje natural). */
+  descripcion: string;
+  /** Datos adicionales del evento — montos, motivos, IDs relacionados. */
+  meta?: {
+    montoPEN?: number;
+    montoUSD?: number;
+    motivo?: string;
+    nuevoEstado?: EstadoReclamo;
+    estadoAnterior?: EstadoReclamo;
+    cuentaId?: string;
+    movimientoTesoreriaId?: string;
+    gastoId?: string;
+    subEnvioReemplazoId?: string;
+  };
+}
+
+/**
  * Reclamo presentado a un destinatario para recuperar el valor de unidades
  * dañadas, perdidas o abandonadas en aduana.
  */
@@ -109,6 +150,10 @@ export interface Reclamo {
   fechaActualizacion?: Timestamp;
   cerradoPor?: string;
 
+  // S54.x (D-REC-4) — Timeline procedural del reclamo. Cada transición de
+  // estado o resolución agrega un evento. Render visual en ReclamoTimeline.
+  historial?: ReclamoEvento[];
+
   // Línea de negocio (desnormalizado desde envío)
   lineaNegocioId?: string;
 }
@@ -169,6 +214,12 @@ export interface ReclamoFiltros {
   estados?: EstadoReclamo[];
   tipo?: TipoReclamo;
   destinatario?: DestinatarioReclamo;
+  /**
+   * BUG-INC-004 fix (S54.x) — Filtro por entidad destinataria (proveedorId,
+   * colaboradorId, etc.). Permite listar reclamos abiertos contra X proveedor
+   * o X courier desde su ficha de Maestros.
+   */
+  destinatarioId?: string;
   envioId?: string;
   ordenCompraId?: string;
   lineaNegocioId?: string;

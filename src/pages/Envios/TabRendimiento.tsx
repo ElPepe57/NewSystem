@@ -223,7 +223,7 @@ export const TabRendimiento: React.FC = () => {
       </div>
 
       {/* KPIs principales */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
         <StatCard
           label="Fill Rate"
           value={`${metricas.fillRate.toFixed(1)}%`}
@@ -255,7 +255,7 @@ export const TabRendimiento: React.FC = () => {
       </div>
 
       {/* KPIs secundarios */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
         <StatCard
           label="Tiempo en tránsito"
           value={metricas.diasPromedio > 0 ? `${metricas.diasPromedio.toFixed(1)} días` : '—'}
@@ -287,7 +287,7 @@ export const TabRendimiento: React.FC = () => {
       </div>
 
       {/* Rankings */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
         {/* Ranking dañadas */}
         <div className="bg-white border border-slate-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">

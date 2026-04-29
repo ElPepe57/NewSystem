@@ -14,6 +14,8 @@ import { MLOrderSync, MLOrderProduct } from "./ml.types";
 import { getOrder, getShipment } from "./ml.api";
 import { resolverTCVenta } from "../tipoCambio.util";
 import { COLLECTIONS } from "../collections";
+// S55 Fase 9-pre — Cuenta Corriente (escritura paralela durante migración).
+import { registrarMovimientoCC_CF } from "../cuentaCorriente.helpers";
 
 const db = admin.firestore();
 const Timestamp = admin.firestore.Timestamp;
@@ -561,9 +563,8 @@ async function crearVenta(
     cargoEnvioML,
     metodoEnvio: orderSync.metodoEnvio || null,
     gastosVentaPEN,
-    // Estado de pago
+    // S55 Fase 3 — Solo denormalizados. El detalle de cobros vive en movimientosCC.
     estadoPago: "pendiente",
-    pagos: [],
     montoPagado: 0,
     montoPendiente: totalPEN,
     // Estado general
@@ -617,6 +618,42 @@ async function crearVenta(
     throw err;
   }
 
+  // S55 Fase 9-pre — Crear movimiento `debito_venta` en CC del cliente.
+  // Solo si tenemos clienteId (vinculación a cliente del catálogo). Si la
+  // venta es a comprador "anónimo" sin clienteId, se omite el movimiento CC.
+  // No bloqueante: si falla, la venta queda creada y se puede ajustar manual.
+  if (clienteId && totalPEN > 0) {
+    try {
+      const clienteNombreCC =
+        toTitleCase(orderSync.mlBuyerName || "").trim() ||
+        orderSync.buyerEmail ||
+        `Cliente ML ${orderSync.mlOrderId}`;
+      await registrarMovimientoCC_CF({
+        entidadId: clienteId,
+        tipo: "cliente",
+        entidadNombre: clienteNombreCC,
+        tipoMovimiento: "debito_venta",
+        descripcion: `Venta ${numeroVenta} (ML #${orderSync.mlOrderId}) emitida`,
+        moneda: "PEN",
+        monto: totalPEN,
+        refDocumentoTipo: "venta",
+        refDocumentoId: ventaRef.id,
+        refDocumentoNumero: numeroVenta,
+        registradoPor: "ml-auto-processor",
+        // Idempotencia: si webhook se reintenta, no duplica el débito
+        idempotencyKey: `crear_venta_ml_${orderSync.mlOrderId}`,
+      });
+      functions.logger.info(
+        `[CC] debito_venta creado para ${numeroVenta} (cliente ${clienteId}, S/ ${totalPEN.toFixed(2)})`
+      );
+    } catch (err: any) {
+      functions.logger.warn(
+        `[CC] No se pudo crear debito_venta para ${numeroVenta}: ${err?.message || "error desconocido"}. ` +
+          "Resolver con ajusteManual."
+      );
+    }
+  }
+
   return { ventaId: ventaRef.id, numeroVenta, ventaData, alreadyExisted: false };
 }
 
@@ -644,9 +681,12 @@ async function registrarPagoCompleto(
     }
   }
 
-  // Crear PagoVenta
+  // S55 Fase 3 — Ya no se persiste un objeto PagoVenta legacy. Los detalles
+  // del cobro viven en MovimientoCC más abajo. `pagoId` se mantiene solo
+  // como referencia (logging) por consistencia histórica.
   const pagoId = `PAG-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-  const nuevoPago = {
+  void pagoId;
+  const _legacyPagoVenta = {
     id: pagoId,
     monto: totalPEN,
     metodoPago: "mercado_pago",
@@ -656,15 +696,50 @@ async function registrarPagoCompleto(
     registradoPor: "ml-auto-processor",
     notas: "Pago recibido via Mercado Libre",
   };
+  void _legacyPagoVenta;
 
-  // Actualizar venta con pago
+  // S55 Fase 3 — Ya NO se escribe `pagos: arrayUnion(...)` ni `fechaPagoCompleto`.
+  // El cobro se persiste como MovimientoCC `credito_cobro_venta` abajo.
+  // Solo se mantienen los denormalizados (estadoPago/montoPagado/montoPendiente).
   await db.collection(COLLECTIONS.VENTAS).doc(ventaId).update({
-    pagos: admin.firestore.FieldValue.arrayUnion(nuevoPago),
     montoPagado: totalPEN,
     montoPendiente: 0,
     estadoPago: "pagado",
-    fechaPagoCompleto: Timestamp.now(),
   });
+
+  // S55 Fase 9-pre — Crear movimiento `credito_cobro_venta` en CC del cliente.
+  // Salda la deuda del cliente con la empresa por esta venta. No bloqueante.
+  const clienteIdVenta = ventaData.clienteId;
+  if (clienteIdVenta && totalPEN > 0) {
+    try {
+      const clienteNombreCC =
+        ventaData.nombreCliente ||
+        ventaData.emailCliente ||
+        `Cliente ML ${orderSync.mlOrderId}`;
+      await registrarMovimientoCC_CF({
+        entidadId: clienteIdVenta,
+        tipo: "cliente",
+        entidadNombre: clienteNombreCC,
+        tipoMovimiento: "credito_cobro_venta",
+        descripcion: `Cobro venta ${numeroVenta} (ML #${orderSync.mlOrderId}) vía Mercado Pago`,
+        moneda: "PEN",
+        monto: totalPEN,
+        refDocumentoTipo: "venta",
+        refDocumentoId: ventaId,
+        refDocumentoNumero: numeroVenta,
+        registradoPor: "ml-auto-processor",
+        // Idempotencia: webhook puede reintentarse
+        idempotencyKey: `cobro_venta_ml_${orderSync.mlOrderId}`,
+      });
+      functions.logger.info(
+        `[CC] credito_cobro_venta creado para ${numeroVenta} (cliente ${clienteIdVenta}, S/ ${totalPEN.toFixed(2)})`
+      );
+    } catch (err: any) {
+      functions.logger.warn(
+        `[CC] No se pudo crear credito_cobro_venta para ${numeroVenta}: ${err?.message || "error desconocido"}.`
+      );
+    }
+  }
 
   // Buscar cuenta MercadoPago en tesorería
   const cuentaMPId = await buscarCuentaMercadoPago();

@@ -1008,9 +1008,10 @@ export const productoIntelService = {
       ['confirmada', 'asignada', 'en_entrega', 'despachada'].includes(v.estado)
     );
 
+    // S55 Fase 3 — usar montoPendiente denormalizado (reemplaza iteración de pagos[])
     const cajaPendienteCobrar = ventasPendientes.reduce((sum, v) => {
-      const pagado = v.pagos?.reduce((s, p) => s + p.monto, 0) || 0;
-      return sum + (v.totalPEN - pagado);
+      const pendiente = v.montoPendiente ?? Math.max(0, v.totalPEN - (v.montoPagado || 0));
+      return sum + pendiente;
     }, 0);
 
     // Caja confirmada (ventas pagadas)
@@ -1024,9 +1025,11 @@ export const productoIntelService = {
       oc.estado !== 'cancelada'
     );
 
+    // S55 Fase 2 — `historialPagos[]` eliminado. Usamos `montoPendiente`
+    // denormalizado en PEN. Si no está, asumimos total USD * tc pendiente.
     const egresosComprometidos = ocPendientes.reduce((sum, oc) => {
-      const pagado = oc.historialPagos?.reduce((s, p) => s + p.montoPEN, 0) || 0;
-      return sum + ((oc.totalPEN || oc.totalUSD * tc) - pagado);
+      const pendientePEN = oc.montoPendiente ?? (oc.totalPEN || oc.totalUSD * tc);
+      return sum + Math.max(0, pendientePEN);
     }, 0);
 
     return {

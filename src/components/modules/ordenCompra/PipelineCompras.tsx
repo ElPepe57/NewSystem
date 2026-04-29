@@ -1,3 +1,21 @@
+/**
+ * REFERENCIA DE DISEÑO CANÓNICA — PipelineCompras
+ *
+ * Este archivo es la FUENTE DE VERDAD del patrón "pipeline de listado" del sistema.
+ * Cualquier barra de pipeline clickable encima de un listado en otro módulo DEBE replicar
+ * este patrón visual.
+ *
+ * NO MODIFICAR este archivo sin autorización explícita del usuario. Cualquier
+ * cambio aquí propaga implícitamente al resto del sistema y puede introducir
+ * regresiones en módulos ya alineados.
+ *
+ * Ver:
+ *   - CLAUDE.md → "ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS"
+ *   - docs/DESIGN_PATTERNS.md → "Referencias de Diseño Canónicas (S54.x)"
+ *   - docs/REGISTRO_IMPLEMENTACION.md → "SESIÓN S54.x — DECISIÓN ESTRATÉGICA"
+ *
+ * Decisión registrada en sesión S54.x (2026-04-25).
+ */
 import React from 'react';
 import { FileText, Check, Truck, CheckCircle, ChevronRight } from 'lucide-react';
 
@@ -52,14 +70,18 @@ export const PipelineCompras: React.FC<PipelineComprasProps> = ({
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <h3 className="text-sm font-semibold text-slate-800">Pipeline de compras</h3>
         <span className="text-xs text-slate-500">
           {totalOCs ?? stages.reduce((s, x) => s + x.count, 0)} OCs · ciclo comercial/financiero
         </span>
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* S54.x — Layout responsive:
+           · Mobile / narrow (< lg = 1024px viewport): grid 2x2 sin chevrones.
+           · lg+: flex horizontal con chevrones entre etapas.
+           Esto evita que los cards se corten al achicar la ventana. */}
+      <div className="grid grid-cols-2 gap-2 lg:flex lg:items-center">
         <StageCard
           stage={byId('borrador')}
           active={activeStage === 'borrador'}
@@ -68,7 +90,7 @@ export const PipelineCompras: React.FC<PipelineComprasProps> = ({
           subtitle="Pendientes de confirmar"
           variant="neutral"
         />
-        <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+        <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block" />
         <StageCard
           stage={byId('confirmada')}
           active={activeStage === 'confirmada'}
@@ -77,7 +99,7 @@ export const PipelineCompras: React.FC<PipelineComprasProps> = ({
           subtitle="Envíos generados, pago pendiente"
           variant="info"
         />
-        <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+        <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block" />
         <StageCard
           stage={byId('en_despacho')}
           active={activeStage === 'en_despacho'}
@@ -86,7 +108,7 @@ export const PipelineCompras: React.FC<PipelineComprasProps> = ({
           subtitle="Envíos en tránsito / parcial"
           variant="warning"
         />
-        <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+        <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block" />
         <StageCard
           stage={byId('completada')}
           active={activeStage === 'completada'}
@@ -156,14 +178,14 @@ const StageCard: React.FC<{
     <button
       type="button"
       onClick={onClick}
-      className={`flex-1 ${c.bg} ${c.bgHover} rounded-xl p-3 cursor-pointer transition-all border ${c.border} text-left ${active ? c.active : ''}`}
+      className={`min-w-0 lg:flex-1 ${c.bg} ${c.bgHover} rounded-xl p-3 cursor-pointer transition-all border ${c.border} text-left ${active ? c.active : ''}`}
     >
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-1.5">
-          <span className={c.textIcon}>{icon}</span>
-          <span className={`text-xs font-semibold ${c.text}`}>{stage.label}</span>
+      <div className="flex items-center justify-between mb-1 gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className={`flex-shrink-0 ${c.textIcon}`}>{icon}</span>
+          <span className={`text-xs font-semibold truncate ${c.text}`}>{stage.label}</span>
         </div>
-        <span className="text-lg font-bold text-slate-900 tabular-nums">
+        <span className="text-lg font-bold text-slate-900 tabular-nums flex-shrink-0">
           {stage.count}
         </span>
       </div>

@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Reclamos · Modelo procedural · S54</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+  .tab { font-variant-numeric: tabular-nums; }
+  .dashed-line { background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%); background-size: 8px 2px; background-repeat: repeat-x; }
+  .dotted-v-line { background-image: linear-gradient(to bottom, #cbd5e1 50%, transparent 50%); background-size: 2px 6px; background-repeat: repeat-y; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+  .modal-shell { background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); }
+  .pulse-dot::before { content: ''; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; opacity: 0.4; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:0.4} 50%{transform:scale(1.6);opacity:0} }
+</style>
+</head>
+<body class="p-6">
+
+<!-- ============================================================================
+     STICKY NAV
+============================================================================ -->
+<div class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200 -mx-6 px-6 py-3 mb-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i class="fa-solid fa-shield-halved text-teal-600"></i>
+      <span class="font-bold text-slate-900">Reclamos · Modelo procedural</span>
+      <span class="text-[11px] text-slate-500 ml-2">S54 · Mockup de diseño</span>
+    </div>
+    <div class="flex gap-1.5 flex-wrap">
+      <a href="#problema" class="text-[11px] px-2.5 py-1 bg-slate-200 text-slate-700 rounded-md hover:bg-slate-300">1 · Problema</a>
+      <a href="#ciclo" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">2 · Ciclo</a>
+      <a href="#crear" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">3 · Crear</a>
+      <a href="#seguimiento" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">4 · Seguimiento</a>
+      <a href="#por-tipo" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">5 · Por tipo</a>
+      <a href="#casos" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">6 · Casos reales</a>
+      <a href="#donde" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">7 · Dónde se apilan</a>
+      <a href="#decisiones" class="text-[11px] px-2.5 py-1 bg-amber-500 text-white rounded-md hover:bg-amber-600">8 · Decisiones</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     1 — PROBLEMA
+============================================================================ -->
+<section id="problema" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">1 · El problema que resolvemos</div>
+  <div class="card p-6">
+    <h1 class="text-2xl font-bold text-slate-900">Crear reclamo ≠ ejecutar devolución</h1>
+    <p class="text-sm text-slate-600 mt-2 max-w-3xl">
+      Hoy el modal "Crear reclamo" no comunica que esto es solo un <strong>registro interno</strong>.
+      El usuario puede pensar que al hacer clic en "Crear" el dinero ya volvió o el inventario se ajustó.
+      En realidad faltan pasos: enviarlo al destinatario, esperar aceptación, y registrar el abono efectivo
+      (que puede tomar días o semanas).
+    </p>
+    <p class="text-sm text-slate-600 mt-3 max-w-3xl">
+      Además los tres tipos de incidencia (<strong>perdida</strong> · <strong>dañada</strong> · <strong>aduana_timeout</strong>)
+      tienen tiempos, evidencias y resoluciones distintas, pero hoy se manejan con la misma UI plana.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <!-- ANTES -->
+      <div class="border border-red-200 rounded-lg p-4 bg-red-50/40">
+        <div class="text-[11px] font-semibold uppercase text-red-700 mb-2">❌ Hoy</div>
+        <ul class="text-sm text-slate-700 space-y-1.5">
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>El modal no aclara que crear = borrador</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>No hay timeline visual de eventos del reclamo</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>No hay "próximo paso esperado"</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>Mismo form para los 3 tipos sin contexto del tracking original</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>No queda claro que el monto es el valor original (no recalculado)</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>5 botones sueltos en estado "enviado" sin jerarquía</li>
+          <li class="flex gap-2"><i class="fa-solid fa-xmark text-red-500 mt-1 text-xs"></i>No es obvio dónde aparece la lista de reclamos en la app</li>
+        </ul>
+      </div>
+      <!-- DESPUES -->
+      <div class="border border-emerald-200 rounded-lg p-4 bg-emerald-50/40">
+        <div class="text-[11px] font-semibold uppercase text-emerald-700 mb-2">✅ Propuesta</div>
+        <ul class="text-sm text-slate-700 space-y-1.5">
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Banner clarificador en creación (es solo borrador)</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Timeline visual con eventos (creado, enviado, aceptado, cobrado)</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Card "Próximo paso esperado" siempre visible</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Tracking original del envío visible read-only · monto reclamado claramente "valor original, no se recalcula"</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Sección que documenta dónde aparece la lista de reclamos (ya hay 3 puntos de entrada en la app)</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1 text-xs"></i>Acciones agrupadas: "Registrar respuesta" abre 4 opciones</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 p-3 bg-sky-50 border border-sky-200 rounded-lg text-sm text-sky-900">
+      <strong>Lo que NO cambia:</strong> el modelo de datos actual (estados <code class="text-xs bg-white px-1 rounded">borrador → enviado → aceptado → cobrado</code> + <code class="text-xs bg-white px-1 rounded">tipoResolucion</code>) y el servicio (<code class="text-xs bg-white px-1 rounded">reclamoService.crear()</code> sigue creando borrador).
+      Solo se agrega: timeline (campo <code class="text-xs bg-white px-1 rounded">historial[]</code> en el doc) y se rediseña la UI con bloques read-only que toman datos que ya existen (tracking, costo original).
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     2 — CICLO PROCEDURAL
+============================================================================ -->
+<section id="ciclo" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">2 · El ciclo procedural unificado</div>
+  <div class="card p-6">
+    <h2 class="text-xl font-bold text-slate-900">Estados oficiales (lo que ya existe)</h2>
+    <p class="text-sm text-slate-600 mt-1">5 transiciones, cada una con un disparador HUMANO explícito. No hay automatismos que adelanten dinero.</p>
+
+    <!-- Diagrama de estados horizontal -->
+    <div class="mt-6 overflow-x-auto">
+      <div class="min-w-[1100px] grid grid-cols-7 items-start gap-0 relative pb-4">
+        <!-- Línea de fondo -->
+        <div class="absolute left-[7%] right-[7%] top-7 h-0.5 bg-slate-300 -z-0"></div>
+
+        <!-- 1. Detección -->
+        <div class="text-center relative z-10">
+          <div class="w-14 h-14 mx-auto bg-slate-100 border-2 border-slate-300 rounded-full flex items-center justify-center text-slate-600">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <div class="text-xs font-semibold mt-2">Detección</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Recepción</div>
+          <div class="text-[10px] text-slate-400 italic">Antes del reclamo</div>
+        </div>
+
+        <!-- 2. Borrador -->
+        <div class="text-center relative z-10">
+          <div class="w-14 h-14 mx-auto bg-slate-100 border-2 border-slate-400 rounded-full flex items-center justify-center text-slate-700">
+            <i class="fa-solid fa-pen"></i>
+          </div>
+          <div class="text-xs font-semibold mt-2">Borrador</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Solo registro</div>
+          <div class="mt-1.5 text-[9px] px-1.5 py-0.5 inline-block rounded-full bg-emerald-50 text-emerald-700 font-medium">$ 0 movimiento</div>
+        </div>
+
+        <!-- 3. Enviado -->
+        <div class="text-center relative z-10">
+          <div class="w-14 h-14 mx-auto bg-sky-50 border-2 border-sky-400 rounded-full flex items-center justify-center text-sky-700">
+            <i class="fa-solid fa-paper-plane"></i>
+          </div>
+          <div class="text-xs font-semibold mt-2">Enviado</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Notificado al destinatario</div>
+          <div class="mt-1.5 text-[9px] px-1.5 py-0.5 inline-block rounded-full bg-emerald-50 text-emerald-700 font-medium">$ 0 movimiento</div>
+        </div>
+
+        <!-- 4. En disputa (opcional) -->
+        <div class="text-center relative z-10">
+          <div class="w-14 h-14 mx-auto bg-amber-50 border-2 border-amber-400 rounded-full flex items-center justify-center text-amber-700">
+            <i class="fa-solid fa-comments"></i>
+          </div>
+          <div class="text-xs font-semibold mt-2">En disputa</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Cuestionan</div>
+          <div class="text-[10px] text-slate-400 italic">Opcional</div>
+        </div>
+
+        <!-- 5. Aceptado -->
+        <div class="text-center relative z-10">
+          <div class="w-14 h-14 mx-auto bg-amber-50 border-2 border-amber-500 rounded-full flex items-center justify-center text-amber-700">
+            <i class="fa-solid fa-handshake"></i>
+          </div>
+          <div class="text-xs font-semibold mt-2">Aceptado</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Hay acuerdo</div>
+          <div class="mt-1.5 text-[9px] px-1.5 py-0.5 inline-block rounded-full bg-emerald-50 text-emerald-700 font-medium">$ 0 todavía</div>
+        </div>
+
+        <!-- 6. Resolución -->
+        <div class="text-center relative z-10">
+          <div class="w-14 h-14 mx-auto bg-emerald-100 border-2 border-emerald-500 rounded-full flex items-center justify-center text-emerald-700">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="text-xs font-semibold mt-2">Cobrado</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Dinero entró</div>
+          <div class="mt-1.5 text-[9px] px-1.5 py-0.5 inline-block rounded-full bg-emerald-100 text-emerald-700 font-medium">+ tesorería</div>
+        </div>
+
+        <!-- 7. Cierre alterno -->
+        <div class="text-center relative z-10">
+          <div class="w-14 h-14 mx-auto bg-red-50 border-2 border-red-400 rounded-full flex items-center justify-center text-red-700">
+            <i class="fa-solid fa-ban"></i>
+          </div>
+          <div class="text-xs font-semibold mt-2">Rechazado<br>/ timeout</div>
+          <div class="text-[10px] text-slate-500 mt-0.5">No se cobra</div>
+          <div class="mt-1.5 text-[9px] px-1.5 py-0.5 inline-block rounded-full bg-red-100 text-red-700 font-medium">− gasto merma</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de eventos -->
+    <div class="mt-8">
+      <h3 class="text-base font-semibold text-slate-900 mb-3">Cada transición es manual y tiene efectos claros</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden">
+          <thead class="bg-slate-50 text-[11px] uppercase text-slate-600">
+            <tr>
+              <th class="text-left px-3 py-2 font-semibold">Acción humana</th>
+              <th class="text-left px-3 py-2 font-semibold">Estado</th>
+              <th class="text-left px-3 py-2 font-semibold">Efecto en el sistema</th>
+              <th class="text-left px-3 py-2 font-semibold">Movimiento $</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="px-3 py-2"><strong>Crear reclamo</strong> en panel de envío</td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">borrador</span></td>
+              <td class="px-3 py-2 text-slate-600">Doc Reclamo creado · Incidencia marcada "resuelta por reclamo"</td>
+              <td class="px-3 py-2"><span class="text-emerald-700 font-medium">— ninguno</span></td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2"><strong>Enviar</strong> al destinatario</td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">enviado</span></td>
+              <td class="px-3 py-2 text-slate-600">Marca <code class="text-xs bg-slate-100 px-1 rounded">fechaEnvio</code> · Inicia conteo SLA</td>
+              <td class="px-3 py-2"><span class="text-emerald-700 font-medium">— ninguno</span></td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2"><em>(Opcional)</em> Marcar en disputa</td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">en_disputa</span></td>
+              <td class="px-3 py-2 text-slate-600">Guarda <code class="text-xs bg-slate-100 px-1 rounded">motivoDisputa</code></td>
+              <td class="px-3 py-2"><span class="text-emerald-700 font-medium">— ninguno</span></td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2"><strong>Aceptar</strong> con monto acordado</td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">aceptado</span></td>
+              <td class="px-3 py-2 text-slate-600">Define <code class="text-xs bg-slate-100 px-1 rounded">tipoResolucion</code>: reembolso · reemplazo · merma</td>
+              <td class="px-3 py-2"><span class="text-emerald-700 font-medium">— todavía no</span></td>
+            </tr>
+            <tr class="bg-emerald-50/30">
+              <td class="px-3 py-2"><strong>Registrar cobro</strong> (si reembolso)</td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">cobrado</span></td>
+              <td class="px-3 py-2 text-slate-600">Crea <code class="text-xs bg-slate-100 px-1 rounded">tesoreria.ingreso_otro</code> · Cierra reclamo</td>
+              <td class="px-3 py-2"><span class="text-emerald-700 font-bold">+ S/ XXX a cuenta</span></td>
+            </tr>
+            <tr class="bg-emerald-50/30">
+              <td class="px-3 py-2"><strong>Confirmar reemplazo</strong> recibido</td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">cobrado*</span></td>
+              <td class="px-3 py-2 text-slate-600">Sub-tanda llegó OK · Cierra reclamo · CTRU preservado</td>
+              <td class="px-3 py-2"><span class="text-slate-600">— sin dinero (en especie)</span></td>
+            </tr>
+            <tr class="bg-red-50/30">
+              <td class="px-3 py-2"><strong>Rechazar</strong> con motivo</td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">rechazado</span></td>
+              <td class="px-3 py-2 text-slate-600">Crea <code class="text-xs bg-slate-100 px-1 rounded">gasto.merma_transferencia</code></td>
+              <td class="px-3 py-2"><span class="text-red-700 font-bold">− S/ XXX como gasto</span></td>
+            </tr>
+            <tr class="bg-red-50/30">
+              <td class="px-3 py-2"><strong>Cerrar por timeout</strong></td>
+              <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">cerrado_sin_cobrar</span></td>
+              <td class="px-3 py-2 text-slate-600">Idem rechazado · marcado por timeout SLA</td>
+              <td class="px-3 py-2"><span class="text-red-700 font-bold">− S/ XXX como gasto</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-2 italic">
+        * Reemplazo recibido cierra como "cobrado" en el modelo actual aunque no haya dinero — el flag
+        <code class="bg-slate-100 px-1 rounded">tipoResolucion='reemplazo'</code> permite distinguirlo en reportes.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     3 — CREAR RECLAMO REDISEÑADO
+============================================================================ -->
+<section id="crear" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">3 · Modal "Crear reclamo" rediseñado</div>
+  <p class="text-sm text-slate-600 mb-4">Cambios clave: banner clarificador arriba + bloque "Próximos pasos" abajo + bloque contextual por tipo de incidencia.</p>
+
+  <div class="flex justify-center">
+    <!-- ─── Modal mockup ─────────────────────────────────────────────── -->
+    <div class="modal-shell w-full max-w-2xl">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-teal-600"></i>
+          <h3 class="text-base font-bold text-slate-900">Crear reclamo</h3>
+        </div>
+        <i class="fa-solid fa-xmark text-slate-400 cursor-pointer"></i>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-5 space-y-4 max-h-[80vh] overflow-y-auto">
+        <!-- 🆕 BANNER CLARIFICADOR -->
+        <div class="p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+          <div class="flex items-start gap-2">
+            <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
+            <div class="text-[12px] text-amber-900">
+              <strong>Esto crea un BORRADOR.</strong> No genera devolución, abono ni movimiento contable
+              hasta que el destinatario lo acepte y se registre el cobro efectivo. El proceso completo
+              suele tomar entre 2 y 8 semanas.
+              <a href="#ciclo" class="underline font-medium">Ver ciclo completo →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner envío -->
+        <div class="p-3 bg-sky-50 border border-sky-200 rounded-lg text-sm">
+          <div class="font-medium text-sky-900">Reclamo sobre envío ENV-2026-002</div>
+          <div class="text-xs text-sky-700 mt-0.5">Asian Beauty Wholesale → Almacén Vita Skin SMP · Courier: FedEx</div>
+        </div>
+
+        <!-- Reclamo dirigido a (bloqueado) -->
+        <div class="p-3 bg-amber-50/60 border border-amber-200 rounded-lg">
+          <div class="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">Reclamo dirigido a</div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold">A</div>
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">Asian Beauty Wholesale</div>
+              <div class="text-xs text-slate-500">Proveedor · Tipo: <span class="font-medium">Unidad perdida</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🆕 TRACKING ORIGINAL DEL ENVÍO (read-only) -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-2">
+            <i class="fa-solid fa-link"></i>
+            Tracking del envío original
+          </div>
+          <div class="flex items-center justify-between bg-white px-3 py-2 rounded border border-slate-200">
+            <div>
+              <div class="font-mono text-sm text-slate-800">1Z999AA10123456784</div>
+              <div class="text-[10px] text-slate-500">Capturado al crear ENV-2026-002 · FedEx</div>
+            </div>
+            <i class="fa-solid fa-lock text-slate-400 text-xs" title="Solo lectura"></i>
+          </div>
+          <div class="text-[10px] text-slate-400 italic mt-1.5">Se hereda automáticamente del envío. No se edita acá.</div>
+        </div>
+
+        <!-- Unidades afectadas -->
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Unidades afectadas (1 / 1)</label>
+          <div class="border border-slate-200 rounded-lg divide-y divide-slate-100">
+            <div class="flex items-center gap-3 px-3 py-2 text-sm">
+              <input type="checkbox" checked class="h-4 w-4 text-teal-600 rounded">
+              <span class="font-mono text-xs text-slate-700">HAEPQA</span>
+              <span class="text-xs text-slate-500">SKC-0019</span>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium">faltante</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monto -->
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Monto reclamado <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">US$ (moneda OC)</div>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-semibold">$</span>
+                <input type="text" value="8.10" class="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-lg">
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">Equivalente S/</div>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-semibold">S/</span>
+                <input type="text" value="28.27" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg">
+              </div>
+            </div>
+          </div>
+          <div class="text-[11px] text-emerald-700 italic flex items-center gap-1 mt-1.5">
+            <i class="fa-solid fa-circle-check"></i> Valor original al momento de la recepción · TC = S/ 3.4900 / US$
+          </div>
+          <div class="text-[10px] text-slate-500 mt-1 flex items-start gap-1.5 bg-slate-50 border border-slate-200 px-2 py-1.5 rounded">
+            <i class="fa-solid fa-circle-info text-slate-400 mt-0.5"></i>
+            <span>El monto se toma del <strong>costo original registrado</strong> (CTRU inicial = costo OC + flete prorrateado). No incluye descuentos comerciales (esos sólo existen al vender) ni se recalcula con CTRUs posteriores.</span>
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div>
+          <label class="block text-xs font-medium text-slate-700 mb-1">Notas (opcional)</label>
+          <textarea rows="2" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg" placeholder="Contexto, número de caso, persona de contacto..."></textarea>
+        </div>
+
+        <!-- 🆕 PRÓXIMOS PASOS -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <div class="text-[11px] font-semibold uppercase text-slate-600 mb-2">Después de crear este reclamo</div>
+          <ol class="space-y-1.5 text-[12px] text-slate-700">
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">1</span> Quedará en estado <strong>borrador</strong>. Lo podés editar o eliminar.</li>
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span> Cuando contactes al proveedor, hacé clic en <strong>"Enviar reclamo"</strong>.</li>
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span> Cuando responda, registra la respuesta: <strong>aceptar / disputar / rechazar</strong>.</li>
+            <li class="flex gap-2"><span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">4</span> Si acepta y abona, registra el cobro <strong>cuando el dinero llegue a la cuenta</strong>.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50/40 rounded-b-2xl">
+        <button class="px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-800">Cancelar</button>
+        <button class="px-4 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-semibold">
+          <i class="fa-solid fa-save mr-1.5"></i>
+          Crear borrador
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     4 — PANEL DE SEGUIMIENTO
+============================================================================ -->
+<section id="seguimiento" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">4 · Panel "Ver/avanzar reclamo" rediseñado</div>
+  <p class="text-sm text-slate-600 mb-4">Cuando se abre un reclamo existente: timeline visual + card de "próximo paso" + acciones agrupadas según el estado.</p>
+
+  <div class="flex justify-center">
+    <div class="modal-shell w-full max-w-3xl">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-teal-600"></i>
+          <h3 class="text-base font-bold text-slate-900">Reclamo REC-2026-001</h3>
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">Enviado</span>
+        </div>
+        <i class="fa-solid fa-xmark text-slate-400 cursor-pointer"></i>
+      </div>
+
+      <div class="px-6 py-5 space-y-5 max-h-[80vh] overflow-y-auto">
+        <!-- Resumen del reclamo -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="p-3 bg-slate-50 rounded-lg">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">Destinatario</div>
+            <div class="text-sm font-bold text-slate-900 mt-0.5">Asian Beauty Wholesale</div>
+            <div class="text-[10px] text-slate-500">Proveedor</div>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">Reclamado (original)</div>
+            <div class="text-sm font-bold text-slate-900 mt-0.5">US$ 8.10</div>
+            <div class="text-[10px] text-slate-500">≈ S/ 28.27 · Tipo: pérdida</div>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">Tracking del envío</div>
+            <div class="text-sm font-bold text-slate-900 mt-0.5 font-mono">1Z999AA10…</div>
+            <div class="text-[10px] text-slate-500">FedEx · ENV-2026-002</div>
+          </div>
+        </div>
+
+        <!-- 🆕 PRÓXIMO PASO -->
+        <div class="p-4 bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl">
+          <div class="flex items-start gap-3">
+            <div class="relative w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-arrow-right"></i>
+              <span class="pulse-dot text-teal-400"></span>
+            </div>
+            <div class="flex-1">
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-teal-700">Próximo paso esperado</div>
+              <div class="text-sm font-bold text-slate-900 mt-0.5">Esperando respuesta del proveedor</div>
+              <div class="text-[12px] text-slate-700 mt-1">
+                Reclamo enviado el 25-abr. Cuando el proveedor responda (acepta · pide info · rechaza),
+                registrá la decisión acá para avanzar el ciclo.
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button class="px-3 py-1.5 bg-teal-600 text-white text-[12px] rounded-md hover:bg-teal-700 font-medium">
+                  <i class="fa-solid fa-reply mr-1"></i> Registrar respuesta
+                </button>
+                <button class="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-[12px] rounded-md hover:bg-slate-50">
+                  <i class="fa-solid fa-comments mr-1"></i> Marcar en disputa
+                </button>
+                <button class="px-3 py-1.5 bg-white border border-red-200 text-red-700 text-[12px] rounded-md hover:bg-red-50">
+                  <i class="fa-solid fa-ban mr-1"></i> Cerrar sin cobrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🆕 TIMELINE DE EVENTOS -->
+        <div>
+          <div class="text-[11px] font-semibold uppercase text-slate-500 mb-3">Historial</div>
+          <div class="relative pl-8 space-y-4">
+            <!-- línea vertical -->
+            <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+
+            <!-- Evento 1: creado -->
+            <div class="relative">
+              <div class="absolute -left-[28px] top-0 w-6 h-6 rounded-full bg-emerald-500 text-white text-xs flex items-center justify-center ring-4 ring-white">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-lg p-3">
+                <div class="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  Reclamo creado
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-normal">borrador</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">23-abr. 14:32 · José Luis P.</div>
+                <div class="text-[12px] text-slate-700 mt-1">Monto: US$ 8.10 · 1 unidad SKC-0019 declarada como faltante en recepción.</div>
+              </div>
+            </div>
+
+            <!-- Evento 2: enviado -->
+            <div class="relative">
+              <div class="absolute -left-[28px] top-0 w-6 h-6 rounded-full bg-sky-500 text-white text-xs flex items-center justify-center ring-4 ring-white">
+                <i class="fa-solid fa-paper-plane"></i>
+              </div>
+              <div class="bg-white border border-slate-200 rounded-lg p-3">
+                <div class="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  Reclamo enviado al destinatario
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-700 font-normal">enviado</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">25-abr. 09:15 · José Luis P.</div>
+                <div class="text-[12px] text-slate-700 mt-1">Notificado a Asian Beauty Wholesale por email. A la espera de respuesta.</div>
+              </div>
+            </div>
+
+            <!-- Evento futuro (placeholder) -->
+            <div class="relative">
+              <div class="absolute -left-[28px] top-0 w-6 h-6 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 text-slate-400 text-xs flex items-center justify-center ring-4 ring-white">
+                <i class="fa-solid fa-hourglass-half"></i>
+              </div>
+              <div class="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-3">
+                <div class="text-sm font-medium text-slate-500">Esperando respuesta...</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Acción del usuario requerida</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <div class="text-xs text-slate-500 mb-1 flex items-center gap-1">
+            <i class="fa-solid fa-file-lines text-[11px]"></i> Notas
+          </div>
+          <div class="text-sm text-slate-700">Tracking 1Z999AA10123456784 · última posición: customs hold 14-abr. Hablar con Lucy de FedEx (+1 555 0123).</div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-3 border-t border-slate-200 flex items-center justify-between bg-slate-50/40 rounded-b-2xl">
+        <div class="text-[11px] text-slate-500">Reclamo creado el 23-abr-2026</div>
+        <button class="px-4 py-1.5 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-800">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SUB-MODAL "Registrar respuesta" ────────────────────────────── -->
+  <div class="mt-8">
+    <p class="text-sm text-slate-600 mb-3 text-center">Cuando hace clic en <strong>"Registrar respuesta"</strong> se abre este sub-modal:</p>
+    <div class="flex justify-center">
+      <div class="modal-shell w-full max-w-lg">
+        <div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-sm font-bold text-slate-900">Registrar respuesta del proveedor</h3>
+          <i class="fa-solid fa-xmark text-slate-400"></i>
+        </div>
+        <div class="p-5 space-y-3">
+          <div class="text-xs text-slate-600">¿Cómo respondió Asian Beauty Wholesale al reclamo?</div>
+
+          <!-- Opción 1: aceptado con reembolso -->
+          <label class="flex items-start gap-3 p-3 border-2 border-emerald-300 bg-emerald-50/30 rounded-lg cursor-pointer">
+            <input type="radio" name="resp" checked class="mt-1">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-money-bill-wave text-emerald-600 text-sm"></i>
+                <span class="font-semibold text-sm text-emerald-900">Aceptó · va a reembolsar</span>
+              </div>
+              <div class="text-[11px] text-slate-600 mt-1">Se aceptará el reclamo y quedará pendiente de cobro. Cuando llegue el dinero a tu cuenta, registrás el cobro por separado.</div>
+              <div class="mt-2 grid grid-cols-2 gap-2">
+                <input type="text" value="8.10" class="w-full px-2 py-1 text-xs border border-emerald-300 rounded bg-white" placeholder="Monto USD">
+                <input type="date" value="2026-05-15" class="w-full px-2 py-1 text-xs border border-emerald-300 rounded bg-white">
+              </div>
+            </div>
+          </label>
+
+          <!-- Opción 2: aceptado con reemplazo -->
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer">
+            <input type="radio" name="resp" class="mt-1">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-truck-fast text-sky-600 text-sm"></i>
+                <span class="font-semibold text-sm text-slate-900">Aceptó · va a enviar reemplazo físico</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">Crea sub-tanda de reemplazo dentro del envío original. Sin movimiento $.</div>
+            </div>
+          </label>
+
+          <!-- Opción 3: en disputa -->
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer">
+            <input type="radio" name="resp" class="mt-1">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-comments text-amber-600 text-sm"></i>
+                <span class="font-semibold text-sm text-slate-900">Está cuestionando / pide info</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">Pasa a "en disputa". Podés agregar el motivo y volver más tarde.</div>
+            </div>
+          </label>
+
+          <!-- Opción 4: rechazó -->
+          <label class="flex items-start gap-3 p-3 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer">
+            <input type="radio" name="resp" class="mt-1">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-ban text-red-600 text-sm"></i>
+                <span class="font-semibold text-sm text-slate-900">Rechazó · no asume</span>
+              </div>
+              <div class="text-[11px] text-red-700 mt-1">⚠️ Se registra automáticamente como gasto de merma por S/ 28.27.</div>
+            </div>
+          </label>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-200 flex justify-end gap-2 bg-slate-50/40 rounded-b-2xl">
+          <button class="px-3 py-1.5 text-sm bg-slate-200 text-slate-700 rounded-md">Cancelar</button>
+          <button class="px-3 py-1.5 text-sm bg-teal-600 text-white rounded-md font-semibold">Confirmar respuesta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     5 — DIFERENCIAS POR TIPO
+============================================================================ -->
+<section id="por-tipo" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">5 · Matices por tipo de incidencia</div>
+  <p class="text-sm text-slate-600 mb-4">El ciclo procedural es exactamente el mismo para los 3 tipos. Lo único que cambia es el <em>contexto auto-heredado</em> del envío y el destinatario default. No se piden datos extra al usuario.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- PERDIDA -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+          <i class="fa-solid fa-magnifying-glass-location"></i>
+        </div>
+        <div>
+          <div class="text-base font-bold text-slate-900">Pérdida</div>
+          <div class="text-[11px] text-slate-500">Unidad nunca llegó</div>
+        </div>
+      </div>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Datos heredados (read-only)</div>
+      <ul class="text-[12px] text-slate-700 space-y-1 mb-3">
+        <li>📦 Tracking original del envío</li>
+        <li>💰 Valor original al momento de recepción (CTRU inicial)</li>
+        <li>🚚 Courier / proveedor del envío</li>
+      </ul>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Resoluciones permitidas</div>
+      <div class="flex flex-wrap gap-1 mb-3">
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Reembolso</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">Reemplazo</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">Merma</span>
+      </div>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Destinatario default</div>
+      <div class="text-[12px] text-slate-700">Courier (perdida en tránsito)<br>Proveedor (nunca despachado)</div>
+    </div>
+
+    <!-- DAÑADA -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+        <div>
+          <div class="text-base font-bold text-slate-900">Dañada</div>
+          <div class="text-[11px] text-slate-500">Llegó pero no sirve</div>
+        </div>
+      </div>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Datos heredados (read-only)</div>
+      <ul class="text-[12px] text-slate-700 space-y-1 mb-3">
+        <li>📦 Tracking original del envío</li>
+        <li>💰 Valor original al momento de recepción</li>
+        <li>📝 Notas registradas en la incidencia</li>
+      </ul>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Resoluciones permitidas</div>
+      <div class="flex flex-wrap gap-1 mb-3">
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Reembolso</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">Reemplazo</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">Merma</span>
+      </div>
+
+      <div class="text-[10px] text-slate-500 italic mb-3">No requiere fotos obligatorias en el form. La evidencia, si existe, va en notas.</div>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Destinatario default</div>
+      <div class="text-[12px] text-slate-700">Courier (manipulación)<br>Proveedor (mal embalado)</div>
+    </div>
+
+    <!-- ADUANA -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+          <i class="fa-solid fa-building-shield"></i>
+        </div>
+        <div>
+          <div class="text-base font-bold text-slate-900">Aduana timeout</div>
+          <div class="text-[11px] text-slate-500">Retenida y abandonada</div>
+        </div>
+      </div>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Datos heredados (read-only)</div>
+      <ul class="text-[12px] text-slate-700 space-y-1 mb-3">
+        <li>📦 Tracking original del envío</li>
+        <li>💰 Valor original al momento de recepción</li>
+        <li>📝 Notas de la incidencia (motivo aduanal)</li>
+      </ul>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Resoluciones permitidas</div>
+      <div class="flex flex-wrap gap-1 mb-3">
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Reembolso</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">Reemplazo</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700">Merma</span>
+      </div>
+
+      <div class="text-[11px] uppercase font-semibold text-slate-500 mb-1.5">Destinatario default</div>
+      <div class="text-[12px] text-slate-700">Proveedor (docs incorrectos)<br>Seguro (si hay póliza)</div>
+    </div>
+  </div>
+
+  <!-- Tabla comparativa rápida -->
+  <div class="card p-5 mt-6">
+    <h3 class="text-base font-semibold text-slate-900 mb-3">Comparativa rápida</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-[11px] uppercase text-slate-600">
+          <tr>
+            <th class="text-left px-3 py-2">Aspecto</th>
+            <th class="text-left px-3 py-2 text-purple-700">Pérdida</th>
+            <th class="text-left px-3 py-2 text-red-700">Dañada</th>
+            <th class="text-left px-3 py-2 text-amber-700">Aduana timeout</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="px-3 py-2 font-medium text-slate-700">Trigger del reclamo</td>
+            <td class="px-3 py-2 text-slate-600">No llega en X días</td>
+            <td class="px-3 py-2 text-slate-600">Recepción con daño</td>
+            <td class="px-3 py-2 text-slate-600">Decisión de abandono</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2 font-medium text-slate-700">Monto reclamado</td>
+            <td class="px-3 py-2 text-slate-600" colspan="3"><strong>Valor original (CTRU inicial)</strong> al momento de la recepción · sin descuentos comerciales · no se recalcula</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2 font-medium text-slate-700">Tracking</td>
+            <td class="px-3 py-2 text-slate-600" colspan="3">Heredado del envío original (read-only)</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2 font-medium text-slate-700">Resoluciones</td>
+            <td class="px-3 py-2 text-slate-600" colspan="3">Reembolso · Reemplazo · Merma — habilitadas para los 3 tipos</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2 font-medium text-slate-700">Inventario afectado</td>
+            <td class="px-3 py-2 text-slate-600">No tiene unidad física</td>
+            <td class="px-3 py-2 text-slate-600">Unidad → estado dañado/merma</td>
+            <td class="px-3 py-2 text-slate-600">Nunca ingresó al stock</td>
+          </tr>
+          <tr>
+            <td class="px-3 py-2 font-medium text-slate-700">Default destinatario</td>
+            <td class="px-3 py-2 text-slate-600">Courier</td>
+            <td class="px-3 py-2 text-slate-600">Proveedor o courier (según diagnóstico)</td>
+            <td class="px-3 py-2 text-slate-600">Proveedor o seguro</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     6 — CASOS REALES
+============================================================================ -->
+<section id="casos" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">6 · Tres casos reales (timeline completo)</div>
+  <p class="text-sm text-slate-600 mb-4">Cómo se ve el ciclo procedural en cada tipo, con los tiempos reales y los efectos $.</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <!-- CASO 1: PERDIDA -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-[10px] uppercase font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">CASO 1 · Pérdida</span>
+      </div>
+      <h3 class="text-base font-bold text-slate-900">Unidad SKC-0019 nunca llegó</h3>
+      <p class="text-[11px] text-slate-500 mb-4">Reclamo a FedEx por pérdida en tránsito · USD 8.10</p>
+
+      <div class="relative pl-7 space-y-3">
+        <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 0 · Detección en recepción</div>
+          <div class="text-[10px] text-slate-500">Falta 1 unidad del envío. Marcada como "faltante".</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 0 · Reclamo creado <span class="text-[9px] text-slate-500 font-normal">(borrador)</span></div>
+          <div class="text-[10px] text-slate-500">Tracking: 1Z999AA10123456784</div>
+          <div class="text-[10px] text-emerald-700 italic">$ sin movimiento</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 2 · Enviado a FedEx</div>
+          <div class="text-[10px] text-slate-500">Caso #4421 abierto en su sistema</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-clock"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 35 · FedEx confirma pérdida</div>
+          <div class="text-[10px] text-slate-500">Investigación cerrada · ofrecen reembolso 100%</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-handshake"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 35 · Aceptado por US$ 8.10</div>
+          <div class="text-[10px] text-slate-500">tipoResolucion = reembolso</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-dollar-sign"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 51 · Cobro registrado</div>
+          <div class="text-[10px] text-slate-500">Transferencia → cuenta BCP USD</div>
+          <div class="text-[10px] text-emerald-700 italic font-semibold">+ S/ 28.27 ingreso_otro</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASO 2: DAÑADA -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-[10px] uppercase font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">CASO 2 · Dañada</span>
+      </div>
+      <h3 class="text-base font-bold text-slate-900">3 cremas con sello roto</h3>
+      <p class="text-[11px] text-slate-500 mb-4">Reclamo al proveedor · USD 36 · resuelven con reemplazo</p>
+
+      <div class="relative pl-7 space-y-3">
+        <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 0 · Recepción con incidencia</div>
+          <div class="text-[10px] text-slate-500">3 unidades dañadas (sellos rotos)</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-camera"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 0 · Fotos cargadas (4)</div>
+          <div class="text-[10px] text-slate-500">2 producto · 2 embalaje · diagnóstico: mal embalado</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 0 · Reclamo creado <span class="text-[9px] text-slate-500 font-normal">(borrador)</span></div>
+          <div class="text-[10px] text-slate-500">Destinatario: proveedor · monto US$ 36</div>
+          <div class="text-[10px] text-emerald-700 italic">$ sin movimiento</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 1 · Enviado por email</div>
+          <div class="text-[10px] text-slate-500">Adjuntan fotos · piden reemplazo en próxima OC</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-handshake"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 4 · Aceptado · va por reemplazo</div>
+          <div class="text-[10px] text-slate-500">Sub-tanda creada en envío original</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-truck"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 22 · Reemplazo recibido OK</div>
+          <div class="text-[10px] text-slate-500">3 unidades nuevas · CTRU preservado</div>
+          <div class="text-[10px] text-slate-500 italic">$ sin movimiento (en especie)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASO 3: ADUANA -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-[10px] uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">CASO 3 · Aduana</span>
+      </div>
+      <h3 class="text-base font-bold text-slate-900">Lote retenido 45 días</h3>
+      <p class="text-[11px] text-slate-500 mb-4">Reclamo al proveedor por docs incorrectos · termina como merma</p>
+
+      <div class="relative pl-7 space-y-3">
+        <div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-slate-200"></div>
+
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 0 · Aduana detiene envío</div>
+          <div class="text-[10px] text-slate-500">Motivo: docs incorrectos (factura mal declarada)</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-slate-400 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-hourglass"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 0-30 · Negociación con courier</div>
+          <div class="text-[10px] text-slate-500">Sin reclamo abierto · solo gestión operativa</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-ban"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 30 · Decisión: abandonar</div>
+          <div class="text-[10px] text-slate-500">Aranceles + multa &gt; valor de la mercadería</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 30 · Reclamo creado <span class="text-[9px] text-slate-500 font-normal">(borrador)</span></div>
+          <div class="text-[10px] text-slate-500">Destinatario: proveedor · USD 240</div>
+          <div class="text-[10px] text-emerald-700 italic">$ sin movimiento</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 31 · Enviado al proveedor</div>
+        </div>
+        <div class="relative">
+          <div class="absolute -left-[18px] top-0 w-5 h-5 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center"><i class="fa-solid fa-xmark"></i></div>
+          <div class="text-[11px] font-semibold text-slate-900">Día 60 · Proveedor rechaza</div>
+          <div class="text-[10px] text-slate-500">Argumenta que la factura cumple con su mercado</div>
+          <div class="text-[10px] text-red-700 italic font-semibold">− S/ 838.80 gasto_merma</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================================
+     7 — DÓNDE SE APILAN LOS RECLAMOS
+============================================================================ -->
+<section id="donde" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">7 · Dónde se apilan los gestores de reclamos en la app</div>
+  <p class="text-sm text-slate-600 mb-4">
+    Hoy ya existen 3 puntos de entrada físicos al mismo store de reclamos. Los 3 abren el mismo
+    <code class="bg-slate-100 px-1 rounded text-xs">ReclamoPanel</code> al hacer clic en una fila.
+    No hay que crear nada nuevo — solo refinar lo que ya existe y agregar 1 más (Courier).
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+    <!-- Ubicación 1: Tab Reclamos en /envios -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold">1</div>
+        <span class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Existe ✓</span>
+      </div>
+      <div class="text-base font-bold text-slate-900">Tab "Reclamos" en <code class="text-sm bg-slate-100 px-1 rounded">/envios</code></div>
+      <div class="text-[12px] text-slate-600 mt-1">Vista MAESTRA de todos los reclamos del sistema.</div>
+
+      <div class="mt-3 bg-slate-900 rounded p-2 font-mono text-[10px] text-slate-300">
+        /envios → tab "Reclamos"
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">Filtros disponibles</div>
+        <div class="flex flex-wrap gap-1 mt-1">
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Estado</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Tipo</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Destinatario</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Búsqueda libre</span>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">KPIs visibles</div>
+        <div class="text-[11px] text-slate-700 mt-0.5">Total reclamado · Cobrado · Tasa recuperación · # pendientes · # rechazados</div>
+      </div>
+
+      <div class="mt-3 text-[10px] text-slate-400 font-mono truncate">src/pages/Envios/TabReclamos.tsx</div>
+    </div>
+
+    <!-- Ubicación 2: Tab Reclamos en detalle de envío -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold">2</div>
+        <span class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Existe ✓</span>
+      </div>
+      <div class="text-base font-bold text-slate-900">Tab "Reclamos" en detalle de envío</div>
+      <div class="text-[12px] text-slate-600 mt-1">Reclamos del envío específico. Filtrado por <code class="text-[10px] bg-slate-100 px-1 rounded">envioId</code>.</div>
+
+      <div class="mt-3 bg-slate-900 rounded p-2 font-mono text-[10px] text-slate-300">
+        /envios → ENV-XXXX → tab "Reclamos"
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">Para qué sirve</div>
+        <div class="text-[11px] text-slate-700 mt-0.5">Ver de un vistazo todos los reclamos asociados a este envío. Crear uno nuevo desde acá.</div>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">Acciones inline</div>
+        <div class="flex flex-wrap gap-1 mt-1">
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700">+ Crear reclamo</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Click → abrir panel</span>
+        </div>
+      </div>
+
+      <div class="mt-3 text-[10px] text-slate-400 font-mono truncate">EnvioDetailModal · TabReclamos</div>
+    </div>
+
+    <!-- Ubicación 3: Ficha de proveedor -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold">3</div>
+        <span class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Existe ✓</span>
+      </div>
+      <div class="text-base font-bold text-slate-900">Tab "Reclamos" en ficha de Proveedor</div>
+      <div class="text-[12px] text-slate-600 mt-1">Histórico de reclamos contra ese proveedor. Filtrado por <code class="text-[10px] bg-slate-100 px-1 rounded">destinatarioId</code>.</div>
+
+      <div class="mt-3 bg-slate-900 rounded p-2 font-mono text-[10px] text-slate-300">
+        /maestros → Proveedor X → tab "Reclamos"
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">Para qué sirve</div>
+        <div class="text-[11px] text-slate-700 mt-0.5">Decidir si seguir comprando a ese proveedor. Ver tasa de incidencias acumulada.</div>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">Componente</div>
+        <div class="text-[11px] text-slate-700 mt-0.5"><code class="text-[10px] bg-slate-100 px-1 rounded">ReclamosDeEntidadTab</code> reutilizable</div>
+      </div>
+
+      <div class="mt-3 text-[10px] text-slate-400 font-mono truncate">components/Maestros/ProveedorDetailView.tsx</div>
+    </div>
+
+    <!-- Ubicación 4: Ficha de courier (PROPUESTA) -->
+    <div class="card p-5 border-amber-300 bg-amber-50/30">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold">4</div>
+        <span class="text-[10px] uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Falta · Propuesta</span>
+      </div>
+      <div class="text-base font-bold text-slate-900">Tab "Reclamos" en ficha de Courier</div>
+      <div class="text-[12px] text-slate-600 mt-1">Histórico de reclamos contra ese courier/colaborador. <strong>Hoy no existe.</strong></div>
+
+      <div class="mt-3 bg-slate-900 rounded p-2 font-mono text-[10px] text-slate-300">
+        /red-logistica → Courier X → tab "Reclamos"
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">Por qué hace falta</div>
+        <div class="text-[11px] text-slate-700 mt-0.5">Igual que Proveedor: necesitas decidir si seguir usando un courier que pierde cosas.</div>
+      </div>
+
+      <div class="mt-3">
+        <div class="text-[10px] uppercase text-slate-500 font-semibold">Costo de implementación</div>
+        <div class="text-[11px] text-slate-700 mt-0.5"><strong>Trivial</strong> — reutilizar <code class="text-[10px] bg-slate-100 px-1 rounded">ReclamosDeEntidadTab</code> con <code class="text-[10px] bg-slate-100 px-1 rounded">tipoEntidad="courier"</code>.</div>
+      </div>
+
+      <div class="mt-3 text-[10px] text-amber-700 font-mono truncate">⚠ Falta agregar en ColaboradorDetailView</div>
+    </div>
+
+    <!-- Punto de creación: GestionIncidenciasModal -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i class="fa-solid fa-plus text-sm"></i></div>
+        <span class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Existe ✓</span>
+      </div>
+      <div class="text-base font-bold text-slate-900">Modal "Gestionar incidencias"</div>
+      <div class="text-[12px] text-slate-600 mt-1">Punto NATURAL de creación: cuando recibís un envío con incidencias, decidís cuáles convertís en reclamo.</div>
+
+      <div class="mt-3 bg-slate-900 rounded p-2 font-mono text-[10px] text-slate-300">
+        Envío → "Gestionar incidencias" → "Crear reclamo"
+      </div>
+
+      <div class="mt-3 text-[11px] text-slate-700">
+        Pasa al panel de creación con:
+        <ul class="ml-4 mt-1 list-disc space-y-0.5">
+          <li>Unidades preseleccionadas</li>
+          <li>Tipo inferido (perdida/dañada/aduana)</li>
+          <li>Destinatario sugerido del responsable elegido</li>
+          <li>Monto auto-cargado del valor original</li>
+        </ul>
+      </div>
+
+      <div class="mt-3 text-[10px] text-slate-400 font-mono truncate">pages/Envios/GestionIncidenciasModal.tsx</div>
+    </div>
+
+    <!-- Modal individual ReclamoPanel -->
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-9 h-9 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-sm"></i></div>
+        <span class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Existe ✓</span>
+      </div>
+      <div class="text-base font-bold text-slate-900">Modal individual <code class="text-sm bg-slate-100 px-1 rounded">ReclamoPanel</code></div>
+      <div class="text-[12px] text-slate-600 mt-1">Componente DUAL: crear nuevo reclamo · ver/avanzar uno existente.</div>
+
+      <div class="mt-3 text-[11px] text-slate-700">
+        <strong>Se abre desde:</strong>
+        <ul class="ml-4 mt-1 list-disc space-y-0.5">
+          <li>Click en una fila de la tabla en cualquiera de los 4 lugares de arriba</li>
+          <li>Botón "+ Crear reclamo" en cualquiera de las 3 tabs</li>
+          <li>Modal "Gestionar incidencias" → "Crear reclamo"</li>
+        </ul>
+      </div>
+
+      <div class="mt-3 text-[10px] text-slate-400 font-mono truncate">components/modules/envio/ReclamoPanel.tsx</div>
+    </div>
+
+  </div>
+
+  <!-- Resumen del flujo -->
+  <div class="card p-5 bg-gradient-to-br from-slate-50 to-white">
+    <h3 class="text-base font-semibold text-slate-900 mb-3">Resumen visual del flujo</h3>
+    <div class="overflow-x-auto">
+      <div class="min-w-[900px] grid grid-cols-5 items-start gap-2">
+        <!-- 1 -->
+        <div class="text-center">
+          <div class="bg-white border-2 border-slate-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-semibold text-slate-500">Origen</div>
+            <div class="text-sm font-bold text-slate-900 mt-1">Envío con incidencia</div>
+            <div class="text-[10px] text-slate-500 mt-1">Recepción detecta perdida / dañada / aduana</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-center pt-12"><i class="fa-solid fa-arrow-right text-slate-400"></i></div>
+        <!-- 2 -->
+        <div class="text-center">
+          <div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-semibold text-purple-700">Decisión</div>
+            <div class="text-sm font-bold text-slate-900 mt-1">"Crear reclamo"</div>
+            <div class="text-[10px] text-slate-500 mt-1">Desde GestionIncidenciasModal o desde tab Reclamos</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-center pt-12"><i class="fa-solid fa-arrow-right text-slate-400"></i></div>
+        <!-- 3 -->
+        <div class="text-center">
+          <div class="bg-teal-50 border-2 border-teal-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase font-semibold text-teal-700">Visibilidad simultánea en</div>
+            <div class="text-sm font-bold text-slate-900 mt-1">3 tabs (= 1 store)</div>
+            <div class="text-[10px] text-slate-600 mt-1 space-y-0.5">
+              <div>📋 Listado /envios</div>
+              <div>📦 Detalle envío</div>
+              <div>🏢 Ficha proveedor / courier</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     8 — DECISIONES Y PRÓXIMOS PASOS
+============================================================================ -->
+<section id="decisiones" class="max-w-7xl mx-auto mb-12 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">8 · Decisiones a confirmar y plan de implementación</div>
+
+  <div class="card p-6">
+    <h2 class="text-xl font-bold text-slate-900">Decisiones de diseño (a confirmar contigo)</h2>
+
+    <div class="mt-5 space-y-3">
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-REC-1 · Banner clarificador en creación</div>
+        <div class="text-sm text-slate-700 mt-1">Agregar banner amarillo arriba del form: <em>"Esto crea un BORRADOR. No genera devolución ni movimiento contable hasta que el destinatario acepte y se registre el cobro efectivo."</em> + link a "Ver ciclo completo".</div>
+        <div class="text-[11px] text-slate-500 mt-1">Costo: ~10 líneas en <code class="bg-slate-100 px-1 rounded">ReclamoPanel.tsx</code></div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-REC-2 · Bloque "Próximos pasos" en creación</div>
+        <div class="text-sm text-slate-700 mt-1">Lista numerada al final del form de creación que explica los 4 pasos siguientes (enviar → respuesta → cobrar). Refuerza el mensaje del banner.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-REC-3 · Card "Próximo paso esperado" en panel de seguimiento</div>
+        <div class="text-sm text-slate-700 mt-1">En el modal de un reclamo existente: card destacada con la acción más probable según el estado actual + 1 botón principal + 2 secundarios. Reemplaza la fila plana de 3-5 botones sueltos.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-REC-4 · Timeline de eventos visual</div>
+        <div class="text-sm text-slate-700 mt-1">Agregar campo <code class="bg-slate-100 px-1 rounded">historial: ReclamoEvento[]</code> al doc Reclamo. Cada transición de estado registra un evento con timestamp + usuario + meta. Render como timeline vertical en el panel.</div>
+        <div class="text-[11px] text-slate-500 mt-1">Costo: tipo nuevo + push de evento en cada método del service + componente <code class="bg-slate-100 px-1 rounded">ReclamoTimeline.tsx</code></div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-REC-5 · Sub-modal "Registrar respuesta"</div>
+        <div class="text-sm text-slate-700 mt-1">Reemplazar los 4 botones sueltos cuando el reclamo está enviado/en_disputa por un solo CTA "Registrar respuesta" que abre modal con 4 opciones radio (aceptó-reembolso · aceptó-reemplazo · cuestiona · rechazó). Reduce errores de UX.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-REC-6 · Bloque "tracking original" read-only en creación</div>
+        <div class="text-sm text-slate-700 mt-1">Para los 3 tipos: mostrar el tracking del envío original como bloque read-only heredado. NO se pide tracking nuevo ni datos extra (ni fotos, ni fechas adicionales). El monto se hereda del valor original (CTRU inicial) y se aclara que NO se recalcula.</div>
+      </div>
+
+      <div class="border-l-4 border-teal-500 bg-teal-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-teal-700">D-REC-7 · Tab "Reclamos" en ficha de Courier</div>
+        <div class="text-sm text-slate-700 mt-1">Agregar la pestaña en <code class="bg-slate-100 px-1 rounded">ColaboradorDetailView</code> usando el <code class="bg-slate-100 px-1 rounded">ReclamosDeEntidadTab</code> que ya existe (mismo componente que usa Proveedor). Filtra por <code class="bg-slate-100 px-1 rounded">destinatarioId=colaboradorId</code>. Permite ver historial de reclamos contra ese courier para decidir si seguir trabajándolo.</div>
+        <div class="text-[11px] text-teal-700 italic mt-1">Costo: trivial — reutiliza componente existente.</div>
+      </div>
+
+      <div class="border-l-4 border-amber-500 bg-amber-50/40 px-4 py-3 rounded-r-md">
+        <div class="text-[11px] font-semibold uppercase text-amber-700">D-REC-8 · ¿Cobros parciales?</div>
+        <div class="text-sm text-slate-700 mt-1">Hoy <code class="bg-slate-100 px-1 rounded">registrarCobro</code> es one-shot (cierra el reclamo). En la realidad un proveedor puede abonar en 2 transferencias. <strong>¿Permitimos cobros parciales acumulables?</strong> Si sí, el reclamo queda en "aceptado" hasta que se llegue al monto acordado.</div>
+        <div class="text-[11px] text-amber-700 italic mt-1">Pendiente decisión.</div>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-bold text-slate-900 mt-8">Plan de implementación sugerido (3 fases)</h2>
+    <p class="text-sm text-slate-600 mt-1">Cada fase es entregable independiente. Empezar por la fase rápida que ya resuelve el problema original.</p>
+
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- F1 -->
+      <div class="border border-emerald-300 bg-emerald-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-emerald-700">FASE 1 · Quick win (1 sesión)</div>
+        <div class="text-base font-bold text-slate-900 mt-1">Banner + próximos pasos + tracking heredado + sub-modal respuesta</div>
+        <div class="text-[12px] text-slate-700 mt-2">Resuelve el 100% de los puntos pedidos sin tocar tipos ni servicio.</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ D-REC-1 banner clarificador</li>
+          <li>✓ D-REC-2 próximos pasos en creación</li>
+          <li>✓ D-REC-3 card "Próximo paso" en panel</li>
+          <li>✓ D-REC-5 sub-modal "Registrar respuesta"</li>
+          <li>✓ D-REC-6 bloque tracking original read-only + nota "valor original no se recalcula"</li>
+        </ul>
+        <div class="text-[10px] text-slate-500 italic mt-2">Solo edita <code class="bg-slate-100 px-1 rounded">ReclamoPanel.tsx</code></div>
+      </div>
+
+      <!-- F2 -->
+      <div class="border border-amber-300 bg-amber-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-amber-700">FASE 2 · Trazabilidad (1 sesión)</div>
+        <div class="text-base font-bold text-slate-900 mt-1">Timeline de eventos + Tab Courier</div>
+        <div class="text-[12px] text-slate-700 mt-2">Hace visible el ciclo completo y completa el 4to punto de entrada.</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>✓ D-REC-4 historial[] + componente <code class="bg-slate-100 px-1 rounded text-[10px]">ReclamoTimeline</code></li>
+          <li>✓ D-REC-7 tab "Reclamos" en ficha de Courier</li>
+        </ul>
+        <div class="text-[10px] text-slate-500 italic mt-2">Toca tipos + service + nuevo componente · agrega tab en ColaboradorDetailView</div>
+      </div>
+
+      <!-- F3 -->
+      <div class="border border-slate-300 bg-slate-50/30 rounded-lg p-4">
+        <div class="text-[10px] uppercase font-bold text-slate-700">FASE 3 · Edge cases (medio sesión)</div>
+        <div class="text-base font-bold text-slate-900 mt-1">Cobros parciales (si aplica)</div>
+        <div class="text-[12px] text-slate-700 mt-2">Solo si decidís soportar abonos en cuotas.</div>
+        <ul class="text-[11px] text-slate-600 mt-2 space-y-1">
+          <li>? D-REC-8 cobros parciales acumulables</li>
+        </ul>
+        <div class="text-[10px] text-slate-500 italic mt-2">Pendiente tu decisión.</div>
+      </div>
+    </div>
+
+    <div class="mt-6 p-3 bg-sky-50 border border-sky-200 rounded-lg text-[12px] text-sky-900">
+      <strong>Recomendación:</strong> ejecutar <strong>Fase 1</strong> ya (resuelve toda la inquietud original sin tocar el modelo de datos).
+      Fase 2 cuando quieras visibilidad histórica. Fase 3 solo si confirmás D-REC-8.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================================
+     FOOTER
+============================================================================ -->
+<div class="max-w-7xl mx-auto text-center text-[11px] text-slate-400 py-6">
+  Mockup S54 · reclamos-procedural-s54.html · Hecho para discutir antes de implementar
+</div>
+
+</body>
+</html>

@@ -189,7 +189,7 @@ export const TabReclamos: React.FC = () => {
     <div className="space-y-4">
       {/* KPIs */}
       {resumen && (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
           <StatCard
             label="Total reclamos"
             value={resumen.totalReclamos}

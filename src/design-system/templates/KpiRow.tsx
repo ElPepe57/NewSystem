@@ -46,6 +46,8 @@ export interface KpiRowItem {
   subtitle?: string;
   /** Tono del color del value (default=slate, los demás semánticos) */
   tone?: KpiTone;
+  /** Si se provee, la celda se renderiza como botón clickable (ej. link a entidad). */
+  onClick?: () => void;
 }
 
 export interface KpiRowProps {
@@ -93,7 +95,7 @@ export const KpiRow: React.FC<KpiRowProps> = ({ items, columns, className }) => 
 // KpiCell (privado — solo usado por KpiRow)
 // ────────────────────────────────────────────────────────────────────────────
 
-const KpiCell: React.FC<KpiRowItem> = ({ label, value, subtitle, tone = 'default' }) => {
+const KpiCell: React.FC<KpiRowItem> = ({ label, value, subtitle, tone = 'default', onClick }) => {
   const valueColor: Record<KpiTone, string> = {
     default: 'text-slate-900',
     teal: 'text-teal-700',
@@ -103,8 +105,8 @@ const KpiCell: React.FC<KpiRowItem> = ({ label, value, subtitle, tone = 'default
     muted: 'text-slate-400',
   };
 
-  return (
-    <div className="px-2 py-1 text-center">
+  const content = (
+    <>
       <div className="text-xs text-slate-500 mb-1">{label}</div>
       <div className={cn('text-xl font-bold tabular-nums', valueColor[tone])}>
         {value}
@@ -112,6 +114,24 @@ const KpiCell: React.FC<KpiRowItem> = ({ label, value, subtitle, tone = 'default
       {subtitle && (
         <div className="text-[11px] text-slate-400 mt-0.5">{subtitle}</div>
       )}
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="px-2 py-1 text-center rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group"
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div className="px-2 py-1 text-center">
+      {content}
     </div>
   );
 };

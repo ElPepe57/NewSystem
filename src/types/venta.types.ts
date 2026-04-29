@@ -154,6 +154,19 @@ export interface StockReservado {
 /**
  * Registro de un pago individual
  */
+/**
+ * @deprecated S55 Fase 3 — Reemplazado por `MovimientoCC` con
+ * `tipo: 'credito_cobro_venta'` en la nueva colección `movimientosCC`.
+ *
+ * Para nuevos consumidores, usar:
+ *   - Hook reactivo: `useCobrosVenta(ventaId)` desde `src/hooks/useCobrosVenta.ts`
+ *   - Query directa: `getCobrosVenta(ventaId)` desde
+ *     `src/services/cuentaCorriente.adaptadores.ts` (retorna `CobroVentaLegacy[]`
+ *     con la misma forma para compatibilidad)
+ *
+ * Este tipo se mantiene SOLO porque algunos services aún lo importan. Borrar
+ * cuando todos los consumers usen el modelo nuevo.
+ */
 export interface PagoVenta {
   id: string;
   tipoPago?: 'anticipo' | 'pago' | 'saldo';  // Clasificación: anticipo, pago regular, saldo final
@@ -316,16 +329,19 @@ export interface Venta {
     porcentajeCumplimiento: number;   // (utilidadReal / utilidadEsperada) × 100
   };
 
-  // ========== NUEVO: Estado de Pago ==========
+  // ── Estado de Pago (denormalizado · derivado de CC) ──
+  // S55 Fase 3: la fuente de verdad es la Cuenta Corriente del cliente.
+  // Estos campos se actualizan al registrar cobros vía `registrarPago` y
+  // sirven para queries rápidos en listados/filtros (D-CC-8).
   estadoPago: EstadoPago;     // pendiente, parcial, pagado
-  pagos?: PagoVenta[];        // Historial de pagos
-  montoPagado: number;        // Suma de todos los pagos
+  montoPagado: number;        // Suma de cobros en PEN
   montoPendiente: number;     // totalPEN - montoPagado
-  fechaPagoCompleto?: Timestamp; // Cuando se completó el pago
 
-  // Sobrepago (cuando cliente paga de más)
-  saldoAFavor?: number;       // Monto excedente a favor del cliente
-  tieneSobrepago?: boolean;   // Flag para identificar ventas con sobrepago
+  // CAMPOS LEGACY ELIMINADOS en S55 Fase 3:
+  //   - pagos[]              → query a movimientosCC (usar getCobrosVenta / useCobrosVenta)
+  //   - fechaPagoCompleto    → MovimientoCC.fecha del último cobro
+  //   - saldoAFavor          → CC.saldoPEN del cliente cuando saldo negativo
+  //   - tieneSobrepago       → derivable (CC.saldoPEN < 0 para el cliente)
 
   // Estado y fechas
   estado: EstadoVenta;

@@ -471,7 +471,7 @@ export const EntidadCCDrawer: React.FC<EntidadCCDrawerProps> = (props) => {
                 <ArrowRight className="w-3 h-3" />
               </button>
               <Link
-                to={`/finanzas/cash-flow?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
+                to={`/tesoreria?entidadId=${encodeURIComponent(cc.entidadId)}&entidadTipo=${cc.tipo}&entidadNombre=${encodeURIComponent(cc.entidadNombre)}`}
                 onClick={onClose}
                 className="text-[11px] px-3 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-md font-medium flex items-center justify-center gap-1.5 transition"
               >

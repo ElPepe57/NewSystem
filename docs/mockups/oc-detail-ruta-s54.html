@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>OC Detail · Ruta estilizada · Propuestas S54</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f1f5f9; }
+  .tab-btn.active { border-color: #14b8a6; color: #0f766e; background: #f0fdfa; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+  .tabular { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="p-6">
+
+<!-- ======================================================================
+     HEADER DEL MOCKUP
+====================================================================== -->
+<div class="max-w-7xl mx-auto mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">Detalle OC · Ruta estilizada</h1>
+  <p class="text-sm text-slate-600 mt-1">
+    4 propuestas de rediseño inspiradas en el detalle de <b>Envío</b>.
+    La OC actual sólo muestra "Proveedor · País" en el subtítulo — sin ruta visual ni chip de modalidad.
+  </p>
+  <div class="mt-3 flex gap-2">
+    <a href="#v1" class="text-xs px-3 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700">V1 · Espejo envío</a>
+    <a href="#v2" class="text-xs px-3 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700">V2 · Modalidad arriba</a>
+    <a href="#v3" class="text-xs px-3 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700">V3 · Adaptativa por modalidad</a>
+    <a href="#v4" class="text-xs px-3 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700">V4 · Tarjeta ruta + sidebar</a>
+  </div>
+</div>
+
+<!-- ============================================================================
+     REFERENCIA: Detalle de Envío (como está HOY en producción)
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">📸 Referencia — así se ve el detalle de Envío hoy</div>
+  <div class="card p-5 space-y-4">
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-paper-plane"></i> <span>ENV-2026-001</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Envío ENV-2026-001</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Interna origen · creado hace 23 de abril</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Completada</span>
+        <span class="text-[11px] text-slate-500">A 🏭 → Proveedor-Casilla</span>
+        <button class="text-xs px-3 py-1.5 border rounded-md">🖨️ Imprimir</button>
+      </div>
+    </div>
+    <!-- Ruta visual del Envío -->
+    <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🇨🇳</span>
+          <span class="font-semibold text-sm text-slate-900">Asian Beauty Wholesale</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Despachado</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Proveedor · China</div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-400"></i>
+      <div class="text-center px-2"><span class="text-[11px] text-slate-400 italic">Sin asignar</span></div>
+      <i class="fa-solid fa-chevron-right text-slate-400"></i>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🌐</span>
+          <span class="font-semibold text-sm text-slate-900">Casa - Angie</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Recibido</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Casilla</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     CÓMO SE VE HOY el Detalle de OC (punto de partida)
+============================================================================ -->
+<div class="max-w-7xl mx-auto mb-8">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2">🔎 Cómo se ve hoy — sólo header plano, sin ruta</div>
+  <div class="card p-5">
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-box"></i> <span>OC-2026-001</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Orden de compra OC-2026-001</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Asian Beauty Wholesale <span class="text-slate-400">· China</span></div>
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Completada</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200">Pendiente de Pago</span>
+      </div>
+    </div>
+    <div class="mt-4 text-[11px] text-slate-400 italic">
+      ⚠️ Falta ruta visual: el usuario no sabe por dónde llega la mercancía sin abrir el envío vinculado.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================================
+     V1 — ESPEJO DEL ENVÍO (3 nodos con chip central)
+============================================================================ -->
+<div id="v1" class="max-w-7xl mx-auto mb-10">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">Variante 1</span>
+    <h2 class="text-lg font-bold text-slate-900">Espejo exacto del Envío · 3 nodos con chip central</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Reutiliza el mismo patrón visual del detalle de envío (consistencia máxima).
+    El chip central muestra la modalidad de entrega: "Vía courier · DHL", "Viajero · Carlos", "DDP directo", "Recojo en origen".
+  </p>
+  <div class="card p-5 space-y-4">
+    <!-- Header EntityHeader actual (sin cambios) -->
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-box"></i> <span>OC-2026-001</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Orden de compra OC-2026-001</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Asian Beauty Wholesale <span class="text-slate-400">· China</span></div>
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Completada</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200">Pendiente de Pago</span>
+      </div>
+    </div>
+
+    <!-- ★ NUEVO: Tarjeta de ruta con 3 nodos -->
+    <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+          <span class="text-lg">🇨🇳</span>
+          <span class="font-semibold text-sm text-slate-900 truncate">Asian Beauty Wholesale</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Despachado</span>
+        </div>
+        <div class="text-[11px] text-slate-500 truncate">Proveedor · China</div>
+      </div>
+
+      <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+
+      <div class="flex-shrink-0 text-center px-2">
+        <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-sky-100 text-sky-700">
+          <i class="fa-solid fa-truck text-[10px]"></i> DHL Express
+        </div>
+        <div class="text-[10px] text-slate-400 mt-0.5">Courier</div>
+      </div>
+
+      <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+          <span class="text-lg">🇵🇪</span>
+          <span class="font-semibold text-sm text-slate-900 truncate">Almacén Vita Skin Lima</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Recibido</span>
+        </div>
+        <div class="text-[11px] text-slate-500 truncate">Almacén final · Perú</div>
+      </div>
+    </div>
+
+    <!-- Pipeline sigue igual -->
+    <div class="grid grid-cols-3 gap-2 items-center">
+      <div class="text-center">
+        <div class="w-8 h-8 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white">✓</div>
+        <div class="text-xs font-semibold mt-1">Borrador</div>
+        <div class="text-[10px] text-slate-500">23-abr.</div>
+      </div>
+      <div class="text-center">
+        <div class="w-8 h-8 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white">✓</div>
+        <div class="text-xs font-semibold mt-1">Compra física</div>
+        <div class="text-[10px] text-slate-500">—</div>
+      </div>
+      <div class="text-center">
+        <div class="w-8 h-8 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white">✓</div>
+        <div class="text-xs font-semibold mt-1">Completada</div>
+        <div class="text-[10px] text-slate-500">—</div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 text-xs text-slate-600">
+    <b class="text-emerald-700">✓ Pros:</b> consistencia 1:1 con Envío · reutiliza `NodoRuta` existente · poca fricción de implementación.<br>
+    <b class="text-amber-700">✗ Contras:</b> chip central con "Courier" es ambiguo si la OC es DDP directo (nodo del medio se siente vacío).
+  </div>
+</div>
+
+<!-- ============================================================================
+     V2 — MODALIDAD ARRIBA (pill de modalidad sobre 2 nodos)
+============================================================================ -->
+<div id="v2" class="max-w-7xl mx-auto mb-10">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">Variante 2</span>
+    <h2 class="text-lg font-bold text-slate-900">Modalidad arriba · 2 nodos + pill "cómo llega"</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Separa el QUÉ (origen→destino) del CÓMO (modalidad de entrega).
+    La modalidad va como chip flotante arriba del conector, con el nombre del colaborador/courier.
+  </p>
+  <div class="card p-5 space-y-4">
+    <!-- Header -->
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-box"></i> <span>OC-2026-001</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Orden de compra OC-2026-001</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Asian Beauty Wholesale <span class="text-slate-400">· China</span></div>
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Completada</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200">Pendiente de Pago</span>
+      </div>
+    </div>
+
+    <!-- ★ Tarjeta ruta V2: pill arriba + 2 nodos -->
+    <div class="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200 relative">
+      <!-- Pill de modalidad flotante -->
+      <div class="flex justify-center mb-2">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-sky-100 text-sky-700 border border-sky-200">
+          <i class="fa-solid fa-truck text-[10px]"></i>
+          Vía courier · DHL Express
+          <span class="text-sky-400">·</span>
+          <span class="font-mono text-[10px]">1Z-999-AA</span>
+        </div>
+      </div>
+      <!-- 2 nodos con línea punteada -->
+      <div class="flex items-center gap-3">
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">🇨🇳</span>
+            <span class="font-semibold text-sm text-slate-900">Asian Beauty Wholesale</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Proveedor · China</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Despachado 12-abr.</span>
+        </div>
+        <div class="flex-shrink-0 flex flex-col items-center">
+          <div class="w-16 h-0.5 border-t-2 border-dashed border-slate-300"></div>
+          <i class="fa-solid fa-arrow-right text-slate-400 my-1"></i>
+          <div class="w-16 h-0.5 border-t-2 border-dashed border-slate-300"></div>
+        </div>
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">🇵🇪</span>
+            <span class="font-semibold text-sm text-slate-900">Almacén Vita Skin Lima</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Almacén final · Perú</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Recibido 21-abr.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 text-xs text-slate-600">
+    <b class="text-emerald-700">✓ Pros:</b> separa conceptualmente origen/destino de modalidad · funciona para DDP y recojo (pill cambia) · más espacio para info por nodo · fechas visibles inline.<br>
+    <b class="text-amber-700">✗ Contras:</b> rompe simetría con Envío · requiere componente nuevo (no reutiliza `NodoRuta`).
+  </div>
+</div>
+
+<!-- ============================================================================
+     V3 — ADAPTATIVA POR MODALIDAD (3 ejemplos lado a lado)
+============================================================================ -->
+<div id="v3" class="max-w-7xl mx-auto mb-10">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">Variante 3</span>
+    <h2 class="text-lg font-bold text-slate-900">Adaptativa por modalidad · la ruta cambia según `modoEntregaDetallado`</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    La ruta se construye dinámicamente: <b>DDP directo</b> = 2 nodos ·
+    <b>Via courier/viajero</b> = 3 nodos ·
+    <b>Recojo en origen</b> = muestra colaborador con badge especial.
+  </p>
+
+  <!-- Ejemplo 1: DDP directo (2 nodos) -->
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2 mt-4">Ejemplo A — DDP directo (el proveedor se encarga del flete hasta Perú)</div>
+  <div class="card p-4">
+    <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🇺🇸</span>
+          <span class="font-semibold text-sm text-slate-900">Carlyle USA</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Despachado</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Proveedor · USA</div>
+      </div>
+      <div class="flex-shrink-0 text-center px-2">
+        <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 border border-amber-200">
+          <i class="fa-solid fa-plane text-[10px]"></i> DDP directo
+        </div>
+        <div class="text-[10px] text-slate-400 mt-0.5">flete en precio</div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🇵🇪</span>
+          <span class="font-semibold text-sm text-slate-900">Almacén Central Lima</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Recibido</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Almacén final · Perú</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 2: Vía casilla + courier (3 nodos) -->
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2 mt-4">Ejemplo B — Vía casilla internacional + courier (3 nodos reales)</div>
+  <div class="card p-4">
+    <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🇨🇳</span>
+          <span class="font-semibold text-sm text-slate-900">Asian Beauty Wholesale</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Despachado</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Proveedor · China</div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🌐</span>
+          <span class="font-semibold text-sm text-slate-900">Casa - Angie</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Recibido</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Casilla intermedia · China</div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🇵🇪</span>
+          <span class="font-semibold text-sm text-slate-900">Almacén Vita Skin Lima</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">En tránsito</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Almacén final · Perú</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 3: Recojo en origen (con colaborador) -->
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2 mt-4">Ejemplo C — Recojo en origen (colaborador recogió del proveedor)</div>
+  <div class="card p-4">
+    <div class="flex items-center gap-3 bg-amber-50 rounded-xl p-3 border border-amber-200">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🇺🇸</span>
+          <span class="font-semibold text-sm text-slate-900">Life Extension</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Recogido</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Proveedor · USA</div>
+      </div>
+      <div class="flex-shrink-0 text-center px-2">
+        <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-800 border border-amber-300">
+          <i class="fa-solid fa-person-walking text-[10px]"></i> Carlos Pérez
+        </div>
+        <div class="text-[10px] text-amber-700 mt-0.5">🛄 Recojo en origen</div>
+      </div>
+      <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="text-lg">🌐</span>
+          <span class="font-semibold text-sm text-slate-900">Casa Carlos · Miami</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Mercancía en casilla</span>
+        </div>
+        <div class="text-[11px] text-slate-500">Casilla colaborador</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-3 text-xs text-slate-600">
+    <b class="text-emerald-700">✓ Pros:</b> cada modalidad muestra exactamente lo relevante · el tinte amber del recojo en origen es un avisador visual · máxima precisión semántica.<br>
+    <b class="text-amber-700">✗ Contras:</b> más lógica condicional · requiere 3–4 branches en el componente · riesgo de inconsistencia con cards listado.
+  </div>
+</div>
+
+<!-- ============================================================================
+     V4 — TARJETA RUTA CON SIDEBAR DE METADATOS
+============================================================================ -->
+<div id="v4" class="max-w-7xl mx-auto mb-10">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded">Variante 4</span>
+    <h2 class="text-lg font-bold text-slate-900">Ruta + sidebar de metadatos (la más rica)</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Igual al envío pero con sidebar derecho (COLABORADOR / COURIER / TRACKING / CREACIÓN) —
+    inspirado en el panel lateral del detalle de envío. Elimina clicks para leer el courier.
+  </p>
+  <div class="card p-5">
+    <!-- Header -->
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-box"></i> <span>OC-2026-001</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Orden de compra OC-2026-001</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Asian Beauty Wholesale <span class="text-slate-400">· China</span></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-xs px-3 py-1.5 border rounded-md text-slate-600 hover:bg-slate-50">🖨️ Imprimir</button>
+        <div class="flex flex-col items-end gap-1">
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Completada</span>
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-red-50 text-red-700 font-medium border border-red-200">Pendiente de Pago</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout 2 columnas: ruta + pipeline (izquierda) / sidebar (derecha) -->
+    <div class="mt-4 grid grid-cols-12 gap-5">
+      <!-- Columna izquierda (8/12) -->
+      <div class="col-span-8 space-y-4">
+        <!-- Ruta -->
+        <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-1">
+              <span class="text-lg">🇨🇳</span>
+              <span class="font-semibold text-sm text-slate-900 truncate">Asian Beauty Wholesale</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Despachado</span>
+            </div>
+            <div class="text-[11px] text-slate-500">Proveedor · China</div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+          <div class="flex-shrink-0 text-center px-2">
+            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-sky-100 text-sky-700">
+              <i class="fa-solid fa-truck text-[10px]"></i> DHL
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-400 flex-shrink-0"></i>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-1">
+              <span class="text-lg">🇵🇪</span>
+              <span class="font-semibold text-sm text-slate-900 truncate">Almacén Vita Skin Lima</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">Recibido</span>
+            </div>
+            <div class="text-[11px] text-slate-500">Almacén final · Perú</div>
+          </div>
+        </div>
+
+        <!-- Pipeline grande -->
+        <div class="grid grid-cols-3 gap-2 items-center pt-2">
+          <div class="text-center">
+            <div class="w-10 h-10 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold">✓</div>
+            <div class="text-xs font-semibold mt-1.5">Borrador</div>
+            <div class="text-[10px] text-slate-500">23-abr.</div>
+          </div>
+          <div class="text-center">
+            <div class="w-10 h-10 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold">✓</div>
+            <div class="text-xs font-semibold mt-1.5">Compra física</div>
+            <div class="text-[10px] text-slate-500">—</div>
+          </div>
+          <div class="text-center">
+            <div class="w-10 h-10 mx-auto bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold">✓</div>
+            <div class="text-xs font-semibold mt-1.5">Completada</div>
+            <div class="text-[10px] text-slate-500">—</div>
+          </div>
+        </div>
+
+        <!-- KPIs en una sola fila -->
+        <div class="grid grid-cols-4 gap-2 bg-slate-50 rounded-xl p-3 mt-4">
+          <div class="text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Total OC</div>
+            <div class="text-lg font-bold tabular">$452.11</div>
+            <div class="text-[10px] text-slate-500">≈ S/ 1571.08</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Productos</div>
+            <div class="text-lg font-bold tabular">3 · 20 und</div>
+            <div class="text-[10px] text-slate-500">SKUs</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Sub-órdenes</div>
+            <div class="text-lg font-bold text-slate-400">—</div>
+            <div class="text-[10px] text-slate-500">sin dividir</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Pagos</div>
+            <div class="text-lg font-bold text-red-600 tabular">$0 / $452</div>
+            <div class="text-[10px] text-red-500">pendiente</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha (4/12) — sidebar -->
+      <div class="col-span-4 space-y-3 border-l border-slate-100 pl-5">
+        <div>
+          <div class="text-[10px] font-semibold uppercase text-slate-500 mb-0.5">Courier</div>
+          <div class="text-sm font-medium text-slate-900">DHL Express</div>
+        </div>
+        <div>
+          <div class="text-[10px] font-semibold uppercase text-slate-500 mb-0.5">Tracking</div>
+          <div class="text-sm font-mono text-sky-700 underline">1Z-999-AA-8721</div>
+        </div>
+        <div>
+          <div class="text-[10px] font-semibold uppercase text-slate-500 mb-0.5">Colaborador</div>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold">AP</div>
+            <div class="text-sm font-medium text-slate-900">Angie Price</div>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] font-semibold uppercase text-slate-500 mb-0.5">Modalidad</div>
+          <span class="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-medium">Vía courier</span>
+        </div>
+        <div>
+          <div class="text-[10px] font-semibold uppercase text-slate-500 mb-0.5">Creación</div>
+          <div class="text-sm text-slate-900">23 abr. 2026</div>
+        </div>
+        <div class="pt-2 border-t border-slate-100">
+          <div class="text-[10px] font-semibold uppercase text-slate-500 mb-1">Acciones rápidas</div>
+          <button class="w-full text-xs px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-md mb-1">💳 Registrar pago</button>
+          <button class="w-full text-xs px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-md">🔗 Ver envío vinculado</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 text-xs text-slate-600">
+    <b class="text-emerald-700">✓ Pros:</b> densidad informativa alta sin saturar · copia el patrón del envío al pie de la letra · las acciones quedan accesibles sin scroll.<br>
+    <b class="text-amber-700">✗ Contras:</b> el más caro de implementar (reestructura layout principal) · reduce el ancho de la tabla de productos · puede chocar con el `vistaInterna='confirmar'` embedded.
+  </div>
+</div>
+
+<!-- ============================================================================
+     V2 APLICADA AL ENVÍO — 3 escenarios
+============================================================================ -->
+<div id="v2-envio" class="max-w-7xl mx-auto mb-10">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-[11px] font-semibold uppercase text-purple-700 bg-purple-50 px-2 py-0.5 rounded">Envío · V2 adaptada</span>
+    <h2 class="text-lg font-bold text-slate-900">V2 aplicada al detalle de Envío</h2>
+  </div>
+  <p class="text-xs text-slate-500 mb-3">
+    Mismo patrón que V2 en OC: <b>pill arriba con modalidad + transportador + tracking</b>, debajo los nodos grandes con fechas inline.
+    El número de nodos se adapta al tipo de envío (2 o 3 reales). Reemplaza la tarjeta de ruta actual en <code>EnvioDetailModal</code>.
+  </p>
+
+  <!-- ENVÍO C — Casilla intl → Almacén PE (3 nodos, el más rico) -->
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2 mt-4">Envío tipo C — Casilla intl → Almacén Perú (3 nodos)</div>
+  <div class="card p-5">
+    <!-- Header estilo envío -->
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-paper-plane"></i> <span>ENV-2026-001</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Envío ENV-2026-001</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Casilla → Perú · creado hace 23 de abril</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">● En tránsito</span>
+        <button class="text-xs px-3 py-1.5 border rounded-md">🖨️ Imprimir</button>
+      </div>
+    </div>
+
+    <!-- ★ Ruta V2 envío con 3 nodos -->
+    <div class="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200 mt-4">
+      <!-- Pill arriba: modo transporte + transportador + tracking -->
+      <div class="flex justify-center mb-3">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-sky-100 text-sky-700 border border-sky-200">
+          <i class="fa-solid fa-plane text-[10px]"></i>
+          Aéreo
+          <span class="text-sky-300">·</span>
+          <i class="fa-solid fa-truck text-[10px]"></i>
+          DHL Express
+          <span class="text-sky-300">·</span>
+          <span class="font-mono text-[10px]">1Z-999-AA-8721</span>
+        </div>
+      </div>
+      <!-- 3 nodos (casilla intermedia de verdad) -->
+      <div class="flex items-center gap-2">
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">🌐</span>
+            <span class="font-semibold text-sm text-slate-900 truncate">Casa - Angie</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Casilla · Miami</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Despachado 12-abr.</span>
+        </div>
+        <i class="fa-solid fa-arrow-right text-slate-300 flex-shrink-0"></i>
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">✈️</span>
+            <span class="font-semibold text-sm text-slate-900 truncate">En tránsito aéreo</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">DHL · ETA 25-abr.</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">● Avión en ruta</span>
+        </div>
+        <i class="fa-solid fa-arrow-right text-slate-300 flex-shrink-0"></i>
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">🇵🇪</span>
+            <span class="font-semibold text-sm text-slate-900 truncate">Almacén Vita Skin Lima</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Almacén final · Perú</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">○ Pendiente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-2 text-[11px] text-slate-600">
+    <b>Ventaja C:</b> el nodo central "En tránsito aéreo" desaparece cuando no hay courier asignado (se convierte en pill vacía "Sin transportador asignado") — comportamiento idéntico al actual.
+  </div>
+
+  <!-- ENVÍO J — Casilla → Casilla (2 nodos) -->
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2 mt-6">Envío tipo J — Casilla intl → Casilla intl (2 nodos)</div>
+  <div class="card p-5">
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-paper-plane"></i> <span>ENV-2026-014</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Envío ENV-2026-014</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Casilla → Casilla · creado hace 2 días</div>
+      </div>
+      <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Completado</span>
+    </div>
+
+    <div class="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200 mt-4">
+      <!-- Pill: para J intra-país no hay courier generalmente → "Traslado interno" -->
+      <div class="flex justify-center mb-3">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+          <i class="fa-solid fa-person-walking text-[10px]"></i>
+          Traslado interno · Angie Price
+          <span class="text-amber-400">·</span>
+          Terrestre
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">🌐</span>
+            <span class="font-semibold text-sm text-slate-900">Casa - Angie Miami</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Casilla origen · USA</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Despachado 20-abr.</span>
+        </div>
+        <div class="flex-shrink-0 flex flex-col items-center">
+          <div class="w-16 h-0.5 border-t-2 border-dashed border-slate-300"></div>
+          <i class="fa-solid fa-arrow-right text-slate-400 my-1"></i>
+          <div class="w-16 h-0.5 border-t-2 border-dashed border-slate-300"></div>
+        </div>
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">🌐</span>
+            <span class="font-semibold text-sm text-slate-900">Casa - Carlos NY</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Casilla destino · USA</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Recibido 22-abr.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENVÍO F — despacho de venta (2 nodos, cliente final) -->
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-2 mt-6">Envío tipo F — Despacho de venta: Almacén PE → Cliente (2 nodos)</div>
+  <div class="card p-5">
+    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+      <div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mb-1">
+          <i class="fa-solid fa-paper-plane"></i> <span>ENV-2026-089</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900">Envío ENV-2026-089</h2>
+        <div class="text-xs text-slate-500 mt-0.5">Despacho de venta · V-2026-1234</div>
+      </div>
+      <span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">● En reparto</span>
+    </div>
+
+    <div class="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200 mt-4">
+      <div class="flex justify-center mb-3">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-sky-100 text-sky-700 border border-sky-200">
+          <i class="fa-solid fa-motorcycle text-[10px]"></i>
+          Courier local · Shalom
+          <span class="text-sky-300">·</span>
+          <span class="font-mono text-[10px]">SH-88124</span>
+          <span class="text-sky-300">·</span>
+          S/ 12.00
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="text-lg">🇵🇪</span>
+            <span class="font-semibold text-sm text-slate-900">Almacén Vita Skin Lima</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Almacén origen · San Isidro</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">● Despachado 23-abr.</span>
+        </div>
+        <div class="flex-shrink-0 flex flex-col items-center">
+          <div class="w-16 h-0.5 border-t-2 border-dashed border-slate-300"></div>
+          <i class="fa-solid fa-arrow-right text-slate-400 my-1"></i>
+          <div class="w-16 h-0.5 border-t-2 border-dashed border-slate-300"></div>
+        </div>
+        <div class="flex-1 bg-white rounded-lg p-3 border border-slate-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i class="fa-solid fa-user-tie text-teal-600"></i>
+            <span class="font-semibold text-sm text-slate-900">María Rodríguez</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mb-1.5">Cliente · Miraflores</div>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">● En reparto</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUMEN ENVÍO V2 -->
+  <div class="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+    <div class="text-sm font-semibold text-purple-900 mb-2">🎨 Reglas de la pill en Envíos V2</div>
+    <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+      <li><b>Contenido:</b> [ícono modo transporte] [aéreo/marítimo/terrestre] · [ícono transportador] [nombre courier/viajero/local] · [tracking si existe] · [costo si aplica]</li>
+      <li><b>Color:</b> sky cuando hay transportador confirmado · amber cuando es traslado interno/viajero sin courier · slate cuando "Sin transportador asignado"</li>
+      <li><b>Número de nodos:</b> 2 por defecto. 3 sólo cuando hay casilla intermedia real (envío tipo C con casilla intl distinta del origen). Los demás tipos (J, E, I, F, G) usan 2 nodos.</li>
+      <li><b>Consistencia con OC:</b> mismo componente base (<code>RouteCardV2</code>). La OC llama con 2 nodos siempre; el envío decide según <code>tipoEnvio</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================================
+     RESUMEN COMPARATIVO
+============================================================================ -->
+<div class="max-w-7xl mx-auto mt-10 card p-5">
+  <h2 class="text-lg font-bold text-slate-900 mb-3">🎯 Resumen comparativo</h2>
+  <table class="w-full text-xs">
+    <thead class="bg-slate-50 text-slate-700">
+      <tr>
+        <th class="text-left p-2">Criterio</th>
+        <th class="text-center p-2">V1 · Espejo</th>
+        <th class="text-center p-2">V2 · Pill arriba</th>
+        <th class="text-center p-2">V3 · Adaptativa</th>
+        <th class="text-center p-2">V4 · Sidebar</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      <tr>
+        <td class="p-2 font-medium">Consistencia con Envío</td>
+        <td class="text-center p-2">🟢🟢🟢🟢🟢</td>
+        <td class="text-center p-2">🟢🟢🟡</td>
+        <td class="text-center p-2">🟢🟢🟢🟢</td>
+        <td class="text-center p-2">🟢🟢🟢🟢🟢</td>
+      </tr>
+      <tr>
+        <td class="p-2 font-medium">Precisión semántica</td>
+        <td class="text-center p-2">🟢🟢🟢</td>
+        <td class="text-center p-2">🟢🟢🟢🟢</td>
+        <td class="text-center p-2">🟢🟢🟢🟢🟢</td>
+        <td class="text-center p-2">🟢🟢🟢🟢</td>
+      </tr>
+      <tr>
+        <td class="p-2 font-medium">Esfuerzo de implementación</td>
+        <td class="text-center p-2">🟢 Bajo</td>
+        <td class="text-center p-2">🟡 Medio</td>
+        <td class="text-center p-2">🟠 Medio-alto</td>
+        <td class="text-center p-2">🔴 Alto</td>
+      </tr>
+      <tr>
+        <td class="p-2 font-medium">Riesgo de regresión</td>
+        <td class="text-center p-2">🟢 Mínimo</td>
+        <td class="text-center p-2">🟡 Bajo</td>
+        <td class="text-center p-2">🟡 Medio</td>
+        <td class="text-center p-2">🟠 Medio</td>
+      </tr>
+      <tr>
+        <td class="p-2 font-medium">Densidad informativa</td>
+        <td class="text-center p-2">🟡</td>
+        <td class="text-center p-2">🟢🟢🟢</td>
+        <td class="text-center p-2">🟢🟢🟢</td>
+        <td class="text-center p-2">🟢🟢🟢🟢🟢</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="mt-4 p-3 bg-teal-50 border border-teal-200 rounded-lg text-sm text-teal-900">
+    <b>💡 Recomendación:</b> <b>V1</b> (espejo) si priorizas rapidez y consistencia visual con /envios.
+    <b>V3</b> (adaptativa) si quieres que la ruta refleje correctamente cada modo de entrega (DDP, recojo en origen, etc.).
+    <b>V4</b> queda para una sesión dedicada de rediseño mayor.
+  </div>
+</div>
+
+</body>
+</html>

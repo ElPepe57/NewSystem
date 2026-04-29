@@ -28,6 +28,8 @@ import { VentaService } from '../../services/venta.service';
 import { useEntregaStore } from '../../store/entregaStore';
 import type { Venta, VentaFormData, MetodoPago, AdelantoData, EditarVentaData } from '../../types/venta.types';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
+// S55 Fase 3 — cobros viven en CC; hook reactivo lee desde movimientosCC
+import { useCobrosVenta } from '../../hooks/useCobrosVenta';
 import { ventaSociosService, MOTIVOS_VENTA_SOCIO } from '../../services/venta.socios.service';
 import type { ResumenVentasSocios, ResumenPorSocio } from '../../services/venta.socios.service';
 import { formatCurrencyPEN } from '../../utils/format';
@@ -67,6 +69,8 @@ export const Ventas: React.FC = () => {
   const [isCorregirProductoModalOpen, setIsCorregirProductoModalOpen] = useState(false);
   const [productoACorregir, setProductoACorregir] = useState<{ productoId: string; nombre: string; sku: string; presentacion: string } | null>(null);
   const [selectedVenta, setSelectedVenta] = useState<Venta | null>(null);
+  // S55 Fase 3 — Cobros de la venta seleccionada (CC). Reemplaza venta.pagos[].
+  const { cobros: cobrosVentaSeleccionada } = useCobrosVenta(selectedVenta?.id ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string | null>(null);
   const [mostrarVentasSocios, setMostrarVentasSocios] = useState(false);
@@ -368,8 +372,9 @@ export const Ventas: React.FC = () => {
   const handleCancelar = async () => {
     if (!user || !selectedVenta) return;
 
-    const tienePagos = selectedVenta.pagos && selectedVenta.pagos.length > 0;
+    // S55 Fase 3 — Detectar si hay pagos vía denormalizado montoPagado (rápido en UI)
     const montoPagado = selectedVenta.montoPagado || 0;
+    const tienePagos = montoPagado > 0;
 
     const result = await openActionModal({
       title: 'Cancelar Venta',
@@ -383,7 +388,7 @@ export const Ventas: React.FC = () => {
                 <div>
                   <p className="font-semibold text-amber-800 text-sm">Esta venta tiene pagos registrados</p>
                   <p className="text-amber-700 text-xs mt-1">
-                    Se han cobrado <span className="font-bold">S/ {montoPagado.toFixed(2)}</span> en {selectedVenta.pagos!.length} pago(s).
+                    Se han cobrado <span className="font-bold">S/ {montoPagado.toFixed(2)}</span>.
                     Antes de cancelar, elimina los pagos desde los detalles de la venta para revertir los ingresos en Tesorería.
                   </p>
                 </div>
@@ -1217,7 +1222,7 @@ export const Ventas: React.FC = () => {
               montoTotal={selectedVenta.totalPEN}
               montoPendiente={selectedVenta.montoPendiente ?? selectedVenta.totalPEN - (selectedVenta.montoPagado || 0)}
               monedaOriginal="PEN"
-              pagosAnteriores={(selectedVenta.pagos || []).map(p => ({
+              pagosAnteriores={cobrosVentaSeleccionada.map(p => ({
                 id: p.id,
                 fecha: p.fecha?.toDate?.() || new Date(),
                 monto: p.monto,
