@@ -73,6 +73,11 @@ export type MetodoTesoreria =
 
 /**
  * Movimiento de tesorería (entrada/salida de dinero)
+ *
+ * @deprecated F5 · ADR-PF-001 · Reemplazado por `MovimientoFinanciero` en
+ * `src/types/movimientoFinanciero.types.ts` (libro mayor unificado).
+ * Las nuevas escrituras (F4) van al modelo nuevo. La lectura unificada
+ * funciona vía adapter `getMovimientosUnificados()`. NO usar en código nuevo.
  */
 export interface MovimientoTesoreria {
   id: string;
@@ -238,6 +243,12 @@ export interface NumeroCuentaBancaria {
 /**
  * Cuenta de caja (física o bancaria)
  * Soporta cuentas mono-moneda y bi-moneda (USD + PEN en una sola cuenta)
+ */
+/**
+ * @deprecated F5 · ADR-PF-001 · Reemplazado por `ProductoFinanciero` en
+ * `src/types/productoFinanciero.types.ts`. La eliminación completa
+ * requiere reescribir TabTarjetasCredito + FinanzasSaldos + TitularItemRow
+ * + stores legacy. NO usar en código nuevo.
  */
 export interface CuentaCaja {
   id: string;

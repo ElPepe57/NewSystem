@@ -34,6 +34,15 @@ export type TipoEntidadTitularTC =
   | 'proveedor'
   | 'cliente';
 
+/**
+ * @deprecated F5 · ADR-PF-001 · Reemplazado por `ProductoFinanciero` con
+ * `tipoProducto='tarjeta_credito'` en
+ * `src/types/productoFinanciero.types.ts`. Las nuevas tarjetas se crean
+ * desde el CuentaWizard universal. La eliminación completa de este tipo
+ * requiere reescribir TabTarjetasCredito + carpeta TarjetasCreditoV2/ +
+ * FinanzasSaldos + TitularItemRow (consumers de hooks/services TC).
+ * NO usar en código nuevo.
+ */
 export interface TarjetaCredito {
   id: string;
   codigo: string;                      // TC-001, TC-002, etc.
