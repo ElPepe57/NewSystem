@@ -42,6 +42,8 @@ import { EntidadCCDetailModal } from './components/EntidadCCDetailModal';
 import { PagoAbonoWizard } from './components/PagoAbonoWizard';
 import { TarjetaDetailModal } from '../Tesoreria/TarjetasCreditoV2';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
+import { useTesoreriaStore } from '../../store/tesoreriaStore';
+import { PatrimonioHero } from './components/PatrimonioHero';
 import type { TarjetaCredito } from '../../types/tarjetaCredito.types';
 import {
   PipelineFinanzas,
@@ -110,6 +112,14 @@ const FinanzasSaldos: React.FC = () => {
   // S58d F5 — Modal detalle de tarjeta (cuando el CC seleccionada es de tipo TC)
   const [tarjetaDetalle, setTarjetaDetalle] = useState<TarjetaCredito | null>(null);
   const { tarjetas, fetchTarjetas } = useTarjetaCreditoStore();
+
+  // Imp-L8 · Hero ejecutivo necesita cuentas del store de tesorería
+  const cuentasTesoreria = useTesoreriaStore((s) => s.cuentas);
+  const fetchCuentas = useTesoreriaStore((s) => s.fetchCuentas);
+
+  useEffect(() => {
+    if (cuentasTesoreria.length === 0) void fetchCuentas();
+  }, [cuentasTesoreria.length, fetchCuentas]);
 
   // Asegurar que las tarjetas estén cargadas (para resolver CC tipo='tarjeta_credito')
   useEffect(() => {
@@ -247,6 +257,16 @@ const FinanzasSaldos: React.FC = () => {
 
   return (
     <>
+      {/* Imp-L8 · Hero ejecutivo Mercury-style con patrimonio total
+           + sparkline 90 días + KPI strip + distribución por moneda */}
+      <div className="mb-5">
+        <PatrimonioHero
+          cuentas={cuentasTesoreria}
+          ccs={ccs}
+          tarjetas={tarjetas}
+        />
+      </div>
+
       {/* Actions inline (sub-header Stripe-style). Tonal soft para
            Nuevo movimiento — preserva identidad teal sin agresividad. */}
       <div className="flex items-center justify-end gap-2 mb-3 px-1">
