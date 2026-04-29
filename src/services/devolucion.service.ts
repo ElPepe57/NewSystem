@@ -526,19 +526,25 @@ export const devolucionService = {
 
       let tesoreriaMovimientoId: string | undefined;
       try {
-        tesoreriaMovimientoId = await tesoreriaService.registrarMovimiento(
+        // F4b.2 · ADR-PF-001 · libro mayor unificado
+        const { registrarMovimientoFinanciero } = await import(
+          './movimientoFinanciero.service'
+        );
+        tesoreriaMovimientoId = await registrarMovimientoFinanciero(
           {
-            tipo: 'gasto_operativo',
+            categoria: 'reembolso_cliente',
             moneda: moneda as 'PEN' | 'USD',
             monto: data.monto,
             tipoCambio,
-            metodo: metodoTesoreria as any,
+            metodo: metodoTesoreria as string,
             concepto: `Devolución ${devolucion.numeroDevolucion} — venta ${devolucion.ventaNumero}`,
             fecha: new Date(),
             referencia: data.referencia,
             notas: data.notas ?? `Devolución de dinero al cliente ${devolucion.clienteNombre}`,
-            ventaId: devolucion.ventaId,
-            cuentaOrigen: data.cuentaOrigenId,
+            refDocumentoTipo: 'venta',
+            refDocumentoId: devolucion.ventaId,
+            refDocumentoNumero: devolucion.ventaNumero,
+            productoOrigenId: data.cuentaOrigenId,
           },
           userId
         );

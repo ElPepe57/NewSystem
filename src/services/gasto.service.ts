@@ -931,6 +931,9 @@ export const gastoService = {
       cuentaOrigenId: string;
       referenciaPago?: string;
       notas?: string;
+      /** F4b · si el pago nace de un Pago Masivo, propagar lote */
+      loteId?: string;
+      loteNumero?: string;
     },
     userId: string
   ): Promise<void> {
@@ -1019,7 +1022,9 @@ export const gastoService = {
           refDocumentoId: gastoId,
           refDocumentoNumero: gasto.numeroGasto,
           referencia: data.referenciaPago,
-          notas: data.notas
+          notas: data.notas,
+          loteId: data.loteId,
+          loteNumero: data.loteNumero,
         }, userId);
 
         if (movimientoId) {

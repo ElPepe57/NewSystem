@@ -789,8 +789,11 @@ export async function generarEstadoResultados(mes: number, anio: number, lineaNe
   // de los ingresos registrados son anticipos (producto aún no entregado)
   let anticiposPendientes = 0;
   try {
-    // Obtener todos los movimientos y filtrar en memoria para evitar índices compuestos
-    const todosMovimientos = await tesoreriaService.getMovimientos({});
+    // F4b.6 · ADR-PF-001 · lectura unificada (legacy + libro mayor nuevo)
+    const { getMovimientosUnificados } = await import(
+      './productoFinanciero.adapters'
+    );
+    const todosMovimientos = await getMovimientosUnificados();
     anticiposPendientes = todosMovimientos
       .filter(m => m.tipo === 'ingreso_anticipo' && m.estado === 'ejecutado')
       .reduce((sum, m) => sum + (m.montoEquivalentePEN || m.monto), 0);
@@ -1258,7 +1261,12 @@ async function getCuentasPorPagarProveedores(tc: number): Promise<CuentasPorPaga
 
     // Solo OCs con pago pendiente
     if (orden.estadoPago === 'pendiente' || orden.estadoPago === 'parcial') {
-      const pendienteUSD = orden.montoPendiente || orden.totalUSD - (orden.montosPagados?.reduce((s, m) => s + m, 0) || 0);
+      // S55 Fase 2 — `montosPagados[]` eliminado. Usamos `montoPendiente`
+      // denormalizado (en PEN), lo convertimos a USD si tenemos TC.
+      const tcRef = orden.tcReferencial || orden.tcCompra || tc || 1;
+      const pendienteUSD = orden.montoPendiente
+        ? orden.montoPendiente / tcRef
+        : orden.totalUSD;
 
       if (pendienteUSD > 0) {
         ordenesCompraUSD += pendienteUSD;
@@ -1324,9 +1332,11 @@ async function getOtrasCuentasPorPagar(tc: number): Promise<OtrasCuentasPorPagar
  * Estos representan pagos recibidos por productos aún no entregados (pasivo).
  */
 async function getAnticiposClientes(): Promise<AnticiposClientes> {
-  // Obtener todos los movimientos de tesorería y filtrar en memoria
-  // para evitar requerir índices compuestos adicionales en Firestore
-  const movimientos = await tesoreriaService.getMovimientos({});
+  // F4b.6 · ADR-PF-001 · lectura unificada (legacy + libro mayor nuevo)
+  const { getMovimientosUnificados } = await import(
+    './productoFinanciero.adapters'
+  );
+  const movimientos = await getMovimientosUnificados();
 
   // Filtrar ingreso_anticipo ejecutados en memoria
   const anticipos = movimientos.filter(m =>

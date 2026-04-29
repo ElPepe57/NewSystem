@@ -54,6 +54,9 @@ export async function registrarPago(
     comprobante?: string;
     notas?: string;
     cuentaDestinoId?: string;
+    /** F4b · ADR-PF-001 · si el pago nace de un Pago Masivo, propagar lote */
+    loteId?: string;
+    loteNumero?: string;
   },
   userId: string,
   registrarEnTesoreria: boolean = true
@@ -226,6 +229,8 @@ export async function registrarPago(
           refDocumentoId: ventaId,
           refDocumentoNumero: nuevoPago.numeroVenta,
           productoDestinoId: cuentaDestinoId,
+          loteId: datosPago.loteId,
+          loteNumero: datosPago.loteNumero,
         },
         userId,
       );

@@ -169,6 +169,7 @@ async function ejecutarPagoIndividual(
 ): Promise<string> {
   const fechaPago = new Date(config.fechaPago);
 
+  // F4b.5 · ADR-PF-001 · loteId/loteNumero coinciden (LOTE-2026-NNN)
   switch (item.tipoDocumento) {
     case 'gasto_por_pagar':
       await gastoService.registrarPago(
@@ -182,6 +183,8 @@ async function ejecutarPagoIndividual(
           cuentaOrigenId: config.cuentaId,
           referenciaPago: config.referencia || undefined,
           notas: config.notas || undefined,
+          loteId,
+          loteNumero: loteId,
         },
         userId
       );
@@ -199,6 +202,8 @@ async function ejecutarPagoIndividual(
           cuentaOrigenId: config.cuentaId,
           referencia: config.referencia || undefined,
           notas: config.notas || undefined,
+          loteId,
+          loteNumero: loteId,
         },
         userId
       );
@@ -215,6 +220,8 @@ async function ejecutarPagoIndividual(
           referencia: config.referencia || undefined,
           notas: config.notas || undefined,
           cuentaDestinoId: config.cuentaId,
+          loteId,
+          loteNumero: loteId,
         },
         userId
       );

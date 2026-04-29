@@ -43,6 +43,9 @@ export async function registrarPago(
     referencia?: string;
     notas?: string;
     subOrdenId?: string;
+    /** F4b · ADR-PF-001 · si el pago nace de un Pago Masivo, propagar lote */
+    loteId?: string;
+    loteNumero?: string;
   },
   userId: string,
 ): Promise<PagoOCLegacy> {
@@ -65,6 +68,8 @@ export async function registrarPago(
     referencia,
     notas,
     subOrdenId,
+    loteId,
+    loteNumero,
   } = datos;
 
   if (!tipoCambio || tipoCambio <= 0) {
@@ -125,6 +130,8 @@ export async function registrarPago(
           notas ||
           `${monedaPago === 'USD' ? `≈ S/ ${montoPEN.toFixed(2)}` : `≈ $${montoUSD.toFixed(2)} USD`}`,
         fecha: fechaPago,
+        loteId,
+        loteNumero,
       },
       userId,
     );

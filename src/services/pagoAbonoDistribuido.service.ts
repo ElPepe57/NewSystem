@@ -964,47 +964,48 @@ export async function ejecutar(
           ? 'gasto_operativo'
           : 'pago_orden_compra';
 
-  const tesoreriaData: MovimientoTesoreriaFormData = {
-    tipo: tipoMov,
-    moneda: input.monedaAbono,
-    monto: input.montoAbono,
-    tipoCambio: input.tipoCambio,
-    metodo: input.metodo,
-    concepto: conceptoTesoreria,
-    fecha: input.fecha,
-  };
-  if (input.referencia) tesoreriaData.referencia = input.referencia;
-  if (input.notas) {
-    tesoreriaData.notas = input.notas;
-  } else {
-    // Lista compacta de números de documento en notas para audit
-    tesoreriaData.notas =
-      `Distribución: ` +
-      input.distribucion
-        .map((d) => `${d.documentoNumero}=${d.montoAplicado.toFixed(2)}`)
-        .join(', ');
-  }
-  // Para entidad=proveedor el dinero SALE de cuentaId
-  // Para entidad=cliente el dinero ENTRA a cuentaId
-  if (input.entidadTipo === 'cliente') {
-    tesoreriaData.cuentaDestino = input.cuentaId;
-  } else {
-    tesoreriaData.cuentaOrigen = input.cuentaId;
-  }
+  // F4b.4 · ADR-PF-001 · libro mayor unificado
+  // tipoMov ya coincide con CategoriaMovimientoFinanciero por nombre
+  const notasFinales = input.notas ??
+    `Distribución: ` +
+    input.distribucion
+      .map((d) => `${d.documentoNumero}=${d.montoAplicado.toFixed(2)}`)
+      .join(', ');
 
   let movimientoTesoreriaId: string;
   try {
-    movimientoTesoreriaId = await tesoreriaService.registrarMovimiento(
-      tesoreriaData,
+    const { registrarMovimientoFinanciero } = await import(
+      './movimientoFinanciero.service'
+    );
+    movimientoTesoreriaId = await registrarMovimientoFinanciero(
+      {
+        categoria: tipoMov as
+          | 'ingreso_venta'
+          | 'pago_viajero'
+          | 'gasto_operativo'
+          | 'pago_orden_compra',
+        moneda: input.monedaAbono,
+        monto: input.montoAbono,
+        tipoCambio: input.tipoCambio,
+        metodo: input.metodo,
+        concepto: conceptoTesoreria,
+        fecha: input.fecha,
+        referencia: input.referencia,
+        notas: notasFinales,
+        idempotencyKey,
+        // Origen vs destino según tipo de entidad
+        productoOrigenId: input.entidadTipo === 'cliente' ? undefined : input.cuentaId,
+        productoDestinoId: input.entidadTipo === 'cliente' ? input.cuentaId : undefined,
+      },
       userId,
     );
   } catch (err) {
     logger.error(
-      '[PagoAbonoDistribuido] Error creando movimiento tesorería — abortando',
+      '[PagoAbonoDistribuido] Error creando movimiento financiero — abortando',
       err,
     );
     throw new Error(
-      `No se pudo registrar el movimiento de tesorería: ${
+      `No se pudo registrar el movimiento financiero: ${
         err instanceof Error ? err.message : 'desconocido'
       }`,
     );
