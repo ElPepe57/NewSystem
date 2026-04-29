@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finanzas · Listado CC · S58e</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<!--
+  M10 · finanzas-listado-s58e.html
+  Hub principal /finanzas — Cuentas corrientes por tipo de entidad.
+  Mantiene la lógica S55 (CxC/CxP/saldadas) rediseñada al lenguaje S54.x.
+
+  DECISIONES DE DISEÑO (al final del archivo también):
+  1. El pipeline de estados es clickeable como filtro principal — patrón exacto de M3 (pipeline expandido)
+     y de la referencia canónica PipelineCompras.tsx de S54.x.
+  2. Las cards de entidad son 12-col (wide mode): avatar izq + datos centrales + saldo + acciones der.
+     Patrón CompraCard (referencia #2 canónica del sistema).
+  3. El sidebar derecho de "Acciones recomendadas" está fijo (sticky) mientras el usuario scrollea
+     el listado. Patrón nuevo para /finanzas que no existe en el código actual pero es coherente con M3.
+  4. Las acciones inline de card (Ver detalle / Aplicar saldo / Estado de cuenta / Conciliar) aparecen
+     en hover con opacity transition, exactamente como en CompraCard.tsx.
+  5. El modal de ejemplo (EntidadCCDetailModal) se muestra al final del HTML con tratamiento completo:
+     hero gradiente + KPIs + tabs sticky. Mismo patrón que M2 (tesoreria-producto-detalle).
+  6. El sparkline de 30 días en cada card es SVG puro inline (polilínea compacta de 80×24px).
+  7. Los 5 dots de estado son un mini-pipeline visual dentro de la card — como las breadcrumbs
+     de estado de M3. Colores: al_dia=emerald, por_vencer=amber, vencido=red, saldo_favor=sky, saldada=slate.
+  8. Las tabs de tipo de entidad (Clientes/Proveedores/Colaboradores/Empleados) usan el patrón de tabs
+     sticky horizontales del sistema (tab-btn del M2).
+  9. El botón "Aplicar saldo a favor" en el header lanza el wizard PagoAbono de S55.
+     Se muestra como botón primario (teal) dado que es la acción más frecuente del hub.
+  10. Los badges de tipo de entidad usan los mismos colores de EntidadCCCard.tsx:
+      cliente=sky, proveedor=amber, colaborador=purple, empleado=emerald.
+-->
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+
+  /* ── PIPELINE CLICKEABLE ──────────────────────────── */
+  .pipeline-stage {
+    flex: 1; padding: 0.625rem 0.875rem;
+    border-radius: 0.75rem; border: 1.5px solid;
+    text-align: center; cursor: pointer;
+    transition: all 0.18s ease; min-width: 0;
+  }
+  .pipeline-stage:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.07); }
+  .pipeline-stage:active { transform: scale(0.98); }
+  .pipeline-stage.active { box-shadow: 0 0 0 2px; }
+
+  /* Estados pipeline */
+  .ps-todas { border-color: #e2e8f0; background: #f8fafc; }
+  .ps-todas.active { background: #f1f5f9; box-shadow: 0 0 0 2px #94a3b8; }
+  .ps-al-dia { border-color: #6ee7b7; background: #f0fdf9; }
+  .ps-al-dia.active { background: #d1fae5; box-shadow: 0 0 0 2px #10b981; }
+  .ps-por-vencer { border-color: #fcd34d; background: #fffbeb; }
+  .ps-por-vencer.active { background: #fef3c7; box-shadow: 0 0 0 2px #f59e0b; }
+  .ps-vencido { border-color: #fca5a5; background: #fff5f5; }
+  .ps-vencido.active { background: #fee2e2; box-shadow: 0 0 0 2px #ef4444; }
+  .ps-saldo-favor { border-color: #7dd3fc; background: #f0f9ff; }
+  .ps-saldo-favor.active { background: #e0f2fe; box-shadow: 0 0 0 2px #0ea5e9; }
+  .ps-saldada { border-color: #cbd5e1; background: #f8fafc; }
+  .ps-saldada.active { background: #e2e8f0; box-shadow: 0 0 0 2px #64748b; }
+
+  /* ── CARD ENTIDAD ─────────────────────────────────── */
+  .entity-card {
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 0.875rem; padding: 0.875rem 1.125rem;
+    cursor: pointer; transition: all 0.18s ease;
+    display: flex; align-items: center; gap: 0.875rem;
+  }
+  .entity-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border-color: #5eead4;
+    transform: translateY(-1px);
+  }
+  .entity-card:active { transform: scale(0.99); }
+  .entity-card .card-actions { opacity: 0; transition: opacity 0.15s ease; }
+  .entity-card:hover .card-actions { opacity: 1; }
+
+  /* ── TABS ─────────────────────────────────────────── */
+  .tab-btn {
+    padding: 0.625rem 1rem; font-size: 13px; font-weight: 500;
+    color: #64748b; border-bottom: 2px solid transparent;
+    transition: all 0.15s ease; white-space: nowrap; cursor: pointer;
+  }
+  .tab-btn:hover { color: #0f766e; border-bottom-color: #99f6e4; }
+  .tab-btn.active { color: #0f766e; border-bottom-color: #0d9488; font-weight: 600; }
+
+  /* ── MINI PIPELINE 5 DOTS ─────────────────────────── */
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+
+  /* ── SIDEBAR ACCIONES ─────────────────────────────── */
+  .sidebar-acciones {
+    width: 240px; flex-shrink: 0;
+  }
+
+  /* ── MODAL SHELL ──────────────────────────────────── */
+  .modal-shell {
+    background: #fff; border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.18);
+    border: 1px solid #e2e8f0; overflow: hidden;
+    max-width: 860px; margin: 0 auto;
+  }
+  .modal-header-cliente {
+    background: linear-gradient(135deg, #0369a1 0%, #0284c7 55%, #38bdf8 100%);
+  }
+  .modal-header-proveedor {
+    background: linear-gradient(135deg, #b45309 0%, #d97706 55%, #fbbf24 100%);
+  }
+  .tabs-sticky { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid #e2e8f0; }
+  .modal-kpi-strip { display: flex; gap: 1px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+  .modal-kpi-item { flex: 1; background: #fff; padding: 0.875rem 1rem; }
+
+  /* ── PROPBAR ──────────────────────────────────────── */
+  .prop-bar { height: 4px; border-radius: 9999px; background: #f1f5f9; overflow: hidden; }
+  .prop-bar-fill { height: 100%; border-radius: 9999px; }
+</style>
+</head>
+<body class="pb-16">
+
+<!-- ============================================================
+     STICKY NAV (mockup)
+============================================================ -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="dollar-sign" class="w-4 h-4 text-teal-600"></i>
+      <span class="font-bold text-slate-900">Finanzas · Cuentas Corrientes</span>
+      <span class="text-[11px] text-slate-500 ml-2">M10 · S58e</span>
+    </div>
+    <div class="flex gap-1.5">
+      <a href="#listado-section" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">Listado CC</a>
+      <a href="#modal-detalle-section" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Modal detalle</a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 pt-6">
+
+  <!-- ── HEADER ─────────────────────────────────────── -->
+  <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <span class="font-medium text-slate-600">Finanzas</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="circle-dollar-sign" class="w-6 h-6 text-teal-600"></i>
+        Finanzas · Cuentas Corrientes
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">Relaciones financieras con clientes, proveedores y colaboradores</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+        <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+        Ver consolidado
+      </button>
+      <button class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-all shadow-sm">
+        <i data-lucide="zap" class="w-4 h-4"></i>
+        Aplicar saldo a favor
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TABS POR TIPO ENTIDAD ───────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl mb-4 overflow-hidden">
+    <div class="flex items-center border-b border-slate-200 px-4 overflow-x-auto" id="tabs-container">
+      <button class="tab-btn active" onclick="cambiarTab('clientes', this)">
+        <i data-lucide="users" class="w-3.5 h-3.5 inline mr-1.5 text-sky-500"></i>
+        Clientes
+        <span class="ml-1.5 text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">12</span>
+      </button>
+      <button class="tab-btn" onclick="cambiarTab('proveedores', this)">
+        <i data-lucide="building-2" class="w-3.5 h-3.5 inline mr-1.5 text-amber-500"></i>
+        Proveedores
+        <span class="ml-1.5 text-[10px] bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded-full">8</span>
+      </button>
+      <button class="tab-btn" onclick="cambiarTab('colaboradores', this)">
+        <i data-lucide="truck" class="w-3.5 h-3.5 inline mr-1.5 text-purple-500"></i>
+        Colaboradores
+        <span class="ml-1.5 text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">6</span>
+      </button>
+      <button class="tab-btn" onclick="cambiarTab('empleados', this)">
+        <i data-lucide="id-card" class="w-3.5 h-3.5 inline mr-1.5 text-emerald-500"></i>
+        Empleados
+        <span class="ml-1.5 text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded-full">3</span>
+      </button>
+    </div>
+
+    <!-- KPI Strip (clientes activos) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-slate-100" id="kpi-strip">
+      <div class="bg-white p-4">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Total CC · Clientes</p>
+        <p class="text-lg font-bold text-slate-900 num-tab">12 entidades</p>
+        <p class="text-xs text-slate-500 mt-0.5">8 con saldo activo</p>
+      </div>
+      <div class="bg-white p-4">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Saldo neto (a cobrar)</p>
+        <p class="text-lg font-bold text-teal-700 num-tab">S/ 14,230.00</p>
+        <p class="text-xs text-teal-600 mt-0.5 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +S/ 1,200 esta semana</p>
+      </div>
+      <div class="bg-white p-4">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Con saldo a favor</p>
+        <p class="text-lg font-bold text-sky-700 num-tab">3 clientes</p>
+        <p class="text-xs text-sky-600 mt-0.5 num-tab">S/ 4,800 total anticipos</p>
+      </div>
+      <div class="bg-white p-4">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Con deuda vencida</p>
+        <p class="text-lg font-bold text-red-600 num-tab">1 cliente</p>
+        <p class="text-xs text-red-500 mt-0.5 num-tab">S/ 2,150 · +30 días</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PIPELINE CLICKEABLE ────────────────────────── -->
+  <div class="flex gap-2 mb-4 overflow-x-auto pb-1" id="pipeline-filtro">
+    <div class="pipeline-stage ps-todas active flex-none lg:flex-1">
+      <p class="text-[11px] font-bold text-slate-600">Todas</p>
+      <p class="text-lg font-bold text-slate-900 num-tab">12</p>
+    </div>
+    <div class="pipeline-stage ps-al-dia flex-none lg:flex-1">
+      <p class="text-[11px] font-bold text-emerald-600">Al día</p>
+      <p class="text-lg font-bold text-emerald-700 num-tab">6</p>
+      <p class="text-[10px] text-emerald-500 num-tab">S/ 7,280</p>
+    </div>
+    <div class="pipeline-stage ps-por-vencer flex-none lg:flex-1">
+      <p class="text-[11px] font-bold text-amber-600">Por vencer</p>
+      <p class="text-lg font-bold text-amber-700 num-tab">2</p>
+      <p class="text-[10px] text-amber-500 num-tab">S/ 2,400 · próx. 7d</p>
+    </div>
+    <div class="pipeline-stage ps-vencido flex-none lg:flex-1">
+      <p class="text-[11px] font-bold text-red-600">Vencido</p>
+      <p class="text-lg font-bold text-red-700 num-tab">1</p>
+      <p class="text-[10px] text-red-500 num-tab">S/ 2,150 · +30d</p>
+    </div>
+    <div class="pipeline-stage ps-saldo-favor flex-none lg:flex-1">
+      <p class="text-[11px] font-bold text-sky-600">Saldo a favor</p>
+      <p class="text-lg font-bold text-sky-700 num-tab">3</p>
+      <p class="text-[10px] text-sky-500 num-tab">S/ 4,800 anticipos</p>
+    </div>
+    <div class="pipeline-stage ps-saldada flex-none lg:flex-1">
+      <p class="text-[11px] font-bold text-slate-500">Conciliada</p>
+      <p class="text-lg font-bold text-slate-600 num-tab">2</p>
+      <p class="text-[10px] text-slate-400">Sin pendientes</p>
+    </div>
+  </div>
+
+  <!-- ── LAYOUT PRINCIPAL: LISTADO + SIDEBAR ────────── -->
+  <div id="listado-section" class="flex gap-4 scroll-anchor">
+
+    <!-- LISTADO -->
+    <div class="flex-1 min-w-0 space-y-2.5">
+
+      <!-- Filtro búsqueda -->
+      <div class="flex items-center gap-2 mb-3">
+        <div class="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+          <input type="text" placeholder="Buscar cliente, RUC, DNI..." class="flex-1 text-sm bg-transparent border-none outline-none text-slate-700 placeholder-slate-400">
+        </div>
+        <select class="text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-white text-slate-600 focus:outline-none">
+          <option>Ordenar: Mayor saldo</option>
+          <option>Ordenar: Más reciente</option>
+          <option>Ordenar: Nombre A-Z</option>
+          <option>Ordenar: Vencimiento</option>
+        </select>
+      </div>
+
+      <!-- CARD 1 · María Castellanos · Saldo a favor (sky) -->
+      <div class="entity-card">
+        <!-- Avatar -->
+        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-bold text-white text-sm flex-shrink-0">MC</div>
+        <!-- Datos centrales -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-sm font-bold text-slate-800">María Castellanos Ruiz</p>
+            <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">CLIENTE</span>
+            <span class="text-[10px] bg-sky-50 text-sky-600 font-semibold px-2 py-0.5 rounded-full border border-sky-200 flex items-center gap-1">
+              <div class="w-1.5 h-1.5 bg-sky-500 rounded-full"></div>
+              Saldo a favor
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">RUC 10456789012 · Lima · Últ. mov. hace 2 días</p>
+          <!-- Mini pipeline 5 dots -->
+          <div class="flex items-center gap-1 mt-1.5">
+            <div class="status-dot bg-slate-200" title="Al día"></div>
+            <div class="status-dot bg-slate-200" title="Por vencer"></div>
+            <div class="status-dot bg-slate-200" title="Vencido"></div>
+            <div class="status-dot bg-sky-500" title="Saldo a favor"></div>
+            <div class="status-dot bg-slate-200" title="Conciliada"></div>
+            <span class="text-[10px] text-sky-600 font-medium ml-1">Saldo a favor pendiente de aplicar</span>
+          </div>
+        </div>
+        <!-- Saldo -->
+        <div class="text-right flex-shrink-0 mx-2">
+          <p class="text-xl font-bold text-sky-700 num-tab">S/ 4,800.00</p>
+          <p class="text-xs text-slate-400">a favor del cliente</p>
+          <!-- Sparkline -->
+          <svg width="80" height="24" viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mt-1">
+            <polyline points="0,20 10,18 20,22 30,16 40,14 50,18 60,12 70,10 80,8" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="80" cy="8" r="2.5" fill="#0ea5e9"/>
+          </svg>
+        </div>
+        <!-- Acciones hover -->
+        <div class="card-actions flex flex-col gap-1.5 flex-shrink-0">
+          <button class="text-[10px] font-semibold text-white bg-teal-600 hover:bg-teal-700 px-2.5 py-1 rounded-lg transition-all">Aplicar saldo</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Ver detalle</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Estado cta.</button>
+        </div>
+      </div>
+
+      <!-- CARD 2 · Rosa Salcedo · Al día (emerald) -->
+      <div class="entity-card">
+        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-bold text-white text-sm flex-shrink-0">RS</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-sm font-bold text-slate-800">Rosa Salcedo Campos</p>
+            <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">CLIENTE</span>
+            <span class="text-[10px] bg-emerald-50 text-emerald-600 font-semibold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+              <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+              Al día
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">DNI 45678901 · Lima · Últ. mov. hace 5 días</p>
+          <div class="flex items-center gap-1 mt-1.5">
+            <div class="status-dot bg-emerald-500"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <span class="text-[10px] text-emerald-600 font-medium ml-1">Saldo en plazo</span>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0 mx-2">
+          <p class="text-xl font-bold text-slate-900 num-tab">S/ 2,400.00</p>
+          <p class="text-xs text-slate-400">por cobrar</p>
+          <svg width="80" height="24" viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mt-1">
+            <polyline points="0,18 10,16 20,20 30,14 40,16 50,12 60,14 70,10 80,12" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="80" cy="12" r="2.5" fill="#10b981"/>
+          </svg>
+        </div>
+        <div class="card-actions flex flex-col gap-1.5 flex-shrink-0">
+          <button class="text-[10px] font-semibold text-white bg-teal-600 hover:bg-teal-700 px-2.5 py-1 rounded-lg transition-all">Cobrar</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Ver detalle</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Estado cta.</button>
+        </div>
+      </div>
+
+      <!-- CARD 3 · Karen Villanueva · Por vencer (amber) -->
+      <div class="entity-card" style="border-color: #fcd34d;">
+        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-bold text-white text-sm flex-shrink-0">KV</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-sm font-bold text-slate-800">Karen Villanueva Torres</p>
+            <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">CLIENTE</span>
+            <span class="text-[10px] bg-amber-50 text-amber-600 font-semibold px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+              <div class="w-1.5 h-1.5 bg-amber-500 rounded-full"></div>
+              Por vencer
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">RUC 10234567890 · Lima · Últ. mov. hace 7 días · Vence en 5 días</p>
+          <div class="flex items-center gap-1 mt-1.5">
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-amber-500"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <span class="text-[10px] text-amber-600 font-medium ml-1">Vence en 5 días</span>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0 mx-2">
+          <p class="text-xl font-bold text-amber-700 num-tab">S/ 1,850.00</p>
+          <p class="text-xs text-slate-400">por cobrar</p>
+          <svg width="80" height="24" viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mt-1">
+            <polyline points="0,14 10,16 20,12 30,15 40,11 50,14 60,11 70,13 80,10" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="80" cy="10" r="2.5" fill="#f59e0b"/>
+          </svg>
+        </div>
+        <div class="card-actions flex flex-col gap-1.5 flex-shrink-0">
+          <button class="text-[10px] font-semibold text-white bg-amber-500 hover:bg-amber-600 px-2.5 py-1 rounded-lg transition-all">Recordar cobro</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Ver detalle</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Estado cta.</button>
+        </div>
+      </div>
+
+      <!-- CARD 4 · Cliente vencido (red) -->
+      <div class="entity-card" style="border-color: #fca5a5;">
+        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center font-bold text-white text-sm flex-shrink-0">PL</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-sm font-bold text-slate-800">Patricia Luna Mendez</p>
+            <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">CLIENTE</span>
+            <span class="text-[10px] bg-red-50 text-red-600 font-semibold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1">
+              <div class="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+              Vencido
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">DNI 56789012 · Lima · Últ. mov. hace 38 días · Vencido desde 27 mar</p>
+          <div class="flex items-center gap-1 mt-1.5">
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-red-500"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <span class="text-[10px] text-red-600 font-medium ml-1">38 días vencido</span>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0 mx-2">
+          <p class="text-xl font-bold text-red-600 num-tab">S/ 2,150.00</p>
+          <p class="text-xs text-slate-400">por cobrar · vencido</p>
+          <svg width="80" height="24" viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mt-1">
+            <polyline points="0,10 10,12 20,8 30,11 40,9 50,13 60,16 70,14 80,18" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="80" cy="18" r="2.5" fill="#ef4444"/>
+          </svg>
+        </div>
+        <div class="card-actions flex flex-col gap-1.5 flex-shrink-0">
+          <button class="text-[10px] font-semibold text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-all">Gestionar cobro</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Ver detalle</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Estado cta.</button>
+        </div>
+      </div>
+
+      <!-- CARD 5 · Conciliada (slate) -->
+      <div class="entity-card" style="opacity: 0.75;">
+        <div class="w-10 h-10 bg-slate-400 rounded-xl flex items-center justify-center font-bold text-white text-sm flex-shrink-0">JG</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-sm font-bold text-slate-700">Julia Gonzalez Ponce</p>
+            <span class="text-[10px] bg-sky-100 text-sky-700 font-bold px-1.5 py-0.5 rounded-full">CLIENTE</span>
+            <span class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full border border-slate-200 flex items-center gap-1">
+              <div class="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
+              Conciliada
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">DNI 67890123 · Lima · Sin movimientos pendientes</p>
+          <div class="flex items-center gap-1 mt-1.5">
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-200"></div>
+            <div class="status-dot bg-slate-500"></div>
+            <span class="text-[10px] text-slate-400 font-medium ml-1">Sin pendientes</span>
+          </div>
+        </div>
+        <div class="text-right flex-shrink-0 mx-2">
+          <p class="text-xl font-bold text-slate-400 num-tab">S/ 0.00</p>
+          <p class="text-xs text-slate-300">saldo neutro</p>
+        </div>
+        <div class="card-actions flex flex-col gap-1.5 flex-shrink-0">
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Ver historial</button>
+          <button class="text-[10px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 px-2.5 py-1 rounded-lg transition-all">Estado cta.</button>
+        </div>
+      </div>
+
+      <!-- Indicador de más items -->
+      <div class="text-center py-3">
+        <button class="text-xs text-slate-500 hover:text-teal-600 transition-colors flex items-center gap-1.5 mx-auto">
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          Ver 7 clientes más
+        </button>
+      </div>
+
+    </div><!-- /listado -->
+
+    <!-- SIDEBAR ACCIONES RECOMENDADAS -->
+    <div class="sidebar-acciones flex-shrink-0">
+      <div class="sticky top-20">
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div class="bg-gradient-to-r from-teal-700 to-teal-600 px-4 py-3">
+            <p class="text-xs font-bold text-teal-100 uppercase tracking-wide">Acciones recomendadas</p>
+            <p class="text-[10px] text-teal-200 mt-0.5">Priorizadas por monto e impacto</p>
+          </div>
+
+          <div class="p-3 space-y-3">
+
+            <!-- Acción 1 · Aplicar anticipos -->
+            <div class="bg-sky-50 border border-sky-200 rounded-lg p-3">
+              <div class="flex items-start gap-2 mb-2">
+                <div class="w-6 h-6 bg-sky-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span class="text-white text-[10px] font-bold">1</span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-sky-700">3 anticipos sin aplicar</p>
+                  <p class="text-[11px] text-sky-600 num-tab">S/ 4,800 total · María C., Rosa S., y 1 más</p>
+                </div>
+              </div>
+              <button class="w-full text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 px-3 py-1.5 rounded-lg transition-all">
+                Aplicar ahora →
+              </button>
+            </div>
+
+            <!-- Acción 2 · Gestionar vencido -->
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div class="flex items-start gap-2 mb-2">
+                <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span class="text-white text-[10px] font-bold">2</span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-red-700">Patricia L. · 38 días vencido</p>
+                  <p class="text-[11px] text-red-600 num-tab">S/ 2,150 · Acción urgente</p>
+                </div>
+              </div>
+              <button class="w-full text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-all">
+                Gestionar cobro →
+              </button>
+            </div>
+
+            <!-- Acción 3 · Por vencer pronto -->
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <div class="flex items-start gap-2 mb-2">
+                <div class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span class="text-white text-[10px] font-bold">3</span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-amber-700">Karen V. · Vence en 5 días</p>
+                  <p class="text-[11px] text-amber-600 num-tab">S/ 1,850 · Enviar recordatorio</p>
+                </div>
+              </div>
+              <button class="w-full text-xs font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-3 py-1.5 rounded-lg transition-all">
+                Enviar recordatorio →
+              </button>
+            </div>
+
+            <!-- Link a más -->
+            <div class="text-center pt-1">
+              <button class="text-[10px] text-slate-400 hover:text-teal-600 transition-colors">
+                Ver todas las acciones pendientes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /sidebar -->
+
+  </div><!-- /layout -->
+
+</div><!-- /max-w-7xl -->
+
+<!-- ════════════════════════════════════════════════════
+     MODAL DETALLE (EntidadCCDetailModal mock)
+════════════════════════════════════════════════════ -->
+<div id="modal-detalle-section" class="max-w-7xl mx-auto px-4 mt-12 mb-8 scroll-anchor">
+
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-5 h-5 bg-teal-100 rounded flex items-center justify-center">
+      <i data-lucide="layout" class="w-3 h-3 text-teal-600"></i>
+    </div>
+    <h2 class="text-base font-bold text-slate-700">EntidadCCDetailModal · Mock del modal de detalle completo</h2>
+  </div>
+
+  <div class="modal-shell">
+
+    <!-- Hero header cliente -->
+    <div class="modal-header-cliente px-6 py-5">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center font-bold text-white text-lg flex-shrink-0">MC</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <h2 class="text-xl font-bold text-white">María Castellanos Ruiz</h2>
+            <span class="text-[10px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full border border-white/30">CLIENTE</span>
+          </div>
+          <div class="flex items-center gap-4 text-sm text-sky-100">
+            <span class="flex items-center gap-1"><i data-lucide="hash" class="w-3 h-3"></i> RUC 10456789012</span>
+            <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> Lima, Perú</span>
+            <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> Cliente desde Jan 2025</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-sky-200 mb-1 uppercase tracking-wide font-semibold">Saldo a favor</p>
+          <p class="text-3xl font-bold text-white num-tab">S/ 4,800.00</p>
+          <p class="text-xs text-sky-200">Anticipo sin aplicar</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="modal-kpi-strip">
+      <div class="modal-kpi-item">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Saldo PEN</p>
+        <p class="text-base font-bold text-sky-700 num-tab">S/ 4,800.00</p>
+        <p class="text-[10px] text-slate-400">a favor del cliente</p>
+      </div>
+      <div class="modal-kpi-item">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Saldo USD</p>
+        <p class="text-base font-bold text-slate-700 num-tab">US$ 0.00</p>
+        <p class="text-[10px] text-slate-400">sin deuda en USD</p>
+      </div>
+      <div class="modal-kpi-item">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Movimientos</p>
+        <p class="text-base font-bold text-slate-900 num-tab">18 total</p>
+        <p class="text-[10px] text-slate-400">6 últimos 30 días</p>
+      </div>
+      <div class="modal-kpi-item">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Últ. actividad</p>
+        <p class="text-base font-bold text-slate-900">26 abr</p>
+        <p class="text-[10px] text-slate-400">hace 2 días</p>
+      </div>
+    </div>
+
+    <!-- Tabs sticky -->
+    <div class="tabs-sticky">
+      <div class="flex items-center px-4 overflow-x-auto">
+        <button class="tab-btn active">Movimientos</button>
+        <button class="tab-btn">Documentos pendientes <span class="ml-1 text-[10px] bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded-full">2</span></button>
+        <button class="tab-btn">Documentos pagados</button>
+        <button class="tab-btn">Estado de cuenta</button>
+        <button class="tab-btn">Auditoría</button>
+      </div>
+    </div>
+
+    <!-- Contenido tab Movimientos -->
+    <div class="p-5">
+      <div class="space-y-1">
+        <div class="flex items-center gap-3 py-2.5 border-b border-slate-100">
+          <div class="w-7 h-7 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-sky-600"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs font-semibold text-slate-700">Anticipo por venta futura</p>
+            <p class="text-[10px] text-slate-400">26 abr 2026 · BCP Soles · Anticipo cliente</p>
+          </div>
+          <span class="text-xs font-bold text-sky-600 num-tab">+S/ 2,400.00</span>
+        </div>
+        <div class="flex items-center gap-3 py-2.5 border-b border-slate-100">
+          <div class="w-7 h-7 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-sky-600"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs font-semibold text-slate-700">Anticipo por Skincare Set</p>
+            <p class="text-[10px] text-slate-400">18 abr 2026 · Yape · Anticipo cliente</p>
+          </div>
+          <span class="text-xs font-bold text-sky-600 num-tab">+S/ 1,850.00</span>
+        </div>
+        <div class="flex items-center gap-3 py-2.5 border-b border-slate-100">
+          <div class="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs font-semibold text-slate-700">Aplicación anticipo · Pedido #P-2026-031</p>
+            <p class="text-[10px] text-slate-400">5 abr 2026 · Descuento de anticipo contra venta</p>
+          </div>
+          <span class="text-xs font-bold text-slate-500 num-tab">−S/ 1,450.00</span>
+        </div>
+        <div class="flex items-center gap-3 py-2.5">
+          <div class="w-7 h-7 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-sky-600"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs font-semibold text-slate-700">Anticipo inicial apertura CC</p>
+            <p class="text-[10px] text-slate-400">12 feb 2026 · Transferencia · Primer movimiento</p>
+          </div>
+          <span class="text-xs font-bold text-sky-600 num-tab">+S/ 2,000.00</span>
+        </div>
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          Estado de cuenta PDF
+        </button>
+        <div class="flex items-center gap-2">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+            Marcar conciliada
+          </button>
+          <button class="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-all shadow-sm">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            Aplicar saldo a favor
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /modal-shell -->
+</div>
+
+<script>
+  lucide.createIcons();
+
+  // Pipeline filtro click
+  document.querySelectorAll('.pipeline-stage').forEach(stage => {
+    stage.addEventListener('click', function(e) {
+      document.querySelectorAll('.pipeline-stage').forEach(s => s.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Tabs tipo entidad
+  function cambiarTab(tipo, elem) {
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    elem.classList.add('active');
+  }
+</script>
+
+<!--
+DECISIONES DE DISEÑO (M10)
+
+1. PIPELINE como filtro principal (mismo patrón M3/PipelineCompras canónico): 6 stages clickeables
+   con conteo + monto. La stage activa tiene box-shadow de 2px con el color de la stage.
+   Stage "Todas" siempre visible para resetear el filtro.
+
+2. CARDS ENTIDAD en wide mode 12-col: avatar izq + datos centrales + saldo der + acciones hover.
+   Exactamente CompraCard.tsx (referencia canónica #2). Las acciones están ocultas hasta hover.
+
+3. MINI PIPELINE 5 DOTS dentro de cada card: 5 puntos pequeños (8px) representan los 5 estados
+   del pipeline. El dot activo es el color del estado de esa entidad. Compacto, sin texto,
+   informativo para el usuario que ya conoce el sistema de colores.
+
+4. SIDEBAR DERECHO sticky "Acciones recomendadas": 3 items priorizados con CTAs directos.
+   Priorización: (1) anticipos sin aplicar (sky) · (2) vencidos (red) · (3) por vencer (amber).
+   Este sidebar no existe en el código actual (S55/S56) — es una mejora propuesta.
+
+5. SPARKLINES POR CARD (80×24px): SVG polilínea compacta del saldo en 30 días. El color de la
+   línea es el color del estado (sky/emerald/amber/red). El punto final es un circle de 2.5px
+   para indicar el saldo actual.
+
+6. TABS POR TIPO DE ENTIDAD en header card: tabs horizontales sticky. Los badges de conteo
+   usan el color semántico del tipo (sky/amber/purple/emerald). Alineado con COLOR_TIPO
+   del EntidadCCCard.tsx existente.
+
+7. MODAL DETALLE al final del HTML con header hero + KPI strip + tabs sticky: mismo patrón que M2
+   (tesoreria-producto-detalle). El gradiente del hero difiere por tipo: cliente=sky azul,
+   proveedor=amber, colaborador=purple, empleado=emerald. Esto diferencia inmediatamente el modal.
+
+8. BOTÓN PRIMARIO "Aplicar saldo a favor": en el header del hub Y en el footer del modal.
+   Es la acción más frecuente del módulo (S55). Teal para acción positiva.
+
+9. CARD CONCILIADA con opacity reducida (0.75): señal visual de que esta entidad no requiere acción.
+   No se oculta porque el usuario puede querer consultar su historial, pero se desenfatiza.
+
+10. FILTRO DE BÚSQUEDA + ORDENAR: buscador flotante por nombre/RUC/DNI + select de criterio de orden.
+    Patrón usado en M1 (tesoreria-productos-listado) para consistencia del módulo.
+-->
+</body>
+</html>

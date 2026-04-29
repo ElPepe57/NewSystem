@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finanzas · Cash Flow · S58e</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<!--
+  M9 · finanzas-cash-flow-s58e.html
+  Tablero ejecutivo de flujo de caja /finanzas/cash-flow.
+
+  DECISIONES DE DISEÑO (al final del archivo también):
+  1. El gráfico principal es SVG area chart inline: 2 áreas (ingresos verde / egresos rojo)
+     + línea de saldo neto acumulado (teal). El SVG tiene viewBox=0 0 900 240 con polilíneas
+     basadas en datos mock de 30 días. No depende de Recharts ni libs externas.
+  2. Los donuts de breakdown son SVG puros con stroke-dasharray/dashoffset.
+     Cada segmento se calcula manualmente como % del total.
+  3. El rango temporal (7d/30d/90d/YTD/12m) afecta el título del gráfico y el rango visible.
+     En el mockup el toggle es cosmético pero la UX está diseñada para filtrado real.
+  4. El "Runway" KPI usa un color dinámico: verde si >90 días, amber si 30-90, rojo si <30.
+     En este mock es 42 días → amber.
+  5. Las alertas de proyección usan lenguaje operativo concreto (nombre de banco, fecha, cifra)
+     no mensajes genéricos.
+  6. El "Pool USD legacy" está colapsado por defecto con un deprecation notice visible.
+     No se elimina del mockup porque aún está en producción.
+  7. La sección de "Compromisos próximos 30d" usa un timeline horizontal con días como
+     ticks y mini-cards para cada compromiso. SVG inline para la línea base.
+  8. Los "Top 5 contrapartes" usan cards-row con barra de proporción relativa al máximo del top 5.
+  9. El filtro de línea de negocio en el header es consistente con el filtro global del sistema
+     (lineaFiltroGlobal mencionado en el contexto del stack).
+  10. El gráfico tiene labels en el eje X cada 5 días y el eje Y con valores en millones simplificados.
+-->
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+
+  /* ── CARDS ────────────────────────────────────────── */
+  .exec-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    transition: all 0.18s ease;
+  }
+  .exec-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); border-color: #99f6e4; }
+
+  .kpi-card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 0.875rem;
+    padding: 1.125rem; transition: all 0.18s ease;
+  }
+  .kpi-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.07); transform: translateY(-1px); }
+
+  /* ── RANGE TOGGLE ─────────────────────────────────── */
+  .range-btn {
+    padding: 0.375rem 0.875rem; border-radius: 0.5rem;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s ease;
+    border: 1px solid transparent;
+  }
+  .range-btn.active { background: #0f766e; color: #fff; }
+  .range-btn:not(.active) { color: #64748b; }
+  .range-btn:not(.active):hover { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
+
+  /* ── CONTRAPARTE CARD ─────────────────────────────── */
+  .contra-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.625rem; border-radius: 0.625rem;
+    transition: background 0.12s;
+  }
+  .contra-row:hover { background: #f8fafc; }
+
+  /* ── MOVIMIENTO ROW ───────────────────────────────── */
+  .mov-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.625rem 0; border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s; cursor: pointer;
+  }
+  .mov-row:hover { background: #f0fdfa; margin: 0 -0.5rem; padding-left: 0.5rem; padding-right: 0.5rem; border-radius: 0.5rem; border-bottom: none; }
+  .mov-row:last-child { border-bottom: none; }
+
+  /* ── DEPRECATION NOTICE ───────────────────────────── */
+  .depr-notice { background: #fef9c3; border: 1px dashed #fbbf24; border-radius: 0.75rem; }
+
+  /* ── TIMELINE COMPROMISOS ─────────────────────────── */
+  .compromiso-item {
+    min-width: 140px; flex-shrink: 0;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem;
+    padding: 0.75rem; transition: all 0.15s ease;
+  }
+  .compromiso-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #99f6e4; transform: translateY(-1px); }
+
+  /* ── COLAPSABLE ───────────────────────────────────── */
+  .colapsable-body { display: none; }
+  .colapsable.open .colapsable-body { display: block; }
+  .colapsable.open .col-chevron { transform: rotate(90deg); }
+  .col-chevron { transition: transform 0.2s ease; }
+</style>
+</head>
+<body class="pb-16">
+
+<!-- ============================================================
+     STICKY NAV (mockup)
+============================================================ -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="trending-up" class="w-4 h-4 text-teal-600"></i>
+      <span class="font-bold text-slate-900">Finanzas · Cash Flow</span>
+      <span class="text-[11px] text-slate-500 ml-2">M9 · S58e</span>
+    </div>
+    <div class="flex gap-1.5">
+      <a href="#kpis" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">KPIs</a>
+      <a href="#grafico-principal" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Gráfico</a>
+      <a href="#breakdown" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Breakdown</a>
+      <a href="#contrapartes" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Contrapartes</a>
+      <a href="#pool-legacy" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Pool USD</a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 pt-6">
+
+  <!-- ── HEADER ─────────────────────────────────────── -->
+  <div class="flex items-start justify-between gap-4 mb-5 flex-wrap">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <a href="#" class="hover:text-teal-600 transition-colors">Finanzas</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Cash Flow · Análisis de flujo</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="activity" class="w-6 h-6 text-teal-600"></i>
+        Cash Flow · Análisis de flujo
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">Ingresos, egresos y saldo neto acumulado · Vita Skin Peru SAC</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Rango -->
+      <div class="flex items-center bg-white border border-slate-200 rounded-lg p-1 gap-0.5">
+        <button class="range-btn">7d</button>
+        <button class="range-btn active">30d</button>
+        <button class="range-btn">90d</button>
+        <button class="range-btn">YTD</button>
+        <button class="range-btn">12m</button>
+      </div>
+      <!-- Filtro línea negocio -->
+      <select class="text-xs border border-slate-200 rounded-lg px-2.5 py-2 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300">
+        <option>Todas las líneas</option>
+        <option>Retail</option>
+        <option>Wholesale</option>
+        <option>Digital</option>
+      </select>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-all shadow-sm">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        Exportar
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 4 KPIs PRINCIPALES ─────────────────────────── -->
+  <div id="kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5 scroll-anchor">
+
+    <!-- Ingresos del período -->
+    <div class="kpi-card border-l-4 border-l-emerald-400">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Ingresos</span>
+        <div class="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="arrow-down-to-line" class="w-4 h-4 text-emerald-600"></i>
+        </div>
+      </div>
+      <div class="text-2xl font-bold text-emerald-700 num-tab">S/ 28,450</div>
+      <div class="text-xs text-slate-500 mt-1">Últimos 30 días</div>
+      <div class="text-xs text-emerald-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>
+        +12.4% vs periodo anterior
+      </div>
+    </div>
+
+    <!-- Egresos del período -->
+    <div class="kpi-card border-l-4 border-l-red-400">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Egresos</span>
+        <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="arrow-up-from-line" class="w-4 h-4 text-red-500"></i>
+        </div>
+      </div>
+      <div class="text-2xl font-bold text-red-600 num-tab">S/ 24,505</div>
+      <div class="text-xs text-slate-500 mt-1">Últimos 30 días</div>
+      <div class="text-xs text-red-500 mt-0.5 flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>
+        +8.1% vs periodo anterior
+      </div>
+    </div>
+
+    <!-- Flujo neto -->
+    <div class="kpi-card border-l-4 border-l-teal-400">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Flujo neto</span>
+        <div class="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="waves" class="w-4 h-4 text-teal-600"></i>
+        </div>
+      </div>
+      <div class="text-2xl font-bold text-teal-700 num-tab">+S/ 3,945</div>
+      <div class="text-xs text-slate-500 mt-1">Ingresos − Egresos</div>
+      <div class="text-xs text-teal-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+        Flujo positivo
+      </div>
+    </div>
+
+    <!-- Runway -->
+    <div class="kpi-card border-l-4 border-l-amber-400">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Runway</span>
+        <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="timer" class="w-4 h-4 text-amber-600"></i>
+        </div>
+      </div>
+      <div class="text-2xl font-bold text-amber-600 num-tab">42 días</div>
+      <div class="text-xs text-slate-500 mt-1">Caja / quema diaria</div>
+      <div class="text-xs text-amber-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+        Mejorar en próx. 60 días
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── GRÁFICO PRINCIPAL ─────────────────────────── -->
+  <div id="grafico-principal" class="exec-card p-5 mb-5 scroll-anchor">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-sm font-bold text-slate-900">Tendencia de flujo · 30 días</h2>
+        <p class="text-xs text-slate-500">29 mar 2026 → 28 abr 2026</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <!-- Leyenda -->
+        <div class="flex items-center gap-1.5">
+          <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+          <span class="text-xs text-slate-500">Ingresos</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-3 h-3 rounded-full bg-red-400"></div>
+          <span class="text-xs text-slate-500">Egresos</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-3 h-1 rounded-full bg-teal-500"></div>
+          <span class="text-xs text-slate-500">Saldo neto acum.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SVG Area Chart -->
+    <div class="overflow-x-auto">
+      <svg width="860" height="240" viewBox="0 0 860 240" xmlns="http://www.w3.org/2000/svg" style="min-width:600px; width:100%;">
+        <defs>
+          <linearGradient id="incGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4ade80" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#4ade80" stop-opacity="0.03"/>
+          </linearGradient>
+          <linearGradient id="egGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f87171" stop-opacity="0.30"/>
+            <stop offset="100%" stop-color="#f87171" stop-opacity="0.03"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Cuadrícula -->
+        <line x1="50" y1="20" x2="50" y2="205" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="50" y1="20" x2="860" y2="20" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="50" y1="60" x2="860" y2="60" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="50" y1="100" x2="860" y2="100" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="50" y1="140" x2="860" y2="140" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="50" y1="180" x2="860" y2="180" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="50" y1="205" x2="860" y2="205" stroke="#e2e8f0" stroke-width="1"/>
+
+        <!-- Etiquetas eje Y -->
+        <text x="44" y="24" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="end">S/ 30K</text>
+        <text x="44" y="64" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="end">S/ 22K</text>
+        <text x="44" y="104" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="end">S/ 15K</text>
+        <text x="44" y="144" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="end">S/ 7K</text>
+        <text x="44" y="184" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="end">S/ 0</text>
+
+        <!-- Área Ingresos (verde) -->
+        <path d="M55,160 L82,145 L109,130 L136,148 L163,120 L190,105 L217,118 L244,95 L271,85 L298,100 L325,78 L352,88 L379,65 L406,72 L433,55 L460,68 L487,45 L514,58 L541,40 L568,52 L595,35 L622,48 L649,30 L676,42 L703,25 L730,38 L757,22 L784,32 L811,18 L838,28 L860,22 L860,205 L55,205 Z" fill="url(#incGrad)"/>
+        <polyline points="55,160 82,145 109,130 136,148 163,120 190,105 217,118 244,95 271,85 298,100 325,78 352,88 379,65 406,72 433,55 460,68 487,45 514,58 541,40 568,52 595,35 622,48 649,30 676,42 703,25 730,38 757,22 784,32 811,18 838,28 860,22" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+
+        <!-- Área Egresos (rojo) -->
+        <path d="M55,170 L82,162 L109,155 L136,165 L163,145 L190,135 L217,148 L244,128 L271,118 L298,132 L325,112 L352,122 L379,102 L406,110 L433,95 L460,105 L487,88 L514,98 L541,82 L568,92 L595,75 L622,85 L649,68 L676,78 L703,62 L730,72 L757,58 L784,68 L811,52 L838,62 L860,55" fill="url(#egGrad)"/>
+        <polyline points="55,170 82,162 109,155 136,165 163,145 190,135 217,148 244,128 271,118 298,132 325,112 352,122 379,102 406,110 433,95 460,105 487,88 514,98 541,82 568,92 595,75 622,85 649,68 676,78 703,62 730,72 757,58 784,68 811,52 838,62 860,55" fill="url(#egGrad)" opacity="0.5"/>
+        <polyline points="55,170 82,162 109,155 136,165 163,145 190,135 217,148 244,128 271,118 298,132 325,112 352,122 379,102 406,110 433,95 460,105 487,88 514,98 541,82 568,92 595,75 622,85 649,68 676,78 703,62 730,72 757,58 784,68 811,52 838,62 860,55" fill="none" stroke="#f87171" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+
+        <!-- Saldo neto acumulado (teal, línea más gruesa) -->
+        <polyline points="55,195 82,192 109,188 136,190 163,185 190,178 217,180 244,174 271,168 298,172 325,164 352,167 379,160 406,161 433,154 460,158 487,150 514,153 541,146 568,149 595,142 622,145 649,138 676,140 703,133 730,136 757,130 784,132 811,126 838,128 860,125" fill="none" stroke="#0d9488" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="0"/>
+
+        <!-- Etiquetas eje X (cada 5 días aprox) -->
+        <text x="55" y="220" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="middle">29 mar</text>
+        <text x="191" y="220" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="middle">3 abr</text>
+        <text x="352" y="220" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="middle">10 abr</text>
+        <text x="514" y="220" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="middle">17 abr</text>
+        <text x="676" y="220" font-family="Inter" font-size="9" fill="#94a3b8" text-anchor="middle">24 abr</text>
+        <text x="860" y="220" font-family="Inter" font-size="9" fill="#0f766e" font-weight="600" text-anchor="end">28 abr</text>
+
+        <!-- Tooltip hover point (día actual) -->
+        <circle cx="860" cy="22" r="4" fill="#22c55e"/>
+        <circle cx="860" cy="55" r="3.5" fill="#f87171"/>
+        <circle cx="860" cy="125" r="4" fill="#0d9488"/>
+      </svg>
+    </div>
+
+    <!-- Nota tooltip -->
+    <p class="text-[10px] text-slate-400 text-center mt-2">Pasa el cursor sobre el gráfico para ver el detalle de cada día · Datos en PEN equivalente (USD al TC del día)</p>
+  </div>
+
+  <!-- ── BREAKDOWN POR CATEGORÍA ───────────────────── -->
+  <div id="breakdown" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5 scroll-anchor">
+
+    <!-- Ingresos por origen -->
+    <div class="exec-card p-5">
+      <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <i data-lucide="arrow-down-to-line" class="w-4 h-4 text-emerald-500"></i>
+        Ingresos por origen
+        <span class="ml-auto text-sm font-bold text-emerald-700 num-tab">S/ 28,450</span>
+      </h2>
+
+      <div class="flex items-center gap-4">
+        <!-- Donut SVG -->
+        <div class="flex-shrink-0">
+          <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Track -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#f1f5f9" stroke-width="14"/>
+            <!-- Ventas 58% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#22c55e" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="0"
+              transform="rotate(-90 60 60)"/>
+            <!-- Anticipos 22% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#86efac" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="-167.6"
+              transform="rotate(-90 60 60)"/>
+            <!-- Aportes 12% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#4ade80" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="-231.3"
+              transform="rotate(-90 60 60)"/>
+            <!-- Otros 8% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#dcfce7" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="-265.9"
+              transform="rotate(-90 60 60)"/>
+            <!-- Centro -->
+            <text x="60" y="56" font-family="Inter" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">S/ 28K</text>
+            <text x="60" y="69" font-family="Inter" font-size="9" fill="#6b7280" text-anchor="middle">30 días</text>
+          </svg>
+        </div>
+
+        <!-- Lista categorías -->
+        <div class="flex-1 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-emerald-400 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">Ventas directas</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 16,501</span>
+              <span class="text-[10px] text-slate-400 ml-1">58%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-emerald-300 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">Anticipos clientes</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 6,259</span>
+              <span class="text-[10px] text-slate-400 ml-1">22%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-emerald-200 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">Aportes de capital</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 3,414</span>
+              <span class="text-[10px] text-slate-400 ml-1">12%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-slate-200 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">Reembolsos / otros</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 2,276</span>
+              <span class="text-[10px] text-slate-400 ml-1">8%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Egresos por destino -->
+    <div class="exec-card p-5">
+      <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <i data-lucide="arrow-up-from-line" class="w-4 h-4 text-red-500"></i>
+        Egresos por destino
+        <span class="ml-auto text-sm font-bold text-red-600 num-tab">S/ 24,505</span>
+      </h2>
+
+      <div class="flex items-center gap-4">
+        <!-- Donut SVG -->
+        <div class="flex-shrink-0">
+          <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#f1f5f9" stroke-width="14"/>
+            <!-- Pagos OC 42% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#f87171" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+            <!-- Viajeros 28% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#fca5a5" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="-121.4" transform="rotate(-90 60 60)"/>
+            <!-- Planilla 15% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#fed7d7" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="-202.3" transform="rotate(-90 60 60)"/>
+            <!-- Otros 15% -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#fecaca" stroke-width="14"
+              stroke-dasharray="289.0" stroke-dashoffset="-245.7" transform="rotate(-90 60 60)"/>
+            <text x="60" y="56" font-family="Inter" font-size="11" font-weight="700" fill="#b91c1c" text-anchor="middle">S/ 25K</text>
+            <text x="60" y="69" font-family="Inter" font-size="9" fill="#6b7280" text-anchor="middle">30 días</text>
+          </svg>
+        </div>
+
+        <!-- Lista categorías -->
+        <div class="flex-1 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-400 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">Pagos OC proveedores</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 10,292</span>
+              <span class="text-[10px] text-slate-400 ml-1">42%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-300 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">Pagos viajeros / courier</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 6,861</span>
+              <span class="text-[10px] text-slate-400 ml-1">28%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-200 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">Planilla / gastos admin.</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 3,676</span>
+              <span class="text-[10px] text-slate-400 ml-1">15%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-slate-200 flex-shrink-0"></div>
+              <span class="text-xs text-slate-600">TC / conversiones / otros</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-700 num-tab">S/ 3,676</span>
+              <span class="text-[10px] text-slate-400 ml-1">15%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TOP 5 CONTRAPARTES ─────────────────────────── -->
+  <div id="contrapartes" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5 scroll-anchor">
+
+    <!-- Top entradas -->
+    <div class="exec-card p-5">
+      <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="arrow-down-to-line" class="w-4 h-4 text-emerald-500"></i>
+        Top 5 · Fuentes de ingreso
+      </h2>
+      <div class="space-y-1">
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+          <div class="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center text-xs font-bold text-sky-700 flex-shrink-0">MC</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">María Castellanos</p>
+            <p class="text-[10px] text-slate-400">4 transacciones · Cliente</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-emerald-600 num-tab">S/ 6,200</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-emerald-400 rounded-full" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+          <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-xs font-bold text-purple-700 flex-shrink-0">RS</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">Rosa Salcedo</p>
+            <p class="text-[10px] text-slate-400">2 transacciones · Cliente</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-emerald-600 num-tab">S/ 4,800</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-emerald-400 rounded-full" style="width:77%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
+          <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0">JL</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">José Lopez · Aporte capital</p>
+            <p class="text-[10px] text-slate-400">1 transacción · Socio</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-emerald-600 num-tab">S/ 3,414</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-emerald-400 rounded-full" style="width:55%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
+          <div class="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center text-xs font-bold text-sky-700 flex-shrink-0">KV</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">Karen Villanueva</p>
+            <p class="text-[10px] text-slate-400">3 transacciones · Cliente</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-emerald-600 num-tab">S/ 2,850</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-emerald-400 rounded-full" style="width:46%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">5</div>
+          <div class="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center text-xs font-bold text-teal-700 flex-shrink-0">ML</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">MercadoLibre · Cobros</p>
+            <p class="text-[10px] text-slate-400">8 transacciones · Canal digital</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-emerald-600 num-tab">S/ 2,340</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-emerald-400 rounded-full" style="width:38%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top salidas -->
+    <div class="exec-card p-5">
+      <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <i data-lucide="arrow-up-from-line" class="w-4 h-4 text-red-500"></i>
+        Top 5 · Principales egresos
+      </h2>
+      <div class="space-y-1">
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-red-100 text-red-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+          <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0">GB</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">Guangzhou Beaute Co.</p>
+            <p class="text-[10px] text-slate-400">2 pagos OC · Proveedor China</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-red-600 num-tab">S/ 8,085</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-red-400 rounded-full" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-red-100 text-red-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+          <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-xs font-bold text-purple-700 flex-shrink-0">LV</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">Laura Vargas · Viajera</p>
+            <p class="text-[10px] text-slate-400">3 envíos · Colaboradora</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-red-600 num-tab">S/ 4,620</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-red-400 rounded-full" style="width:57%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-red-100 text-red-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
+          <div class="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center text-xs font-bold text-sky-700 flex-shrink-0">PS</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">Planilla · Abr 2026</p>
+            <p class="text-[10px] text-slate-400">1 pago planilla · Empleados</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-red-600 num-tab">S/ 3,676</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-red-400 rounded-full" style="width:45%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-red-100 text-red-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
+          <div class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-700 flex-shrink-0">TC</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">BCP Visa · Pago tarjeta</p>
+            <p class="text-[10px] text-slate-400">1 pago · Tarjeta crédito</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-red-600 num-tab">S/ 3,400</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-red-400 rounded-full" style="width:42%"></div></div>
+          </div>
+        </div>
+        <div class="contra-row">
+          <div class="w-6 h-6 bg-red-100 text-red-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">5</div>
+          <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0">SC</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-slate-700 truncate">Seoul Cosm. Corp.</p>
+            <p class="text-[10px] text-slate-400">1 pago OC · Proveedor Corea</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-xs font-bold text-red-600 num-tab">S/ 2,207</p>
+            <div class="w-20 h-1.5 bg-slate-100 rounded-full mt-1"><div class="h-full bg-red-400 rounded-full" style="width:27%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MOVIMIENTOS RECIENTES ──────────────────────── -->
+  <div class="exec-card p-5 mb-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="list" class="w-4 h-4 text-teal-600"></i>
+        Movimientos recientes del período
+      </h2>
+      <button class="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-700 transition-colors border border-teal-200 px-3 py-1.5 rounded-lg hover:bg-teal-50">
+        <i data-lucide="table-2" class="w-3.5 h-3.5"></i>
+        Ver todos en libro mayor
+      </button>
+    </div>
+
+    <div>
+      <div class="mov-row">
+        <div class="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-down" class="w-3.5 h-3.5 text-emerald-600"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-slate-700">Pago cliente · María Castellanos</p>
+          <p class="text-[10px] text-slate-400">28 Abr 2026 · 14:22 · BCP Soles · Venta</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 num-tab">+S/ 1,850.00</span>
+      </div>
+      <div class="mov-row">
+        <div class="w-7 h-7 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-up" class="w-3.5 h-3.5 text-red-500"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-slate-700">Pago OC · Guangzhou Beaute Co.</p>
+          <p class="text-[10px] text-slate-400">28 Abr 2026 · 11:05 · BCP USD · OC-2026-088</p>
+        </div>
+        <span class="text-xs font-bold text-red-600 num-tab">−US$ 2,100.00</span>
+      </div>
+      <div class="mov-row">
+        <div class="w-7 h-7 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-right-left" class="w-3.5 h-3.5 text-teal-600"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-slate-700">Conversión USD→PEN</p>
+          <p class="text-[10px] text-slate-400">27 Abr 2026 · 16:40 · BCP USD → BCP Soles · TC 3.85</p>
+        </div>
+        <span class="text-[11px] font-medium text-teal-600">FX interno</span>
+      </div>
+      <div class="mov-row">
+        <div class="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-down" class="w-3.5 h-3.5 text-emerald-600"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-slate-700">Anticipo cliente · Rosa Salcedo</p>
+          <p class="text-[10px] text-slate-400">26 Abr 2026 · 09:18 · Yape · Venta anticipada</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 num-tab">+S/ 2,400.00</span>
+      </div>
+      <div class="mov-row">
+        <div class="w-7 h-7 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-up" class="w-3.5 h-3.5 text-red-500"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-slate-700">Viajera Laura Vargas · Envío T2</p>
+          <p class="text-[10px] text-slate-400">25 Abr 2026 · 14:00 · BCP USD · ENV-2026-041</p>
+        </div>
+        <span class="text-xs font-bold text-red-600 num-tab">−US$ 450.00</span>
+      </div>
+      <div class="mov-row">
+        <div class="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="arrow-down" class="w-3.5 h-3.5 text-emerald-600"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-slate-700">Aporte capital · José Lopez</p>
+          <p class="text-[10px] text-slate-400">24 Abr 2026 · 10:30 · BBVA Soles · Aporte socio</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 num-tab">+S/ 3,414.00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ALERTAS Y PROYECCIONES ─────────────────────── -->
+  <div class="exec-card p-5 mb-5">
+    <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+      <i data-lucide="bell" class="w-4 h-4 text-amber-500"></i>
+      Alertas y proyecciones de caja
+    </h2>
+
+    <div class="grid lg:grid-cols-2 gap-4 mb-4">
+      <!-- Alertas -->
+      <div class="space-y-2.5">
+        <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+          <p class="text-xs text-amber-700">Saldo BCP USD bajará del mínimo (US$ 500) en aprox. <strong>8 días</strong> si se ejecutan los pagos programados a Guangzhou Beaute Co. (US$ 2,100).</p>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+          <i data-lucide="info" class="w-4 h-4 text-sky-500 flex-shrink-0 mt-0.5"></i>
+          <p class="text-xs text-sky-700">Runway actual: <strong>42 días</strong>. Meta recomendada: 90 días. Diferencia: S/ 28,000 adicionales necesarios para alcanzar la meta.</p>
+        </div>
+      </div>
+      <!-- Compromisos próximos 30d -->
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Compromisos próximos 30 días</p>
+        <div class="flex gap-2 overflow-x-auto pb-1">
+          <div class="compromiso-item">
+            <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-wide mb-1">3 mayo</p>
+            <p class="text-xs font-semibold text-slate-700">BCP Visa · Corte TC</p>
+            <p class="text-xs font-bold text-rose-600 num-tab">US$ 1,800</p>
+          </div>
+          <div class="compromiso-item">
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">5 mayo</p>
+            <p class="text-xs font-semibold text-slate-700">Guangzhou Beaute</p>
+            <p class="text-xs font-bold text-rose-600 num-tab">US$ 2,100</p>
+          </div>
+          <div class="compromiso-item">
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">12 mayo</p>
+            <p class="text-xs font-semibold text-slate-700">BBVA MC · Pago TC</p>
+            <p class="text-xs font-bold text-rose-600 num-tab">US$ 1,380</p>
+          </div>
+          <div class="compromiso-item">
+            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">28 mayo</p>
+            <p class="text-xs font-semibold text-slate-700">Planilla mayo</p>
+            <p class="text-xs font-bold text-rose-600 num-tab">S/ 3,676</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── POOL USD LEGACY (colapsado + deprecation notice) ── -->
+  <div id="pool-legacy" class="scroll-anchor colapsable mb-6" onclick="this.classList.toggle('open')">
+    <div class="depr-notice p-4 cursor-pointer hover:bg-yellow-50 transition-colors rounded-xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-start gap-3">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+          <div>
+            <p class="text-xs font-bold text-amber-700">Pool USD · Vista heredada (deprecada)</p>
+            <p class="text-xs text-amber-600 mt-0.5">Pool USD ahora es parte del libro mayor unificado. Esta vista se eliminará en la próxima versión. Los datos siguen siendo accesibles desde <strong>Tesorería · Movimientos</strong> con filtro "Tipo: FX / Conversión".</p>
+          </div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-amber-500 col-chevron flex-shrink-0 ml-3"></i>
+      </div>
+    </div>
+    <div class="colapsable-body">
+      <div class="bg-yellow-50 border border-amber-200 border-t-0 rounded-b-xl p-4">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white border border-slate-200 rounded-lg p-3 text-center">
+            <p class="text-[10px] text-slate-500 mb-1">Pool USD · BCP</p>
+            <p class="text-base font-bold text-slate-800 num-tab">US$ 4,840.20</p>
+            <p class="text-[10px] text-slate-400">Saldo actual</p>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3 text-center">
+            <p class="text-[10px] text-slate-500 mb-1">Pool USD · BBVA</p>
+            <p class="text-base font-bold text-slate-800 num-tab">US$ 2,100.00</p>
+            <p class="text-[10px] text-slate-400">Saldo actual</p>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3 text-center">
+            <p class="text-[10px] text-slate-500 mb-1">Pool Total USD</p>
+            <p class="text-base font-bold text-slate-800 num-tab">US$ 8,340.20</p>
+            <p class="text-[10px] text-slate-400">≈ S/ 32,091</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /max-w-7xl -->
+
+<script>
+  lucide.createIcons();
+
+  document.querySelectorAll('.range-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+
+<!--
+DECISIONES DE DISEÑO (M9)
+
+1. GRÁFICO ÁREA SVG PURO de 860×240px: las dos áreas (ingresos verde, egresos rojo) tienen gradientes
+   de relleno diferenciados. La línea de saldo neto acumulado es teal más gruesa (stroke-width:2.5)
+   para distinguirla visualmente como la métrica más importante ejecutivamente.
+
+2. DONUTS SVG con stroke-dasharray: calculados manualmente para que los 4 segmentos principales
+   ocupen exactamente el porcentaje correcto del arco. El centro muestra el total en PEN para
+   que el usuario no tenga que sumar mentalmente los segmentos.
+
+3. KPI RUNWAY con color amber (42 días): la regla de color es explícita en el código —
+   verde si >90, amber si 30-90, rojo si <30. El mock usa 42 días que representa una situación
+   de atención pero no crítica.
+
+4. TOP 5 con barras de proporción relativa al máximo: la barra del #1 siempre es 100% de ancho,
+   las demás son proporcionales. Esto transmite el "peso relativo" de cada contraparte
+   más eficazmente que solo números.
+
+5. POOL USD colapsado por defecto con deprecation notice amarillo: el patrón dashed + amarillo
+   es el mismo que usa Mercury para features en proceso de deprecación. No asusta pero informa.
+
+6. FILTRO DE LÍNEA DE NEGOCIO en el header: alineado con la arquitectura del stack real
+   (lineaFiltroGlobal del contexto). Cosmético en el mockup pero diseñado para implementación.
+
+7. COMPROMISOS PRÓXIMOS como scroll horizontal de cards: patrón explorado en M6 y M7 para
+   historial. Aquí aplica para compromisos futuros. Alternativa al timeline SVG que resultaría
+   más complejo para el mockup sin JS real.
+
+8. RUNNER en color contextual (amber aquí): la regla de color opera igual que en el pipeline
+   de M3 (emerald/amber/red). El usuario aprende el sistema de colores una vez y lo aplica
+   en todas las pantallas del módulo.
+
+9. LEYENDA del gráfico en el header del card, no dentro del SVG: más fácil de mantener,
+   más accesible (texto HTML), y no depende de la posición del SVG para rendering.
+
+10. MOVIMIENTOS RECIENTES (6 filas) con link a libro mayor: no se duplica toda la tabla de M6.
+    Se muestra un extracto relevante y se linkea al módulo completo con el filtro de rango ya aplicado.
+-->
+</body>
+</html>

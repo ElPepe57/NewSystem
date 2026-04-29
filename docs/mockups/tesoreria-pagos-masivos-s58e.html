@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tesorería · Pagos Masivos · S58e</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+
+  /* ── WIZARD SHELL ─────────────────────────────── */
+  .wizard-shell {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    min-height: 600px;
+  }
+
+  /* ── SIDEBAR IZQUIERDO (pasos) ─────────────────── */
+  .wizard-steps {
+    width: 200px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-right: 1px solid #e2e8f0;
+    padding: 1.5rem 0;
+  }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .step-item:hover { background: rgba(13,148,136,0.05); }
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .step-num.done { background: #059669; color: #fff; }
+  .step-num.active { background: #0d9488; color: #fff; box-shadow: 0 0 0 3px #ccfbf1; }
+  .step-num.pending { background: #e2e8f0; color: #94a3b8; }
+  .step-label { font-size: 12px; line-height: 1.3; }
+  .step-label.active { color: #0f766e; font-weight: 600; }
+  .step-label.done { color: #059669; }
+  .step-label.pending { color: #94a3b8; }
+  .step-connector { width: 2px; height: 16px; margin: 0 0 0 1.75rem; background: #e2e8f0; }
+  .step-connector.done { background: #6ee7b7; }
+
+  /* ── CONTENIDO PRINCIPAL ───────────────────────── */
+  .wizard-content {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+  }
+
+  /* ── SIDEBAR DERECHO (resumen lote) ───────────── */
+  .sidebar-resumen {
+    width: 260px;
+    flex-shrink: 0;
+    background: #f8fafc;
+    border-left: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-header {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+    padding: 1rem;
+    color: #fff;
+  }
+
+  /* ── TIPO CARD (egreso/ingreso) ─────────────────── */
+  .tipo-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 0.875rem;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.18s ease-out;
+    background: #fff;
+  }
+  .tipo-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .tipo-card.selected-egreso { border-color: #f87171; background: #fef2f2; }
+  .tipo-card.selected-ingreso { border-color: #34d399; background: #ecfdf5; }
+  .tipo-card:active { transform: scale(0.98); }
+
+  /* ── DOC ITEM (para selección) ─────────────────── */
+  .doc-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.625rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+  .doc-item:hover { border-color: #99f6e4; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .doc-item.selected { background: #f0f9ff; border-color: #7dd3fc; }
+
+  /* ── ESTADO ITEM EJECUCION ─────────────────────── */
+  .exec-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid #f8fafc;
+  }
+  .exec-item:last-child { border-bottom: none; }
+
+  /* ── PROGRESS BAR ──────────────────────────────── */
+  @keyframes progress-fill {
+    from { width: 0% }
+    to { width: 80% }
+  }
+  .progress-anim { animation: progress-fill 2s ease-out forwards; }
+
+  /* ── LOTE EJECUTADO CARD ────────────────────────── */
+  .lote-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    overflow: hidden;
+  }
+  .lote-header-success {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  }
+
+  /* ── TC CHIP ────────────────────────────────────── */
+  .tc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 11px;
+    color: #0369a1;
+    font-weight: 600;
+  }
+
+  /* Botones wizard */
+  .btn-wizard-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.625rem 1.25rem;
+    background: #0d9488;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-wizard-primary:hover { background: #0f766e; }
+  .btn-wizard-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.625rem 1.25rem;
+    background: #fff;
+    color: #475569;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-wizard-secondary:hover { background: #f8fafc; }
+
+  /* Input style */
+  .input-field {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #0f172a;
+    background: #fff;
+    transition: all 0.15s ease;
+    outline: none;
+  }
+  .input-field:focus { border-color: #2dd4bf; box-shadow: 0 0 0 3px #ccfbf1; }
+  .input-sm {
+    width: 100px;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
+    text-align: right;
+    outline: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .input-sm:focus { border-color: #2dd4bf; box-shadow: 0 0 0 2px #ccfbf1; }
+
+  /* Select style */
+  .select-field {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #0f172a;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .select-field:focus { border-color: #2dd4bf; box-shadow: 0 0 0 3px #ccfbf1; }
+
+  /* Sidebar item list */
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.375rem 0;
+    font-size: 11px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .sidebar-item:last-child { border-bottom: none; }
+</style>
+</head>
+<body class="pb-16">
+
+<!-- NAV MOCKUP -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3 mb-6">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="layers" class="w-4 h-4 text-teal-600"></i>
+      <span class="font-bold text-slate-900">Tesorería · Pagos Masivos</span>
+      <span class="text-[11px] text-slate-500 ml-2">M3 · S58e · wizard 4 pasos + lote ejecutado</span>
+    </div>
+    <div class="flex gap-1.5 flex-wrap">
+      <a href="#paso1" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md">Paso 1: Tipo+Cuenta</a>
+      <a href="#paso2" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md">Paso 2: Documentos</a>
+      <a href="#paso3" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md">Paso 3: Revisión</a>
+      <a href="#paso4" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md">Paso 4: Ejecución</a>
+      <a href="#lote-ejecutado" class="text-[11px] px-2.5 py-1 bg-emerald-600 text-white rounded-md">Lote ejecutado</a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4">
+
+<!-- ══════════════════════════════════════════════════════════
+     PASO 1 — Tipo + Cuenta de pago
+════════════════════════════════════════════════════════════ -->
+<section id="paso1" class="mb-14 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-3 flex items-center gap-2">
+    <span class="w-5 h-5 bg-teal-600 rounded text-white text-[9px] flex items-center justify-center font-bold">1</span>
+    Paso 1 · Tipo + Cuenta de pago
+  </div>
+
+  <div class="wizard-shell">
+    <!-- Steps sidebar -->
+    <div class="wizard-steps hidden sm:block">
+      <div class="text-[9px] font-bold text-slate-400 uppercase px-4 mb-2 tracking-wider">Progreso</div>
+      <div class="step-item">
+        <div class="step-num active">1</div>
+        <div>
+          <div class="step-label active">Tipo y cuenta</div>
+          <div class="text-[10px] text-slate-400">Origen del pago</div>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num pending">2</div>
+        <div>
+          <div class="step-label pending">Documentos</div>
+          <div class="text-[10px] text-slate-300">Seleccionar items</div>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num pending">3</div>
+        <div>
+          <div class="step-label pending">Revisión</div>
+          <div class="text-[10px] text-slate-300">Confirmar totales</div>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num pending">4</div>
+        <div>
+          <div class="step-label pending">Ejecución</div>
+          <div class="text-[10px] text-slate-300">Procesar lote</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido paso 1 -->
+    <div class="wizard-content">
+      <div class="p-5 sm:p-6 border-b border-slate-100">
+        <h2 class="text-base font-bold text-slate-900 mb-0.5">Nuevo lote de pagos</h2>
+        <p class="text-xs text-slate-500">Define el tipo de operación y la cuenta desde donde saldrán o entrarán los fondos.</p>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-6">
+        <!-- Tipo de operación -->
+        <div>
+          <div class="text-xs font-semibold text-slate-700 mb-3">
+            <span class="w-5 h-5 bg-teal-100 text-teal-700 rounded text-[10px] font-bold inline-flex items-center justify-center mr-1.5">1</span>
+            Tipo de operación
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Egreso -->
+            <div class="tipo-card selected-egreso">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                  <i data-lucide="arrow-up-right" class="w-5 h-5 text-red-600"></i>
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-slate-900">Egreso (pagar)</div>
+                  <div class="text-xs text-slate-500">Push · fondos salen</div>
+                </div>
+                <div class="ml-auto w-4 h-4 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                </div>
+              </div>
+              <div class="text-xs text-slate-600">Pagar OCs, gastos, colaboradores, proveedores. Los fondos salen de la cuenta seleccionada.</div>
+            </div>
+            <!-- Ingreso -->
+            <div class="tipo-card">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <i data-lucide="arrow-down-left" class="w-5 h-5 text-emerald-600"></i>
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-slate-900">Ingreso (cobrar)</div>
+                  <div class="text-xs text-slate-500">Pull · fondos entran</div>
+                </div>
+              </div>
+              <div class="text-xs text-slate-600">Registrar cobros masivos de ventas, abonos de clientes. Los fondos entran a la cuenta.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cuenta de pago -->
+        <div>
+          <div class="text-xs font-semibold text-slate-700 mb-3">
+            <span class="w-5 h-5 bg-teal-100 text-teal-700 rounded text-[10px] font-bold inline-flex items-center justify-center mr-1.5">2</span>
+            Cuenta de origen (desde donde pagamos)
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Opción cuenta seleccionada -->
+            <div>
+              <label class="text-xs text-slate-500 mb-1.5 block">Producto financiero</label>
+              <select class="select-field">
+                <option>BCP Cta Corriente ····3842 (S/ 14,250)</option>
+                <option>BBVA Cta Corriente ····2219 (S/ 3,200)</option>
+                <option>BCP Cta Ahorros USD ····6411 (US$ 1,100)</option>
+                <option>Caja Chica Oficina (S/ 3,500)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-slate-500 mb-1.5 block">Moneda del lote</label>
+              <select class="select-field">
+                <option>PEN · Soles</option>
+                <option>USD · Dólares</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Saldo disponible + alerta -->
+          <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+              <span class="text-xs font-semibold text-emerald-800">BCP ····3842 · Saldo PEN disponible</span>
+            </div>
+            <span class="text-sm font-bold text-emerald-800 num-tab">S/ 14,250.80</span>
+          </div>
+        </div>
+
+        <!-- Método de pago + TC -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs text-slate-500 mb-1.5 block">Método de pago</label>
+            <select class="select-field">
+              <option>Transferencia bancaria</option>
+              <option>Yape / Plin</option>
+              <option>Cheque</option>
+              <option>Efectivo</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-500 mb-1.5 block">Tipo de cambio (si aplica)</label>
+            <div class="flex items-center gap-2">
+              <div class="tc-chip">
+                <i data-lucide="trending-up" class="w-3 h-3"></i>
+                TC hoy: 3.850
+              </div>
+              <button class="text-xs text-sky-600 hover:underline flex items-center gap-1">
+                Cambiar <i data-lucide="edit-3" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Referencia del lote -->
+        <div>
+          <label class="text-xs text-slate-500 mb-1.5 block">Referencia del lote (opcional)</label>
+          <input type="text" class="input-field" placeholder="Ej: Pagos proveedores noviembre 2026" />
+        </div>
+      </div>
+
+      <!-- Footer paso 1 -->
+      <div class="px-5 sm:px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3">
+        <button class="btn-wizard-secondary">Cancelar</button>
+        <button class="btn-wizard-primary">
+          Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar resumen (vacío en paso 1) -->
+    <div class="sidebar-resumen hidden lg:flex flex-col">
+      <div class="sidebar-header">
+        <div class="flex items-center gap-2 mb-2">
+          <i data-lucide="layers" class="w-4 h-4 text-teal-200"></i>
+          <span class="text-sm font-bold">Lote en construcción</span>
+        </div>
+        <div class="text-xs text-teal-200">Configura el tipo y la cuenta para continuar</div>
+      </div>
+      <div class="flex-1 p-4">
+        <div class="text-center py-8 text-slate-400">
+          <i data-lucide="file-plus" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+          <div class="text-xs">Sin documentos aún</div>
+          <div class="text-[10px] mt-1">Completa el paso 1 y selecciona documentos en el paso 2</div>
+        </div>
+      </div>
+      <!-- TC del día -->
+      <div class="p-4 border-t border-slate-200">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-slate-500">TC del día</span>
+          <div class="tc-chip">S/ 3.850</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PASO 2 — Documentos a pagar
+════════════════════════════════════════════════════════════ -->
+<section id="paso2" class="mb-14 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-3 flex items-center gap-2">
+    <span class="w-5 h-5 bg-teal-600 rounded text-white text-[9px] flex items-center justify-center font-bold">2</span>
+    Paso 2 · Documentos a pagar/cobrar
+  </div>
+
+  <div class="wizard-shell">
+    <div class="wizard-steps hidden sm:block">
+      <div class="text-[9px] font-bold text-slate-400 uppercase px-4 mb-2 tracking-wider">Progreso</div>
+      <div class="step-item">
+        <div class="step-num done"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
+        <div><div class="step-label done">Tipo y cuenta</div></div>
+      </div>
+      <div class="step-connector done"></div>
+      <div class="step-item">
+        <div class="step-num active">2</div>
+        <div>
+          <div class="step-label active">Documentos</div>
+          <div class="text-[10px] text-slate-400">5 seleccionados</div>
+        </div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num pending">3</div>
+        <div><div class="step-label pending">Revisión</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num pending">4</div>
+        <div><div class="step-label pending">Ejecución</div></div>
+      </div>
+    </div>
+
+    <div class="wizard-content">
+      <div class="p-5 sm:p-6 border-b border-slate-100">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h2 class="text-base font-bold text-slate-900 mb-0.5">Seleccionar documentos</h2>
+            <p class="text-xs text-slate-500">Pagos pendientes desde <strong>BCP ····3842</strong> en <strong>PEN</strong></p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-full">5 seleccionados</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-5 sm:p-6">
+        <!-- Filtros -->
+        <div class="flex items-center gap-2 flex-wrap mb-4">
+          <span class="text-xs font-semibold text-slate-600">Tipo:</span>
+          <button class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-full">Todos</button>
+          <button class="text-[11px] px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200">Órdenes de compra</button>
+          <button class="text-[11px] px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200">Gastos</button>
+          <button class="text-[11px] px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200">Colaboradores</button>
+          <div class="ml-auto">
+            <input type="text" class="input-field text-xs" style="width:200px;padding:0.375rem 0.75rem;" placeholder="Buscar contraparte o doc#..." />
+          </div>
+        </div>
+
+        <!-- Lista de documentos -->
+        <div class="space-y-2">
+          <!-- Doc 1: OC seleccionada -->
+          <div class="doc-item selected">
+            <input type="checkbox" checked class="w-4 h-4 rounded text-teal-600 border-slate-300 flex-shrink-0" />
+            <div class="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="shopping-cart" class="w-4 h-4 text-sky-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-900">Cosmax Korea S.A.</span>
+                <span class="text-[10px] font-mono bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded">OC-0318</span>
+                <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Pago parcial</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Vence 15 nov · OC confirmada · S/ 12,800 total</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-xs text-slate-400 mb-0.5">Pendiente</div>
+              <div class="text-sm font-semibold text-slate-700 num-tab">S/ 6,400.00</div>
+            </div>
+            <div class="flex-shrink-0">
+              <input type="text" class="input-sm" value="6,400.00" />
+            </div>
+          </div>
+
+          <!-- Doc 2: Gasto seleccionado -->
+          <div class="doc-item selected">
+            <input type="checkbox" checked class="w-4 h-4 rounded text-teal-600 border-slate-300 flex-shrink-0" />
+            <div class="w-8 h-8 bg-pink-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="receipt" class="w-4 h-4 text-pink-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-900">Publicidad Meta Ads</span>
+                <span class="text-[10px] font-mono bg-pink-100 text-pink-700 px-1.5 py-0.5 rounded">GAS-0088</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Gasto marketing · nov 2026</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-xs text-slate-400 mb-0.5">Total</div>
+              <div class="text-sm font-semibold text-slate-700 num-tab">S/ 1,001.93</div>
+            </div>
+            <div class="flex-shrink-0">
+              <input type="text" class="input-sm" value="1,001.93" />
+            </div>
+          </div>
+
+          <!-- Doc 3: Colaborador seleccionado -->
+          <div class="doc-item selected">
+            <input type="checkbox" checked class="w-4 h-4 rounded text-teal-600 border-slate-300 flex-shrink-0" />
+            <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="user" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-900">Ana García · Colaboradora</span>
+                <span class="text-[10px] font-mono bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">COL-0012</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Comisión ventas octubre · pendiente</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-xs text-slate-400 mb-0.5">Total</div>
+              <div class="text-sm font-semibold text-slate-700 num-tab">S/ 850.00</div>
+            </div>
+            <div class="flex-shrink-0">
+              <input type="text" class="input-sm" value="850.00" />
+            </div>
+          </div>
+
+          <!-- Doc 4: OC seleccionada -->
+          <div class="doc-item selected">
+            <input type="checkbox" checked class="w-4 h-4 rounded text-teal-600 border-slate-300 flex-shrink-0" />
+            <div class="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="shopping-cart" class="w-4 h-4 text-sky-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-900">Biossance USA LLC</span>
+                <span class="text-[10px] font-mono bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded">OC-0315</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Adelanto 50% · OC confirmada</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-xs text-slate-400 mb-0.5">Pendiente</div>
+              <div class="text-sm font-semibold text-slate-700 num-tab">S/ 3,850.00</div>
+            </div>
+            <div class="flex-shrink-0">
+              <input type="text" class="input-sm" value="3,850.00" />
+            </div>
+          </div>
+
+          <!-- Doc 5: NO seleccionado -->
+          <div class="doc-item">
+            <input type="checkbox" class="w-4 h-4 rounded text-teal-600 border-slate-300 flex-shrink-0" />
+            <div class="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="receipt" class="w-4 h-4 text-slate-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-700">Alquiler depósito Miraflores</span>
+                <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">GAS-0091</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-0.5">Vence 20 nov · Sin urgencia</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="text-xs text-slate-400 mb-0.5">Total</div>
+              <div class="text-sm font-semibold text-slate-500 num-tab">S/ 2,200.00</div>
+            </div>
+            <div class="flex-shrink-0">
+              <input type="text" class="input-sm text-slate-300" value="—" disabled />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 sm:px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
+        <button class="btn-wizard-secondary">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+        </button>
+        <button class="btn-wizard-primary">
+          Revisar (5 docs) <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar con items seleccionados -->
+    <div class="sidebar-resumen hidden lg:flex flex-col">
+      <div class="sidebar-header">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="layers" class="w-4 h-4 text-teal-200"></i>
+          <span class="text-sm font-bold">Lote en construcción</span>
+        </div>
+        <div class="text-xs text-teal-200">Egreso · BCP ····3842 · PEN</div>
+      </div>
+      <div class="flex-1 p-4 overflow-y-auto">
+        <div class="text-[10px] font-bold text-slate-500 uppercase mb-2">5 documentos</div>
+        <div class="space-y-1.5">
+          <div class="sidebar-item">
+            <div class="min-w-0">
+              <div class="text-[11px] font-semibold text-slate-800 truncate">Cosmax Korea · OC-0318</div>
+              <div class="text-[10px] text-slate-400">OC</div>
+            </div>
+            <span class="text-[11px] font-bold text-slate-700 num-tab flex-shrink-0">S/ 6,400</span>
+          </div>
+          <div class="sidebar-item">
+            <div class="min-w-0">
+              <div class="text-[11px] font-semibold text-slate-800 truncate">Meta Ads · GAS-0088</div>
+              <div class="text-[10px] text-slate-400">Gasto</div>
+            </div>
+            <span class="text-[11px] font-bold text-slate-700 num-tab flex-shrink-0">S/ 1,002</span>
+          </div>
+          <div class="sidebar-item">
+            <div class="min-w-0">
+              <div class="text-[11px] font-semibold text-slate-800 truncate">Ana García · comisión</div>
+              <div class="text-[10px] text-slate-400">Colaborador</div>
+            </div>
+            <span class="text-[11px] font-bold text-slate-700 num-tab flex-shrink-0">S/ 850</span>
+          </div>
+          <div class="sidebar-item">
+            <div class="min-w-0">
+              <div class="text-[11px] font-semibold text-slate-800 truncate">Biossance · OC-0315</div>
+              <div class="text-[10px] text-slate-400">OC</div>
+            </div>
+            <span class="text-[11px] font-bold text-slate-700 num-tab flex-shrink-0">S/ 3,850</span>
+          </div>
+        </div>
+        <!-- Total -->
+        <div class="mt-3 pt-3 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs text-slate-500">Total PEN</span>
+            <span class="text-sm font-bold text-slate-900 num-tab">S/ 12,101.93</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] text-slate-400">Saldo disponible</span>
+            <span class="text-xs font-semibold text-emerald-700 num-tab">S/ 14,250.80</span>
+          </div>
+          <div class="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" style="width:85%"></div>
+          </div>
+          <div class="text-[10px] text-emerald-700 mt-1">Saldo suficiente · OK</div>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-200">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-slate-500">TC del día</span>
+          <div class="tc-chip">S/ 3.850</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PASO 3 — Revisión
+════════════════════════════════════════════════════════════ -->
+<section id="paso3" class="mb-14 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-3 flex items-center gap-2">
+    <span class="w-5 h-5 bg-teal-600 rounded text-white text-[9px] flex items-center justify-center font-bold">3</span>
+    Paso 3 · Revisión antes de ejecutar
+  </div>
+
+  <div class="wizard-shell">
+    <div class="wizard-steps hidden sm:block">
+      <div class="text-[9px] font-bold text-slate-400 uppercase px-4 mb-2 tracking-wider">Progreso</div>
+      <div class="step-item"><div class="step-num done"><i data-lucide="check" style="width:12px;height:12px;"></i></div><div><div class="step-label done">Tipo y cuenta</div></div></div>
+      <div class="step-connector done"></div>
+      <div class="step-item"><div class="step-num done"><i data-lucide="check" style="width:12px;height:12px;"></i></div><div><div class="step-label done">Documentos (5)</div></div></div>
+      <div class="step-connector done"></div>
+      <div class="step-item">
+        <div class="step-num active">3</div>
+        <div><div class="step-label active">Revisión</div><div class="text-[10px] text-slate-400">Confirmar</div></div>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item"><div class="step-num pending">4</div><div><div class="step-label pending">Ejecución</div></div></div>
+    </div>
+
+    <div class="wizard-content">
+      <div class="p-5 sm:p-6 border-b border-slate-100">
+        <h2 class="text-base font-bold text-slate-900 mb-0.5">Revisar antes de ejecutar</h2>
+        <p class="text-xs text-slate-500">Verifica los totales y resuelve alertas antes de procesar el lote.</p>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-5">
+        <!-- Resumen de cuenta -->
+        <div class="bg-slate-50 rounded-xl p-4">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase mb-1">Cuenta origen</div>
+              <div class="text-xs font-semibold text-slate-800">BCP ····3842</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase mb-1">Método</div>
+              <div class="text-xs font-semibold text-slate-800">Transferencia</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase mb-1">Documentos</div>
+              <div class="text-sm font-bold text-slate-900">5</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase mb-1">Total a pagar</div>
+              <div class="text-sm font-bold text-slate-900 num-tab">S/ 12,101.93</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de revisión -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <table class="w-full">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="text-left text-[10px] font-semibold text-slate-500 uppercase px-4 py-2.5 tracking-wide">Contraparte / Doc</th>
+                <th class="text-left text-[10px] font-semibold text-slate-500 uppercase px-4 py-2.5 tracking-wide hidden sm:table-cell">Tipo</th>
+                <th class="text-right text-[10px] font-semibold text-slate-500 uppercase px-4 py-2.5 tracking-wide">Monto a pagar</th>
+                <th class="text-center text-[10px] font-semibold text-slate-500 uppercase px-4 py-2.5 tracking-wide hidden md:table-cell">Estado</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="text-sm font-semibold text-slate-900">Cosmax Korea S.A.</div>
+                  <div class="text-xs text-slate-400 font-mono">OC-0318</div>
+                </td>
+                <td class="px-4 py-3 hidden sm:table-cell"><span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full">Orden de compra</span></td>
+                <td class="px-4 py-3 text-right font-bold text-slate-900 num-tab">S/ 6,400.00</td>
+                <td class="px-4 py-3 text-center hidden md:table-cell"><span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1 justify-center"><i data-lucide="check" style="width:10px;height:10px;"></i> OK</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="text-sm font-semibold text-slate-900">Meta Ads</div>
+                  <div class="text-xs text-slate-400 font-mono">GAS-0088</div>
+                </td>
+                <td class="px-4 py-3 hidden sm:table-cell"><span class="text-[10px] bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full">Gasto</span></td>
+                <td class="px-4 py-3 text-right font-bold text-slate-900 num-tab">S/ 1,001.93</td>
+                <td class="px-4 py-3 text-center hidden md:table-cell"><span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1 justify-center"><i data-lucide="check" style="width:10px;height:10px;"></i> OK</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="text-sm font-semibold text-slate-900">Ana García</div>
+                  <div class="text-xs text-slate-400 font-mono">COL-0012</div>
+                </td>
+                <td class="px-4 py-3 hidden sm:table-cell"><span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Colaborador</span></td>
+                <td class="px-4 py-3 text-right font-bold text-slate-900 num-tab">S/ 850.00</td>
+                <td class="px-4 py-3 text-center hidden md:table-cell"><span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1 justify-center"><i data-lucide="check" style="width:10px;height:10px;"></i> OK</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <div class="text-sm font-semibold text-slate-900">Biossance USA LLC</div>
+                  <div class="text-xs text-slate-400 font-mono">OC-0315</div>
+                </td>
+                <td class="px-4 py-3 hidden sm:table-cell"><span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full">Orden de compra</span></td>
+                <td class="px-4 py-3 text-right font-bold text-slate-900 num-tab">S/ 3,850.00</td>
+                <td class="px-4 py-3 text-center hidden md:table-cell"><span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1 justify-center"><i data-lucide="check" style="width:10px;height:10px;"></i> OK</span></td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-teal-50">
+              <tr>
+                <td colspan="2" class="px-4 py-3 text-sm font-bold text-teal-900">Total del lote</td>
+                <td class="px-4 py-3 text-right text-lg font-bold text-teal-900 num-tab">S/ 12,101.93</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Verificación de saldo -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <div class="flex-1">
+            <div class="text-sm font-semibold text-emerald-900">Saldo suficiente · Todo listo</div>
+            <div class="text-xs text-emerald-700 mt-0.5">BCP ····3842 tiene S/ 14,250.80 disponible. Al ejecutar quedarán S/ 2,148.87 de saldo residual.</div>
+          </div>
+        </div>
+
+        <!-- Notas comunes -->
+        <div>
+          <label class="text-xs text-slate-500 mb-1.5 block">Notas del lote (se incluye en cada registro)</label>
+          <textarea class="input-field" style="height:64px;resize:none;" placeholder="Ej: Pagos noviembre 2026 · Lote aprobado por gerencia..."></textarea>
+        </div>
+      </div>
+
+      <div class="px-5 sm:px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
+        <button class="btn-wizard-secondary">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+        </button>
+        <button class="btn-wizard-primary" style="background:#059669;">
+          <i data-lucide="play" class="w-4 h-4"></i> Ejecutar lote · S/ 12,101.93
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar paso 3 -->
+    <div class="sidebar-resumen hidden lg:flex flex-col">
+      <div class="sidebar-header">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="layers" class="w-4 h-4 text-teal-200"></i>
+          <span class="text-sm font-bold">Resumen del lote</span>
+        </div>
+        <div class="text-xs text-teal-200">Listo para ejecutar</div>
+      </div>
+      <div class="flex-1 p-4">
+        <div class="space-y-3">
+          <div class="bg-white rounded-lg p-3 border border-slate-200">
+            <div class="text-[10px] text-slate-400 uppercase mb-2">Totales</div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-600">5 documentos</span>
+              <span class="font-bold text-slate-900 num-tab">S/ 12,101.93</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-400">Saldo tras pago</span>
+              <span class="font-semibold text-emerald-700 num-tab">S/ 2,148.87</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg p-3 border border-slate-200">
+            <div class="text-[10px] text-slate-400 uppercase mb-2">Por tipo de documento</div>
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs"><span class="text-slate-500">OCs (2)</span><span class="num-tab font-semibold">S/ 10,250</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Gastos (1)</span><span class="num-tab font-semibold">S/ 1,002</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-500">Colaboradores (1)</span><span class="num-tab font-semibold">S/ 850</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-200">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-slate-500">TC del día</span>
+          <div class="tc-chip">S/ 3.850</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     PASO 4 — Ejecución + resultado
+════════════════════════════════════════════════════════════ -->
+<section id="paso4" class="mb-14 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-3 flex items-center gap-2">
+    <span class="w-5 h-5 bg-teal-600 rounded text-white text-[9px] flex items-center justify-center font-bold">4</span>
+    Paso 4 · Ejecución en progreso
+  </div>
+
+  <div class="wizard-shell">
+    <div class="wizard-steps hidden sm:block">
+      <div class="text-[9px] font-bold text-slate-400 uppercase px-4 mb-2 tracking-wider">Progreso</div>
+      <div class="step-item"><div class="step-num done"><i data-lucide="check" style="width:12px;height:12px;"></i></div><div><div class="step-label done">Tipo y cuenta</div></div></div>
+      <div class="step-connector done"></div>
+      <div class="step-item"><div class="step-num done"><i data-lucide="check" style="width:12px;height:12px;"></i></div><div><div class="step-label done">Documentos (5)</div></div></div>
+      <div class="step-connector done"></div>
+      <div class="step-item"><div class="step-num done"><i data-lucide="check" style="width:12px;height:12px;"></i></div><div><div class="step-label done">Revisión</div></div></div>
+      <div class="step-connector done"></div>
+      <div class="step-item">
+        <div class="step-num active">4</div>
+        <div><div class="step-label active">Ejecución</div><div class="text-[10px] text-teal-600">Procesando...</div></div>
+      </div>
+    </div>
+
+    <div class="wizard-content p-5 sm:p-6">
+      <div class="mb-5">
+        <h2 class="text-base font-bold text-slate-900 mb-0.5">Procesando lote de pagos</h2>
+        <p class="text-xs text-slate-500">Registrando los movimientos en el sistema...</p>
+      </div>
+
+      <!-- Progress bar animada -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-slate-700">Progreso</span>
+          <span class="text-xs text-slate-500 num-tab">4 de 5 completados</span>
+        </div>
+        <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500" style="width:80%"></div>
+        </div>
+      </div>
+
+      <!-- Lista de items con estado -->
+      <div class="space-y-0 border border-slate-200 rounded-xl overflow-hidden">
+        <div class="exec-item px-4 py-3 border-b border-slate-100">
+          <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:12px;height:12px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-800">Cosmax Korea · OC-0318</div>
+            <div class="text-xs text-slate-400">Transferencia registrada</div>
+          </div>
+          <span class="text-xs font-bold text-emerald-700 num-tab flex-shrink-0">S/ 6,400.00</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex-shrink-0">Exitoso</span>
+        </div>
+        <div class="exec-item px-4 py-3 border-b border-slate-100">
+          <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:12px;height:12px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-800">Meta Ads · GAS-0088</div>
+            <div class="text-xs text-slate-400">Movimiento registrado</div>
+          </div>
+          <span class="text-xs font-bold text-emerald-700 num-tab flex-shrink-0">S/ 1,001.93</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex-shrink-0">Exitoso</span>
+        </div>
+        <div class="exec-item px-4 py-3 border-b border-slate-100">
+          <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:12px;height:12px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-800">Ana García · COL-0012</div>
+            <div class="text-xs text-slate-400">Pago colaboradora registrado</div>
+          </div>
+          <span class="text-xs font-bold text-emerald-700 num-tab flex-shrink-0">S/ 850.00</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex-shrink-0">Exitoso</span>
+        </div>
+        <div class="exec-item px-4 py-3 border-b border-slate-100">
+          <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:12px;height:12px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-800">Biossance USA · OC-0315</div>
+            <div class="text-xs text-slate-400">Adelanto aplicado a OC</div>
+          </div>
+          <span class="text-xs font-bold text-emerald-700 num-tab flex-shrink-0">S/ 3,850.00</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex-shrink-0">Exitoso</span>
+        </div>
+        <!-- Item procesando -->
+        <div class="exec-item px-4 py-3 bg-sky-50">
+          <div class="w-6 h-6 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <div class="w-3 h-3 border-2 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-800">Verificación de cuenta destino...</div>
+            <div class="text-xs text-sky-600">Validando número de cuenta Biossance</div>
+          </div>
+          <span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full flex-shrink-0 animate-pulse">Procesando</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar paso 4 con stats -->
+    <div class="sidebar-resumen hidden lg:flex flex-col">
+      <div class="sidebar-header" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-200"></i>
+          <span class="text-sm font-bold">Progreso del lote</span>
+        </div>
+        <div class="text-xs text-emerald-200">4 / 5 completados</div>
+      </div>
+      <div class="flex-1 p-4">
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold text-emerald-700">4</div>
+            <div class="text-[10px] text-emerald-600">Exitosos</div>
+          </div>
+          <div class="bg-slate-100 rounded-lg p-3 text-center">
+            <div class="text-2xl font-bold text-slate-600">1</div>
+            <div class="text-[10px] text-slate-500">En proceso</div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] text-slate-400 uppercase mb-2">Pagado hasta ahora</div>
+          <div class="text-lg font-bold text-slate-900 num-tab">S/ 12,101.93</div>
+          <div class="text-xs text-slate-400 mt-0.5">de S/ 12,101.93 total</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOTE EJECUTADO (vista post-ejecución)
+════════════════════════════════════════════════════════════ -->
+<section id="lote-ejecutado" class="mb-14 scroll-anchor">
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-3 flex items-center gap-2">
+    <span class="w-5 h-5 bg-emerald-600 rounded text-white text-[9px] flex items-center justify-center font-bold">+</span>
+    Vista adicional · LotePago YA EJECUTADO · card de detalle
+  </div>
+
+  <div class="lote-card max-w-3xl">
+    <!-- Header del lote ejecutado -->
+    <div class="lote-header-success p-5 sm:p-6">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check-circle-2" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-mono font-semibold text-emerald-200">LOTE-2026-0041</span>
+              <span class="text-[10px] font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full">Ejecutado</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">Lote de pagos · Noviembre 2026</h3>
+            <div class="text-sm text-emerald-200 mt-0.5">Ejecutado el 10 nov 2026 · 4:12 pm · por José Luis Ponce</div>
+          </div>
+        </div>
+        <button class="flex-shrink-0 px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats del lote -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-100">
+      <div class="p-4 border-r border-slate-100 text-center">
+        <div class="text-2xl font-bold text-emerald-700">5</div>
+        <div class="text-xs text-slate-500 mt-0.5">Exitosos</div>
+      </div>
+      <div class="p-4 border-r border-slate-100 text-center">
+        <div class="text-2xl font-bold text-slate-400">0</div>
+        <div class="text-xs text-slate-500 mt-0.5">Con error</div>
+      </div>
+      <div class="p-4 border-r border-slate-100 text-center">
+        <div class="text-base font-bold text-slate-900 num-tab">S/ 12,101.93</div>
+        <div class="text-xs text-slate-500 mt-0.5">Total pagado</div>
+      </div>
+      <div class="p-4 text-center">
+        <div class="text-base font-bold text-slate-900">BCP ····3842</div>
+        <div class="text-xs text-slate-500 mt-0.5">Cuenta origen</div>
+      </div>
+    </div>
+
+    <!-- Timeline de items ejecutados -->
+    <div class="p-5 sm:p-6">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Items del lote</div>
+      <div class="space-y-2">
+        <div class="exec-item">
+          <div class="w-7 h-7 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:13px;height:13px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">Cosmax Korea · OC-0318</div>
+            <div class="text-xs text-slate-400">Pago parcial OC · Saldo pendiente S/ 6,400</div>
+          </div>
+          <span class="text-sm font-bold text-slate-900 num-tab flex-shrink-0">S/ 6,400.00</span>
+        </div>
+        <div class="exec-item">
+          <div class="w-7 h-7 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:13px;height:13px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">Meta Ads · GAS-0088</div>
+            <div class="text-xs text-slate-400">Gasto marketing noviembre</div>
+          </div>
+          <span class="text-sm font-bold text-slate-900 num-tab flex-shrink-0">S/ 1,001.93</span>
+        </div>
+        <div class="exec-item">
+          <div class="w-7 h-7 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:13px;height:13px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">Ana García · Comisión</div>
+            <div class="text-xs text-slate-400">Comisión ventas octubre 2026</div>
+          </div>
+          <span class="text-sm font-bold text-slate-900 num-tab flex-shrink-0">S/ 850.00</span>
+        </div>
+        <div class="exec-item">
+          <div class="w-7 h-7 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
+            <i data-lucide="check" style="width:13px;height:13px;color:#059669;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-slate-900">Biossance USA · OC-0315</div>
+            <div class="text-xs text-slate-400">Adelanto 50% confirmado en OC</div>
+          </div>
+          <span class="text-sm font-bold text-slate-900 num-tab flex-shrink-0">S/ 3,850.00</span>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <div class="text-sm font-bold text-emerald-900">Lote ejecutado exitosamente</div>
+          <div class="text-xs text-emerald-700 mt-0.5">5 / 5 items · sin errores · saldo BCP residual: S/ 2,148.87</div>
+        </div>
+        <div class="text-xl font-bold text-emerald-900 num-tab">S/ 12,101.93</div>
+      </div>
+    </div>
+
+    <!-- Footer lote ejecutado -->
+    <div class="px-5 sm:px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between flex-wrap gap-3">
+      <span class="text-xs text-slate-400 flex items-center gap-1.5">
+        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+        Ejecutado hace 12 min por José Luis Ponce
+      </span>
+      <div class="flex items-center gap-2">
+        <button class="btn-wizard-secondary text-sm">
+          <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver detalle completo
+        </button>
+        <button class="btn-wizard-primary text-sm" style="background:#059669;">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar Excel
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /max-w-7xl -->
+
+<script>
+  lucide.createIcons();
+  // Tipo card: toggle selección visual
+  document.querySelectorAll('.tipo-card').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.tipo-card').forEach(c => {
+        c.classList.remove('selected-egreso', 'selected-ingreso');
+      });
+      // Detectar si es egreso o ingreso por el texto
+      const isIngreso = this.querySelector('.text-sm').textContent.includes('Ingreso');
+      this.classList.add(isIngreso ? 'selected-ingreso' : 'selected-egreso');
+    });
+  });
+
+  // Doc item: toggle selección
+  document.querySelectorAll('.doc-item').forEach(item => {
+    const checkbox = item.querySelector('input[type=checkbox]');
+    const input = item.querySelector('.input-sm');
+    item.addEventListener('click', function(e) {
+      if(e.target === checkbox || e.target === input) return;
+      if(checkbox) {
+        checkbox.checked = !checkbox.checked;
+        item.classList.toggle('selected', checkbox.checked);
+        if(input) input.disabled = !checkbox.checked;
+      }
+    });
+  });
+</script>
+
+<!-- DECISIONES DE DISEÑO TOMADAS
+===================================
+D-M3-01: Steps sidebar en el lado IZQUIERDO del wizard (no en la parte superior).
+  Replicado del patrón OCWizardV3 y del wizard de envíos S52. 200px de ancho fijo.
+  Se oculta en mobile (< sm) para preservar espacio de contenido.
+
+D-M3-02: Sidebar DERECHO de resumen (260px) con lista scrolleable de items seleccionados.
+  Permanece visible en todos los pasos (paso 1 muestra estado vacío con CTA).
+  Se oculta en < lg para liberar pantalla. Misma filosofía que sidebar de envíos v7.
+
+D-M3-03: Los tipos de operación (Egreso/Ingreso) son "cards grandes" con ícono,
+  título y descripción. Elegir uno resalta visualmente con borde de color.
+  Egreso=rojo (salida de fondos), Ingreso=verde (entrada de fondos).
+
+D-M3-04: Monto a pagar en la tabla de documentos es un input editable (input-sm).
+  El usuario puede ajustar el monto respecto al total pendiente (pago parcial).
+  El sidebar recalcula el total en tiempo real (no implementado en mockup estático).
+
+D-M3-05: La progress bar del paso 4 es estática en el mockup. En React se implementará
+  con actualizaciones en tiempo real mientras Firestore procesa cada transacción.
+  El spinner del item "procesando" usa la clase animate-spin de Tailwind.
+
+D-M3-06: El lote ejecutado se diseñó como un card standalone (no dentro del wizard)
+  porque se accederá también desde el historial de lotes, no solo post-ejecución.
+
+D-M3-07: TC chip en sidebar es read-only (igual que EnvioWizard S52 TCChip). Click
+  abre modal de override con campo libre y nota de auditoría.
+
+REQUIERE DECISIÓN DEL USUARIO ANTES DE IMPLEMENTAR:
+- ¿Los docs a pagar incluyen también CxP (gastos sin OC) o solo docs con registro previo?
+- ¿El lote puede tener documentos en múltiples monedas o es una moneda por lote?
+- ¿Se genera un asiento contable automático al ejecutar el lote?
+- ¿El wizard tiene borrador autosave (como OCWizardV3) o se descarta al cerrar?
+- ¿Qué pasa si 1 de 5 items falla: se hace rollback de todos o se guardan los exitosos?
+-->
+</body>
+</html>

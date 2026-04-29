@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tesorería · Titular Drill-Down · S58e</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<!--
+  M4 · tesoreria-titular-drill-down-s58e.html
+  Vista dedicada de un titular específico — ecosistema financiero completo.
+
+  SUPOSICIONES UX:
+  1. Esta vista se abre como pantalla full dentro de /tesoreria/titular/:id,
+     NO como modal — el volumen de información lo justifica.
+  2. El toggle Vista A / Vista B es solo para el mockup; en producción siempre
+     muestra el titular seleccionado.
+  3. El "pipeline mini del titular" reutiliza exactamente el componente del M1
+     pero con datos filtrados al titular.
+  4. Las sparklines de saldo de 30 días se implementan como path SVG inline
+     simplificado (polilínea con puntos de muestra aproximados).
+  5. La sección CC (Cuentas Corrientes S55) aparece solo si el titular tiene
+     relación comercial (proveedor/cliente/empleado/colaborador). Para Empresa
+     dueña no aplica; para Empleado sí (muestra su CC de planilla/gastos).
+  6. El "timeline de actividad reciente" usa scroll horizontal con cards en fila —
+     patrón de kanban horizontal compacto.
+  7. Los logos de banco siguen el patrón SVG inline del L1 (mismo estilo que M1-M3).
+  8. Datos mock Vista A: Vita Skin Peru SAC · BCP + BBVA + Wise + Caja efectivo.
+     Datos mock Vista B: José LP (empleado dueño) · BCP personal + Yape.
+  9. El hero usa gradiente teal-700→teal-500 para empresa, slate-700→slate-600
+     para empleado — diferenciación visual por tipo de titular.
+  10. El footer de métricas lifetime siempre visible, no en tab.
+-->
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+
+  /* ── HERO TITULAR ─────────────────────────────────────────── */
+  .hero-empresa {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 60%, #14b8a6 100%);
+  }
+  .hero-empleado {
+    background: linear-gradient(135deg, #334155 0%, #475569 60%, #64748b 100%);
+  }
+
+  /* ── PIPELINE MINI STRIP ──────────────────────────────────── */
+  .mini-pipeline-stage {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.625rem;
+    border: 1px solid;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 0;
+  }
+  .mini-pipeline-stage:hover { transform: translateY(-1px); }
+
+  /* ── PRODUCTO CARD RICO ───────────────────────────────────── */
+  .product-card-rico {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    padding: 1.125rem;
+    cursor: pointer;
+    transition: all 0.18s ease-out;
+  }
+  .product-card-rico:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    border-color: #99f6e4;
+    transform: translateY(-2px) scale(1.005);
+  }
+  .product-card-rico:active { transform: scale(0.99); }
+
+  /* ── SPARKLINE (SVG simple) ──────────────────────────────── */
+  .sparkline-container {
+    height: 36px;
+    overflow: hidden;
+  }
+
+  /* ── BANCO SECTION ───────────────────────────────────────── */
+  .banco-section {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    overflow: hidden;
+    margin-bottom: 0.875rem;
+  }
+  .banco-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.125rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .banco-section-header:hover { background: linear-gradient(135deg, #f0fdfa 0%, #e6f7f5 100%); }
+
+  /* ── TIMELINE ACTIVIDAD RECIENTE ─────────────────────────── */
+  .actividad-scroll {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  .actividad-scroll::-webkit-scrollbar { height: 4px; }
+  .actividad-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+  .actividad-card {
+    min-width: 160px;
+    max-width: 180px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.625rem;
+    padding: 0.75rem;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .actividad-card:hover { border-color: #99f6e4; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+  /* ── CHIP ─────────────────────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }
+
+  /* ── KPI STRIP ───────────────────────────────────────────── */
+  .kpi-strip-item {
+    padding: 1rem 1.25rem;
+    border-right: 1px solid #f1f5f9;
+    min-width: 0;
+  }
+  .kpi-strip-item:last-child { border-right: none; }
+
+  /* ── CC CARD ─────────────────────────────────────────────── */
+  .cc-card {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #bfdbfe;
+    border-radius: 0.875rem;
+    padding: 1.125rem;
+  }
+
+  /* Pulso crítico */
+  @keyframes softpulse { 0%,100%{opacity:1} 50%{opacity:0.65} }
+  .saldo-critico { animation: softpulse 2.5s ease-in-out infinite; }
+
+  /* Toggle vista mockup */
+  .view-toggle-btn { transition: all 0.15s ease; }
+  .view-toggle-btn.active { background: #0f766e; color: #fff; }
+  .view-toggle-btn:not(.active) { background: #f1f5f9; color: #475569; }
+  .view-toggle-btn:not(.active):hover { background: #e2e8f0; }
+</style>
+</head>
+<body class="pb-20">
+
+<!-- ── STICKY NAV MOCKUP ──────────────────────────────────────────────── -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="landmark" class="w-4 h-4 text-teal-600"></i>
+      <span class="font-bold text-slate-900">Tesorería · Titular</span>
+      <span class="text-[11px] text-slate-500 ml-2">M4 · S58e · 2 versiones</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-[11px] text-slate-400">Vista mockup:</span>
+      <div class="flex rounded-lg overflow-hidden border border-slate-200">
+        <button onclick="showVista('a', this)" class="view-toggle-btn active text-[11px] px-3 py-1.5 font-medium">A · Empresa</button>
+        <button onclick="showVista('b', this)" class="view-toggle-btn text-[11px] px-3 py-1.5 font-medium border-l border-slate-200">B · Empleado</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     VISTA A — Empresa: Vita Skin Peru SAC
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="vista-a" class="max-w-7xl mx-auto px-4 pt-4">
+
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-4 flex items-center gap-2">
+    <span class="w-5 h-5 bg-teal-600 rounded text-white text-[9px] flex items-center justify-center font-bold">A</span>
+    Vista A · Titular empresa · Vita Skin Peru SAC
+  </div>
+
+  <!-- ── HERO EMPRESA ─────────────────────────────────────────────────── -->
+  <div class="hero-empresa rounded-2xl p-6 mb-5">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-5">
+        <!-- Avatar grande -->
+        <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="building-2" class="w-8 h-8 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="chip bg-white/20 text-white">Empresa</span>
+            <span class="chip bg-teal-400/30 text-teal-100">RUC 20601234567</span>
+            <span class="chip bg-emerald-400/30 text-emerald-100">Cliente bancario desde abr 2023</span>
+          </div>
+          <h1 class="text-2xl font-bold text-white leading-tight">Vita Skin Peru SAC</h1>
+          <div class="flex items-center gap-3 mt-1.5 text-sm text-teal-200 flex-wrap">
+            <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i>Perú · Lima</span>
+            <span class="text-teal-400">·</span>
+            <span class="flex items-center gap-1"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>11 productos activos</span>
+            <span class="text-teal-400">·</span>
+            <span class="flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i>S/ 47,820 en cartera</span>
+          </div>
+        </div>
+      </div>
+      <!-- Acciones -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all border border-white/20">
+          <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>Editar perfil
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white text-teal-700 hover:bg-teal-50 rounded-lg transition-all shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo producto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── KPI ROW 4 KPIs ──────────────────────────────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 mb-5">
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Patrimonio total</div>
+      <div class="text-xl font-bold text-slate-900 num-tab">S/ 47,820<span class="text-slate-400 text-sm font-normal">.50</span></div>
+      <div class="text-xs text-slate-400 mt-0.5">Incluye equivalente USD al TC 3.85</div>
+    </div>
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Productos activos</div>
+      <div class="text-xl font-bold text-slate-900 num-tab">11</div>
+      <div class="text-xs text-slate-400 mt-0.5">4 bancos · 1 fintech · 2 cajas · 4 wallets</div>
+    </div>
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Movimientos del mes</div>
+      <div class="text-xl font-bold text-slate-900 num-tab">84</div>
+      <div class="text-xs text-emerald-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+12 vs. mes anterior
+      </div>
+    </div>
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Última actividad</div>
+      <div class="text-sm font-semibold text-slate-800">hace 30 min</div>
+      <div class="text-xs text-slate-400 mt-0.5">Egreso S/ 1,200 · BCP ····3842</div>
+    </div>
+  </div>
+
+  <!-- ── PIPELINE MINI DEL TITULAR ───────────────────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 mb-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-slate-800">Salud de los productos · Vita Skin Peru SAC</h3>
+      <a href="#" class="text-xs text-teal-600 hover:text-teal-700 flex items-center gap-1">
+        Ver pipeline completo <i data-lucide="arrow-right" class="w-3 h-3"></i>
+      </a>
+    </div>
+    <div class="grid grid-cols-2 lg:flex gap-2 items-center">
+      <div class="mini-pipeline-stage bg-emerald-50 border-emerald-200 hover:bg-emerald-100">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+          <span class="text-[10px] font-semibold text-emerald-700">Saludable</span>
+        </div>
+        <div class="text-lg font-bold text-emerald-800 num-tab text-center">7</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-amber-50 border-amber-200 hover:bg-amber-100">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="alert-triangle" class="w-3 h-3 text-amber-600"></i>
+          <span class="text-[10px] font-semibold text-amber-700">Atención</span>
+        </div>
+        <div class="text-lg font-bold text-amber-800 num-tab text-center">2</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-red-50 border-red-200 hover:bg-red-100">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="x-circle" class="w-3 h-3 text-red-600"></i>
+          <span class="text-[10px] font-semibold text-red-700">Crítico</span>
+        </div>
+        <div class="text-lg font-bold text-red-700 num-tab text-center">1</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-sky-50 border-sky-200 hover:bg-sky-100">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="calendar-clock" class="w-3 h-3 text-sky-600"></i>
+          <span class="text-[10px] font-semibold text-sky-700">TC corte próx.</span>
+        </div>
+        <div class="text-lg font-bold text-sky-700 num-tab text-center">1</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-rose-50 border-rose-200 hover:bg-rose-100">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="alarm-clock-off" class="w-3 h-3 text-rose-600"></i>
+          <span class="text-[10px] font-semibold text-rose-700">TC Vencida</span>
+        </div>
+        <div class="text-lg font-bold text-rose-700 num-tab text-center saldo-critico">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUB-GRUPOS POR BANCO ─────────────────────────────────────────── -->
+  <h3 class="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+    <i data-lucide="landmark" class="w-4 h-4 text-teal-600"></i>
+    Productos por institución financiera
+  </h3>
+
+  <!-- BANCO BCP -->
+  <div class="banco-section">
+    <div class="banco-section-header">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#003087">
+          <span class="text-white text-[10px] font-black">BCP</span>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-800">Banco de Crédito del Perú</div>
+          <div class="text-[10px] text-slate-500">3 productos · Cliente desde 2019</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div class="text-[10px] text-slate-400 uppercase">Saldo BCP</div>
+          <div class="text-sm font-bold text-slate-900 num-tab">S/ 14,250 + US$ 2,100</div>
+        </div>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+      </div>
+    </div>
+    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <!-- Producto 1 BCP Cte PEN -->
+      <div class="product-card-rico">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="banknote" class="w-4 h-4 text-teal-600"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 leading-tight">BCP Cta Cte ····3842</div>
+              <div class="text-[10px] text-slate-400">Cuenta corriente · PEN</div>
+            </div>
+          </div>
+          <span class="chip bg-emerald-100 text-emerald-700">Saludable</span>
+        </div>
+        <div class="text-xl font-bold text-emerald-700 num-tab mb-0.5">S/ 14,250<span class="text-slate-400 text-sm font-normal">.80</span></div>
+        <!-- Último movimiento -->
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="chip bg-slate-100 text-slate-500 font-normal">Egreso -S/ 1,200 · hace 30 min</span>
+        </div>
+        <!-- Sparkline SVG inline -->
+        <div class="sparkline-container mb-3">
+          <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <defs>
+              <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,28 L10,24 L20,26 L30,18 L40,20 L50,14 L60,16 L70,12 L80,10 L90,8 L100,10 L110,7 L120,6" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,28 L10,24 L20,26 L30,18 L40,20 L50,14 L60,16 L70,12 L80,10 L90,8 L100,10 L110,7 L120,6 L120,36 L0,36Z" fill="url(#sg1)"/>
+          </svg>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-3">Últ. 30 días · Mínimo: S/ 5,000</div>
+        <div class="flex gap-1.5">
+          <button class="text-[10px] font-semibold px-2.5 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i>Ver detalle
+          </button>
+          <button class="text-[10px] font-medium px-2 py-1.5 bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-all flex items-center gap-1">
+            <i data-lucide="arrow-right-left" class="w-3 h-3"></i>Transferir
+          </button>
+        </div>
+      </div>
+
+      <!-- Producto 2 BCP USD -->
+      <div class="product-card-rico">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="dollar-sign" class="w-4 h-4 text-sky-600"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 leading-tight">BCP Ahorro ····8820 USD</div>
+              <div class="text-[10px] text-slate-400">Cuenta ahorros · USD</div>
+            </div>
+          </div>
+          <span class="chip bg-emerald-100 text-emerald-700">Saludable</span>
+        </div>
+        <div class="text-xl font-bold text-sky-700 num-tab mb-0.5">US$ 2,100<span class="text-slate-400 text-sm font-normal">.00</span></div>
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="chip bg-slate-100 text-slate-500 font-normal">Ingreso +US$ 800 · hace 2 d</span>
+        </div>
+        <div class="sparkline-container mb-3">
+          <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <defs>
+              <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,30 L10,28 L20,30 L30,26 L40,24 L50,22 L60,25 L70,20 L80,15 L90,12 L100,14 L110,10 L120,8" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,30 L10,28 L20,30 L30,26 L40,24 L50,22 L60,25 L70,20 L80,15 L90,12 L100,14 L110,10 L120,8 L120,36 L0,36Z" fill="url(#sg2)"/>
+          </svg>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-3">Últ. 30 días · ≈ S/ 8,085 al TC 3.85</div>
+        <div class="flex gap-1.5">
+          <button class="text-[10px] font-semibold px-2.5 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i>Ver detalle
+          </button>
+          <button class="text-[10px] font-medium px-2 py-1.5 bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-all flex items-center gap-1">
+            <i data-lucide="arrow-left-right" class="w-3 h-3"></i>Convertir
+          </button>
+        </div>
+      </div>
+
+      <!-- Producto 3 BCP TC -->
+      <div class="product-card-rico">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="credit-card" class="w-4 h-4 text-indigo-600"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 leading-tight">BCP Visa ····5588 Empresarial</div>
+              <div class="text-[10px] text-slate-400">Tarjeta de crédito · PEN</div>
+            </div>
+          </div>
+          <span class="chip bg-sky-100 text-sky-700">Corte: 2 may</span>
+        </div>
+        <div class="text-xl font-bold text-slate-800 num-tab mb-0.5">S/ 3,420<span class="text-slate-400 text-sm font-normal">.00</span></div>
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="chip bg-slate-100 text-slate-500 font-normal">Cargo +S/ 320 · hace 1 d</span>
+        </div>
+        <div class="sparkline-container mb-3">
+          <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <defs>
+              <linearGradient id="sg3" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,5 L10,8 L20,6 L30,10 L40,14 L50,12 L60,18 L70,16 L80,20 L90,22 L100,20 L110,25 L120,28" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,5 L10,8 L20,6 L30,10 L40,14 L50,12 L60,18 L70,16 L80,20 L90,22 L100,20 L110,25 L120,28 L120,36 L0,36Z" fill="url(#sg3)"/>
+          </svg>
+        </div>
+        <div class="text-[10px] text-sky-600 bg-sky-50 border border-sky-200 rounded-md px-2 py-1 mb-3">
+          Próximo corte: <strong>2 may</strong> · Límite disp. S/ 6,580
+        </div>
+        <div class="flex gap-1.5">
+          <button class="text-[10px] font-semibold px-2.5 py-1.5 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-all flex items-center gap-1">
+            <i data-lucide="plus-circle" class="w-3 h-3"></i>Cargar a TC
+          </button>
+          <button class="text-[10px] font-medium px-2 py-1.5 bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-all flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i>Ver
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BANCO BBVA -->
+  <div class="banco-section">
+    <div class="banco-section-header">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#004A97">
+          <span class="text-white text-[10px] font-black">BBVA</span>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-800">BBVA Perú</div>
+          <div class="text-[10px] text-slate-500">2 productos · Cliente desde 2021</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div class="text-[10px] text-slate-400 uppercase">Saldo BBVA</div>
+          <div class="text-sm font-bold text-slate-900 num-tab">US$ 3,200 · S/ 1,650</div>
+        </div>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+      </div>
+    </div>
+    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <!-- BBVA USD -->
+      <div class="product-card-rico">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="dollar-sign" class="w-4 h-4 text-sky-600"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 leading-tight">BBVA Ahorro ····7291</div>
+              <div class="text-[10px] text-slate-400">Cuenta ahorros · USD</div>
+            </div>
+          </div>
+          <span class="chip bg-emerald-100 text-emerald-700">Saludable</span>
+        </div>
+        <div class="text-xl font-bold text-sky-700 num-tab mb-0.5">US$ 3,200<span class="text-slate-400 text-sm font-normal">.00</span></div>
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="chip bg-slate-100 text-slate-500 font-normal">Sin mov. hoy · hace 5 h</span>
+        </div>
+        <div class="sparkline-container mb-3">
+          <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <defs>
+              <linearGradient id="sg4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,18 L15,16 L30,20 L45,14 L60,12 L75,10 L90,8 L105,9 L120,7" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,18 L15,16 L30,20 L45,14 L60,12 L75,10 L90,8 L105,9 L120,7 L120,36 L0,36Z" fill="url(#sg4)"/>
+          </svg>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-3">Últ. 30 días · ≈ S/ 12,320 al TC 3.85</div>
+        <div class="flex gap-1.5">
+          <button class="text-[10px] font-semibold px-2.5 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i>Ver detalle
+          </button>
+          <button class="text-[10px] font-medium px-2 py-1.5 bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-all flex items-center gap-1">
+            <i data-lucide="arrow-left-right" class="w-3 h-3"></i>Convertir
+          </button>
+        </div>
+      </div>
+
+      <!-- BBVA Cte PEN - Crítico -->
+      <div class="product-card-rico" style="border-color:#fca5a5">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="banknote" class="w-4 h-4 text-red-500"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 leading-tight">BBVA Cte José ····9910</div>
+              <div class="text-[10px] text-slate-400">Cuenta corriente · PEN</div>
+            </div>
+          </div>
+          <span class="chip bg-red-100 text-red-700 saldo-critico">Crítico</span>
+        </div>
+        <div class="text-xl font-bold text-red-600 num-tab mb-0.5 saldo-critico">S/ 1,650<span class="text-slate-400 text-sm font-normal">.00</span></div>
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="chip bg-red-100 text-red-600 font-normal">37% del mínimo (S/ 4,500)</span>
+        </div>
+        <div class="sparkline-container mb-3">
+          <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <defs>
+              <linearGradient id="sg5" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,5 L15,8 L30,6 L45,10 L60,14 L75,18 L90,22 L105,28 L120,30" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,5 L15,8 L30,6 L45,10 L60,14 L75,18 L90,22 L105,28 L120,30 L120,36 L0,36Z" fill="url(#sg5)"/>
+          </svg>
+        </div>
+        <div class="text-[10px] text-red-500 mb-3">Tendencia bajista · Requiere fondos hoy</div>
+        <div class="flex gap-1.5">
+          <button class="text-[10px] font-semibold px-2.5 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all flex items-center gap-1">
+            <i data-lucide="arrow-right-left" class="w-3 h-3"></i>Transferir fondos
+          </button>
+          <button class="text-[10px] font-medium px-2 py-1.5 bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-all flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i>Ver
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WISE + CAJA (otras instituciones colapsadas) -->
+  <div class="banco-section">
+    <div class="banco-section-header">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-sky-500">
+          <span class="text-white text-[10px] font-black">WISE</span>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-800">Wise + Efectivo</div>
+          <div class="text-[10px] text-slate-500">3 productos · Fintech + cajas físicas</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div class="text-[10px] text-slate-400 uppercase">Saldo agregado</div>
+          <div class="text-sm font-bold text-slate-900 num-tab">US$ 1,000 · S/ 3,900</div>
+        </div>
+        <span class="text-[10px] text-slate-400 italic">expandir</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CUENTAS CORRIENTES S55 ───────────────────────────────────────── -->
+  <!-- Para empresa no aplica → mostramos aviso -->
+  <div class="bg-slate-50 border border-slate-200 border-dashed rounded-xl p-4 mb-5">
+    <div class="flex items-center gap-2 text-slate-400">
+      <i data-lucide="info" class="w-4 h-4"></i>
+      <span class="text-xs">Las <strong>Cuentas Corrientes (CC S55)</strong> aplican a titulares de tipo Proveedor, Cliente, Empleado o Colaborador. Para empresas propias (Vita Skin Peru SAC) no hay CC asociada.</span>
+    </div>
+  </div>
+
+  <!-- ── TIMELINE ACTIVIDAD RECIENTE ─────────────────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 mb-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2">
+        <i data-lucide="activity" class="w-4 h-4 text-teal-600"></i>
+        Actividad reciente · últimos 10 movimientos
+      </h3>
+      <a href="#" class="text-xs text-teal-600 hover:text-teal-700 flex items-center gap-1">Ver libro mayor <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+    </div>
+    <div class="actividad-scroll">
+      <div class="flex gap-3">
+        <!-- Movimiento 1 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-red-100 text-red-600">Egreso</span>
+            <span class="text-[10px] text-slate-400">hace 30 min</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">-S/ 1,200.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Pago prov. OC-2026-042</div>
+          <div class="text-[10px] text-slate-400">BCP ····3842</div>
+        </div>
+        <!-- Movimiento 2 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-emerald-100 text-emerald-600">Ingreso</span>
+            <span class="text-[10px] text-slate-400">hace 2 h</span>
+          </div>
+          <div class="text-xs font-semibold text-emerald-700 mb-0.5">+S/ 3,450.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Cobro venta VT-2026-088</div>
+          <div class="text-[10px] text-slate-400">BCP ····3842</div>
+        </div>
+        <!-- Movimiento 3 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-teal-100 text-teal-700">Conversión FX</span>
+            <span class="text-[10px] text-slate-400">hace 5 h</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">US$ 500 → S/ 1,925</div>
+          <div class="text-[10px] text-slate-400">TC 3.85</div>
+          <div class="text-[10px] text-slate-400">BBVA ····7291</div>
+        </div>
+        <!-- Movimiento 4 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-red-100 text-red-600">Egreso</span>
+            <span class="text-[10px] text-slate-400">hace 8 h</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">-US$ 320.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Pago freight forwarder</div>
+          <div class="text-[10px] text-slate-400">BBVA ····7291</div>
+        </div>
+        <!-- Movimiento 5 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-sky-100 text-sky-700">Cargo TC</span>
+            <span class="text-[10px] text-slate-400">hace 1 d</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">+S/ 320.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Carga OC-2026-038</div>
+          <div class="text-[10px] text-slate-400">BCP ····5588</div>
+        </div>
+        <!-- Movimiento 6 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-red-100 text-red-600">Egreso</span>
+            <span class="text-[10px] text-slate-400">hace 1 d</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">-S/ 850.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Planilla parcial mano obra</div>
+          <div class="text-[10px] text-slate-400">BCP ····3842</div>
+        </div>
+        <!-- Movimiento 7 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-emerald-100 text-emerald-600">Ingreso</span>
+            <span class="text-[10px] text-slate-400">hace 2 d</span>
+          </div>
+          <div class="text-xs font-semibold text-emerald-700 mb-0.5">+US$ 800.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Cobro cliente int. USD</div>
+          <div class="text-[10px] text-slate-400">BCP ····8820</div>
+        </div>
+        <!-- Movimiento 8 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-amber-100 text-amber-700">Interno</span>
+            <span class="text-[10px] text-slate-400">hace 2 d</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">S/ 2,000</div>
+          <div class="text-[10px] text-slate-400 truncate">Transfer. BCP → IBK</div>
+          <div class="text-[10px] text-slate-400">Interno</div>
+        </div>
+        <!-- Movimiento 9 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-red-100 text-red-600">Egreso</span>
+            <span class="text-[10px] text-slate-400">hace 3 d</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 mb-0.5">-S/ 450.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Gastos operativos almacén</div>
+          <div class="text-[10px] text-slate-400">Caja efectivo</div>
+        </div>
+        <!-- Movimiento 10 -->
+        <div class="actividad-card">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="chip bg-emerald-100 text-emerald-600">Ingreso</span>
+            <span class="text-[10px] text-slate-400">hace 3 d</span>
+          </div>
+          <div class="text-xs font-semibold text-emerald-700 mb-0.5">+S/ 5,200.00</div>
+          <div class="text-[10px] text-slate-400 truncate">Cobro lote ventas ML</div>
+          <div class="text-[10px] text-slate-400">BCP ····3842</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER MÉTRICAS LIFETIME ────────────────────────────────────── -->
+  <div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl px-5 py-4 flex items-center justify-between flex-wrap gap-3 mb-8">
+    <div class="flex items-center gap-2">
+      <i data-lucide="building-2" class="w-4 h-4 text-slate-300"></i>
+      <span class="text-sm font-semibold text-white">Vita Skin Peru SAC</span>
+    </div>
+    <div class="flex items-center gap-4 flex-wrap">
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 uppercase">Cliente bancario desde</div>
+        <div class="text-xs font-semibold text-slate-200">Abr 2023 · 3 años</div>
+      </div>
+      <div class="h-6 w-px bg-slate-600"></div>
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 uppercase">Movimientos lifetime</div>
+        <div class="text-xs font-semibold text-slate-200 num-tab">1,248 operaciones</div>
+      </div>
+      <div class="h-6 w-px bg-slate-600"></div>
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 uppercase">Volumen lifetime</div>
+        <div class="text-xs font-semibold text-teal-300 num-tab">S/ 485,200 equivalente</div>
+      </div>
+      <div class="h-6 w-px bg-slate-600"></div>
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 uppercase">Instituciones activas</div>
+        <div class="text-xs font-semibold text-slate-200">4 bancos · 1 fintech</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /vista-a -->
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     VISTA B — Empleado: José LP (dueño)
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="vista-b" class="max-w-7xl mx-auto px-4 pt-4" style="display:none">
+
+  <div class="text-[11px] font-semibold uppercase text-slate-500 mb-4 flex items-center gap-2">
+    <span class="w-5 h-5 bg-slate-600 rounded text-white text-[9px] flex items-center justify-center font-bold">B</span>
+    Vista B · Titular empleado dueño · José LP
+  </div>
+
+  <!-- ── HERO EMPLEADO ─────────────────────────────────────────────────── -->
+  <div class="hero-empleado rounded-2xl p-6 mb-5">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="flex items-start gap-5">
+        <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="user" class="w-8 h-8 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="chip bg-white/20 text-white">Empleado</span>
+            <span class="chip bg-slate-400/40 text-slate-100">DNI 45612378</span>
+            <span class="chip bg-slate-400/40 text-slate-100">Dueño · Director</span>
+          </div>
+          <h1 class="text-2xl font-bold text-white leading-tight">José LP</h1>
+          <div class="flex items-center gap-3 mt-1.5 text-sm text-slate-300 flex-wrap">
+            <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i>Perú · Lima</span>
+            <span class="text-slate-500">·</span>
+            <span class="flex items-center gap-1"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>4 productos activos</span>
+            <span class="text-slate-500">·</span>
+            <span class="flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i>S/ 12,890 en cartera personal</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all border border-white/20">
+          <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>Editar perfil
+        </button>
+        <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white text-slate-700 hover:bg-slate-50 rounded-lg transition-all shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo producto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI ROW empleado -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 mb-5">
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Patrimonio personal</div>
+      <div class="text-xl font-bold text-slate-900 num-tab">S/ 12,890</div>
+      <div class="text-xs text-slate-400 mt-0.5">Incluye equiv. USD al TC 3.85</div>
+    </div>
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Productos activos</div>
+      <div class="text-xl font-bold text-slate-900 num-tab">4</div>
+      <div class="text-xs text-slate-400 mt-0.5">2 cuentas · 1 TC · 1 wallet</div>
+    </div>
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Movimientos del mes</div>
+      <div class="text-xl font-bold text-slate-900 num-tab">23</div>
+      <div class="text-xs text-slate-400 mt-0.5">Incl. planilla + gastos directos</div>
+    </div>
+    <div class="kpi-strip-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">CC Empresa (S55)</div>
+      <div class="text-xl font-bold text-amber-600 num-tab">S/ 1,420</div>
+      <div class="text-xs text-amber-600 mt-0.5">Por rendición · pendiente</div>
+    </div>
+  </div>
+
+  <!-- Pipeline mini empleado -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4 mb-5">
+    <h3 class="text-sm font-semibold text-slate-800 mb-3">Salud de los productos · José LP</h3>
+    <div class="grid grid-cols-2 lg:flex gap-2 items-center">
+      <div class="mini-pipeline-stage bg-emerald-50 border-emerald-200 hover:bg-emerald-100">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i>
+          <span class="text-[10px] font-semibold text-emerald-700">Saludable</span>
+        </div>
+        <div class="text-lg font-bold text-emerald-800 num-tab text-center">3</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-amber-50 border-amber-200 hover:bg-amber-100">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="alert-triangle" class="w-3 h-3 text-amber-600"></i>
+          <span class="text-[10px] font-semibold text-amber-700">Atención</span>
+        </div>
+        <div class="text-lg font-bold text-amber-800 num-tab text-center">1</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-slate-50 border-slate-200">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="x-circle" class="w-3 h-3 text-slate-300"></i>
+          <span class="text-[10px] font-semibold text-slate-400">Crítico</span>
+        </div>
+        <div class="text-lg font-bold text-slate-300 num-tab text-center">0</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-slate-50 border-slate-200">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="calendar-clock" class="w-3 h-3 text-slate-300"></i>
+          <span class="text-[10px] font-semibold text-slate-400">TC corte próx.</span>
+        </div>
+        <div class="text-lg font-bold text-slate-300 num-tab text-center">0</div>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 flex-shrink-0 hidden lg:block"></i>
+      <div class="mini-pipeline-stage bg-slate-50 border-slate-200">
+        <div class="flex items-center gap-1 justify-center mb-0.5">
+          <i data-lucide="alarm-clock-off" class="w-3 h-3 text-slate-300"></i>
+          <span class="text-[10px] font-semibold text-slate-400">TC Vencida</span>
+        </div>
+        <div class="text-lg font-bold text-slate-300 num-tab text-center">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banco BCP personal -->
+  <div class="banco-section">
+    <div class="banco-section-header">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#003087">
+          <span class="text-white text-[10px] font-black">BCP</span>
+        </div>
+        <div>
+          <div class="text-sm font-bold text-slate-800">Banco de Crédito del Perú · Personal</div>
+          <div class="text-[10px] text-slate-500">2 productos · Ahorro personal + TC personal</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div class="text-[10px] text-slate-400 uppercase">Saldo BCP personal</div>
+          <div class="text-sm font-bold text-slate-900 num-tab">S/ 8,340</div>
+        </div>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+      </div>
+    </div>
+    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <!-- BCP Ahorros personal -->
+      <div class="product-card-rico">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="piggy-bank" class="w-4 h-4 text-teal-600"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 leading-tight">BCP Ahorro ····4412 Personal</div>
+              <div class="text-[10px] text-slate-400">Cuenta ahorros · PEN</div>
+            </div>
+          </div>
+          <span class="chip bg-emerald-100 text-emerald-700">Saludable</span>
+        </div>
+        <div class="text-xl font-bold text-emerald-700 num-tab mb-0.5">S/ 7,140<span class="text-slate-400 text-sm font-normal">.00</span></div>
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="chip bg-slate-100 text-slate-500 font-normal">Ingreso planilla +S/ 4,200 · hace 3 d</span>
+        </div>
+        <div class="sparkline-container mb-3">
+          <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <defs>
+              <linearGradient id="sg6" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,30 L15,28 L30,24 L45,20 L60,22 L75,14 L90,10 L105,8 L120,6" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,30 L15,28 L30,24 L45,20 L60,22 L75,14 L90,10 L105,8 L120,6 L120,36 L0,36Z" fill="url(#sg6)"/>
+          </svg>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-3">Últ. 30 días · Mín: S/ 1,000</div>
+        <div class="flex gap-1.5">
+          <button class="text-[10px] font-semibold px-2.5 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i>Ver detalle
+          </button>
+        </div>
+      </div>
+
+      <!-- Yape personal -->
+      <div class="product-card-rico">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i data-lucide="smartphone" class="w-4 h-4 text-purple-600"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-800 leading-tight">Yape personal · +51 987 654 321</div>
+              <div class="text-[10px] text-slate-400">Wallet digital · PEN</div>
+            </div>
+          </div>
+          <span class="chip bg-amber-100 text-amber-700">Atención</span>
+        </div>
+        <div class="text-xl font-bold text-amber-700 num-tab mb-0.5">S/ 1,200<span class="text-slate-400 text-sm font-normal">.00</span></div>
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="chip bg-amber-100 text-amber-600 font-normal">80% del mínimo (S/ 1,500)</span>
+        </div>
+        <div class="sparkline-container mb-3">
+          <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+            <defs>
+              <linearGradient id="sg7" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,10 L15,12 L30,8 L45,14 L60,18 L75,16 L90,20 L105,22 L120,24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M0,10 L15,12 L30,8 L45,14 L60,18 L75,16 L90,20 L105,22 L120,24 L120,36 L0,36Z" fill="url(#sg7)"/>
+          </svg>
+        </div>
+        <div class="text-[10px] text-amber-600 mb-3">Tendencia bajista · Revisar en 7 días</div>
+        <div class="flex gap-1.5">
+          <button class="text-[10px] font-semibold px-2.5 py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-md hover:bg-amber-200 transition-all flex items-center gap-1">
+            <i data-lucide="plus" class="w-3 h-3"></i>Recargar
+          </button>
+          <button class="text-[10px] font-medium px-2 py-1.5 bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-all flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i>Ver
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CC S55 para empleado -->
+  <div class="cc-card mb-5">
+    <div class="flex items-center gap-2 mb-3">
+      <i data-lucide="wallet" class="w-4 h-4 text-blue-600"></i>
+      <span class="text-sm font-bold text-slate-800">Cuenta Corriente (CC S55) · José LP en Vita Skin Peru</span>
+      <span class="chip bg-amber-100 text-amber-700">Pendiente rendición</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-3">
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase mb-0.5">Fondos por rendir</div>
+        <div class="text-lg font-bold text-amber-700 num-tab">S/ 1,420.00</div>
+      </div>
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase mb-0.5">Gastos rend. este mes</div>
+        <div class="text-lg font-bold text-slate-800 num-tab">S/ 3,280.00</div>
+      </div>
+      <div>
+        <div class="text-[10px] text-slate-400 uppercase mb-0.5">Último movimiento</div>
+        <div class="text-sm font-semibold text-slate-700">hace 2 d · Caja chica</div>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button class="text-xs font-medium px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all flex items-center gap-1">
+        <i data-lucide="file-check" class="w-3.5 h-3.5"></i>Ver rendición
+      </button>
+      <button class="text-xs font-medium px-3 py-1.5 bg-white border border-blue-200 text-blue-700 rounded-md hover:bg-blue-50 transition-all flex items-center gap-1">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo movimiento CC
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer métricas empleado -->
+  <div class="bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl px-5 py-4 flex items-center justify-between flex-wrap gap-3 mb-8">
+    <div class="flex items-center gap-2">
+      <i data-lucide="user" class="w-4 h-4 text-slate-300"></i>
+      <span class="text-sm font-semibold text-white">José LP · Dueño</span>
+    </div>
+    <div class="flex items-center gap-4 flex-wrap">
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 uppercase">En el sistema desde</div>
+        <div class="text-xs font-semibold text-slate-200">Ene 2024 · 2 años</div>
+      </div>
+      <div class="h-6 w-px bg-slate-600"></div>
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 uppercase">Movimientos lifetime</div>
+        <div class="text-xs font-semibold text-slate-200 num-tab">342 operaciones</div>
+      </div>
+      <div class="h-6 w-px bg-slate-600"></div>
+      <div class="text-center">
+        <div class="text-[10px] text-slate-400 uppercase">Volumen personal</div>
+        <div class="text-xs font-semibold text-slate-300 num-tab">S/ 98,400 equiv.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /vista-b -->
+
+<script>
+  lucide.createIcons();
+
+  function showVista(vista, btn) {
+    document.getElementById('vista-a').style.display = vista === 'a' ? 'block' : 'none';
+    document.getElementById('vista-b').style.display = vista === 'b' ? 'block' : 'none';
+    document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

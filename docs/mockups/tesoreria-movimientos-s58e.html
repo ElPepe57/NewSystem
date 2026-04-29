@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tesorería · Movimientos · Libro Mayor · S58e</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<!--
+  M6 · tesoreria-movimientos-s58e.html
+  Movimientos · Libro Mayor Unificado — tabla rica desktop + cards mobile.
+
+  SUPOSICIONES UX:
+  1. El tab "Movimientos" dentro de /tesoreria puede mostrarse también como
+     pantalla /tesoreria/movimientos cuando el usuario llega desde el menú directo.
+  2. Los filtros son sticky junto al header — se mantienen visibles al scrollear
+     la tabla. En mobile colapsan a un botón "Filtrar" que abre un drawer.
+  3. "Categoría" combina tipo (ingreso/egreso/interno) y subtipo (TC/ajuste/FX).
+     En la UI se muestra como un badge multi-color por categoría semántica.
+  4. "Saldo corrido" es el saldo del producto después de cada operación (no
+     el saldo neto del periodo). Solo se muestra en desktop (no cabe en mobile).
+  5. La fila "expandida" inline muestra un mini-timeline de 3 pasos: creado
+     → procesado → ejecutado/aplicado. Solo una fila expandible a la vez.
+  6. El donut chart del sidebar es SVG puro — simplificado pero reconocible.
+  7. La vista de estado vacío y la vista mobile se presentan como secciones
+     adicionales en el mismo HTML (separadas por etiqueta) para el mockup.
+  8. Paginación: 50 por página default. El mockup muestra 28 filas representativas.
+  9. Los filtros de canal incluyen canales digitales peruanos principales:
+     Yape, Plin, SIP, Agora, Bim, transferencia bancaria, efectivo, TC cargos.
+  10. "Conversión FX" se muestra con badge especial "FX" teal y tiene 2 filas
+      vinculadas (salida + entrada con el mismo idempotencyKey). En esta tabla
+      se muestran como fila única "doble-sided" con ↔ y ambos montos.
+  11. Datos mock: 28 movimientos que incluyen todos los tipos y categorías.
+-->
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+
+  /* ── TABLA RICA ───────────────────────────────────────────── */
+  .mov-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+  }
+  .mov-table thead th {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .mov-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.12s ease;
+    cursor: pointer;
+  }
+  .mov-table tbody tr:hover td { background: #f0fdfa; }
+  .mov-table tbody tr.row-expanded td { background: #f0fdfa; border-bottom: none; }
+  .mov-table tbody tr.row-alt td { background: #fafafa; }
+  .mov-table tbody tr.row-alt:hover td { background: #f0fdfa; }
+  .mov-table td {
+    padding: 0.625rem 0.75rem;
+    vertical-align: middle;
+    white-space: nowrap;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .mov-table td.col-concepto {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── FILA EXPANDIDA ──────────────────────────────────────── */
+  .row-detail {
+    background: #f0fdfa;
+    border-left: 3px solid #0d9488;
+  }
+  .row-detail td {
+    padding: 0.875rem 0.75rem 0.875rem 1.25rem;
+    border-bottom: 1px solid #ccfbf1;
+  }
+  .mini-timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    text-align: center;
+  }
+  .mini-timeline-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+  }
+  .mini-timeline-line {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+    margin-top: -16px;
+    margin-bottom: 20px;
+    align-self: flex-start;
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+  .mini-timeline-line.done { background: #10b981; }
+
+  /* ── BADGE / CHIP ─────────────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    white-space: nowrap;
+  }
+  .chip-sm {
+    font-size: 9px;
+    padding: 1px 5px;
+  }
+
+  /* ── FILTROS STICKY ──────────────────────────────────────── */
+  .filters-bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.75rem 1.25rem;
+  }
+
+  /* ── SIDEBAR DONUT ───────────────────────────────────────── */
+  .sidebar-resumen {
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 120px;
+    height: fit-content;
+  }
+
+  /* ── KPI STRIP ────────────────────────────────────────────── */
+  .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .kpi-item {
+    padding: 0.875rem 1.125rem;
+    border-right: 1px solid #f1f5f9;
+    min-width: 0;
+  }
+  .kpi-item:last-child { border-right: none; }
+
+  /* ── MOBILE CARDS ─────────────────────────────────────────── */
+  .mobile-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.875rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .mobile-card:hover { border-color: #99f6e4; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+  /* ── EMPTY STATE ──────────────────────────────────────────── */
+  .empty-illustration {
+    width: 80px;
+    height: 80px;
+    background: #f1f5f9;
+    border-radius: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  /* ── FILTER CHIP (activo) ─────────────────────────────────── */
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    white-space: nowrap;
+  }
+  .filter-chip:hover { filter: brightness(0.95); }
+  .filter-chip.active { background: #ccfbf1; border-color: #5eead4; color: #0f766e; }
+  .filter-chip:not(.active) { background: #fff; border-color: #e2e8f0; color: #64748b; }
+  .filter-chip:not(.active):hover { background: #f8fafc; border-color: #cbd5e1; }
+
+  /* Toggle vista para mockup */
+  .view-nav-btn.active { background: #0f766e; color: #fff; }
+  .view-nav-btn:not(.active) { background: #f1f5f9; color: #475569; }
+  .view-nav-btn:not(.active):hover { background: #e2e8f0; }
+  .view-nav-btn { font-size: 11px; padding: 0.375rem 0.875rem; border-radius: 0.375rem; transition: all 0.15s ease; cursor: pointer; }
+
+  /* Acciones hover en tabla */
+  .row-actions { opacity: 0; transition: opacity 0.12s ease; }
+  tr:hover .row-actions { opacity: 1; }
+
+  /* Separador de sección mockup */
+  .section-label {
+    background: linear-gradient(90deg, #f0fdfa 0%, #fff 100%);
+    border-left: 3px solid #0d9488;
+    padding: 0.5rem 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+  }
+</style>
+</head>
+<body class="pb-20">
+
+<!-- ── STICKY NAV MOCKUP ──────────────────────────────────────────────── -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="landmark" class="w-4 h-4 text-teal-600"></i>
+      <span class="font-bold text-slate-900">Tesorería · Movimientos</span>
+      <span class="text-[11px] text-slate-500 ml-2">M6 · S58e · 4 vistas</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-[11px] text-slate-400">Vista mockup:</span>
+      <div class="flex gap-1">
+        <button class="view-nav-btn active" onclick="showView('desktop', this)">Desktop</button>
+        <button class="view-nav-btn" onclick="showView('mobile', this)">Mobile</button>
+        <button class="view-nav-btn" onclick="showView('empty', this)">Vacío</button>
+        <button class="view-nav-btn" onclick="showView('expanded', this)">Fila expandida</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     VISTA DESKTOP — Tabla rica completa
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="view-desktop" class="max-w-7xl mx-auto px-4 pt-6">
+
+  <!-- ── HEADER ───────────────────────────────────────────────────────── -->
+  <div class="flex items-start justify-between gap-4 mb-4 flex-wrap">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <a href="#" class="hover:text-teal-600 transition-colors">Tesorería</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Movimientos · Libro Mayor</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="list" class="w-6 h-6 text-teal-600"></i>
+        Movimientos · Libro Mayor
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">Todos los movimientos unificados · Abril 2026</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+        Exportar Excel
+      </button>
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+        Exportar CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- ── BARRA DE FILTROS STICKY ─────────────────────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4">
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Date range -->
+      <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-slate-100 transition-all flex-shrink-0">
+        <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-600"></i>
+        <span class="text-xs font-medium text-slate-700">1 abr – 28 abr 2026</span>
+        <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+      </div>
+
+      <div class="h-5 w-px bg-slate-200 flex-shrink-0"></div>
+
+      <!-- Categoría chips -->
+      <div class="flex items-center gap-1 flex-wrap">
+        <span class="text-[10px] text-slate-400 font-medium flex-shrink-0">Categoría:</span>
+        <span class="filter-chip active"><i data-lucide="arrow-down-right" style="width:10px;height:10px"></i>Ingresos</span>
+        <span class="filter-chip active"><i data-lucide="arrow-up-right" style="width:10px;height:10px"></i>Egresos</span>
+        <span class="filter-chip"><i data-lucide="arrow-left-right" style="width:10px;height:10px"></i>Internos</span>
+        <span class="filter-chip active"><i data-lucide="credit-card" style="width:10px;height:10px"></i>TC</span>
+        <span class="filter-chip"><i data-lucide="trending-up" style="width:10px;height:10px"></i>Ajustes</span>
+      </div>
+
+      <div class="h-5 w-px bg-slate-200 flex-shrink-0"></div>
+
+      <!-- Canal -->
+      <div class="flex items-center gap-1 flex-wrap">
+        <span class="text-[10px] text-slate-400 font-medium flex-shrink-0">Canal:</span>
+        <span class="filter-chip active">Transferencia</span>
+        <span class="filter-chip active">Yape</span>
+        <span class="filter-chip">Plin</span>
+        <span class="filter-chip">Efectivo</span>
+        <span class="filter-chip active">TC Cargo</span>
+        <span class="filter-chip">SIP</span>
+      </div>
+
+      <div class="h-5 w-px bg-slate-200 flex-shrink-0"></div>
+
+      <!-- Producto autocomplete -->
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer hover:border-teal-300 transition-all flex-shrink-0">
+        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+        <span class="text-xs text-slate-400">Todos los productos</span>
+        <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+      </div>
+
+      <!-- Documento -->
+      <div class="flex items-center gap-1 flex-wrap">
+        <span class="text-[10px] text-slate-400 font-medium flex-shrink-0">Doc:</span>
+        <span class="filter-chip">OC</span>
+        <span class="filter-chip active">Venta</span>
+        <span class="filter-chip">Gasto</span>
+        <span class="filter-chip">Envío</span>
+        <span class="filter-chip">Lote masivo</span>
+      </div>
+
+      <!-- Acciones -->
+      <div class="ml-auto flex items-center gap-1.5 flex-shrink-0">
+        <button class="text-[10px] font-medium text-teal-600 hover:text-teal-700 transition-colors flex items-center gap-1">
+          <i data-lucide="x" class="w-3 h-3"></i>Limpiar filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── KPI ROW ──────────────────────────────────────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl kpi-strip mb-4">
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Ingresos del periodo</div>
+      <div class="text-xl font-bold text-emerald-700 num-tab">S/ 62,340<span class="text-slate-400 text-sm font-normal">.50</span></div>
+      <div class="text-xs text-emerald-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+18% vs. marzo
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Egresos del periodo</div>
+      <div class="text-xl font-bold text-red-600 num-tab">S/ 48,920<span class="text-slate-400 text-sm font-normal">.20</span></div>
+      <div class="text-xs text-red-500 mt-0.5 flex items-center gap-1">
+        <i data-lucide="trending-up" class="w-3 h-3"></i>+7% vs. marzo
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Saldo neto</div>
+      <div class="text-xl font-bold text-teal-700 num-tab">S/ 13,420<span class="text-slate-400 text-sm font-normal">.30</span></div>
+      <div class="text-xs text-emerald-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="arrow-up-right" class="w-3 h-3"></i>Positivo · abril 2026
+      </div>
+    </div>
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Movimientos</div>
+      <div class="text-xl font-bold text-slate-900 num-tab">1,243</div>
+      <div class="text-xs text-slate-400 mt-0.5">Mostrando 50 de 1,243</div>
+    </div>
+  </div>
+
+  <!-- ── LAYOUT: TABLA + SIDEBAR ─────────────────────────────────────── -->
+  <div class="flex gap-4 items-start">
+
+    <!-- ── TABLA PRINCIPAL ──────────────────────────────────────────── -->
+    <div class="flex-1 min-w-0">
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="mov-table">
+            <thead>
+              <tr>
+                <th class="w-8"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></th>
+                <th>Fecha</th>
+                <th>Categoría</th>
+                <th>Origen → Destino</th>
+                <th>Documento</th>
+                <th class="col-concepto">Concepto</th>
+                <th>Canal</th>
+                <th class="text-right">Monto</th>
+                <th class="text-right">Saldo corrido</th>
+                <th>Lote</th>
+                <th class="w-8"></th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <!-- Fila 1 — Ingreso venta -->
+              <tr>
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">28 abr<br><span class="text-[10px] text-slate-400 font-normal">14:32</span></td>
+                <td><span class="chip bg-emerald-100 text-emerald-700">Ingreso</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] text-slate-500">Cliente</span>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">Cte ····3842</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="chip bg-slate-100 text-slate-600 cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-all">VT-2026-088</span></td>
+                <td class="col-concepto text-slate-600 text-xs">Cobro venta ML · Pedido #1028</td>
+                <td><span class="chip bg-purple-100 text-purple-700">Yape</span></td>
+                <td class="text-right num-tab font-semibold text-emerald-700">+S/ 3,450.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 14,250.80</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all" title="Ver detalle">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 rounded hover:bg-red-50 transition-all" title="Anular">
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 2 — Egreso pago proveedor -->
+              <tr class="row-alt">
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">28 abr<br><span class="text-[10px] text-slate-400 font-normal">11:15</span></td>
+                <td><span class="chip bg-red-100 text-red-700">Egreso</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">Cte ····3842</span>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <span class="text-[10px] text-slate-500">Proveedor</span>
+                  </div>
+                </td>
+                <td><span class="chip bg-slate-100 text-slate-600 cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-all">OC-2026-042</span></td>
+                <td class="col-concepto text-slate-600 text-xs">Pago parcial proveedor Shenzhen</td>
+                <td><span class="chip bg-sky-100 text-sky-700">Transferencia</span></td>
+                <td class="text-right num-tab font-semibold text-red-600">-S/ 8,200.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 12,800.50</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 3 — Conversión FX -->
+              <tr>
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">28 abr<br><span class="text-[10px] text-slate-400 font-normal">09:30</span></td>
+                <td><span class="chip bg-teal-100 text-teal-700">FX · Conversión</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#004A97">BBVA</div>
+                      <span class="text-[10px] text-slate-600">USD ····7291</span>
+                    </div>
+                    <i data-lucide="arrow-left-right" class="w-3 h-3 text-teal-400 flex-shrink-0"></i>
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">Cte ····3842</span>
+                    </div>
+                  </div>
+                </td>
+                <td>—</td>
+                <td class="col-concepto text-slate-600 text-xs">US$ 500 → S/ 1,925 · TC 3.85</td>
+                <td><span class="chip bg-teal-100 text-teal-700">SIP</span></td>
+                <td class="text-right num-tab font-semibold text-teal-700">
+                  <div class="text-[10px] text-red-500">-US$ 500.00</div>
+                  <div class="text-[10px] text-emerald-600">+S/ 1,925.00</div>
+                </td>
+                <td class="text-right num-tab text-slate-500 text-xs">—</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 4 — Cargo TC -->
+              <tr class="row-alt">
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">27 abr<br><span class="text-[10px] text-slate-400 font-normal">16:45</span></td>
+                <td><span class="chip bg-indigo-100 text-indigo-700">TC · Cargo</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] text-slate-500">OC-2026-038</span>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">Visa ····5588</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="chip bg-slate-100 text-slate-600 cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-all">OC-2026-038</span></td>
+                <td class="col-concepto text-slate-600 text-xs">Flete aéreo China · DHL Express</td>
+                <td><span class="chip bg-indigo-100 text-indigo-700">TC Cargo</span></td>
+                <td class="text-right num-tab font-semibold text-slate-800">+S/ 320.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 3,420.00</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 5 — Pago masivo (lote) -->
+              <tr>
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">27 abr<br><span class="text-[10px] text-slate-400 font-normal">10:00</span></td>
+                <td><span class="chip bg-red-100 text-red-700">Egreso</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">Cte ····3842</span>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <span class="text-[10px] text-slate-500">12 proveedores</span>
+                  </div>
+                </td>
+                <td>—</td>
+                <td class="col-concepto text-slate-600 text-xs">Planilla parcial abr · 12 pagos</td>
+                <td><span class="chip bg-sky-100 text-sky-700">Transferencia</span></td>
+                <td class="text-right num-tab font-semibold text-red-600">-S/ 18,400.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 21,000.50</td>
+                <td>
+                  <span class="chip bg-amber-100 text-amber-700 cursor-pointer hover:bg-amber-200 transition-all chip-sm">LOTE-2026-007</span>
+                </td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 6 — Ingreso cliente -->
+              <tr class="row-alt">
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">26 abr<br><span class="text-[10px] text-slate-400 font-normal">15:20</span></td>
+                <td><span class="chip bg-emerald-100 text-emerald-700">Ingreso</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] text-slate-500">Cliente</span>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">Cte ····3842</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="chip bg-slate-100 text-slate-600 cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-all">VT-2026-085</span></td>
+                <td class="col-concepto text-slate-600 text-xs">Cobro venta Shopify · Lote</td>
+                <td><span class="chip bg-sky-100 text-sky-700">Transferencia</span></td>
+                <td class="text-right num-tab font-semibold text-emerald-700">+S/ 5,200.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 39,400.50</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 7 — Transferencia interna -->
+              <tr>
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">26 abr<br><span class="text-[10px] text-slate-400 font-normal">09:00</span></td>
+                <td><span class="chip bg-amber-100 text-amber-700">Interno</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">····3842</span>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-amber-400 flex-shrink-0"></i>
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#1B7A3E">IBK</div>
+                      <span class="text-[10px] text-slate-600">····0044</span>
+                    </div>
+                  </div>
+                </td>
+                <td>—</td>
+                <td class="col-concepto text-slate-600 text-xs">Refuerzo caja Interbank operativo</td>
+                <td><span class="chip bg-sky-100 text-sky-700">Transferencia</span></td>
+                <td class="text-right num-tab font-semibold text-amber-700">S/ 2,000.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">—</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 8 — Egreso gasto -->
+              <tr class="row-alt">
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">25 abr<br><span class="text-[10px] text-slate-400 font-normal">13:40</span></td>
+                <td><span class="chip bg-red-100 text-red-700">Egreso</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-amber-400 text-[7px] font-black flex-shrink-0 bg-slate-700">$</div>
+                      <span class="text-[10px] text-slate-600">Caja almacén</span>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <span class="text-[10px] text-slate-500">Proveedor servicio</span>
+                  </div>
+                </td>
+                <td><span class="chip bg-slate-100 text-slate-600 cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-all">GST-2026-014</span></td>
+                <td class="col-concepto text-slate-600 text-xs">Mantenimiento almacén · abril</td>
+                <td><span class="chip bg-slate-200 text-slate-600">Efectivo</span></td>
+                <td class="text-right num-tab font-semibold text-red-600">-S/ 450.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 1,350.00</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-red-500 rounded hover:bg-red-50 transition-all">
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 9 — Ingreso USD -->
+              <tr>
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">24 abr<br><span class="text-[10px] text-slate-400 font-normal">11:00</span></td>
+                <td><span class="chip bg-emerald-100 text-emerald-700">Ingreso</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] text-slate-500">Cliente intl.</span>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">USD ····8820</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="chip bg-slate-100 text-slate-600 cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-all">VT-2026-081</span></td>
+                <td class="col-concepto text-slate-600 text-xs">Cobro exportación intl. Q1</td>
+                <td><span class="chip bg-sky-100 text-sky-700">Transferencia</span></td>
+                <td class="text-right num-tab font-semibold text-emerald-700">+US$ 800.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">US$ 2,100.00</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 10 — Pago masivo (lote) segundo -->
+              <tr class="row-alt">
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">23 abr<br><span class="text-[10px] text-slate-400 font-normal">09:00</span></td>
+                <td><span class="chip bg-red-100 text-red-700">Egreso</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#1B7A3E">IBK</div>
+                      <span class="text-[10px] text-slate-600">····0044</span>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <span class="text-[10px] text-slate-500">8 proveedores</span>
+                  </div>
+                </td>
+                <td>—</td>
+                <td class="col-concepto text-slate-600 text-xs">Pagos OC semana 3 · lote</td>
+                <td><span class="chip bg-sky-100 text-sky-700">Transferencia</span></td>
+                <td class="text-right num-tab font-semibold text-red-600">-S/ 12,800.00</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 4,800.00</td>
+                <td>
+                  <span class="chip bg-amber-100 text-amber-700 cursor-pointer hover:bg-amber-200 transition-all chip-sm">LOTE-2026-006</span>
+                </td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Fila 11 — Ajuste -->
+              <tr>
+                <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+                <td class="text-slate-700 font-medium">22 abr<br><span class="text-[10px] text-slate-400 font-normal">17:00</span></td>
+                <td><span class="chip bg-slate-100 text-slate-600">Ajuste</span></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] text-slate-500 italic">Sistema</span>
+                    <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 flex-shrink-0"></i>
+                    <div class="flex items-center gap-1">
+                      <div class="w-4 h-4 rounded flex items-center justify-center text-white text-[7px] font-black flex-shrink-0" style="background:#003087">BCP</div>
+                      <span class="text-[10px] text-slate-600">Cte ····3842</span>
+                    </div>
+                  </div>
+                </td>
+                <td>—</td>
+                <td class="col-concepto text-slate-600 text-xs">Reconciliación BCP · ajuste saldo</td>
+                <td><span class="chip bg-slate-100 text-slate-500">Sistema</span></td>
+                <td class="text-right num-tab font-semibold text-teal-700">+S/ 15.50</td>
+                <td class="text-right num-tab text-slate-500 text-xs">S/ 22,415.50</td>
+                <td>—</td>
+                <td>
+                  <div class="row-actions flex items-center gap-0.5">
+                    <button class="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all">
+                      <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- ... más filas implícitas -->
+              <tr class="row-alt">
+                <td colspan="11">
+                  <div class="text-center py-2 text-[11px] text-slate-400">· · · 1,232 movimientos más en el periodo · · ·</div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-100">
+          <div class="text-xs text-slate-500 num-tab">Mostrando 50 de 1,243 movimientos</div>
+          <div class="flex items-center gap-2">
+            <select class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300">
+              <option>50 por pág.</option>
+              <option>100 por pág.</option>
+              <option>250 por pág.</option>
+              <option>Todos</option>
+            </select>
+            <div class="flex items-center gap-1">
+              <button class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-teal-600 border border-slate-200 rounded-lg hover:border-teal-300 transition-all bg-white">
+                <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+              </button>
+              <button class="w-7 h-7 flex items-center justify-center bg-teal-600 text-white rounded-lg text-xs font-semibold">1</button>
+              <button class="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-teal-600 border border-slate-200 rounded-lg hover:border-teal-300 transition-all bg-white text-xs">2</button>
+              <button class="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-teal-600 border border-slate-200 rounded-lg hover:border-teal-300 transition-all bg-white text-xs">3</button>
+              <span class="text-slate-300 text-xs">…</span>
+              <button class="w-7 h-7 flex items-center justify-center text-slate-600 hover:text-teal-600 border border-slate-200 rounded-lg hover:border-teal-300 transition-all bg-white text-xs">25</button>
+              <button class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-teal-600 border border-slate-200 rounded-lg hover:border-teal-300 transition-all bg-white">
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tabla -->
+
+    <!-- ── SIDEBAR RESUMEN DEL PERIODO ─────────────────────────────────── -->
+    <div class="sidebar-resumen hidden xl:block">
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <!-- Header -->
+        <div class="px-4 py-3 bg-gradient-to-r from-teal-600 to-teal-500">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-white">Resumen del periodo</span>
+            <button class="w-6 h-6 bg-white/10 hover:bg-white/20 rounded flex items-center justify-center text-white/70 transition-all" title="Colapsar sidebar">
+              <i data-lucide="panel-right-close" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <div class="text-[10px] text-teal-200 mt-0.5">Abril 2026 · filtro activo</div>
+        </div>
+
+        <!-- Donut chart por categoría (SVG inline) -->
+        <div class="p-4 border-b border-slate-100">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Por categoría</div>
+          <div class="flex items-center justify-center mb-3">
+            <svg viewBox="0 0 100 100" class="w-32 h-32">
+              <!-- Donut chart simplificado: radio exterior 45, interior 28 -->
+              <!-- Ingresos: ~50% = 180° -->
+              <circle cx="50" cy="50" r="38" fill="none" stroke="#e2e8f0" stroke-width="14"/>
+              <!-- Sector Ingresos (emerald) ~50% -->
+              <circle cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="14"
+                stroke-dasharray="119 239" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+              <!-- Sector Egresos (red) ~39% -->
+              <circle cx="50" cy="50" r="38" fill="none" stroke="#ef4444" stroke-width="14"
+                stroke-dasharray="93 239" stroke-dashoffset="-119" transform="rotate(-90 50 50)"/>
+              <!-- Sector TC (indigo) ~7% -->
+              <circle cx="50" cy="50" r="38" fill="none" stroke="#6366f1" stroke-width="14"
+                stroke-dasharray="17 239" stroke-dashoffset="-212" transform="rotate(-90 50 50)"/>
+              <!-- Sector Internos (amber) ~4% -->
+              <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="14"
+                stroke-dasharray="10 239" stroke-dashoffset="-229" transform="rotate(-90 50 50)"/>
+              <!-- Texto centro -->
+              <text x="50" y="46" text-anchor="middle" font-size="9" font-weight="700" fill="#0f172a">1,243</text>
+              <text x="50" y="57" text-anchor="middle" font-size="6.5" fill="#94a3b8">movimientos</text>
+            </svg>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
+                <span class="text-xs text-slate-600">Ingresos</span>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-semibold text-emerald-700 num-tab">S/ 62,340</span>
+                <span class="text-[10px] text-slate-400 ml-1">50%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0"></div>
+                <span class="text-xs text-slate-600">Egresos</span>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-semibold text-red-600 num-tab">S/ 48,920</span>
+                <span class="text-[10px] text-slate-400 ml-1">39%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 flex-shrink-0"></div>
+                <span class="text-xs text-slate-600">TC / Cargos</span>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-semibold text-indigo-700 num-tab">S/ 8,720</span>
+                <span class="text-[10px] text-slate-400 ml-1">7%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></div>
+                <span class="text-xs text-slate-600">Internos / FX</span>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-semibold text-amber-700 num-tab">S/ 4,000</span>
+                <span class="text-[10px] text-slate-400 ml-1">4%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown por canal -->
+        <div class="p-4">
+          <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Por canal</div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="chip bg-sky-100 text-sky-700 chip-sm">Transferencia</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-700 num-tab">S/ 78,400</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="chip bg-purple-100 text-purple-700 chip-sm">Yape</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-700 num-tab">S/ 12,340</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="chip bg-indigo-100 text-indigo-700 chip-sm">TC Cargo</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-700 num-tab">S/ 8,720</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="chip bg-teal-100 text-teal-700 chip-sm">SIP</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-700 num-tab">S/ 5,250</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="chip bg-slate-100 text-slate-600 chip-sm">Efectivo</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-700 num-tab">S/ 3,480</div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="chip bg-emerald-100 text-emerald-700 chip-sm">Plin</span>
+              </div>
+              <div class="text-xs font-semibold text-slate-700 num-tab">S/ 1,070</div>
+            </div>
+          </div>
+
+          <!-- Mini métricas adicionales -->
+          <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Lotes masivos</span>
+              <span class="font-semibold text-slate-700 num-tab">3 lotes · S/ 42,200</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Conversiones FX</span>
+              <span class="font-semibold text-slate-700 num-tab">4 · US$ 2,500</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500">Ajustes sistema</span>
+              <span class="font-semibold text-slate-700 num-tab">2 · S/ 18.30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /sidebar -->
+
+  </div><!-- /layout -->
+</div><!-- /view-desktop -->
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     VISTA MOBILE — Cards apiladas
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="view-mobile" class="max-w-xl mx-auto px-4 pt-4" style="display:none">
+
+  <div class="section-label text-[11px] font-semibold text-teal-700 uppercase">Vista Mobile · Tesorería Movimientos</div>
+
+  <!-- Header mobile -->
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h2 class="text-lg font-bold text-slate-900">Movimientos</h2>
+      <p class="text-xs text-slate-500">Abril 2026 · 1,243 total</p>
+    </div>
+    <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+      <i data-lucide="filter" class="w-3.5 h-3.5 text-teal-600"></i>
+      Filtrar
+      <span class="w-4 h-4 bg-teal-600 text-white rounded-full text-[9px] font-bold flex items-center justify-center">3</span>
+    </button>
+  </div>
+
+  <!-- KPIs strip mobile -->
+  <div class="grid grid-cols-2 gap-2 mb-4">
+    <div class="bg-white border border-slate-200 rounded-xl p-3">
+      <div class="text-[10px] text-slate-400 uppercase mb-0.5">Ingresos</div>
+      <div class="text-base font-bold text-emerald-700 num-tab">S/ 62,340</div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-3">
+      <div class="text-[10px] text-slate-400 uppercase mb-0.5">Egresos</div>
+      <div class="text-base font-bold text-red-600 num-tab">S/ 48,920</div>
+    </div>
+  </div>
+
+  <!-- Cards de movimientos mobile -->
+  <div class="mobile-card">
+    <div class="flex items-center justify-between mb-1.5">
+      <div class="flex items-center gap-2">
+        <span class="chip bg-emerald-100 text-emerald-700">Ingreso</span>
+        <span class="chip bg-purple-100 text-purple-700">Yape</span>
+      </div>
+      <span class="text-[10px] text-slate-400">28 abr · 14:32</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-600 font-medium truncate max-w-[180px]">Cobro venta ML · Pedido #1028</div>
+        <div class="text-[10px] text-slate-400 flex items-center gap-1">
+          <span class="chip bg-slate-100 text-slate-500 chip-sm">VT-2026-088</span>
+          <span>BCP Cte ····3842</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-base font-bold text-emerald-700 num-tab">+S/ 3,450</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-card">
+    <div class="flex items-center justify-between mb-1.5">
+      <div class="flex items-center gap-2">
+        <span class="chip bg-red-100 text-red-700">Egreso</span>
+        <span class="chip bg-sky-100 text-sky-700">Transferencia</span>
+      </div>
+      <span class="text-[10px] text-slate-400">28 abr · 11:15</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-600 font-medium truncate max-w-[180px]">Pago parcial proveedor Shenzhen</div>
+        <div class="text-[10px] text-slate-400 flex items-center gap-1">
+          <span class="chip bg-slate-100 text-slate-500 chip-sm">OC-2026-042</span>
+          <span>BCP Cte ····3842</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-base font-bold text-red-600 num-tab">-S/ 8,200</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-card">
+    <div class="flex items-center justify-between mb-1.5">
+      <div class="flex items-center gap-2">
+        <span class="chip bg-teal-100 text-teal-700">FX · Conversión</span>
+        <span class="chip bg-teal-100 text-teal-700">SIP</span>
+      </div>
+      <span class="text-[10px] text-slate-400">28 abr · 09:30</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-600 font-medium">US$ 500 → S/ 1,925 · TC 3.85</div>
+        <div class="text-[10px] text-slate-400">BBVA USD → BCP Cte</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="text-right">
+          <div class="text-xs font-semibold text-red-500 num-tab">-US$ 500</div>
+          <div class="text-xs font-semibold text-emerald-600 num-tab">+S/ 1,925</div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-card">
+    <div class="flex items-center justify-between mb-1.5">
+      <div class="flex items-center gap-2">
+        <span class="chip bg-indigo-100 text-indigo-700">TC · Cargo</span>
+        <span class="chip bg-indigo-100 text-indigo-700">TC Cargo</span>
+      </div>
+      <span class="text-[10px] text-slate-400">27 abr · 16:45</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-600 font-medium truncate max-w-[180px]">Flete aéreo China · DHL Express</div>
+        <div class="text-[10px] text-slate-400 flex items-center gap-1">
+          <span class="chip bg-slate-100 text-slate-500 chip-sm">OC-2026-038</span>
+          <span>BCP Visa ····5588</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-base font-bold text-slate-800 num-tab">S/ 320</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-card">
+    <div class="flex items-center justify-between mb-1.5">
+      <div class="flex items-center gap-2">
+        <span class="chip bg-red-100 text-red-700">Egreso</span>
+        <span class="chip bg-amber-100 text-amber-700">Lote masivo</span>
+      </div>
+      <span class="text-[10px] text-slate-400">27 abr · 10:00</span>
+    </div>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-600 font-medium truncate max-w-[180px]">Planilla parcial abr · 12 pagos</div>
+        <div class="text-[10px] text-slate-400 flex items-center gap-1">
+          <span class="chip bg-amber-100 text-amber-700 chip-sm">LOTE-2026-007</span>
+          <span>BCP Cte ····3842</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-base font-bold text-red-600 num-tab">-S/ 18,400</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center py-4">
+    <button class="text-xs font-medium px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-all">
+      Ver más movimientos
+    </button>
+  </div>
+
+  <div class="text-[10px] text-slate-400 text-center mt-2">
+    Las vistas mobile no muestran saldo corrido (no cabe en pantalla pequeña).
+    El filtro se abre desde el drawer accionable en el header.
+  </div>
+
+</div><!-- /view-mobile -->
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     ESTADO VACÍO
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="view-empty" class="max-w-7xl mx-auto px-4 pt-6" style="display:none">
+
+  <div class="section-label text-[11px] font-semibold text-teal-700 uppercase mb-6">Estado vacío · Sin resultados</div>
+
+  <!-- Filtros activos que no devuelven nada -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4">
+    <div class="flex items-center gap-2 flex-wrap">
+      <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 flex-shrink-0">
+        <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-600"></i>
+        <span class="text-xs font-medium text-slate-700">1 ene – 31 ene 2020</span>
+      </div>
+      <span class="filter-chip active">Ajustes</span>
+      <span class="filter-chip active">Plin</span>
+      <span class="filter-chip active">Lote masivo</span>
+      <button class="ml-auto text-[10px] font-medium text-teal-600 hover:text-teal-700 transition-colors flex items-center gap-1">
+        <i data-lucide="x" class="w-3 h-3"></i>Limpiar filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- KPIs en 0 -->
+  <div class="bg-white border border-slate-200 rounded-xl kpi-strip mb-4">
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">Ingresos</div>
+      <div class="text-xl font-bold text-slate-300 num-tab">S/ 0</div>
+    </div>
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">Egresos</div>
+      <div class="text-xl font-bold text-slate-300 num-tab">S/ 0</div>
+    </div>
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">Saldo neto</div>
+      <div class="text-xl font-bold text-slate-300 num-tab">S/ 0</div>
+    </div>
+    <div class="kpi-item">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase mb-1">Movimientos</div>
+      <div class="text-xl font-bold text-slate-300 num-tab">0</div>
+    </div>
+  </div>
+
+  <!-- Empty state illustration -->
+  <div class="bg-white border border-slate-200 rounded-xl p-12 text-center">
+    <div class="empty-illustration">
+      <i data-lucide="search-x" class="w-10 h-10 text-slate-300"></i>
+    </div>
+    <h3 class="text-base font-semibold text-slate-700 mb-2">No hay movimientos en el periodo seleccionado</h3>
+    <p class="text-sm text-slate-400 max-w-sm mx-auto mb-5">Los filtros activos (enero 2020 · Ajustes · Plin · Lote masivo) no devuelven ningún resultado. Prueba con un rango de fechas diferente o limpia los filtros.</p>
+    <div class="flex items-center justify-center gap-2">
+      <button class="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-all">
+        <i data-lucide="x" class="w-4 h-4"></i>
+        Limpiar filtros
+      </button>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+        <i data-lucide="calendar" class="w-4 h-4"></i>
+        Cambiar fechas
+      </button>
+    </div>
+    <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-center gap-4 text-xs text-slate-400">
+      <span class="flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i>Los datos más antiguos datan de enero 2023</span>
+    </div>
+  </div>
+
+</div><!-- /view-empty -->
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     FILA EXPANDIDA — Detalle inline
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="view-expanded" class="max-w-7xl mx-auto px-4 pt-6" style="display:none">
+
+  <div class="section-label text-[11px] font-semibold text-teal-700 uppercase mb-6">Fila expandida · Detalle inline con mini-timeline</div>
+
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="mov-table">
+        <thead>
+          <tr>
+            <th class="w-8"></th>
+            <th>Fecha</th>
+            <th>Categoría</th>
+            <th>Origen → Destino</th>
+            <th>Documento</th>
+            <th class="col-concepto">Concepto</th>
+            <th>Canal</th>
+            <th class="text-right">Monto</th>
+            <th class="text-right">Saldo corrido</th>
+            <th>Lote</th>
+            <th class="w-8"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Fila anterior (referencia) -->
+          <tr class="row-alt">
+            <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+            <td class="text-slate-700 font-medium">28 abr<br><span class="text-[10px] text-slate-400 font-normal">14:32</span></td>
+            <td><span class="chip bg-emerald-100 text-emerald-700">Ingreso</span></td>
+            <td><span class="text-[10px] text-slate-500">Cliente → BCP ····3842</span></td>
+            <td><span class="chip bg-slate-100 text-slate-600">VT-2026-088</span></td>
+            <td class="col-concepto text-slate-600 text-xs">Cobro venta ML · Pedido #1028</td>
+            <td><span class="chip bg-purple-100 text-purple-700">Yape</span></td>
+            <td class="text-right num-tab font-semibold text-emerald-700">+S/ 3,450.00</td>
+            <td class="text-right num-tab text-slate-500 text-xs">S/ 14,250.80</td>
+            <td>—</td>
+            <td></td>
+          </tr>
+
+          <!-- FILA EXPANDIDA (la que el usuario clickeó) -->
+          <tr class="row-expanded" style="background:#f0fdfa">
+            <td style="background:#f0fdfa; border-left:3px solid #0d9488;"></td>
+            <td class="text-slate-700 font-medium" style="background:#f0fdfa">28 abr<br><span class="text-[10px] text-slate-400 font-normal">11:15</span></td>
+            <td style="background:#f0fdfa"><span class="chip bg-red-100 text-red-700">Egreso</span></td>
+            <td style="background:#f0fdfa"><span class="text-[10px] text-slate-600">BCP ····3842 → Proveedor</span></td>
+            <td style="background:#f0fdfa"><span class="chip bg-teal-100 text-teal-700 cursor-pointer">OC-2026-042</span></td>
+            <td class="col-concepto text-slate-600 text-xs" style="background:#f0fdfa">Pago parcial proveedor Shenzhen</td>
+            <td style="background:#f0fdfa"><span class="chip bg-sky-100 text-sky-700">Transferencia</span></td>
+            <td class="text-right num-tab font-semibold text-red-600" style="background:#f0fdfa">-S/ 8,200.00</td>
+            <td class="text-right num-tab text-slate-500 text-xs" style="background:#f0fdfa">S/ 12,800.50</td>
+            <td style="background:#f0fdfa">—</td>
+            <td style="background:#f0fdfa">
+              <button class="w-6 h-6 flex items-center justify-center text-teal-600 rounded hover:bg-teal-100 transition-all" title="Colapsar">
+                <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Detalle expandido inline -->
+          <tr class="row-detail">
+            <td style="border-left:3px solid #0d9488"></td>
+            <td colspan="10" style="background:#f0fdfa">
+              <div class="flex gap-6 items-start flex-wrap">
+
+                <!-- Mini-timeline de estados del movimiento -->
+                <div class="flex-1 min-w-[300px]">
+                  <div class="text-[10px] font-semibold text-teal-700 uppercase mb-3 flex items-center gap-1">
+                    <i data-lucide="clock" class="w-3 h-3"></i>
+                    Timeline del movimiento
+                  </div>
+                  <div class="flex items-start relative">
+
+                    <!-- Paso 1: Creado -->
+                    <div class="flex flex-col items-center" style="min-width:80px">
+                      <div class="mini-timeline-dot bg-emerald-500 text-white">
+                        <i data-lucide="plus" style="width:12px;height:12px"></i>
+                      </div>
+                      <div class="text-[10px] font-semibold text-emerald-700 text-center mt-1">Creado</div>
+                      <div class="text-[9px] text-slate-400 text-center">28 abr · 11:10</div>
+                      <div class="text-[9px] text-slate-500 text-center">por José LP</div>
+                    </div>
+
+                    <!-- Línea -->
+                    <div class="flex-1 h-0.5 bg-emerald-300 mt-3.5 mx-1"></div>
+
+                    <!-- Paso 2: Procesado -->
+                    <div class="flex flex-col items-center" style="min-width:80px">
+                      <div class="mini-timeline-dot bg-emerald-500 text-white">
+                        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i>
+                      </div>
+                      <div class="text-[10px] font-semibold text-emerald-700 text-center mt-1">Procesado</div>
+                      <div class="text-[9px] text-slate-400 text-center">28 abr · 11:13</div>
+                      <div class="text-[9px] text-slate-500 text-center">BCP · 3 min</div>
+                    </div>
+
+                    <!-- Línea -->
+                    <div class="flex-1 h-0.5 bg-emerald-300 mt-3.5 mx-1"></div>
+
+                    <!-- Paso 3: Ejecutado -->
+                    <div class="flex flex-col items-center" style="min-width:80px">
+                      <div class="mini-timeline-dot bg-emerald-500 text-white">
+                        <i data-lucide="check" style="width:12px;height:12px"></i>
+                      </div>
+                      <div class="text-[10px] font-semibold text-emerald-700 text-center mt-1">Ejecutado</div>
+                      <div class="text-[9px] text-slate-400 text-center">28 abr · 11:15</div>
+                      <div class="text-[9px] text-teal-600 text-center font-semibold">Saldo aplicado</div>
+                    </div>
+
+                  </div>
+                  <!-- Saldo aplicado -->
+                  <div class="mt-3 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 flex items-center justify-between">
+                    <span class="text-[10px] text-teal-700">Saldo BCP ····3842 post-movimiento</span>
+                    <span class="text-xs font-bold text-teal-800 num-tab">S/ 12,800.50</span>
+                  </div>
+                </div>
+
+                <!-- Datos del movimiento -->
+                <div class="flex-1 min-w-[220px]">
+                  <div class="text-[10px] font-semibold text-slate-500 uppercase mb-3">Datos del movimiento</div>
+                  <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs">
+                      <span class="text-slate-400">ID movimiento</span>
+                      <span class="font-mono text-slate-700">MOV-20260428-0042</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span class="text-slate-400">Referencia bancaria</span>
+                      <span class="font-mono text-slate-700">BCP-TRF-789012345</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span class="text-slate-400">Tipo de cambio</span>
+                      <span class="text-slate-700">N/A · PEN nativo</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span class="text-slate-400">OC relacionada</span>
+                      <span class="text-teal-600 cursor-pointer hover:text-teal-700 font-medium">OC-2026-042 ↗</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span class="text-slate-400">Registrado por</span>
+                      <span class="text-slate-700">José LP</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span class="text-slate-400">Auditoría</span>
+                      <span class="chip bg-emerald-100 text-emerald-700 chip-sm">Conciliado</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-1.5 mt-3">
+                    <button class="text-[10px] font-medium px-2.5 py-1.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-all flex items-center gap-1">
+                      <i data-lucide="eye" class="w-3 h-3"></i>Ver detalle completo
+                    </button>
+                    <button class="text-[10px] font-medium px-2 py-1.5 bg-red-50 border border-red-200 text-red-600 rounded-md hover:bg-red-100 transition-all flex items-center gap-1">
+                      <i data-lucide="x" class="w-3 h-3"></i>Anular
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </td>
+          </tr>
+
+          <!-- Fila siguiente (referencia) -->
+          <tr>
+            <td><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></td>
+            <td class="text-slate-700 font-medium">28 abr<br><span class="text-[10px] text-slate-400 font-normal">09:30</span></td>
+            <td><span class="chip bg-teal-100 text-teal-700">FX · Conversión</span></td>
+            <td><span class="text-[10px] text-slate-500">BBVA USD ↔ BCP Cte</span></td>
+            <td>—</td>
+            <td class="col-concepto text-slate-600 text-xs">US$ 500 → S/ 1,925 · TC 3.85</td>
+            <td><span class="chip bg-teal-100 text-teal-700">SIP</span></td>
+            <td class="text-right num-tab font-semibold text-teal-700">
+              <div class="text-[10px] text-red-500">-US$ 500</div>
+              <div class="text-[10px] text-emerald-600">+S/ 1,925</div>
+            </td>
+            <td class="text-right num-tab text-slate-500 text-xs">—</td>
+            <td>—</td>
+            <td></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="text-[10px] text-slate-400 mt-4 text-center">
+    La fila resaltada en verde (border-left teal) es la fila expandida actualmente.
+    Solo una fila se expande a la vez; expandir otra colapsa la anterior.
+    El mini-timeline muestra: creado → procesado → ejecutado/aplicado con timestamp exacto y usuario.
+  </div>
+
+</div><!-- /view-expanded -->
+
+<script>
+  lucide.createIcons();
+
+  function showView(view, btn) {
+    ['view-desktop','view-mobile','view-empty','view-expanded'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    document.getElementById('view-' + view).style.display = 'block';
+    document.querySelectorAll('.view-nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

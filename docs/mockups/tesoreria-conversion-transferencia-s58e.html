@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tesorería · Conversión + Transferencia · S58e</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<!--
+  M7 · tesoreria-conversion-transferencia-s58e.html
+  Wizard de Conversión cambiaria USD↔PEN y Transferencia interna.
+
+  DECISIONES DE DISEÑO (al final del archivo también):
+  1. Un solo HTML con toggle visual arriba → Variante A (Conversión) y Variante B (Transferencia).
+     El JS muestra/oculta las secciones correspondientes.
+  2. El wizard sigue el mismo shell 3-panel que M5 (pagos masivos):
+     sidebar-izquierdo pasos + contenido-central + sidebar-derecho resumen.
+  3. La Conversión muestra cards "Saldrá" (rojo/rose) + "Entrará" (verde/emerald) desde el paso 1,
+     con actualización en vivo en el sidebar derecho conforme el usuario llena los campos.
+  4. El idempotency key se genera al llegar al paso 3 y se muestra inline — decisión de transparencia
+     banking-grade (Mercury lo hace así).
+  5. Si el usuario selecciona el mismo producto en origen y destino en Transferencia, se muestra
+     warning inline — no se bloquea a nivel de select para no ser disruptivo.
+  6. El diferencial cambiario en Conversión es opcional (campo colapsable con tooltip explicativo).
+  7. TC chip reutiliza el mismo patrón que M5 (read-only + override manual).
+  8. El historial reciente (últimas 10) está en sección fija al final del HTML, con scroll horizontal
+     en mobile. Los items de Conversión tienen badge FX teal; Transferencias tienen badge slate.
+  9. Los SVG de logos de banco siguen exactamente el patrón de L1 (colores BCP/BBVA/IBK/Scotia).
+  10. El sidebar derecho muestra alerta si el saldo proyectado post-operación queda bajo el mínimo
+      configurado del producto (threshold mock: BCP USD mínimo US$ 500).
+-->
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+
+  /* ── WIZARD SHELL ────────────────────────────────── */
+  .wizard-shell {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    min-height: 580px;
+  }
+
+  /* ── SIDEBAR IZQUIERDO (pasos) ────────────────────── */
+  .wizard-steps {
+    width: 196px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-right: 1px solid #e2e8f0;
+    padding: 1.5rem 0;
+  }
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .step-item:hover { background: rgba(13,148,136,0.05); }
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .step-num.done { background: #059669; color: #fff; }
+  .step-num.active { background: #0d9488; color: #fff; box-shadow: 0 0 0 3px #ccfbf1; }
+  .step-num.pending { background: #e2e8f0; color: #94a3b8; }
+  .step-label { font-size: 12px; line-height: 1.3; }
+  .step-label.active { color: #0f766e; font-weight: 600; }
+  .step-label.done { color: #059669; }
+  .step-label.pending { color: #94a3b8; }
+  .step-connector { width: 2px; height: 14px; margin: 0 0 0 1.75rem; background: #e2e8f0; }
+  .step-connector.done { background: #6ee7b7; }
+
+  /* ── CONTENIDO CENTRAL ─────────────────────────────── */
+  .wizard-content { flex: 1; min-width: 0; overflow-y: auto; }
+  .wizard-content-inner { padding: 1.75rem 2rem; }
+
+  /* ── SIDEBAR DERECHO (resumen) ─────────────────────── */
+  .sidebar-resumen {
+    width: 256px; flex-shrink: 0;
+    background: #f8fafc;
+    border-left: 1px solid #e2e8f0;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-header {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+    padding: 1rem; color: #fff;
+  }
+
+  /* ── TOGGLE VARIANTE ───────────────────────────────── */
+  .variante-toggle { transition: all 0.15s ease; }
+  .variante-toggle.active { background: #0f766e; color: #fff; box-shadow: 0 0 0 2px #ccfbf1; }
+  .variante-toggle:not(.active) { background: #fff; color: #475569; border: 1px solid #e2e8f0; }
+  .variante-toggle:not(.active):hover { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
+
+  /* ── CARDS ORIGEN/DESTINO ─────────────────────────── */
+  .flow-card-out {
+    border: 2px solid #fca5a5;
+    background: linear-gradient(135deg, #fff8f8 0%, #fef2f2 100%);
+    border-radius: 0.875rem; padding: 1.25rem;
+    transition: all 0.18s ease;
+  }
+  .flow-card-in {
+    border: 2px solid #6ee7b7;
+    background: linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%);
+    border-radius: 0.875rem; padding: 1.25rem;
+    transition: all 0.18s ease;
+  }
+  .flow-card-out:hover { box-shadow: 0 4px 12px rgba(248,113,113,0.15); }
+  .flow-card-in:hover { box-shadow: 0 4px 12px rgba(52,211,153,0.15); }
+
+  /* ── CAMPO DE MONTO ────────────────────────────────── */
+  .monto-input {
+    width: 100%; font-size: 1.875rem; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    border: none; outline: none; background: transparent;
+    color: #0f172a; caret-color: #0d9488;
+  }
+  .monto-input::placeholder { color: #cbd5e1; }
+
+  /* ── TC CHIP ───────────────────────────────────────── */
+  .tc-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #f0fdf4; border: 1px solid #86efac;
+    border-radius: 9999px; padding: 3px 10px;
+    font-size: 11px; font-weight: 600; color: #15803d;
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .tc-chip:hover { background: #dcfce7; border-color: #4ade80; }
+
+  /* ── SELECTOR PRODUCTO ─────────────────────────────── */
+  .product-select-btn {
+    width: 100%;
+    display: flex; align-items: center; gap: 0.75rem;
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 0.625rem; padding: 0.75rem;
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .product-select-btn:hover { border-color: #5eead4; background: #f0fdfa; }
+  .product-select-btn.selected { border-color: #0d9488; background: #f0fdfa; }
+
+  /* ── HISTORIAL ROW ─────────────────────────────────── */
+  .hist-card {
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 0.75rem; padding: 0.875rem 1rem;
+    min-width: 280px; flex-shrink: 0;
+    transition: all 0.18s ease;
+    cursor: pointer;
+  }
+  .hist-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #99f6e4; transform: translateY(-1px); }
+
+  /* ── ALERTA SALDO BAJO ─────────────────────────────── */
+  @keyframes softpulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+  .alert-pulse { animation: softpulse 2.5s ease-in-out infinite; }
+</style>
+</head>
+<body class="pb-16">
+
+<!-- ============================================================
+     STICKY NAV (mockup)
+============================================================ -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="arrow-right-left" class="w-4 h-4 text-teal-600"></i>
+      <span class="font-bold text-slate-900">Tesorería · Conversión / Transferencia</span>
+      <span class="text-[11px] text-slate-500 ml-2">M7 · S58e</span>
+    </div>
+    <div class="flex gap-1.5">
+      <a href="#variante-a" onclick="mostrar('a')" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">Variante A · Conversión</a>
+      <a href="#variante-b" onclick="mostrar('b')" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Variante B · Transferencia</a>
+      <a href="#historial" class="text-[11px] px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded-md hover:bg-slate-50">Historial</a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 pt-6">
+
+  <!-- ── HEADER DE PÁGINA ─────────────────────────────── -->
+  <div class="flex items-start justify-between gap-4 mb-5 flex-wrap">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <a href="#" class="hover:text-teal-600 transition-colors">Tesorería</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Operaciones internas</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="arrow-right-left" class="w-6 h-6 text-teal-600"></i>
+        Conversión y Transferencia
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">Movimientos internos entre productos propios</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+        <i data-lucide="history" class="w-3.5 h-3.5"></i>
+        Historial completo
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TOGGLE VARIANTE ──────────────────────────────── -->
+  <div class="flex items-center gap-2 mb-6" id="toggle-variante">
+    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide mr-1">Tipo de operación:</span>
+    <button onclick="mostrar('a')" id="btn-a" class="variante-toggle active flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+      <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+      Conversión USD ↔ PEN
+    </button>
+    <button onclick="mostrar('b')" id="btn-b" class="variante-toggle flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+      <i data-lucide="move-right" class="w-4 h-4"></i>
+      Transferencia interna
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       VARIANTE A · CONVERSIÓN CAMBIARIA (Paso 1 activo)
+  ════════════════════════════════════════════════════ -->
+  <div id="variante-a" class="scroll-anchor">
+
+    <div class="wizard-shell">
+
+      <!-- PASOS IZQUIERDO -->
+      <div class="wizard-steps">
+        <div class="px-4 mb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-teal-600 rounded-lg flex items-center justify-center">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-white"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-teal-700">Conversión</p>
+              <p class="text-[10px] text-slate-400">USD ↔ PEN</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num done"><i data-lucide="check" class="w-3 h-3"></i></div>
+          <div>
+            <p class="step-label done">Origen y destino</p>
+            <p class="text-[10px] text-emerald-500">BCP USD → BCP PEN</p>
+          </div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step-item">
+          <div class="step-num active">2</div>
+          <div>
+            <p class="step-label active">Monto y TC</p>
+            <p class="text-[10px] text-slate-400">En progreso</p>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item">
+          <div class="step-num pending">3</div>
+          <div>
+            <p class="step-label pending">Confirmar</p>
+            <p class="text-[10px] text-slate-400">Ejecutar conversión</p>
+          </div>
+        </div>
+
+        <div class="mt-6 mx-3 p-2.5 bg-teal-50 border border-teal-200 rounded-lg">
+          <p class="text-[10px] font-semibold text-teal-700 mb-0.5">Operación interna</p>
+          <p class="text-[9px] text-teal-600 leading-relaxed">No afecta el patrimonio neto. Solo cambia la composición en monedas.</p>
+        </div>
+      </div>
+
+      <!-- CONTENIDO CENTRAL -->
+      <div class="wizard-content">
+        <div class="wizard-content-inner">
+
+          <!-- ── PASO 1: ORIGEN + DESTINO (completado, colapsado) ── -->
+          <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+              </div>
+              <span class="text-sm font-semibold text-emerald-700">Origen y destino configurados</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <!-- Producto origen resumen -->
+              <div class="flex items-center gap-1.5">
+                <svg width="18" height="18" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0">
+                  <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                  <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+                </svg>
+                <span class="text-xs font-semibold text-slate-700">BCP USD</span>
+                <span class="text-xs text-slate-400 num-tab">US$ 8,340.20</span>
+              </div>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+              <div class="flex items-center gap-1.5">
+                <svg width="18" height="18" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0">
+                  <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                  <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+                </svg>
+                <span class="text-xs font-semibold text-slate-700">BCP Soles</span>
+                <span class="text-xs text-slate-400 num-tab">S/ 12,450.80</span>
+              </div>
+              <button class="text-xs text-teal-600 hover:text-teal-700 font-medium transition-colors">Cambiar</button>
+            </div>
+          </div>
+
+          <!-- ── PASO 2: MONTO + TC (activo) ── -->
+          <h2 class="text-base font-bold text-slate-900 mb-1">Monto y tipo de cambio</h2>
+          <p class="text-sm text-slate-500 mb-4">Ingresa el monto a convertir de USD a PEN.</p>
+
+          <!-- Monto origen -->
+          <div class="mb-4">
+            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">Monto a convertir (USD)</label>
+            <div class="bg-white border-2 border-teal-400 rounded-xl p-4 flex items-center gap-3 shadow-sm">
+              <div class="text-2xl font-bold text-rose-500 flex-shrink-0">−</div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-400 font-semibold text-lg">US$</span>
+                  <input class="monto-input" type="text" placeholder="0.00" value="5,000.00" />
+                </div>
+                <div class="text-xs text-slate-400 mt-1">Disponible: <span class="font-semibold text-slate-600 num-tab">US$ 8,340.20</span> · Quedará: <span class="font-semibold text-emerald-600 num-tab">US$ 3,340.20</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TC del día -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Tipo de cambio aplicado</label>
+              <span class="tc-chip">
+                <i data-lucide="zap" class="w-3 h-3"></i>
+                Sistema · TC hoy
+              </span>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <div class="text-2xl font-bold text-slate-900 num-tab">3.850</div>
+                <div class="text-xs text-slate-500 mt-0.5">PEN por USD · Fuente: SBS · Actualizado hace 12 min</div>
+              </div>
+              <button class="text-xs text-teal-600 hover:text-teal-700 font-medium border border-teal-200 px-3 py-1.5 rounded-lg transition-all hover:bg-teal-50">
+                <i data-lucide="edit-2" class="w-3 h-3 inline mr-1"></i>
+                Override manual
+              </button>
+            </div>
+          </div>
+
+          <!-- Equivalente calculado (preview grande) -->
+          <div class="mb-4 flow-card-in">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                <i data-lucide="plus" class="w-3.5 h-3.5 text-white"></i>
+              </div>
+              <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Recibirás en BCP Soles</span>
+            </div>
+            <div class="text-4xl font-bold text-emerald-700 num-tab">S/ 19,250.00</div>
+            <div class="text-sm text-emerald-600 mt-1">= US$ 5,000 × TC 3.850</div>
+            <div class="text-xs text-slate-500 mt-0.5">Saldo BCP Soles después: <span class="font-semibold text-slate-700 num-tab">S/ 31,700.80</span></div>
+          </div>
+
+          <!-- Fecha -->
+          <div class="mb-4">
+            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">Fecha de ejecución</label>
+            <input type="date" value="2026-04-28" class="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-300 w-48">
+            <span class="text-xs text-slate-400 ml-2">Hoy</span>
+          </div>
+
+          <!-- Diferencial cambiario (colapsable) -->
+          <div class="border border-dashed border-slate-300 rounded-xl overflow-hidden mb-5">
+            <button class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 transition-colors" onclick="this.parentElement.classList.toggle('open')">
+              <div class="flex items-center gap-2">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-slate-400"></i>
+                <span class="text-xs font-semibold text-slate-600">Diferencial cambiario (opcional)</span>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
+            </button>
+            <div class="hidden px-4 pb-4">
+              <p class="text-xs text-slate-500 mb-3 leading-relaxed">Registra la ganancia o pérdida por diferencia entre el TC contable y el TC de mercado aplicado. Se registra como línea separada de conciliación.</p>
+              <div class="flex items-center gap-3">
+                <div class="flex-1">
+                  <label class="text-xs font-medium text-slate-500 block mb-1">Monto diferencial</label>
+                  <div class="flex items-center gap-2">
+                    <select class="text-xs border border-slate-200 rounded-lg px-2 py-2 bg-white text-slate-600">
+                      <option>Ganancia</option>
+                      <option>Pérdida</option>
+                    </select>
+                    <input type="text" placeholder="0.00" class="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300 num-tab">
+                    <select class="text-xs border border-slate-200 rounded-lg px-2 py-2 bg-white text-slate-600">
+                      <option>PEN</option>
+                      <option>USD</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de navegación -->
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <button class="flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 hover:text-slate-900 transition-colors">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              Atrás
+            </button>
+            <button class="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.98]">
+              Revisar y confirmar
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SIDEBAR DERECHO -->
+      <div class="sidebar-resumen">
+        <div class="sidebar-header">
+          <p class="text-xs font-semibold text-teal-200 uppercase tracking-wide mb-1">Resumen operación</p>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-white"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">Conversión USD→PEN</p>
+              <p class="text-[10px] text-teal-200">En construcción</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-3 space-y-3">
+
+          <!-- Flujo visual -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Flujo de fondos</p>
+            <!-- Origen -->
+            <div class="flex items-center gap-2 p-2 bg-rose-50 border border-rose-200 rounded-lg mb-2">
+              <svg width="22" height="22" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0">
+                <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+              </svg>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold text-slate-700 truncate">BCP USD</p>
+                <p class="text-[10px] text-rose-600 font-bold num-tab">−US$ 5,000.00</p>
+              </div>
+            </div>
+            <!-- Flecha -->
+            <div class="flex justify-center my-1">
+              <div class="flex flex-col items-center gap-0.5">
+                <div class="w-px h-3 bg-slate-300"></div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-teal-600"></i>
+                <div class="text-[9px] font-bold text-teal-600 bg-teal-50 border border-teal-200 rounded px-1.5 py-0.5 num-tab">TC 3.850</div>
+                <div class="w-px h-2 bg-slate-300"></div>
+              </div>
+            </div>
+            <!-- Destino -->
+            <div class="flex items-center gap-2 p-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <svg width="22" height="22" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0">
+                <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+              </svg>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold text-slate-700 truncate">BCP Soles</p>
+                <p class="text-[10px] text-emerald-600 font-bold num-tab">+S/ 19,250.00</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detalle TC -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Detalle</p>
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">Monto origen</span>
+                <span class="font-semibold text-slate-700 num-tab">US$ 5,000.00</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">TC aplicado</span>
+                <span class="font-semibold text-slate-700 num-tab">3.8500</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">Diferencial</span>
+                <span class="font-semibold text-slate-400 italic">No registrado</span>
+              </div>
+              <div class="border-t border-slate-100 pt-1.5 flex justify-between text-xs">
+                <span class="font-semibold text-slate-700">Total recibido</span>
+                <span class="font-bold text-emerald-600 num-tab">S/ 19,250.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Saldo proyectado -->
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Saldos proyectados</p>
+            <div class="space-y-2">
+              <div>
+                <div class="flex justify-between text-[11px] mb-0.5">
+                  <span class="text-slate-500">BCP USD (después)</span>
+                  <span class="font-bold text-slate-700 num-tab">US$ 3,340.20</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-sky-400 rounded-full" style="width:40%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] mb-0.5">
+                  <span class="text-slate-500">BCP Soles (después)</span>
+                  <span class="font-bold text-slate-700 num-tab">S/ 31,700.80</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-400 rounded-full" style="width:75%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alerta saldo mínimo -->
+          <div class="alert-pulse bg-amber-50 border border-amber-300 rounded-lg p-3">
+            <div class="flex items-start gap-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-[11px] font-semibold text-amber-700">Saldo post-conversión</p>
+                <p class="text-[10px] text-amber-600 leading-relaxed">BCP USD quedará en US$ 3,340 — por encima del mínimo de US$ 500.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="p-3 border-t border-slate-200">
+          <p class="text-[10px] text-slate-400 text-center">Paso 2 de 3 · Completa el monto para continuar</p>
+        </div>
+      </div>
+
+    </div><!-- /wizard-shell -->
+
+    <!-- ── PASO 3 CONFIRMAR (preview separado) ───────────────────── -->
+    <div class="mt-6">
+      <div class="flex items-center gap-2 mb-3">
+        <div class="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center">
+          <span class="text-[10px] font-bold text-slate-500">3</span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-600">Paso 3 · Confirmar conversión (preview)</h3>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <div class="bg-gradient-to-r from-teal-700 to-teal-500 px-6 py-4">
+          <p class="text-xs font-semibold text-teal-200 uppercase tracking-wide mb-1">Conversión cambiaria · Confirmar</p>
+          <p class="text-base font-bold text-white">Vita Skin Peru SAC · 28 Apr 2026</p>
+        </div>
+
+        <div class="p-6">
+          <!-- Resumen visual grande -->
+          <div class="grid grid-cols-2 gap-4 mb-5">
+            <!-- Saldrá -->
+            <div class="flow-card-out">
+              <div class="text-xs font-semibold text-rose-500 uppercase tracking-wide mb-2">Saldrá de</div>
+              <div class="flex items-center gap-2 mb-3">
+                <svg width="28" height="28" viewBox="0 0 40 40" class="rounded flex-shrink-0">
+                  <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                  <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+                </svg>
+                <div>
+                  <p class="text-sm font-bold text-slate-800">BCP USD</p>
+                  <p class="text-xs text-slate-500">Cuenta corriente dólares</p>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-rose-600 num-tab">US$ 5,000.00</div>
+              <div class="text-xs text-slate-500 mt-1 num-tab">Saldo actual: US$ 8,340.20</div>
+            </div>
+            <!-- Entrará -->
+            <div class="flow-card-in">
+              <div class="text-xs font-semibold text-emerald-500 uppercase tracking-wide mb-2">Entrará a</div>
+              <div class="flex items-center gap-2 mb-3">
+                <svg width="28" height="28" viewBox="0 0 40 40" class="rounded flex-shrink-0">
+                  <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                  <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+                </svg>
+                <div>
+                  <p class="text-sm font-bold text-slate-800">BCP Soles</p>
+                  <p class="text-xs text-slate-500">Cuenta corriente soles</p>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-emerald-600 num-tab">S/ 19,250.00</div>
+              <div class="text-xs text-slate-500 mt-1 num-tab">Saldo actual: S/ 12,450.80</div>
+            </div>
+          </div>
+
+          <!-- Detalles de la operación -->
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p class="text-xs text-slate-500 mb-1">TC aplicado</p>
+                <p class="text-lg font-bold text-slate-900 num-tab">3.8500</p>
+                <p class="text-[10px] text-slate-400">Fuente: SBS</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 mb-1">Diferencial</p>
+                <p class="text-lg font-bold text-slate-400 italic">—</p>
+                <p class="text-[10px] text-slate-400">No registrado</p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 mb-1">Fecha</p>
+                <p class="text-lg font-bold text-slate-900">28 Abr</p>
+                <p class="text-[10px] text-slate-400">2026 · hoy</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Idempotency Key -->
+          <div class="bg-slate-100 border border-dashed border-slate-300 rounded-lg px-4 py-2.5 mb-4 flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Clave de operación (idempotency key)</p>
+              <p class="text-xs font-mono text-slate-700 mt-0.5">CONV-20260428-BCP_USD-BCP_PEN-500000</p>
+            </div>
+            <button class="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Acciones -->
+          <div class="flex items-center justify-between">
+            <button class="flex items-center gap-1.5 px-4 py-2.5 text-sm text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
+              <i data-lucide="x" class="w-4 h-4"></i>
+              Cancelar
+            </button>
+            <button class="flex items-center gap-2 px-8 py-2.5 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              Ejecutar conversión
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /variante-a -->
+
+  <!-- ════════════════════════════════════════════════════
+       VARIANTE B · TRANSFERENCIA INTERNA
+  ════════════════════════════════════════════════════ -->
+  <div id="variante-b" class="scroll-anchor hidden">
+
+    <div class="wizard-shell">
+
+      <!-- PASOS IZQUIERDO -->
+      <div class="wizard-steps">
+        <div class="px-4 mb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-slate-600 rounded-lg flex items-center justify-center">
+              <i data-lucide="move-right" class="w-3.5 h-3.5 text-white"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-slate-700">Transferencia</p>
+              <p class="text-[10px] text-slate-400">Entre cuentas propias</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num active">1</div>
+          <div>
+            <p class="step-label active">Origen y destino</p>
+            <p class="text-[10px] text-slate-400">Seleccionar cuentas</p>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item">
+          <div class="step-num pending">2</div>
+          <div>
+            <p class="step-label pending">Monto</p>
+            <p class="text-[10px] text-slate-400">Monto y concepto</p>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-item">
+          <div class="step-num pending">3</div>
+          <div>
+            <p class="step-label pending">Confirmar</p>
+            <p class="text-[10px] text-slate-400">Ejecutar transferencia</p>
+          </div>
+        </div>
+
+        <div class="mt-6 mx-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+          <p class="text-[10px] font-semibold text-slate-600 mb-0.5">Transferencia interna</p>
+          <p class="text-[9px] text-slate-500 leading-relaxed">Mueve fondos entre cuentas propias sin afectar el patrimonio neto.</p>
+        </div>
+      </div>
+
+      <!-- CONTENIDO CENTRAL TRANSFERENCIA -->
+      <div class="wizard-content">
+        <div class="wizard-content-inner">
+          <h2 class="text-base font-bold text-slate-900 mb-1">Selecciona origen y destino</h2>
+          <p class="text-sm text-slate-500 mb-5">Ambas cuentas deben ser de titularidad propia (empresa).</p>
+
+          <!-- Selección origen -->
+          <div class="mb-4">
+            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">Cuenta origen (desde dónde sale)</label>
+            <button class="product-select-btn selected">
+              <svg width="28" height="28" viewBox="0 0 40 40" class="rounded flex-shrink-0">
+                <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+              </svg>
+              <div class="flex-1 text-left min-w-0">
+                <p class="text-sm font-semibold text-slate-800">BCP USD · Cta. Cte. Dólares</p>
+                <p class="text-xs text-slate-500 num-tab">Saldo: US$ 8,340.20 · Vita Skin Peru SAC</p>
+              </div>
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-teal-500 flex-shrink-0"></i>
+            </button>
+          </div>
+
+          <!-- Flecha animada -->
+          <div class="flex justify-center mb-4">
+            <div class="flex flex-col items-center gap-1">
+              <div class="w-8 h-8 bg-teal-50 border border-teal-200 rounded-full flex items-center justify-center">
+                <i data-lucide="arrow-down" class="w-4 h-4 text-teal-600"></i>
+              </div>
+              <span class="text-[10px] text-slate-400 font-medium">se mueve a</span>
+            </div>
+          </div>
+
+          <!-- Selección destino -->
+          <div class="mb-5">
+            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">Cuenta destino (hacia dónde entra)</label>
+            <button class="product-select-btn selected">
+              <svg width="28" height="28" viewBox="0 0 40 40" class="rounded flex-shrink-0">
+                <rect width="40" height="40" rx="6" fill="#004890"/>
+                <text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">BBVA</text>
+              </svg>
+              <div class="flex-1 text-left min-w-0">
+                <p class="text-sm font-semibold text-slate-800">BBVA USD · Cta. Cte. Dólares</p>
+                <p class="text-xs text-slate-500 num-tab">Saldo: US$ 2,100.00 · Vita Skin Peru SAC</p>
+              </div>
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-teal-500 flex-shrink-0"></i>
+            </button>
+          </div>
+
+          <!-- Validación: misma moneda, OK -->
+          <div class="mb-5 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500 flex-shrink-0"></i>
+            <p class="text-xs text-emerald-700 font-medium">Ambas cuentas son en USD · No se requiere conversión de moneda.</p>
+          </div>
+
+          <!-- Warning diferente moneda (ejemplo) -->
+          <div class="mb-5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 hidden">
+            <div class="flex items-start gap-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-semibold text-amber-700">Las cuentas tienen monedas distintas</p>
+                <p class="text-xs text-amber-600 mt-0.5">Esto implica una conversión de moneda, no solo una transferencia. ¿Deseas cambiar al flujo de <strong>Conversión USD ↔ PEN</strong>?</p>
+                <button class="mt-2 text-xs font-semibold text-amber-700 border border-amber-300 px-3 py-1 rounded-lg hover:bg-amber-100 transition-all">Cambiar a Conversión</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+            <button class="flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 hover:text-slate-900 transition-colors">
+              <i data-lucide="x" class="w-4 h-4"></i>
+              Cancelar
+            </button>
+            <button class="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-all shadow-sm active:scale-[0.98]">
+              Siguiente · Ingresar monto
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- PASO 3 CONFIRMAR TRANSFERENCIA -->
+        <div class="p-5 pt-0">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center">
+              <span class="text-[10px] font-bold text-slate-500">3</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-600">Paso 3 · Confirmar transferencia (preview)</h3>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <div class="flex items-stretch gap-4">
+              <!-- Origen -->
+              <div class="flex-1 bg-white border border-rose-200 rounded-xl p-4 text-center">
+                <svg width="32" height="32" viewBox="0 0 40 40" class="rounded mx-auto mb-2">
+                  <rect width="40" height="40" rx="6" fill="#005DAA"/>
+                  <text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text>
+                </svg>
+                <p class="text-sm font-bold text-slate-700">BCP USD</p>
+                <p class="text-xs text-slate-500 mb-2">Vita Skin Peru SAC</p>
+                <p class="text-2xl font-bold text-rose-600 num-tab">−US$ 3,000</p>
+                <p class="text-xs text-slate-400 mt-1">Saldo post: <span class="num-tab font-semibold text-slate-600">US$ 5,340.20</span></p>
+              </div>
+              <!-- Flecha -->
+              <div class="flex items-center">
+                <div class="text-center">
+                  <i data-lucide="arrow-right" class="w-6 h-6 text-teal-500"></i>
+                  <p class="text-[10px] text-slate-400 mt-1 whitespace-nowrap">Transferencia</p>
+                </div>
+              </div>
+              <!-- Destino -->
+              <div class="flex-1 bg-white border border-emerald-200 rounded-xl p-4 text-center">
+                <svg width="32" height="32" viewBox="0 0 40 40" class="rounded mx-auto mb-2">
+                  <rect width="40" height="40" rx="6" fill="#004890"/>
+                  <text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">BBVA</text>
+                </svg>
+                <p class="text-sm font-bold text-slate-700">BBVA USD</p>
+                <p class="text-xs text-slate-500 mb-2">Vita Skin Peru SAC</p>
+                <p class="text-2xl font-bold text-emerald-600 num-tab">+US$ 3,000</p>
+                <p class="text-xs text-slate-400 mt-1">Saldo post: <span class="num-tab font-semibold text-slate-600">US$ 5,100.00</span></p>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+              <button class="px-4 py-2 text-sm text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">Cancelar</button>
+              <button class="px-8 py-2 text-sm font-bold text-white bg-slate-700 hover:bg-slate-800 rounded-xl transition-all shadow-md active:scale-[0.98]">
+                <i data-lucide="move-right" class="w-4 h-4 inline mr-1.5"></i>
+                Ejecutar transferencia
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR DERECHO TRANSFERENCIA -->
+      <div class="sidebar-resumen">
+        <div class="sidebar-header" style="background: linear-gradient(135deg, #334155 0%, #475569 100%);">
+          <p class="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1">Resumen operación</p>
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+              <i data-lucide="move-right" class="w-3.5 h-3.5 text-white"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">Transferencia interna</p>
+              <p class="text-[10px] text-slate-300">Paso 1 de 3</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 p-3 space-y-3">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Estado</p>
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2 text-xs">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span class="text-slate-600">Cuenta origen seleccionada</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span class="text-slate-600">Cuenta destino seleccionada</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <i data-lucide="circle" class="w-3.5 h-3.5 text-slate-300"></i>
+                <span class="text-slate-400">Monto por definir</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Cuentas seleccionadas</p>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-rose-400 rounded-full"></div>
+                <div>
+                  <p class="text-xs font-semibold text-slate-700">BCP USD</p>
+                  <p class="text-[10px] text-slate-500 num-tab">US$ 8,340.20</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                <div>
+                  <p class="text-xs font-semibold text-slate-700">BBVA USD</p>
+                  <p class="text-[10px] text-slate-500 num-tab">US$ 2,100.00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-sky-50 border border-sky-200 rounded-lg p-3">
+            <div class="flex items-start gap-2">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-sky-500 flex-shrink-0 mt-0.5"></i>
+              <p class="text-[10px] text-sky-700 leading-relaxed">Ambas cuentas en USD. La transferencia no genera diferencial cambiario.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 border-t border-slate-200">
+          <p class="text-[10px] text-slate-400 text-center">Selecciona las cuentas para continuar</p>
+        </div>
+      </div>
+
+    </div><!-- /wizard-shell transferencia -->
+
+  </div><!-- /variante-b -->
+
+  <!-- ════════════════════════════════════════════════════
+       HISTORIAL RECIENTE
+  ════════════════════════════════════════════════════ -->
+  <div id="historial" class="mt-10 scroll-anchor">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-base font-bold text-slate-900">Historial reciente</h2>
+        <p class="text-xs text-slate-500">Últimas conversiones y transferencias internas</p>
+      </div>
+      <button class="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-700 transition-colors border border-teal-200 px-3 py-1.5 rounded-lg hover:bg-teal-50">
+        <i data-lucide="table-2" class="w-3.5 h-3.5"></i>
+        Ver todo en libro mayor · Filtro FX/Transferencia
+      </button>
+    </div>
+
+    <div class="flex gap-3 overflow-x-auto pb-2" style="-webkit-overflow-scrolling:touch;">
+
+      <!-- Conversión 1 -->
+      <div class="hist-card">
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full text-[10px] font-bold">
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i> FX
+          </span>
+          <span class="text-[10px] text-slate-400">27 Abr 2026</span>
+        </div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+          <span class="text-xs font-semibold text-slate-700">BCP USD → BCP Soles</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-bold text-rose-600 num-tab">−US$ 2,000</span>
+          <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-sm font-bold text-emerald-600 num-tab">+S/ 7,700</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-1 num-tab">TC 3.850</div>
+      </div>
+
+      <!-- Transferencia 1 -->
+      <div class="hist-card">
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">
+            <i data-lucide="move-right" class="w-3 h-3"></i> TRANS
+          </span>
+          <span class="text-[10px] text-slate-400">25 Abr 2026</span>
+        </div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+          <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#004890"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">BBVA</text></svg>
+          <span class="text-xs font-semibold text-slate-700">BCP → BBVA USD</span>
+        </div>
+        <div class="text-sm font-bold text-slate-700 num-tab">US$ 1,500.00</div>
+        <div class="text-[10px] text-slate-400 mt-1">Sin diferencial</div>
+      </div>
+
+      <!-- Conversión 2 -->
+      <div class="hist-card">
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full text-[10px] font-bold">
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i> FX
+          </span>
+          <span class="text-[10px] text-slate-400">22 Abr 2026</span>
+        </div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#004890"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">BBVA</text></svg>
+          <span class="text-xs font-semibold text-slate-700">BBVA USD → Interbank PEN</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-bold text-rose-600 num-tab">−US$ 3,000</span>
+          <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-sm font-bold text-emerald-600 num-tab">+S/ 11,430</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-1 num-tab">TC 3.810 · Dif. S/−25.00</div>
+      </div>
+
+      <!-- Transferencia 2 -->
+      <div class="hist-card">
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">
+            <i data-lucide="move-right" class="w-3 h-3"></i> TRANS
+          </span>
+          <span class="text-[10px] text-slate-400">18 Abr 2026</span>
+        </div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+          <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#E31837"/><text x="20" y="26" font-family="Arial" font-size="9" font-weight="700" fill="white" text-anchor="middle">SCOT</text></svg>
+          <span class="text-xs font-semibold text-slate-700">BCP → Scotiabank PEN</span>
+        </div>
+        <div class="text-sm font-bold text-slate-700 num-tab">S/ 5,000.00</div>
+        <div class="text-[10px] text-emerald-500 mt-1 flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Ejecutada</div>
+      </div>
+
+      <!-- Conversión 3 (PEN→USD) -->
+      <div class="hist-card">
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full text-[10px] font-bold">
+            <i data-lucide="refresh-cw" class="w-3 h-3"></i> FX
+          </span>
+          <span class="text-[10px] text-slate-400">15 Abr 2026</span>
+        </div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+          <span class="text-xs font-semibold text-slate-700">BCP PEN → BCP USD</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-bold text-rose-600 num-tab">−S/ 19,250</span>
+          <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-sm font-bold text-emerald-600 num-tab">+US$ 5,000</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-1 num-tab">TC 3.850 · Inverso</div>
+      </div>
+
+      <!-- Transferencia 3 Caja -->
+      <div class="hist-card">
+        <div class="flex items-center justify-between mb-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold">
+            <i data-lucide="move-right" class="w-3 h-3"></i> TRANS
+          </span>
+          <span class="text-[10px] text-slate-400">10 Abr 2026</span>
+        </div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#334155"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">CAJA</text></svg>
+          <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
+          <svg width="16" height="16" viewBox="0 0 40 40" class="rounded-sm"><rect width="40" height="40" rx="6" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+          <span class="text-xs font-semibold text-slate-700">Caja Efectivo → BCP PEN</span>
+        </div>
+        <div class="text-sm font-bold text-slate-700 num-tab">S/ 2,500.00</div>
+        <div class="text-[10px] text-emerald-500 mt-1 flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Ejecutada</div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /max-w-7xl -->
+
+<script>
+  lucide.createIcons();
+
+  function mostrar(variante) {
+    document.getElementById('variante-a').classList.add('hidden');
+    document.getElementById('variante-b').classList.add('hidden');
+    document.getElementById('variante-' + variante).classList.remove('hidden');
+
+    document.getElementById('btn-a').classList.toggle('active', variante === 'a');
+    document.getElementById('btn-b').classList.toggle('active', variante === 'b');
+  }
+
+  // Expandir/colapsar sección diferencial
+  document.querySelectorAll('.border-dashed button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const parent = this.parentElement;
+      const body = parent.querySelector('div');
+      if (body) body.classList.toggle('hidden');
+    });
+  });
+</script>
+
+<!--
+DECISIONES DE DISEÑO (M7)
+
+1. TOGGLE VISUAL arriba del wizard: botones pill con active state teal (conversión) y slate (transferencia).
+   El contenido de cada variante se muestra/oculta con JS simple sin recargar la página.
+
+2. WIZARD SHELL reutiliza exactamente el patrón 3-panel de M5 (pagos masivos):
+   sidebar-izq pasos + contenido central + sidebar-derecho resumen. Consistencia total con el L1+L2.
+
+3. PASO 1 COLAPSADO con resumen de selección: cuando el usuario ya configuró origen/destino,
+   el paso colapsa a un banner verde compacto con botón "Cambiar". Patrón del wizard envíos S53.
+
+4. IDEMPOTENCY KEY visible en el paso de confirmación: número legible CONV-YYYYMMDD-ORIGEN-DESTINO-MONTO.
+   Mercury y Stripe lo hacen así. No genera ansiedad al usuario — simplemente informa.
+
+5. DIFERENCIAL CAMBIARIO como sección colapsable dashed (no visible por defecto):
+   reduces cognitive load para usuarios que no lo usan. Al abrirse muestra field + selección ganancia/pérdida.
+
+6. SALDO PROYECTADO en sidebar derecho con mini barras de progreso:
+   ayuda al usuario a entender el impacto inmediato de la operación sin salir del wizard.
+
+7. ALERTA SALDO MÍNIMO con soft pulse animation: si el saldo post-operación estuviera bajo el umbral
+   configurado aparece animada. En este mock el saldo queda bien → se muestra como info neutral.
+
+8. HISTORIAL HORIZONTAL scroll: cards mínimas (280px min) con badge diferenciador FX (teal) vs TRANS (slate).
+   Patrón explorado también en M4 (timeline actividad). Botón CTA lleva a M6 con filtro preconfigurado.
+
+9. COLOR SEMÁNTICO del sidebar header de transferencia: slate-700→slate-600 (no teal) para diferenciar
+   visualmente los dos flujos. Conversión=teal, Transferencia=slate. Coherente con decisiones de color del sistema.
+
+10. VALIDACIÓN DE MONEDA en transferencia con warning contextual: si las cuentas tuviesen monedas distintas
+    aparece un warning amber con CTA para redirigir al flujo de conversión. No bloquea — informa y ofrece salida.
+-->
+</body>
+</html>

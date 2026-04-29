@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finanzas · Saldos · Vista Ejecutiva · S58e</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<!--
+  M8 · finanzas-saldos-s58e.html
+  Dashboard ejecutivo /finanzas/saldos — treatment Mercury/Stripe Atlas.
+
+  DECISIONES DE DISEÑO (al final del archivo también):
+  1. El "Hero de patrimonio" usa gradiente teal oscuro (0f766e→0d9488) con sparkline SVG embebido.
+     El número grande tiene font-size enorme (3.5rem) con tabular-nums para máximo impacto ejecutivo.
+  2. La distribución por banco usa un patrón de cards apiladas expandibles con click para drill-down.
+     Cada banco tiene su SVG logo propio del sistema (L1 M1 pattern).
+  3. La sección de TCs usa un gauge SVG inline (semicírculo) para el tope de control vs uso real.
+     Simple, reconocible, sin dependencias externas.
+  4. La distribución por moneda (PEN/USD) usa barras horizontales proporcionales por banco dentro
+     de cada card. Las barras tienen color diferenciado por banco (no solo por monto).
+  5. El "footer ejecutivo" de actualización usa un badge pulsante para indicar datos en tiempo real.
+  6. La distribución por titular reutiliza el patrón de M4 (hero compacto con sparkline).
+  7. El selector de fecha snapshot permite al usuario ver el estado en cualquier punto histórico.
+     Por ahora es cosmético en el mockup, pero la UX está diseñada para su implementación real.
+  8. Los KPIs secundarios tienen colores semánticos: liquidez=emerald, crédito=sky, CxC=teal, CxP=amber.
+  9. Sparklines son SVG path puro — polilínea simplificada de ~20 puntos con área rellena.
+  10. El botón "Exportar PDF" usa el patrón de botón secundario del L1 (border + text-slate).
+-->
+<style>
+  body { font-family: 'Inter', ui-sans-serif, system-ui; background: #f8fafc; }
+  .num-tab { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+  .scroll-anchor { scroll-margin-top: 80px; }
+
+  /* ── HERO PATRIMONIO ──────────────────────────────── */
+  .hero-patrimonio {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 55%, #14b8a6 100%);
+    border-radius: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-patrimonio::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  /* ── CARDS GENÉRICAS ──────────────────────────────── */
+  .exec-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    transition: all 0.18s ease-out;
+  }
+  .exec-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-color: #99f6e4; }
+
+  /* ── KPI CARDS ────────────────────────────────────── */
+  .kpi-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    padding: 1.125rem;
+    transition: all 0.18s ease;
+  }
+  .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+
+  /* ── BANCO CARD EXPANDIBLE ────────────────────────── */
+  .banco-card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 0.875rem;
+    overflow: hidden; transition: all 0.18s ease;
+    margin-bottom: 0.625rem;
+  }
+  .banco-card:hover { border-color: #99f6e4; box-shadow: 0 4px 12px rgba(0,0,0,0.07); }
+  .banco-header {
+    display: flex; align-items: center; gap: 0.875rem;
+    padding: 0.875rem 1.125rem; cursor: pointer;
+    user-select: none; transition: background 0.12s;
+  }
+  .banco-header:hover { background: #f8fafc; }
+  .banco-body {
+    display: none; border-top: 1px solid #f1f5f9;
+    padding: 0.875rem 1.125rem; background: #fafafa;
+  }
+  .banco-card.expanded .banco-body { display: block; }
+  .banco-card.expanded .banco-chevron { transform: rotate(90deg); }
+  .banco-chevron { transition: transform 0.2s ease; }
+
+  /* ── BARRAS PROPORCIONALES ────────────────────────── */
+  .prop-bar {
+    height: 6px; border-radius: 9999px; background: #f1f5f9;
+    overflow: hidden; margin-top: 3px;
+  }
+  .prop-bar-fill { height: 100%; border-radius: 9999px; transition: width 0.4s ease; }
+
+  /* ── TITULAR CARD ─────────────────────────────────── */
+  .titular-card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 0.875rem;
+    padding: 1rem 1.125rem; cursor: pointer;
+    transition: all 0.18s ease; margin-bottom: 0.625rem;
+  }
+  .titular-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #99f6e4; transform: translateY(-1px); }
+  .titular-card:active { transform: scale(0.99); }
+
+  /* ── GAUGE SVG ─────────────────────────────────────── */
+  .gauge-container { position: relative; display: inline-block; }
+
+  /* ── PULSO LIVE ─────────────────────────────────────── */
+  @keyframes livepulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .live-dot { animation: livepulse 2s ease-in-out infinite; }
+</style>
+</head>
+<body class="pb-16">
+
+<!-- ============================================================
+     STICKY NAV (mockup)
+============================================================ -->
+<div class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="wallet" class="w-4 h-4 text-teal-600"></i>
+      <span class="font-bold text-slate-900">Finanzas · Saldos · Vista Ejecutiva</span>
+      <span class="text-[11px] text-slate-500 ml-2">M8 · S58e</span>
+    </div>
+    <div class="flex gap-1.5">
+      <a href="#hero" class="text-[11px] px-2.5 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">Hero patrimonio</a>
+      <a href="#distribucion-moneda" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Por moneda</a>
+      <a href="#distribucion-banco" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Por banco</a>
+      <a href="#titular-section" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">Por titular</a>
+      <a href="#tcs-section" class="text-[11px] px-2.5 py-1 bg-slate-600 text-white rounded-md hover:bg-slate-700">TCs</a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 pt-6">
+
+  <!-- ── HEADER DE PÁGINA ─────────────────────────────── -->
+  <div class="flex items-start justify-between gap-4 mb-5 flex-wrap">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <a href="#" class="hover:text-teal-600 transition-colors">Finanzas</a>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Saldos · Vista ejecutiva</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="pie-chart" class="w-6 h-6 text-teal-600"></i>
+        Saldos · Vista Ejecutiva
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">Composición patrimonial consolidada · Vita Skin Peru SAC</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Selector snapshot -->
+      <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+        <span class="text-xs text-slate-500 mr-1">Snapshot:</span>
+        <input type="date" value="2026-04-28" class="text-xs bg-transparent border-none outline-none text-slate-700 font-medium cursor-pointer">
+        <span class="text-[10px] bg-teal-100 text-teal-700 font-semibold px-1.5 rounded">HOY</span>
+      </div>
+      <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all">
+        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+        Compartir vista
+      </button>
+      <button class="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-all shadow-sm">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        Exportar PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ── HERO DE PATRIMONIO ────────────────────────────── -->
+  <div id="hero" class="hero-patrimonio p-7 mb-5 scroll-anchor">
+    <div class="flex items-start justify-between mb-4 relative z-10">
+      <div>
+        <p class="text-sm font-semibold text-teal-200 uppercase tracking-wide mb-1">Patrimonio total consolidado</p>
+        <div class="flex items-baseline gap-3">
+          <span class="text-5xl font-bold text-white num-tab tracking-tight">S/ 79,911</span>
+          <span class="text-2xl font-bold text-teal-200 num-tab">.34</span>
+        </div>
+        <div class="flex items-center gap-3 mt-2">
+          <span class="text-sm text-teal-100 num-tab">≈ US$ 20,756 al TC 3.850</span>
+          <span class="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-400/30">
+            <i data-lucide="trending-up" class="w-3 h-3"></i>
+            +5.2% vs mes anterior
+          </span>
+          <span class="text-xs text-teal-200 num-tab">+S/ 3,945 neto</span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2 items-end">
+        <div class="flex items-center gap-1.5 bg-white/10 rounded-lg px-3 py-1.5">
+          <div class="live-dot w-2 h-2 bg-emerald-400 rounded-full"></div>
+          <span class="text-xs text-teal-100 font-medium">En vivo</span>
+        </div>
+        <p class="text-xs text-teal-200">28 abr 2026 · 14:32</p>
+      </div>
+    </div>
+
+    <!-- Sparkline 90 días -->
+    <div class="relative z-10">
+      <p class="text-[10px] text-teal-300 font-semibold uppercase tracking-wide mb-2">Tendencia 90 días</p>
+      <svg width="100%" height="64" viewBox="0 0 900 64" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.25)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
+          </linearGradient>
+        </defs>
+        <!-- Área rellena -->
+        <path d="M0,52 L30,50 L60,48 L90,49 L120,46 L150,44 L180,42 L210,45 L240,43 L270,40 L300,38 L330,36 L360,39 L390,35 L420,33 L450,30 L480,28 L510,26 L540,24 L570,27 L600,22 L630,20 L660,18 L690,15 L720,16 L750,14 L780,11 L810,9 L840,7 L870,6 L900,4 L900,64 L0,64 Z" fill="url(#sparkGrad)"/>
+        <!-- Línea -->
+        <polyline points="0,52 30,50 60,48 90,49 120,46 150,44 180,42 210,45 240,43 270,40 300,38 330,36 360,39 390,35 420,33 450,30 480,28 510,26 540,24 570,27 600,22 630,20 660,18 690,15 720,16 750,14 780,11 810,9 840,7 870,6 900,4" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- Punto actual -->
+        <circle cx="900" cy="4" r="4" fill="#fff"/>
+        <circle cx="900" cy="4" r="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+      </svg>
+      <div class="flex justify-between text-[10px] text-teal-300 mt-1">
+        <span>28 ene 2026</span>
+        <span>28 feb 2026</span>
+        <span>28 mar 2026</span>
+        <span class="font-semibold text-white">Hoy</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── KPI STRIP (4 KPIs secundarios) ─────────────── -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+
+    <!-- Liquidez inmediata -->
+    <div class="kpi-card">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Liquidez inmediata</span>
+        <div class="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="banknote" class="w-4 h-4 text-emerald-600"></i>
+        </div>
+      </div>
+      <div class="text-xl font-bold text-slate-900 num-tab">S/ 62,340<span class="text-slate-400 text-sm">.50</span></div>
+      <div class="text-xs text-slate-500 mt-1">Cuentas + caja + wallets</div>
+      <div class="text-xs text-emerald-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+        Operativa · cobertura 42 días
+      </div>
+    </div>
+
+    <!-- Líneas de crédito disponibles -->
+    <div class="kpi-card">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Crédito disponible</span>
+        <div class="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="credit-card" class="w-4 h-4 text-sky-600"></i>
+        </div>
+      </div>
+      <div class="text-xl font-bold text-slate-900 num-tab">US$ 4,820<span class="text-slate-400 text-sm">.00</span></div>
+      <div class="text-xs text-slate-500 mt-1">3 TCs · disponible no usado</div>
+      <div class="text-xs text-sky-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="info" class="w-3 h-3"></i>
+        ≈ S/ 18,557 al TC 3.850
+      </div>
+    </div>
+
+    <!-- Saldo CC clientes -->
+    <div class="kpi-card">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Por cobrar (CxC)</span>
+        <div class="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="arrow-down-to-line" class="w-4 h-4 text-teal-600"></i>
+        </div>
+      </div>
+      <div class="text-xl font-bold text-slate-900 num-tab">S/ 14,230<span class="text-slate-400 text-sm">.00</span></div>
+      <div class="text-xs text-slate-500 mt-1">12 clientes · CC a favor</div>
+      <div class="text-xs text-teal-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+        +S/ 1,200 vs. semana pasada
+      </div>
+    </div>
+
+    <!-- Saldo CC proveedores -->
+    <div class="kpi-card">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Por pagar (CxP)</span>
+        <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+          <i data-lucide="arrow-up-from-line" class="w-4 h-4 text-amber-600"></i>
+        </div>
+      </div>
+      <div class="text-xl font-bold text-slate-900 num-tab">US$ 3,400<span class="text-slate-400 text-sm">.00</span></div>
+      <div class="text-xs text-slate-500 mt-1">5 proveedores · CC a pagar</div>
+      <div class="text-xs text-amber-600 mt-0.5 flex items-center gap-1">
+        <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+        1 vencido · US$ 800
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── DISTRIBUCIÓN POR MONEDA ────────────────────── -->
+  <div id="distribucion-moneda" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5 scroll-anchor">
+
+    <!-- Card PEN -->
+    <div class="exec-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center font-bold text-emerald-700 text-sm">S/</div>
+          <div>
+            <p class="text-sm font-bold text-slate-800">Soles (PEN)</p>
+            <p class="text-xs text-slate-500">Posición total en moneda local</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-2xl font-bold text-slate-900 num-tab">S/ 47,820</p>
+          <p class="text-xs text-slate-400">60% del patrimonio total</p>
+        </div>
+      </div>
+      <!-- Barra total -->
+      <div class="prop-bar mb-4"><div class="prop-bar-fill bg-emerald-400" style="width:60%"></div></div>
+
+      <!-- Breakdown por banco -->
+      <div class="space-y-2.5">
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0"><rect width="40" height="40" rx="4" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+              <span class="text-slate-600 font-medium">BCP Soles</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">S/ 22,450.80</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-blue-400" style="width:47%"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0"><rect width="40" height="40" rx="4" fill="#004890"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">BBVA</text></svg>
+              <span class="text-slate-600 font-medium">BBVA Soles</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">S/ 12,300.00</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-indigo-400" style="width:26%"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0"><rect width="40" height="40" rx="4" fill="#00843D"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">IBK</text></svg>
+              <span class="text-slate-600 font-medium">Interbank Soles</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">S/ 8,120.50</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-green-400" style="width:17%"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <div class="w-3.5 h-3.5 bg-slate-500 rounded-sm flex items-center justify-center"><span class="text-white text-[8px] font-bold">C</span></div>
+              <span class="text-slate-600 font-medium">Caja Efectivo PEN</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">S/ 4,949.20</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-slate-400" style="width:10%"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <div class="w-3.5 h-3.5 bg-purple-500 rounded-sm flex items-center justify-center"><span class="text-white text-[8px] font-bold">Y</span></div>
+              <span class="text-slate-600 font-medium">Yape PEN</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">S/ 0.00</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-purple-300" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card USD -->
+    <div class="exec-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center font-bold text-sky-700 text-sm">$</div>
+          <div>
+            <p class="text-sm font-bold text-slate-800">Dólares (USD)</p>
+            <p class="text-xs text-slate-500">Posición en moneda extranjera</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-2xl font-bold text-slate-900 num-tab">US$ 8,340</p>
+          <p class="text-xs text-slate-400">40% · ≈ S/ 32,091</p>
+        </div>
+      </div>
+      <!-- Barra total -->
+      <div class="prop-bar mb-4"><div class="prop-bar-fill bg-sky-400" style="width:40%"></div></div>
+
+      <!-- Breakdown por banco -->
+      <div class="space-y-2.5">
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0"><rect width="40" height="40" rx="4" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+              <span class="text-slate-600 font-medium">BCP USD</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">US$ 4,840.20</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-blue-400" style="width:58%"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0"><rect width="40" height="40" rx="4" fill="#004890"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">BBVA</text></svg>
+              <span class="text-slate-600 font-medium">BBVA USD</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">US$ 2,100.00</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-indigo-400" style="width:25%"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <div class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 40 40" class="rounded-sm flex-shrink-0"><rect width="40" height="40" rx="4" fill="#00843D"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">IBK</text></svg>
+              <span class="text-slate-600 font-medium">Interbank USD</span>
+            </div>
+            <span class="font-semibold text-slate-700 num-tab">US$ 1,400.00</span>
+          </div>
+          <div class="prop-bar"><div class="prop-bar-fill bg-green-400" style="width:17%"></div></div>
+        </div>
+      </div>
+
+      <!-- Nota TC -->
+      <div class="mt-4 bg-sky-50 border border-sky-200 rounded-lg px-3 py-2 flex items-center gap-2">
+        <i data-lucide="info" class="w-3.5 h-3.5 text-sky-500 flex-shrink-0"></i>
+        <p class="text-[11px] text-sky-700">Valorización en PEN usa TC hoy <span class="font-bold num-tab">3.850</span>. Modifica el snapshot para ver TC histórico.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── DISTRIBUCIÓN POR BANCO ─────────────────────── -->
+  <div id="distribucion-banco" class="mb-6 scroll-anchor">
+    <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+      <i data-lucide="landmark" class="w-4 h-4 text-teal-600"></i>
+      Distribución por banco
+    </h2>
+
+    <!-- BCP -->
+    <div class="banco-card expanded" onclick="this.classList.toggle('expanded')">
+      <div class="banco-header">
+        <svg width="36" height="36" viewBox="0 0 40 40" class="rounded-lg flex-shrink-0"><rect width="40" height="40" rx="8" fill="#005DAA"/><text x="20" y="27" font-family="Arial" font-size="13" font-weight="700" fill="white" text-anchor="middle">BCP</text></svg>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-800">BCP · Banco de Crédito del Perú</p>
+          <p class="text-xs text-slate-500">3 productos · Cuenta cte. + ahorros + USD</p>
+        </div>
+        <div class="text-right mr-3">
+          <p class="text-lg font-bold text-slate-900 num-tab">S/ 35,183</p>
+          <p class="text-xs text-slate-400">44% del patrimonio</p>
+        </div>
+        <div class="w-24">
+          <div class="prop-bar"><div class="prop-bar-fill bg-blue-400" style="width:44%"></div></div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 banco-chevron ml-2 flex-shrink-0"></i>
+      </div>
+      <div class="banco-body">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">BCP Soles · Cta Cte</p>
+            <p class="text-base font-bold text-slate-900 num-tab">S/ 22,450.80</p>
+            <div class="flex items-center gap-1 mt-1">
+              <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+              <span class="text-[10px] text-emerald-600">Saludable</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">BCP USD · Cta Cte</p>
+            <p class="text-base font-bold text-slate-900 num-tab">US$ 4,840.20</p>
+            <div class="flex items-center gap-1 mt-1">
+              <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+              <span class="text-[10px] text-emerald-600">Saludable</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">BCP TC Visa · Cred.</p>
+            <p class="text-base font-bold text-slate-900 num-tab">US$ 1,800.00</p>
+            <div class="flex items-center gap-1 mt-1">
+              <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+              <span class="text-[10px] text-amber-600">Corte en 5 días</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BBVA -->
+    <div class="banco-card" onclick="this.classList.toggle('expanded')">
+      <div class="banco-header">
+        <svg width="36" height="36" viewBox="0 0 40 40" class="rounded-lg flex-shrink-0"><rect width="40" height="40" rx="8" fill="#004890"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">BBVA</text></svg>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-800">BBVA · Banco Continental</p>
+          <p class="text-xs text-slate-500">2 productos · Cta cte PEN + USD</p>
+        </div>
+        <div class="text-right mr-3">
+          <p class="text-lg font-bold text-slate-900 num-tab">S/ 20,385</p>
+          <p class="text-xs text-slate-400">26% del patrimonio</p>
+        </div>
+        <div class="w-24">
+          <div class="prop-bar"><div class="prop-bar-fill bg-indigo-400" style="width:26%"></div></div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 banco-chevron ml-2 flex-shrink-0"></i>
+      </div>
+      <div class="banco-body">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">BBVA Soles · Cta Cte</p>
+            <p class="text-base font-bold text-slate-900 num-tab">S/ 12,300.00</p>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">BBVA USD · Cta Cte</p>
+            <p class="text-base font-bold text-slate-900 num-tab">US$ 2,100.00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interbank -->
+    <div class="banco-card" onclick="this.classList.toggle('expanded')">
+      <div class="banco-header">
+        <svg width="36" height="36" viewBox="0 0 40 40" class="rounded-lg flex-shrink-0"><rect width="40" height="40" rx="8" fill="#00843D"/><text x="20" y="26" font-family="Arial" font-size="10" font-weight="700" fill="white" text-anchor="middle">IBK</text></svg>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-800">Interbank</p>
+          <p class="text-xs text-slate-500">2 productos · Cta cte soles + USD</p>
+        </div>
+        <div class="text-right mr-3">
+          <p class="text-lg font-bold text-slate-900 num-tab">S/ 13,508</p>
+          <p class="text-xs text-slate-400">17% del patrimonio</p>
+        </div>
+        <div class="w-24">
+          <div class="prop-bar"><div class="prop-bar-fill bg-green-400" style="width:17%"></div></div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 banco-chevron ml-2 flex-shrink-0"></i>
+      </div>
+      <div class="banco-body">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">Interbank Soles</p>
+            <p class="text-base font-bold text-slate-900 num-tab">S/ 8,120.50</p>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">Interbank USD</p>
+            <p class="text-base font-bold text-slate-900 num-tab">US$ 1,400.00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Otros (efectivo + wallets) -->
+    <div class="banco-card" onclick="this.classList.toggle('expanded')">
+      <div class="banco-header">
+        <div class="w-9 h-9 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i data-lucide="wallet" class="w-4 h-4 text-slate-600"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-800">Caja + Wallets</p>
+          <p class="text-xs text-slate-500">Efectivo PEN + USD · Yape</p>
+        </div>
+        <div class="text-right mr-3">
+          <p class="text-lg font-bold text-slate-900 num-tab">S/ 10,834</p>
+          <p class="text-xs text-slate-400">13% del patrimonio</p>
+        </div>
+        <div class="w-24">
+          <div class="prop-bar"><div class="prop-bar-fill bg-slate-400" style="width:13%"></div></div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 banco-chevron ml-2 flex-shrink-0"></i>
+      </div>
+      <div class="banco-body">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">Caja Efectivo PEN</p>
+            <p class="text-base font-bold text-slate-900 num-tab">S/ 4,949.20</p>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">Caja Efectivo USD</p>
+            <p class="text-base font-bold text-slate-900 num-tab">US$ 1,500.00</p>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <p class="text-[11px] text-slate-500 mb-1">Yape PEN</p>
+            <p class="text-base font-bold text-slate-400 num-tab">S/ 0.00</p>
+            <div class="flex items-center gap-1 mt-1">
+              <div class="w-2 h-2 bg-slate-300 rounded-full"></div>
+              <span class="text-[10px] text-slate-400">Sin movimientos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── DISTRIBUCIÓN POR TITULAR ────────────────────── -->
+  <div id="titular-section" class="mb-6 scroll-anchor">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="users" class="w-4 h-4 text-teal-600"></i>
+        Distribución por titular
+      </h2>
+      <button class="text-xs text-teal-600 hover:text-teal-700 font-medium transition-colors">Ver todos en Tesorería →</button>
+    </div>
+
+    <!-- Titular empresa -->
+    <div class="titular-card" onclick="">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i data-lucide="building-2" class="w-5 h-5 text-white"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="text-sm font-bold text-slate-800">Vita Skin Peru SAC</p>
+            <span class="text-[10px] bg-teal-100 text-teal-700 font-semibold px-1.5 py-0.5 rounded">EMPRESA</span>
+          </div>
+          <p class="text-xs text-slate-500">8 productos · Principal operativa</p>
+        </div>
+        <div class="text-right mr-4 flex-shrink-0">
+          <p class="text-xl font-bold text-slate-900 num-tab">S/ 65,442</p>
+          <p class="text-xs text-slate-400">≈ US$ 17,000</p>
+        </div>
+        <!-- Sparkline 30d compacto -->
+        <div class="w-24 flex-shrink-0">
+          <svg width="96" height="32" viewBox="0 0 96 32" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0d9488" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#0d9488" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,24 L8,22 L16,20 L24,21 L32,18 L40,16 L48,14 L56,12 L64,13 L72,10 L80,8 L88,6 L96,4 L96,32 L0,32 Z" fill="url(#sg1)"/>
+            <polyline points="0,24 8,22 16,20 24,21 32,18 40,16 48,14 56,12 64,13 72,10 80,8 88,6 96,4" fill="none" stroke="#0d9488" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <p class="text-[9px] text-slate-400 text-center">30 días</p>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+      </div>
+    </div>
+
+    <!-- Titular empleado/dueño -->
+    <div class="titular-card">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-slate-600 rounded-xl flex items-center justify-center flex-shrink-0">
+          <span class="text-white font-bold text-sm">JL</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="text-sm font-bold text-slate-800">José Lopez · Empleado dueño</p>
+            <span class="text-[10px] bg-slate-100 text-slate-600 font-semibold px-1.5 py-0.5 rounded">EMPLEADO</span>
+          </div>
+          <p class="text-xs text-slate-500">3 productos · BCP personal + Yape</p>
+        </div>
+        <div class="text-right mr-4 flex-shrink-0">
+          <p class="text-xl font-bold text-slate-900 num-tab">S/ 14,469</p>
+          <p class="text-xs text-slate-400">Personal + fondos empresa</p>
+        </div>
+        <!-- Sparkline -->
+        <div class="w-24 flex-shrink-0">
+          <svg width="96" height="32" viewBox="0 0 96 32" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#64748b" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#64748b" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,16 L8,14 L16,18 L24,15 L32,12 L40,16 L48,13 L56,14 L64,11 L72,13 L80,10 L88,12 L96,10 L96,32 L0,32 Z" fill="url(#sg2)"/>
+            <polyline points="0,16 8,14 16,18 24,15 32,12 40,16 48,13 56,14 64,11 72,13 80,10 88,12 96,10" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <p class="text-[9px] text-slate-400 text-center">30 días</p>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 flex-shrink-0"></i>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TARJETAS DE CRÉDITO · RESUMEN ────────────────── -->
+  <div id="tcs-section" class="mb-6 scroll-anchor">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- Card TCs Resumen -->
+      <div class="exec-card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="credit-card" class="w-4 h-4 text-rose-500"></i>
+            Tarjetas de crédito · Resumen
+          </h2>
+          <button class="text-xs text-teal-600 hover:text-teal-700 font-medium transition-colors">Ver detalle →</button>
+        </div>
+
+        <div class="space-y-3 mb-4">
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-600">Cargos pendientes total</p>
+              <p class="text-xs text-slate-400">USD + PEN convertido</p>
+            </div>
+            <div class="text-right">
+              <p class="text-base font-bold text-rose-600 num-tab">US$ 3,180.00</p>
+              <p class="text-[10px] text-slate-400 num-tab">≈ S/ 12,243</p>
+            </div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-amber-700">Próximo corte</p>
+              <p class="text-xs text-amber-600">BCP Visa · 3 Mayo 2026</p>
+            </div>
+            <div class="text-right">
+              <p class="text-base font-bold text-amber-700 num-tab">US$ 1,800.00</p>
+              <p class="text-[10px] text-amber-500">En 5 días</p>
+            </div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-600">Próximo pago</p>
+              <p class="text-xs text-slate-400">BBVA Mastercard · 12 Mayo</p>
+            </div>
+            <div class="text-right">
+              <p class="text-base font-bold text-slate-700 num-tab">US$ 1,380.00</p>
+              <p class="text-[10px] text-slate-400">En 14 días</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gauge control -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+          <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-3">Tope de control vs. uso real</p>
+          <div class="flex items-center gap-4">
+            <!-- Gauge SVG semicircular -->
+            <div class="gauge-container flex-shrink-0">
+              <svg width="90" height="50" viewBox="0 0 90 50" xmlns="http://www.w3.org/2000/svg">
+                <!-- Track -->
+                <path d="M 10 45 A 35 35 0 0 1 80 45" fill="none" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round"/>
+                <!-- Fill 65% -->
+                <path d="M 10 45 A 35 35 0 0 1 80 45" fill="none" stroke="#f59e0b" stroke-width="8" stroke-linecap="round"
+                  stroke-dasharray="110" stroke-dashoffset="38.5"/>
+                <text x="45" y="40" font-family="Arial" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">65%</text>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-500">Usado</span>
+                <span class="font-semibold text-amber-600 num-tab">US$ 3,180</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">Tope control</span>
+                <span class="font-semibold text-slate-700 num-tab">US$ 4,900</span>
+              </div>
+              <div class="prop-bar mt-2"><div class="prop-bar-fill bg-amber-400" style="width:65%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Alertas y proyecciones -->
+      <div class="exec-card p-5">
+        <h2 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <i data-lucide="bell" class="w-4 h-4 text-amber-500"></i>
+          Alertas y proyecciones
+        </h2>
+        <div class="space-y-2.5">
+          <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="text-xs font-semibold text-amber-700">Corte BCP Visa en 5 días</p>
+              <p class="text-[11px] text-amber-600">Saldo actual BCP USD cubre el pago sin problema.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
+            <i data-lucide="info" class="w-4 h-4 text-sky-500 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="text-xs font-semibold text-sky-700">Liquidez proyectada 30d</p>
+              <p class="text-[11px] text-sky-600 num-tab">Estimado final de mayo: S/ 72,400 (+9.4% vs hoy).</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <i data-lucide="trending-up" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="text-xs font-semibold text-emerald-700">Patrimonio en máximo histórico</p>
+              <p class="text-[11px] text-emerald-600">S/ 79,911 supera el pico anterior de S/ 76,200 (mar 2026).</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="text-xs font-semibold text-red-700">CxP vencida sin pagar</p>
+              <p class="text-[11px] text-red-600 num-tab">Proveedor Guangzhou Beaute: US$ 800 · vencido hace 12 días.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── FOOTER EJECUTIVO ─────────────────────────────── -->
+  <div class="bg-white border border-slate-200 rounded-xl px-5 py-3 flex items-center justify-between text-xs text-slate-500">
+    <div class="flex items-center gap-3">
+      <div class="live-dot w-2 h-2 bg-emerald-400 rounded-full flex-shrink-0"></div>
+      <span>Última actualización · <strong class="text-slate-700">hace 2 min</strong> · 28 abr 2026 14:32</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span>Próximo recálculo · <strong class="text-slate-700">en 58 min</strong></span>
+      <button class="flex items-center gap-1 text-teal-600 hover:text-teal-700 transition-colors font-medium">
+        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+        Recalcular ahora
+      </button>
+    </div>
+  </div>
+
+</div><!-- /max-w-7xl -->
+
+<script>
+  lucide.createIcons();
+</script>
+
+<!--
+DECISIONES DE DISEÑO (M8)
+
+1. HERO PATRIMONIO con número grande (text-5xl): decisión Mercury/Stripe Atlas — el número más importante
+   ocupa todo el foco inicial. La sparkline es el único gráfico del hero, SVG puro de 900×64px que ocupa
+   todo el ancho del hero card.
+
+2. SNAPSHOT HISTÓRICO como date-picker inline en el header: permite al usuario poner una fecha pasada
+   y ver el estado de los saldos en ese momento. En el mockup es cosmético pero la UX diseñada
+   es clara para implementación: cambiar la fecha dispara un re-fetch con fecha como parámetro.
+
+3. DISTRIBUCIÓN POR MONEDA (2 cards lado a lado) con barras por banco: cada banco tiene un color fijo
+   (BCP=azul, BBVA=índigo, IBK=verde, otros=slate) que se mantiene consistente entre las dos cards.
+   Esto permite al usuario construir un mapa mental banco→color rápidamente.
+
+4. DISTRIBUCIÓN POR BANCO como acordeón expandible: los bancos con más peso abren automáticamente (BCP).
+   El click en el header expande/colapsa el detalle de productos. Mismo patrón que M3 (pipeline expandible).
+
+5. GAUGE SVG SEMICIRCULAR para tope TC: implementado como path SVG con stroke-dasharray/offset para
+   representar el porcentaje. Simple, legible, sin dependencias. Alternativa al donut que se reserva para M9.
+
+6. DISTRIBUCIÓN POR TITULAR reutiliza el hero compacto del M4 pero en versión card-row clickeable.
+   El gradiente de empresa=teal y empleado=slate aplica como color del avatar, no del card completo,
+   para mantener legibilidad al listar múltiples titulares.
+
+7. KPI STRIP de 4 cards con colores semánticos diferenciados: emerald (liquidez=bueno), sky (crédito=info),
+   teal (CxC=neutro proactivo), amber (CxP=precaución). Esta asignación es consistente con todo el L1+L2.
+
+8. FOOTER EJECUTIVO con dot pulsante: indicator live de actualización de datos. Patrón de "stale data warning"
+   que evita que el usuario tome decisiones con datos desactualizados.
+
+9. BOTÓN EXPORTAR PDF en posición de acción primaria: el CFO/dueño exporta regularmente para reuniones.
+   Está en el header como acción visible, no en un menú hamburguesa.
+
+10. SECCIÓN TCs RESUMEN con lista de próximos cortes y pagos: información operativa crítica que el dueño
+    necesita ver sin tener que navegar a la pantalla de TCs individual.
+-->
+</body>
+</html>
