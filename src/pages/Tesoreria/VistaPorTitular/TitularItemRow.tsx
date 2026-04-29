@@ -3,6 +3,9 @@
  *
  * Fila individual dentro de un grupo de titular. Renderiza una CuentaCaja o
  * una TarjetaCredito con icono + nombre + saldo (lee saldo de TC desde CC).
+ *
+ * Botones edit/delete inline en hover (solo cuentas — las tarjetas usan
+ * el modal detalle para sus acciones).
  */
 
 import React from 'react';
@@ -12,9 +15,12 @@ import {
   Banknote,
   CreditCard,
   PiggyBank,
+  Edit2,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '../../../design-system/utils';
 import { useSaldoCCTarjeta } from '../TarjetasCreditoV2/hooks';
+import type { CuentaCaja } from '../../../types/tesoreria.types';
 import type { TitularItem } from './helpers';
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -24,6 +30,9 @@ import type { TitularItem } from './helpers';
 export interface TitularItemRowProps {
   item: TitularItem;
   onClick?: () => void;
+  /** Solo aplica para cuentas. */
+  onEditarCuenta?: (cuenta: CuentaCaja) => void;
+  onEliminarCuenta?: (cuenta: CuentaCaja) => void;
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -47,7 +56,9 @@ function fmtSaldoDecimal(saldo: number, moneda: 'USD' | 'PEN'): string {
 const CuentaRow: React.FC<{
   item: Extract<TitularItem, { kind: 'cuenta' }>;
   onClick?: () => void;
-}> = ({ item, onClick }) => {
+  onEditarCuenta?: (cuenta: CuentaCaja) => void;
+  onEliminarCuenta?: (cuenta: CuentaCaja) => void;
+}> = ({ item, onClick, onEditarCuenta, onEliminarCuenta }) => {
   const c = item.cuenta;
   const Icon =
     c.tipo === 'banco'
@@ -84,12 +95,19 @@ const CuentaRow: React.FC<{
   }
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className="w-full flex items-center justify-between p-2 hover:bg-slate-50 rounded text-left transition-colors group"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      className="w-full flex items-center justify-between p-2 hover:bg-slate-50 rounded text-left transition-colors group cursor-pointer"
     >
-      <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
         <Icon className={cn('w-3.5 h-3.5 flex-shrink-0', iconColor)} />
         <span className="text-[12px] text-slate-700 truncate group-hover:text-slate-900">
           {c.nombre}
@@ -101,10 +119,43 @@ const CuentaRow: React.FC<{
             </span>
           )}
       </div>
-      <span className="text-[12px] tabular-nums font-medium text-slate-700 flex-shrink-0">
-        {saldoDisplay}
-      </span>
-    </button>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className="text-[12px] tabular-nums font-medium text-slate-700">
+          {saldoDisplay}
+        </span>
+        {/* Acciones inline en hover */}
+        {(onEditarCuenta || onEliminarCuenta) && (
+          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            {onEditarCuenta && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditarCuenta(c);
+                }}
+                className="p-1 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded"
+                title="Editar cuenta"
+              >
+                <Edit2 className="w-3 h-3" />
+              </button>
+            )}
+            {onEliminarCuenta && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEliminarCuenta(c);
+                }}
+                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
+                title="Eliminar cuenta"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
@@ -145,6 +196,7 @@ const TarjetaRow: React.FC<{
       type="button"
       onClick={onClick}
       className="w-full flex items-center justify-between p-2 hover:bg-slate-50 rounded text-left transition-colors group"
+      title="Click para ver detalle, cargos y pagos"
     >
       <div className="flex items-center gap-2 min-w-0">
         <CreditCard className="w-3.5 h-3.5 text-slate-700 flex-shrink-0" />
@@ -174,9 +226,18 @@ const TarjetaRow: React.FC<{
 export const TitularItemRow: React.FC<TitularItemRowProps> = ({
   item,
   onClick,
+  onEditarCuenta,
+  onEliminarCuenta,
 }) => {
   if (item.kind === 'cuenta') {
-    return <CuentaRow item={item} onClick={onClick} />;
+    return (
+      <CuentaRow
+        item={item}
+        onClick={onClick}
+        onEditarCuenta={onEditarCuenta}
+        onEliminarCuenta={onEliminarCuenta}
+      />
+    );
   }
   return <TarjetaRow item={item} onClick={onClick} />;
 };

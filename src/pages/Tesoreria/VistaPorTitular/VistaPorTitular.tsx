@@ -42,6 +42,10 @@ export interface VistaPorTitularProps {
   tarjetas?: TarjetaCredito[];
   onCuentaClick?: (cuenta: CuentaCaja) => void;
   onTarjetaClick?: (tarjeta: TarjetaCredito) => void;
+  /** Editar cuenta (abre form modal). */
+  onEditarCuenta?: (cuenta: CuentaCaja) => void;
+  /** Eliminar cuenta (con confirm). */
+  onEliminarCuenta?: (cuenta: CuentaCaja) => void;
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -174,6 +178,8 @@ export const VistaPorTitular: React.FC<VistaPorTitularProps> = ({
   tarjetas: tarjetasProp,
   onCuentaClick,
   onTarjetaClick,
+  onEditarCuenta,
+  onEliminarCuenta,
 }) => {
   // Cargar tarjetas del store si no se pasan
   const tarjetasStore = useTarjetaCreditoStore((s) => s.tarjetas);
@@ -244,6 +250,8 @@ export const VistaPorTitular: React.FC<VistaPorTitularProps> = ({
                       onTarjetaClick?.(item.tarjeta);
                     }
                   }}
+                  onEditarCuenta={onEditarCuenta}
+                  onEliminarCuenta={onEliminarCuenta}
                 />
               ))}
             </div>

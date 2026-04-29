@@ -355,6 +355,13 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 setCuentaDetalle(cuentaDetalle?.id === c.id ? null : c)
               }
               onTarjetaClick={(t) => setTarjetaDetalle(t)}
+              onEditarCuenta={(c) => {
+                // Mismo flujo que la vista legacy
+                setCuentaEditando(c);
+                setBancoParaCuenta(c.banco || '');
+                setShowCuentaBanco(true);
+              }}
+              onEliminarCuenta={(c) => handleEliminarCuenta(c)}
             />
           )}
 
