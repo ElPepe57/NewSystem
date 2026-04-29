@@ -16,12 +16,21 @@ import {
   Settings2,
   Trash2,
   ShieldCheck,
+  Landmark,
+  DollarSign,
+  LayoutGrid,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button, Card, FormSection } from '../../components/common';
 import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
 import { CuentaWizard } from './CuentaWizard';
 import { VistaPorTitular } from './VistaPorTitular';
+import {
+  PipelineTesoreria,
+  calcularBloquesPipeline,
+  type EstadoPipeline,
+} from './components';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { TarjetaDetailModal } from './TarjetasCreditoV2';
@@ -270,67 +279,193 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
     </div>
   );
 
+  // ─── Imp-L1 · KPIs y Pipeline (S58e mockup M1) ──────────────────
+  const kpis = useMemo(() => {
+    let saldoPEN = 0;
+    let saldoUSD = 0;
+    let cuentasCount = 0;
+    let cajasCount = 0;
+    let walletsCount = 0;
+    let alertaCount = 0;
+    for (const c of cuentas) {
+      if (!c.activa) continue;
+      if (c.tipo === 'banco') cuentasCount++;
+      else if (c.tipo === 'efectivo') cajasCount++;
+      else if (c.tipo === 'digital') walletsCount++;
+      if (c.esBiMoneda) {
+        saldoPEN += c.saldoPEN ?? 0;
+        saldoUSD += c.saldoUSD ?? 0;
+      } else if (c.moneda === 'PEN') {
+        saldoPEN += c.saldoActual;
+      } else {
+        saldoUSD += c.saldoActual;
+      }
+      // Alerta si saldoActual < saldoMinimo
+      if ((c.saldoMinimo ?? 0) > 0) {
+        const saldo = c.esBiMoneda ? (c.saldoPEN ?? 0) : c.saldoActual;
+        if (saldo < (c.saldoMinimo ?? 0)) alertaCount++;
+      }
+    }
+    const tcsCount = tarjetas.filter((t) => t.activa !== false).length;
+    return {
+      saldoPEN,
+      saldoUSD,
+      productosActivos: cuentasCount + cajasCount + walletsCount + tcsCount,
+      cuentasCount,
+      tcsCount,
+      cajasCount,
+      walletsCount,
+      alertaCount,
+    };
+  }, [cuentas, tarjetas]);
+
+  const bloquesPipeline = useMemo(
+    () => calcularBloquesPipeline({ cuentas, tarjetas }),
+    [cuentas, tarjetas],
+  );
+
+  const [estadoFiltro, setEstadoFiltro] = useState<EstadoPipeline | null>(null);
+
   return (
     <>
-      <Card padding="none">
-        {/* Header */}
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="flex items-center gap-3">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-              Cuentas de Caja ({cuentas.length})
-            </h3>
-            {/* Toggle vista */}
-            <div className="flex bg-slate-100 rounded-md p-0.5 text-[11px]">
-              <button
-                type="button"
-                onClick={() => setVista('titular')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors ${
-                  vista === 'titular'
-                    ? 'bg-white text-teal-700 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-                title="Agrupar por titular (empresa, empleados, etc.)"
-              >
-                Por titular
-              </button>
-              <button
-                type="button"
-                onClick={() => setVista('tipo')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors ${
-                  vista === 'tipo'
-                    ? 'bg-white text-teal-700 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-                title="Agrupar por tipo de producto (banco, digital, efectivo)"
-              >
-                Por tipo
-              </button>
+      {/* ─── Header de página · S58e M1 ────────────────────────────── */}
+      <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <Landmark className="w-6 h-6 text-teal-600" />
+            Tesorería
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Productos financieros activos
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={handleRecalcularSaldos}
+            disabled={isSubmitting || cuentas.length === 0}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all disabled:opacity-50"
+            title="Recalcular saldos"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSubmitting ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Recalcular</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleReconciliarPagos}
+            disabled={isSubmitting}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all disabled:opacity-50"
+            title="Reconciliar pagos huérfanos"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Reconciliar</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowWizard(true)}
+            disabled={isSubmitting}
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-all shadow-sm disabled:opacity-50"
+          >
+            <Plus className="w-4 h-4" />
+            Nueva cuenta
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Toggle vista titular/tipo ─────────────────────────────── */}
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+        <div className="flex items-center bg-slate-100 rounded-lg p-1 gap-1">
+          <button
+            type="button"
+            onClick={() => setVista('titular')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              vista === 'titular'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-white hover:text-teal-700'
+            }`}
+          >
+            Por titular
+          </button>
+          <button
+            type="button"
+            onClick={() => setVista('tipo')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              vista === 'tipo'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-white hover:text-teal-700'
+            }`}
+          >
+            Por tipo
+          </button>
+        </div>
+      </div>
+
+      {/* ─── 4 KPIs financieros ───────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Saldo total PEN</span>
+            <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              variant="primary-soft"
-              size="sm"
-              onClick={() => setShowWizard(true)}
-              disabled={isSubmitting}
-              title="Crear cuenta paso a paso"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Nueva cuenta
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleReconciliarPagos}
-              disabled={isSubmitting} title="Reconciliar pagos huérfanos">
-              <ShieldCheck className={`h-4 w-4 mr-1`} />
-              <span className="hidden sm:inline">Reconciliar</span>
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleRecalcularSaldos}
-              disabled={isSubmitting || cuentas.length === 0} title="Recalcular saldos">
-              <RefreshCw className={`h-4 w-4 mr-1 ${isSubmitting ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Recalcular</span>
-            </Button>
+          <div className="text-2xl font-bold text-slate-900 tabular-nums">
+            S/ {Math.floor(kpis.saldoPEN).toLocaleString('es-PE')}
+            <span className="text-slate-400 text-base">.{((kpis.saldoPEN * 100) % 100).toFixed(0).padStart(2, '0')}</span>
           </div>
         </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Saldo total USD</span>
+            <div className="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-4 h-4 text-sky-600" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 tabular-nums">
+            US$ {Math.floor(kpis.saldoUSD).toLocaleString('es-PE')}
+            <span className="text-slate-400 text-base">.{((kpis.saldoUSD * 100) % 100).toFixed(0).padStart(2, '0')}</span>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Productos activos</span>
+            <div className="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center">
+              <LayoutGrid className="w-4 h-4 text-teal-600" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-slate-900 tabular-nums">{kpis.productosActivos}</div>
+          <div className="text-xs text-slate-500 mt-1">
+            {kpis.cuentasCount} cuentas · {kpis.tcsCount} TCs · {kpis.cajasCount} cajas · {kpis.walletsCount} wallets
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">En alerta</span>
+            <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+            </div>
+          </div>
+          <div className={`text-2xl font-bold tabular-nums ${kpis.alertaCount > 0 ? 'text-amber-600' : 'text-slate-900'}`}>
+            {kpis.alertaCount}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            {kpis.alertaCount === 0 ? 'Todo en orden' : 'Productos requieren atención'}
+          </div>
+        </div>
+      </div>
 
+      {/* ─── Pipeline de salud ────────────────────────────────────── */}
+      <PipelineTesoreria
+        bloques={bloquesPipeline}
+        estadoActivo={estadoFiltro}
+        onEstadoClick={(estado) =>
+          setEstadoFiltro((curr) => (curr === estado ? null : estado))
+        }
+        onClear={() => setEstadoFiltro(null)}
+        className="mb-5"
+      />
+
+      <Card padding="none">
         <div className="p-4 sm:p-6 space-y-4">
           {/* ==================== VISTA POR TITULAR (S58c parte 2) ==================== */}
           {vista === 'titular' && (
