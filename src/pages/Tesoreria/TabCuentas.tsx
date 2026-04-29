@@ -32,7 +32,9 @@ import {
   type EstadoPipeline,
 } from './components';
 import { ProductoDetalleModal } from './ProductoDetalleModal';
+import { TitularDrilldownView } from './TitularDrilldownView';
 import { useToastStore } from '../../store/toastStore';
+import type { GrupoTitular } from './VistaPorTitular/helpers';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { TarjetaDetailModal } from './TarjetasCreditoV2';
@@ -86,6 +88,9 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   // Imp-L2 · M2 detalle modal
   const [productoDetalleModal, setProductoDetalleModal] = useState<CuentaCaja | null>(null);
   const toastInfo = useToastStore((s) => s.info);
+
+  // Imp-L5 · M4 drill-down de titular (vista dedicada que oculta el listado)
+  const [titularDrilldown, setTitularDrilldown] = useState<GrupoTitular | null>(null);
 
   // S58c parte 2 — Toggle vista (por tipo / por titular)
   const [vista, setVista] = useState<'tipo' | 'titular'>('titular');
@@ -332,6 +337,50 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
 
   const [estadoFiltro, setEstadoFiltro] = useState<EstadoPipeline | null>(null);
 
+  // Imp-L5 · cuando hay drill-down, mostrar la vista dedicada en lugar
+  // del listado normal. Esto cumple el patrón M4 de "vista del titular".
+  if (titularDrilldown) {
+    return (
+      <>
+        <TitularDrilldownView
+          grupo={titularDrilldown}
+          onVolver={() => setTitularDrilldown(null)}
+          onNuevoProducto={() => {
+            setTitularDrilldown(null);
+            setShowWizard(true);
+          }}
+        />
+        {/* Modal detalle producto sigue disponible dentro del drill-down */}
+        <ProductoDetalleModal
+          isOpen={!!productoDetalleModal}
+          cuenta={productoDetalleModal}
+          onClose={() => setProductoDetalleModal(null)}
+          onEditar={(c) => {
+            setProductoDetalleModal(null);
+            setCuentaEditando(c);
+            setShowWizard(true);
+          }}
+          onEliminar={(c) => {
+            setProductoDetalleModal(null);
+            handleEliminarCuenta(c);
+          }}
+        />
+        <CuentaWizard
+          isOpen={showWizard}
+          onClose={() => {
+            setShowWizard(false);
+            setCuentaEditando(null);
+          }}
+          cuentaEditar={cuentaEditando}
+          onSuccess={() => {
+            void fetchCuentasUnificadas();
+          }}
+          isSubmitting={isSubmitting}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       {/* ─── Header de página · S58e M1 ────────────────────────────── */}
@@ -485,6 +534,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                 setShowWizard(true);
               }}
               onEliminarCuenta={(c) => handleEliminarCuenta(c)}
+              onTitularClick={(grupo) => setTitularDrilldown(grupo)}
             />
           )}
 
