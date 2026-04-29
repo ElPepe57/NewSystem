@@ -15,10 +15,12 @@
  *   - Layout flex-wrap; en desktop 1-2 filas, en mobile baja a varias filas.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Calendar,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Search,
   List,
   ArrowDownToLine,
@@ -47,7 +49,8 @@ export type RangoFecha =
   | 'ult_30d'
   | 'ult_90d'
   | 'ult_6m'
-  | 'este_anio';
+  | 'este_anio'
+  | 'custom';
 
 export type OrdenLista = 'mayor_saldo' | 'ultima_act' | 'nombre';
 
@@ -72,6 +75,10 @@ interface FiltrosFinanzasBarProps {
   // Rango fecha
   rangoFecha: RangoFecha;
   onCambiarRango: (rango: RangoFecha) => void;
+  // Solo aplica cuando rangoFecha === 'custom'. Formato 'YYYY-MM-DD'.
+  fechaDesde?: string;
+  fechaHasta?: string;
+  onCambiarFechasCustom?: (desde: string, hasta: string) => void;
 
   // Búsqueda
   busqueda: string;
@@ -190,7 +197,265 @@ const RANGOS_FECHA: Array<{ id: RangoFecha; label: string }> = [
   { id: 'ult_90d', label: 'Últimos 90 días' },
   { id: 'ult_6m', label: 'Últimos 6 meses' },
   { id: 'este_anio', label: 'Este año' },
+  { id: 'custom', label: 'Personalizado…' },
 ];
+
+// Formatea una fecha 'YYYY-MM-DD' a un label corto tipo "12 abr".
+function formatearFechaCorta(yyyymmdd: string): string {
+  if (!yyyymmdd) return '—';
+  const [y, m, d] = yyyymmdd.split('-').map(Number);
+  if (!y || !m || !d) return yyyymmdd;
+  const fecha = new Date(y, m - 1, d);
+  const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  return `${d} ${meses[fecha.getMonth()]}`;
+}
+
+// ── Helpers para el mini-calendar ──────────────────────────────────────
+const MESES_LARGOS = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+const DIAS_CORTOS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+function aYYYYMMDD(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+
+function deYYYYMMDD(s: string): Date | null {
+  if (!s) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+
+/**
+ * Mini-calendario inline con selección de rango visual estilo Stripe/Linear.
+ * Click 1 = desde · Click 2 = hasta (auto-swap si hasta < desde) ·
+ * Click 3 = reinicia con nuevo desde.
+ */
+const MiniCalendarRange: React.FC<{
+  desde: string;
+  hasta: string;
+  onCambiar: (desde: string, hasta: string) => void;
+}> = ({ desde, hasta, onCambiar }) => {
+  const dDesde = deYYYYMMDD(desde);
+  const dHasta = deYYYYMMDD(hasta);
+
+  // Mes que se está mostrando (default: mes de "desde" o mes actual)
+  const [mesVisible, setMesVisible] = useState<Date>(() => {
+    if (dDesde) return new Date(dDesde.getFullYear(), dDesde.getMonth(), 1);
+    const hoy = new Date();
+    return new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  });
+
+  // Hover preview del rango antes de hacer click final
+  const [hoverDate, setHoverDate] = useState<Date | null>(null);
+
+  const navegarMes = (delta: number) => {
+    setMesVisible((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
+  };
+
+  // Genera la grilla del mes (incluye días del mes anterior/siguiente para alinear)
+  const dias = useMemo(() => {
+    const primero = new Date(mesVisible.getFullYear(), mesVisible.getMonth(), 1);
+    const ultimo = new Date(mesVisible.getFullYear(), mesVisible.getMonth() + 1, 0);
+    // Día de la semana del primero (0=dom, ajustamos a 0=lun)
+    let diaSemanaPrimero = primero.getDay() - 1;
+    if (diaSemanaPrimero < 0) diaSemanaPrimero = 6;
+
+    const result: Array<{ fecha: Date; esDelMes: boolean }> = [];
+    // Días del mes anterior para llenar la primera fila
+    for (let i = diaSemanaPrimero - 1; i >= 0; i--) {
+      const d = new Date(primero);
+      d.setDate(d.getDate() - i - 1);
+      result.push({ fecha: d, esDelMes: false });
+    }
+    // Días del mes
+    for (let d = 1; d <= ultimo.getDate(); d++) {
+      result.push({
+        fecha: new Date(mesVisible.getFullYear(), mesVisible.getMonth(), d),
+        esDelMes: true,
+      });
+    }
+    // Completa la última fila
+    while (result.length % 7 !== 0) {
+      const last = result[result.length - 1].fecha;
+      const d = new Date(last);
+      d.setDate(d.getDate() + 1);
+      result.push({ fecha: d, esDelMes: false });
+    }
+    return result;
+  }, [mesVisible]);
+
+  const mismoDia = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+
+  const handleClickDia = (fecha: Date) => {
+    const yyyymmdd = aYYYYMMDD(fecha);
+
+    // Caso 1: no hay desde → poner desde
+    if (!dDesde) {
+      onCambiar(yyyymmdd, '');
+      return;
+    }
+    // Caso 2: hay desde pero no hasta → poner hasta (auto-swap si necesario)
+    if (dDesde && !dHasta) {
+      if (fecha.getTime() < dDesde.getTime()) {
+        onCambiar(yyyymmdd, aYYYYMMDD(dDesde));
+      } else {
+        onCambiar(aYYYYMMDD(dDesde), yyyymmdd);
+      }
+      return;
+    }
+    // Caso 3: ya hay ambos → reiniciar con nuevo desde
+    onCambiar(yyyymmdd, '');
+  };
+
+  // Determina el estado visual de cada día
+  const estadoDia = (fecha: Date): 'desde' | 'hasta' | 'unico' | 'rango' | 'preview' | 'hoy' | 'normal' => {
+    const hoy = new Date();
+    const esHoy = mismoDia(fecha, hoy);
+
+    if (dDesde && dHasta) {
+      if (mismoDia(fecha, dDesde) && mismoDia(fecha, dHasta)) return 'unico';
+      if (mismoDia(fecha, dDesde)) return 'desde';
+      if (mismoDia(fecha, dHasta)) return 'hasta';
+      if (fecha.getTime() > dDesde.getTime() && fecha.getTime() < dHasta.getTime()) return 'rango';
+    } else if (dDesde && !dHasta) {
+      if (mismoDia(fecha, dDesde)) return 'desde';
+      // Preview del rango con hover
+      if (hoverDate) {
+        const start = dDesde.getTime() < hoverDate.getTime() ? dDesde : hoverDate;
+        const end = dDesde.getTime() < hoverDate.getTime() ? hoverDate : dDesde;
+        if (fecha.getTime() > start.getTime() && fecha.getTime() < end.getTime()) return 'preview';
+        if (mismoDia(fecha, hoverDate) && !mismoDia(fecha, dDesde)) return 'preview';
+      }
+    }
+    if (esHoy) return 'hoy';
+    return 'normal';
+  };
+
+  const limpiar = () => onCambiar('', '');
+
+  const irHoy = () => {
+    const hoy = new Date();
+    setMesVisible(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+  };
+
+  return (
+    <div className="w-[280px]">
+      {/* Header navegación mes */}
+      <div className="flex items-center justify-between mb-2 px-1">
+        <button
+          type="button"
+          onClick={() => navegarMes(-1)}
+          className="w-7 h-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={irHoy}
+          className="text-[12px] font-semibold text-slate-700 hover:text-teal-700 transition-colors px-2 py-1 rounded-md hover:bg-slate-50"
+        >
+          {MESES_LARGOS[mesVisible.getMonth()]} {mesVisible.getFullYear()}
+        </button>
+        <button
+          type="button"
+          onClick={() => navegarMes(1)}
+          className="w-7 h-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Grid de días */}
+      <div className="grid grid-cols-7 gap-y-0.5 mb-2">
+        {DIAS_CORTOS.map((d) => (
+          <div
+            key={d}
+            className="text-center text-[10px] uppercase tracking-wider text-slate-400 font-semibold py-1"
+          >
+            {d}
+          </div>
+        ))}
+        {dias.map(({ fecha, esDelMes }, idx) => {
+          const estado = estadoDia(fecha);
+          // Bordes del rango (preview o real) para efecto de "barra"
+          const enRango = estado === 'rango' || estado === 'preview';
+          return (
+            <div key={idx} className="relative h-8 flex items-center justify-center">
+              {/* Fondo del rango (capa atrás del círculo) */}
+              {enRango && (
+                <div className="absolute inset-y-1 inset-x-0 bg-teal-50" />
+              )}
+              {/* Tail del extremo desde para conectar con el rango */}
+              {(estado === 'desde' && (dHasta || hoverDate)) && (
+                <div className="absolute inset-y-1 right-0 left-1/2 bg-teal-50" />
+              )}
+              {(estado === 'hasta') && (
+                <div className="absolute inset-y-1 left-0 right-1/2 bg-teal-50" />
+              )}
+              <button
+                type="button"
+                onClick={() => handleClickDia(fecha)}
+                onMouseEnter={() => setHoverDate(fecha)}
+                onMouseLeave={() => setHoverDate(null)}
+                disabled={!esDelMes}
+                className={cn(
+                  'relative z-10 w-7 h-7 rounded-full text-[12px] font-medium transition-all inline-flex items-center justify-center tabular-nums',
+                  !esDelMes && 'text-slate-300 cursor-default',
+                  esDelMes && estado === 'normal' && 'text-slate-700 hover:bg-slate-100',
+                  esDelMes && estado === 'hoy' && 'text-teal-700 font-semibold ring-1 ring-teal-300 hover:bg-teal-50',
+                  estado === 'desde' && 'bg-teal-600 text-white shadow-sm hover:bg-teal-700',
+                  estado === 'hasta' && 'bg-teal-600 text-white shadow-sm hover:bg-teal-700',
+                  estado === 'unico' && 'bg-teal-600 text-white shadow-sm hover:bg-teal-700',
+                  estado === 'rango' && 'text-teal-700 hover:bg-teal-100',
+                  estado === 'preview' && 'text-teal-700 hover:bg-teal-100',
+                )}
+              >
+                {fecha.getDate()}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer con resumen + acciones */}
+      <div className="border-t border-slate-100 pt-2 flex items-center justify-between gap-2">
+        <div className="text-[11px] text-slate-600 flex-1">
+          {dDesde && dHasta ? (
+            <span className="font-medium">
+              {formatearFechaCorta(desde)} – {formatearFechaCorta(hasta)}
+            </span>
+          ) : dDesde ? (
+            <span>
+              <span className="text-slate-400">Desde</span>{' '}
+              <span className="font-medium">{formatearFechaCorta(desde)}</span>
+              <span className="text-slate-400 ml-1">· elige fin</span>
+            </span>
+          ) : (
+            <span className="text-slate-400">Selecciona el inicio</span>
+          )}
+        </div>
+        {(dDesde || dHasta) && (
+          <button
+            type="button"
+            onClick={limpiar}
+            className="text-[11px] font-medium text-slate-500 hover:text-teal-700 transition-colors"
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ORDENES: Array<{ id: OrdenLista; label: string }> = [
   { id: 'mayor_saldo', label: 'Mayor saldo' },
@@ -205,6 +470,9 @@ export const FiltrosFinanzasBar: React.FC<FiltrosFinanzasBarProps> = ({
   onCambiarTipo,
   rangoFecha,
   onCambiarRango,
+  fechaDesde = '',
+  fechaHasta = '',
+  onCambiarFechasCustom,
   busqueda,
   onCambiarBusqueda,
   orden,
@@ -231,7 +499,13 @@ export const FiltrosFinanzasBar: React.FC<FiltrosFinanzasBarProps> = ({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const labelFecha = RANGOS_FECHA.find((r) => r.id === rangoFecha)?.label ?? 'Todo el periodo';
+  // Cuando es custom, el label muestra el rango: "12 abr – 28 abr"
+  const labelFecha = (() => {
+    if (rangoFecha === 'custom' && (fechaDesde || fechaHasta)) {
+      return `${formatearFechaCorta(fechaDesde)} – ${formatearFechaCorta(fechaHasta)}`;
+    }
+    return RANGOS_FECHA.find((r) => r.id === rangoFecha)?.label ?? 'Todo el periodo';
+  })();
   const labelOrden = ORDENES.find((o) => o.id === orden)?.label ?? 'Mayor saldo';
 
   const hayFiltroActivo =
@@ -268,14 +542,21 @@ export const FiltrosFinanzasBar: React.FC<FiltrosFinanzasBarProps> = ({
           <ChevronDown className="w-3 h-3 text-slate-400" />
         </button>
         {dropdownFechaOpen && (
-          <div className="absolute top-full left-0 mt-1 z-20 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[180px]">
+          <div
+            className={cn(
+              'absolute top-full left-0 mt-1 z-20 bg-white border border-slate-200 rounded-xl shadow-xl py-1',
+              rangoFecha === 'custom' ? 'min-w-[320px]' : 'min-w-[220px]',
+            )}
+          >
             {RANGOS_FECHA.map((r) => (
               <button
                 key={r.id}
                 type="button"
                 onClick={() => {
                   onCambiarRango(r.id);
-                  setDropdownFechaOpen(false);
+                  // Si elige preset distinto de custom, cierra. Si elige
+                  // 'custom', deja abierto para que vea los inputs de fecha.
+                  if (r.id !== 'custom') setDropdownFechaOpen(false);
                 }}
                 className={cn(
                   'w-full text-left px-3 py-1.5 text-[12px] hover:bg-slate-50 transition-colors',
@@ -285,6 +566,30 @@ export const FiltrosFinanzasBar: React.FC<FiltrosFinanzasBarProps> = ({
                 {r.label}
               </button>
             ))}
+
+            {/* Mini-calendario inline — visible al elegir Personalizado.
+                Reemplaza inputs nativos type="date" por un calendar con
+                selección visual de rango estilo Stripe/Linear/Mercury. */}
+            {rangoFecha === 'custom' && (
+              <div className="border-t border-slate-100 mt-1 pt-3 px-3 pb-3">
+                <MiniCalendarRange
+                  desde={fechaDesde}
+                  hasta={fechaHasta}
+                  onCambiar={(d, h) => onCambiarFechasCustom?.(d, h)}
+                />
+                {fechaDesde && fechaHasta && (
+                  <div className="flex justify-end pt-2 mt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setDropdownFechaOpen(false)}
+                      className="text-[11px] px-3 py-1.5 rounded-md font-medium bg-teal-600 text-white hover:bg-teal-700 transition-colors"
+                    >
+                      Aplicar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

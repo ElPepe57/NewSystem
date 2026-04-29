@@ -98,8 +98,19 @@ const FinanzasSaldos: React.FC = () => {
   const [estadoFiltro, setEstadoFiltro] = useState<FiltroEstado>(estadoInicial);
   const [tipoFiltro, setTipoFiltro] = useState<TipoEntidadCC | 'todos'>(tipoInicial);
   const [rangoFecha, setRangoFecha] = useState<RangoFecha>('todos');
+  const [fechaDesde, setFechaDesde] = useState<string>('');
+  const [fechaHasta, setFechaHasta] = useState<string>('');
   const [busqueda, setBusqueda] = useState('');
   const [orden, setOrden] = useState<OrdenLista>('mayor_saldo');
+
+  // Imp-L11.d · Cuando el usuario abandona el modo custom, limpia las fechas.
+  useEffect(() => {
+    if (rangoFecha !== 'custom') {
+      if (fechaDesde) setFechaDesde('');
+      if (fechaHasta) setFechaHasta('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rangoFecha]);
 
   const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
 
@@ -214,21 +225,35 @@ const FinanzasSaldos: React.FC = () => {
     return c;
   }, [ccs]);
 
-  // Imp-L11.c · Calcula timestamp mínimo según el rango seleccionado
-  // (filtro por fechaUltimoMovimiento de la CC).
-  const minTimestamp = useMemo(() => {
+  // Imp-L11.c/d · Calcula rango de timestamps [min, max] según filtro de fecha.
+  // Para presets (ult_7d, etc.) max=null (=ahora). Para 'custom', min y max
+  // vienen de los inputs date YYYY-MM-DD del usuario.
+  const rangoTimestamps = useMemo<{ min: number | null; max: number | null }>(() => {
     const ahora = new Date();
-    if (rangoFecha === 'todos') return null;
-    if (rangoFecha === 'ult_7d') return ahora.getTime() - 7 * 24 * 60 * 60 * 1000;
-    if (rangoFecha === 'ult_30d') return ahora.getTime() - 30 * 24 * 60 * 60 * 1000;
-    if (rangoFecha === 'ult_90d') return ahora.getTime() - 90 * 24 * 60 * 60 * 1000;
-    if (rangoFecha === 'ult_6m') return ahora.getTime() - 180 * 24 * 60 * 60 * 1000;
+    if (rangoFecha === 'todos') return { min: null, max: null };
+    if (rangoFecha === 'ult_7d')
+      return { min: ahora.getTime() - 7 * 24 * 60 * 60 * 1000, max: null };
+    if (rangoFecha === 'ult_30d')
+      return { min: ahora.getTime() - 30 * 24 * 60 * 60 * 1000, max: null };
+    if (rangoFecha === 'ult_90d')
+      return { min: ahora.getTime() - 90 * 24 * 60 * 60 * 1000, max: null };
+    if (rangoFecha === 'ult_6m')
+      return { min: ahora.getTime() - 180 * 24 * 60 * 60 * 1000, max: null };
     if (rangoFecha === 'este_anio') {
-      const inicioAnio = new Date(ahora.getFullYear(), 0, 1);
-      return inicioAnio.getTime();
+      return { min: new Date(ahora.getFullYear(), 0, 1).getTime(), max: null };
     }
-    return null;
-  }, [rangoFecha]);
+    if (rangoFecha === 'custom') {
+      // Si falta alguna fecha, no aplica filtro hasta que ambas estén llenas.
+      if (!fechaDesde || !fechaHasta) return { min: null, max: null };
+      const [ya, ma, da] = fechaDesde.split('-').map(Number);
+      const [yb, mb, db] = fechaHasta.split('-').map(Number);
+      // Inicio de día desde, final de día hasta (inclusive).
+      const min = new Date(ya, ma - 1, da, 0, 0, 0, 0).getTime();
+      const max = new Date(yb, mb - 1, db, 23, 59, 59, 999).getTime();
+      return { min, max };
+    }
+    return { min: null, max: null };
+  }, [rangoFecha, fechaDesde, fechaHasta]);
 
   const ccsFiltradas = useMemo(() => {
     let list = ccs;
@@ -239,12 +264,14 @@ const FinanzasSaldos: React.FC = () => {
     if (tipoFiltro !== 'todos') {
       list = list.filter((cc) => cc.tipo === tipoFiltro);
     }
-    if (minTimestamp !== null) {
-      list = list.filter(
-        (cc) =>
-          cc.fechaUltimoMovimiento &&
-          cc.fechaUltimoMovimiento.toMillis() >= minTimestamp,
-      );
+    if (rangoTimestamps.min !== null || rangoTimestamps.max !== null) {
+      list = list.filter((cc) => {
+        if (!cc.fechaUltimoMovimiento) return false;
+        const t = cc.fechaUltimoMovimiento.toMillis();
+        if (rangoTimestamps.min !== null && t < rangoTimestamps.min) return false;
+        if (rangoTimestamps.max !== null && t > rangoTimestamps.max) return false;
+        return true;
+      });
     }
     if (busqueda.trim()) {
       const q = busqueda.trim().toLowerCase();
@@ -270,7 +297,7 @@ const FinanzasSaldos: React.FC = () => {
     }
 
     return sorted;
-  }, [ccs, estadoFiltro, tipoFiltro, minTimestamp, busqueda, orden]);
+  }, [ccs, estadoFiltro, tipoFiltro, rangoTimestamps, busqueda, orden]);
 
   return (
     <>
@@ -297,6 +324,12 @@ const FinanzasSaldos: React.FC = () => {
             onCambiarTipo={setTipoFiltro}
             rangoFecha={rangoFecha}
             onCambiarRango={setRangoFecha}
+            fechaDesde={fechaDesde}
+            fechaHasta={fechaHasta}
+            onCambiarFechasCustom={(desde, hasta) => {
+              setFechaDesde(desde);
+              setFechaHasta(hasta);
+            }}
             busqueda={busqueda}
             onCambiarBusqueda={setBusqueda}
             orden={orden}
