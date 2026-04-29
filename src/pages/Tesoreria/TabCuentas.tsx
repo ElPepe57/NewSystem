@@ -31,6 +31,8 @@ import {
   calcularBloquesPipeline,
   type EstadoPipeline,
 } from './components';
+import { ProductoDetalleModal } from './ProductoDetalleModal';
+import { useToastStore } from '../../store/toastStore';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { TarjetaDetailModal } from './TarjetasCreditoV2';
@@ -80,6 +82,10 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   // Solo persiste el wizard universal y el estado de edición.
   const [showWizard, setShowWizard] = useState(false);
   const [cuentaEditando, setCuentaEditando] = useState<CuentaCaja | null>(null);
+
+  // Imp-L2 · M2 detalle modal
+  const [productoDetalleModal, setProductoDetalleModal] = useState<CuentaCaja | null>(null);
+  const toastInfo = useToastStore((s) => s.info);
 
   // S58c parte 2 — Toggle vista (por tipo / por titular)
   const [vista, setVista] = useState<'tipo' | 'titular'>('titular');
@@ -472,9 +478,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             <VistaPorTitular
               cuentas={cuentas}
               tarjetas={tarjetas}
-              onCuentaClick={(c) =>
-                setCuentaDetalle(cuentaDetalle?.id === c.id ? null : c)
-              }
+              onCuentaClick={(c) => setProductoDetalleModal(c)}
               onTarjetaClick={(t) => setTarjetaDetalle(t)}
               onEditarCuenta={(c) => {
                 setCuentaEditando(c);
@@ -869,6 +873,34 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         isOpen={!!tarjetaDetalle}
         onClose={() => setTarjetaDetalle(null)}
         tarjeta={tarjetaDetalle}
+      />
+
+      {/* Imp-L2 · M2 · Modal detalle de producto banking-grade */}
+      <ProductoDetalleModal
+        isOpen={!!productoDetalleModal}
+        cuenta={productoDetalleModal}
+        onClose={() => setProductoDetalleModal(null)}
+        onEditar={(c) => {
+          setProductoDetalleModal(null);
+          setCuentaEditando(c);
+          setShowWizard(true);
+        }}
+        onEliminar={(c) => {
+          setProductoDetalleModal(null);
+          handleEliminarCuenta(c);
+        }}
+        onCargarTC={(_c) => {
+          toastInfo(
+            'El wizard de cargo a TC se conectará en cleanup TC (DEUDA-PF-001).',
+            'Próximamente',
+          );
+        }}
+        onPagarECTC={(_c) => {
+          toastInfo(
+            'El wizard de pago de estado de cuenta se conectará en cleanup TC (DEUDA-PF-001).',
+            'Próximamente',
+          );
+        }}
       />
     </>
   );
