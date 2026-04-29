@@ -172,79 +172,87 @@ export const PipelineFinanzas: React.FC<PipelineFinanzasProps> = ({
     },
   ];
 
+  // Imp-L11.b · diseño pill horizontal estilo M6 (mockup movimientos)
+  // Antes: rounded-md con count interno · Ahora: rounded-full pill compacto
+  // con count como badge separado y divisor vertical entre estado y tipo.
+  const hayFiltroActivo =
+    estadoActivo !== 'todas' || tipoActivo !== 'todos';
+
   return (
-    <div>
-      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
-        Filtrar
-      </div>
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        {/* Chips de estado */}
-        {chipsEstado.map((chip) => {
-          const Icon = chip.icon;
-          const isActivo = estadoActivo === chip.id;
-          return (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => onCambiarEstado(chip.id)}
+    <div className="flex items-center gap-2 flex-wrap">
+      {/* Label compacto */}
+      <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mr-1">
+        Filtrar:
+      </span>
+
+      {/* Chips de estado */}
+      {chipsEstado.map((chip) => {
+        const Icon = chip.icon;
+        const isActivo = estadoActivo === chip.id;
+        return (
+          <button
+            key={chip.id}
+            type="button"
+            onClick={() => onCambiarEstado(chip.id)}
+            className={cn(
+              'px-3 py-1 rounded-full text-[12px] inline-flex items-center gap-1.5 whitespace-nowrap transition-all font-medium',
+              isActivo ? chip.classes.activo : chip.classes.inactivo,
+              isActivo && 'shadow-sm',
+            )}
+          >
+            <Icon className="w-3 h-3" />
+            <span>{chip.label}</span>
+            <span
               className={cn(
-                'px-3 py-1.5 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap transition-colors font-medium',
-                isActivo ? chip.classes.activo : chip.classes.inactivo,
+                'tabular-nums text-[11px] font-bold',
+                isActivo ? 'text-white/90' : 'opacity-60',
               )}
             >
-              <Icon className="w-3 h-3" />
-              {chip.label}
-              <span
-                className={cn(
-                  'px-1.5 py-0.5 rounded-md text-[10px] font-semibold',
-                  isActivo ? 'bg-white/20' : 'bg-white/60',
-                )}
-              >
-                {chip.count}
-              </span>
-            </button>
-          );
-        })}
+              {chip.count}
+            </span>
+          </button>
+        );
+      })}
 
-        {/* Divider vertical */}
-        <div className="h-6 w-px bg-slate-200 mx-1 flex-shrink-0" />
+      {/* Divider vertical */}
+      <div className="h-5 w-px bg-slate-200 mx-1" />
 
-        {/* Chip "todos los tipos" para resetear */}
+      {/* Chips de tipo · sin "todos los tipos" botón explícito ·
+          un click sobre el chip activo lo desactiva (toggle) */}
+      {chipsTipo.map((chip) => {
+        const Icon = chip.icon;
+        const isActivo = tipoActivo === chip.id;
+        return (
+          <button
+            key={chip.id}
+            type="button"
+            onClick={() => onCambiarTipo(isActivo ? 'todos' : chip.id)}
+            className={cn(
+              'px-3 py-1 rounded-full text-[12px] inline-flex items-center gap-1.5 whitespace-nowrap transition-all font-medium',
+              isActivo ? chip.classes.activo : chip.classes.inactivo,
+              isActivo && 'shadow-sm',
+            )}
+          >
+            <Icon className="w-3 h-3" />
+            <span>{chip.label}</span>
+          </button>
+        );
+      })}
+
+      {/* Limpiar filtros (solo visible cuando hay filtro activo) */}
+      {hayFiltroActivo && (
         <button
           type="button"
-          onClick={() => onCambiarTipo('todos')}
-          className={cn(
-            'px-3 py-1.5 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap transition-colors font-medium',
-            tipoActivo === 'todos'
-              ? 'bg-slate-900 text-white'
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50',
-          )}
+          onClick={() => {
+            onCambiarEstado('todas');
+            onCambiarTipo('todos');
+          }}
+          className="ml-auto text-[11px] text-slate-500 hover:text-teal-700 inline-flex items-center gap-1 transition-colors px-2 py-1"
         >
-          Todos los tipos
+          <span>×</span>
+          Limpiar filtros
         </button>
-
-        {/* Chips de tipo */}
-        {chipsTipo.map((chip) => {
-          const Icon = chip.icon;
-          const isActivo = tipoActivo === chip.id;
-          return (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() =>
-                onCambiarTipo(isActivo ? 'todos' : chip.id)
-              }
-              className={cn(
-                'px-3 py-1.5 rounded-md text-[12px] flex items-center gap-1.5 whitespace-nowrap transition-colors font-medium',
-                isActivo ? chip.classes.activo : chip.classes.inactivo,
-              )}
-            >
-              <Icon className="w-3 h-3" />
-              {chip.label}
-            </button>
-          );
-        })}
-      </div>
+      )}
     </div>
   );
 };

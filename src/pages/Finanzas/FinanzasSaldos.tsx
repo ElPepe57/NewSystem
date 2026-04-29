@@ -270,95 +270,11 @@ const FinanzasSaldos: React.FC = () => {
       {/* Imp-L11 · sub-header de actions Stripe eliminado. El usuario
            navega a /tesoreria para registrar movimientos nuevos. */}
 
-      {/* Hero con KPIs ejecutivos */}
+      {/* Imp-L11.b · KPIs duplicados eliminados (Por cobrar/Pagar/Saldo neto/
+            Entidades activas ya viven en PatrimonioHero arriba). Aquí solo
+            queda el pipeline filtrable que es funcional. */}
       {resumen && (
-        <Card padding="lg" className="mb-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-            <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">
-                  Por cobrar
-                </span>
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-              </div>
-              <div className="text-2xl font-bold text-emerald-700 tabular-nums">
-                {fmtPEN(resumen.totalDebenAEmpresa.PEN)}
-              </div>
-              {resumen.totalDebenAEmpresa.USD > 0 && (
-                <div className="text-xs text-emerald-600 tabular-nums mt-0.5">
-                  + {fmtUSD(resumen.totalDebenAEmpresa.USD)}
-                </div>
-              )}
-              <div className="text-[10px] text-emerald-700/70 mt-2">
-                {conteos.porCobrar} entidades
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-red-50 to-white border border-red-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-red-700 font-semibold">
-                  Por pagar
-                </span>
-                <TrendingDown className="w-3.5 h-3.5 text-red-500" />
-              </div>
-              <div className="text-2xl font-bold text-red-700 tabular-nums">
-                {fmtPEN(resumen.totalEmpresaDebe.PEN)}
-              </div>
-              {resumen.totalEmpresaDebe.USD > 0 && (
-                <div className="text-xs text-red-600 tabular-nums mt-0.5">
-                  + {fmtUSD(resumen.totalEmpresaDebe.USD)}
-                </div>
-              )}
-              <div className="text-[10px] text-red-700/70 mt-2">
-                {conteos.porPagar} entidades
-                {conteos.vencidas > 0 && ` · ${conteos.vencidas} vencidas`}
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-sky-50 to-white border border-sky-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-sky-700 font-semibold">
-                  Saldo neto
-                </span>
-                <Scale className="w-3.5 h-3.5 text-sky-500" />
-              </div>
-              <div className="text-2xl font-bold text-sky-700 tabular-nums">
-                {fmtPEN(
-                  resumen.totalDebenAEmpresa.PEN - resumen.totalEmpresaDebe.PEN,
-                )}
-              </div>
-              {(resumen.totalDebenAEmpresa.USD > 0 ||
-                resumen.totalEmpresaDebe.USD > 0) && (
-                <div className="text-xs text-sky-600 tabular-nums mt-0.5">
-                  {fmtUSD(
-                    resumen.totalDebenAEmpresa.USD - resumen.totalEmpresaDebe.USD,
-                  )}
-                </div>
-              )}
-              <div className="text-[10px] text-sky-700/70 mt-2">
-                Diferencia neta
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">
-                  Entidades activas
-                </span>
-                <Users className="w-3.5 h-3.5 text-amber-500" />
-              </div>
-              <div className="text-2xl font-bold text-amber-700 tabular-nums">
-                {conteos.todas - conteos.saldadas}
-              </div>
-              <div className="text-xs text-amber-600 mt-0.5">
-                de {conteos.todas} totales
-              </div>
-              <div className="text-[10px] text-amber-700/70 mt-2">
-                Con saldo distinto de 0
-              </div>
-            </div>
-          </div>
-
+        <Card padding="md" className="mb-4">
           <PipelineFinanzas
             estadoActivo={estadoFiltro}
             onCambiarEstado={setEstadoFiltro}
