@@ -132,6 +132,17 @@ export const COLLECTIONS = {
   CUENTAS_CORRIENTES: 'cuentasCorrientes',
   // Movimientos del libro de cada CC. Inmutables (audit trail).
   MOVIMIENTOS_CC: 'movimientosCC',
+
+  // === S58c-PF · ADR-PF-001 · Producto Financiero Unificado (F1) ===
+  // Reemplaza CUENTAS_CAJA + TARJETAS_CREDITO + CARGOS_TARJETA +
+  // PAGOS_ESTADO_CUENTA_TC + MOVIMIENTOS_TESORERIA + CONVERSIONES_CAMBIARIAS.
+  // Coexiste con los legacy durante F1-F4. Eliminacion de legacy en F5.
+  /** Productos financieros unificados (cuentas + tarjetas + wallets). */
+  PRODUCTOS_FINANCIEROS: 'productosFinancieros',
+  /** Vinculo titular - banco. Agrupa productos del mismo banco/titular. */
+  RELACIONES_BANCARIAS: 'relacionesBancarias',
+  /** Libro mayor unico (movs tesoreria + cargos TC + pagos TC + conversiones). */
+  MOVIMIENTOS_FINANCIEROS: 'movimientosFinancieros',
 } as const;
 
 /** Tipo union de todos los nombres de colección */

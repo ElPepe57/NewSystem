@@ -5,7 +5,7 @@
  * Borra TODO lo del refactor ProductoFinanciero para arrancar limpio:
  *   - Las 7 colecciones del módulo PF (cuentasCaja, tarjetasCredito,
  *     cargosTarjeta, pagosEstadoCuentaTC, movimientosTesoreria,
- *     conversionesCambiarias, lotesPago)
+ *     conversionesCambiarias, lotePagos)
  *   - CC espejo de tarjetas (cuentasCorrientes con tipo='tarjeta_credito'
  *     y sus movimientosCC asociados — cascada manual)
  *   - Contadores asociados (MOV-, CONV-, CARGO-, LOTE-, etc.)
@@ -63,7 +63,7 @@ const COLECCIONES_PF = [
   'pagosEstadoCuentaTC',
   'movimientosTesoreria',
   'conversionesCambiarias',
-  'lotesPago',
+  'lotePagos',
 ];
 
 /**
@@ -73,7 +73,7 @@ const CONTADORES_PF = [
   `MOV-${YEAR}`, `MOV-${YEAR - 1}`,           // movimientosTesoreria
   `CONV-${YEAR}`, `CONV-${YEAR - 1}`,         // conversionesCambiarias
   `CARGO-${YEAR}`, `CARGO-${YEAR - 1}`,       // cargosTarjeta
-  `LOTE-${YEAR}`, `LOTE-${YEAR - 1}`,         // lotesPago
+  `LOTE-${YEAR}`, `LOTE-${YEAR - 1}`,         // lotePagos
   `PAGOTC-${YEAR}`, `PAGOTC-${YEAR - 1}`,     // pagosEstadoCuentaTC
   `TC-${YEAR}`, `TC-${YEAR - 1}`,             // tarjetasCredito (codigo TC-001)
 ];

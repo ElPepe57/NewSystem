@@ -476,7 +476,7 @@ Procedimiento manual (ejecutar desde consola Firebase o script de admin):
    - pagosEstadoCuentaTC
    - movimientosTesoreria
    - conversionesCambiarias
-   - lotesPago                           // Pagos Masivos · TAREA-101
+   - lotePagos                           // Pagos Masivos · TAREA-101
 
 2. LIMPIAR REFERENCIAS en documentos vivos:
    - gastos: borrar campos cuentaOrigenId, cuentaOrigenNombre de cada pago[]
@@ -493,7 +493,7 @@ Procedimiento manual (ejecutar desde consola Firebase o script de admin):
    - deleteCollection('pagosEstadoCuentaTC')
    - deleteCollection('movimientosTesoreria')
    - deleteCollection('conversionesCambiarias')
-   - deleteCollection('lotesPago')         // Pagos Masivos · TAREA-101
+   - deleteCollection('lotePagos')         // Pagos Masivos · TAREA-101
 
 4. LIMPIAR CC espejo de tarjetas:
    - Borrar docs en cuentasCorrientes donde tipo='tarjeta_credito'
@@ -503,7 +503,7 @@ Procedimiento manual (ejecutar desde consola Firebase o script de admin):
    - contadores/movimientosTesoreria -> 0
    - contadores/conversionesCambiarias -> 0
    - contadores/cargosTarjeta -> 0
-   - contadores/lotesPago -> 0           // Pagos Masivos
+   - contadores/lotePagos -> 0           // Pagos Masivos
    - contadores/movimientosFinancieros -> 0  // Nueva coleccion unificada
 
 6. VERIFICAR: Abrir /tesoreria y /finanzas -- debe estar vacio sin errores.

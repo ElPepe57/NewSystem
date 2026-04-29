@@ -106,6 +106,20 @@ export const COLLECTIONS = {
 
   // === Contadores (Cloud Functions) — MUST match frontend 'contadores' ===
   COUNTERS: "contadores",
+
+  // === S55 · Cuenta Corriente Unificada (mirror del frontend) ===
+  // Doc raíz por entidad: ID determinístico {tipo}_{entidadId}
+  CUENTAS_CORRIENTES: "cuentasCorrientes",
+  // Movimientos del libro (inmutables · audit trail)
+  MOVIMIENTOS_CC: "movimientosCC",
+
+  // === S58c-PF · ADR-PF-001 · Producto Financiero Unificado (F1) ===
+  // Reemplaza CUENTAS_CAJA + tarjetasCredito + cargosTarjeta +
+  // pagosEstadoCuentaTC + MOVIMIENTOS_TESORERIA + CONVERSIONES_CAMBIARIAS
+  // Coexiste con legacy en F1-F4. Eliminacion en F5.
+  PRODUCTOS_FINANCIEROS: "productosFinancieros",
+  RELACIONES_BANCARIAS: "relacionesBancarias",
+  MOVIMIENTOS_FINANCIEROS: "movimientosFinancieros",
 } as const;
 
 export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];
