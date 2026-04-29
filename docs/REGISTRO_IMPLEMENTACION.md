@@ -2,8 +2,142 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-27 (Sesion 55 · CIERRE COMPLETO — Cuenta Corriente Unificada Bidireccional. TODAS las 8 fases implementadas: F1 Fundación + F2 CxP Proveedores + F9-pre CF ML + F3 CxC Clientes + F4 CxP Colaboradores + F5 Empleados Planilla + F6 Reclamos integrados + F7 UI Tabs CC + F8 Reportes Dashboard. Reglas Firestore deployadas. tsc 0 errores · vite 18.90s. Sistema financiero completo unificado bajo Cuenta Corriente como única fuente de verdad.)
+**Ultima actualizacion:** 2026-04-28 (Sesion S58c-PF · APERTURA — ADR-PF-001 Refactor Producto Financiero aprobado. 7 decisiones de negocio cerradas (D-PF-1 a D-PF-7). 3 preguntas operativas resueltas (P-1 wallets como canales / P-2 absorber conversiones / P-3 DatoBancarioPasivo fuera de scope). Plan de 8 sesiones (F0-F5). F0 lista para ejecucion.)
 **Branch activo:** main
+
+---
+
+## SESION S58c-PF — APERTURA REFACTOR PRODUCTO FINANCIERO
+
+### Fecha y estado
+
+**Fecha de apertura:** 2026-04-28
+**Estado:** ADR-PF-001 aprobado — F0 lista para ejecucion
+**Commits:** `acc7456` (ADR creado) · `7311678` (preguntas operativas cerradas)
+**Documento de referencia:** `docs/ADR-PF-001-producto-financiero.md` (fuente de verdad tecnica completa)
+
+### Origen del refactor
+
+Jose observo que `CuentaCaja` y `TarjetaCredito` comparten campos clave (banco, titularidad, titularEntidadId) pero viven como hermanas planas en colecciones separadas. La observacion textual fue:
+
+> "Cuentas Bancarias y Tarjetas no deberian estar en el mismo rubro segun la logica que habias desarrollado, lo digo porque tecnicamente son productos financieros que pertenecen al mismo titular y del mismo banco, entonces por eso me refiero a la vinculacion."
+
+Ademas, existen 4 colecciones de movimientos con logica duplicada (`movimientosTesoreria`, `cargosTarjeta`, `pagosEstadoCuentaTC`, y `movimientosCC`). El momento es ideal para el refactor porque no hay datos criticos en produccion.
+
+### Modelo C seleccionado: Refactor profundo + reset de datos
+
+El usuario decidio explicitamente:
+
+> "En realidad preferiria el modelo C, porque prefiero el refactor profundo aprovechando que estamos comenzando de 0."
+
+Sin script de migracion legacy. Los ~10-15 productos financieros se recapturan manualmente con el nuevo wizard.
+
+### Nuevo modelo de datos
+
+- **Entidad madre:** `ProductoFinanciero` (coleccion `productosFinancieros`) con discriminator `tipoProducto`
+- **Tipos:** `cuenta_corriente`, `cuenta_ahorros`, `tarjeta_credito`, `tarjeta_debito`, `caja_efectivo`, `wallet_digital`
+- **Vinculacion bancaria:** entidad explicita `RelacionBancaria` (coleccion `relacionesBancarias`) — agrupa todos los productos del mismo titular + banco bajo un nodo
+- **Movimientos unificados:** coleccion unica `movimientosFinancieros` reemplaza `movimientosTesoreria` + `cargosTarjeta` + `pagosEstadoCuentaTC`
+- **CuentaCorriente y MovimientoCC:** NO se tocan — siguen siendo el libro de saldos por entidad externa
+
+**Canales digitales (P-1 Opcion C resuelto):**
+
+Yape/Plin/SIP/Agora/BIM NO son productos financieros independientes — son canales adosados al ProductoFinanciero de cuenta banco. El saldo es uno solo, el de la cuenta padre.
+
+| Canal | Banco al que se adosa |
+|-------|-----------------------|
+| yape | BCP |
+| plin | IBK (Interbank) |
+| sip | Financiera Oh |
+| agora | REQUIERE CONFIRMACION antes de F4 |
+| bim | REQUIERE CONFIRMACION antes de F4 |
+
+Campo `MovimientoFinanciero.canalUtilizado` permite a BI reportar preferencias de canal sin crear productos fantasma.
+
+Cita textual del usuario sobre el comportamiento de Yape:
+
+> "los fondos de ahorro en Yape se anexan o complementan con los de la cuenta de ahorros como tal, por decirlo tienen un mismo origen."
+
+### Decisiones de negocio cerradas
+
+| ID | Decision | Racional |
+|----|----------|----------|
+| D-PF-1 | Entidad madre `ProductoFinanciero` con discriminator `tipoProducto` | Reemplaza `cuentasCaja` + `tarjetasCredito`. 6 tipos en una sola coleccion. |
+| D-PF-2 | Vinculo titular-banco-productos via entidad explicita `RelacionBancaria` | Permite agrupar "BCP Ahorros + BCP Corriente + BCP Visa" bajo un nodo sin joins costosos |
+| D-PF-3 | Saldos hibridos: `movimientosFinancieros` es fuente de verdad; `ProductoFinanciero.saldoActual` es cache | Recalculo por trigger al insertar + cron mensual + boton manual |
+| D-PF-4 | Movimientos unificados en coleccion `movimientosFinancieros` | Reemplaza `movimientosTesoreria` + `cargosTarjeta` + `pagosEstadoCuentaTC`. `movimientosCC` NO se toca. |
+| D-PF-5 | Wizard unico universal — extender `CuentaWizard` actual con tipo `tarjeta_credito` y Paso 2.5 condicional | Registry pattern (mismo patron que EnvioWizard S53). Cada tipo registra sus campos condicionales. |
+| D-PF-6 | Migrar TODAS las referencias cruzadas en el sistema (11 services frontend + 6 Cloud Functions) | `cuentaPagoId`, `cuentaCobroId`, `cuentaOrigenId`, `cuentaDestinoId`, `tarjetaId`, `tarjetaCreditoId` → `productoFinancieroId` y variantes |
+| D-PF-7 | Reset completo de datos (D-PF-7) — borrar todo, recapturar manualmente | No hay datos criticos en produccion. Posponer aumentaria el costo exponencialmente. |
+
+### Preguntas operativas resueltas
+
+**P-1 — Wallets locales (Yape/Plin/SIP/Agora/BIM):** Opcion C (canales, no productos). Ver tabla de mapeo canal-banco arriba.
+
+**P-2 — ConversionCambiaria:** Se absorbe como par de `MovimientoFinanciero` con categorias `conversion_salida` (USD) + `conversion_entrada` (PEN) vinculados por `idempotencyKey`. No se mantiene coleccion separada `conversionesCambiarias`.
+
+**P-3 — DatoBancarioPasivo en fichas de terceros:** Fuera de scope. Solo es "contacto bancario" de terceros sin saldo en nuestro sistema. No entra en este refactor.
+
+### Inventario de impacto
+
+141 archivos en `src/` y 9 archivos en `functions/src/` se ven afectados. Detalle exhaustivo documentado en el output del agente `system-context-reader` del 2026-04-28 (session S58c-PF). Ver ADR-PF-001 seccion 8 para el mapeo completo de referencias cruzadas.
+
+### Plan de fases
+
+| Fase | Objetivo | Sesiones est. | Estado |
+|------|----------|---------------|--------|
+| **F0** | Reset transaccional + setup base | 0.5 | Lista para ejecucion |
+| **F1** | Tipos nuevos coexistiendo con viejos | 1 | Pendiente |
+| **F2** | Servicios nuevos + adaptadores | 1.5 | Pendiente |
+| **F3** | Migracion de referencias (11 services + selectors) | 2 | Pendiente |
+| **F4** | UI completa (wizard universal + TabProductos + VistaPorTitular) | 2 | Pendiente |
+| **F5** | Eliminacion legacy + Cloud Functions + UAT + deploy | 1 | Pendiente |
+
+**Total estimado: 8 sesiones.**
+
+**F0 en detalle (reset transaccional):**
+Backup → limpiar referencias huerfanas en gastos/ventas/OCs/envios/cotizaciones/reclamos/devoluciones → borrar colecciones `cuentasCaja`, `tarjetasCredito`, `cargosTarjeta`, `pagosEstadoCuentaTC`, `movimientosTesoreria`, `conversionesCambiarias`, `lotesPago` → limpiar CC espejo de tarjetas → resetear contadores → verificar `/tesoreria` y `/finanzas` vacios sin errores.
+
+**F1 en detalle (tipos base):**
+Crear `src/types/productoFinanciero.types.ts`, `src/types/relacionBancaria.types.ts`, `src/types/movimientoFinanciero.types.ts`. Registrar colecciones en `config/collections.ts` y `functions/src/collections.ts`. NO eliminar tipos viejos aun — coexistencia hasta F5. Confirmar bancos de Agora y BIM antes de finalizar F1.
+
+**Strategia de coexistencia F1-F4:**
+- Type aliases `@deprecated` en tipos viejos
+- Adaptadores temporales `cuentaCajaToProductoFinanciero()` + inverso
+- Comentarios `// MIGRATE-TO-PF` en imports legacy en F2
+- Eliminacion definitiva solo en F5
+
+### Deudas abiertas al inicio de F1
+
+| ID | Deuda | Bloquea |
+|----|-------|---------|
+| DEUDA-PF-001 | Agora → confirmar que banco. Preguntar al usuario antes de F4 si Vita Skin usa Agora. | F4 wizard (campo canal Agora quedara placeholder hasta confirmar) |
+| DEUDA-PF-002 | BIM → confirmar que banco. Idem. | F4 wizard |
+| DEUDA-PF-003 | Wallets digitales (PayPal/Wise/MercadoPago) en titularidad personal de empleado: UX para cobro de empresa pendiente. Default = si acepta cobro. | F4 UI (no bloquea F0-F3) |
+
+### Colecciones que se crean
+
+| Coleccion | Path | Descripcion |
+|-----------|------|-------------|
+| `productosFinancieros` | `/productosFinancieros/{id}` | Entidad madre unificada |
+| `relacionesBancarias` | `/relacionesBancarias/{id}` | Vinculacion banco-titular |
+| `movimientosFinancieros` | `/movimientosFinancieros/{id}` | Libro mayor financiero unificado |
+
+### Colecciones que se eliminan (en F0)
+
+`cuentasCaja`, `tarjetasCredito`, `cargosTarjeta`, `pagosEstadoCuentaTC`, `movimientosTesoreria`, `conversionesCambiarias`, `lotesPago`
+
+### Criterios de aceptacion (go-live post-F5)
+
+Ver ADR-PF-001 seccion 11 — 12 criterios detallados. Resumen ejecutivo:
+- `tsc -b` 0 errores, 0 referencias a `CuentaCaja` o `TarjetaCredito`
+- Crear un ProductoFinanciero de cada tipo desde el wizard
+- Registrar movimiento y verificar que `saldoActual` se actualiza
+- Transferencia interna entre dos productos, saldos correctos en ambos
+- Cargo a TC genera CC espejo debitada
+- Venta cobrada y OC pagada usan `productoFinancieroId` correctamente
+- CF ML escribe `productoDestinoId` (no `cuentaDestino`)
+- Vista `/finanzas/saldos` agrupa productos por `RelacionBancaria`
 
 ---
 
