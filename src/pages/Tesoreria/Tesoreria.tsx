@@ -12,6 +12,7 @@ import {
   Banknote,
   ArrowLeftRight,
   Layers,
+  GitBranch,
   CreditCard
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
@@ -45,10 +46,11 @@ import { TabConversiones } from './TabConversiones';
 import { TabTransferencias } from './TabTransferencias';
 import { TabCuentas } from './TabCuentas';
 import { TabPagosMasivos } from './TabPagosMasivos';
+import { TabPipeline } from './TabPipeline';
 import { TabTarjetasCredito } from './TabTarjetasCredito';
 import { PoolUSDWidget } from '../../components/modules/tesoreria/PoolUSDWidget';
 
-type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pagosMasivos' | 'tarjetas';
+type TabActiva = 'movimientos' | 'conversiones' | 'transferencias' | 'cuentas' | 'pagosMasivos' | 'tarjetas' | 'pipeline';
 
 interface TransferenciaEntreCuentas {
   id: string;
@@ -994,6 +996,7 @@ export const Tesoreria: React.FC = () => {
             { key: 'cuentas', icon: Building2, label: 'Cuentas bancarias' },
             { key: 'tarjetas', icon: CreditCard, label: 'Tarjetas' },
             { key: 'pagosMasivos', icon: Layers, label: 'Pagos masivos' },
+            { key: 'pipeline', icon: GitBranch, label: 'Pipeline' },
           ] as { key: TabActiva; icon: any; label: string }[]).map(({ key, icon: Icon, label }) => {
             const activo = 'bg-teal-600 text-white';
             const inactivo = 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200';
@@ -1101,6 +1104,10 @@ export const Tesoreria: React.FC = () => {
 
       {tabActiva === 'tarjetas' && (
         <TabTarjetasCredito />
+      )}
+
+      {tabActiva === 'pipeline' && (
+        <TabPipeline onVolverListado={() => setTabActiva('cuentas')} />
       )}
 
       <ConfirmDialog {...dialogProps} />
