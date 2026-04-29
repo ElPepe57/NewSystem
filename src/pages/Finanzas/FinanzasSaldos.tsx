@@ -18,17 +18,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Download,
-  Plus,
-  Search,
-  TrendingUp,
-  TrendingDown,
-  Scale,
-  Users,
-  Wallet,
-} from 'lucide-react';
-import { Card, Button } from '../../components/common';
+import { Wallet } from 'lucide-react';
+import { Card } from '../../components/common';
 import {
   cuentaCorrienteService,
 } from '../../services/cuentaCorriente.service';
@@ -46,10 +37,12 @@ import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { PatrimonioHero } from './components/PatrimonioHero';
 import type { TarjetaCredito } from '../../types/tarjetaCredito.types';
 import {
-  PipelineFinanzas,
+  FiltrosFinanzasBar,
   type FiltroEstado,
   type ConteosFiltro,
-} from './components/PipelineFinanzas';
+  type RangoFecha,
+  type OrdenLista,
+} from './components/FiltrosFinanzasBar';
 import { cn } from '../../design-system';
 
 const DIAS_VENCIDO = 30;
@@ -104,8 +97,9 @@ const FinanzasSaldos: React.FC = () => {
 
   const [estadoFiltro, setEstadoFiltro] = useState<FiltroEstado>(estadoInicial);
   const [tipoFiltro, setTipoFiltro] = useState<TipoEntidadCC | 'todos'>(tipoInicial);
+  const [rangoFecha, setRangoFecha] = useState<RangoFecha>('todos');
   const [busqueda, setBusqueda] = useState('');
-  const [orden, setOrden] = useState<'mayor_saldo' | 'ultima_act' | 'nombre'>('mayor_saldo');
+  const [orden, setOrden] = useState<OrdenLista>('mayor_saldo');
 
   const [ccSeleccionada, setCCSeleccionada] = useState<CuentaCorriente | null>(null);
 
@@ -220,6 +214,22 @@ const FinanzasSaldos: React.FC = () => {
     return c;
   }, [ccs]);
 
+  // Imp-L11.c · Calcula timestamp mínimo según el rango seleccionado
+  // (filtro por fechaUltimoMovimiento de la CC).
+  const minTimestamp = useMemo(() => {
+    const ahora = new Date();
+    if (rangoFecha === 'todos') return null;
+    if (rangoFecha === 'ult_7d') return ahora.getTime() - 7 * 24 * 60 * 60 * 1000;
+    if (rangoFecha === 'ult_30d') return ahora.getTime() - 30 * 24 * 60 * 60 * 1000;
+    if (rangoFecha === 'ult_90d') return ahora.getTime() - 90 * 24 * 60 * 60 * 1000;
+    if (rangoFecha === 'ult_6m') return ahora.getTime() - 180 * 24 * 60 * 60 * 1000;
+    if (rangoFecha === 'este_anio') {
+      const inicioAnio = new Date(ahora.getFullYear(), 0, 1);
+      return inicioAnio.getTime();
+    }
+    return null;
+  }, [rangoFecha]);
+
   const ccsFiltradas = useMemo(() => {
     let list = ccs;
 
@@ -228,6 +238,13 @@ const FinanzasSaldos: React.FC = () => {
     }
     if (tipoFiltro !== 'todos') {
       list = list.filter((cc) => cc.tipo === tipoFiltro);
+    }
+    if (minTimestamp !== null) {
+      list = list.filter(
+        (cc) =>
+          cc.fechaUltimoMovimiento &&
+          cc.fechaUltimoMovimiento.toMillis() >= minTimestamp,
+      );
     }
     if (busqueda.trim()) {
       const q = busqueda.trim().toLowerCase();
@@ -253,7 +270,7 @@ const FinanzasSaldos: React.FC = () => {
     }
 
     return sorted;
-  }, [ccs, estadoFiltro, tipoFiltro, busqueda, orden]);
+  }, [ccs, estadoFiltro, tipoFiltro, minTimestamp, busqueda, orden]);
 
   return (
     <>
@@ -267,49 +284,27 @@ const FinanzasSaldos: React.FC = () => {
         />
       </div>
 
-      {/* Imp-L11 · sub-header de actions Stripe eliminado. El usuario
-           navega a /tesoreria para registrar movimientos nuevos. */}
-
-      {/* Imp-L11.b · KPIs duplicados eliminados (Por cobrar/Pagar/Saldo neto/
-            Entidades activas ya viven en PatrimonioHero arriba). Aquí solo
-            queda el pipeline filtrable que es funcional. */}
+      {/* Imp-L11.c · Barra de filtros UNIFICADA estilo M6 (mockup movimientos).
+            Antes: PipelineFinanzas (chips) + toolbar separado (búsqueda+orden) en
+            2 cards. Ahora: una sola barra horizontal con date range + estado +
+            tipo + búsqueda + orden + limpiar, replicando el patrón Stripe/Mercury. */}
       {resumen && (
         <Card padding="md" className="mb-4">
-          <PipelineFinanzas
+          <FiltrosFinanzasBar
             estadoActivo={estadoFiltro}
             onCambiarEstado={setEstadoFiltro}
             tipoActivo={tipoFiltro}
             onCambiarTipo={setTipoFiltro}
+            rangoFecha={rangoFecha}
+            onCambiarRango={setRangoFecha}
+            busqueda={busqueda}
+            onCambiarBusqueda={setBusqueda}
+            orden={orden}
+            onCambiarOrden={setOrden}
             conteos={conteos}
           />
         </Card>
       )}
-
-      {/* Toolbar */}
-      <Card padding="sm" className="mb-4">
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-            <input
-              type="text"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar entidad por nombre..."
-              className="w-full pl-9 pr-3 py-1.5 text-[13px] border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
-            />
-          </div>
-          <select
-            value={orden}
-            onChange={(e) => setOrden(e.target.value as typeof orden)}
-            className="text-[12px] px-3 py-1.5 border border-slate-300 rounded-md bg-white"
-          >
-            <option value="mayor_saldo">Mayor saldo primero</option>
-            <option value="ultima_act">Última actividad</option>
-            <option value="nombre">Nombre A-Z</option>
-          </select>
-          {/* S57.x — Toggle list/grid ELIMINADO. Solo cards (alineado con /compras y /envios). */}
-        </div>
-      </Card>
 
       {/* Lista de cards */}
       {loading ? (
