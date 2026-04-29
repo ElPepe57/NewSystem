@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { tesoreriaService } from '../services/tesoreria.service';
+import { getCuentasUnificadas } from '../services/productoFinanciero.adapters';
 import type {
   MovimientoTesoreria,
   ConversionCambiaria,
@@ -58,10 +59,12 @@ export const useTesoreriaStore = create<TesoreriaState>()(
         set({ loading: true, error: null });
         try {
           // Datos críticos: cuentas, movimientos, conversiones — deben cargar siempre
+          // F3c · ADR-PF-001 · cuentas usa getCuentasUnificadas() que une
+          // cuentasCaja legacy + productosFinancieros nativos (modelo nuevo).
           const [movimientos, conversiones, cuentas] = await Promise.all([
             tesoreriaService.getMovimientos(),
             tesoreriaService.getConversiones(),
-            tesoreriaService.getCuentas(),
+            getCuentasUnificadas(),
           ]);
           set({ movimientos, conversiones, cuentas, loading: false });
 
@@ -103,7 +106,8 @@ export const useTesoreriaStore = create<TesoreriaState>()(
       fetchCuentas: async () => {
         set({ loading: true, error: null });
         try {
-          const cuentas = await tesoreriaService.getCuentas();
+          // F3c · cuentas unificadas (legacy + productosFinancieros nativos)
+          const cuentas = await getCuentasUnificadas();
           set({ cuentas, loading: false });
         } catch (error: unknown) {
           const message = error instanceof Error ? error.message : 'Error desconocido';

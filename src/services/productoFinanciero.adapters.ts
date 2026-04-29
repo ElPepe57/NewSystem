@@ -29,6 +29,7 @@ import type {
 } from '../types/productoFinanciero.types';
 import { getCuentas } from './tesoreria.cuentas.service';
 import { tarjetaCreditoService } from './tarjetaCredito.service';
+import { getProductosFinancierosActivos } from './productoFinanciero.service';
 
 // ═════════════════════════════════════════════════════════════════════════
 // CuentaCaja → ProductoFinanciero
@@ -163,6 +164,130 @@ export function tarjetaCreditoToProductoFinanciero(
 }
 
 // ═════════════════════════════════════════════════════════════════════════
+// ProductoFinanciero → CuentaCaja (adapter INVERSO · F3c)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Adapter inverso: proyecta un ProductoFinanciero al shape CuentaCaja
+ * para que componentes que aún esperan el shape viejo puedan mostrarlo.
+ *
+ * F3c: TabCuentas, VistaPorTitular y otras vistas siguen tipadas con
+ * CuentaCaja. En lugar de refactorizar todas, leemos productosFinancieros
+ * y los proyectamos a CuentaCaja-shape. Las nuevas creaciones del wizard
+ * (F3b) entonces aparecen en la lista sin más cambios.
+ *
+ * SE ELIMINA EN F5 cuando todos los consumers usen ProductoFinanciero
+ * directamente.
+ */
+export function productoFinancieroToCuentaCaja(
+  pf: ProductoFinanciero,
+): CuentaCaja {
+  // Mapping inverso de tipoProducto → tipo legacy
+  const tipoLegacy = mapearTipoProductoAlegacy(pf.tipoProducto);
+  const productoLegacy = mapearProductoFinancieroAlegacy(
+    pf.tipoProducto,
+    pf.proveedorWallet,
+  );
+
+  const c: CuentaCaja = {
+    id: pf.id,
+    nombre: pf.nombre,
+    titular: pf.titularNombre ?? 'Vita Skin Peru SAC',
+    tipo: tipoLegacy,
+
+    esBiMoneda: pf.esBiMoneda,
+    moneda: pf.moneda,
+
+    saldoActual: pf.saldoActual,
+    saldoUSD: pf.saldoUSD,
+    saldoPEN: pf.saldoPEN,
+
+    activa: pf.activa,
+    creadoPor: pf.creadoPor,
+    fechaCreacion: pf.fechaCreacion,
+  };
+
+  // Saldos mínimos
+  if (pf.saldoMinimo !== undefined) c.saldoMinimo = pf.saldoMinimo;
+  if (pf.saldoMinimoUSD !== undefined) c.saldoMinimoUSD = pf.saldoMinimoUSD;
+  if (pf.saldoMinimoPEN !== undefined) c.saldoMinimoPEN = pf.saldoMinimoPEN;
+
+  // Datos bancarios
+  if (pf.banco) c.banco = pf.banco;
+  if (pf.bancoNombreCompleto) c.bancoNombreCompleto = pf.bancoNombreCompleto;
+  if (pf.numeroCuenta) c.numeroCuenta = pf.numeroCuenta;
+  if (pf.cci) c.cci = pf.cci;
+
+  // Producto financiero legacy
+  if (productoLegacy) c.productoFinanciero = productoLegacy;
+
+  // Titularidad
+  c.titularidad = pf.titularidad;
+  if (pf.titularEntidadId) c.titularEntidadId = pf.titularEntidadId;
+  if (pf.titularEntidadTipo) c.titularEntidadTipo = pf.titularEntidadTipo;
+  if (pf.titularNombre) c.titularNombre = pf.titularNombre;
+
+  // Tarjeta débito
+  if (pf.cuentaVinculadaId) c.cuentaVinculadaId = pf.cuentaVinculadaId;
+
+  // Métodos
+  if (pf.metodosDisponibles?.length) c.metodosDisponibles = pf.metodosDisponibles;
+
+  // Canales digitales
+  if (pf.canalesDigitales?.length) {
+    c.canalesDigitales = pf.canalesDigitales.map((cd) => ({
+      tipo: cd.tipo,
+      identificador: cd.identificador,
+    }));
+  }
+
+  // Configuración
+  if (pf.esCuentaPorDefecto !== undefined)
+    c.esCuentaPorDefecto = pf.esCuentaPorDefecto;
+
+  if (pf.actualizadoPor) c.actualizadoPor = pf.actualizadoPor;
+  if (pf.fechaActualizacion) c.fechaActualizacion = pf.fechaActualizacion;
+
+  return c;
+}
+
+function mapearTipoProductoAlegacy(
+  tipo: TipoProductoFinanciero,
+): CuentaCaja['tipo'] {
+  switch (tipo) {
+    case 'cuenta_corriente':
+    case 'cuenta_ahorros':
+      return 'banco';
+    case 'tarjeta_debito':
+      return 'credito';
+    case 'tarjeta_credito':
+      // En el shape legacy CuentaCaja no soporta tarjeta_credito como tipo —
+      // las tarjetas viven en TarjetaCredito. Aquí proyectamos como 'credito'
+      // y las consumers que sepan distinguir lo verán por productoFinanciero.
+      return 'credito';
+    case 'caja_efectivo':
+      return 'efectivo';
+    case 'wallet_digital':
+      return 'digital';
+  }
+}
+
+function mapearProductoFinancieroAlegacy(
+  tipo: TipoProductoFinanciero,
+  proveedor?: ProveedorWallet,
+): CuentaCaja['productoFinanciero'] | undefined {
+  switch (tipo) {
+    case 'cuenta_corriente': return 'cuenta_corriente';
+    case 'cuenta_ahorros':   return 'cuenta_ahorros';
+    case 'tarjeta_debito':   return 'tarjeta_debito';
+    case 'tarjeta_credito':  return 'tarjeta_credito';
+    case 'caja_efectivo':    return 'caja';
+    case 'wallet_digital':
+      return proveedor ?? 'billetera_digital';
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════
 // LECTURA UNIFICADA (lee ambas colecciones legacy y proyecta a PF)
 // ═════════════════════════════════════════════════════════════════════════
 
@@ -194,6 +319,43 @@ export async function getProductosFinancierosLegacy(): Promise<
   }
 
   return productos;
+}
+
+/**
+ * F3c · Lectura unificada compat con TabCuentas.
+ *
+ * Lee:
+ *  1. cuentasCaja (legacy) — productos creados antes de F3b
+ *  2. productosFinancieros (nativos, F3b+) — productos creados con el wizard
+ *     que ya persiste al modelo nuevo
+ *
+ * Devuelve un único array CuentaCaja[] para que la UI legacy
+ * (TabCuentas, VistaPorTitular, formularios) los muestre sin refactor.
+ *
+ * Deduplicación por id: si por algún motivo el mismo id aparece en ambas
+ * colecciones, prevalece la versión nativa (modelo nuevo).
+ *
+ * SE ELIMINA EN F5 cuando todos los consumers lean ProductoFinanciero directo.
+ */
+export async function getCuentasUnificadas(): Promise<CuentaCaja[]> {
+  const [cuentasLegacy, productosNativos] = await Promise.all([
+    getCuentas(),
+    getProductosFinancierosActivos(),
+  ]);
+
+  const map = new Map<string, CuentaCaja>();
+
+  // Primero los legacy
+  for (const c of cuentasLegacy) {
+    map.set(c.id, c);
+  }
+
+  // Después los nativos — sobreescriben en caso de id duplicado
+  for (const pf of productosNativos) {
+    map.set(pf.id, productoFinancieroToCuentaCaja(pf));
+  }
+
+  return Array.from(map.values());
 }
 
 // ═════════════════════════════════════════════════════════════════════════

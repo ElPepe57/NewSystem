@@ -28,6 +28,7 @@ import { EfectivoForm } from './EfectivoForm';
 import { CuentaWizard } from './CuentaWizard';
 import { VistaPorTitular } from './VistaPorTitular';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
+import { useTesoreriaStore } from '../../store/tesoreriaStore';
 import { TarjetaDetailModal } from './TarjetasCreditoV2';
 import type {
   MovimientoTesoreria,
@@ -86,6 +87,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   // S58c parte 2 — Toggle vista (por tipo / por titular)
   const [vista, setVista] = useState<'tipo' | 'titular'>('titular');
   const tarjetas = useTarjetaCreditoStore((s) => s.tarjetas);
+  // F3c · refresh tras crear con wizard nuevo (camino self-contained)
+  const fetchCuentasUnificadas = useTesoreriaStore((s) => s.fetchCuentas);
   const fetchTarjetas = useTarjetaCreditoStore((s) => s.fetchTarjetas);
   const [tarjetaDetalle, setTarjetaDetalle] = useState<
     import('../../types/tarjetaCredito.types').TarjetaCredito | null
@@ -781,9 +784,10 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             : undefined
         }
         onSuccess={() => {
-          // F3b · creación al modelo nuevo. Por ahora basta con cerrar y
-          // refrescar la lista. F3c agrega lectura de productosFinancieros.
-          // El wizard ya muestra su propio toast.
+          // F3c · creación nativa al modelo nuevo. Refrescar la lista
+          // unificada (legacy + productosFinancieros). El wizard ya
+          // mostró su propio toast.
+          void fetchCuentasUnificadas();
         }}
         isSubmitting={isSubmitting}
       />
