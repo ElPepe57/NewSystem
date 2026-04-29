@@ -123,6 +123,132 @@ su propia visualización). Cuando hay menos de 3 estados.
 - Al hacer clic en una etapa, emite el estado seleccionado al padre (`onFilterChange`).
 - Etapa activa con fondo destacado; inactivas neutras con hover sutil.
 
+### Referencia 6 — Barra de filtros sobre listados (S58e)
+
+**Archivo:** `src/pages/Finanzas/components/FiltrosFinanzasBar.tsx`
+
+> Decisión tomada en sesión S58e (Imp-L11.b–e) — 2026-04-29.
+> El usuario validó este patrón como modelo a replicar en TODOS los listados
+> filtrables del sistema. Cita: *"te quedó perfecto, podemos usar ese tipo de
+> filtros como modelo para todo el negocio en general"*.
+
+**Qué hace:** barra de filtros completa sobre un listado de entidades, integrando
+en una sola card todos los controles de búsqueda y filtrado: rango de fechas con
+calendar inline, chips toggle por categoría/tipo, búsqueda por texto, ordenamiento
+y limpieza global.
+
+**Cuándo usarla:** sobre cualquier listado scrolleable de entidades del sistema
+(OCs, envíos, ventas, clientes, proveedores, productos, movimientos, gastos,
+incidencias, etc.). Reemplaza el patrón anterior de toolbars fragmentados +
+filtros laterales + chips sueltos.
+
+**Cuándo NO usarla:** dashboards puramente analíticos (la página /reportes y
+similares tienen sus propios filtros de cubo OLAP). Vistas Kanban (que filtran
+por columna). Páginas con un solo control simple (tabla con search inline).
+
+**Anatomía visual — 2 filas separadas por divider sutil:**
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│  FILA 1 — Filtros multi-toggle (chips)                                   │
+│  [📅 Rango ▾] · ESTADO: [chips x N] · TIPO/CATEGORÍA: [chips x M]       │
+│  ────────────────────────────────────────────────────────────────────    │
+│  FILA 2 — Búsqueda + ordenamiento + acción destructiva                   │
+│  🔍 Buscar por…  ✕         [Ordenar: ▾]      [× Limpiar filtros]         │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+**Características clave:**
+
+1. **Mini-calendar inline para rango de fechas:**
+   - Dropdown con presets: Todo / Últ. 7d / 30d / 90d / 6m / Este año / Personalizado.
+   - "Personalizado…" abre un calendar visual con grid 7 columnas (L M X J V S D).
+   - Selección por clicks: 1°=desde, 2°=hasta (auto-swap), 3°=reinicia.
+   - Highlight visual del rango con fondo `bg-teal-50` entre extremos +
+     círculos `bg-teal-600` sólidos en desde/hasta.
+   - Preview con hover antes de fijar el fin.
+   - Día de hoy marcado con `ring-1 ring-teal-300`.
+   - Días del mes vecino visibles en gris claro (no clickables) para
+     mantener la grilla completa.
+   - Botón del dropdown cambia de slate-50 a teal-50 cuando hay rango activo.
+
+2. **Chips toggle (rounded-full pill) con icon + count:**
+   - Cada chip muestra ícono + label + count en `tabular-nums` con opacidad 60%.
+   - Estado activo: `bg-{color}-600 text-white shadow-sm`.
+   - Estado inactivo: `bg-{color}-50 text-{color}-700 border` con hover.
+   - Toggle pattern: click sobre chip activo lo desactiva (vuelve a "todos").
+   - Etiqueta "Estado:" / "Tipo:" en uppercase tracking-wider antes del grupo.
+   - Divider vertical `h-5 w-px bg-slate-200` entre grupos de chips.
+
+3. **Input de búsqueda prominente:**
+   - `flex-1 min-w-[260px]` ocupa el ancho disponible en la fila 2.
+   - Ícono `Search` a la izquierda, botón `×` a la derecha cuando hay texto.
+   - Placeholder descriptivo guía al usuario sobre qué tipo de búsqueda hacer.
+   - El botón `×` solo limpia el texto, NO los demás filtros.
+   - Focus ring `ring-2 ring-teal-500`.
+
+4. **Sort dropdown con etiqueta semántica:**
+   - Etiqueta "Ordenar:" en gris antes del valor activo.
+   - Cambia a `bg-teal-50` cuando el orden no es el default.
+   - Lista compacta con item activo destacado en teal.
+
+5. **Botón "× Limpiar filtros":**
+   - Aparece SOLO cuando hay al menos un filtro distinto al default.
+   - Resetea TODO: estado, tipo, fecha, búsqueda, orden.
+   - Estilo `text-teal-600 hover:bg-teal-50` (no destructivo, no rojo).
+
+6. **Comportamiento general:**
+   - Click outside cierra cualquier dropdown abierto.
+   - `space-y-3` entre las 2 filas, divider `border-t border-slate-100`.
+   - Dropdowns con `rounded-xl shadow-xl` (más prominentes que los chips).
+   - Todo el componente se monta en una sola `Card padding="md"`.
+
+**Plan de adopción declarado (tarea pendiente — sesiones futuras):**
+
+Esta es la **6ª referencia canónica** del sistema. Sumada a las 5 de S54.x,
+forma el set definitivo de patrones visuales. Toda página que tenga un listado
+filtrable debe migrar a este patrón.
+
+Módulos prioritarios para adoptar el filtro (no se migran solos — cada uno
+requiere su sesión dedicada porque la lógica de filtrado es específica):
+
+| Prioridad | Módulo | Filtros típicos a soportar |
+|-----------|--------|----------------------------|
+| Alta | `/compras` | Estado · Proveedor · Fecha emisión · Tipo OC · Búsqueda |
+| Alta | `/envios` | Tipo (C/J/E/I/F/G) · Modo transporte · Colaborador · Fecha · Búsqueda |
+| Alta | `/productos` | Categoría · Marca · Stock · Tipo SKU · Búsqueda |
+| Media | `/ventas` | Estado · Canal · Cliente · Fecha · Búsqueda |
+| Media | `/tesoreria/movimientos` | Categoría · Canal · Documento · Fecha · Búsqueda |
+| Media | `/clientes` y `/proveedores` | Tipo · País · Estado activo · Búsqueda |
+| Baja | `/red-logistica` | Tipo colaborador · País · Activo · Búsqueda |
+
+**Patrón futuro de extracción:** cuando llegue el momento de la primera adopción
+en otro módulo, los 6 sub-componentes (`MiniCalendarRange`, chips toggle, search,
+sort, etc.) se mueven a `src/components/common/filters/` con compositional API
+estilo Radix:
+
+```tsx
+<FilterBar>
+  <FilterBar.Row>
+    <DateRangeFilter ... />
+    <FilterBar.Divider />
+    <FilterChipGroup label="Estado" ... />
+    <FilterBar.Divider />
+    <FilterChipGroup label="Tipo" ... />
+  </FilterBar.Row>
+  <FilterBar.Separator />
+  <FilterBar.Row>
+    <SearchFilter ... />
+    <SortDropdown ... />
+    <ClearFiltersButton ... />
+  </FilterBar.Row>
+</FilterBar>
+```
+
+Hasta entonces, **`FiltrosFinanzasBar.tsx` es la fuente de verdad**: cualquier
+nueva implementación de filtros debe abrir ese archivo, copiar la estructura
+y ajustar solo los catálogos (chips de estado y tipo) a los del dominio.
+
 ### Excepciones Legítimas (no siguen el patrón OC)
 
 Estas páginas tienen casos de uso distintos y NO se migran al patrón de lista/detalle OC:

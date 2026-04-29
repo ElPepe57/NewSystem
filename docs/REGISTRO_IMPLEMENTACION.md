@@ -2,8 +2,124 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-29 (Sesion S58c-PF · CIERRE OPERATIVO — Refactor Producto Financiero completado en 13 commits + 1 fix de permisos. Toda creacion de cuentas/tarjetas pasa por CuentaWizard → productosFinancieros. Toda escritura de movimientos pasa por movimientosFinancieros con saldo cacheado. 5 forms legacy eliminados. 5 deudas declaradas DEUDA-PF-001 a 005. Ultimo deploy: f6492da → https://vitaskinperu.web.app)
+**Ultima actualizacion:** 2026-04-29 (Sesion S58e · Imp-L11.b–e CERRADA — Cleanup KPIs duplicados + barra de filtros completa estilo M6 + mini-calendar inline + reorganizacion en 2 filas. Patron validado por usuario como 6a referencia canonica del sistema. Tarea pendiente declarada: adopcion global del filtro en /compras /envios /productos /ventas etc. Ultimo deploy: 33a5b46 → https://vitaskinperu.web.app)
 **Branch activo:** main
+
+---
+
+## SESION S58e — IMP-L11.b–e · BARRA DE FILTROS CANONICA + 6a REFERENCIA DECLARADA
+
+### Fecha y commits
+
+**Fecha:** 2026-04-29
+**Commits (4):**
+- `8e4a2dd` — Imp-L11.b: cleanup KPIs duplicados + chips pill rounded-full
+- `d168019` — Imp-L11.c: barra de filtros completa estilo M6 (date range + estado + tipo + busqueda + orden + limpiar)
+- `3c673d1` — Imp-L11.d: mini-calendar inline para rango personalizado (reemplaza inputs nativos type=date)
+- `33a5b46` — Imp-L11.e: separacion en 2 filas (chips arriba, busqueda+orden abajo) con divider
+
+**Deploys:** 4 deploys consecutivos a https://vitaskinperu.web.app · ultimo: `33a5b46`
+
+### Origen del rework
+
+El usuario reporto en sesion anterior (Imp-L11.a) que el modulo Finanzas se veia "mezclado entre lo antiguo y el modelo actual" y que no estaba pulido como los mockups. Al terminar el cleanup base, identifico dos problemas residuales en `/finanzas/saldos`:
+
+1. **KPIs duplicados** — los 4 cards (Por cobrar / Por pagar / Saldo neto / Entidades activas) que aparecian en el listado ya estaban en el `PatrimonioHero` de arriba. Cita: *"Aqui por decir, el diseño se siente repetido"*.
+
+2. **Filtros chatos** — el `PipelineFinanzas` con chips `rounded-md` no se sentia moderno. El usuario adjunto captura del mockup M6 (`tesoreria-movimientos-s58e.html`) como ejemplo a seguir, con chips pill horizontales + botones de fecha + busqueda integrada. Cita: *"si el filtro es por seleccion de nombres, no seria mejor aplicarlo de otra manera!? Como en el ejemplo que te he compartido"*.
+
+### Iteraciones (4 fases)
+
+**Imp-L11.b — Cleanup KPIs + chips pill (commit `8e4a2dd`)**
+- Eliminado bloque de 4 KPI cards de `FinanzasSaldos.tsx` (~85 lineas).
+- `PipelineFinanzas.tsx`: chips `rounded-md` → `rounded-full` (pill).
+- Eliminado boton "Todos los tipos" explicito → toggle (click sobre activo lo desactiva).
+- Agregado boton "× Limpiar filtros" condicional cuando hay filtro activo.
+
+**Imp-L11.c — Barra de filtros completa estilo M6 (commit `d168019`)**
+- Componente nuevo: `src/pages/Finanzas/components/FiltrosFinanzasBar.tsx` (~360 lineas).
+- Reemplaza `PipelineFinanzas` + toolbar separado de busqueda/orden.
+- 6 controles integrados: date range, chips estado, chips tipo, busqueda, orden, limpiar.
+- Date range presets: Todo / Ult. 7d / 30d / 90d / 6m / Este año.
+- Logica de filtrado por fecha agregada en `ccsFiltradas` (filtra por `cc.fechaUltimoMovimiento`).
+- Click outside cierra dropdowns automaticamente.
+
+**Imp-L11.d — Mini-calendar inline (commit `3c673d1`)**
+- Usuario reporto que los `<input type="date">` nativos se veian "anticuados". Cita: *"Puede ser en un formato un poco mas moderno!?"*.
+- Agregado preset 'Personalizado…' + componente `MiniCalendarRange` inline.
+- Calendar grid 7 cols (L M X J V S D) con seleccion visual de rango.
+- 1° click = desde, 2° click = hasta (auto-swap si va hacia atras), 3° click = reinicia.
+- Highlight del rango con `bg-teal-50` entre extremos + circulos `bg-teal-600` en desde/hasta.
+- Preview con hover, dia de hoy con ring-teal-300, dias del mes vecino en gris claro.
+- Footer dinamico: "Selecciona el inicio" / "Desde X · elige fin" / "X – Y" + boton Limpiar.
+- Soporte `min/max` en `rangoTimestamps` para custom (inclusivo, hasta=23:59:59.999).
+
+**Imp-L11.e — Separacion en 2 filas (commit `33a5b46`)**
+- Usuario observo que la busqueda metia ruido en la fila de chips. Cita: *"porque el buscador de entidad esta ahi todo junto, no se puede cambiar la ubicacion, o mejorar o pulir un poco mas el diseño"*.
+- Layout reorganizado en 2 filas con divider `border-t border-slate-100`:
+  - Fila 1: filtros multi-toggle (date range + estado + tipo).
+  - Fila 2: busqueda prominente + orden con etiqueta + limpiar.
+- Input de busqueda mas grande (py-2 vs py-1.5, text-13 vs 12, icono w-4 vs 3.5).
+- Boton `×` inline en el input para limpiar SOLO la busqueda (vs Limpiar global).
+- Placeholder descriptivo: *"Buscar por nombre de cliente, proveedor o colaborador…"*.
+- Sort dropdown con etiqueta "Ordenar:" antes del valor para claridad semantica.
+- Boton "× Limpiar filtros" con hover bg-teal-50, padding consistente.
+
+### Decision estrategica del usuario al cerrar la sesion
+
+Tras validar el resultado final, el usuario declaro literalmente:
+
+> "Uffff, te quedo perfecto, podemos usar ese tipo de filtros como modelo para todo el negocio en general, me parece que no tengo algo asi en el sistema en general."
+
+Y al pedir formalizar la decision:
+
+> "En realidad quiero que lo dejes como una tarea pendiente para siguientes sesiones, pero si quiero que tomes en consideracion que este es el modelo de filtro actual que tiene que implementarse en todo lo que este pendiente."
+
+### Acciones de registro ejecutadas en este cierre
+
+1. **`docs/DESIGN_PATTERNS.md`** — agregada **Referencia 6** despues del Pipeline (ref 5), antes de Excepciones Legitimas. Incluye anatomia visual completa, 6 caracteristicas clave detalladas, plan de adopcion priorizado por modulo, y plantilla del compositional API futuro.
+
+2. **`src/pages/Finanzas/components/FiltrosFinanzasBar.tsx`** — header del archivo reemplazado por bloque de **REFERENCIA CANONICA #6** con caja ASCII, advertencia de no modificar sin autorizacion, y lista de los 6 sub-componentes que se extraeran cuando se inicie la migracion global.
+
+3. **`docs/REGISTRO_IMPLEMENTACION.md`** — esta entrada (registro vivo de la sesion S58e).
+
+4. **`CLAUDE.md`** raiz — actualizada la tabla de Referencias Canonicas para incluir la 6ª (S58e). La seccion "Estado" tambien refleja que la migracion no se ejecuta hasta nuevas sesiones.
+
+5. **`MEMORY.md`** — entrada de estado actual actualizada con commits, deploy y la tarea pendiente de adopcion global declarada.
+
+### Tarea pendiente declarada — TAREA-FILTROS-GLOBAL
+
+**Estado:** declarada y registrada como referencia canonica. NO se ejecuta en S58e.
+
+**Alcance:** migrar el patron `FiltrosFinanzasBar` a TODOS los listados filtrables del sistema. Cada modulo es una sub-tarea independiente con su propia sesion (la logica de filtrado es especifica del dominio, solo el chrome visual es compartido).
+
+**Plan de migracion (3 fases sugeridas, sin compromiso de fechas):**
+
+**Fase 1 — Extraccion del toolkit (1 sesion):**
+- Crear `src/components/common/filters/` con compositional API estilo Radix.
+- Sub-componentes: `FilterBar`, `FilterBar.Row`, `FilterBar.Divider`, `FilterBar.Separator`, `DateRangeFilter`, `MiniCalendarRange`, `FilterChipGroup`, `SearchFilter`, `SortDropdown`, `ClearFiltersButton`.
+- Refactorizar `FiltrosFinanzasBar` para que use los nuevos primitives (regression check via deploy de `/finanzas/saldos`).
+
+**Fase 2 — Pilots en modulos criticos (2-3 sesiones):**
+| Prio | Modulo | Filtros tipicos |
+|------|--------|-----------------|
+| Alta | `/compras` | Estado · Proveedor · Fecha emision · Tipo OC · Busqueda |
+| Alta | `/envios` | Tipo (C/J/E/I/F/G) · Modo transporte · Colaborador · Fecha · Busqueda |
+| Alta | `/productos` | Categoria · Marca · Stock · Tipo SKU · Busqueda |
+
+**Fase 3 — Rollout completo (sesiones segun prioridad):**
+- `/ventas`, `/clientes`, `/proveedores`, `/tesoreria/movimientos`, `/red-logistica`, `/gastos`, `/incidencias`.
+
+**Cuando se inicie:** decision del usuario, sin fecha definida. La extraccion del toolkit (Fase 1) es prerequisito para todas las demas.
+
+**Hasta entonces:** `FiltrosFinanzasBar.tsx` permanece como fuente de verdad. Cualquier nueva implementacion de filtros debe abrir ese archivo y replicar la estructura ajustando solo los catalogos de chips al dominio.
+
+### Estado tecnico
+
+- tsc -b: 0 errores
+- vite build: 18.52s (ultimo, Imp-L11.e)
+- Total lineas: +536/-238 netas en 5 commits (incluye Imp-L11.b ya commiteado en sesion previa con 75/-151)
+- Sin breaking changes, sin migraciones de datos, sin riesgo
 
 ---
 

@@ -431,7 +431,7 @@ del sistema. El resto del sistema debe alinearse a ellas, no al revés.
 Cita literal del usuario: "ya teniendo mejor aterrizada la situacion, tengo claridad de que
 el como estan diseñadas paginas como compras y envios, son las referencias finales".
 
-### Las 5 Referencias Canónicas del Sistema
+### Las 6 Referencias Canónicas del Sistema
 
 Estos son los archivos de referencia. NO se modifican durante la alineación del resto.
 Cualquier cambio en ellos requiere autorización explícita del usuario.
@@ -443,6 +443,7 @@ Cualquier cambio en ellos requiere autorización explícita del usuario.
 | 3 | Detalle de entidad | `src/components/modules/ordenCompra/OrdenCompraCard.tsx` | Header + pipeline + KPIs + tabs en modal de detalle |
 | 4 | Detalle con scroll y muchos tabs | `src/pages/Envios/EnvioDetailModal.tsx` | Modales con contenido extenso, tabs sticky |
 | 5 | Pipeline de listado | `src/components/modules/ordenCompra/PipelineCompras.tsx` | Pipelines clickables arriba de listados |
+| 6 | **Barra de filtros sobre listado (S58e)** | `src/pages/Finanzas/components/FiltrosFinanzasBar.tsx` | Filtros completos: rango fechas con calendar inline + chips toggle por estado/tipo + búsqueda + orden + limpiar global |
 
 ### Regla Operativa de Alineación
 
@@ -455,12 +456,21 @@ Cualquier nueva implementación o refactor de página/modal/card debe:
 
 ### Documentación complementaria
 
-- `docs/DESIGN_PATTERNS.md` seccion "Referencias de Diseño Canónicas (S54.x)" — detalle técnico.
+- `docs/DESIGN_PATTERNS.md` seccion "Referencias de Diseño Canónicas (S54.x)" — detalle técnico
+  de las primeras 5 referencias y de la 6ª (S58e · Imp-L11.b–e).
 - `docs/REGISTRO_IMPLEMENTACION.md` seccion "SESIÓN S54.x — DECISIÓN ESTRATÉGICA: ALINEACIÓN
   GLOBAL DE DISEÑO" — plan de migración en 5 fases, riesgos, prerequisitos.
-- Los 5 archivos referencia llevan un header de comentario en su código.
+- `docs/REGISTRO_IMPLEMENTACION.md` seccion "SESIÓN S58e — IMP-L11.b–e · BARRA DE FILTROS
+  CANÓNICA + 6ª REFERENCIA DECLARADA" — detalle de la 6ª referencia y plan de adopción global.
+- Los 6 archivos referencia llevan un header de comentario en su código.
 
 ### Estado
 
 La migración de páginas al estándar NO se ejecuta hasta que se completen los prerequisitos
 declarados en REGISTRO_IMPLEMENTACION.md. Solo se dejó la decisión registrada y los marcadores.
+
+**TAREA-FILTROS-GLOBAL declarada (S58e):** adoptar el patrón `FiltrosFinanzasBar` en TODOS
+los listados filtrables del sistema. Cita del usuario: *"este es el modelo de filtro actual
+que tiene que implementarse en todo lo que este pendiente"*. Sin fecha de inicio. Cuando
+arranque, prerequisito es extraer los 6 sub-componentes a `src/components/common/filters/`
+con compositional API (ver REGISTRO_IMPLEMENTACION.md S58e para el plan completo).

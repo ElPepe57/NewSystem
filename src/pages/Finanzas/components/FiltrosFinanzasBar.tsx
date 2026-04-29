@@ -1,18 +1,38 @@
 /**
- * FiltrosFinanzasBar — Imp-L11.c · Barra de filtros completa estilo M6
+ * ╔══════════════════════════════════════════════════════════════════════╗
+ * ║  ⭐ REFERENCIA CANÓNICA #6 — Barra de filtros sobre listados (S58e)  ║
+ * ╚══════════════════════════════════════════════════════════════════════╝
  *
- * Reemplaza al PipelineFinanzas + toolbar separado. Inspirado en el mockup
- * `docs/mockups/tesoreria-movimientos-s58e.html` (M6) que combina en una sola
- * barra horizontal sticky:
+ * Decisión registrada en sesión S58e (Imp-L11.b–e) — 2026-04-29.
+ * Validado por el usuario: "te quedó perfecto, podemos usar ese tipo de
+ * filtros como modelo para todo el negocio en general".
  *
- *   [📅 Rango fechas ▾] | Estado: [chips] | Tipo: [chips] | [🔍 buscar] | [Orden ▾] | × Limpiar
+ * Este archivo es la FUENTE DE VERDAD del patrón de filtros del sistema.
+ * No modificar sin autorización explícita del usuario.
  *
- * Decisiones de diseño:
- *   - Pill chips rounded-full (estilo Mercury/Stripe Atlas).
- *   - Toggle: click sobre chip activo lo desactiva.
- *   - Date range presets (Últ. 7d / 30d / 90d / 6m / Año / Todos).
- *   - Botón "× Limpiar" aparece solo cuando hay filtro distinto al default.
- *   - Layout flex-wrap; en desktop 1-2 filas, en mobile baja a varias filas.
+ * Toda nueva implementación de filtros sobre un listado de entidades
+ * (OCs, envíos, productos, ventas, clientes, proveedores, movimientos,
+ * gastos, incidencias, etc.) DEBE replicar la estructura de este archivo
+ * y ajustar solo los catálogos (chips de estado/tipo) al dominio específico.
+ *
+ * Anatomía visual — 2 filas separadas por divider:
+ *
+ *   FILA 1 (filtros multi-toggle, chips):
+ *   [📅 Rango ▾] · ESTADO: [chips] · TIPO/CATEGORÍA: [chips]
+ *
+ *   FILA 2 (búsqueda + orden + limpiar):
+ *   🔍 Buscar…  ✕     [Ordenar: ▾]     [× Limpiar filtros]
+ *
+ * Sub-componentes que serán extraídos a `src/components/common/filters/`
+ * cuando se inicie la migración global (ver DESIGN_PATTERNS.md ref. #6):
+ *   - MiniCalendarRange  (selector visual de rango con grid 7 cols)
+ *   - DateRangeDropdown  (presets + custom)
+ *   - FilterChipGroup    (grupo de chips toggle con icon + count)
+ *   - SearchFilter       (input con × clear inline)
+ *   - SortDropdown       (orden con etiqueta "Ordenar:")
+ *   - ClearFiltersButton (acción global de reset)
+ *
+ * Documentación completa: docs/DESIGN_PATTERNS.md → Referencia 6.
  */
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
