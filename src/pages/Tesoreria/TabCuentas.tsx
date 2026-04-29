@@ -20,11 +20,6 @@ import {
 import { Button, Card, FormSection } from '../../components/common';
 import { DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
-import { BancoNuevoForm } from './BancoNuevoForm';
-import { CuentaBancoForm } from './CuentaBancoForm';
-import { EditarMetodosBancoModal } from './EditarMetodosBancoModal';
-import { DigitalForm } from './DigitalForm';
-import { EfectivoForm } from './EfectivoForm';
 import { CuentaWizard } from './CuentaWizard';
 import { VistaPorTitular } from './VistaPorTitular';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
@@ -72,17 +67,10 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   handleEliminarCuenta,
   getTipoLabel,
 }) => {
-  // Modal states
-  const [showBancoNuevo, setShowBancoNuevo] = useState(false);
-  const [showDigital, setShowDigital] = useState(false);
-  const [showEfectivo, setShowEfectivo] = useState(false);
-  const [showCuentaBanco, setShowCuentaBanco] = useState(false);
+  // F5a · ADR-PF-001 · estados de forms legacy eliminados.
+  // Solo persiste el wizard universal y el estado de edición.
   const [showWizard, setShowWizard] = useState(false);
-  const [bancoParaCuenta, setBancoParaCuenta] = useState('');
   const [cuentaEditando, setCuentaEditando] = useState<CuentaCaja | null>(null);
-  const [showMetodos, setShowMetodos] = useState(false);
-  const [bancoParaMetodos, setBancoParaMetodos] = useState('');
-  const [metodosActuales, setMetodosActuales] = useState<string[]>([]);
 
   // S58c parte 2 — Toggle vista (por tipo / por titular)
   const [vista, setVista] = useState<'tipo' | 'titular'>('titular');
@@ -128,25 +116,12 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
 
   const totalBancoCuentas = [...bancos.values()].reduce((sum, arr) => sum + arr.length, 0);
 
-  // Titulares únicos para autocomplete
-  const titularesExistentes = useMemo(() =>
-    [...new Set(cuentas.map(c => c.titular).filter(Boolean))].sort(),
-  [cuentas]);
-
-  const abrirCuentaBanco = (banco: string) => {
-    setBancoParaCuenta(banco);
-    setShowCuentaBanco(true);
-  };
-
-  const abrirMetodos = (banco: string, cuentasBancoArr: CuentaCaja[]) => {
-    setBancoParaMetodos(banco);
-    setMetodosActuales(cuentasBancoArr[0]?.metodosDisponibles || []);
-    setShowMetodos(true);
-  };
-
-  const guardarMetodos = (metodos: string[]) => {
-    handleGuardarMetodosBanco(bancoParaMetodos, metodos);
-    setShowMetodos(false);
+  // F5a · ADR-PF-001 · helpers legacy (abrirCuentaBanco, abrirMetodos,
+  // guardarMetodos) eliminados. Toda la creación pasa por el wizard.
+  // Edición de métodos: se hace abriendo el wizard de la cuenta.
+  const abrirWizardNuevo = () => {
+    setCuentaEditando(null);
+    setShowWizard(true);
   };
 
   // Render saldo de cuenta
@@ -385,7 +360,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             badge={
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-slate-400">{bancos.size} banco{bancos.size !== 1 ? 's' : ''} · {totalBancoCuentas} cuenta{totalBancoCuentas !== 1 ? 's' : ''}</span>
-                <button onClick={(e) => { e.stopPropagation(); setShowBancoNuevo(true); }}
+                <button onClick={(e) => { e.stopPropagation(); abrirWizardNuevo(); }}
                   className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Banco
                 </button>
@@ -396,7 +371,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <div className="text-center py-6">
                 <Building2 className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No hay bancos registrados</p>
-                <button onClick={() => setShowBancoNuevo(true)}
+                <button onClick={() => abrirWizardNuevo()}
                   className="mt-2 text-sm text-teal-600 hover:underline">+ Agregar primer banco</button>
               </div>
             ) : (
@@ -429,11 +404,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
                             })}
                           </div>
                         ) : null}
-                        <button onClick={() => abrirMetodos(banco, cuentasBanco)}
-                          className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-100 rounded-full transition-colors"
-                          title="Editar métodos de pago">
-                          <Settings2 className="h-3.5 w-3.5" />
-                        </button>
+                        {/* F5a · ADR-PF-001 · botón "editar métodos" eliminado.
+                            Métodos de pago ahora se editan desde el wizard de cada cuenta. */}
                       </div>
                     </div>
 
@@ -444,7 +416,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
 
                     {/* Agregar cuenta */}
                     <div className="px-4 py-2 border-t border-sky-100 bg-sky-50/50">
-                      <button onClick={() => abrirCuentaBanco(banco)}
+                      <button onClick={() => abrirWizardNuevo()}
                         className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 font-medium">
                         <Plus className="h-3.5 w-3.5" /> Agregar cuenta en {banco}
                       </button>
@@ -463,7 +435,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             badge={
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-slate-400">{digitales.length} billetera{digitales.length !== 1 ? 's' : ''}</span>
-                <button onClick={(e) => { e.stopPropagation(); setShowDigital(true); }}
+                <button onClick={(e) => { e.stopPropagation(); abrirWizardNuevo(); }}
                   className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Digital
                 </button>
@@ -474,7 +446,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <div className="text-center py-6">
                 <Smartphone className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No hay billeteras digitales</p>
-                <button onClick={() => setShowDigital(true)}
+                <button onClick={() => abrirWizardNuevo()}
                   className="mt-2 text-sm text-teal-600 hover:underline">+ Agregar billetera</button>
               </div>
             ) : (
@@ -492,7 +464,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             badge={
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-slate-400">{efectivo.length} caja{efectivo.length !== 1 ? 's' : ''}</span>
-                <button onClick={(e) => { e.stopPropagation(); setShowEfectivo(true); }}
+                <button onClick={(e) => { e.stopPropagation(); abrirWizardNuevo(); }}
                   className="flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 px-2 py-1 rounded-md transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Caja
                 </button>
@@ -503,7 +475,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               <div className="text-center py-6">
                 <Banknote className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-400">No hay cajas de efectivo</p>
-                <button onClick={() => setShowEfectivo(true)}
+                <button onClick={() => abrirWizardNuevo()}
                   className="mt-2 text-sm text-teal-600 hover:underline">+ Agregar caja</button>
               </div>
             ) : (
@@ -735,33 +707,9 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         })()}
       </Card>
 
-      {/* Modales */}
-      <BancoNuevoForm isOpen={showBancoNuevo} onClose={() => setShowBancoNuevo(false)}
-        onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowBancoNuevo(false); }} isSubmitting={isSubmitting}
-        titularesExistentes={titularesExistentes} />
-
-      {/* CuentaBancoForm legacy — solo para flujo "Agregar cuenta en {banco}" desde vista por tipo */}
-      <CuentaBancoForm isOpen={showCuentaBanco}
-        onClose={() => setShowCuentaBanco(false)}
-        bancoNombre={bancoParaCuenta}
-        cuentaEditando={null}
-        onGuardar={(data) => {
-          handleGuardarCuentaNueva(data);
-          setShowCuentaBanco(false);
-        }} isSubmitting={isSubmitting}
-        titularesExistentes={titularesExistentes} />
-
-      <EditarMetodosBancoModal isOpen={showMetodos} onClose={() => setShowMetodos(false)}
-        bancoNombre={bancoParaMetodos} metodosActuales={metodosActuales}
-        onGuardar={guardarMetodos} isSubmitting={isSubmitting} />
-
-      <DigitalForm isOpen={showDigital} onClose={() => setShowDigital(false)}
-        onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowDigital(false); }} isSubmitting={isSubmitting}
-        titularesExistentes={titularesExistentes} />
-
-      <EfectivoForm isOpen={showEfectivo} onClose={() => setShowEfectivo(false)}
-        onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowEfectivo(false); }} isSubmitting={isSubmitting}
-        titularesExistentes={titularesExistentes} />
+      {/* F5a · ADR-PF-001 · forms legacy eliminados (BancoNuevoForm,
+          CuentaBancoForm, DigitalForm, EfectivoForm, EditarMetodosBancoModal).
+          Toda la creación pasa por el CuentaWizard universal abajo. */}
 
       {/* CuentaWizard — F3c.5+6 · ADR-PF-001 ·
           Toda la persistencia (creación + edición) va por el camino
