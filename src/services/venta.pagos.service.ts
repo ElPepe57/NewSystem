@@ -32,6 +32,10 @@ import type {
 import { tipoCambioService } from './tipoCambio.service';
 import { tesoreriaService } from './tesoreria.service';
 import { logger } from '../lib/logger';
+// S55 Fase 3 — Cuenta Corriente del cliente (escritura en paralelo a la
+// escritura legacy de venta.pagos[]). La doble escritura se elimina al
+// final de Fase 3 cuando todos los consumers usen CC.
+import { cuentaCorrienteService } from './cuentaCorriente.service';
 
 const COLLECTION_NAME = COLLECTIONS.VENTAS;
 
@@ -70,6 +74,20 @@ export async function registrarPago(
 
   const ventaRef = doc(db, COLLECTION_NAME, ventaId);
 
+  // S55 Fase 3 — Pre-validación: detectar pagos ML duplicados leyendo
+  // movimientos CC ANTES de iniciar la transacción (Firestore no permite
+  // queries arbitrarias dentro de runTransaction).
+  if (datosPago.metodoPago === 'mercado_pago') {
+    const { getCobrosVenta } = await import('./cuentaCorriente.adaptadores');
+    const cobrosPrev = await getCobrosVenta(ventaId);
+    const tienePagoML = cobrosPrev.some((c) =>
+      c.registradoPor === 'ml-auto-processor' || c.registradoPor === 'ml-webhook'
+    );
+    if (tienePagoML) {
+      throw new Error('Esta venta ya tiene un pago automático de MercadoLibre. No se puede duplicar.');
+    }
+  }
+
   const nuevoPago = await runTransaction(db, async (transaction) => {
     const ventaSnap = await transaction.get(ventaRef);
     if (!ventaSnap.exists()) {
@@ -87,14 +105,6 @@ export async function registrarPago(
 
     if (venta.estadoPago === 'pagado') {
       throw new Error('Esta venta ya está completamente pagada. No se pueden registrar pagos adicionales.');
-    }
-
-    const pagosExistentes = venta.pagos || [];
-    const tienepagoML = pagosExistentes.some(
-      (p: any) => p.registradoPor === 'ml-auto-processor' || p.registradoPor === 'ml-webhook'
-    );
-    if (tienepagoML && datosPago.metodoPago === 'mercado_pago') {
-      throw new Error('Esta venta ya tiene un pago automático de MercadoLibre. No se puede duplicar.');
     }
 
     if (datosPago.monto <= 0) {
@@ -116,27 +126,25 @@ export async function registrarPago(
       );
     }
 
-    const pagosAnteriores = venta.pagos || [];
-
+    // S55 Fase 3 — `pago` queda como objeto en memoria solo para retornar al caller
+    // (compatibilidad con APIs públicas). YA NO se persiste en venta.pagos[] —
+    // el movimiento real se crea como `credito_cobro_venta` en CC post-transacción.
     const pago: PagoVenta = {
       id: `PAG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       monto: datosPago.monto,
       moneda: monedaCobro,
       metodoPago: datosPago.metodoPago,
-      tipoPago: pagosAnteriores.some(p => p.tipoPago === 'anticipo') ? 'saldo' : 'pago',
+      tipoPago: 'pago',
       fecha: Timestamp.now(),
       registradoPor: userId
     };
 
-    // Solo agregar campos opcionales si tienen valor (Firestore rechaza undefined)
     if (tcCobro !== undefined) pago.tipoCambio = tcCobro;
     if (monedaCobro === 'USD' && tcCobro) pago.montoEquivalentePEN = datosPago.monto * tcCobro;
-
     if (datosPago.referencia) pago.referencia = datosPago.referencia;
     if (datosPago.comprobante) pago.comprobante = datosPago.comprobante;
     if (datosPago.notas) pago.notas = datosPago.notas;
 
-    const nuevosPagos = [...pagosAnteriores, pago];
     const montoPagoEnPEN = monedaCobro === 'USD' && tcCobro
       ? datosPago.monto * tcCobro
       : datosPago.monto;
@@ -152,8 +160,9 @@ export async function registrarPago(
       nuevoEstadoPago = 'pendiente';
     }
 
-    const updates: any = {
-      pagos: nuevosPagos,
+    // S55 Fase 3 — Solo actualiza denormalizados (estadoPago/montoPagado/
+    // montoPendiente). El detalle de cobros vive en movimientosCC.
+    const updates: Record<string, unknown> = {
       montoPagado: nuevoMontoPagado,
       montoPendiente: Math.max(0, nuevoMontoPendiente),
       estadoPago: nuevoEstadoPago,
@@ -161,10 +170,6 @@ export async function registrarPago(
       ultimaEdicion: serverTimestamp(),
       editadoPor: userId
     };
-
-    if (nuevoEstadoPago === 'pagado') {
-      updates.fechaPagoCompleto = serverTimestamp();
-    }
 
     transaction.update(ventaRef, updates);
 
@@ -202,52 +207,85 @@ export async function registrarPago(
       // Usar tcCobro ya resuelto (del formulario o del servicio) — NO resolver otra vez
       const tipoCambio = tcCobro || 1;
 
-      const movimientoId = await tesoreriaService.registrarMovimiento(
+      // F4a.3 · ADR-PF-001 · escribe al libro mayor unificado
+      const { registrarMovimientoFinanciero } = await import(
+        './movimientoFinanciero.service'
+      );
+      const movimientoId = await registrarMovimientoFinanciero(
         {
-          tipo: 'ingreso_venta',
-          moneda: monedaPago as any,
+          categoria: 'ingreso_venta',
+          moneda: monedaPago as 'USD' | 'PEN',
           monto: datosPago.monto,
           tipoCambio,
-          metodo: metodoTesoreria as any,
+          metodo: metodoTesoreria as string,
           concepto: `Cobro venta ${nuevoPago.numeroVenta}`,
           fecha: new Date(),
           referencia: datosPago.referencia,
           notas: datosPago.notas || `Pago registrado desde venta`,
-          ventaId: ventaId,
-          cuentaDestino: cuentaDestinoId
+          refDocumentoTipo: 'venta',
+          refDocumentoId: ventaId,
+          refDocumentoNumero: nuevoPago.numeroVenta,
+          productoDestinoId: cuentaDestinoId,
         },
-        userId
+        userId,
       );
 
-      // Persistir tesoreriaMovimientoId en Firestore
+      // S55 Fase 3 — `tesoreriaMovimientoId` se referencia al crear el
+      // MovimientoCC abajo. Ya no se persiste en venta.pagos[] (eliminado).
       nuevoPago.pago.tesoreriaMovimientoId = movimientoId;
       const ventaActualSnap = await import('firebase/firestore').then(({ getDoc }) =>
         getDoc(doc(db, COLLECTION_NAME, ventaId))
       );
+      let ventaActualData: Venta | null = null;
       if (ventaActualSnap.exists()) {
-        const ventaActual = { id: ventaActualSnap.id, ...ventaActualSnap.data() } as Venta;
-        const pagosActualizados = (ventaActual.pagos || []).map((p: PagoVenta) =>
-          p.id === nuevoPago.pago.id ? { ...p, tesoreriaMovimientoId: movimientoId } : p
-        );
-        await updateDoc(ventaRef, { pagos: pagosActualizados });
+        ventaActualData = { id: ventaActualSnap.id, ...ventaActualSnap.data() } as Venta;
       }
-    } catch (tesoreriaError: any) {
-      logger.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
-      // Marcar el pago con error de tesorería para reconciliación posterior
-      try {
-        const ventaActualSnap = await import('firebase/firestore').then(({ getDoc }) =>
-          getDoc(doc(db, COLLECTION_NAME, ventaId))
-        );
-        if (ventaActualSnap.exists()) {
-          const ventaActual = { id: ventaActualSnap.id, ...ventaActualSnap.data() } as Venta;
-          const pagosConError = (ventaActual.pagos || []).map((p: PagoVenta) =>
-            p.id === nuevoPago.pago.id ? { ...p, errorTesoreria: true, errorTesoreriaMsg: tesoreriaError?.message || 'Error desconocido' } : p
+
+      // S55 Fase 3 — Crear movimiento `credito_cobro_venta` en CC del cliente.
+      // Solo si la venta tiene clienteId vinculado al catálogo. Las ventas
+      // anónimas (sin cliente registrado) no entran a CC.
+      // No bloqueante: si falla, el pago ya quedó registrado y se resuelve
+      // con ajusteManual.
+      if (ventaActualData?.clienteId && datosPago.monto > 0) {
+        try {
+          const montoEnPEN = monedaCobro === 'USD' && tcCobro
+            ? datosPago.monto * tcCobro
+            : datosPago.monto;
+          await cuentaCorrienteService.registrarMovimiento(
+            {
+              entidadId: ventaActualData.clienteId,
+              tipo: 'cliente',
+              entidadNombre: ventaActualData.nombreCliente || 'Cliente',
+              tipoMovimiento: 'credito_cobro_venta',
+              descripcion: `Cobro venta ${nuevoPago.numeroVenta} · ${monedaCobro} ${datosPago.monto.toFixed(2)} vía ${datosPago.metodoPago}`,
+              moneda: 'PEN',
+              monto: montoEnPEN,
+              refDocumentoTipo: 'venta',
+              refDocumentoId: ventaId,
+              refDocumentoNumero: ventaActualData.numeroVenta,
+              movimientoTesoreriaId: movimientoId,
+              notas: datosPago.notas,
+            },
+            userId,
           );
-          await updateDoc(ventaRef, { pagos: pagosConError });
+        } catch (ccErr) {
+          logger.warn(
+            '[CC] No se pudo crear credito_cobro_venta (no bloqueante): ' +
+              (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+          );
         }
-      } catch (updateErr) {
-        logger.error('Error marcando pago con errorTesoreria:', updateErr);
       }
+    } catch (tesoreriaError: unknown) {
+      logger.error('Error registrando en tesorería (el pago fue registrado):', tesoreriaError);
+      // S55 Fase 3 — El error de tesorería se logea. El movimiento CC
+      // se creó (o se intentó crear) igual; si también falló, queda log warning
+      // en el catch de CC arriba. La venta ya tiene los denormalizados
+      // actualizados correctamente.
+      const errMsg = tesoreriaError instanceof Error
+        ? tesoreriaError.message
+        : 'Error desconocido';
+      nuevoPago.pago.errorTesoreria = true;
+      nuevoPago.pago.errorTesoreriaMsg = errMsg;
     }
   }
 
@@ -256,6 +294,11 @@ export async function registrarPago(
 
 /**
  * Eliminar un pago registrado y revertir el movimiento de Tesorería asociado.
+ *
+ * S55 Fase 3 — el `pagoId` es el ID del MovimientoCC (anteriormente PagoVenta).
+ * Se considera "eliminar" como crear un ajuste negativo via `ajusteManual` ya
+ * que los movimientos CC son inmutables (audit trail). Este flujo se usa para
+ * reversiones excepcionales (ej: pago duplicado).
  */
 export async function eliminarPago(
   ventaId: string,
@@ -273,73 +316,58 @@ export async function eliminarPago(
     throw new Error('No se pueden eliminar pagos de ventas entregadas');
   }
 
-  const pagos = venta.pagos || [];
-  const pagoIndex = pagos.findIndex(p => p.id === pagoId);
-
-  if (pagoIndex === -1) {
-    throw new Error('Pago no encontrado');
+  // Buscar el MovimientoCC por ID
+  const movSnap = await getDoc(doc(db, COLLECTIONS.MOVIMIENTOS_CC, pagoId));
+  if (!movSnap.exists()) {
+    throw new Error('Pago no encontrado en CC');
   }
-
-  const pagoEliminado = pagos[pagoIndex];
-  const nuevosPagos = pagos.filter(p => p.id !== pagoId);
-
-  // Restar equivalente PEN cuando el pago fue en USD
-  const montoRestarPEN = pagoEliminado.moneda === 'USD' && pagoEliminado.montoEquivalentePEN
-    ? pagoEliminado.montoEquivalentePEN
-    : pagoEliminado.monto;
-  const nuevoMontoPagado = venta.montoPagado - montoRestarPEN;
-  const nuevoMontoPendiente = venta.totalPEN - nuevoMontoPagado;
+  const mov = movSnap.data() as { monto: number; movimientoTesoreriaId?: string };
 
   // Revertir movimiento en Tesorería si existe
-  if (pagoEliminado.tesoreriaMovimientoId && pagoEliminado.tesoreriaMovimientoId !== 'registrado') {
+  if (mov.movimientoTesoreriaId) {
     try {
-      await tesoreriaService.eliminarMovimiento(pagoEliminado.tesoreriaMovimientoId, userId, true);
+      await tesoreriaService.eliminarMovimiento(mov.movimientoTesoreriaId, userId, true);
     } catch (tesoreriaError) {
-      logger.error(`[eliminarPago] Error revirtiendo tesorería (movId: ${pagoEliminado.tesoreriaMovimientoId}):`, tesoreriaError);
-    }
-  } else if (pagoEliminado.tesoreriaMovimientoId === 'registrado') {
-    // Legacy: pagos con ID='registrado' — buscar por ventaId + monto + tipo
-    try {
-      const snap = await getDocs(query(
-        collection(db, COLLECTIONS.MOVIMIENTOS_TESORERIA),
-        where('ventaId', '==', ventaId),
-        where('tipo', '==', 'ingreso_venta')
-      ));
-      const movimientoCorrespondiente = snap.docs.find(d => {
-        const data = d.data();
-        return data.estado !== 'anulado' && Math.abs(data.monto - pagoEliminado.monto) < 0.01;
-      });
-      if (movimientoCorrespondiente) {
-        await tesoreriaService.eliminarMovimiento(movimientoCorrespondiente.id, userId, true);
-      }
-    } catch (tesoreriaError) {
-      logger.error(`[eliminarPago] Error revirtiendo tesorería (legacy):`, tesoreriaError);
+      logger.error(`[eliminarPago] Error revirtiendo tesorería (movId: ${mov.movimientoTesoreriaId}):`, tesoreriaError);
     }
   }
+
+  // Crear ajuste manual de reversión (los movimientos CC son inmutables)
+  if (venta.clienteId) {
+    try {
+      await cuentaCorrienteService.ajusteManual({
+        entidadId: venta.clienteId,
+        tipo: 'cliente',
+        entidadNombre: venta.nombreCliente,
+        monto: mov.monto,
+        moneda: 'PEN',
+        direccion: 'debito', // anula el credito_cobro_venta original
+        motivo: `Reversión de pago ${pagoId.slice(-8)} en venta ${venta.numeroVenta || ventaId}`,
+        userId,
+      });
+    } catch (ccErr) {
+      logger.error('[eliminarPago] Error creando ajuste de reversión en CC:', ccErr);
+    }
+  }
+
+  // Recalcular denormalizados desde CC
+  const { getCobrosVenta } = await import('./cuentaCorriente.adaptadores');
+  const cobrosActuales = await getCobrosVenta(ventaId);
+  const nuevoMontoPagado = cobrosActuales.reduce((s, c) => s + c.monto, 0);
+  const nuevoMontoPendiente = venta.totalPEN - nuevoMontoPagado;
 
   let nuevoEstadoPago: EstadoPago;
-  if (nuevoMontoPagado <= 0) {
-    nuevoEstadoPago = 'pendiente';
-  } else if (nuevoMontoPendiente > 0) {
-    nuevoEstadoPago = 'parcial';
-  } else {
-    nuevoEstadoPago = 'pagado';
-  }
+  if (nuevoMontoPagado <= 0) nuevoEstadoPago = 'pendiente';
+  else if (nuevoMontoPendiente > 0.01) nuevoEstadoPago = 'parcial';
+  else nuevoEstadoPago = 'pagado';
 
-  const updates: any = {
-    pagos: nuevosPagos,
+  await updateDoc(doc(db, COLLECTION_NAME, ventaId), {
     montoPagado: Math.max(0, nuevoMontoPagado),
-    montoPendiente: nuevoMontoPendiente,
+    montoPendiente: Math.max(0, nuevoMontoPendiente),
     estadoPago: nuevoEstadoPago,
     ultimaEdicion: serverTimestamp(),
-    editadoPor: userId
-  };
-
-  if (nuevoEstadoPago !== 'pagado') {
-    updates.fechaPagoCompleto = null;
-  }
-
-  await updateDoc(doc(db, COLLECTION_NAME, ventaId), updates);
+    editadoPor: userId,
+  });
 }
 
 /**
@@ -408,19 +436,24 @@ export async function getResumenPagos(ventas: Venta[]): Promise<{
     if (venta.estadoPago === 'pendiente') ventasPendientes++;
     else if (venta.estadoPago === 'parcial') ventasParciales++;
     else if (venta.estadoPago === 'pagado') ventasPagadas++;
-
-    if (venta.pagos) {
-      venta.pagos.forEach(pago => {
-        const fechaPago = pago.fecha.toDate();
-        if (fechaPago >= inicioMes) {
-          const montoEnPEN = pago.moneda === 'USD' && pago.montoEquivalentePEN
-            ? pago.montoEquivalentePEN
-            : pago.monto;
-          cobranzaMesActual += montoEnPEN;
-        }
-      });
-    }
   });
+
+  // S55 Fase 3 — Cobranza del mes: query directa a movimientosCC con
+  // tipo='credito_cobro_venta' y fecha >= inicioMes. Reemplaza la iteración
+  // de venta.pagos[] que ya no existe.
+  try {
+    const movsSnap = await getDocs(query(
+      collection(db, COLLECTIONS.MOVIMIENTOS_CC),
+      where('tipo', '==', 'credito_cobro_venta'),
+      where('fecha', '>=', Timestamp.fromDate(inicioMes)),
+    ));
+    cobranzaMesActual = movsSnap.docs.reduce((sum, d) => {
+      const data = d.data() as { monto?: number; moneda?: string };
+      return sum + (data.monto || 0);
+    }, 0);
+  } catch (err) {
+    logger.warn('[getResumenPagos] No se pudo calcular cobranza del mes:', err);
+  }
 
   return {
     totalPorCobrar,

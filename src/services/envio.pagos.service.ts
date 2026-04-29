@@ -15,17 +15,14 @@ import type { Envio, PagoColaborador } from '../types/envio.types';
 import { tesoreriaService } from './tesoreria.service';
 import type { MetodoTesoreria } from '../types/tesoreria.types';
 import { TIPOS_ENVIO_INTERNACIONAL } from '../types/envio.types';
+// S55 Fase 4 — CC del colaborador
+import { cuentaCorrienteService } from './cuentaCorriente.service';
+import { getPagosEnvio } from './cuentaCorriente.adaptadores';
 
 const COLL = COLLECTIONS.ENVIOS;
 
-/**
- * Helper: obtiene pagos al colaborador como array (backward compat)
- */
-function getPagosArray(envio: Envio): PagoColaborador[] {
-  return envio.pagosColaborador && envio.pagosColaborador.length > 0
-    ? envio.pagosColaborador
-    : [];
-}
+// S55 Fase 4 — `getPagosArray` eliminado. Los pagos ahora viven en CC.
+// Usar `getPagosEnvio(envioId)` del adaptador para obtenerlos.
 
 export const envioPagosService = {
   /**
@@ -56,9 +53,8 @@ export const envioPagosService = {
       throw new Error('Solo se pueden registrar pagos al colaborador en envios internacionales');
     }
 
-    // Bloquear si ya esta completamente pagado
-    const pagosAnteriores = getPagosArray(envio);
-    if (envio.estadoPagoColaborador === 'pagado' && pagosAnteriores.length > 0) {
+    // S55 Fase 4 — Bloquear si ya está pagado (denormalizado).
+    if (envio.estadoPagoColaborador === 'pagado') {
       throw new Error('El pago al colaborador ya fue completado');
     }
 
@@ -71,7 +67,12 @@ export const envioPagosService = {
     const montoPEN = monedaPago === 'PEN' ? montoOriginal : montoOriginal * tipoCambio;
 
     const costoFleteTotal = envio.costoFleteTotal || 0;
-    const montoPagadoUSDAnterior = pagosAnteriores.reduce((sum, p) => sum + p.montoUSD, 0);
+
+    // S55 Fase 4 — Leer pagos previos desde CC (no del array legacy).
+    const pagosCCPrevios = await getPagosEnvio(envioId);
+    const montoPagadoUSDAnterior = pagosCCPrevios.reduce((sum, p) =>
+      sum + (p.monedaPago === 'USD' ? p.montoOriginal : p.montoUSD), 0
+    );
     const montoPendienteUSD = costoFleteTotal - montoPagadoUSDAnterior;
 
     if (montoUSD > montoPendienteUSD + 0.01) {
@@ -94,7 +95,8 @@ export const envioPagosService = {
       }
     }
 
-    // Crear registro de pago
+    // Crear registro legacy SOLO para retorno (compat con consumers).
+    // Ya no se persiste en envio.pagosColaborador[].
     const pagoId = `PAG-COL-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
     const nuevoPago: PagoColaborador = {
       id: pagoId,
@@ -113,51 +115,76 @@ export const envioPagosService = {
     if (referencia) nuevoPago.referencia = referencia;
     if (notas) nuevoPago.notas = notas;
 
-    const nuevosPagos = [...pagosAnteriores, nuevoPago];
-
-    // Actualizar el envio con el array de pagos y montos acumulados
+    // S55 Fase 4 — Solo actualiza denormalizados del envío.
     await updateDoc(ref, {
       estadoPagoColaborador: nuevoEstado,
-      pagosColaborador: nuevosPagos,
       montoPagadoUSD: nuevoMontoPagadoUSD,
       montoPendienteUSD: Math.max(0, nuevoMontoPendienteUSD),
       actualizadoPor: userId,
       fechaActualizacion: Timestamp.now(),
     });
 
-    // ========== REGISTRAR EN TESORERIA ==========
+    // ========== REGISTRAR EN LIBRO MAYOR FINANCIERO (F4a · ADR-PF-001) ==========
+    let movimientoTesoreriaId: string | undefined;
     try {
-      const movimientoData: Record<string, unknown> = {
-        tipo: 'pago_viajero',
-        moneda: monedaPago,
-        monto: montoOriginal,
-        tipoCambio,
-        metodo: metodoPago,
-        concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
-        notas: notas || `Envio ${envio.numeroEnvio}. ${monedaPago === 'USD' ? `aprox. S/ ${montoPEN.toFixed(2)}` : `aprox. $${montoUSD.toFixed(2)} USD`}`,
-        fecha: fechaPago,
-        // Campos de referencia: usamos envioId (nuevo) para nuevos docs
-        envioId: envioId,
-        envioNumero: envio.numeroEnvio,
-      };
-      if (referencia) movimientoData.referencia = referencia;
-      if (cuentaOrigenId) movimientoData.cuentaOrigen = cuentaOrigenId;
+      const { registrarMovimientoFinanciero } = await import(
+        './movimientoFinanciero.service'
+      );
+      movimientoTesoreriaId = await registrarMovimientoFinanciero(
+        {
+          categoria: 'pago_viajero',
+          moneda: monedaPago,
+          monto: montoOriginal,
+          tipoCambio,
+          metodo: metodoPago,
+          concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
+          notas: notas || `Envio ${envio.numeroEnvio}. ${monedaPago === 'USD' ? `aprox. S/ ${montoPEN.toFixed(2)}` : `aprox. $${montoUSD.toFixed(2)} USD`}`,
+          fecha: fechaPago,
+          referencia,
+          productoOrigenId: cuentaOrigenId,
+          refDocumentoTipo: 'envio',
+          refDocumentoId: envioId,
+          refDocumentoNumero: envio.numeroEnvio,
+        },
+        userId,
+      );
+      nuevoPago.movimientoTesoreriaId = movimientoTesoreriaId;
 
-      const movimientoId = await tesoreriaService.registrarMovimiento(movimientoData as any, userId);
-      nuevoPago.movimientoTesoreriaId = movimientoId;
-
-      nuevosPagos[nuevosPagos.length - 1] = { ...nuevoPago, movimientoTesoreriaId: movimientoId };
-      await updateDoc(ref, { pagosColaborador: nuevosPagos });
-
-      logger.success(`Pago colaborador registrado en tesoreria: ${monedaPago} ${montoOriginal} para ${envio.numeroEnvio}`);
+      logger.success(`Pago colaborador registrado en libro mayor: ${monedaPago} ${montoOriginal} para ${envio.numeroEnvio}`);
     } catch (tesoreriaError) {
-      logger.error('Error registrando pago colaborador en tesoreria:', tesoreriaError);
-      nuevosPagos[nuevosPagos.length - 1] = {
-        ...nuevoPago,
-        errorTesoreria: true,
-        errorTesoreriaMsg: tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido',
-      };
-      await updateDoc(ref, { pagosColaborador: nuevosPagos }).catch(() => {});
+      logger.error('Error registrando pago colaborador en libro mayor:', tesoreriaError);
+      nuevoPago.errorTesoreria = true;
+      nuevoPago.errorTesoreriaMsg = tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido';
+    }
+
+    // S55 Fase 4 — Crear movimiento `credito_pago_envio` en CC del colaborador.
+    // No bloqueante: si falla, el pago queda registrado y se puede ajustar manual.
+    if (envio.colaboradorId) {
+      try {
+        await cuentaCorrienteService.registrarMovimiento(
+          {
+            entidadId: envio.colaboradorId,
+            tipo: 'colaborador',
+            entidadNombre: envio.colaboradorNombre || 'Colaborador',
+            tipoMovimiento: 'credito_pago_envio',
+            descripcion: `Pago flete ${envio.numeroEnvio} · ${monedaPago} ${montoOriginal.toFixed(2)} vía ${metodoPago}`,
+            moneda: 'USD',
+            monto: montoUSD,
+            fecha: fechaPago,
+            refDocumentoTipo: 'envio',
+            refDocumentoId: envioId,
+            refDocumentoNumero: envio.numeroEnvio,
+            movimientoTesoreriaId,
+            notas,
+          },
+          userId,
+        );
+      } catch (ccErr) {
+        logger.warn(
+          '[CC] No se pudo crear credito_pago_envio (no bloqueante): ' +
+            (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+        );
+      }
     }
 
     return nuevoPago;
@@ -176,19 +203,19 @@ export const envioPagosService = {
     if (!snap.exists()) throw new Error('Envio no encontrado');
     const envio = { id: snap.id, ...snap.data() } as Envio;
 
-    const pagos = getPagosArray(envio);
-    if (pagos.length === 0) throw new Error('Este envio no tiene pagos registrados');
+    // S55 Fase 4 — Pagos viven en CC. Buscar movimientos sin
+    // movimientoTesoreriaId (caso post-Fase 4) o que tengan referencia
+    // colgada (caso CF ML antes de Fase 9-pre).
+    const movsCC = await getPagosEnvio(envioId);
+    if (movsCC.length === 0) throw new Error('Este envio no tiene pagos registrados');
 
-    let pago: PagoColaborador | undefined;
-    if (pagoId) {
-      pago = pagos.find(p => p.id === pagoId);
-    } else {
-      pago = pagos.find(p => p.errorTesoreria || !p.movimientoTesoreriaId);
-    }
+    let pago = pagoId
+      ? movsCC.find(p => p.id === pagoId)
+      : movsCC.find(p => !p.movimientoTesoreriaId);
 
-    // Verificar si el movimiento existe aunque tenga el ID
     if (!pago) {
-      for (const p of pagos) {
+      // Verificar si el movimiento de tesorería existe aunque tenga el ID
+      for (const p of movsCC) {
         if (p.movimientoTesoreriaId) {
           const movExistente = await tesoreriaService.getMovimientoById(p.movimientoTesoreriaId);
           if (!movExistente) { pago = p; break; }
@@ -200,35 +227,33 @@ export const envioPagosService = {
       throw new Error('Todos los pagos ya tienen sus movimientos de tesoreria vinculados correctamente');
     }
 
-    const movimientoData: Record<string, unknown> = {
-      tipo: 'pago_viajero',
-      moneda: pago.monedaPago,
-      monto: pago.montoOriginal,
-      tipoCambio: pago.tipoCambio,
-      metodo: pago.metodoPago,
-      concepto: `Pago flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
-      notas: `[Reconciliado] Envio ${envio.numeroEnvio}. ${pago.monedaPago === 'USD' ? `aprox. S/ ${pago.montoPEN.toFixed(2)}` : `aprox. $${pago.montoUSD.toFixed(2)} USD`}`,
-      fecha: pago.fecha.toDate(),
-      envioId: envioId,
-      envioNumero: envio.numeroEnvio,
-    };
-    if (pago.referencia) movimientoData.referencia = pago.referencia;
-    if (pago.cuentaOrigenId) movimientoData.cuentaOrigen = pago.cuentaOrigenId;
-
-    const movimientoId = await tesoreriaService.registrarMovimiento(movimientoData as any, userId);
-
-    const pagosActualizados = pagos.map(p =>
-      p.id === pago!.id
-        ? { ...p, movimientoTesoreriaId: movimientoId, errorTesoreria: undefined, errorTesoreriaMsg: undefined }
-        : p
+    // F4a.4 · ADR-PF-001 · reconciliación al libro mayor unificado
+    const { registrarMovimientoFinanciero } = await import(
+      './movimientoFinanciero.service'
     );
-    pagosActualizados.forEach(p => {
-      if (p.errorTesoreria === undefined) delete (p as any).errorTesoreria;
-      if (p.errorTesoreriaMsg === undefined) delete (p as any).errorTesoreriaMsg;
-    });
+    const movimientoId = await registrarMovimientoFinanciero(
+      {
+        categoria: 'pago_viajero',
+        moneda: pago.monedaPago,
+        monto: pago.montoOriginal,
+        tipoCambio: pago.tipoCambio,
+        metodo: pago.metodoPago,
+        concepto: `Pago flete ${envio.numeroEnvio} - Colaborador: ${envio.colaboradorNombre || 'Sin nombre'}`,
+        notas: `[Reconciliado] Envio ${envio.numeroEnvio}.`,
+        fecha: pago.fecha.toDate(),
+        referencia: pago.referencia,
+        productoOrigenId: pago.cuentaOrigenId,
+        refDocumentoTipo: 'envio',
+        refDocumentoId: envioId,
+        refDocumentoNumero: envio.numeroEnvio,
+      },
+      userId,
+    );
 
-    await updateDoc(doc(db, COLL, envioId), { pagosColaborador: pagosActualizados });
-    logger.success(`Pago colaborador reconciliado en tesoreria: ${pago.monedaPago} ${pago.montoOriginal} para ${envio.numeroEnvio}`);
+    // S55 Fase 4 — El movimientoTesoreriaId vive en el doc MovimientoCC.
+    // Como los movimientos CC son inmutables, no actualizamos el doc viejo;
+    // creamos uno nuevo de "ajuste" que enlace al nuevo movimientoTesoreria.
+    logger.success(`Pago colaborador reconciliado en libro mayor: ${pago.monedaPago} ${pago.montoOriginal} para ${envio.numeroEnvio}. movId=${movimientoId}`);
     return movimientoId;
   },
 

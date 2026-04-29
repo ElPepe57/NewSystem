@@ -17,7 +17,7 @@
  */
 
 import { Timestamp } from 'firebase/firestore';
-import type { CuentaCaja } from '../types/tesoreria.types';
+import type { CuentaCaja, MovimientoTesoreria, TipoMovimientoTesoreria } from '../types/tesoreria.types';
 import type { TarjetaCredito } from '../types/tarjetaCredito.types';
 import type {
   ProductoFinanciero,
@@ -27,6 +27,10 @@ import type {
   MarcaTarjeta,
   ProveedorWallet,
 } from '../types/productoFinanciero.types';
+import type {
+  MovimientoFinanciero,
+  CategoriaMovimientoFinanciero,
+} from '../types/movimientoFinanciero.types';
 import { getCuentas } from './tesoreria.cuentas.service';
 import { tarjetaCreditoService } from './tarjetaCredito.service';
 import { getProductosFinancierosActivos } from './productoFinanciero.service';
@@ -435,4 +439,146 @@ function extraerCanalesDigitales(c: CuentaCaja): CanalDigital[] {
   }
 
   return [];
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// F4a · MovimientoFinanciero → MovimientoTesoreria (lectura legacy)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Adapter inverso de movimiento: proyecta MovimientoFinanciero al shape
+ * MovimientoTesoreria legacy para que TabMovimientos, dashboards y otras
+ * vistas legacy puedan mostrar los movimientos del libro mayor unificado
+ * sin refactor.
+ *
+ * SE ELIMINA EN F5 cuando todos los consumers lean MovimientoFinanciero
+ * directamente.
+ */
+export function movimientoFinancieroToTesoreria(
+  mf: MovimientoFinanciero,
+): MovimientoTesoreria {
+  const tipoLegacy = mapearCategoriaATipoLegacy(mf.categoria);
+
+  const m: MovimientoTesoreria = {
+    id: mf.id,
+    numeroMovimiento: mf.numeroMovimiento,
+    tipo: tipoLegacy,
+    moneda: mf.moneda,
+    monto: mf.monto,
+    tipoCambio: mf.tipoCambio,
+    montoEquivalentePEN: mf.montoEquivalentePEN,
+    montoEquivalenteUSD: mf.montoEquivalenteUSD,
+    metodo: (mf.metodo ?? 'otro') as MovimientoTesoreria['metodo'],
+    concepto: mf.concepto,
+    fecha: mf.fecha,
+    estado: mf.estado,
+    creadoPor: mf.creadoPor,
+    fechaCreacion: mf.fechaCreacion,
+  };
+
+  if (mf.productoOrigenId) m.cuentaOrigen = mf.productoOrigenId;
+  if (mf.productoDestinoId) m.cuentaDestino = mf.productoDestinoId;
+  if (mf.referencia) m.referencia = mf.referencia;
+  if (mf.notas) m.notas = mf.notas;
+  if (mf.urlComprobante) m.urlComprobante = mf.urlComprobante;
+  if (mf.actualizadoPor) m.actualizadoPor = mf.actualizadoPor;
+  if (mf.fechaActualizacion) m.fechaActualizacion = mf.fechaActualizacion;
+
+  // Refs polimórficas → campos legacy específicos
+  if (mf.refDocumentoTipo === 'oc' && mf.refDocumentoId) {
+    m.ordenCompraId = mf.refDocumentoId;
+    if (mf.refDocumentoNumero) m.ordenCompraNumero = mf.refDocumentoNumero;
+  }
+  if (mf.refDocumentoTipo === 'venta' && mf.refDocumentoId) {
+    m.ventaId = mf.refDocumentoId;
+    if (mf.refDocumentoNumero) m.ventaNumero = mf.refDocumentoNumero;
+  }
+  if (mf.refDocumentoTipo === 'gasto' && mf.refDocumentoId) {
+    m.gastoId = mf.refDocumentoId;
+    if (mf.refDocumentoNumero) m.gastoNumero = mf.refDocumentoNumero;
+  }
+  // envio y cotizacion no tienen campos top-level en MovimientoTesoreria
+  // legacy — se preservan en notas + concepto + refDocumento*.
+  if (mf.refDocumentoTipo === 'cotizacion' && mf.refDocumentoId) {
+    m.cotizacionId = mf.refDocumentoId;
+    if (mf.refDocumentoNumero) m.cotizacionNumero = mf.refDocumentoNumero;
+  }
+
+  return m;
+}
+
+function mapearCategoriaATipoLegacy(
+  cat: CategoriaMovimientoFinanciero,
+): TipoMovimientoTesoreria {
+  switch (cat) {
+    case 'ingreso_venta':         return 'ingreso_venta';
+    case 'ingreso_anticipo':      return 'ingreso_anticipo';
+    case 'ingreso_otro':          return 'ingreso_otro';
+    case 'aporte_capital':        return 'aporte_capital';
+    case 'reembolso_recibido':    return 'ingreso_otro';
+    case 'pago_orden_compra':     return 'pago_orden_compra';
+    case 'pago_viajero':          return 'pago_viajero';
+    case 'pago_proveedor_local':  return 'pago_proveedor_local';
+    case 'gasto_operativo':       return 'gasto_operativo';
+    case 'retiro_socio':          return 'retiro_socio';
+    case 'pago_nomina':           return 'pago_nomina';
+    case 'adelanto_empleado':     return 'adelanto_empleado';
+    case 'pago_estado_cuenta_tc': return 'pago_orden_compra';
+    case 'reembolso_cliente':     return 'gasto_operativo';
+    case 'transferencia_interna': return 'transferencia_interna';
+    case 'conversion_entrada':    return 'conversion_pen_usd';
+    case 'conversion_salida':     return 'conversion_usd_pen';
+    case 'cargo_tc':              return 'gasto_operativo';
+    case 'ajuste_positivo':       return 'ingreso_otro';
+    case 'ajuste_negativo':       return 'gasto_operativo';
+  }
+}
+
+/**
+ * F4a · Lectura unificada de movimientos.
+ *
+ * Lee:
+ *  1. movimientosTesoreria (legacy) — pre-F4
+ *  2. movimientosFinancieros (nativos, F4+) proyectados al shape legacy
+ *
+ * Devuelve un único array MovimientoTesoreria[] ordenado por fecha desc
+ * para que TabMovimientos y otros consumers legacy lo muestren sin
+ * refactor.
+ */
+export async function getMovimientosUnificados(): Promise<MovimientoTesoreria[]> {
+  const [movsLegacy, movsNativos] = await Promise.all([
+    (async () => {
+      const { tesoreriaService } = await import('./tesoreria.service');
+      return tesoreriaService.getMovimientos();
+    })(),
+    (async () => {
+      const { collection, getDocs, query, orderBy, limit } = await import(
+        'firebase/firestore'
+      );
+      const { db } = await import('../lib/firebase');
+      const { COLLECTIONS } = await import('../config/collections');
+      const q = query(
+        collection(db, COLLECTIONS.MOVIMIENTOS_FINANCIEROS),
+        orderBy('fecha', 'desc'),
+        limit(2000),
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as MovimientoFinanciero,
+      );
+    })(),
+  ]);
+
+  const map = new Map<string, MovimientoTesoreria>();
+
+  for (const m of movsLegacy) map.set(m.id, m);
+  for (const mf of movsNativos) {
+    map.set(mf.id, movimientoFinancieroToTesoreria(mf));
+  }
+
+  return Array.from(map.values()).sort((a, b) => {
+    const ta = a.fecha?.toMillis?.() ?? 0;
+    const tb = b.fecha?.toMillis?.() ?? 0;
+    return tb - ta;
+  });
 }

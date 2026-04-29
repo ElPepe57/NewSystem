@@ -146,21 +146,26 @@ export const gastoService = {
       }
 
       // Si el gasto se crea directamente como "pagado" con cuenta de origen,
-      // registrar el movimiento de tesorería y crear el registro de pago
+      // registrar el movimiento financiero (F4a.5 · ADR-PF-001) y crear el
+      // registro de pago en el gasto.
       if (data.estado === 'pagado' && data.cuentaOrigenId) {
         try {
           const monedaPago: MonedaTesoreria = (data.moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
-          const movimientoId = await tesoreriaService.registrarMovimiento({
-            tipo: 'gasto_operativo',
+          const { registrarMovimientoFinanciero } = await import(
+            './movimientoFinanciero.service'
+          );
+          const movimientoId = await registrarMovimientoFinanciero({
+            categoria: 'gasto_operativo',
             moneda: monedaPago,
             monto: data.montoOriginal,
             tipoCambio: data.tipoCambio || 1,
-            metodo: (data.metodoPago || 'efectivo') as MetodoTesoreria,
+            metodo: (data.metodoPago || 'efectivo') as string,
             concepto: `Pago ${numeroGasto}: ${data.descripcion}`,
             fecha: data.fecha,
-            cuentaOrigen: data.cuentaOrigenId,
-            gastoId: docRef.id,
-            gastoNumero: numeroGasto,
+            productoOrigenId: data.cuentaOrigenId,
+            refDocumentoTipo: 'gasto',
+            refDocumentoId: docRef.id,
+            refDocumentoNumero: numeroGasto,
             referencia: data.referenciaPago,
             notas: data.notas
           }, userId);
@@ -355,23 +360,27 @@ export const gastoService = {
         throw new Error('No se puede cambiar el monto de un gasto con múltiples pagos parciales.');
       }
 
-      // CASO A: X → pagado (crear movimiento de tesorería)
+      // CASO A: X → pagado (F4a.5 · libro mayor financiero unificado)
       if (newEstado === 'pagado' && (oldEstado !== 'pagado' || isLegacyPagado)) {
         updateData.fechaPago = Timestamp.now();
 
         if (cuentaOrigenId) {
           const monedaPago: MonedaTesoreria = (moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
-          const movimientoId = await tesoreriaService.registrarMovimiento({
-            tipo: 'gasto_operativo',
+          const { registrarMovimientoFinanciero } = await import(
+            './movimientoFinanciero.service'
+          );
+          const movimientoId = await registrarMovimientoFinanciero({
+            categoria: 'gasto_operativo',
             moneda: monedaPago,
             monto: montoOriginal,
             tipoCambio: tipoCambio || 1,
-            metodo: (data.metodoPago || 'efectivo') as MetodoTesoreria,
+            metodo: (data.metodoPago || 'efectivo') as string,
             concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
             fecha: data.fecha ?? gastoActual.fecha.toDate(),
-            cuentaOrigen: cuentaOrigenId,
-            gastoId: id,
-            gastoNumero: gastoActual.numeroGasto,
+            productoOrigenId: cuentaOrigenId,
+            refDocumentoTipo: 'gasto',
+            refDocumentoId: id,
+            refDocumentoNumero: gastoActual.numeroGasto,
             referencia: referenciaPago,
             notas: data.notas ?? gastoActual.notas
           }, userId);
@@ -428,21 +437,25 @@ export const gastoService = {
             }
           }
 
-          // Crear movimiento nuevo con datos actualizados
+          // Crear movimiento nuevo con datos actualizados (F4a.5 · libro mayor)
           const cuentaFinal = cuentaOrigenId || pagoExistente?.cuentaOrigenId;
           if (cuentaFinal) {
             const monedaPago: MonedaTesoreria = (moneda === 'USD' ? 'USD' : 'PEN') as MonedaTesoreria;
-            const nuevoMovId = await tesoreriaService.registrarMovimiento({
-              tipo: 'gasto_operativo',
+            const { registrarMovimientoFinanciero } = await import(
+              './movimientoFinanciero.service'
+            );
+            const nuevoMovId = await registrarMovimientoFinanciero({
+              categoria: 'gasto_operativo',
               moneda: monedaPago,
               monto: montoOriginal,
               tipoCambio: tipoCambio || 1,
-              metodo: (data.metodoPago || pagoExistente?.metodoPago || 'efectivo') as MetodoTesoreria,
+              metodo: (data.metodoPago || pagoExistente?.metodoPago || 'efectivo') as string,
               concepto: `Pago ${gastoActual.numeroGasto}: ${data.descripcion ?? gastoActual.descripcion}`,
               fecha: data.fecha ?? gastoActual.fecha.toDate(),
-              cuentaOrigen: cuentaFinal,
-              gastoId: id,
-              gastoNumero: gastoActual.numeroGasto,
+              productoOrigenId: cuentaFinal,
+              refDocumentoTipo: 'gasto',
+              refDocumentoId: id,
+              refDocumentoNumero: gastoActual.numeroGasto,
               referencia: referenciaPago || pagoExistente?.referencia,
               notas: data.notas ?? gastoActual.notas
             }, userId);
@@ -988,19 +1001,23 @@ export const gastoService = {
       if (data.referenciaPago) nuevoPago.referencia = data.referenciaPago;
       if (data.notas) nuevoPago.notas = data.notas;
 
-      // Registrar movimiento de tesorería (egreso)
+      // Registrar movimiento financiero (F4a.5 · libro mayor unificado)
       try {
-        const movimientoId = await tesoreriaService.registrarMovimiento({
-          tipo: 'gasto_operativo',
+        const { registrarMovimientoFinanciero } = await import(
+          './movimientoFinanciero.service'
+        );
+        const movimientoId = await registrarMovimientoFinanciero({
+          categoria: 'gasto_operativo',
           moneda: data.monedaPago,
           monto: data.montoPago,
           tipoCambio: data.tipoCambio,
           metodo: data.metodoPago,
           concepto: `Pago ${esPagoCompleto ? '' : 'parcial '}${gasto.numeroGasto}: ${gasto.descripcion}`,
           fecha: data.fechaPago,
-          cuentaOrigen: data.cuentaOrigenId,
-          gastoId: gastoId,
-          gastoNumero: gasto.numeroGasto,
+          productoOrigenId: data.cuentaOrigenId,
+          refDocumentoTipo: 'gasto',
+          refDocumentoId: gastoId,
+          refDocumentoNumero: gasto.numeroGasto,
           referencia: data.referenciaPago,
           notas: data.notas
         }, userId);
@@ -1009,7 +1026,7 @@ export const gastoService = {
           nuevoPago.movimientoTesoreriaId = movimientoId;
         }
       } catch (tesoreriaError) {
-        logger.error('Error registrando movimiento en tesorería:', tesoreriaError);
+        logger.error('Error registrando movimiento financiero:', tesoreriaError);
         // No bloquear el pago — marcar para reconciliación posterior
         nuevoPago.errorTesoreria = true;
         nuevoPago.errorTesoreriaMsg = tesoreriaError instanceof Error ? tesoreriaError.message : 'Error desconocido';

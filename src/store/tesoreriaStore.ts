@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { tesoreriaService } from '../services/tesoreria.service';
-import { getCuentasUnificadas } from '../services/productoFinanciero.adapters';
+import {
+  getCuentasUnificadas,
+  getMovimientosUnificados,
+} from '../services/productoFinanciero.adapters';
 import type {
   MovimientoTesoreria,
   ConversionCambiaria,
@@ -58,11 +61,12 @@ export const useTesoreriaStore = create<TesoreriaState>()(
       fetchAll: async () => {
         set({ loading: true, error: null });
         try {
-          // Datos críticos: cuentas, movimientos, conversiones — deben cargar siempre
-          // F3c · ADR-PF-001 · cuentas usa getCuentasUnificadas() que une
-          // cuentasCaja legacy + productosFinancieros nativos (modelo nuevo).
+          // Datos críticos: cuentas, movimientos, conversiones — deben cargar siempre.
+          // F3c · cuentas usa getCuentasUnificadas (legacy + nativos PF).
+          // F4a · movimientos usa getMovimientosUnificados (movimientosTesoreria
+          // legacy + movimientosFinancieros nativos proyectados al shape legacy).
           const [movimientos, conversiones, cuentas] = await Promise.all([
-            tesoreriaService.getMovimientos(),
+            getMovimientosUnificados(),
             tesoreriaService.getConversiones(),
             getCuentasUnificadas(),
           ]);

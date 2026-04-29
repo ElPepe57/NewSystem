@@ -307,24 +307,70 @@ export async function registrarPagoAdelanto(
         const monedaMovimiento = monedaPago;
         const conceptoMovimiento = `Adelanto cotización ${cotizacion.numeroCotizacion} - ${cotizacion.nombreCliente}`;
 
-        await tesoreriaService.registrarMovimiento({
-          tipo: 'ingreso_anticipo',
-          moneda: monedaMovimiento,
-          monto: montoMovimiento,
-          tipoCambio: tcParaMovimiento,
-          metodo: metodoTesoreriaMap[data.metodoPago] || 'otro',
-          referencia: data.referencia,
-          concepto: conceptoMovimiento,
-          fecha: new Date(),
-          cuentaDestino: data.cuentaDestinoId,
-          cotizacionId: id,
-          cotizacionNumero: cotizacion.numeroCotizacion,
-          notas: monedaPago === 'USD'
-            ? `Pago en USD. Equivalente PEN: S/ ${data.montoEquivalentePEN?.toFixed(2) || 'N/A'}`
-            : undefined
-        }, userId);
+        // F4a.1 · ADR-PF-001 · escribe al libro mayor unificado
+        const { registrarMovimientoFinanciero } = await import(
+          './movimientoFinanciero.service'
+        );
+        await registrarMovimientoFinanciero(
+          {
+            categoria: 'ingreso_anticipo',
+            moneda: monedaMovimiento,
+            monto: montoMovimiento,
+            tipoCambio: tcParaMovimiento,
+            metodo: metodoTesoreriaMap[data.metodoPago] || 'otro',
+            referencia: data.referencia,
+            concepto: conceptoMovimiento,
+            fecha: new Date(),
+            productoDestinoId: data.cuentaDestinoId,
+            refDocumentoTipo: 'cotizacion',
+            refDocumentoId: id,
+            refDocumentoNumero: cotizacion.numeroCotizacion,
+            notas: monedaPago === 'USD'
+              ? `Pago en USD. Equivalente PEN: S/ ${data.montoEquivalentePEN?.toFixed(2) || 'N/A'}`
+              : undefined,
+          },
+          userId,
+        );
       } catch (tesoreriaError) {
-        logger.warn('No se pudo registrar en tesorería:', tesoreriaError);
+        logger.warn('No se pudo registrar en libro mayor financiero:', tesoreriaError);
+      }
+    }
+
+    // S55 Fase 3 — Crear movimiento `credito_adelanto_cotizacion` en CC del cliente.
+    // El adelanto se trata como saldo a favor del cliente: cuando la cotización
+    // se convierta en venta (vía `confirmarCotizacion`), el `debito_venta`
+    // restará contra este crédito y dejará el saldo neto pendiente.
+    // Si la cotización se cancela, este crédito queda como saldo a favor.
+    if (cotizacion.clienteId && data.monto > 0) {
+      try {
+        const { cuentaCorrienteService } = await import('./cuentaCorriente.service');
+        const montoEnPEN = monedaPago === 'USD' && data.montoEquivalentePEN
+          ? data.montoEquivalentePEN
+          : data.monto;
+        await cuentaCorrienteService.registrarMovimiento(
+          {
+            entidadId: cotizacion.clienteId,
+            tipo: 'cliente',
+            entidadNombre: cotizacion.nombreCliente,
+            tipoMovimiento: 'credito_adelanto_cotizacion',
+            descripcion: `Adelanto cotización ${cotizacion.numeroCotizacion} · ${monedaPago} ${data.monto.toFixed(2)}`,
+            moneda: 'PEN',
+            monto: montoEnPEN,
+            refDocumentoTipo: 'cotizacion',
+            refDocumentoId: id,
+            refDocumentoNumero: cotizacion.numeroCotizacion,
+            notas: data.referencia
+              ? `Ref: ${data.referencia}`
+              : undefined,
+            idempotencyKey: `adelanto_cot_${id}_${adelantoPagado.id}`,
+          },
+          userId,
+        );
+      } catch (ccErr) {
+        logger.warn(
+          '[CC] No se pudo crear credito_adelanto_cotizacion (no bloqueante): ' +
+            (ccErr instanceof Error ? ccErr.message : String(ccErr)),
+        );
       }
     }
 
