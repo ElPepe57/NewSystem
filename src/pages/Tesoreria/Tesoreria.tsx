@@ -17,7 +17,8 @@ import {
 } from 'lucide-react';
 import { Button, Card, useConfirmDialog, ConfirmDialog } from '../../components/common';
 import { Toolbar, KPIBar, StatCard } from '../../design-system';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
+import { CashFlowExecutivePanel } from '../Finanzas/components/CashFlowExecutivePanel';
 import { cuentaCorrienteService } from '../../services/cuentaCorriente.service';
 import { LineaDropdown } from '../../components/common/LineaDropdown';
 import { TesoreriaService } from '../../services/tesoreria.service';
@@ -90,6 +91,8 @@ export const Tesoreria: React.FC = () => {
   // movimientos de tesorería para mostrar solo los que tienen contraparte
   // en la CC de esa entidad (mediante movimientoTesoreriaId del libro CC).
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const esCashFlow = location.pathname === '/finanzas/cash-flow';
   const entidadIdParam = searchParams.get('entidadId');
   const entidadTipoParam = searchParams.get('entidadTipo') as
     | 'cliente' | 'proveedor' | 'colaborador' | 'empleado' | null;
@@ -854,6 +857,9 @@ export const Tesoreria: React.FC = () => {
   // ============ Render ============
   return (
     <>
+      {/* Imp-L9 · CashFlowExecutivePanel solo cuando estamos en /finanzas/cash-flow */}
+      {esCashFlow && <CashFlowExecutivePanel />}
+
       {/* Actions inline (sub-header Stripe-style). Optimizar = outline,
            Refresh = ghost (icon-only). Consistente con las otras 2
            sub-vistas del hub Finanzas. */}
