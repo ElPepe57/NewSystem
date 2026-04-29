@@ -13,6 +13,7 @@
 
 import type {
   CuentaCajaFormData,
+  CuentaCaja,
   MonedaTesoreria,
   MetodoTesoreria,
 } from '../../../types/tesoreria.types';
@@ -288,4 +289,86 @@ export function mapStateToFormData(state: CuentaWizardState): CuentaCajaFormData
   }
 
   return data;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// HIDRATACIÓN: CuentaCaja → CuentaWizardState
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Construye el state inicial del wizard desde una cuenta existente,
+ * para modo EDICIÓN. Mantiene compatibilidad con cuentas legacy v1
+ * (sin titularEntidadId/canalesDigitales estructurados).
+ */
+export function hidratarStateDesdeCuenta(
+  cuenta: CuentaCaja,
+): CuentaWizardState {
+  // Producto financiero — fallback según tipo si no hay
+  const productoFinanciero = (cuenta.productoFinanciero ??
+    (cuenta.tipo === 'banco'
+      ? 'cuenta_ahorros'
+      : cuenta.tipo === 'efectivo'
+        ? 'caja'
+        : cuenta.tipo === 'credito'
+          ? 'tarjeta_debito'
+          : 'mercadopago')) as ProductoFinancieroNuevo;
+
+  // Tipo cuenta del wizard
+  const tipo: TipoCuenta = (cuenta.tipo as TipoCuenta) ?? 'banco';
+
+  // Canales digitales — preferir el campo nuevo, fallback al legacy metodosDetalle
+  let canalesDigitales: CuentaWizardState['canalesDigitales'] = [];
+  if (cuenta.canalesDigitales && cuenta.canalesDigitales.length > 0) {
+    canalesDigitales = cuenta.canalesDigitales.map((c) => ({
+      tipo: c.tipo,
+      identificador: c.identificador,
+    }));
+  } else if (cuenta.metodosDetalle) {
+    // Migración soft del shape legacy: { yape: { identificador: '999' } } → array
+    canalesDigitales = Object.entries(cuenta.metodosDetalle)
+      .filter(([tipo, det]) =>
+        ['yape', 'plin', 'sip', 'agora', 'bim'].includes(tipo) &&
+        det?.identificador,
+      )
+      .map(([tipo, det]) => ({
+        tipo: tipo as CuentaWizardState['canalesDigitales'][number]['tipo'],
+        identificador: det.identificador!,
+      }));
+  }
+
+  // Ultimos 4 — derivar del numeroCuenta si no está explícito
+  const numero = cuenta.numeroCuenta ?? '';
+  const ultimosCuatro = numero
+    ? numero.replace(/\D/g, '').slice(-4)
+    : '';
+
+  return {
+    tipo,
+    productoFinanciero,
+
+    banco: cuenta.banco ?? '',
+    bancoNombreCompleto: cuenta.bancoNombreCompleto ?? '',
+    nombre: cuenta.nombre,
+    ultimosCuatro,
+    numeroCuenta: cuenta.numeroCuenta ?? '',
+    cci: cuenta.cci ?? '',
+    cuentaVinculadaId: cuenta.cuentaVinculadaId ?? '',
+
+    titularidad: cuenta.titularidad ?? 'empresa',
+    titularEntidadId: cuenta.titularEntidadId ?? '',
+    titularEntidadTipo: cuenta.titularEntidadTipo,
+    titularNombre:
+      cuenta.titularNombre ?? cuenta.titular ?? 'Vita Skin Peru SAC',
+
+    esBiMoneda: cuenta.esBiMoneda ?? false,
+    moneda: cuenta.moneda,
+    saldoInicial: cuenta.saldoActual ?? 0,
+    saldoInicialUSD: cuenta.saldoUSD ?? 0,
+    saldoInicialPEN: cuenta.saldoPEN ?? 0,
+
+    metodosDisponibles: (cuenta.metodosDisponibles ??
+      []) as MetodoTesoreria[],
+    canalesDigitales,
+    esCuentaPorDefecto: cuenta.esCuentaPorDefecto ?? false,
+  };
 }

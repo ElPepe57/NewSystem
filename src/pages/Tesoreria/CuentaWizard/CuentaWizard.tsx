@@ -23,7 +23,10 @@ import { Button } from '../../../components/common';
 import { useToastStore } from '../../../store/toastStore';
 import { useAuthStore } from '../../../store/authStore';
 import { tesoreriaService } from '../../../services/tesoreria.service';
-import type { CuentaCajaFormData } from '../../../types/tesoreria.types';
+import type {
+  CuentaCajaFormData,
+  CuentaCaja,
+} from '../../../types/tesoreria.types';
 import { cn } from '../../../design-system/utils';
 import { Paso1TipoProducto } from './Paso1TipoProducto';
 import { Paso2Identidad } from './Paso2Identidad';
@@ -34,6 +37,7 @@ import {
   PASOS_LABEL,
   validarPaso,
   mapStateToFormData,
+  hidratarStateDesdeCuenta,
   type CuentaWizardState,
   type PasoCuentaWizard,
 } from './types';
@@ -46,11 +50,22 @@ export interface CuentaWizardProps {
   isOpen: boolean;
   onClose: () => void;
   /**
-   * Callback opcional para delegar la creación al padre. Útil para reusar
-   * el handler centralizado del padre (toast + refresh). Si NO se provee,
-   * el wizard llama al service directo y muestra su propio toast.
+   * Si está presente, modo EDICIÓN: el wizard se hidrata con los datos de
+   * esta cuenta y al guardar dispara `onGuardar(data, cuentaEditar)`.
+   * Si NO está presente, modo CREACIÓN: dispara `onGuardar(data)`.
    */
-  onGuardar?: (data: CuentaCajaFormData) => Promise<void> | void;
+  cuentaEditar?: CuentaCaja | null;
+  /**
+   * Callback para delegar la persistencia al padre.
+   * Recibe `cuentaEditar` también cuando el wizard está en modo edición —
+   * esto permite al padre saber qué cuenta actualizar y reutilizar handlers
+   * centralizados (toast + refresh) sin que el wizard tenga que llamar al
+   * service directamente.
+   */
+  onGuardar?: (
+    data: CuentaCajaFormData,
+    cuentaEditar?: CuentaCaja | null,
+  ) => Promise<void> | void;
   /** Callback al crear exitosamente (cuando NO hay onGuardar). */
   onSuccess?: (cuentaId: string) => void;
   /** Indicador de submit del padre (cuando hay onGuardar). */
@@ -115,6 +130,7 @@ const Stepper: React.FC<{ pasoActual: PasoCuentaWizard }> = ({ pasoActual }) => 
 export const CuentaWizard: React.FC<CuentaWizardProps> = ({
   isOpen,
   onClose,
+  cuentaEditar,
   onGuardar,
   onSuccess,
   isSubmitting,
@@ -123,6 +139,8 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
   const toastSuccess = useToastStore((s) => s.success);
   const toastError = useToastStore((s) => s.error);
 
+  const modoEdicion = !!cuentaEditar;
+
   const [paso, setPaso] = useState<PasoCuentaWizard>(1);
   const [state, setState] = useState<CuentaWizardState>(INITIAL_STATE);
   const [internalLoading, setInternalLoading] = useState(false);
@@ -130,14 +148,16 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
   // Loading combinado: estado del wizard o del padre
   const loading = internalLoading || !!isSubmitting;
 
-  // ── Reset al abrir ──
+  // ── Reset al abrir / hidratar si es edición ──
   useEffect(() => {
     if (isOpen) {
       setPaso(1);
-      setState(INITIAL_STATE);
+      setState(
+        cuentaEditar ? hidratarStateDesdeCuenta(cuentaEditar) : INITIAL_STATE,
+      );
       setInternalLoading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, cuentaEditar]);
 
   // ── Validación del paso actual ──
   const validacion = useMemo(() => validarPaso(paso, state), [paso, state]);
@@ -171,7 +191,7 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     // Camino 1: si hay onGuardar, delegamos al padre (que maneja toast + refresh)
     if (onGuardar) {
       try {
-        await onGuardar(formData);
+        await onGuardar(formData, cuentaEditar);
         onClose();
       } catch {
         // El padre se encarga de su propio error toast
@@ -182,31 +202,60 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     // Camino 2: self-contained — wizard llama al service directo
     setInternalLoading(true);
     try {
-      const cuentaId = await tesoreriaService.crearCuenta(formData, userId);
-      toastSuccess(
-        `Cuenta "${formData.nombre}" creada${
-          formData.titularidad === 'personal' && formData.titularNombre
-            ? ` · titular: ${formData.titularNombre}`
-            : ''
-        }`,
-        'Cuenta creada',
-      );
-      onSuccess?.(cuentaId);
+      if (modoEdicion && cuentaEditar) {
+        await tesoreriaService.actualizarCuenta(
+          cuentaEditar.id,
+          formData,
+          userId,
+        );
+        toastSuccess(
+          `Cuenta "${formData.nombre}" actualizada`,
+          'Cambios guardados',
+        );
+        onSuccess?.(cuentaEditar.id);
+      } else {
+        const cuentaId = await tesoreriaService.crearCuenta(formData, userId);
+        toastSuccess(
+          `Cuenta "${formData.nombre}" creada${
+            formData.titularidad === 'personal' && formData.titularNombre
+              ? ` · titular: ${formData.titularNombre}`
+              : ''
+          }`,
+          'Cuenta creada',
+        );
+        onSuccess?.(cuentaId);
+      }
       onClose();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error desconocido';
-      toastError(msg, 'No se pudo crear la cuenta');
+      toastError(
+        msg,
+        modoEdicion ? 'No se pudo actualizar la cuenta' : 'No se pudo crear la cuenta',
+      );
     } finally {
       setInternalLoading(false);
     }
-  }, [state, userId, toastSuccess, toastError, onClose, onGuardar, onSuccess]);
+  }, [
+    state,
+    userId,
+    toastSuccess,
+    toastError,
+    onClose,
+    onGuardar,
+    onSuccess,
+    cuentaEditar,
+    modoEdicion,
+  ]);
 
   // ── Title & subtitle dinámicos ──
   const title = useMemo(() => {
+    if (modoEdicion) {
+      return state.nombre || cuentaEditar?.nombre || 'Editar cuenta';
+    }
     if (paso === 1) return 'Nueva cuenta bancaria';
     if (state.nombre) return state.nombre;
     return 'Nueva cuenta bancaria';
-  }, [paso, state.nombre]);
+  }, [paso, state.nombre, modoEdicion, cuentaEditar]);
 
   const subtitle = useMemo(() => {
     const tipoLabel =
@@ -217,8 +266,9 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
           : state.tipo === 'efectivo'
             ? 'Caja efectivo'
             : 'Crédito';
-    return `${tipoLabel} · Paso ${paso} de 4`;
-  }, [paso, state.tipo]);
+    const accion = modoEdicion ? 'Editando' : 'Paso';
+    return `${tipoLabel} · ${accion} ${paso} de 4`;
+  }, [paso, state.tipo, modoEdicion]);
 
   // ── Render del paso actual ──
   const renderPaso = () => {
@@ -247,7 +297,8 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     </Button>
   );
 
-  const submitLabel = paso === 4 ? 'Crear cuenta' : 'Continuar';
+  const submitLabel =
+    paso === 4 ? (modoEdicion ? 'Guardar cambios' : 'Crear cuenta') : 'Continuar';
   const submitIcon = paso === 4 ? Check : ArrowRight;
 
   return (

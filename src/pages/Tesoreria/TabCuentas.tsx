@@ -233,7 +233,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         {renderSaldo(cuenta)}
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
           <button
-            onClick={(e) => { e.stopPropagation(); (() => { setCuentaEditando(cuenta); setBancoParaCuenta(cuenta.banco || ''); setShowCuentaBanco(true); })(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCuentaEditando(cuenta);
+              setShowWizard(true);
+            }}
             className="p-1.5 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-full"
             title="Editar cuenta"
           >
@@ -261,7 +265,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
     >
       <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
         <button
-          onClick={(e) => { e.stopPropagation(); (() => { setCuentaEditando(cuenta); setBancoParaCuenta(cuenta.banco || ''); setShowCuentaBanco(true); })(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setCuentaEditando(cuenta);
+            setShowWizard(true);
+          }}
           className="p-1.5 text-slate-300 hover:text-teal-600 hover:bg-teal-50 rounded-full"
         >
           <Edit2 className="h-3.5 w-3.5" />
@@ -356,10 +364,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               }
               onTarjetaClick={(t) => setTarjetaDetalle(t)}
               onEditarCuenta={(c) => {
-                // Mismo flujo que la vista legacy
                 setCuentaEditando(c);
-                setBancoParaCuenta(c.banco || '');
-                setShowCuentaBanco(true);
+                setShowWizard(true);
               }}
               onEliminarCuenta={(c) => handleEliminarCuenta(c)}
             />
@@ -731,18 +737,14 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowBancoNuevo(false); }} isSubmitting={isSubmitting}
         titularesExistentes={titularesExistentes} />
 
+      {/* CuentaBancoForm legacy — solo para flujo "Agregar cuenta en {banco}" desde vista por tipo */}
       <CuentaBancoForm isOpen={showCuentaBanco}
-        onClose={() => { setShowCuentaBanco(false); setCuentaEditando(null); }}
+        onClose={() => setShowCuentaBanco(false)}
         bancoNombre={bancoParaCuenta}
-        cuentaEditando={cuentaEditando}
+        cuentaEditando={null}
         onGuardar={(data) => {
-          if (cuentaEditando) {
-            handleGuardarEdicion(cuentaEditando, data);
-          } else {
-            handleGuardarCuentaNueva(data);
-          }
+          handleGuardarCuentaNueva(data);
           setShowCuentaBanco(false);
-          setCuentaEditando(null);
         }} isSubmitting={isSubmitting}
         titularesExistentes={titularesExistentes} />
 
@@ -758,12 +760,20 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowEfectivo(false); }} isSubmitting={isSubmitting}
         titularesExistentes={titularesExistentes} />
 
-      {/* S58c v2 — Wizard de creación de cuenta (4 pasos banking-grade) */}
+      {/* S58c v2 — Wizard de creación/edición de cuenta (4 pasos banking-grade) */}
       <CuentaWizard
         isOpen={showWizard}
-        onClose={() => setShowWizard(false)}
-        onGuardar={async (data) => {
-          await handleGuardarCuentaNueva(data);
+        onClose={() => {
+          setShowWizard(false);
+          setCuentaEditando(null);
+        }}
+        cuentaEditar={cuentaEditando}
+        onGuardar={async (data, cuentaEditar) => {
+          if (cuentaEditar) {
+            await handleGuardarEdicion(cuentaEditar, data);
+          } else {
+            await handleGuardarCuentaNueva(data);
+          }
         }}
         isSubmitting={isSubmitting}
       />
