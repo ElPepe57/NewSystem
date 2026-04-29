@@ -44,6 +44,7 @@ import type {
 import { TabMovimientos } from './TabMovimientos';
 import { TabConversiones } from './TabConversiones';
 import { TabTransferencias } from './TabTransferencias';
+import { ConversionTransferenciaWizard } from './ConversionTransferenciaWizard';
 import { TabCuentas } from './TabCuentas';
 import { TabPagosMasivos } from './TabPagosMasivos';
 import { TabPipeline } from './TabPipeline';
@@ -1051,31 +1052,43 @@ export const Tesoreria: React.FC = () => {
       )}
 
       {tabActiva === 'conversiones' && (
-        <TabConversiones
-          conversiones={conversiones}
-          cuentas={cuentas}
-          isConversionModalOpen={isConversionModalOpen}
-          setIsConversionModalOpen={setIsConversionModalOpen}
-          conversionForm={conversionForm}
-          setConversionForm={setConversionForm}
-          isSubmitting={isSubmitting}
-          tcDefault={tcDefault}
-          handleCrearConversion={handleCrearConversion}
-        />
+        <div className="space-y-4">
+          {/* Imp-L7 · M7 wizard banking-grade unificado */}
+          <ConversionTransferenciaWizard />
+
+          {/* Listado histórico legacy preservado */}
+          <TabConversiones
+            conversiones={conversiones}
+            cuentas={cuentas}
+            isConversionModalOpen={isConversionModalOpen}
+            setIsConversionModalOpen={setIsConversionModalOpen}
+            conversionForm={conversionForm}
+            setConversionForm={setConversionForm}
+            isSubmitting={isSubmitting}
+            tcDefault={tcDefault}
+            handleCrearConversion={handleCrearConversion}
+          />
+        </div>
       )}
 
       {tabActiva === 'transferencias' && (
-        <TabTransferencias
-          transferencias={transferencias}
-          cuentas={cuentas}
-          isTransferenciaModalOpen={isTransferenciaModalOpen}
-          setIsTransferenciaModalOpen={setIsTransferenciaModalOpen}
-          transferenciaForm={transferenciaForm}
-          setTransferenciaForm={setTransferenciaForm}
-          isSubmitting={isSubmitting}
-          tcDefault={tcDefault}
-          handleCrearTransferencia={handleCrearTransferencia}
-        />
+        <div className="space-y-4">
+          {/* Imp-L7 · M7 wizard banking-grade unificado */}
+          <ConversionTransferenciaWizard />
+
+          {/* Listado histórico legacy preservado */}
+          <TabTransferencias
+            transferencias={transferencias}
+            cuentas={cuentas}
+            isTransferenciaModalOpen={isTransferenciaModalOpen}
+            setIsTransferenciaModalOpen={setIsTransferenciaModalOpen}
+            transferenciaForm={transferenciaForm}
+            setTransferenciaForm={setTransferenciaForm}
+            isSubmitting={isSubmitting}
+            tcDefault={tcDefault}
+            handleCrearTransferencia={handleCrearTransferencia}
+          />
+        </div>
       )}
 
       {tabActiva === 'cuentas' && (
