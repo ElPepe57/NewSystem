@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-28 (Sesion S58c-PF · APERTURA — ADR-PF-001 Refactor Producto Financiero aprobado. 7 decisiones de negocio cerradas (D-PF-1 a D-PF-7). 3 preguntas operativas resueltas (P-1 wallets como canales / P-2 absorber conversiones / P-3 DatoBancarioPasivo fuera de scope). Plan de 8 sesiones (F0-F5). F0 lista para ejecucion.)
+**Ultima actualizacion:** 2026-04-29 (Sesion S58c-PF · CIERRE OPERATIVO — Refactor Producto Financiero completado en 13 commits + 1 fix de permisos. Toda creacion de cuentas/tarjetas pasa por CuentaWizard → productosFinancieros. Toda escritura de movimientos pasa por movimientosFinancieros con saldo cacheado. 5 forms legacy eliminados. 5 deudas declaradas DEUDA-PF-001 a 005. Ultimo deploy: f6492da → https://vitaskinperu.web.app)
 **Branch activo:** main
 
 ---
@@ -138,6 +138,112 @@ Ver ADR-PF-001 seccion 11 — 12 criterios detallados. Resumen ejecutivo:
 - Venta cobrada y OC pagada usan `productoFinancieroId` correctamente
 - CF ML escribe `productoDestinoId` (no `cuentaDestino`)
 - Vista `/finanzas/saldos` agrupa productos por `RelacionBancaria`
+
+---
+
+## SESION S58c-PF · CIERRE OPERATIVO — REFACTOR PRODUCTO FINANCIERO
+
+### Fecha y estado
+
+**Fecha de apertura:** 2026-04-28
+**Fecha de cierre operativo:** 2026-04-29
+**Estado:** IMPLEMENTADO — modelo nuevo activo en produccion con adaptadores legacy
+**Ultimo commit deployed:** `f6492da`
+**Deploy verificado:** https://vitaskinperu.web.app
+
+### Commits del refactor (14 en total)
+
+| Hash | Descripcion |
+|------|-------------|
+| `acc7456` | ADR-PF-001 documento de diseno formal creado |
+| `7311678` | Cierre preguntas operativas P-1, P-2, P-3 |
+| `84480fb` | Apertura registrada en REGISTRO_IMPLEMENTACION.md |
+| `5cf6a6f` | F0: scripts/reset-pf-001.mjs (reset transaccional) |
+| `d2916e3` | F1: tipos base — productoFinanciero, relacionBancaria, movimientoFinanciero |
+| `290d1ea` | F2: servicios nuevos + adaptadores legacy-nuevo |
+| `f9441e8` | Decision inversion orden F3-F4 por dependencia tecnica circular |
+| `1db463d` | F3a: VistaPorTitular agrupa por banco (DEPLOYED) |
+| `d081073` | F3b: wizard escribe a productosFinancieros (DEPLOYED) |
+| `fb0d917` | F3c: lectura unificada via adaptadores (DEPLOYED) |
+| `bc7030c` | F3c.5+6: soporte tarjeta_credito + edicion inteligente (DEPLOYED) |
+| `fd2ca3d` | Fix: reglas Firestore para 3 colecciones nuevas (DEPLOYED) |
+| `b1d524d` | F4a: 5 services de pagos integrados al libro mayor (DEPLOYED) |
+| `d17d8b3` | F4b: 5 services restantes + contabilidad (DEPLOYED) |
+| *(2 commits F5)* | Forms legacy eliminados + tipos marcados @deprecated (DEPLOYED) |
+
+### Estado actual del sistema post-refactor
+
+**Que pasa por el modelo nuevo:**
+- Toda creacion de cuentas bancarias, tarjetas, cajas o wallets: `CuentaWizard` universal → persiste a `productosFinancieros` + `relacionesBancarias`
+- Toda escritura de movimientos (cobros de venta, pagos de OC, gastos, anticipos, lotes masivos, conversiones cambiarias, transferencias): `movimientosFinancieros` con `saldoActual` cacheado actualizado automaticamente
+- Vista por titular en `/finanzas/saldos`: agrupa por `RelacionBancaria` (banco → productos del mismo titular)
+
+**Que sigue con adaptadores temporales (legacy conviviendo):**
+- `TabCuentas`, `TabMovimientos` y vistas legacy: leen via adaptadores unificados `getCuentasUnificadas()` y `getMovimientosUnificados()` — muestran datos legacy + nativos en una sola vista
+- Cloud Functions `functions/src/mercadolibre/*` y `functions/src/whatsapp/whatsapp.erp.ts`: siguen escribiendo a `movimientosTesoreria` legacy; la lectura unificada los muestra OK pero el saldo de `productosFinancieros` NO se actualiza desde CF (ver DEUDA-PF-002)
+
+**Que se elimino:**
+- 5 forms legacy: `BancoNuevoForm`, `CuentaBancoForm`, `DigitalForm`, `EfectivoForm`, `EditarMetodosBancoModal`
+- Tipos `CuentaCaja`, `MovimientoTesoreria`, `TarjetaCredito` marcados `@deprecated`
+
+**Archivos tocados:** aproximadamente 30 archivos de `src/` modificados o creados + reglas Firestore + colecciones config.
+
+**Metricas estimadas:** +3,500 lineas nuevas (tipos, services, adaptadores, UI) · -800 lineas eliminadas (forms legacy) · neto +2,700 lineas.
+
+### Decision clave durante implementacion: inversion F3-F4
+
+El plan original era F3 = referencias cruzadas en services → F4 = UI. Durante la ejecucion se detecto una dependencia tecnica circular: los servicios de pagos (F3) necesitaban que la UI del wizard ya escribiera al nuevo modelo (F4) para poder probar el flujo completo. Se invirtio el orden:
+
+- F3 paso a ser: UI wizard + VistaPorTitular + lectura unificada (visible inmediatamente)
+- F4 paso a ser: integracion de los 10 services de pagos al libro mayor
+
+Esta inversion permitio verificar visualmente el modelo antes de conectar los servicios, reduciendo el riesgo de bugs silenciosos.
+
+### Deudas declaradas
+
+**DEUDA-PF-001 · Cleanup TC legacy**
+Prioridad: media-alta. Estimacion: 1-2 sesiones.
+Eliminar definitivamente: `TabTarjetasCredito.tsx`, carpeta `TarjetasCreditoV2/` completa (incluye `CargarTarjetaWizard`, `PagarEstadoCuentaWizard`, `TarjetaFormModal`, `TarjetaDetailModal`, `TarjetaCard`), `tarjetaCredito.service.ts`, `cargoTarjeta.service.ts`, `pagoEstadoCuentaTarjeta.service.ts`, `tarjetaCreditoStore.ts`. Requiere reescribir contra el modelo nuevo: `FinanzasSaldos`, `TitularItemRow` (usa `useSaldoCCTarjeta`), stats de Finanzas.
+
+**DEUDA-PF-002 · Cloud Functions migration**
+Prioridad: media. Estimacion: 1 sesion + deploy CF.
+`functions/src/mercadolibre/*` (`ml.orderProcessor`, `ml.reconciliation`, `ml.diagnostics`, `ml.reingenieria`, `ml.sync`) y `functions/src/whatsapp/whatsapp.erp.ts` siguen escribiendo a `movimientosTesoreria` legacy. La lectura unificada los muestra correctamente en la UI pero el saldo de productos financieros NO se actualiza desde Cloud Functions.
+
+**DEUDA-PF-003 · Cleanup tipos y services legacy**
+Prioridad: baja (bloquea solo cuando PF-001 y PF-002 cierren). Estimacion: 0.5 sesion.
+Cuando las dos deudas anteriores se cierren: eliminar `types/tesoreria.types.ts` (seccion CuentaCaja), `types/tarjetaCredito.types.ts`, `services/tesoreria.cuentas.service.ts`, partes legacy de `services/tesoreria.movimientos.service.ts`, adaptadores temporales (`productoFinancieroToCuentaCaja`, `getCuentasUnificadas`, `getMovimientosUnificados`, `movimientoFinancieroToTesoreria`), entradas legacy en `collections.ts` (`TARJETAS_CREDITO`, `CARGOS_TARJETA`, `PAGOS_ESTADO_CUENTA_TC`, `MOVIMIENTOS_TESORERIA`, `CUENTAS_CAJA`).
+
+**DEUDA-PF-004 · Confirmar bancos de Agora y BIM**
+Prioridad: baja (pendiente de dato del usuario). Estimacion: 5 minutos cuando el usuario confirme.
+En `productoFinanciero.types.ts`, `CANAL_BANCO_MAP` tiene placeholders `'AGORA'` y `'BIM'` que requieren confirmacion. Bloquea validacion correcta de canales digitales en el wizard.
+
+**DEUDA-PF-005 · UAT end-to-end con datos reales**
+Prioridad: alta. Estimacion: 1 sesion.
+El flujo completo (crear cuenta → cobrar venta → pagar OC → pagar gasto → ver saldo actualizado) nunca fue ejecutado con datos reales de produccion. Verificar:
+- Saldos de productos se actualizan correctamente tras cada tipo de movimiento
+- VistaPorTitular se ve bien con varias cuentas reales por banco
+- Pagos masivos crean N movimientos con `loteId` comun
+- Pagar estado de cuenta TC sigue funcionando via wizard legacy (`TarjetasCreditoV2/PagarEstadoCuentaWizard`) hasta que DEUDA-PF-001 se cierre
+- Conversion cambiaria genera par `conversion_salida` + `conversion_entrada` con `idempotencyKey` compartida
+
+### Lecciones aprendidas
+
+1. **La inversion de orden de fases es valida si se detecta a tiempo.** El plan de fases F0-F5 fue una guia, no un contrato. Detectar la dependencia circular entre F3 y F4 antes de comprometer codigo evito un ciclo de reescritura costoso.
+
+2. **Los adaptadores temporales son la estrategia correcta para refactors de modelo de datos grandes.** Escribir `getCuentasUnificadas()` y `movimientoFinancieroToTesoreria()` como puentes permitio que la UI legacy siguiera funcionando durante toda la migracion sin freezes visibles para el usuario.
+
+3. **Las reglas Firestore se olvidan sistematicamente y deben auditarse al final de cada fase que agrega colecciones.** El fix `fd2ca3d` fue necesario porque F1 creo 3 colecciones nuevas sin actualizar `firestore.rules`. Checklist: nueva coleccion = regla de acceso obligatoria.
+
+4. **El reset transaccional (F0 con script) es una ventaja competitiva del proyecto.** Tener datos de produccion limpios y el sistema en greenfield permitio hacer un refactor profundo en 2 dias que en un sistema con anos de datos tomaria semanas. Esta ventana se debe aprovechar para cerrar DEUDA-PF-001 y PF-002 antes de que el volumen de datos crezca.
+
+5. **Los tipos @deprecated sin deadline se convierten en deuda permanente.** DEUDA-PF-003 solo se cierra cuando PF-001 y PF-002 cierren. Si no se agenda explicitamente, los tipos marcados @deprecated pueden convivir con codigo nuevo durante anos. Recomendacion: cerrar DEUDA-PF-001 en la proxima sesion disponible.
+
+### Proximas sesiones recomendadas
+
+| Opcion | Sesion | Justificacion |
+|--------|--------|---------------|
+| A (recomendada) | UAT end-to-end (DEUDA-PF-005) | Validar que el modelo nuevo funciona correctamente antes de eliminar mas codigo legacy. Bajo riesgo, alto valor. |
+| B | Cleanup TC legacy (DEUDA-PF-001) | Eliminar ~8 archivos + reescribir vistas contra modelo nuevo. Mayor impacto de limpieza pero requiere que UAT pase primero. |
 
 ---
 
