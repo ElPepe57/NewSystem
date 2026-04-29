@@ -47,6 +47,8 @@ import { KPIsCombinados } from './Overview/KPIsCombinados';
 import { TendenciaChart } from './Overview/TendenciaChart';
 import { TopEntidades } from './Overview/TopEntidades';
 import { AlertasFinanzas } from './Overview/AlertasFinanzas';
+import { PipelineCC } from './components/PipelineCC';
+import { AccionesRecomendadasSidebar } from './components/AccionesRecomendadasSidebar';
 import { EntidadCCDetailModal } from './components/EntidadCCDetailModal';
 import { PagoAbonoWizard } from './components/PagoAbonoWizard';
 
@@ -236,6 +238,17 @@ const Finanzas: React.FC = () => {
             onEntidadClick={(cc) => setCCSeleccionada(cc)}
           />
         </div>
+      </div>
+
+      {/* ─── Imp-L10 · Pipeline CC + Sidebar Acciones (mockup M10) ── */}
+      <div className="flex gap-4 items-start flex-col lg:flex-row mb-4">
+        <div className="flex-1 min-w-0 w-full">
+          <PipelineCC ccs={ccs} />
+        </div>
+        <AccionesRecomendadasSidebar
+          ccs={ccs}
+          onSeleccionarCC={(cc) => setCCSeleccionada(cc)}
+        />
       </div>
 
       {/* ─── Alertas + Acceso rápido ────────────────────────────────── */}
