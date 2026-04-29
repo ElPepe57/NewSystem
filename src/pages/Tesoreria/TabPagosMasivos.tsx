@@ -1,164 +1,72 @@
 /**
- * TabPagosMasivos.tsx
+ * TabPagosMasivos.tsx — Imp-L3 · M5 banking-grade
  *
- * Tab de Pagos Masivos dentro de Tesorería.
- * Reutiliza los componentes de la página PagosMasivos.
+ * Tab de Pagos Masivos rediseñado pixel-perfect con wizard 4 pasos +
+ * sidebars persistentes. Mantiene sub-tab "Historial" para consulta de
+ * lotes anteriores.
  */
-import React, { useEffect, useState } from 'react';
-import { ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
-import { useConfirmDialog, ConfirmDialog } from '../../components/common';
-import { useToastStore } from '../../store/toastStore';
-import { useAuthStore } from '../../store/authStore';
-import { usePagoMasivoStore } from '../../store/pagoMasivoStore';
-import { DocumentosPendientesTable } from '../PagosMasivos/components/DocumentosPendientesTable';
-import { ConfigPagoPanel } from '../PagosMasivos/components/ConfigPagoPanel';
-import { ProgresoEjecucion } from '../PagosMasivos/components/ProgresoEjecucion';
+import React, { useState } from 'react';
+import { Layers, History } from 'lucide-react';
 import { HistorialLotes } from '../PagosMasivos/components/HistorialLotes';
 import { LoteDetalleModal } from '../PagosMasivos/components/LoteDetalleModal';
-import type { ConfigPagoMasivo } from '../../types/pagoMasivo.types';
+import { PagosMasivosWizard } from './PagosMasivosWizard';
+import { cn } from '../../design-system/utils';
 
 type SubTab = 'nuevo' | 'historial';
 
 export const TabPagosMasivos: React.FC = () => {
   const [subTab, setSubTab] = useState<SubTab>('nuevo');
-  const [showProgreso, setShowProgreso] = useState(false);
-
-  const toast = useToastStore();
-  const { user } = useAuthStore();
-  const {
-    tipoLote,
-    setTipoLote,
-    fetchPendientes,
-    seleccionados,
-    ejecutarPagoMasivo,
-    ejecutando,
-    resetSeleccion,
-    resetEjecucion,
-    error,
-    clearError,
-  } = usePagoMasivoStore();
-
-  const confirm = useConfirmDialog();
-
-  useEffect(() => {
-    fetchPendientes();
-  }, []);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-      clearError();
-    }
-  }, [error]);
-
-  const handleProcesar = async (config: ConfigPagoMasivo) => {
-    if (!user?.uid) {
-      toast.error('No se pudo identificar al usuario');
-      return;
-    }
-
-    const count = seleccionados.size;
-    const ok = await confirm.confirm({
-      title: 'Confirmar pago masivo',
-      message: `Se procesaran ${count} pago${count !== 1 ? 's' : ''} desde la cuenta "${config.cuentaNombre}". Esta accion no se puede deshacer automaticamente.`,
-      confirmText: `Procesar ${count} pago${count !== 1 ? 's' : ''}`,
-      variant: 'warning',
-    });
-    if (ok) {
-      setShowProgreso(true);
-      try {
-        const lote = await ejecutarPagoMasivo(config, user.uid);
-        if (lote.itemsConError === 0) {
-          toast.success(`Lote ${lote.id} completado: ${lote.itemsExitosos} pagos exitosos`);
-        } else {
-          toast.warning(
-            `Lote ${lote.id}: ${lote.itemsExitosos} exitosos, ${lote.itemsConError} con error`
-          );
-        }
-      } catch (err: any) {
-        toast.error(err.message || 'Error al procesar el lote');
-      }
-    }
-  };
-
-  const handleCerrarProgreso = () => {
-    setShowProgreso(false);
-    resetSeleccion();
-    resetEjecucion();
-    fetchPendientes();
-  };
 
   return (
-    <div className="space-y-4 mt-4">
-      {/* Sub-tabs */}
-      <div className="flex gap-1 bg-slate-100 rounded-lg p-1 w-fit">
-        {([
-          { id: 'nuevo' as SubTab, label: 'Nuevo Lote' },
-          { id: 'historial' as SubTab, label: 'Historial' },
-        ]).map((tab) => (
+    <div className="space-y-4 mt-2">
+      {/* Header con sub-tabs */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Layers className="w-5 h-5 text-teal-600" />
+            Pagos Masivos
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Procesa múltiples pagos o cobros en un solo lote
+          </p>
+        </div>
+
+        {/* Sub-tabs */}
+        <div className="flex bg-slate-100 rounded-lg p-1 gap-1">
           <button
-            key={tab.id}
             type="button"
-            onClick={() => setSubTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              subTab === tab.id
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            onClick={() => setSubTab('nuevo')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all',
+              subTab === 'nuevo'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-white hover:text-teal-700',
+            )}
           >
-            {tab.label}
+            <Layers className="w-3.5 h-3.5" />
+            Nuevo lote
           </button>
-        ))}
+          <button
+            type="button"
+            onClick={() => setSubTab('historial')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all',
+              subTab === 'historial'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-white hover:text-teal-700',
+            )}
+          >
+            <History className="w-3.5 h-3.5" />
+            Historial
+          </button>
+        </div>
       </div>
 
-      {subTab === 'nuevo' ? (
-        <>
-          {/* Toggle Egresos / Ingresos */}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setTipoLote('egreso')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
-                tipoLote === 'egreso'
-                  ? 'bg-amber-50 border-amber-300 text-amber-800'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              <ArrowUpCircle size={18} />
-              Egresos (OC + Gastos)
-            </button>
-            <button
-              type="button"
-              onClick={() => setTipoLote('ingreso')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
-                tipoLote === 'ingreso'
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              <ArrowDownCircle size={18} />
-              Ingresos (Ventas)
-            </button>
-          </div>
+      {/* Contenido según sub-tab */}
+      {subTab === 'nuevo' ? <PagosMasivosWizard /> : <HistorialLotes />}
 
-          {/* Layout: tabla + panel */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-            <DocumentosPendientesTable />
-            <ConfigPagoPanel onProcesar={handleProcesar} loading={ejecutando} />
-          </div>
-        </>
-      ) : (
-        <HistorialLotes />
-      )}
-
-      {/* Modal de progreso */}
-      <ProgresoEjecucion open={showProgreso} onClose={handleCerrarProgreso} />
-
-      {/* Modal de detalle de lote */}
+      {/* Modal de detalle de lote (compartido entre sub-tabs) */}
       <LoteDetalleModal />
-
-      {/* ConfirmDialog */}
-      <ConfirmDialog {...confirm.dialogProps} />
     </div>
   );
 };
