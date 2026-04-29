@@ -371,16 +371,25 @@ Estos adaptadores se usan en componentes que aun no se migraron para que lean de
 
 ## 6. Plan de fases (F0-F5)
 
-| Fase | Objetivo | Archivos crear/modificar | Criterio de salida | Sesion est. |
-|------|----------|--------------------------|-------------------|-------------|
-| **F0** | Tipos + colecciones + service base | Crear: `types/productoFinanciero.types.ts`, `types/movimientoFinanciero.types.ts`, `types/relacionBancaria.types.ts`, `services/productoFinanciero.service.ts`, `services/movimientoFinanciero.service.ts`, `services/relacionBancaria.service.ts`, `store/productoFinancieroStore.ts`. Modificar: `config/collections.ts`, `functions/src/collections.ts` | tsc 0 errores, CRUD funcional en consola | 1 sesion |
-| **F1** | Wizard universal + UI listado | Crear: `pages/Tesoreria/ProductoWizard/*` (5 pasos). Modificar: `TabCuentas.tsx` (leer de nueva coleccion via adaptador) | Crear/editar PF de todos los tipos desde UI | 1-2 sesiones |
-| **F2** | Movimientos unificados + saldo cache | Crear: servicio de registro unificado con trigger de saldo. Modificar: `TabMovimientos.tsx`, `TabTransferencias.tsx`, `TabConversiones.tsx`, todos los services que registran movimientos (16 archivos) | Movimientos se escriben en nueva coleccion, saldo se actualiza | 2 sesiones |
-| **F3** | Referencias cruzadas (frontend) | Modificar: `venta.pagos.service.ts`, `ordenCompra.pagos.service.ts`, `envio.pagos.service.ts`, `cotizacion.adelanto.service.ts`, `gasto.service.ts`, `planilla.service.ts`, `pagoMasivo.service.ts`, `reclamo.service.ts`, `devolucion.service.ts`, `pagoAbonoDistribuido.service.ts`, `contabilidad.service.ts`. Componentes con selectors de cuenta (GastoForm, VentaForm, etc.) | Todas las escrituras usan `productoFinancieroId` | 2 sesiones |
-| **F4** | Cloud Functions + integraciones | Modificar: `functions/src/mercadolibre/ml.orderProcessor.ts`, `ml.diagnostics.ts`, `ml.reconciliation.ts`, `ml.reingenieria.ts`, `ml.sync.ts`, `whatsapp/whatsapp.erp.ts`, `functions/src/collections.ts` | Functions leen/escriben nueva coleccion, deploy exitoso | 1 sesion |
-| **F5** | Cleanup + reset datos + eliminacion legacy | Eliminar: `types/tesoreria.types.ts` (seccion CuentaCaja), `types/tarjetaCredito.types.ts`, `services/tarjetaCredito.service.ts`, `services/cargoTarjeta.service.ts`, `services/pagoEstadoCuentaTarjeta.service.ts`, carpeta `TarjetasCreditoV2/`, `TabTarjetasCredito.tsx`, forms legacy (EfectivoForm, DigitalForm, BancoNuevoForm, CuentaBancoForm). Ejecutar reset de datos. | 0 referencias a CuentaCaja/TarjetaCredito. tsc clean. Deploy. | 1 sesion |
+> **Nota de revision (2026-04-29):** El plan original tenia F3 (services de
+> pagos) ANTES de F4 (wizard universal). Durante la implementacion se detecto
+> una dependencia tecnica circular: los services de pagos al escribir
+> movimientos invocan `aplicarDeltaSaldo(productoId)`, que requiere que el
+> doc en `productosFinancieros` exista. Como esos docs solo se crean a traves
+> del wizard universal, F3 no puede ejecutarse antes de F4. Se invirtio el
+> orden: el wizard va primero, los services migran despues. El orden de F0/F1/F2
+> y F5 no cambia.
 
-**Total estimado: 8 sesiones.**
+| Fase | Estado | Objetivo | Archivos crear/modificar | Criterio de salida | Sesion est. |
+|------|--------|----------|--------------------------|-------------------|-------------|
+| **F0** | ✅ DONE | Reset transaccional + verificacion BD limpia | Crear: `scripts/reset-pf-001.mjs`. Verificar: 7 colecciones PF en cero, CC espejo TC en cero | BD lista para nuevo modelo (no-op si ya esta limpia) | 0.5 sesion |
+| **F1** | ✅ DONE | Tipos base nuevos coexistiendo con legacy | Crear: `types/productoFinanciero.types.ts`, `types/movimientoFinanciero.types.ts`, `types/relacionBancaria.types.ts`. Modificar: `config/collections.ts`, `functions/src/collections.ts` | tsc 0 errores. Tipos importables desde toda la app | 1 sesion |
+| **F2** | ✅ DONE | Servicios + adaptadores legacy→nuevo | Crear: `services/productoFinanciero.service.ts`, `services/movimientoFinanciero.service.ts`, `services/relacionBancaria.service.ts`, `services/productoFinanciero.adapters.ts` | CRUD funcional. Adapters proyectan CuentaCaja+TarjetaCredito al modelo nuevo | 1 sesion |
+| **F3** | 🟢 EN CURSO | Wizard universal + UI nueva (era F4 original) | Modificar: `CuentaWizard/*` extendido para 6 tipoProducto + escritura a productosFinancieros, `TabCuentas.tsx` leyendo de productosFinancieros via adapter, `VistaPorTitular` agrupando por banco (feature original que detono el refactor) | Crear/editar PF de todos los tipos desde UI. Vista por titular agrupada por banco | 1-2 sesiones |
+| **F4** | ⏸ PENDIENTE | Migracion services pagos (era F3 original) | Modificar: `venta.pagos.service.ts`, `ordenCompra.pagos.service.ts`, `envio.pagos.service.ts`, `cotizacion.adelanto.service.ts`, `gasto.service.ts`, `planilla.service.ts`, `pagoMasivo.service.ts`, `reclamo.service.ts`, `devolucion.service.ts`, `pagoAbonoDistribuido.service.ts`, `contabilidad.service.ts`. Componentes con selectors de cuenta (GastoForm, VentaForm, etc.) | Todas las escrituras usan `productoFinancieroId` y disparan `registrarMovimientoFinanciero()` | 2 sesiones |
+| **F5** | ⏸ PENDIENTE | Cloud Functions + cleanup legacy | Modificar: `functions/src/mercadolibre/*`, `whatsapp/whatsapp.erp.ts`. Eliminar: `types/tesoreria.types.ts` (seccion CuentaCaja), `types/tarjetaCredito.types.ts`, `services/tarjetaCredito.service.ts`, `services/cargoTarjeta.service.ts`, `services/pagoEstadoCuentaTarjeta.service.ts`, carpeta `TarjetasCreditoV2/`, `TabTarjetasCredito.tsx`, forms legacy (EfectivoForm, DigitalForm, BancoNuevoForm, CuentaBancoForm) | 0 referencias a CuentaCaja/TarjetaCredito. tsc clean. Deploy functions exitoso | 1-2 sesiones |
+
+**Total estimado: 6-8 sesiones (3 ya completadas).**
 
 ---
 
