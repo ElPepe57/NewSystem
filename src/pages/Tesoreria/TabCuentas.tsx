@@ -760,7 +760,10 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowEfectivo(false); }} isSubmitting={isSubmitting}
         titularesExistentes={titularesExistentes} />
 
-      {/* S58c v2 — Wizard de creación/edición de cuenta (4 pasos banking-grade) */}
+      {/* CuentaWizard — F3b · ADR-PF-001 ·
+          Creación: persiste a productosFinancieros (camino self-contained
+          del wizard). Edición: sigue legacy con onGuardar hasta F3c.
+          La distinción se hace pasando onGuardar SOLO si hay cuentaEditando. */}
       <CuentaWizard
         isOpen={showWizard}
         onClose={() => {
@@ -768,12 +771,19 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           setCuentaEditando(null);
         }}
         cuentaEditar={cuentaEditando}
-        onGuardar={async (data, cuentaEditar) => {
-          if (cuentaEditar) {
-            await handleGuardarEdicion(cuentaEditar, data);
-          } else {
-            await handleGuardarCuentaNueva(data);
-          }
+        onGuardar={
+          cuentaEditando
+            ? async (data, cuentaEditar) => {
+                if (cuentaEditar) {
+                  await handleGuardarEdicion(cuentaEditar, data);
+                }
+              }
+            : undefined
+        }
+        onSuccess={() => {
+          // F3b · creación al modelo nuevo. Por ahora basta con cerrar y
+          // refrescar la lista. F3c agrega lectura de productosFinancieros.
+          // El wizard ya muestra su propio toast.
         }}
         isSubmitting={isSubmitting}
       />

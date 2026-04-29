@@ -23,10 +23,13 @@ import { Button } from '../../../components/common';
 import { useToastStore } from '../../../store/toastStore';
 import { useAuthStore } from '../../../store/authStore';
 import { tesoreriaService } from '../../../services/tesoreria.service';
+import { crearProductoFinanciero } from '../../../services/productoFinanciero.service';
+import { findOrCreateRelacionBancaria } from '../../../services/relacionBancaria.service';
 import type {
   CuentaCajaFormData,
   CuentaCaja,
 } from '../../../types/tesoreria.types';
+import { requiereRelacionBancaria } from '../../../types/productoFinanciero.types';
 import { cn } from '../../../design-system/utils';
 import { Paso1TipoProducto } from './Paso1TipoProducto';
 import { Paso2Identidad } from './Paso2Identidad';
@@ -37,6 +40,7 @@ import {
   PASOS_LABEL,
   validarPaso,
   mapStateToFormData,
+  mapStateToProductoFinancieroFormData,
   hidratarStateDesdeCuenta,
   type CuentaWizardState,
   type PasoCuentaWizard,
@@ -203,6 +207,8 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     setInternalLoading(true);
     try {
       if (modoEdicion && cuentaEditar) {
+        // EDICIÓN: por ahora sigue legacy hasta F3c. La cuenta vive en
+        // cuentasCaja, se actualiza ahí. F3c migra a productosFinancieros.
         await tesoreriaService.actualizarCuenta(
           cuentaEditar.id,
           formData,
@@ -214,23 +220,43 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
         );
         onSuccess?.(cuentaEditar.id);
       } else {
-        const cuentaId = await tesoreriaService.crearCuenta(formData, userId);
+        // CREACIÓN: persiste al modelo NUEVO (F3b · ADR-PF-001).
+        // Si requiere RelacionBancaria (cuenta_corriente / ahorros / TC / TD),
+        // primero findOrCreate la relación, luego crea el producto.
+        const pfData = mapStateToProductoFinancieroFormData(state);
+
+        if (requiereRelacionBancaria(pfData.tipoProducto) && pfData.banco) {
+          const { id: relacionId } = await findOrCreateRelacionBancaria(
+            {
+              banco: pfData.banco,
+              bancoNombreCompleto: pfData.bancoNombreCompleto ?? pfData.banco,
+              titularidad: pfData.titularidad,
+              titularEntidadId: pfData.titularEntidadId,
+              titularEntidadTipo: pfData.titularEntidadTipo,
+              titularNombre: pfData.titularNombre,
+            },
+            userId,
+          );
+          pfData.relacionBancariaId = relacionId;
+        }
+
+        const productoId = await crearProductoFinanciero(pfData, userId);
         toastSuccess(
-          `Cuenta "${formData.nombre}" creada${
-            formData.titularidad === 'personal' && formData.titularNombre
-              ? ` · titular: ${formData.titularNombre}`
+          `Producto "${pfData.nombre}" creado${
+            pfData.titularidad === 'personal' && pfData.titularNombre
+              ? ` · titular: ${pfData.titularNombre}`
               : ''
           }`,
-          'Cuenta creada',
+          'Producto creado',
         );
-        onSuccess?.(cuentaId);
+        onSuccess?.(productoId);
       }
       onClose();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error desconocido';
       toastError(
         msg,
-        modoEdicion ? 'No se pudo actualizar la cuenta' : 'No se pudo crear la cuenta',
+        modoEdicion ? 'No se pudo actualizar la cuenta' : 'No se pudo crear el producto',
       );
     } finally {
       setInternalLoading(false);

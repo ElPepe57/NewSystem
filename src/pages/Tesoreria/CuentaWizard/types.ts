@@ -372,3 +372,140 @@ export function hidratarStateDesdeCuenta(
     esCuentaPorDefecto: cuenta.esCuentaPorDefecto ?? false,
   };
 }
+
+// ═════════════════════════════════════════════════════════════════════════
+// MAPEO STATE → ProductoFinancieroFormData (F3b · ADR-PF-001)
+// ═════════════════════════════════════════════════════════════════════════
+
+import type {
+  ProductoFinancieroFormData,
+  TipoProductoFinanciero,
+  ProveedorWallet,
+  CanalDigital,
+} from '../../../types/productoFinanciero.types';
+
+/**
+ * Convierte el state del wizard al formato del modelo nuevo.
+ *
+ * F3b: el wizard sigue trabajando internamente con el shape "viejo"
+ * (CuentaWizardState con tipo='banco'|'digital'|'efectivo'|'credito') pero
+ * al persistir traduce a ProductoFinanciero.
+ *
+ * Mapping `tipo` legacy → `tipoProducto` nuevo:
+ *   - banco + productoFinanciero='cuenta_ahorros' → cuenta_ahorros
+ *   - banco + productoFinanciero='cuenta_corriente' → cuenta_corriente
+ *   - digital + productoFinanciero='mercadopago'/'paypal'/etc. → wallet_digital
+ *   - efectivo → caja_efectivo
+ *   - credito + productoFinanciero='tarjeta_debito' → tarjeta_debito
+ *
+ * Tarjeta crédito NO se soporta en este mapper aún (F3c lo agrega).
+ */
+export function mapStateToProductoFinancieroFormData(
+  state: CuentaWizardState,
+): ProductoFinancieroFormData {
+  const tipoProducto = inferirTipoProducto(state);
+  const soportaBiMoneda =
+    tipoProducto === 'cuenta_corriente' || tipoProducto === 'cuenta_ahorros';
+  const esBiMoneda = soportaBiMoneda && state.esBiMoneda;
+
+  const data: ProductoFinancieroFormData = {
+    nombre: state.nombre.trim(),
+    tipoProducto,
+
+    moneda: state.moneda,
+    esBiMoneda,
+
+    saldoInicial: esBiMoneda ? 0 : state.saldoInicial,
+
+    titularidad: state.titularidad,
+    titularNombre: state.titularNombre.trim() || undefined,
+  };
+
+  if (esBiMoneda) {
+    data.saldoInicialUSD = state.saldoInicialUSD;
+    data.saldoInicialPEN = state.saldoInicialPEN;
+  }
+
+  // Datos bancarios (banco/wallet con banco)
+  if (state.banco.trim()) data.banco = state.banco.trim();
+  if (state.bancoNombreCompleto.trim())
+    data.bancoNombreCompleto = state.bancoNombreCompleto.trim();
+  if (state.numeroCuenta.trim()) data.numeroCuenta = state.numeroCuenta.trim();
+  if (state.cci.trim()) data.cci = state.cci.trim();
+
+  // Tarjeta débito: cuenta vinculada
+  if (tipoProducto === 'tarjeta_debito' && state.cuentaVinculadaId) {
+    data.cuentaVinculadaId = state.cuentaVinculadaId;
+  }
+
+  // Wallet digital: proveedor (PayPal, Wise, etc.)
+  if (tipoProducto === 'wallet_digital' && state.productoFinanciero) {
+    data.proveedorWallet = mapearProveedorWalletDesdeProductoLegacy(
+      state.productoFinanciero,
+    );
+  }
+
+  // Titular estructurado (solo si titularidad='personal')
+  if (state.titularidad === 'personal') {
+    if (state.titularEntidadId) data.titularEntidadId = state.titularEntidadId;
+    if (state.titularEntidadTipo)
+      data.titularEntidadTipo = state.titularEntidadTipo;
+  }
+
+  // Métodos
+  if (state.metodosDisponibles?.length)
+    data.metodosDisponibles = state.metodosDisponibles;
+
+  // Canales digitales (solo cuenta_corriente / cuenta_ahorros, P-1)
+  if (
+    (tipoProducto === 'cuenta_corriente' || tipoProducto === 'cuenta_ahorros') &&
+    state.canalesDigitales.length > 0
+  ) {
+    const canales: CanalDigital[] = state.canalesDigitales
+      .filter((c) => c.identificador.trim().length > 0)
+      .map((c) => ({ tipo: c.tipo, identificador: c.identificador }));
+    if (canales.length > 0) data.canalesDigitales = canales;
+  }
+
+  // Config
+  if (state.esCuentaPorDefecto !== undefined)
+    data.esCuentaPorDefecto = state.esCuentaPorDefecto;
+
+  return data;
+}
+
+function inferirTipoProducto(state: CuentaWizardState): TipoProductoFinanciero {
+  // Prioriza productoFinanciero específico
+  switch (state.productoFinanciero) {
+    case 'cuenta_ahorros':   return 'cuenta_ahorros';
+    case 'cuenta_corriente': return 'cuenta_corriente';
+    case 'tarjeta_debito':   return 'tarjeta_debito';
+    case 'caja':             return 'caja_efectivo';
+    case 'mercadopago':
+    case 'paypal':
+    case 'zelle':
+    case 'wise':
+    case 'binance':
+      return 'wallet_digital';
+  }
+  // Fallback por tipo
+  switch (state.tipo) {
+    case 'banco':    return 'cuenta_ahorros';   // default razonable
+    case 'digital':  return 'wallet_digital';
+    case 'efectivo': return 'caja_efectivo';
+    case 'credito':  return 'tarjeta_debito';
+  }
+}
+
+function mapearProveedorWalletDesdeProductoLegacy(
+  pf: NonNullable<CuentaWizardState['productoFinanciero']>,
+): ProveedorWallet | undefined {
+  switch (pf) {
+    case 'mercadopago': return 'mercadopago';
+    case 'paypal':      return 'paypal';
+    case 'zelle':       return 'zelle';
+    case 'wise':        return 'wise';
+    case 'binance':     return 'binance';
+    default:            return undefined;
+  }
+}
