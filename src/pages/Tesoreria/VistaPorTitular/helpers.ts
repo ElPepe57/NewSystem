@@ -31,7 +31,27 @@ export type TitularItem =
   | { kind: 'tarjeta'; tarjeta: TarjetaCredito };
 
 /**
+ * Sub-grupo dentro de un titular agrupado por banco/institución.
+ *
+ * F3 · ADR-PF-001: refleja que un mismo titular puede tener productos
+ * en varios bancos y los productos del mismo banco son hermanos
+ * conceptuales (cuenta corriente BCP + tarjeta BCP del mismo titular).
+ */
+export interface SubGrupoBanco {
+  /** "BCP", "BBVA", "IBK", o "Sin banco" para caja_efectivo / wallets sin banco */
+  banco: string;
+  /** Nombre completo del banco (denormalizado) */
+  bancoNombreCompleto?: string;
+  /** Items del sub-grupo */
+  items: TitularItem[];
+}
+
+/**
  * Grupo de items por titular.
+ *
+ * F3 · ADR-PF-001: agrega `subgrupos` con la sub-agrupación por banco.
+ * El campo `items` se mantiene por backward compat (algunos consumers
+ * podrían iterar la lista plana).
  */
 export interface GrupoTitular {
   /** ID único del titular dentro del grupo. */
@@ -44,8 +64,10 @@ export interface GrupoTitular {
   subtitulo: string;
   /** ID de la entidad CC (si tipo !== 'empresa'). */
   entidadId?: string;
-  /** Items del grupo. */
+  /** Items del grupo (lista plana — legacy). */
   items: TitularItem[];
+  /** Sub-grupos por banco. F3 · valor visual original del refactor. */
+  subgrupos: SubGrupoBanco[];
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -120,6 +142,7 @@ export function agruparPorTitular(
       subtitulo,
       entidadId: tipo === 'empresa' ? undefined : entidadId,
       items: [],
+      subgrupos: [],
     };
     grupos.set(key, grupo);
     return grupo;
@@ -188,9 +211,59 @@ export function agruparPorTitular(
         b.kind === 'cuenta' ? b.cuenta.nombre : b.tarjeta.nombre;
       return nameA.localeCompare(nameB, 'es-PE', { sensitivity: 'base' });
     });
+
+    // F3 · construir subgrupos por banco
+    grupo.subgrupos = construirSubgruposPorBanco(grupo.items);
   }
 
   return result;
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// SUB-AGRUPACIÓN POR BANCO (F3 · ADR-PF-001)
+// ═════════════════════════════════════════════════════════════════════════
+
+const SIN_BANCO_KEY = 'Sin banco';
+
+function getBancoDeItem(item: TitularItem): {
+  banco: string;
+  bancoNombreCompleto?: string;
+} {
+  if (item.kind === 'cuenta') {
+    const c = item.cuenta;
+    if (c.banco) {
+      return { banco: c.banco, bancoNombreCompleto: c.bancoNombreCompleto };
+    }
+    // Caja efectivo / wallets digitales sin banco asociado
+    return { banco: SIN_BANCO_KEY };
+  }
+  // Tarjetas siempre tienen banco
+  const t = item.tarjeta;
+  return { banco: t.banco ?? SIN_BANCO_KEY, bancoNombreCompleto: t.bancoNombreCompleto };
+}
+
+function construirSubgruposPorBanco(items: TitularItem[]): SubGrupoBanco[] {
+  const map = new Map<string, SubGrupoBanco>();
+
+  for (const item of items) {
+    const { banco, bancoNombreCompleto } = getBancoDeItem(item);
+    let sg = map.get(banco);
+    if (!sg) {
+      sg = { banco, bancoNombreCompleto, items: [] };
+      map.set(banco, sg);
+    }
+    sg.items.push(item);
+  }
+
+  // Ordenar: bancos alfabéticamente, "Sin banco" al final
+  const subgrupos = Array.from(map.values()).sort((a, b) => {
+    if (a.banco === SIN_BANCO_KEY) return 1;
+    if (b.banco === SIN_BANCO_KEY) return -1;
+    return a.banco.localeCompare(b.banco, 'es-PE', { sensitivity: 'base' });
+  });
+
+  // Dentro de cada subgrupo, items ya vienen ordenados (cuentas antes que TC)
+  return subgrupos;
 }
 
 /**

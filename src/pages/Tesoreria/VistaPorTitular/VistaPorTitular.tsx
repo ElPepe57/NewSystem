@@ -29,6 +29,7 @@ import {
   buildResolverNombre,
   calcularSaldosCuentasGrupo,
   type GrupoTitular,
+  type SubGrupoBanco,
   type TipoTitular,
 } from './helpers';
 
@@ -170,6 +171,119 @@ const GrupoHeader: React.FC<{ grupo: GrupoTitular }> = ({ grupo }) => {
 };
 
 // ═════════════════════════════════════════════════════════════════════════
+// SUB-GRUPO POR BANCO (F3 · ADR-PF-001)
+// ═════════════════════════════════════════════════════════════════════════
+
+const SubGrupoBancoSection: React.FC<{
+  subgrupo: SubGrupoBanco;
+  onCuentaClick?: (c: CuentaCaja) => void;
+  onTarjetaClick?: (t: TarjetaCredito) => void;
+  onEditarCuenta?: (c: CuentaCaja) => void;
+  onEliminarCuenta?: (c: CuentaCaja) => void;
+}> = ({
+  subgrupo,
+  onCuentaClick,
+  onTarjetaClick,
+  onEditarCuenta,
+  onEliminarCuenta,
+}) => {
+  const cuentasCount = subgrupo.items.filter((i) => i.kind === 'cuenta').length;
+  const tarjetasCount = subgrupo.items.filter((i) => i.kind === 'tarjeta').length;
+
+  // Calcular saldo del subgrupo
+  let totalPEN = 0, totalUSD = 0;
+  for (const item of subgrupo.items) {
+    if (item.kind !== 'cuenta') continue;
+    const c = item.cuenta;
+    if (c.esBiMoneda) {
+      totalUSD += c.saldoUSD ?? 0;
+      totalPEN += c.saldoPEN ?? 0;
+    } else if (c.moneda === 'USD') {
+      totalUSD += c.saldoActual;
+    } else {
+      totalPEN += c.saldoActual;
+    }
+  }
+  let saldoTexto = '';
+  if (totalPEN !== 0 && totalUSD !== 0) {
+    saldoTexto = `${fmtPEN(totalPEN)} · ${fmtUSD(totalUSD)}`;
+  } else if (totalUSD !== 0) {
+    saldoTexto = fmtUSD(totalUSD);
+  } else if (totalPEN !== 0) {
+    saldoTexto = fmtPEN(totalPEN);
+  }
+
+  const isSinBanco = subgrupo.banco === 'Sin banco';
+
+  return (
+    <div className="mb-2">
+      {/* Header del banco */}
+      <div
+        className={cn(
+          'flex items-center gap-2 mb-1 pb-1 px-2 py-1 rounded',
+          isSinBanco ? 'bg-slate-50' : 'bg-sky-50/60',
+        )}
+      >
+        <div
+          className={cn(
+            'w-4 h-4 rounded flex items-center justify-center flex-shrink-0',
+            isSinBanco
+              ? 'bg-slate-200 text-slate-500'
+              : 'bg-sky-100 text-sky-700',
+          )}
+        >
+          <Building className="w-2.5 h-2.5" />
+        </div>
+        <div className="flex-1 min-w-0 flex items-center gap-1.5">
+          <span
+            className={cn(
+              'text-[11px] font-semibold uppercase tracking-wider truncate',
+              isSinBanco ? 'text-slate-500' : 'text-sky-800',
+            )}
+          >
+            {subgrupo.banco}
+          </span>
+          {subgrupo.bancoNombreCompleto &&
+            subgrupo.bancoNombreCompleto !== subgrupo.banco && (
+              <span className="text-[10px] text-slate-400 truncate hidden sm:inline">
+                · {subgrupo.bancoNombreCompleto}
+              </span>
+            )}
+          <span className="text-[10px] text-slate-500 ml-auto flex-shrink-0">
+            {cuentasCount > 0 &&
+              `${cuentasCount} cuenta${cuentasCount !== 1 ? 's' : ''}`}
+            {cuentasCount > 0 && tarjetasCount > 0 && ' · '}
+            {tarjetasCount > 0 &&
+              `${tarjetasCount} TC${tarjetasCount !== 1 ? 's' : ''}`}
+          </span>
+        </div>
+        {saldoTexto && (
+          <span className="text-[11px] tabular-nums font-semibold text-slate-700 flex-shrink-0">
+            {saldoTexto}
+          </span>
+        )}
+      </div>
+
+      {/* Items del banco */}
+      <div className="space-y-0.5 ml-2">
+        {subgrupo.items.map((item) => (
+          <TitularItemRow
+            key={item.kind === 'cuenta' ? item.cuenta.id : item.tarjeta.id}
+            item={item}
+            onClick={() => {
+              if (item.kind === 'cuenta') onCuentaClick?.(item.cuenta);
+              else onTarjetaClick?.(item.tarjeta);
+            }}
+            onEditarCuenta={onEditarCuenta}
+            onEliminarCuenta={onEliminarCuenta}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ═════════════════════════════════════════════════════════════════════════
 // COMPONENTE
 // ═════════════════════════════════════════════════════════════════════════
 
@@ -236,20 +350,14 @@ export const VistaPorTitular: React.FC<VistaPorTitularProps> = ({
             className={cn(idx < grupos.length - 1 && 'mb-5')}
           >
             <GrupoHeader grupo={grupo} />
-            <div className="space-y-1 ml-10">
-              {grupo.items.map((item) => (
-                <TitularItemRow
-                  key={
-                    item.kind === 'cuenta' ? item.cuenta.id : item.tarjeta.id
-                  }
-                  item={item}
-                  onClick={() => {
-                    if (item.kind === 'cuenta') {
-                      onCuentaClick?.(item.cuenta);
-                    } else {
-                      onTarjetaClick?.(item.tarjeta);
-                    }
-                  }}
+            {/* F3 · sub-agrupación por banco dentro del titular */}
+            <div className="ml-10 space-y-2">
+              {grupo.subgrupos.map((sg) => (
+                <SubGrupoBancoSection
+                  key={sg.banco}
+                  subgrupo={sg}
+                  onCuentaClick={onCuentaClick}
+                  onTarjetaClick={onTarjetaClick}
                   onEditarCuenta={onEditarCuenta}
                   onEliminarCuenta={onEliminarCuenta}
                 />
