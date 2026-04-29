@@ -552,6 +552,31 @@ service cloud.firestore {
     }
 
     // ============================================================
+    // S58c-PF · ADR-PF-001 · PRODUCTO FINANCIERO UNIFICADO
+    // Reemplaza cuentasCaja + tarjetasCredito en F4-F5.
+    // Mismo patrón de permisos que cuentasCaja: roles financieros.
+    // ============================================================
+    match /productosFinancieros/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    // RelacionBancaria — vínculo titular ↔ banco
+    match /relacionesBancarias/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow write: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+    }
+
+    // Libro mayor unificado. Update permitido SOLO para anulación (preserva
+    // audit trail con estado='anulado', no borra). Delete prohibido.
+    match /movimientosFinancieros/{docId} {
+      allow read: if hasAnyRole(['admin', 'gerente', 'finanzas', 'supervisor']);
+      allow create: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow update: if hasAnyRole(['admin', 'gerente', 'finanzas']);
+      allow delete: if false;
+    }
+
+    // ============================================================
     // SIN REGLA CATCH-ALL
     // Cualquier coleccion no listada arriba sera DENEGADA por defecto.
     // ============================================================
