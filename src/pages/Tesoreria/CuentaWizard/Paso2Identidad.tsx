@@ -62,9 +62,14 @@ export const Paso2Identidad: React.FC<Paso2Props> = ({ state, setState }) => {
 
   const [cuentasAhorros, setCuentasAhorros] = useState<CuentaCaja[]>([]);
 
-  // ── Cargar cuentas de ahorros para tarjeta_debito ──
+  // ── Cargar cuentas de ahorros para tarjeta_debito (vinculación) y
+  //    tarjeta_credito (cuenta default de pago de estado de cuenta) ──
   useEffect(() => {
-    if (state.tipo !== 'credito' || state.productoFinanciero !== 'tarjeta_debito') {
+    if (
+      state.tipo !== 'credito' ||
+      (state.productoFinanciero !== 'tarjeta_debito' &&
+        state.productoFinanciero !== 'tarjeta_credito')
+    ) {
       return;
     }
     tesoreriaService
@@ -221,7 +226,7 @@ export const Paso2Identidad: React.FC<Paso2Props> = ({ state, setState }) => {
       )}
 
       {/* ── Crédito (tarjeta débito) ── */}
-      {state.tipo === 'credito' && (
+      {state.tipo === 'credito' && state.productoFinanciero === 'tarjeta_debito' && (
         <div className="space-y-4">
           <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200 pb-2">
             Tarjeta débito
@@ -274,6 +279,170 @@ export const Paso2Identidad: React.FC<Paso2Props> = ({ state, setState }) => {
             hint="El dinero de la tarjeta sale/entra de esta cuenta"
             emptyMessage="Sin cuentas de ahorros disponibles"
           />
+        </div>
+      )}
+
+      {/* ── Crédito (tarjeta crédito · F3c.5 ADR-PF-001) ── */}
+      {state.tipo === 'credito' && state.productoFinanciero === 'tarjeta_credito' && (
+        <div className="space-y-4">
+          <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200 pb-2">
+            Tarjeta de crédito
+          </div>
+
+          {/* Banco emisor + nombre completo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <TextField
+              label="Banco emisor"
+              value={state.banco}
+              onChange={(v) => setState((s) => ({ ...s, banco: v }))}
+              placeholder="BCP, BBVA, Interbank"
+            />
+            <TextField
+              label="Banco · nombre completo"
+              value={state.bancoNombreCompleto}
+              onChange={(v) => setState((s) => ({ ...s, bancoNombreCompleto: v }))}
+              placeholder="Banco de Crédito del Perú"
+              optional
+            />
+          </div>
+
+          {/* Nombre interno + ultimos 4 */}
+          <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-9">
+              <TextField
+                label="Nombre interno"
+                value={state.nombre}
+                onChange={(v) => setState((s) => ({ ...s, nombre: v }))}
+                placeholder="BCP Visa Crédito · ····6411"
+              />
+            </div>
+            <div className="col-span-3">
+              <TextField
+                label="Últimos 4"
+                value={state.ultimosCuatro}
+                onChange={(v) => {
+                  const cleaned = v.replace(/\D/g, '').slice(0, 4);
+                  setState((s) => ({ ...s, ultimosCuatro: cleaned }));
+                }}
+                placeholder="6411"
+                className="text-center"
+              />
+            </div>
+          </div>
+
+          {/* Marca + Día corte + Día pago */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                Marca
+              </label>
+              <select
+                value={state.marcaTC ?? ''}
+                onChange={(e) =>
+                  setState((s) => ({
+                    ...s,
+                    marcaTC: (e.target.value || undefined) as
+                      | 'visa'
+                      | 'mastercard'
+                      | 'amex'
+                      | 'diners'
+                      | 'otro'
+                      | undefined,
+                  }))
+                }
+                className="w-full text-sm border border-slate-300 rounded px-3 py-1.5 bg-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              >
+                <option value="">— Selecciona —</option>
+                <option value="visa">Visa</option>
+                <option value="mastercard">Mastercard</option>
+                <option value="amex">American Express</option>
+                <option value="diners">Diners Club</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <TextField
+              label="Día de corte"
+              value={state.diaCorte?.toString() ?? ''}
+              onChange={(v) => {
+                const n = parseInt(v.replace(/\D/g, ''), 10);
+                setState((s) => ({
+                  ...s,
+                  diaCorte: isNaN(n) ? undefined : Math.max(1, Math.min(31, n)),
+                }));
+              }}
+              placeholder="1-31"
+              hint="Día del mes"
+            />
+            <TextField
+              label="Día de pago"
+              value={state.diaPago?.toString() ?? ''}
+              onChange={(v) => {
+                const n = parseInt(v.replace(/\D/g, ''), 10);
+                setState((s) => ({
+                  ...s,
+                  diaPago: isNaN(n) ? undefined : Math.max(1, Math.min(31, n)),
+                }));
+              }}
+              placeholder="1-31"
+              hint="Día del mes"
+            />
+          </div>
+
+          {/* Topes de control opcionales */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <TextField
+              label="Tope control USD"
+              value={state.topeControlUSD?.toString() ?? ''}
+              onChange={(v) => {
+                const n = parseFloat(v);
+                setState((s) => ({
+                  ...s,
+                  topeControlUSD: isNaN(n) ? undefined : n,
+                }));
+              }}
+              placeholder="ej: 5000"
+              hint="Alerta cuando el saldo de cargos supere"
+              optional
+            />
+            <TextField
+              label="Tope control PEN"
+              value={state.topeControlPEN?.toString() ?? ''}
+              onChange={(v) => {
+                const n = parseFloat(v);
+                setState((s) => ({
+                  ...s,
+                  topeControlPEN: isNaN(n) ? undefined : n,
+                }));
+              }}
+              placeholder="ej: 18000"
+              optional
+            />
+          </div>
+
+          {/* Cuenta default desde donde se paga */}
+          {cuentasAhorros.length > 0 && (
+            <Combobox
+              label="Cuenta default para pagar estado de cuenta"
+              value={state.cuentaPagoDefaultId}
+              onChange={(v) =>
+                setState((s) => ({ ...s, cuentaPagoDefaultId: v }))
+              }
+              groups={[
+                {
+                  options: cuentasAhorros.map((c) => ({
+                    value: c.id,
+                    label: c.nombre,
+                    subLabel: c.banco
+                      ? `${c.banco} · ${c.moneda}`
+                      : c.moneda,
+                  })),
+                },
+              ]}
+              placeholder="Sin cuenta default"
+              hint="Opcional · sugerencia al pagar el estado de cuenta"
+              emptyMessage="Sin cuentas disponibles"
+            />
+          )}
         </div>
       )}
 

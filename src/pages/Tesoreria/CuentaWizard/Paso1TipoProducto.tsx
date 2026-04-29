@@ -58,7 +58,7 @@ const TIPO_OPTIONS: Array<{
     value: 'credito',
     label: 'Crédito',
     icon: CreditCard,
-    hint: 'Tarjeta débito vinculada a una cuenta de ahorros',
+    hint: 'Tarjeta débito (vinculada a ahorros) o tarjeta de crédito',
     color: 'sky',
   },
 ];
@@ -228,6 +228,7 @@ const PRODUCTO_HINT: Record<ProductoFinancieroNuevo, string> = {
   cuenta_ahorros: 'Sin chequera, alta liquidez',
   cuenta_corriente: 'Con chequera, soporta sobregiro',
   tarjeta_debito: 'Plástico vinculado a ahorros',
+  tarjeta_credito: 'Línea de crédito · día de corte y pago',
   caja: 'Efectivo en custodia',
   mercadopago: 'PEN · Latam',
   paypal: 'USD principalmente',

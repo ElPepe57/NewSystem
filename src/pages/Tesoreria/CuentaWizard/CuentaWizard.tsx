@@ -23,7 +23,11 @@ import { Button } from '../../../components/common';
 import { useToastStore } from '../../../store/toastStore';
 import { useAuthStore } from '../../../store/authStore';
 import { tesoreriaService } from '../../../services/tesoreria.service';
-import { crearProductoFinanciero } from '../../../services/productoFinanciero.service';
+import {
+  crearProductoFinanciero,
+  actualizarProductoFinanciero,
+  getProductoFinanciero,
+} from '../../../services/productoFinanciero.service';
 import { findOrCreateRelacionBancaria } from '../../../services/relacionBancaria.service';
 import type {
   CuentaCajaFormData,
@@ -42,6 +46,7 @@ import {
   mapStateToFormData,
   mapStateToProductoFinancieroFormData,
   hidratarStateDesdeCuenta,
+  hidratarStateDesdeProductoFinanciero,
   type CuentaWizardState,
   type PasoCuentaWizard,
 } from './types';
@@ -153,14 +158,28 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
   const loading = internalLoading || !!isSubmitting;
 
   // ── Reset al abrir / hidratar si es edición ──
+  // F3c.6 · si la cuenta a editar es nativa (existe en productosFinancieros)
+  // hidratamos con campos del modelo nuevo (incluyendo TC). Si es legacy,
+  // hidratamos desde el shape CuentaCaja.
   useEffect(() => {
-    if (isOpen) {
-      setPaso(1);
-      setState(
-        cuentaEditar ? hidratarStateDesdeCuenta(cuentaEditar) : INITIAL_STATE,
-      );
-      setInternalLoading(false);
+    if (!isOpen) return;
+    setPaso(1);
+    setInternalLoading(false);
+
+    if (!cuentaEditar) {
+      setState(INITIAL_STATE);
+      return;
     }
+
+    // Hidratación legacy primero (síncrona, mejor UX)
+    setState(hidratarStateDesdeCuenta(cuentaEditar));
+
+    // Después intentar mejorar con datos nativos del modelo nuevo
+    void getProductoFinanciero(cuentaEditar.id).then((pf) => {
+      if (pf) {
+        setState(hidratarStateDesdeProductoFinanciero(pf));
+      }
+    });
   }, [isOpen, cuentaEditar]);
 
   // ── Validación del paso actual ──
@@ -207,13 +226,22 @@ export const CuentaWizard: React.FC<CuentaWizardProps> = ({
     setInternalLoading(true);
     try {
       if (modoEdicion && cuentaEditar) {
-        // EDICIÓN: por ahora sigue legacy hasta F3c. La cuenta vive en
-        // cuentasCaja, se actualiza ahí. F3c migra a productosFinancieros.
-        await tesoreriaService.actualizarCuenta(
-          cuentaEditar.id,
-          formData,
-          userId,
-        );
+        // F3c.6 · EDICIÓN INTELIGENTE
+        // Detecta si el producto vive en productosFinancieros (nativo) o
+        // en cuentasCaja (legacy) y actualiza en la colección correcta.
+        const pfExistente = await getProductoFinanciero(cuentaEditar.id);
+        if (pfExistente) {
+          // Nativo · modelo nuevo → actualizarProductoFinanciero
+          const pfData = mapStateToProductoFinancieroFormData(state);
+          await actualizarProductoFinanciero(cuentaEditar.id, pfData, userId);
+        } else {
+          // Legacy · cuentasCaja → flujo viejo
+          await tesoreriaService.actualizarCuenta(
+            cuentaEditar.id,
+            formData,
+            userId,
+          );
+        }
         toastSuccess(
           `Cuenta "${formData.nombre}" actualizada`,
           'Cambios guardados',

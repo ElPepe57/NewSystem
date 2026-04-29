@@ -763,10 +763,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         onGuardar={(data) => { handleGuardarCuentaNueva(data); setShowEfectivo(false); }} isSubmitting={isSubmitting}
         titularesExistentes={titularesExistentes} />
 
-      {/* CuentaWizard — F3b · ADR-PF-001 ·
-          Creación: persiste a productosFinancieros (camino self-contained
-          del wizard). Edición: sigue legacy con onGuardar hasta F3c.
-          La distinción se hace pasando onGuardar SOLO si hay cuentaEditando. */}
+      {/* CuentaWizard — F3c.5+6 · ADR-PF-001 ·
+          Toda la persistencia (creación + edición) va por el camino
+          self-contained del wizard, que detecta nativo vs legacy y
+          actualiza en la colección correcta. TabCuentas solo refresca al
+          recibir onSuccess. */}
       <CuentaWizard
         isOpen={showWizard}
         onClose={() => {
@@ -774,19 +775,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           setCuentaEditando(null);
         }}
         cuentaEditar={cuentaEditando}
-        onGuardar={
-          cuentaEditando
-            ? async (data, cuentaEditar) => {
-                if (cuentaEditar) {
-                  await handleGuardarEdicion(cuentaEditar, data);
-                }
-              }
-            : undefined
-        }
         onSuccess={() => {
-          // F3c · creación nativa al modelo nuevo. Refrescar la lista
-          // unificada (legacy + productosFinancieros). El wizard ya
-          // mostró su propio toast.
           void fetchCuentasUnificadas();
         }}
         isSubmitting={isSubmitting}

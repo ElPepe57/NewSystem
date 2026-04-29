@@ -41,6 +41,7 @@ export type ProductoFinancieroNuevo =
   | 'cuenta_ahorros'
   | 'cuenta_corriente'
   | 'tarjeta_debito'
+  | 'tarjeta_credito'              // F3c.5 · ADR-PF-001
   | 'caja'
   | 'mercadopago'
   | 'paypal'
@@ -55,13 +56,14 @@ export const PRODUCTOS_POR_TIPO: Record<TipoCuenta, ProductoFinancieroNuevo[]> =
   banco: ['cuenta_ahorros', 'cuenta_corriente'],
   digital: ['mercadopago', 'paypal', 'zelle', 'wise', 'binance'],
   efectivo: ['caja'],
-  credito: ['tarjeta_debito'],
+  credito: ['tarjeta_debito', 'tarjeta_credito'],   // F3c.5
 };
 
 export const PRODUCTO_LABEL: Record<ProductoFinancieroNuevo, string> = {
   cuenta_ahorros: 'Cuenta de ahorros',
   cuenta_corriente: 'Cuenta corriente',
   tarjeta_debito: 'Tarjeta débito',
+  tarjeta_credito: 'Tarjeta de crédito',
   caja: 'Efectivo',
   mercadopago: 'Mercado Pago',
   paypal: 'PayPal',
@@ -110,6 +112,15 @@ export interface CuentaWizardState {
   cci: string;
   cuentaVinculadaId: string;      // Para tarjeta_debito
 
+  // ── Tarjeta crédito (F3c.5 · ADR-PF-001) ──
+  // Solo aplica cuando productoFinanciero='tarjeta_credito'
+  marcaTC: 'visa' | 'mastercard' | 'amex' | 'diners' | 'otro' | undefined;
+  diaCorte: number | undefined;   // 1-31
+  diaPago: number | undefined;    // 1-31
+  topeControlUSD: number | undefined;
+  topeControlPEN: number | undefined;
+  cuentaPagoDefaultId: string;    // Cuenta default desde donde se paga estado de cuenta
+
   // ── Titularidad (intercalado en Paso 2 cuando aplica) ──
   titularidad: 'empresa' | 'personal';
   titularEntidadId: string;
@@ -140,6 +151,13 @@ export const INITIAL_STATE: CuentaWizardState = {
   numeroCuenta: '',
   cci: '',
   cuentaVinculadaId: '',
+
+  marcaTC: undefined,
+  diaCorte: undefined,
+  diaPago: undefined,
+  topeControlUSD: undefined,
+  topeControlPEN: undefined,
+  cuentaPagoDefaultId: '',
 
   titularidad: 'empresa',
   titularEntidadId: '',
@@ -190,6 +208,19 @@ export function validarPaso(
     if (state.tipo === 'credito' && state.productoFinanciero === 'tarjeta_debito') {
       if (!state.cuentaVinculadaId)
         errores.push('Vincula la tarjeta débito a una cuenta de ahorros');
+    }
+    // F3c.5 · validaciones tarjeta crédito
+    if (state.tipo === 'credito' && state.productoFinanciero === 'tarjeta_credito') {
+      if (!state.banco.trim())
+        errores.push('Indica el banco emisor de la tarjeta');
+      if (!state.ultimosCuatro.trim() || state.ultimosCuatro.length !== 4)
+        errores.push('Ingresa los últimos 4 dígitos de la tarjeta');
+      if (!state.marcaTC)
+        errores.push('Selecciona la marca (Visa/Mastercard/Amex/Diners)');
+      if (!state.diaCorte || state.diaCorte < 1 || state.diaCorte > 31)
+        errores.push('Día de corte debe estar entre 1 y 31');
+      if (!state.diaPago || state.diaPago < 1 || state.diaPago > 31)
+        errores.push('Día de pago debe estar entre 1 y 31');
     }
   }
 
@@ -354,6 +385,16 @@ export function hidratarStateDesdeCuenta(
     cci: cuenta.cci ?? '',
     cuentaVinculadaId: cuenta.cuentaVinculadaId ?? '',
 
+    // F3c.5 · campos tarjeta crédito (no existen en CuentaCaja legacy
+    // — se hidratan desde un ProductoFinanciero real en la edición
+    // inteligente del wizard).
+    marcaTC: undefined,
+    diaCorte: undefined,
+    diaPago: undefined,
+    topeControlUSD: undefined,
+    topeControlPEN: undefined,
+    cuentaPagoDefaultId: '',
+
     titularidad: cuenta.titularidad ?? 'empresa',
     titularEntidadId: cuenta.titularEntidadId ?? '',
     titularEntidadTipo: cuenta.titularEntidadTipo,
@@ -378,6 +419,7 @@ export function hidratarStateDesdeCuenta(
 // ═════════════════════════════════════════════════════════════════════════
 
 import type {
+  ProductoFinanciero,
   ProductoFinancieroFormData,
   TipoProductoFinanciero,
   ProveedorWallet,
@@ -438,6 +480,20 @@ export function mapStateToProductoFinancieroFormData(
     data.cuentaVinculadaId = state.cuentaVinculadaId;
   }
 
+  // Tarjeta crédito (F3c.5)
+  if (tipoProducto === 'tarjeta_credito') {
+    if (state.ultimosCuatro.trim()) data.ultimosDigitos = state.ultimosCuatro.trim();
+    if (state.marcaTC) data.marca = state.marcaTC;
+    if (state.diaCorte) data.diaCorte = state.diaCorte;
+    if (state.diaPago) data.diaPago = state.diaPago;
+    if (state.topeControlUSD !== undefined)
+      data.topeControlUSD = state.topeControlUSD;
+    if (state.topeControlPEN !== undefined)
+      data.topeControlPEN = state.topeControlPEN;
+    if (state.cuentaPagoDefaultId)
+      data.cuentaPagoDefaultId = state.cuentaPagoDefaultId;
+  }
+
   // Wallet digital: proveedor (PayPal, Wise, etc.)
   if (tipoProducto === 'wallet_digital' && state.productoFinanciero) {
     data.proveedorWallet = mapearProveedorWalletDesdeProductoLegacy(
@@ -480,6 +536,7 @@ function inferirTipoProducto(state: CuentaWizardState): TipoProductoFinanciero {
     case 'cuenta_ahorros':   return 'cuenta_ahorros';
     case 'cuenta_corriente': return 'cuenta_corriente';
     case 'tarjeta_debito':   return 'tarjeta_debito';
+    case 'tarjeta_credito':  return 'tarjeta_credito';   // F3c.5
     case 'caja':             return 'caja_efectivo';
     case 'mercadopago':
     case 'paypal':
@@ -507,5 +564,88 @@ function mapearProveedorWalletDesdeProductoLegacy(
     case 'wise':        return 'wise';
     case 'binance':     return 'binance';
     default:            return undefined;
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// HIDRATACIÓN DESDE ProductoFinanciero (F3c.6 · edición nativa)
+// ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * Construye el state inicial del wizard desde un ProductoFinanciero del
+ * modelo nuevo. Usado en el modo edición cuando la cuenta a editar es
+ * nativa (existe en productosFinancieros).
+ *
+ * Reverse mapping de tipoProducto → tipo legacy + productoFinanciero.
+ */
+export function hidratarStateDesdeProductoFinanciero(
+  pf: ProductoFinanciero,
+): CuentaWizardState {
+  const { tipo, productoFinanciero } = mapearTipoProductoAlegacy(pf);
+
+  // Saldos según mono/bi-moneda
+  const saldoInicial = pf.esBiMoneda ? 0 : pf.saldoActual;
+
+  // Canales digitales
+  const canalesDigitales: CuentaWizardState['canalesDigitales'] =
+    pf.canalesDigitales?.map((c) => ({
+      tipo: c.tipo as TipoCanalDigital,
+      identificador: c.identificador,
+    })) ?? [];
+
+  return {
+    tipo,
+    productoFinanciero,
+
+    banco: pf.banco ?? '',
+    bancoNombreCompleto: pf.bancoNombreCompleto ?? '',
+    nombre: pf.nombre,
+    ultimosCuatro: pf.ultimosDigitos ?? '',
+    numeroCuenta: pf.numeroCuenta ?? '',
+    cci: pf.cci ?? '',
+    cuentaVinculadaId: pf.cuentaVinculadaId ?? '',
+
+    // Tarjeta crédito
+    marcaTC: pf.marca,
+    diaCorte: pf.diaCorte,
+    diaPago: pf.diaPago,
+    topeControlUSD: pf.topeControlUSD,
+    topeControlPEN: pf.topeControlPEN,
+    cuentaPagoDefaultId: pf.cuentaPagoDefaultId ?? '',
+
+    titularidad: pf.titularidad,
+    titularEntidadId: pf.titularEntidadId ?? '',
+    titularEntidadTipo: pf.titularEntidadTipo,
+    titularNombre: pf.titularNombre ?? 'Vita Skin Peru SAC',
+
+    esBiMoneda: pf.esBiMoneda,
+    moneda: pf.moneda,
+    saldoInicial,
+    saldoInicialUSD: pf.saldoUSD ?? 0,
+    saldoInicialPEN: pf.saldoPEN ?? 0,
+
+    metodosDisponibles: (pf.metodosDisponibles ?? []) as MetodoTesoreria[],
+    canalesDigitales,
+    esCuentaPorDefecto: pf.esCuentaPorDefecto ?? false,
+  };
+}
+
+/**
+ * Mapping inverso: ProductoFinanciero.tipoProducto → wizard.tipo + productoFinanciero
+ */
+function mapearTipoProductoAlegacy(pf: ProductoFinanciero): {
+  tipo: TipoCuenta;
+  productoFinanciero: ProductoFinancieroNuevo | undefined;
+} {
+  switch (pf.tipoProducto) {
+    case 'cuenta_corriente': return { tipo: 'banco', productoFinanciero: 'cuenta_corriente' };
+    case 'cuenta_ahorros':   return { tipo: 'banco', productoFinanciero: 'cuenta_ahorros' };
+    case 'tarjeta_debito':   return { tipo: 'credito', productoFinanciero: 'tarjeta_debito' };
+    case 'tarjeta_credito':  return { tipo: 'credito', productoFinanciero: 'tarjeta_credito' };
+    case 'caja_efectivo':    return { tipo: 'efectivo', productoFinanciero: 'caja' };
+    case 'wallet_digital': {
+      const productoFinanciero = (pf.proveedorWallet ?? 'mercadopago') as ProductoFinancieroNuevo;
+      return { tipo: 'digital', productoFinanciero };
+    }
   }
 }
