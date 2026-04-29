@@ -27,9 +27,9 @@ El momento es ideal: la funcionalidad de tesoreria tiene uso real limitado (no h
 
 Una sola coleccion `productosFinancieros` con discriminator `tipoProducto`. Reemplaza `cuentasCaja` + `tarjetasCredito`.
 
-Tipos: `cuenta_corriente`, `cuenta_ahorros`, `tarjeta_credito`, `tarjeta_debito`, `caja_efectivo`, `wallet_digital` (PayPal, Wise, MercadoPago, Zelle, Binance), `wallet_local` (Yape, Plin -- modelados como productos independientes, NO como canales).
+Tipos: `cuenta_corriente`, `cuenta_ahorros`, `tarjeta_credito`, `tarjeta_debito`, `caja_efectivo`, `wallet_digital` (PayPal, Wise, MercadoPago, Zelle, Binance — saldo propio independiente del banco).
 
-**Racional:** Yape/Plin hoy se modelan como "canalesDigitales" adosados a una cuenta bancaria, pero el usuario los opera como entidades con saldo rastreable. Consolidarlos como `wallet_local` simplifica la UX sin inventar un tercer modelo.
+**Racional:** Yape/Plin/SIP/Agora/BIM operativamente NO tienen saldo propio — comparten el saldo de la cuenta banco padre (Yape vive en BCP, Plin en IBK, SIP en Financiera Oh, etc.). Por eso se modelan como `canalesDigitales[]` adosados al ProductoFinanciero tipo banco, no como producto separado. La trazabilidad por canal preferido (BI: "qué medios usa el cliente") se resuelve con el campo `MovimientoFinanciero.canalUtilizado`. Resolución de P-1 (Opción C).
 
 ### D-PF-2 -- Vinculo titular - banco - productos (`RelacionBancaria`)
 
@@ -64,18 +64,41 @@ Borrar `productosFinancieros` (si existe) / `cuentasCaja` / `tarjetasCredito` / 
 ### 3.1 ProductoFinanciero
 
 ```ts
+// Resolucion P-1 (Opcion C): Yape/Plin/SIP/Agora/BIM NO son productos
+// independientes -- son CANALES adosados a una cuenta banco. Solo wallets
+// con saldo PROPIO independiente del banco son `wallet_digital` (PayPal,
+// Wise, MercadoPago, Zelle, Binance).
 export type TipoProductoFinanciero =
   | 'cuenta_corriente'
   | 'cuenta_ahorros'
   | 'tarjeta_credito'
   | 'tarjeta_debito'
   | 'caja_efectivo'
-  | 'wallet_digital'   // PayPal, Wise, MercadoPago, Zelle, Binance
-  | 'wallet_local';    // Yape, Plin
+  | 'wallet_digital';   // PayPal, Wise, MercadoPago, Zelle, Binance (saldo propio)
 
 export type ProveedorWallet =
-  | 'paypal' | 'wise' | 'mercadopago' | 'zelle' | 'binance'
-  | 'yape' | 'plin';
+  | 'paypal' | 'wise' | 'mercadopago' | 'zelle' | 'binance';
+
+// Canales digitales locales (Yape, Plin, etc.) = adosados a cuenta banco.
+// Cada tipo de canal pertenece a UN banco especifico (invariante operativo).
+export type TipoCanalDigital = 'yape' | 'plin' | 'sip' | 'agora' | 'bim';
+
+/**
+ * Mapeo canal -> banco al que SOLO puede adosarse.
+ * Validacion: un ProductoFinanciero con canal `yape` debe tener
+ * `relacionBancaria.banco === 'BCP'`. Si no coincide, error en form.
+ */
+export const CANAL_BANCO_MAP: Record<TipoCanalDigital, string> = {
+  yape:  'BCP',             // Banco de Credito del Peru
+  plin:  'IBK',             // Interbank
+  sip:   'Financiera Oh',   // Financiera Oh
+  agora: 'AGORA',           // REQUIERE CONFIRMACION DEL USUARIO en F1
+  bim:   'BIM',             // REQUIERE CONFIRMACION DEL USUARIO en F1
+};
+
+// Multiples canales pueden compartir mismo titular + numero de telefono
+// (ej: el mismo numero 999111222 vinculado a Yape de BCP-A y Plin de IBK-A).
+// La unicidad operativa NO es por numero, es por (banco, numero).
 
 export type MarcaTarjeta = 'visa' | 'mastercard' | 'amex' | 'diners' | 'otro';
 export type TitularidadPF = 'empresa' | 'personal';
@@ -137,8 +160,14 @@ export interface ProductoFinanciero {
   // -- Metodos de pago que acepta --
   metodosDisponibles?: string[];
 
-  // -- Canales digitales adosados (Yape/Plin SOBRE una cuenta banco) --
-  canalesDigitales?: Array<{ tipo: string; identificador: string }>;
+  // -- Canales digitales adosados (Yape/Plin/SIP/Agora/BIM SOBRE cuenta banco) --
+  // Solo aplica a productos tipo cuenta_corriente / cuenta_ahorros.
+  // Cada canal debe coincidir con CANAL_BANCO_MAP[tipo] === relacionBancaria.banco.
+  canalesDigitales?: Array<{
+    tipo: TipoCanalDigital;
+    identificador: string;     // Numero telefono / alias
+    titular?: string;          // Display titular del canal (puede ser distinto al de la cuenta)
+  }>;
 
   // -- Estado --
   activa: boolean;
@@ -229,6 +258,16 @@ export interface MovimientoFinanciero {
   // Metodo y referencia
   metodo?: string;
   referencia?: string;
+
+  // Canal especifico utilizado (resolucion P-1 / D-S58-CANAL).
+  // Permite a BI reportar "que medios prefieren los clientes" sin tener
+  // que crear productos fantasma para Yape/Plin/SIP/Agora/BIM.
+  // Vacio cuando aplica solo `metodo` (transferencia bancaria, efectivo, etc.).
+  canalUtilizado?:
+    | 'yape' | 'plin' | 'sip' | 'agora' | 'bim'      // wallet local
+    | 'transferencia_bancaria' | 'cheque' | 'efectivo'
+    | 'tarjeta_fisica' | 'pos' | 'link_pago'
+    | 'paypal' | 'wise' | 'mercadopago' | 'zelle' | 'binance';
 
   // Documentos relacionados (polimorficos)
   refDocumentoTipo?: 'oc' | 'venta' | 'gasto' | 'envio' | 'cotizacion' | 'boleta' | 'conversion' | 'cargo_tc' | 'pago_tc' | 'lote_masivo';
@@ -573,10 +612,24 @@ erDiagram
 
 ---
 
-## 14. Preguntas abiertas (REQUIERE DECISION DEL USUARIO)
+## 14. Preguntas abiertas -- TODAS RESUELTAS
 
-1. **wallet_local como producto independiente vs canal:** Yape/Plin hoy se modelan como `canalesDigitales` adosados a una cuenta BCP. En el nuevo modelo, propongo que `wallet_local` sea un `ProductoFinanciero` independiente con su propio saldo (porque el usuario los opera como cuentas con saldo rastreable). Pero si el usuario prefiere mantenerlos SOLO como canal (sin saldo propio), el tipo `wallet_local` se elimina y se mantiene el array `canalesDigitales` en el PF tipo banco. Confirmar cual.
+**P-1 · wallet_local como producto independiente vs canal** -- RESUELTA: Opcion C
+> Yape/Plin/SIP/Agora/BIM NO son productos independientes -- son CANALES adosados a
+> una cuenta banco. Cada tipo de canal pertenece a UN banco especifico (CANAL_BANCO_MAP).
+> El saldo es uno solo, el de la cuenta padre.
+> Se agrega `MovimientoFinanciero.canalUtilizado` para que BI pueda reportar "que
+> medios prefieren los clientes" sin inventar productos fantasma.
+> Multiples canales pueden compartir mismo titular + numero de telefono (un mismo
+> numero 999111222 puede ser Yape de BCP-A y Plin de IBK-A simultaneamente).
 
-2. **Scope de `ConversionCambiaria`:** Hoy vive en su propia coleccion. Se absorbe como un par de `MovimientoFinanciero` (conversion_entrada + conversion_salida) o se mantiene como entidad separada con FK al par de movimientos? Recomendacion: absorber.
+**P-2 · Scope de `ConversionCambiaria`** -- RESUELTA: Absorber
+> Se absorbe como un par de `MovimientoFinanciero` con categorias
+> `conversion_salida` (USD) + `conversion_entrada` (PEN) vinculados por
+> `idempotencyKey` comun. No se mantiene coleccion separada.
 
-3. **`DatoBancarioPasivo` en fichas de terceros:** Este tipo (datos bancarios de proveedores/clientes para pagarles/cobrarles) NO se toca en este refactor -- solo son "contacto bancario" sin saldo. Confirmar que no entra en scope.
+**P-3 · `DatoBancarioPasivo` en fichas de terceros** -- RESUELTA: Fuera de scope
+> Confirmado: solo es "contacto bancario" sin saldo en nuestro sistema.
+> No entra en este refactor.
+
+**Sin preguntas abiertas. ADR pasa a estado: ACEPTADO.**
