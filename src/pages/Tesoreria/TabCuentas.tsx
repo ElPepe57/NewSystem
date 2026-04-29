@@ -26,6 +26,9 @@ import { EditarMetodosBancoModal } from './EditarMetodosBancoModal';
 import { DigitalForm } from './DigitalForm';
 import { EfectivoForm } from './EfectivoForm';
 import { CuentaWizard } from './CuentaWizard';
+import { VistaPorTitular } from './VistaPorTitular';
+import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
+import { TarjetaDetailModal } from './TarjetasCreditoV2';
 import type {
   MovimientoTesoreria,
   CuentaCaja,
@@ -79,6 +82,21 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
   const [showMetodos, setShowMetodos] = useState(false);
   const [bancoParaMetodos, setBancoParaMetodos] = useState('');
   const [metodosActuales, setMetodosActuales] = useState<string[]>([]);
+
+  // S58c parte 2 — Toggle vista (por tipo / por titular)
+  const [vista, setVista] = useState<'tipo' | 'titular'>('titular');
+  const tarjetas = useTarjetaCreditoStore((s) => s.tarjetas);
+  const fetchTarjetas = useTarjetaCreditoStore((s) => s.fetchTarjetas);
+  const [tarjetaDetalle, setTarjetaDetalle] = useState<
+    import('../../types/tarjetaCredito.types').TarjetaCredito | null
+  >(null);
+
+  // Cargar tarjetas si la vista por titular las necesita y no están cargadas
+  React.useEffect(() => {
+    if (vista === 'titular' && tarjetas.length === 0) {
+      void fetchTarjetas();
+    }
+  }, [vista, tarjetas.length, fetchTarjetas]);
 
   // Agrupar cuentas
   const { bancos, digitales, efectivo } = useMemo(() => {
@@ -271,9 +289,38 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
       <Card padding="none">
         {/* Header */}
         <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-            Cuentas de Caja ({cuentas.length})
-          </h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">
+              Cuentas de Caja ({cuentas.length})
+            </h3>
+            {/* Toggle vista */}
+            <div className="flex bg-slate-100 rounded-md p-0.5 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setVista('titular')}
+                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                  vista === 'titular'
+                    ? 'bg-white text-teal-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+                title="Agrupar por titular (empresa, empleados, etc.)"
+              >
+                Por titular
+              </button>
+              <button
+                type="button"
+                onClick={() => setVista('tipo')}
+                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                  vista === 'tipo'
+                    ? 'bg-white text-teal-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+                title="Agrupar por tipo de producto (banco, digital, efectivo)"
+              >
+                Por tipo
+              </button>
+            </div>
+          </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="primary-soft"
@@ -299,6 +346,21 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         </div>
 
         <div className="p-4 sm:p-6 space-y-4">
+          {/* ==================== VISTA POR TITULAR (S58c parte 2) ==================== */}
+          {vista === 'titular' && (
+            <VistaPorTitular
+              cuentas={cuentas}
+              tarjetas={tarjetas}
+              onCuentaClick={(c) =>
+                setCuentaDetalle(cuentaDetalle?.id === c.id ? null : c)
+              }
+              onTarjetaClick={(t) => setTarjetaDetalle(t)}
+            />
+          )}
+
+          {/* ==================== VISTA POR TIPO DE PRODUCTO (legacy) ==================== */}
+          {vista === 'tipo' && (
+            <>
           {/* ==================== SECCIÓN BANCOS ==================== */}
           <FormSection
             title="Bancos"
@@ -434,6 +496,8 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
               </div>
             )}
           </FormSection>
+            </>
+          )}
         </div>
 
         {/* ==================== DETALLE MOVIMIENTOS ==================== */}
@@ -695,6 +759,13 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           await handleGuardarCuentaNueva(data);
         }}
         isSubmitting={isSubmitting}
+      />
+
+      {/* S58c parte 2 — Detalle de tarjeta (cuando se click una TC en vista por titular) */}
+      <TarjetaDetailModal
+        isOpen={!!tarjetaDetalle}
+        onClose={() => setTarjetaDetalle(null)}
+        tarjeta={tarjetaDetalle}
       />
     </>
   );
