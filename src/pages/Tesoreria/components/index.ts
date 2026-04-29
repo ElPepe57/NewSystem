@@ -35,3 +35,9 @@ export {
   calcularEstadoSaldo,
 } from './SaldoAlertChip';
 export type { SaldoAlertChipProps, SaldoEstado } from './SaldoAlertChip';
+
+export { MovimientosKpiRow } from './MovimientosKpiRow';
+export type { MovimientosKpiRowProps } from './MovimientosKpiRow';
+
+export { MovimientosBreakdown } from './MovimientosBreakdown';
+export type { MovimientosBreakdownProps } from './MovimientosBreakdown';

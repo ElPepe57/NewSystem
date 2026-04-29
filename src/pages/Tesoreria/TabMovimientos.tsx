@@ -20,6 +20,7 @@ import {
   Coins,
   ArrowLeftRight,
   Check,
+  Wallet,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
 import {
@@ -48,6 +49,7 @@ import type { CuentaCorriente } from '../../types/cuentaCorriente.types';
 import { EntidadCCDrawer } from '../Finanzas/components/EntidadCCDrawer';
 import { EntidadCCDetailModal } from '../Finanzas/components/EntidadCCDetailModal';
 import { PagoAbonoWizard } from '../Finanzas/components/PagoAbonoWizard';
+import { MovimientosKpiRow, MovimientosBreakdown } from './components';
 
 interface TabMovimientosProps {
   movimientosFiltrados: MovimientoTesoreria[];
@@ -438,6 +440,26 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
   return (
     <>
+      {/* ─── Imp-L6 · Header banking-grade S58e M6 ─────────────────── */}
+      <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <Wallet className="w-6 h-6 text-teal-600" />
+            Movimientos
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Libro mayor unificado · {movsRender.length} {movsRender.length === 1 ? 'movimiento' : 'movimientos'}
+          </p>
+        </div>
+      </div>
+
+      {/* KPI row del periodo · Imp-L6 */}
+      <MovimientosKpiRow movimientos={movsRender} tipoCambio={tcDefault} />
+
+      {/* Layout principal: contenido + sidebar donut */}
+      <div className="flex gap-4 items-start flex-col lg:flex-row mb-4">
+        <div className="flex-1 min-w-0 w-full">
+
       <Card padding="none">
         <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center gap-3 flex-wrap">
@@ -704,6 +726,14 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
           />
         </div>
       </Card>
+
+        {/* fin contenido principal · cierra <div className="flex-1 ...> */}
+        </div>
+
+        {/* Sidebar donut breakdown · Imp-L6 */}
+        <MovimientosBreakdown movimientos={movsRender} tipoCambio={tcDefault} />
+      {/* cierra <div className="flex gap-4 ..."> */}
+      </div>
 
       {/* Modal Nuevo/Editar Movimiento — S58 Fase 1 con FormModalV2 */}
       <FormModalV2
