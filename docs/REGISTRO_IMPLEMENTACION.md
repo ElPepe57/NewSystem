@@ -294,6 +294,61 @@ PagoUnificadoResult {
 
 **Documentacion:** `docs/mockups/gastoform-v2-3-niveles-s58f.html` · 6 vistas · style canonico Vista 8 · cite ACUERDOS_REINGENIERIA_2026-04-10 seccion 5 (3 cajas) y seccion 6 (categorias pre-pobladas).
 
+### TAREA-GASTOS-PAGE-V2 · Pagina completa de Gastos rediseñada ⭐ DECLARADA
+
+**Origen:** Sesion S58f post-cierre · 1 may 2026 · feedback del usuario tras revisar M-GASTOFORM-V2: *"Como quedaria la implementacion completa de la seccion como tal, porque no se trata de solo ese apartado, sino es toda la pagina completa de gastos y sus complementos."*
+
+**Contexto:** TAREA-GASTOFORM-V2 cubre el FORM (3 niveles) + maestros + detalle individual del gasto. Pero NO cubre la pagina principal `/gastos`: hero ejecutivo, KPIs del modulo, filtros, listado completo, vistas alternativas, acciones masivas, drawer lateral, integraciones con otros modulos, ni empty state.
+
+**Lo que cubre esta tarea (9 vistas):**
+
+| Vista | Contenido |
+|-------|-----------|
+| 1 | Hero ejecutivo · 5 KPI cards anchored + 3 insights automaticos |
+| 2 | Listado principal · FiltrosFinanzasBar canonico (6ª ref S58e) + cards anchored |
+| 3 | Vista por Bloque · 3 tabs grandes (Importacion/Venta/Periodo) con KPIs |
+| 4 | Vista calendario · grid mensual con dots de color por bloque + cards anchored del dia seleccionado |
+| 5 | Vista por Proveedor · agrupado con sparklines 12m por proveedor |
+| 6 | Acciones masivas · multi-select + bulk pay + re-categorizar + exportar + preview |
+| 7 | Drawer lateral · sticky con urgentes (Linear-style stack reorderable drag&drop) |
+| 8 | Mapa de integracion · grafo SVG con 7 modulos relacionados (Tesoreria/Maestros/RedLog/Envios/Ventas/Planilla/BI) |
+| 9 | Empty state · 3 sugerencias de primer gasto + checklist pre-requisitos |
+
+**Solucion propuesta · 5 fases · ~5 sesiones:**
+
+| Fase | Esfuerzo | Que incluye |
+|------|----------|-------------|
+| F1 | 1 ses | Hero ejecutivo: 5 KPI cards anchored + insights del sistema (banner alerta/tendencia/ahorro) |
+| F2 | 1 ses | Adoptar FiltrosFinanzasBar canonico (6ª referencia · S58e) · chips bloque/estado/periodo + busqueda + orden |
+| F3 | 1.5 ses | Reemplazar tabla por cards anchored + 4 vistas alternativas (toggle vista en toolbar) |
+| F4 | 1 ses | Bulk actions multi-select + drawer lateral sticky urgentes + empty state con onboarding |
+| F5 | 0.5 ses | Atajos contextuales a 7 modulos al pie + breadcrumbs + nav |
+
+**8 decisiones canonicas declaradas D-GP-1 a D-GP-8:**
+- D-GP-1 · Hero con 5 KPIs como AnchoredCard expandida con sparkline · gradient hero del modulo (orange-amber)
+- D-GP-2 · FiltrosFinanzasBar como unica toolbar (NO sidebars con filtros)
+- D-GP-3 · 5 modos de vista en toolbar (Lista/Bloque/Calendario/Proveedor/P&L 3 niveles)
+- D-GP-4 · Cards de gasto en listado (NO tabla cruda) · estados con paleta semantica
+- D-GP-5 · Drawer lateral sticky con urgentes · Linear-style reorderable
+- D-GP-6 · Bulk actions con preview de impacto · pagar 3 = 3 movimientos individuales (NO agregado)
+- D-GP-7 · Empty state con 3 sugerencias de primer gasto + checklist pre-requisitos
+- D-GP-8 · Atajos visuales a 7 modulos relacionados (cierra el circulo del sistema)
+
+**Coordinacion con otras tareas:**
+- **Pre-requisito:** TAREA-GASTOFORM-V2 cerrada (sin modelo correcto los KPIs y reportes hay que rehacerlos)
+- **Hereda:** F2 de TAREA-PROVEEDOR-GASTOS (commit `a254a0f` · ProveedorForm inline ya disponible)
+- **Habilita:** F3+F4+F5 de TAREA-PROVEEDOR-GASTOS pueden ejecutarse en paralelo o despues (card detalle ya queda en F4 de esta tarea)
+
+**Stack final tras estas 3 tareas combinadas:**
+1. TAREA-GASTOFORM-V2 (~2h) → modelo correcto de 3 niveles
+2. TAREA-GASTOS-PAGE-V2 (~5 ses) → pagina completa rediseñada
+3. TAREA-PROVEEDOR-GASTOS F4+F5 (~1.5h) → reportes BI + backfill proveedores
+**Total combinado:** ~8 sesiones de implementacion · sin breaking · todas backwards-compatible.
+
+**Estado:** declarada · pendiente ejecucion · prioridad media (despues de GASTOFORM-V2).
+
+**Documentacion:** `docs/mockups/gastos-page-completa-s58f.html` · 9 vistas · style canonico aplicado al 100% (Vista 8 de M-MAPA-VENTAS · 8 reglas del M-VENTAS-DESIGN-CANONICO).
+
 ### Tarea pendiente registrada
 
 **TAREA-LOTE-7:** completar el ultimo mockup antes de tocar codigo
