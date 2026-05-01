@@ -1555,6 +1555,52 @@ export const Gastos: React.FC = () => {
         </div>
       )}
 
+      {/* TAREA-GASTOS-PAGE-V2 F5 · Integraciones · atajos a 7 modulos relacionados */}
+      <div className="bg-gradient-to-br from-slate-50 to-orange-50/30 rounded-2xl border border-slate-200 p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-base">🔗</span>
+          <h3 className="text-sm font-bold text-slate-900">Integraciones · módulos relacionados con Gastos</h3>
+          <span className="text-[11px] text-slate-500 italic">Cierre del círculo del sistema</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          <a href="/tesoreria" className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">💸</div>
+            <div className="text-xs font-bold text-emerald-900">Tesorería</div>
+            <div className="text-[10px] text-emerald-700">Pagar gasto</div>
+          </a>
+          <a href="/maestros" className="bg-purple-50 border border-purple-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">📂</div>
+            <div className="text-xs font-bold text-purple-900">Maestros</div>
+            <div className="text-[10px] text-purple-700">Categorías</div>
+          </a>
+          <a href="/red-logistica" className="bg-blue-50 border border-blue-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🏭</div>
+            <div className="text-xs font-bold text-blue-900">Red Log.</div>
+            <div className="text-[10px] text-blue-700">Proveedores</div>
+          </a>
+          <a href="/envios" className="bg-indigo-50 border border-indigo-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">📦</div>
+            <div className="text-xs font-bold text-indigo-900">Envíos</div>
+            <div className="text-[10px] text-indigo-700">CTRU</div>
+          </a>
+          <a href="/ventas" className="bg-pink-50 border border-pink-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">🛒</div>
+            <div className="text-xs font-bold text-pink-900">Ventas</div>
+            <div className="text-[10px] text-pink-700">Comisiones</div>
+          </a>
+          <a href="/planilla" className="bg-rose-50 border border-rose-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">👥</div>
+            <div className="text-xs font-bold text-rose-900">Planilla</div>
+            <div className="text-[10px] text-rose-700">Sueldos</div>
+          </a>
+          <a href="/finanzas" className="bg-teal-50 border border-teal-200 rounded-xl p-3 hover:shadow-md transition-shadow text-center group">
+            <div className="text-2xl mb-1 group-hover:scale-110 transition-transform">📊</div>
+            <div className="text-xs font-bold text-teal-900">BI</div>
+            <div className="text-[10px] text-teal-700">P&L 3 niveles</div>
+          </a>
+        </div>
+      </div>
+
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
     </PageShell>
