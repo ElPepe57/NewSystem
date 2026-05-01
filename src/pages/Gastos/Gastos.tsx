@@ -21,6 +21,7 @@ import type { BloqueCosto } from '../../types/categoriaCosto.types';
 import { FiltrosGastosBar, type OrdenGasto } from './components/FiltrosGastosBar';
 import { GastoCardCanonico } from './components/GastoCardCanonico';
 import { DrawerUrgentes } from './components/DrawerUrgentes';
+import { ReportesGastosBI } from './components/ReportesGastosBI';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -63,6 +64,8 @@ export const Gastos: React.FC = () => {
   // F4.a · Bulk actions
   const [bulkMode, setBulkMode] = useState(false);
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
+  // PROVEEDOR-GASTOS F4 · toggle de vista (listado vs reportes BI)
+  const [vistaActiva, setVistaActiva] = useState<'listado' | 'reportes'>('listado');
 
   // Filtrar gastos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
   const gastosPorLinea = useLineaFilter(gastos, g => g.lineaNegocioId, { allowUndefined: true });
@@ -782,7 +785,44 @@ export const Gastos: React.FC = () => {
         }
       />
 
-      {/* Navegador de Período */}
+      {/* TAREA-PROVEEDOR-GASTOS F4 \u00b7 Toggle de vista \u00b7 Listado / Reportes BI */}
+      <div className="bg-white rounded-xl border border-slate-200 p-1 inline-flex gap-1 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setVistaActiva('listado')}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+            vistaActiva === 'listado'
+              ? 'bg-amber-100 text-amber-800 ring-2 ring-amber-300'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          \ud83d\udccb Listado
+        </button>
+        <button
+          type="button"
+          onClick={() => setVistaActiva('reportes')}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+            vistaActiva === 'reportes'
+              ? 'bg-purple-100 text-purple-800 ring-2 ring-purple-300'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          \ud83d\udcca Reportes BI
+        </button>
+      </div>
+
+      {/* Si vista = reportes \u00b7 render el componente y oculta TODO el flujo de listado */}
+      {vistaActiva === 'reportes' && (
+        <ReportesGastosBI
+          gastos={gastosPorLinea}
+          arbolCategorias={arbolCategorias}
+        />
+      )}
+
+      {/* TODO el flujo de listado se renderiza solo cuando vistaActiva === 'listado' (cada bloque top-level abajo tiene la condicion) */}
+
+      {/* Navegador de Período · solo listado */}
+      {vistaActiva === 'listado' && (
       <Card padding="md">
         <div className="flex flex-col gap-3">
           {/* Row 1: Tabs + month nav / label */}
@@ -872,9 +912,10 @@ export const Gastos: React.FC = () => {
           </div>
         </div>
       </Card>
+      )}
 
       {/* TAREA-GASTOS-PAGE-V2 F1 · Hero ejecutivo · 5 KPI cards anchored + insights */}
-      {stats && (
+      {vistaActiva === 'listado' && stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
 
           {/* KPI 1 · Total mes con variacion */}
@@ -980,7 +1021,7 @@ export const Gastos: React.FC = () => {
       )}
 
       {/* Insights automáticos del sistema · 3 banners contextuales */}
-      {stats && (heroKpis.vencidos.length > 0 || heroKpis.vencenPronto.length > 0 || stats.variacionVsMesAnterior !== 0) && (
+      {vistaActiva === 'listado' && stats && (heroKpis.vencidos.length > 0 || heroKpis.vencenPronto.length > 0 || stats.variacionVsMesAnterior !== 0) && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Insight 1 · Vencidos */}
           {heroKpis.vencidos.length > 0 ? (
@@ -1047,6 +1088,9 @@ export const Gastos: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Wrap todo el resto del listado · solo cuando vistaActiva === 'listado' */}
+      {vistaActiva === 'listado' && (<>
 
       {/* Tabs de Categoría: Gastos del Negocio / Costos de Importación / Pérdidas */}
       <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1 overflow-x-auto scrollbar-hide">
@@ -1600,6 +1644,8 @@ export const Gastos: React.FC = () => {
           </a>
         </div>
       </div>
+
+      </>)}{/* Cierre del wrap vistaActiva === 'listado' */}
 
       {/* Dialogo de Confirmacion */}
       <ConfirmDialog {...dialogProps} />
