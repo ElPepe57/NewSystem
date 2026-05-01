@@ -438,6 +438,64 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     ? arbolCategorias[bloqueSeleccionado]?.hijos?.[categoriaPadreId] ?? []
     : [];
 
+  // ── F3 · Inline create de categoria/subcategoria (D-INLINE-8) ──
+  const crearCategoriaStore = useCategoriaCostoStore((s) => s.crearCategoria);
+  const [showCategoriaInline, setShowCategoriaInline] = useState<null | 'padre' | 'subcategoria'>(null);
+  const [nuevaCategoriaNombre, setNuevaCategoriaNombre] = useState('');
+  const [loadingCategoriaInline, setLoadingCategoriaInline] = useState(false);
+
+  const handleCrearCategoriaInline = async () => {
+    if (!user?.uid) {
+      toast.error('No se pudo identificar al usuario');
+      return;
+    }
+    if (!bloqueSeleccionado) {
+      toast.warning('Selecciona primero el bloque');
+      return;
+    }
+    if (!nuevaCategoriaNombre.trim()) {
+      toast.warning('Ingresa el nombre de la categoria');
+      return;
+    }
+    if (showCategoriaInline === 'subcategoria' && !categoriaPadreId) {
+      toast.warning('Selecciona primero la categoria padre');
+      return;
+    }
+    try {
+      setLoadingCategoriaInline(true);
+      const nivel = showCategoriaInline === 'subcategoria' ? 1 : 0;
+      const orden = showCategoriaInline === 'subcategoria'
+        ? (subcategoriasDelPadre.length + 1) * 10
+        : (categoriasPadreDelBloque.length + 1) * 10;
+      const newId = await crearCategoriaStore(
+        {
+          nombre: nuevaCategoriaNombre.trim(),
+          bloque: bloqueSeleccionado,
+          categoriaPadreId: showCategoriaInline === 'subcategoria' ? (categoriaPadreId ?? undefined) : undefined,
+          activa: true,
+          orden,
+        },
+        user.uid,
+      );
+      // Auto-seleccionar la nueva
+      if (showCategoriaInline === 'padre') {
+        handleSeleccionarCategoriaPadre(newId);
+      } else {
+        handleSeleccionarSubcategoria(newId);
+      }
+      // El store ya refresca el arbol (linea 52 del store)
+      void nivel; // referenciado para futuros usos (no afecta runtime)
+      toast.success(`Categoria "${nuevaCategoriaNombre.trim()}" creada y seleccionada`);
+      setShowCategoriaInline(null);
+      setNuevaCategoriaNombre('');
+    } catch (e) {
+      console.error('Error creando categoria inline', e);
+      toast.error('No se pudo crear la categoria');
+    } finally {
+      setLoadingCategoriaInline(false);
+    }
+  };
+
   const handleCrearProveedorInline = async (data: ProveedorFormData) => {
     if (!user?.uid) {
       toast.error('No se pudo identificar al usuario');
@@ -702,6 +760,19 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                         </button>
                       );
                     })}
+                    {/* F3 · Inline create categoria padre */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNuevaCategoriaNombre('');
+                        setShowCategoriaInline('padre');
+                      }}
+                      className="p-3 rounded-lg border-2 border-dashed border-pink-300 text-left transition-all hover:border-pink-500 hover:bg-pink-50"
+                      title="Crear nueva categoria padre · D-INLINE-8"
+                    >
+                      <div className="text-xs font-bold text-pink-700">+ Nueva categoría</div>
+                      <div className="text-[10px] text-pink-500 mt-0.5">Inline · sin abandonar</div>
+                    </button>
                   </div>
                 )}
               </div>
@@ -743,7 +814,38 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                       ✕ Sin subcategoría
                     </button>
                   )}
+                  {/* F3 · Inline create subcategoria */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNuevaCategoriaNombre('');
+                      setShowCategoriaInline('subcategoria');
+                    }}
+                    className="p-2.5 rounded-lg border-2 border-dashed border-pink-300 text-[11px] text-pink-700 font-bold hover:border-pink-500 hover:bg-pink-50"
+                    title="Crear nueva subcategoria · D-INLINE-8"
+                  >
+                    + Nueva sub
+                  </button>
                 </div>
+              </div>
+            )}
+
+            {/* Permitir crear subcategoria aunque la categoria padre no tenga ninguna */}
+            {bloqueSeleccionado && categoriaPadreId && subcategoriasDelPadre.length === 0 && (
+              <div>
+                <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
+                  Nivel 3 · Subcategoría · opcional
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNuevaCategoriaNombre('');
+                    setShowCategoriaInline('subcategoria');
+                  }}
+                  className="px-4 py-2 rounded-lg border-2 border-dashed border-pink-300 text-xs text-pink-700 font-semibold hover:border-pink-500 hover:bg-pink-50"
+                >
+                  + Crear primera subcategoría de "{categoriasPadreDelBloque.find(p => p.id === categoriaPadreId)?.nombre}"
+                </button>
               </div>
             )}
 
@@ -1303,6 +1405,81 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </Button>
           </div>
         </form>
+
+        {/* F3 · Modal inline crear categoria/subcategoria · D-INLINE-8 */}
+        {showCategoriaInline && (
+          <Modal
+            isOpen={true}
+            onClose={() => {
+              setShowCategoriaInline(null);
+              setNuevaCategoriaNombre('');
+            }}
+            title={showCategoriaInline === 'padre' ? 'Nueva categoría padre' : 'Nueva subcategoría'}
+            size="md"
+          >
+            <div className="space-y-4">
+              <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 text-xs text-pink-900">
+                <strong>💡 Crear sin abandonar el gasto.</strong>{' '}
+                {showCategoriaInline === 'padre'
+                  ? `La nueva categoría se agregará al bloque "${bloqueSeleccionado}" y quedará disponible inmediatamente.`
+                  : `La nueva subcategoría se agregará dentro de "${categoriasPadreDelBloque.find(p => p.id === categoriaPadreId)?.nombre}".`}
+              </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs">
+                <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Contexto</div>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold text-[10px] ${
+                    bloqueSeleccionado === 'importacion' ? 'bg-blue-100 text-blue-800'
+                    : bloqueSeleccionado === 'venta' ? 'bg-purple-100 text-purple-800'
+                    : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {bloqueSeleccionado === 'importacion' ? '📦 Importación'
+                      : bloqueSeleccionado === 'venta' ? '🛒 Venta'
+                      : '📅 Período'}
+                  </span>
+                  {showCategoriaInline === 'subcategoria' && categoriaPadreId && (
+                    <>
+                      <span className="text-slate-300">›</span>
+                      <span className="font-bold text-slate-700">
+                        {categoriasPadreDelBloque.find(p => p.id === categoriaPadreId)?.nombre}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <Input
+                label={showCategoriaInline === 'padre' ? 'Nombre de la categoría' : 'Nombre de la subcategoría'}
+                value={nuevaCategoriaNombre}
+                onChange={(e) => setNuevaCategoriaNombre(e.target.value)}
+                placeholder={
+                  showCategoriaInline === 'padre'
+                    ? bloqueSeleccionado === 'importacion' ? 'Ej. Inspecciones, Certificados...'
+                    : bloqueSeleccionado === 'venta' ? 'Ej. Garantías, Postventa...'
+                    : 'Ej. Capacitación, Eventos...'
+                    : `Ej. ${bloqueSeleccionado === 'periodo' ? 'Streaming, Cursos online' : 'Variante específica'}`
+                }
+                autoFocus
+              />
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowCategoriaInline(null);
+                    setNuevaCategoriaNombre('');
+                  }}
+                  disabled={loadingCategoriaInline}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleCrearCategoriaInline}
+                  disabled={loadingCategoriaInline || !nuevaCategoriaNombre.trim()}
+                >
+                  {loadingCategoriaInline ? 'Creando...' : 'Crear y seleccionar'}
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
 
         {/* TAREA-PROVEEDOR-GASTOS F2 · Modal inline · D-INLINE-8 */}
         {showProveedorInline && (
