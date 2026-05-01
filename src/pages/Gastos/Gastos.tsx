@@ -128,6 +128,105 @@ export const Gastos: React.FC = () => {
 
   const isCurrentMonth = selectedMonth === new Date().getMonth() + 1 && selectedYear === new Date().getFullYear();
 
+  // ── TAREA-GASTOS-PAGE-V2 F1 · Hero ejecutivo · KPIs derivados ──
+  // Calcula mix por bloque · top categoria · proveedores · vencimientos
+  // a partir de los gastos cargados en el mes actual.
+  const heroKpis = useMemo(() => {
+    const gastosDelMes = gastosPorLinea.filter(g => {
+      const fecha = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      return fecha.getMonth() + 1 === selectedMonth && fecha.getFullYear() === selectedYear;
+    });
+
+    // Mix por bloque (resolviendo via arbolCategorias)
+    const mixPorBloque: Record<BloqueCosto, number> = {
+      importacion: 0, venta: 0, periodo: 0,
+    };
+    const bloqueDeGasto = (g: Gasto): BloqueCosto => {
+      // Si tiene categoriaCostoId, resolver desde arbol
+      if (g.categoriaCostoId && arbolCategorias) {
+        for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+          const datos = arbolCategorias[b];
+          if (!datos) continue;
+          if (datos.padres.some(p => p.id === g.categoriaCostoId)) return b;
+          for (const padreId of Object.keys(datos.hijos)) {
+            if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) return b;
+          }
+        }
+      }
+      // Fallback legacy
+      if (g.categoria === 'GA') return 'importacion';
+      if (g.categoria === 'GD' || g.categoria === 'GV') return 'venta';
+      return 'periodo';
+    };
+    for (const g of gastosDelMes) {
+      mixPorBloque[bloqueDeGasto(g)] += g.montoPEN || 0;
+    }
+    const totalMix = mixPorBloque.importacion + mixPorBloque.venta + mixPorBloque.periodo;
+
+    // Top categoria padre (por monto)
+    const porCategoria: Record<string, { nombre: string; monto: number; bloque: BloqueCosto }> = {};
+    for (const g of gastosDelMes) {
+      let nombre = 'Sin categorizar';
+      let bloque: BloqueCosto = bloqueDeGasto(g);
+      if (g.categoriaCostoId && arbolCategorias) {
+        for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+          const datos = arbolCategorias[b];
+          if (!datos) continue;
+          const padre = datos.padres.find(p => p.id === g.categoriaCostoId);
+          if (padre) { nombre = padre.nombre; bloque = b; break; }
+          for (const padreId of Object.keys(datos.hijos)) {
+            if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) {
+              const padreDeHijo = datos.padres.find(p => p.id === padreId);
+              nombre = padreDeHijo?.nombre || 'Categoria'; bloque = b; break;
+            }
+          }
+        }
+      }
+      const key = `${bloque}::${nombre}`;
+      if (!porCategoria[key]) porCategoria[key] = { nombre, monto: 0, bloque };
+      porCategoria[key].monto += g.montoPEN || 0;
+    }
+    const topCategorias = Object.values(porCategoria).sort((a, b) => b.monto - a.monto);
+    const topCategoria = topCategorias[0];
+    const segundaCategoria = topCategorias[1];
+
+    // Proveedores únicos del mes
+    const proveedoresUnicos = new Set<string>();
+    for (const g of gastosDelMes) {
+      if (g.proveedorId) proveedoresUnicos.add(g.proveedorId);
+      else if (g.proveedor) proveedoresUnicos.add(g.proveedor);
+    }
+
+    // Vencimientos próximos (pendientes ordenados por fecha)
+    const hoy = new Date();
+    const en7d = new Date(); en7d.setDate(hoy.getDate() + 7);
+    const vencenPronto = gastosPorLinea
+      .filter(g => g.estado === 'pendiente' || g.estado === 'parcial')
+      .filter(g => {
+        const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+        return f >= hoy && f <= en7d;
+      })
+      .sort((a, b) => {
+        const fa = a.fecha?.toDate?.() ?? new Date(a.fecha as any);
+        const fb = b.fecha?.toDate?.() ?? new Date(b.fecha as any);
+        return fa.getTime() - fb.getTime();
+      });
+    const vencidos = gastosPorLinea
+      .filter(g => g.estado === 'pendiente' || g.estado === 'parcial')
+      .filter(g => {
+        const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+        return f < hoy;
+      });
+
+    return {
+      mixPorBloque, totalMix,
+      topCategoria, segundaCategoria, totalCategorias: topCategorias.length,
+      proveedoresUnicos: proveedoresUnicos.size,
+      vencenPronto, vencidos,
+      gastosDelMes,
+    };
+  }, [gastosPorLinea, arbolCategorias, selectedMonth, selectedYear]);
+
   // Cargar datos según el modo de vista
   useEffect(() => {
     storeSetViewMode(viewMode, selectedMonth, selectedYear);
@@ -645,82 +744,178 @@ export const Gastos: React.FC = () => {
         </div>
       </Card>
 
-      {/* Métricas */}
+      {/* TAREA-GASTOS-PAGE-V2 F1 · Hero ejecutivo · 5 KPI cards anchored + insights */}
       {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0">
-                <div className="text-[11px] sm:text-sm text-slate-600 truncate">{getViewLabel()}</div>
-                <div className="text-base sm:text-2xl font-bold text-slate-900 mt-0.5 sm:mt-1 truncate">
-                  {formatCurrency(
-                    viewMode === 'month' && isCurrentMonth
-                      ? stats.totalMesActual
-                      : resumenPorTipo.totalGeneral
-                  )}
-                </div>
-                <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
-                  {viewMode === 'month' && isCurrentMonth
-                    ? `${stats.cantidadGastosMesActual} gastos`
-                    : `${gastosVisibles.length} gastos`
-                  }
-                </div>
-              </div>
-              <DollarSign className="h-5 w-5 sm:h-8 sm:w-8 text-slate-400 flex-shrink-0" />
-            </div>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
 
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0">
-                <div className="text-[11px] sm:text-sm text-slate-600 truncate"><span className="sm:hidden">Prorrateables</span><span className="hidden sm:inline">Gastos Prorrateables</span></div>
-                <div className="text-base sm:text-2xl font-bold text-teal-600 mt-0.5 sm:mt-1 truncate">
-                  {formatCurrency(stats.gastosProrrateablesMesActual)}
-                </div>
-                <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
-                  Impactan CTRU
-                </div>
-              </div>
-              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-teal-400 flex-shrink-0" />
+          {/* KPI 1 · Total mes con variacion */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl ring-1 ring-amber-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">Total mes</div>
+              <span className="text-base">💰</span>
             </div>
-          </Card>
-
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0">
-                <div className="text-[11px] sm:text-sm text-slate-600 truncate"><span className="sm:hidden">Pendientes</span><span className="hidden sm:inline">Pendientes de Pago</span></div>
-                <div className="text-base sm:text-2xl font-bold text-amber-600 mt-0.5 sm:mt-1 truncate">
-                  {formatCurrency(stats.totalPendientePago)}
-                </div>
-                <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
-                  {stats.cantidadPendientePago} gastos
-                </div>
-              </div>
-              <AlertCircle className="h-5 w-5 sm:h-8 sm:w-8 text-amber-400 flex-shrink-0" />
+            <div className="text-2xl font-bold tabular-nums text-amber-900">
+              {formatCurrency(viewMode === 'month' && isCurrentMonth ? stats.totalMesActual : resumenPorTipo.totalGeneral)}
             </div>
-          </Card>
+            <div className="flex items-center gap-2 mt-2 text-[11px]">
+              <span className={`font-bold tabular-nums ${stats.variacionVsMesAnterior >= 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                {stats.variacionVsMesAnterior >= 0 ? '↗ +' : '↘ '}{stats.variacionVsMesAnterior.toFixed(1)}%
+              </span>
+              <span className="text-slate-500">vs anterior</span>
+            </div>
+          </div>
 
-          <Card padding="md">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0">
-                <div className="text-[11px] sm:text-sm text-slate-600 truncate"><span className="sm:hidden">Variación</span><span className="hidden sm:inline">Variación vs Mes Anterior</span></div>
-                <div className={`text-base sm:text-2xl font-bold mt-0.5 sm:mt-1 ${
-                  stats.variacionVsMesAnterior >= 0 ? 'text-red-600' : 'text-emerald-600'
-                }`}>
-                  {stats.variacionVsMesAnterior >= 0 ? '+' : ''}
-                  {stats.variacionVsMesAnterior.toFixed(1)}%
-                </div>
-                <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 truncate">
-                  <span className="hidden sm:inline">Promedio anual: </span>{formatCurrency(stats.promedioMensualAnioActual)}
-                </div>
-              </div>
-              {stats.variacionVsMesAnterior >= 0 ? (
-                <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-red-400 flex-shrink-0" />
-              ) : (
-                <TrendingDown className="h-5 w-5 sm:h-8 sm:w-8 text-emerald-400 flex-shrink-0" />
+          {/* KPI 2 · Pendientes con vencimientos */}
+          <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl ring-1 ring-rose-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] uppercase tracking-wider text-rose-700 font-semibold">Pendientes</div>
+              <span className="text-base">⏰</span>
+            </div>
+            <div className="text-2xl font-bold tabular-nums text-rose-900">{formatCurrency(stats.totalPendientePago)}</div>
+            <div className="flex items-center gap-2 mt-2 text-[11px]">
+              <span className="text-rose-700 font-bold tabular-nums">{stats.cantidadPendientePago} gastos</span>
+              {heroKpis.vencidos.length > 0 && (
+                <span className="text-rose-700 font-bold">· {heroKpis.vencidos.length} vencidos ⚠</span>
               )}
             </div>
-          </Card>
+          </div>
+
+          {/* KPI 3 · Mix por bloque */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl ring-1 ring-blue-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] uppercase tracking-wider text-blue-700 font-semibold">Mix por bloque</div>
+              <span className="text-base">📊</span>
+            </div>
+            <div className="space-y-1.5 mt-2">
+              {(['importacion', 'venta', 'periodo'] as BloqueCosto[]).map(b => {
+                const monto = heroKpis.mixPorBloque[b];
+                const pct = heroKpis.totalMix > 0 ? (monto / heroKpis.totalMix) * 100 : 0;
+                const cfg = b === 'importacion'
+                  ? { emoji: '📦', label: 'Imp.', barColor: 'from-blue-500 to-indigo-500', textColor: 'text-blue-700' }
+                  : b === 'venta'
+                    ? { emoji: '🛒', label: 'Venta', barColor: 'from-purple-500 to-fuchsia-500', textColor: 'text-purple-700' }
+                    : { emoji: '📅', label: 'Per.', barColor: 'from-amber-500 to-orange-500', textColor: 'text-amber-700' };
+                return (
+                  <div key={b}>
+                    <div className="flex justify-between text-[10px] mb-0.5">
+                      <span className={`${cfg.textColor} font-semibold`}>{cfg.emoji} {cfg.label}</span>
+                      <span className="font-bold tabular-nums text-slate-900">{pct.toFixed(0)}%</span>
+                    </div>
+                    <div className="bg-white/70 rounded h-1.5 overflow-hidden">
+                      <div className={`bg-gradient-to-r ${cfg.barColor} h-1.5 rounded`} style={{ width: `${pct}%` }}></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* KPI 4 · Top categoria */}
+          <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-2xl ring-1 ring-purple-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] uppercase tracking-wider text-purple-700 font-semibold">Top categoría</div>
+              <span className="text-base">👑</span>
+            </div>
+            {heroKpis.topCategoria ? (
+              <>
+                <div className="text-base font-bold text-purple-900 truncate">{heroKpis.topCategoria.nombre}</div>
+                <div className="text-lg font-bold tabular-nums text-purple-700 mt-0.5">{formatCurrency(heroKpis.topCategoria.monto)}</div>
+                {heroKpis.totalCategorias > 1 && heroKpis.segundaCategoria && (
+                  <div className="text-[10px] text-slate-600 mt-1 truncate">
+                    2°: {heroKpis.segundaCategoria.nombre} · {formatCurrency(heroKpis.segundaCategoria.monto)}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-xs text-slate-500 italic mt-2">Sin gastos categorizados</div>
+            )}
+          </div>
+
+          {/* KPI 5 · Proveedores */}
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl ring-1 ring-emerald-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Proveedores</div>
+              <span className="text-base">🏭</span>
+            </div>
+            <div className="text-2xl font-bold tabular-nums text-emerald-900">{heroKpis.proveedoresUnicos}</div>
+            <div className="text-[11px] text-emerald-700 mt-1">
+              <span className="font-bold">{heroKpis.gastosDelMes.length}</span> gastos · {heroKpis.proveedoresUnicos} proveedores
+            </div>
+            <div className="mt-2 text-[10px] text-slate-500 italic">
+              {stats.gastosProrrateablesMesActual > 0
+                ? `${formatCurrency(stats.gastosProrrateablesMesActual)} impactan CTRU`
+                : 'Sin gastos prorrateables'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Insights automáticos del sistema · 3 banners contextuales */}
+      {stats && (heroKpis.vencidos.length > 0 || heroKpis.vencenPronto.length > 0 || stats.variacionVsMesAnterior !== 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Insight 1 · Vencidos */}
+          {heroKpis.vencidos.length > 0 ? (
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">⚠</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-rose-900">{heroKpis.vencidos.length} gastos vencidos</div>
+                <p className="text-[11px] text-rose-700 mt-0.5">
+                  {formatCurrency(heroKpis.vencidos.reduce((acc, g) => acc + (g.montoPEN - (g.montoPagado || 0)), 0))} pendiente · pagar HOY.
+                </p>
+              </div>
+            </div>
+          ) : heroKpis.vencenPronto.length > 0 ? (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">⏰</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-amber-900">{heroKpis.vencenPronto.length} vencen en 7 días</div>
+                <p className="text-[11px] text-amber-700 mt-0.5">
+                  Próximo: {heroKpis.vencenPronto[0].descripcion?.slice(0, 30) || 'gasto'} ·{' '}
+                  {formatCurrency(heroKpis.vencenPronto[0].montoPEN - (heroKpis.vencenPronto[0].montoPagado || 0))}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">✓</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-emerald-900">Sin vencimientos próximos</div>
+                <p className="text-[11px] text-emerald-700 mt-0.5">No hay gastos vencidos ni que venzan en 7 días.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Insight 2 · Variacion vs mes anterior */}
+          <div className={`${stats.variacionVsMesAnterior >= 0 ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'} border rounded-xl p-3 flex items-start gap-3`}>
+            <div className={`w-8 h-8 rounded-full ${stats.variacionVsMesAnterior >= 0 ? 'bg-amber-500' : 'bg-emerald-500'} text-white flex items-center justify-center flex-shrink-0 text-sm font-bold`}>
+              {stats.variacionVsMesAnterior >= 0 ? '📈' : '📉'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className={`text-xs font-bold ${stats.variacionVsMesAnterior >= 0 ? 'text-amber-900' : 'text-emerald-900'}`}>
+                {stats.variacionVsMesAnterior >= 0 ? 'Subida' : 'Bajada'} {Math.abs(stats.variacionVsMesAnterior).toFixed(1)}% vs anterior
+              </div>
+              <p className={`text-[11px] mt-0.5 ${stats.variacionVsMesAnterior >= 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+                Promedio anual: {formatCurrency(stats.promedioMensualAnioActual)}
+                {heroKpis.topCategoria && ` · top: ${heroKpis.topCategoria.nombre}`}
+              </p>
+            </div>
+          </div>
+
+          {/* Insight 3 · Top categoria como hint accionable */}
+          {heroKpis.topCategoria && heroKpis.totalMix > 0 && (
+            <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">💡</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-purple-900">
+                  Concentración en "{heroKpis.topCategoria.nombre}"
+                </div>
+                <p className="text-[11px] text-purple-700 mt-0.5">
+                  {((heroKpis.topCategoria.monto / heroKpis.totalMix) * 100).toFixed(0)}% del mes ·{' '}
+                  bloque {heroKpis.topCategoria.bloque}.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
