@@ -20,6 +20,7 @@ import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
 import { FiltrosGastosBar, type OrdenGasto } from './components/FiltrosGastosBar';
 import { GastoCardCanonico } from './components/GastoCardCanonico';
+import { DrawerUrgentes } from './components/DrawerUrgentes';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -1291,6 +1292,10 @@ export const Gastos: React.FC = () => {
         </div>
       )}
 
+      {/* TAREA-GASTOS-PAGE-V2 F4.b · Layout 2 columnas (listado + drawer urgentes) */}
+      <div className={heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 ? 'grid grid-cols-1 lg:grid-cols-4 gap-4' : ''}>
+        <div className={heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 ? 'lg:col-span-3' : ''}>
+
       {/* Tabla de Gastos */}
       <Card padding="md">
         {loading ? (
@@ -1376,6 +1381,22 @@ export const Gastos: React.FC = () => {
           </div>
         )}
       </Card>
+        </div>
+
+        {/* F4.b · Drawer lateral con urgentes (sticky en desktop) */}
+        {heroKpis.vencidos.length + heroKpis.vencenPronto.length > 0 && (
+          <div className="lg:col-span-1">
+            <div className="lg:sticky lg:top-4">
+              <DrawerUrgentes
+                vencidos={heroKpis.vencidos}
+                vencenPronto={heroKpis.vencenPronto}
+                onPagar={(g) => setGastoParaPago(g)}
+                onVerDetalle={handleEditarGasto}
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Modal Formulario Nuevo/Editar Gasto */}
       {showModal && (
