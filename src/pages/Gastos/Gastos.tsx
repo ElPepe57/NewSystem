@@ -16,6 +16,8 @@ import type { PagoUnificadoResult } from '../../components/modules/pagos/PagoUni
 import { exportService } from '../../services/export.service';
 import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
+import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
+import type { BloqueCosto } from '../../types/categoriaCosto.types';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -60,6 +62,69 @@ export const Gastos: React.FC = () => {
   // Hook para dialogo de confirmacion
   const { dialogProps, confirm } = useConfirmDialog();
   const toast = useToastStore();
+
+  // ── TAREA-GASTOFORM-V2 F4 · Breadcrumb 3 niveles en cards ──
+  const arbolCategorias = useCategoriaCostoStore((s) => s.arbol);
+  const fetchArbolCategorias = useCategoriaCostoStore((s) => s.fetchArbol);
+  useEffect(() => {
+    if (!arbolCategorias) {
+      fetchArbolCategorias();
+    }
+  }, [arbolCategorias, fetchArbolCategorias]);
+
+  // Helper · resuelve un categoriaCostoId al breadcrumb (bloque > padre > sub)
+  const resolveBreadcrumb = (categoriaCostoId?: string): { bloque: BloqueCosto; padre: string; sub?: string } | null => {
+    if (!categoriaCostoId || !arbolCategorias) return null;
+    for (const bloque of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+      const datos = arbolCategorias[bloque];
+      if (!datos) continue;
+      // ¿es padre directo?
+      const padreMatch = datos.padres.find((p) => p.id === categoriaCostoId);
+      if (padreMatch) return { bloque, padre: padreMatch.nombre };
+      // ¿es subcategoria?
+      for (const padreId of Object.keys(datos.hijos)) {
+        const sub = datos.hijos[padreId].find((h) => h.id === categoriaCostoId);
+        if (sub) {
+          const padre = datos.padres.find((p) => p.id === padreId);
+          return { bloque, padre: padre?.nombre || '?', sub: sub.nombre };
+        }
+      }
+    }
+    return null;
+  };
+
+  // Componente helper · breadcrumb pills si hay categoriaCostoId, fallback al pill legacy
+  const renderCategoriaBreadcrumb = (gasto: Gasto, size: 'sm' | 'xs' = 'xs') => {
+    const bc = resolveBreadcrumb(gasto.categoriaCostoId);
+    const sizeClasses = size === 'sm' ? 'text-xs' : 'text-[10px]';
+    if (!bc) {
+      // Fallback legacy
+      return (
+        <span className={`${sizeClasses} px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
+          {gasto.categoria}
+        </span>
+      );
+    }
+    const bloqueColors = bc.bloque === 'importacion'
+      ? 'bg-blue-100 text-blue-800'
+      : bc.bloque === 'venta'
+        ? 'bg-purple-100 text-purple-800'
+        : 'bg-amber-100 text-amber-800';
+    const bloqueLabel = bc.bloque === 'importacion' ? '📦' : bc.bloque === 'venta' ? '🛒' : '📅';
+    return (
+      <span className={`${sizeClasses} inline-flex items-center gap-1`}>
+        <span className={`px-1.5 py-0.5 rounded font-medium ${bloqueColors}`}>{bloqueLabel}</span>
+        <span className="text-slate-300">›</span>
+        <span className="text-slate-700 font-medium truncate">{bc.padre}</span>
+        {bc.sub && (
+          <>
+            <span className="text-slate-300">›</span>
+            <span className="text-slate-500 truncate">{bc.sub}</span>
+          </>
+        )}
+      </span>
+    );
+  };
 
   const isCurrentMonth = selectedMonth === new Date().getMonth() + 1 && selectedYear === new Date().getFullYear();
 
@@ -339,12 +404,7 @@ export const Gastos: React.FC = () => {
         <div className="space-y-1">
           <div className="text-sm font-medium text-slate-900">{gasto.tipo}</div>
           <div className="flex items-center gap-1">
-            <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
-              {gasto.categoria}
-            </span>
-            <span className="text-xs text-slate-500">
-              {CATEGORIAS_GASTO[gasto.categoria]?.nombre || gasto.categoria}
-            </span>
+            {renderCategoriaBreadcrumb(gasto, 'sm')}
           </div>
         </div>
       ),
@@ -901,11 +961,9 @@ export const Gastos: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Row 3: Tipo + Categoría + Fecha */}
+                    {/* Row 3: Tipo + Categoría (breadcrumb) + Fecha */}
                     <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${getCategoriaColor(gasto.categoria)}`}>
-                        {gasto.categoria}
-                      </span>
+                      {renderCategoriaBreadcrumb(gasto, 'xs')}
                       <span className="text-[10px] text-slate-600 truncate">{gasto.tipo}</span>
                       <span className="text-[10px] text-slate-400 ml-auto flex-shrink-0">{formatFecha(gasto.fecha)}</span>
                     </div>
