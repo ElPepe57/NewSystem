@@ -19,6 +19,7 @@ import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
 import { FiltrosGastosBar, type OrdenGasto } from './components/FiltrosGastosBar';
+import { GastoCardCanonico } from './components/GastoCardCanonico';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -1114,40 +1115,20 @@ export const Gastos: React.FC = () => {
       {/* Tabla de Gastos */}
       <Card padding="md">
         {loading ? (
-          <>
-            {/* Mobile skeleton */}
-            <div className="md:hidden space-y-2">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="border border-slate-200 rounded-lg p-3 animate-pulse">
-                  <div className="flex justify-between">
-                    <div className="flex gap-1.5">
-                      <div className="h-4 w-8 bg-slate-200 rounded" />
-                      <div className="h-4 w-20 bg-slate-200 rounded" />
-                      <div className="h-4 w-14 bg-slate-200 rounded" />
-                    </div>
-                    <div className="h-5 w-20 bg-slate-200 rounded" />
-                  </div>
-                  <div className="h-3 w-3/4 bg-slate-200 rounded mt-2" />
-                  <div className="flex gap-1.5 mt-2">
-                    <div className="h-3 w-8 bg-slate-200 rounded" />
-                    <div className="h-3 w-24 bg-slate-200 rounded" />
-                    <div className="h-3 w-16 bg-slate-200 rounded ml-auto" />
-                  </div>
+          /* F3.a · Skeleton unificado para card canonico */
+          <div className="space-y-2">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="border border-slate-200 rounded-lg px-4 py-3 flex items-center gap-3 animate-pulse">
+                <div className="w-10 h-10 bg-slate-200 rounded-lg flex-shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 w-3/5 bg-slate-200 rounded" />
+                  <div className="h-2.5 w-2/5 bg-slate-100 rounded" />
                 </div>
-              ))}
-            </div>
-            {/* Desktop skeleton */}
-            <div className="hidden md:block">
-              <DataTable
-                columns={gastosColumns}
-                data={[]}
-                keyExtractor={(g) => g.id}
-                loading={true}
-                loadingRows={8}
-                compact
-              />
-            </div>
-          </>
+                <div className="h-4 w-20 bg-slate-200 rounded flex-shrink-0" />
+                <div className="h-5 w-24 bg-slate-200 rounded flex-shrink-0 hidden sm:block" />
+              </div>
+            ))}
+          </div>
         ) : gastosVisibles.length === 0 ? (
           <EmptyStateAction
             title={
@@ -1173,130 +1154,21 @@ export const Gastos: React.FC = () => {
           />
         ) : (
           <>
-            {/* Mobile card layout */}
-            <div className="md:hidden space-y-2">
-              {gastosVisibles.map((gasto) => {
-                const estadoBadge = getEstadoBadge(gasto.estado);
-                const claseBadge = getClaseBadge(gasto.claseGasto);
-
-                return (
-                  <div key={gasto.id} className="border border-slate-200 rounded-lg p-3 hover:bg-slate-50 transition-colors">
-                    {/* Row 1: Number + badges + amount */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-[10px] font-semibold px-1 py-0.5 rounded ${claseBadge.color}`}>
-                            {claseBadge.label}
-                          </span>
-                          <span className="text-xs font-medium text-slate-900">
-                            {gasto.numeroGasto}
-                          </span>
-                          <Badge variant={estadoBadge.variant}>{estadoBadge.label}</Badge>
-                          {gasto.esProrrateable && (
-                            <span className={`text-[10px] px-1 py-0.5 rounded font-medium ${gasto.ctruRecalculado ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                              CTRU {gasto.ctruRecalculado ? '✓' : '⏳'}
-                            </span>
-                          )}
-                          <GastoLineaBadge lineaNegocioId={gasto.lineaNegocioId} />
-                        </div>
-                        {gasto.ventaId && (
-                          <div className="text-[10px] text-purple-600 mt-0.5">→ Venta vinculada</div>
-                        )}
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-sm font-bold text-slate-900">
-                          {formatCurrency(gasto.montoPEN)}
-                        </div>
-                        {gasto.moneda === 'USD' && (
-                          <div className="text-[10px] text-slate-500">${gasto.montoOriginal.toFixed(2)}</div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Row 2: Description */}
-                    <div className="mt-1.5">
-                      <div className="text-xs text-slate-900 line-clamp-1">{gasto.descripcion}</div>
-                      {gasto.proveedor && (
-                        <div className="text-[10px] text-slate-500">{gasto.proveedor}</div>
-                      )}
-                    </div>
-
-                    {/* Row 3: Tipo + Categoría (breadcrumb) + Fecha */}
-                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                      {renderCategoriaBreadcrumb(gasto, 'xs')}
-                      <span className="text-[10px] text-slate-600 truncate">{gasto.tipo}</span>
-                      <span className="text-[10px] text-slate-400 ml-auto flex-shrink-0">{formatFecha(gasto.fecha)}</span>
-                    </div>
-
-                    {/* Partial payment progress */}
-                    {gasto.estado === 'parcial' && gasto.montoPagado !== undefined && (
-                      <div className="mt-1.5">
-                        <div className="flex items-center justify-between text-[10px] text-slate-500 mb-0.5">
-                          <span>{((gasto.montoPagado / gasto.montoPEN) * 100).toFixed(0)}% pagado</span>
-                          <span>{formatCurrency(gasto.montoPagado)} / {formatCurrency(gasto.montoPEN)}</span>
-                        </div>
-                        <div className="w-full bg-slate-200 rounded-full h-1">
-                          <div
-                            className="bg-teal-500 h-1 rounded-full transition-all"
-                            style={{ width: `${Math.min((gasto.montoPagado / gasto.montoPEN) * 100, 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-slate-100">
-                      {(gasto.estado === 'pendiente' || gasto.estado === 'parcial') && (
-                        <button
-                          onClick={() => {
-                            setGastoParaPago(gasto);
-                            setShowPagoModal(true);
-                          }}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-md transition-colors"
-                        >
-                          <CreditCard className="h-3 w-3" />
-                          Pagar
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleEditarGasto(gasto)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded-md transition-colors"
-                      >
-                        <Pencil className="h-3 w-3" />
-                        Editar
-                      </button>
-                      {(gasto.estado === 'pendiente' || gasto.estado === 'cancelado') && !gasto.pagos?.length && (
-                        <button
-                          onClick={() => handleEliminarGasto(gasto)}
-                          className="inline-flex items-center p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors ml-auto"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      )}
-                      {gasto.estado === 'pagado' && (
-                        <span className="text-[10px] text-slate-400 ml-auto">
-                          {gasto.pagos && gasto.pagos.length > 1
-                            ? `${gasto.pagos.length} pagos`
-                            : gasto.metodoPago || '-'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Desktop table layout */}
-            <div className="hidden md:block">
-              <DataTable
-                columns={gastosColumns}
-                data={gastosVisibles}
-                keyExtractor={(g) => g.id}
-                compact
-              />
+            {/* TAREA-GASTOS-PAGE-V2 F3.a · Lista unificada de GastoCardCanonico (responsive) */}
+            <div className="space-y-1.5 divide-y divide-slate-100">
+              {gastosVisibles.map((gasto) => (
+                <GastoCardCanonico
+                  key={gasto.id}
+                  gasto={gasto}
+                  breadcrumb={resolveBreadcrumb(gasto.categoriaCostoId)}
+                  onEditar={handleEditarGasto}
+                  onPagar={(g) => setGastoParaPago(g)}
+                />
+              ))}
             </div>
           </>
         )}
+        {/* /F3.a · cierra la sección de listado */}
 
         {!loading && gastosVisibles.length > 0 && (
           <div className="px-4 py-3 border-t border-slate-200">
