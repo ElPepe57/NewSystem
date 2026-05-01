@@ -18,9 +18,10 @@ import { useTipoCambioStore } from '../../../store/tipoCambioStore';
 import { useToastStore } from '../../../store/toastStore';
 import { tesoreriaService } from '../../../services/tesoreria.service';
 import { formatCurrency } from '../../../utils/format';
-import type { CuentaCaja } from '../../../types/tesoreria.types';
+import type { CuentaCaja, DatoBancarioPasivo } from '../../../types/tesoreria.types';
 import type { MetodoPagoUnificado, OrigenPago } from '../../../types/pago.types';
 import { METODOS_PAGO_INFO } from '../../../types/pago.types';
+import { useDatosBancariosTercero } from '../../../hooks/useDatosBancariosTercero';
 
 // ============================================
 // TYPES
@@ -39,6 +40,26 @@ export interface PagoUnificadoResult {
   referencia?: string;
   notas?: string;
   esPagoCompleto: boolean;
+
+  // ============================================
+  // FASE 2 · DEUDA-PAGOFORM-001 — Destino tercero (opt-in)
+  // ============================================
+  /**
+   * Si se seleccionó un destino tercero (lookup de `datosBancarios[]` del
+   * proveedor / cliente / colaborador), aquí va el `id` interno (no Firestore).
+   *
+   * NO mueve saldo — es solo evidencia de "a qué cuenta de él envié el dinero".
+   * Solo se llena cuando `permiteDestinoTercero=true` y el operador eligió un
+   * destino concreto. Si quedó "Entregado en mano" o "Sin destino digital",
+   * este campo va `undefined`.
+   */
+  destinoTerceroDatoBancarioId?: string;
+  /** Etiqueta humana del destino seleccionado (p. ej. "Yape Personal · 999 999 999"). */
+  destinoTerceroEtiqueta?: string;
+  /** Tipo del destino (banco/yape/plin/...). */
+  destinoTerceroTipo?: DatoBancarioPasivo['tipo'];
+  /** Marca "entregado en mano" — el operador eligió no asociar a ningún dato bancario del tercero. */
+  destinoEntregadoEnMano?: boolean;
 }
 
 export interface PagoPrevio {
@@ -77,6 +98,36 @@ export interface PagoUnificadoFormProps {
     /** Solo para deudor alternativo — nombre del proveedor original (para contexto) */
     proveedorOriginalNombre?: string;
   };
+
+  // ============================================
+  // FASE 2 · DEUDA-PAGOFORM-001 — Destino tercero + Caja recaudadora (todas opt-in)
+  // ============================================
+  /**
+   * Activa el selector de destino para registrar a qué dato bancario del
+   * tercero se le envió el pago. Solo aplica para `esIngreso=false` (pagos
+   * salientes) — en cobros, el destino implícito es la cuenta seleccionada
+   * en origen (mi cuenta).
+   *
+   * Defaults a `false` para no romper los 25+ usos legacy.
+   */
+  permiteDestinoTercero?: boolean;
+  /**
+   * ID del proveedor pre-cargado. El form hace lookup automático de su
+   * `datosBancarios[]` y lo presenta en el selector destino.
+   */
+  proveedorId?: string;
+  /** ID del cliente pre-cargado (mismo comportamiento que proveedorId). */
+  clienteId?: string;
+  /** ID del colaborador pre-cargado (mismo comportamiento que proveedorId). */
+  colaboradorId?: string;
+  /**
+   * Callback cuando el operador detecta que un dato bancario debería
+   * promoverse a Caja Recaudadora (caso agente recaudador). El consumidor
+   * decide si abrir el wizard de promoción o solo registrar la intención.
+   *
+   * Si no se provee, el banner de promoción NO se muestra.
+   */
+  onPromoverACajaRecaudadora?: (datoBancarioId: string) => void;
 }
 
 // ============================================
@@ -125,6 +176,12 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
   montoTotal, montoPendiente, monedaOriginal, tcDocumento,
   pagosAnteriores = [], onSubmit, onCancel, loading = false,
   destinatario,
+  // FASE 2 · destino tercero + caja recaudadora (todas opt-in)
+  permiteDestinoTercero = false,
+  proveedorId,
+  clienteId,
+  colaboradorId,
+  onPromoverACajaRecaudadora,
 }) => {
   const { getTCDelDia } = useTipoCambioStore();
   const toast = useToastStore();
@@ -152,6 +209,56 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
   const [loadingCuentas, setLoadingCuentas] = useState(true);
   const [selectorAbierto, setSelectorAbierto] = useState(false);
   const selectorRef = useRef<HTMLDivElement>(null);
+
+  // ───── FASE 2 · Destino tercero (opt-in) ─────
+  // Se activa cuando: !esIngreso (es pago saliente) + permiteDestinoTercero=true
+  // + hay tercero pre-cargado (al menos un id de proveedor/cliente/colaborador).
+  const destinoTerceroActivo =
+    !esIngreso &&
+    permiteDestinoTercero === true &&
+    Boolean(proveedorId || clienteId || colaboradorId);
+
+  const tercero = useDatosBancariosTercero({
+    proveedorId: destinoTerceroActivo ? proveedorId : undefined,
+    clienteId: destinoTerceroActivo ? clienteId : undefined,
+    colaboradorId: destinoTerceroActivo ? colaboradorId : undefined,
+  });
+
+  // 'mano' = entregado en mano (sin destino digital), 'banco' = id de DatoBancarioPasivo del tercero.
+  const [destinoSeleccionado, setDestinoSeleccionado] = useState<string | 'mano' | ''>('');
+  const [destinoSelectorAbierto, setDestinoSelectorAbierto] = useState(false);
+  const destinoSelectorRef = useRef<HTMLDivElement>(null);
+
+  // Auto-seleccionar primer destino cuando se activa el lookup (UX: pre-elige el principal).
+  useEffect(() => {
+    if (!destinoTerceroActivo) {
+      setDestinoSeleccionado('');
+      return;
+    }
+    if (tercero.loading) return;
+    if (destinoSeleccionado) return;
+    const principal =
+      tercero.datosBancarios.find((d) => d.esPrincipal) ||
+      tercero.datosBancarios[0];
+    if (principal) setDestinoSeleccionado(principal.id);
+    else setDestinoSeleccionado('mano'); // fallback si el tercero no tiene datos bancarios
+  }, [destinoTerceroActivo, tercero.loading, tercero.datosBancarios, destinoSeleccionado]);
+
+  // Cerrar selector destino al hacer click fuera.
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (destinoSelectorRef.current && !destinoSelectorRef.current.contains(e.target as Node)) {
+        setDestinoSelectorAbierto(false);
+      }
+    };
+    if (destinoSelectorAbierto) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [destinoSelectorAbierto]);
+
+  const datoBancarioSeleccionado = useMemo<DatoBancarioPasivo | null>(() => {
+    if (!destinoSeleccionado || destinoSeleccionado === 'mano') return null;
+    return tercero.datosBancarios.find((d) => d.id === destinoSeleccionado) || null;
+  }, [destinoSeleccionado, tercero.datosBancarios]);
 
   // Cargar TC
   useEffect(() => {
@@ -259,6 +366,21 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       referencia: referencia || undefined,
       notas: notas || undefined,
       esPagoCompleto,
+      // FASE 2 · destino tercero (solo si está activo y se seleccionó algo)
+      destinoTerceroDatoBancarioId:
+        destinoTerceroActivo && datoBancarioSeleccionado
+          ? datoBancarioSeleccionado.id
+          : undefined,
+      destinoTerceroEtiqueta:
+        destinoTerceroActivo && datoBancarioSeleccionado
+          ? datoBancarioSeleccionado.etiqueta
+          : undefined,
+      destinoTerceroTipo:
+        destinoTerceroActivo && datoBancarioSeleccionado
+          ? datoBancarioSeleccionado.tipo
+          : undefined,
+      destinoEntregadoEnMano:
+        destinoTerceroActivo && destinoSeleccionado === 'mano' ? true : undefined,
     });
   };
 
@@ -532,6 +654,228 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
           </div>
         )}
       </div>
+
+      {/* ============================================
+           DESTINO TERCERO · DEUDA-PAGOFORM-001 Fase 2 (opt-in)
+           Solo aparece para pagos salientes con tercero pre-cargado.
+           Lectura de datosBancarios[] del proveedor / cliente / colaborador.
+           NO mueve saldo — es solo evidencia de "a qué cuenta de él envié el dinero".
+         ============================================ */}
+      {destinoTerceroActivo && (
+        <div ref={destinoSelectorRef} className="relative">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-[10px] uppercase tracking-wider text-violet-700 font-bold">
+              Destino del pago · {tercero.terceroNombre || '...'}
+            </label>
+            <span className="text-[9px] text-slate-400 italic">
+              Referencia · NO mueve saldo
+            </span>
+          </div>
+
+          {tercero.loading ? (
+            <div className="text-xs text-slate-400 py-2">
+              Cargando datos bancarios del tercero…
+            </div>
+          ) : tercero.datosBancarios.length === 0 ? (
+            <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg p-3 text-xs text-slate-600">
+              <div className="font-semibold mb-1">
+                {tercero.terceroNombre || 'Este tercero'} no tiene datos bancarios registrados.
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Se registrará como <strong>Entregado en mano</strong>. Para asociar una cuenta,
+                primero agrégala en la ficha del {tercero.terceroTipo || 'tercero'}.
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setDestinoSelectorAbierto(!destinoSelectorAbierto)}
+                className={`w-full text-left p-3 rounded-lg border-2 transition-colors ${
+                  destinoSelectorAbierto
+                    ? 'border-violet-400 ring-2 ring-violet-100'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                {datoBancarioSeleccionado ? (
+                  <div className="flex items-start gap-2 w-full">
+                    <div className="pt-0.5">
+                      {datoBancarioSeleccionado.tipo === 'banco' ? (
+                        <Building2 className="w-3.5 h-3.5 text-sky-500" />
+                      ) : (
+                        <Smartphone className="w-3.5 h-3.5 text-purple-500" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {datoBancarioSeleccionado.banco && (
+                          <span className="text-[10px] px-1 py-0.5 rounded bg-sky-100 text-sky-700 font-medium">
+                            {datoBancarioSeleccionado.banco}
+                          </span>
+                        )}
+                        <span className="font-medium text-slate-800 truncate text-sm">
+                          {datoBancarioSeleccionado.etiqueta}
+                        </span>
+                        {datoBancarioSeleccionado.esPrincipal && (
+                          <span className="text-[9px] px-1 py-0.5 rounded bg-amber-100 text-amber-700 font-bold uppercase">
+                            Principal
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
+                        {datoBancarioSeleccionado.numeroCuenta && (
+                          <span>#{datoBancarioSeleccionado.numeroCuenta}</span>
+                        )}
+                        {datoBancarioSeleccionado.identificador && (
+                          <span>· {datoBancarioSeleccionado.identificador}</span>
+                        )}
+                        {datoBancarioSeleccionado.moneda && (
+                          <span>· {datoBancarioSeleccionado.moneda}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : destinoSeleccionado === 'mano' ? (
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-sm font-medium text-slate-800">
+                      Entregado en mano
+                    </span>
+                    <span className="text-[10px] text-slate-400 italic ml-auto">
+                      Sin destino digital
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-sm text-slate-400">Seleccionar destino…</span>
+                )}
+                <ChevronDown
+                  className={`absolute right-3 top-9 w-4 h-4 text-slate-400 transition-transform ${
+                    destinoSelectorAbierto ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {destinoSelectorAbierto && (
+                <div className="absolute z-30 w-full mt-1 bg-white rounded-lg border border-slate-200 shadow-lg max-h-64 overflow-y-auto">
+                  {/* Grupo 1: Datos bancarios del tercero */}
+                  <div className="px-3 py-1.5 text-[10px] font-semibold text-violet-500 uppercase tracking-wide bg-violet-50">
+                    Datos del tercero · referencia
+                  </div>
+                  {tercero.datosBancarios.map((d) => {
+                    const yaPromovida = Boolean(d.promovidaACuentaCajaId);
+                    return (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onClick={() => {
+                          setDestinoSeleccionado(d.id);
+                          setDestinoSelectorAbierto(false);
+                        }}
+                        className={`w-full text-left px-3 py-2.5 hover:bg-violet-50 transition-colors ${
+                          d.id === destinoSeleccionado ? 'bg-violet-50/70' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-2 w-full">
+                          <div className="pt-0.5">
+                            {d.tipo === 'banco' ? (
+                              <Building2 className="w-3.5 h-3.5 text-sky-500" />
+                            ) : (
+                              <Smartphone className="w-3.5 h-3.5 text-purple-500" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {d.banco && (
+                                <span className="text-[10px] px-1 py-0.5 rounded bg-sky-100 text-sky-700 font-medium">
+                                  {d.banco}
+                                </span>
+                              )}
+                              <span className="font-medium text-slate-800 truncate text-xs">
+                                {d.etiqueta}
+                              </span>
+                              {d.esPrincipal && (
+                                <span className="text-[9px] px-1 py-0.5 rounded bg-amber-100 text-amber-700 font-bold uppercase">
+                                  Principal
+                                </span>
+                              )}
+                              {yaPromovida && (
+                                <span className="text-[9px] px-1 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold uppercase">
+                                  ✓ Caja
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
+                              {d.numeroCuenta && <span>#{d.numeroCuenta}</span>}
+                              {d.identificador && <span>· {d.identificador}</span>}
+                              {d.moneda && <span>· {d.moneda}</span>}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+
+                  {/* Grupo 2: Sin destino digital */}
+                  <div className="px-3 py-1.5 text-[10px] font-semibold text-slate-500 uppercase tracking-wide bg-slate-50 border-t border-slate-200">
+                    Sin destino digital
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestinoSeleccionado('mano');
+                      setDestinoSelectorAbierto(false);
+                    }}
+                    className={`w-full text-left px-3 py-2.5 hover:bg-emerald-50 transition-colors ${
+                      destinoSeleccionado === 'mano' ? 'bg-emerald-50/70' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Wallet className="w-3.5 h-3.5 text-emerald-500" />
+                      <div className="flex-1">
+                        <div className="text-xs font-medium text-slate-800">
+                          🤝 Entregado en mano
+                        </div>
+                        <div className="text-[10px] text-slate-400 italic">
+                          Sin asociar a dato bancario del tercero
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Banner de promoción a Caja Recaudadora · solo si hay callback Y dato seleccionado SIN promoción aún */}
+          {onPromoverACajaRecaudadora &&
+            datoBancarioSeleccionado &&
+            !datoBancarioSeleccionado.promovidaACuentaCajaId && (
+              <div className="mt-2 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-300 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <div className="text-base flex-shrink-0">💡</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-bold text-emerald-900 uppercase tracking-wider">
+                      ¿Esta cuenta recibe dinero a tu favor?
+                    </div>
+                    <div className="text-[11px] text-emerald-800 mt-0.5">
+                      Si <strong>{tercero.terceroNombre}</strong> te recauda en{' '}
+                      <strong>{datoBancarioSeleccionado.etiqueta}</strong>, podés{' '}
+                      <strong>promoverla a Caja Recaudadora</strong> y empezar a trackear
+                      su saldo en tu sistema.
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onPromoverACajaRecaudadora(datoBancarioSeleccionado.id)}
+                      className="mt-2 text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      Promover a Caja Recaudadora →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+        </div>
+      )}
 
       {/* MÉTODO DE PAGO */}
       {metodosDisponibles.length > 0 && (
