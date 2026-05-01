@@ -18,6 +18,7 @@ import { useLineaFilter } from '../../hooks/useLineaFilter';
 import { CATEGORIAS_GASTO, type Gasto, type TipoGasto, type CategoriaGasto, type EstadoGasto, type ClaseGasto } from '../../types/gasto.types';
 import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
 import type { BloqueCosto } from '../../types/categoriaCosto.types';
+import { FiltrosGastosBar, type OrdenGasto } from './components/FiltrosGastosBar';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -45,7 +46,8 @@ export const Gastos: React.FC = () => {
     tipo: '' as TipoGasto | '',
     categoria: '' as CategoriaGasto | '',
     estado: '' as EstadoGasto | '',
-    esProrrateable: '' as 'true' | 'false' | ''
+    esProrrateable: '' as 'true' | 'false' | '',
+    bloque: '' as BloqueCosto | '', // F2 · filtro por bloque del modelo de 3 niveles
   });
   const [tabActiva, setTabActiva] = useState<'negocio' | 'importacion' | 'perdidas'>('negocio');
 
@@ -55,6 +57,7 @@ export const Gastos: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [ordenLista, setOrdenLista] = useState<OrdenGasto>('fecha_desc'); // F2 · orden de la lista
 
   // Filtrar gastos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
   const gastosPorLinea = useLineaFilter(gastos, g => g.lineaNegocioId, { allowUndefined: true });
@@ -296,26 +299,68 @@ export const Gastos: React.FC = () => {
     if (filtros.esProrrateable) {
       resultado = resultado.filter(g => g.esProrrateable === (filtros.esProrrateable === 'true'));
     }
+    // F2 · filtro por bloque (resuelve via arbolCategorias o fallback legacy)
+    if (filtros.bloque) {
+      resultado = resultado.filter(g => {
+        if (g.categoriaCostoId && arbolCategorias) {
+          const datos = arbolCategorias[filtros.bloque as BloqueCosto];
+          if (!datos) return false;
+          if (datos.padres.some(p => p.id === g.categoriaCostoId)) return true;
+          for (const padreId of Object.keys(datos.hijos)) {
+            if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) return true;
+          }
+          return false;
+        }
+        // Fallback legacy
+        if (filtros.bloque === 'importacion') return g.categoria === 'GA';
+        if (filtros.bloque === 'venta') return g.categoria === 'GD' || g.categoria === 'GV';
+        return g.categoria === 'GO';
+      });
+    }
 
     return resultado;
-  }, [gastosPorLinea, filtros, searchTerm]);
+  }, [gastosPorLinea, filtros, searchTerm, arbolCategorias]);
 
   // Aplicar filtro de tab activa sobre los gastos filtrados
   const TIPOS_IMPORTACION = ['flete_internacional', 'flete_usa_peru', 'almacenaje', 'internacion', 'recojo_local'];
   const TIPOS_PERDIDAS = ['merma_transferencia', 'merma_vencimiento', 'desmedro'];
 
   const gastosVisibles = useMemo(() => {
+    let resultado: Gasto[];
     if (tabActiva === 'importacion') {
-      return gastosFiltrados.filter(g => TIPOS_IMPORTACION.includes(g.tipo));
+      resultado = gastosFiltrados.filter(g => TIPOS_IMPORTACION.includes(g.tipo));
+    } else if (tabActiva === 'perdidas') {
+      resultado = gastosFiltrados.filter(g => TIPOS_PERDIDAS.includes(g.tipo));
+    } else {
+      // negocio: excluir importación y pérdidas
+      resultado = gastosFiltrados.filter(g =>
+        !TIPOS_IMPORTACION.includes(g.tipo) && !TIPOS_PERDIDAS.includes(g.tipo)
+      );
     }
-    if (tabActiva === 'perdidas') {
-      return gastosFiltrados.filter(g => TIPOS_PERDIDAS.includes(g.tipo));
+    // F2 · aplicar orden seleccionado en FiltrosGastosBar
+    const ordenado = [...resultado];
+    switch (ordenLista) {
+      case 'monto_desc':
+        ordenado.sort((a, b) => (b.montoPEN || 0) - (a.montoPEN || 0));
+        break;
+      case 'monto_asc':
+        ordenado.sort((a, b) => (a.montoPEN || 0) - (b.montoPEN || 0));
+        break;
+      case 'proveedor':
+        ordenado.sort((a, b) => (a.proveedor || '').localeCompare(b.proveedor || ''));
+        break;
+      case 'fecha_desc':
+      default: {
+        ordenado.sort((a, b) => {
+          const fa = a.fecha?.toDate?.()?.getTime() ?? 0;
+          const fb = b.fecha?.toDate?.()?.getTime() ?? 0;
+          return fb - fa;
+        });
+        break;
+      }
     }
-    // negocio: excluir importación y pérdidas
-    return gastosFiltrados.filter(g =>
-      !TIPOS_IMPORTACION.includes(g.tipo) && !TIPOS_PERDIDAS.includes(g.tipo)
-    );
-  }, [gastosFiltrados, tabActiva]);
+    return ordenado;
+  }, [gastosFiltrados, tabActiva, ordenLista]);
 
   // Calcular resumen por tipo de gasto
   const resumenPorTipo = useMemo(() => {
@@ -432,13 +477,14 @@ export const Gastos: React.FC = () => {
       tipo: '',
       categoria: '',
       estado: '',
-      esProrrateable: ''
+      esProrrateable: '',
+      bloque: '',
     });
     setSearchTerm('');
   };
 
   // Verificar si hay algún filtro activo
-  const hayFiltrosActivos = filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado || filtros.esProrrateable || searchTerm.trim();
+  const hayFiltrosActivos = filtros.claseGasto || filtros.tipo || filtros.categoria || filtros.estado || filtros.esProrrateable || filtros.bloque || searchTerm.trim();
 
   // Obtener badge para clase de gasto
   const getClaseBadge = (clase: ClaseGasto | undefined) => {
@@ -1021,30 +1067,49 @@ export const Gastos: React.FC = () => {
 
       {/* Filtro de línea de negocio */}
 
-      {/* Toolbar */}
-      <Toolbar
-        search={{ value: searchTerm, onChange: setSearchTerm, placeholder: 'Buscar por descripcion, numero, proveedor...' }}
-        filterCount={[filtros.claseGasto, filtros.tipo, filtros.categoria, filtros.estado, filtros.esProrrateable].filter(Boolean).length}
-        onFilterToggle={() => setShowFilters(true)}
-        resultCount={gastosVisibles.length}
+      {/* TAREA-GASTOS-PAGE-V2 F2 · FiltrosGastosBar canonico (patron 6a referencia · S58e) */}
+      <FiltrosGastosBar
+        estadoActivo={filtros.estado}
+        bloqueActivo={filtros.bloque}
+        searchTerm={searchTerm}
+        orden={ordenLista}
+        totalResultados={gastosVisibles.length}
+        totalMontoPEN={gastosVisibles.reduce((acc, g) => acc + (g.montoPEN || 0), 0)}
+        conteosEstado={gastosPorLinea.reduce<Partial<Record<EstadoGasto, number>>>((acc, g) => {
+          const e = g.estado as EstadoGasto;
+          acc[e] = (acc[e] || 0) + 1;
+          return acc;
+        }, {})}
+        conteosBloque={(() => {
+          const conteos: Partial<Record<BloqueCosto, number>> = { importacion: 0, venta: 0, periodo: 0 };
+          for (const g of gastosPorLinea) {
+            let bloque: BloqueCosto = 'periodo';
+            if (g.categoriaCostoId && arbolCategorias) {
+              for (const b of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+                const datos = arbolCategorias[b];
+                if (!datos) continue;
+                if (datos.padres.some(p => p.id === g.categoriaCostoId)) { bloque = b; break; }
+                let found = false;
+                for (const padreId of Object.keys(datos.hijos)) {
+                  if (datos.hijos[padreId].some(h => h.id === g.categoriaCostoId)) { bloque = b; found = true; break; }
+                }
+                if (found) break;
+              }
+            } else {
+              if (g.categoria === 'GA') bloque = 'importacion';
+              else if (g.categoria === 'GD' || g.categoria === 'GV') bloque = 'venta';
+            }
+            conteos[bloque] = (conteos[bloque] || 0) + 1;
+          }
+          return conteos;
+        })()}
+        hayFiltrosActivos={!!hayFiltrosActivos}
+        onCambiarEstado={(estado) => setFiltros((f) => ({ ...f, estado }))}
+        onCambiarBloque={(bloque) => setFiltros((f) => ({ ...f, bloque }))}
+        onCambiarSearchTerm={setSearchTerm}
+        onCambiarOrden={setOrdenLista}
+        onLimpiarTodo={limpiarFiltros}
       />
-
-      {/* FilterDrawer */}
-      <FilterDrawer
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        onClearAll={limpiarFiltros}
-        activeFilterCount={[filtros.claseGasto, filtros.tipo, filtros.categoria, filtros.estado, filtros.esProrrateable].filter(Boolean).length}
-      >
-        <FilterSection title="Clasificacion">
-          <Select label="Clase" value={filtros.claseGasto} onChange={(e) => setFiltros({ ...filtros, claseGasto: e.target.value as ClaseGasto | '' })} options={[{ value: '', label: 'Todas' }, { value: 'GVD', label: 'Costos por Venta' }, { value: 'GAO', label: 'Gastos Fijos' }]} />
-          <Select label="Categoria" value={filtros.categoria} onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value as CategoriaGasto | '' })} options={[{ value: '', label: 'Todas' }, { value: 'GV', label: 'Venta' }, { value: 'GD', label: 'Distribucion' }, { value: 'GA', label: 'Administrativo' }, { value: 'GO', label: 'Operativo' }]} />
-          <Select label="Tipo" value={filtros.tipo} onChange={(e) => setFiltros({ ...filtros, tipo: e.target.value as TipoGasto | '' })} options={[{ value: '', label: 'Todos' }, ...tiposUnicos.map(tipo => ({ value: tipo, label: tipo }))]} />
-        </FilterSection>
-        <FilterSection title="Estado">
-          <Select label="Estado de pago" value={filtros.estado} onChange={(e) => setFiltros({ ...filtros, estado: e.target.value as EstadoGasto | '' })} options={[{ value: '', label: 'Todos' }, { value: 'pendiente', label: 'Pendiente' }, { value: 'parcial', label: 'Parcial' }, { value: 'pagado', label: 'Pagado' }, { value: 'cancelado', label: 'Cancelado' }]} />
-        </FilterSection>
-      </FilterDrawer>
 
       {/* Tabla de Gastos */}
       <Card padding="md">
