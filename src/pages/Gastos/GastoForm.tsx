@@ -496,6 +496,34 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
     }
   };
 
+  // ── F3 · KPIs del proveedor seleccionado (mini-card debajo del Combobox) ──
+  const proveedorKpis = useMemo(() => {
+    if (!formData.proveedorId) return null;
+    const ahora = new Date();
+    const inicio12m = new Date(ahora.getFullYear(), ahora.getMonth() - 11, 1);
+    const gastosDelProveedor = gastos.filter((g) => g.proveedorId === formData.proveedorId);
+    const ultimos12m = gastosDelProveedor.filter((g) => {
+      const f = g.fecha?.toDate?.() ?? new Date(g.fecha as any);
+      return f >= inicio12m;
+    });
+    const total12m = ultimos12m.reduce((acc, g) => acc + (g.montoPEN || 0), 0);
+    const promedio = ultimos12m.length > 0 ? total12m / ultimos12m.length : 0;
+    // Próximo vencimiento (pendientes con fecha futura)
+    const pendientes = gastosDelProveedor
+      .filter((g) => g.estado === 'pendiente' || g.estado === 'parcial')
+      .map((g) => ({ g, fecha: g.fecha?.toDate?.() ?? new Date(g.fecha as any) }))
+      .filter(({ fecha }) => !isNaN(fecha.getTime()))
+      .sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
+    const proximo = pendientes[0];
+    return {
+      cantidad12m: ultimos12m.length,
+      total12m,
+      promedio,
+      cantidadTotal: gastosDelProveedor.length,
+      proximo,
+    };
+  }, [formData.proveedorId, gastos]);
+
   const handleCrearProveedorInline = async (data: ProveedorFormData) => {
     if (!user?.uid) {
       toast.error('No se pudo identificar al usuario');
@@ -1332,6 +1360,62 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 }
                 emptyMessage="No hay entidades activas"
               />
+
+              {/* TAREA-PROVEEDOR-GASTOS F3 · Mini-card del proveedor con KPIs */}
+              {formData.proveedorId && proveedorKpis && (
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-sm">
+                      {(formData.proveedorNombre || formData.proveedor || '?').slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-blue-900 truncate">
+                        {formData.proveedorNombre || formData.proveedor}
+                      </div>
+                      <div className="text-[10px] text-blue-700 uppercase tracking-wider font-semibold">
+                        Proveedor vinculado · {formData.proveedorTipo}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div className="bg-white rounded-lg p-2">
+                      <div className="text-[10px] uppercase text-slate-500 font-bold">Gastos 12m</div>
+                      <div className="text-base font-bold tabular-nums text-blue-900">{proveedorKpis.cantidad12m}</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-2">
+                      <div className="text-[10px] uppercase text-slate-500 font-bold">Total 12m</div>
+                      <div className="text-base font-bold tabular-nums text-blue-900">
+                        {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 0 }).format(proveedorKpis.total12m)}
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-2">
+                      <div className="text-[10px] uppercase text-slate-500 font-bold">Promedio</div>
+                      <div className="text-base font-bold tabular-nums text-blue-900">
+                        {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 0 }).format(proveedorKpis.promedio)}
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-2">
+                      <div className="text-[10px] uppercase text-slate-500 font-bold">Próximo</div>
+                      {proveedorKpis.proximo ? (
+                        <div className="text-xs font-bold text-amber-700 tabular-nums">
+                          {(() => {
+                            const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+                            const f = proveedorKpis.proximo.fecha;
+                            return `${f.getDate()} ${meses[f.getMonth()]}`;
+                          })()}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-slate-400 italic">—</div>
+                      )}
+                    </div>
+                  </div>
+                  {proveedorKpis.cantidadTotal > 0 && (
+                    <div className="mt-2 text-[10px] text-blue-700 italic">
+                      Histórico total: {proveedorKpis.cantidadTotal} gastos vinculados a este proveedor
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex items-center gap-3">
                 {formData.proveedorId && (
