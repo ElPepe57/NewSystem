@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-01 (Implementacion arrancada post-S58f · 6 commits ya en main · TAREA-GASTOFORM-V2 ✅ CERRADA en ~75min vs 2h estimadas · 5 fases F1-F5 (cascada 3 niveles + inline create + breadcrumb cards + backfill script). TAREA-PROVEEDOR-GASTOS F1+F2 cerradas (commit a254a0f) · F3-F4-F5 desbloqueadas. 2 mockups extra producidos: M-GASTOFORM-V2 y M-GASTOS-PAGE-V2. Quedan: TAREA-GASTOS-PAGE-V2 (~5 ses) · TAREA-PROVEEDOR-GASTOS F4+F5 (~1.5h) · DEUDA-PAGOFORM-001 (~3 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL (~6-8 ses).)
+**Ultima actualizacion:** 2026-05-01 (15 commits en main post-S58f · TAREA-GASTOFORM-V2 ✅ CERRADA (5/5 · 75min) · TAREA-GASTOS-PAGE-V2 ✅ CERRADA (4 de 5 fases · 7 commits · ~3h efectivas vs 5 ses estimadas · F3.b vistas alternativas diferidas). 2 componentes nuevos: GastoCardCanonico + DrawerUrgentes + FiltrosGastosBar. TAREA-PROVEEDOR-GASTOS F1+F2 cerradas · F3+F4+F5 desbloqueadas y pendientes. Quedan: TAREA-PROVEEDOR-GASTOS F3+F4+F5 (~1.5h) · DEUDA-PAGOFORM-001 (~3 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL (~6-8 ses) · TAREA-GASTOS-PAGE-V2 F3.b vistas alternativas (~1.5h).)
 **Branch activo:** main
 
 ---
@@ -360,9 +360,31 @@ PagoUnificadoResult {
 3. TAREA-PROVEEDOR-GASTOS F4+F5 (~1.5h) → reportes BI + backfill proveedores
 **Total combinado:** ~8 sesiones de implementacion · sin breaking · todas backwards-compatible.
 
-**Estado:** declarada · pendiente ejecucion · prioridad media (despues de GASTOFORM-V2).
+**Estado:** ✅ **CERRADA (4 de 5 fases)** · 1 may 2026 · ~3h efectivas vs 5 ses estimadas. F3.b diferido pragmaticamente.
 
-**Documentacion:** `docs/mockups/gastos-page-completa-s58f.html` · 9 vistas · style canonico aplicado al 100% (Vista 8 de M-MAPA-VENTAS · 8 reglas del M-VENTAS-DESIGN-CANONICO).
+**Commits implementados (7):**
+- F1 (677c6d4) · Hero ejecutivo · 5 KPIs anchored con gradient + 3 insights automaticos · ~30 min
+- F2 (427af8b) · FiltrosGastosBar canonico (6a referencia · S58e) · chips Estado + Bloque + busqueda + orden · ~30 min
+- F3.a (22c55a0) · GastoCardCanonico unifica mobile+desktop · -125 lineas legacy · ~30 min
+- F4.a (1b2363c) · Bulk actions con multi-select · toolbar sticky + 5 acciones (Todos/Limpiar/Exportar/Eliminar/Salir) · ~30 min
+- F4.b (d8401a3) · DrawerUrgentes Linear-style · sticky lateral · vencidos+vencen-pronto · CTAs dinamicos · ~30 min
+- F4.c (49bf45f) · Empty state con onboarding · 3 cards de primer gasto + checklist pre-requisitos · ~25 min
+- F5 (270b88c) · Atajos a 7 modulos relacionados (Tesoreria · Maestros · RedLog · Envios · Ventas · Planilla · BI) · ~10 min
+
+**F3.b diferido (no critico):** las 4 vistas alternativas (Lista/Bloque/Calendario/Proveedor) son nice-to-have. El listado base (F3.a) es solido y cubre el caso operativo. Se puede sumar despues sin riesgo.
+
+**Resultado funcional:**
+- Hero protagonista con KPIs accionables (vs cards genericas anteriores)
+- Filtros canonicos pill (vs sidebar drawer pesado)
+- Cards unificadas con estados visuales claros (vs split mobile/desktop duplicado)
+- Multi-select para operaciones masivas (eliminar · exportar · futuro bulk pay)
+- Drawer urgentes siempre visible cuando hay vencidos/vencen-pronto
+- Empty state contextual segun caso (sin filtros · primera vez · mes vacio)
+- Cierre de circulo con atajos a 7 modulos relacionados
+
+**Verificaciones tecnicas:** tsc -b 0 errores · vite build OK · todos los commits deployed a https://vitaskinperu.web.app
+
+**Documentacion:** `docs/mockups/gastos-page-completa-s58f.html` · 9 vistas · style canonico aplicado al 100%.
 
 ### Tarea pendiente registrada
 
