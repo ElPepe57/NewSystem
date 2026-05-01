@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-01 (15 commits en main post-S58f · TAREA-GASTOFORM-V2 ✅ CERRADA (5/5 · 75min) · TAREA-GASTOS-PAGE-V2 ✅ CERRADA (4 de 5 fases · 7 commits · ~3h efectivas vs 5 ses estimadas · F3.b vistas alternativas diferidas). 2 componentes nuevos: GastoCardCanonico + DrawerUrgentes + FiltrosGastosBar. TAREA-PROVEEDOR-GASTOS F1+F2 cerradas · F3+F4+F5 desbloqueadas y pendientes. Quedan: TAREA-PROVEEDOR-GASTOS F3+F4+F5 (~1.5h) · DEUDA-PAGOFORM-001 (~3 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL (~6-8 ses) · TAREA-GASTOS-PAGE-V2 F3.b vistas alternativas (~1.5h).)
+**Ultima actualizacion:** 2026-05-01 (18 commits en main post-S58f · TRES tareas grandes CERRADAS: TAREA-GASTOFORM-V2 ✅ (5/5 · 75min) · TAREA-GASTOS-PAGE-V2 ✅ (4 de 5 · 7 commits · ~3h) · TAREA-PROVEEDOR-GASTOS ✅ (5/5 · 5 commits · ~2h). 4 componentes nuevos: GastoCardCanonico + DrawerUrgentes + FiltrosGastosBar + ReportesGastosBI. Modulo Gastos completamente rediseñado · 3 niveles de categorias funcionando · proveedor formal vinculado · reportes BI · seed listo. Quedan: DEUDA-PAGOFORM-001 (~3 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL (~6-8 ses · replicar canonico a otros modulos) · TAREA-GASTOS-PAGE-V2 F3.b vistas alternativas (~1.5h diferido).)
 **Branch activo:** main
 
 ---
@@ -230,7 +230,23 @@ PagoUnificadoResult {
 
 **Coordinacion con D-INLINE-8 del Lote 5:** la implementacion del ProveedorForm inline (P-INLINE-2) **es prerequisito** para esta tarea, porque sin el inline form el operador tendria que abandonar el flujo de gasto cada vez que aparece un proveedor nuevo. Recomendado: implementar P-INLINE-2 primero (junto con TAREA-PROVEEDOR-GASTOS · 0.5 ses extra) · ROI inmediato.
 
-**Estado:** EN CURSO · F1 verificada (sin cambios · S58b-F5 ya extendio el modelo) · F2 ProveedorForm inline implementado en commit `a254a0f` (1 may 2026) · F3-F4-F5 PAUSADAS hasta cerrar TAREA-GASTOFORM-V2 (declarada abajo) por dependencia de modelo correcto en reportes BI.
+**Estado:** ✅ **CERRADA** · 1 may 2026 · 5 fases implementadas · ~2h efectivas vs 3.5h estimadas.
+
+**Commits implementados (5):**
+- F1 (verificacion · 5 min) · sin cambios · S58b-F5 ya extendio el modelo
+- F2 (ProveedorForm inline · 25 min) · `a254a0f` · D-INLINE-8 modal en GastoForm
+- F3 (mini-card KPIs · 15 min) · `31b73ea` · gradient blue-indigo · 4 KPIs (gastos 12m · total · promedio · proximo)
+- F4 (3 reportes BI · 1h) · `f0ea69a` · toggle Listado/Reportes BI · 463 lineas nuevas (Top 10 + heatmap matriz + barras apiladas 12m)
+- F5 (seed proveedores · 10 min) · `cf8880c` · 10 proveedores frecuentes (Movistar · Sedapal · Edelnor · Calidda · Olva · Shalom · DHL · Google · Microsoft · MercadoLibre)
+
+**Resultado funcional:**
+- Crear proveedor sin abandonar flujo de gasto (P-INLINE-2 D-INLINE-8)
+- Mini-card automatica con KPIs del proveedor cuando se vincula (cantidad 12m · total · promedio · próximo)
+- Vista nueva en /gastos · toggle Listado vs Reportes BI
+- Reporte 1: Top 10 proveedores con sparkline mensual 12m
+- Reporte 2: Heatmap matriz Categoria padre × Proveedor (top 5 × top 5)
+- Reporte 3: Gasto por bloque × tiempo (12 meses · barras apiladas)
+- Script seed listo para pre-poblar 10 proveedores en producción
 
 **Documentacion:** `docs/mockups/integracion-gasto-tesoreria-s58f.html` · Vista 4 muestra el flujo completo · `docs/mockups/proveedor-form-inline-s58f.html` · Vista 4 muestra el inline form especifico para proveedor.
 
