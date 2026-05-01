@@ -771,7 +771,7 @@ export const Gastos: React.FC = () => {
       {/* Header */}
       <PageHeader
         title="Gastos Fijos"
-        subtitle="Gastos del per\u00edodo: personal, local, servicios, operativos"
+        subtitle="Gastos del período: personal, local, servicios, operativos"
         icon={Receipt}
         actions={
           <div className="flex gap-2">
@@ -785,7 +785,7 @@ export const Gastos: React.FC = () => {
         }
       />
 
-      {/* TAREA-PROVEEDOR-GASTOS F4 \u00b7 Toggle de vista \u00b7 Listado / Reportes BI */}
+      {/* TAREA-PROVEEDOR-GASTOS F4 · Toggle de vista · Listado / Reportes BI */}
       <div className="bg-white rounded-xl border border-slate-200 p-1 inline-flex gap-1 shadow-sm">
         <button
           type="button"
@@ -796,7 +796,7 @@ export const Gastos: React.FC = () => {
               : 'text-slate-600 hover:bg-slate-50'
           }`}
         >
-          \ud83d\udccb Listado
+          📋 Listado
         </button>
         <button
           type="button"
@@ -807,11 +807,11 @@ export const Gastos: React.FC = () => {
               : 'text-slate-600 hover:bg-slate-50'
           }`}
         >
-          \ud83d\udcca Reportes BI
+          📊 Reportes BI
         </button>
       </div>
 
-      {/* Si vista = reportes \u00b7 render el componente y oculta TODO el flujo de listado */}
+      {/* Si vista = reportes · render el componente y oculta TODO el flujo de listado */}
       {vistaActiva === 'reportes' && (
         <ReportesGastosBI
           gastos={gastosPorLinea}
