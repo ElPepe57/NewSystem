@@ -1314,28 +1314,128 @@ export const Gastos: React.FC = () => {
             ))}
           </div>
         ) : gastosVisibles.length === 0 ? (
-          <EmptyStateAction
-            title={
-              viewMode === 'pending'
-                ? 'No hay gastos pendientes'
-                : hayFiltrosActivos
-                  ? 'No se encontraron gastos'
-                  : 'No hay gastos registrados'
-            }
-            description={
-              viewMode === 'pending'
-                ? 'Todos los gastos han sido pagados'
-                : hayFiltrosActivos
-                  ? 'Prueba con otros filtros o limpia los filtros actuales'
-                  : viewMode === 'month'
-                    ? `No hay gastos en ${MONTH_NAMES[selectedMonth - 1]} ${selectedYear}`
-                    : 'Comienza registrando un nuevo gasto operativo'
-            }
-            variant={hayFiltrosActivos || viewMode === 'pending' ? 'no-results' : 'no-data'}
-            icon={hayFiltrosActivos ? 'search' : 'file'}
-            actionLabel={hayFiltrosActivos ? 'Limpiar Filtros' : 'Nuevo Gasto'}
-            onAction={hayFiltrosActivos ? limpiarFiltros : () => setShowModal(true)}
-          />
+          /* TAREA-GASTOS-PAGE-V2 F4.c · Empty state segun contexto */
+          hayFiltrosActivos || viewMode === 'pending' ? (
+            <EmptyStateAction
+              title={
+                viewMode === 'pending'
+                  ? 'No hay gastos pendientes'
+                  : 'No se encontraron gastos'
+              }
+              description={
+                viewMode === 'pending'
+                  ? 'Todos los gastos han sido pagados'
+                  : 'Prueba con otros filtros o limpia los filtros actuales'
+              }
+              variant="no-results"
+              icon={hayFiltrosActivos ? 'search' : 'file'}
+              actionLabel="Limpiar Filtros"
+              onAction={hayFiltrosActivos ? limpiarFiltros : undefined}
+            />
+          ) : gastos.length === 0 ? (
+            /* Onboarding · primera vez en el modulo · sin gastos en TODA la base */
+            <div className="text-center py-10 px-4">
+              <div className="text-6xl mb-4">💰</div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">No hay gastos registrados aún</h3>
+              <p className="text-sm text-slate-600 max-w-xl mx-auto mb-6">
+                Empezar a registrar gastos te permite calcular margen real · auditar fiscalmente · y ver el panorama
+                de tu negocio. Te sugerimos por dónde empezar.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto mb-6">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="bg-amber-50 border-2 border-amber-300 hover:border-amber-500 rounded-2xl p-5 text-left transition-all hover:shadow-md"
+                >
+                  <div className="text-3xl mb-2">📅</div>
+                  <div className="font-bold text-amber-900 mb-1">Tu primer gasto recurrente</div>
+                  <p className="text-xs text-amber-700">
+                    Recibo Movistar · Sedapal · Edelnor. Tarda 1 minuto · queda como recurrente.
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="bg-blue-50 border-2 border-blue-300 hover:border-blue-500 rounded-2xl p-5 text-left transition-all hover:shadow-md"
+                >
+                  <div className="text-3xl mb-2">📦</div>
+                  <div className="font-bold text-blue-900 mb-1">Costo de un envío</div>
+                  <p className="text-xs text-blue-700">
+                    Flete adicional o aranceles · vincula a un envío · impacta CTRU automáticamente.
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="bg-purple-50 border-2 border-purple-300 hover:border-purple-500 rounded-2xl p-5 text-left transition-all hover:shadow-md"
+                >
+                  <div className="text-3xl mb-2">🛒</div>
+                  <div className="font-bold text-purple-900 mb-1">Comisión de venta</div>
+                  <p className="text-xs text-purple-700">
+                    ML · pasarela · si conectas webhook se auto-detecta · sin entrada manual.
+                  </p>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-2.5 rounded-lg shadow-sm"
+                >
+                  + Registrar primer gasto
+                </button>
+              </div>
+
+              {/* Pre-requisitos · checklist */}
+              <div className="mt-8 max-w-3xl mx-auto bg-slate-50 rounded-xl border border-slate-200 p-4">
+                <div className="text-[10px] uppercase tracking-wider text-slate-700 font-bold mb-3">
+                  📋 Pre-requisitos para usar el módulo · checklist
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className={`bg-white rounded-lg border p-3 flex items-center gap-2 ${arbolCategorias && Object.keys(arbolCategorias).length > 0 ? 'border-emerald-200' : 'border-amber-200'}`}>
+                    <div className="text-xl">{arbolCategorias && Object.keys(arbolCategorias).length > 0 ? '✓' : '📝'}</div>
+                    <div className="flex-1 text-left">
+                      <div className={`text-xs font-bold ${arbolCategorias && Object.keys(arbolCategorias).length > 0 ? 'text-emerald-900' : 'text-amber-900'}`}>
+                        Categorías de costo
+                      </div>
+                      <div className={`text-[10px] ${arbolCategorias && Object.keys(arbolCategorias).length > 0 ? 'text-emerald-700' : 'text-amber-700'}`}>
+                        {arbolCategorias && Object.keys(arbolCategorias).length > 0 ? '3 niveles cargados (S40 seed)' : 'Ejecutar seed pre-populado'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg border border-emerald-200 p-3 flex items-center gap-2">
+                    <div className="text-xl">✓</div>
+                    <div className="flex-1 text-left">
+                      <div className="text-xs font-bold text-emerald-900">Cuentas bancarias</div>
+                      <div className="text-[10px] text-emerald-700">Para registrar pagos · ya configuradas</div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg border border-amber-200 p-3 flex items-center gap-2">
+                    <div className="text-xl">📝</div>
+                    <div className="flex-1 text-left">
+                      <div className="text-xs font-bold text-amber-900">Top proveedores</div>
+                      <div className="text-[10px] text-amber-700">Sugerido cargar · o crear inline al primer gasto</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <EmptyStateAction
+              title="No hay gastos registrados"
+              description={
+                viewMode === 'month'
+                  ? `No hay gastos en ${MONTH_NAMES[selectedMonth - 1]} ${selectedYear}`
+                  : 'Comienza registrando un nuevo gasto operativo'
+              }
+              variant="no-data"
+              icon="file"
+              actionLabel="Nuevo Gasto"
+              onAction={() => setShowModal(true)}
+            />
+          )
         ) : (
           <>
             {/* TAREA-GASTOS-PAGE-V2 F3.a · Lista unificada de GastoCardCanonico (responsive) */}
