@@ -59,6 +59,9 @@ export const Gastos: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [ordenLista, setOrdenLista] = useState<OrdenGasto>('fecha_desc'); // F2 · orden de la lista
+  // F4.a · Bulk actions
+  const [bulkMode, setBulkMode] = useState(false);
+  const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
 
   // Filtrar gastos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
   const gastosPorLinea = useLineaFilter(gastos, g => g.lineaNegocioId, { allowUndefined: true });
@@ -230,6 +233,84 @@ export const Gastos: React.FC = () => {
       gastosDelMes,
     };
   }, [gastosPorLinea, arbolCategorias, selectedMonth, selectedYear]);
+
+  // ── F4.a · Bulk actions handlers ──
+  const handleToggleSeleccion = useCallback((g: Gasto) => {
+    setSeleccionados((prev) => {
+      const next = new Set(prev);
+      if (next.has(g.id)) next.delete(g.id);
+      else next.add(g.id);
+      return next;
+    });
+  }, []);
+
+  const handleSelectAllVisibles = useCallback(() => {
+    setSeleccionados(new Set(gastosVisibles.map((g) => g.id)));
+  }, []); // gastosVisibles se accede via el render · prevent infinito
+
+  const handleClearSeleccion = useCallback(() => {
+    setSeleccionados(new Set());
+  }, []);
+
+  const handleSalirBulkMode = useCallback(() => {
+    setBulkMode(false);
+    setSeleccionados(new Set());
+  }, []);
+
+  // KPIs de la seleccion bulk (computado desde seleccionados + gastos)
+  const seleccionStats = useMemo(() => {
+    const items = gastosPorLinea.filter((g) => seleccionados.has(g.id));
+    const total = items.reduce((acc, g) => acc + (g.montoPEN || 0), 0);
+    const pendientes = items.filter((g) => g.estado === 'pendiente' || g.estado === 'parcial');
+    const totalPendiente = pendientes.reduce(
+      (acc, g) => acc + ((g.montoPEN || 0) - (g.montoPagado || 0)),
+      0,
+    );
+    return { count: items.length, total, pendientes: pendientes.length, totalPendiente, items };
+  }, [seleccionados, gastosPorLinea]);
+
+  // Bulk export · usa exportService existente con los seleccionados
+  const handleBulkExport = useCallback(() => {
+    if (seleccionStats.items.length === 0) return;
+    exportService.exportGastos(seleccionStats.items);
+    toast.success(`${seleccionStats.items.length} gastos exportados`);
+  }, [seleccionStats.items, toast]);
+
+  // Bulk eliminar · solo permite si todos los seleccionados son pendientes/cancelados sin pagos
+  const handleBulkEliminar = useCallback(async () => {
+    if (seleccionStats.items.length === 0) return;
+    const eliminables = seleccionStats.items.filter(
+      (g) =>
+        (g.estado === 'pendiente' || g.estado === 'cancelado') &&
+        (!g.pagos || g.pagos.length === 0),
+    );
+    const noEliminables = seleccionStats.items.length - eliminables.length;
+    if (eliminables.length === 0) {
+      toast.warning('Ninguno de los seleccionados puede eliminarse · tienen pagos o estan pagados');
+      return;
+    }
+    const ok = await confirm({
+      title: `Eliminar ${eliminables.length} gastos`,
+      message:
+        noEliminables > 0
+          ? `Se eliminaran ${eliminables.length} de ${seleccionStats.items.length} (${noEliminables} omitidos por tener pagos o estar pagados).`
+          : `Se eliminaran ${eliminables.length} gastos seleccionados.`,
+      confirmText: `Eliminar ${eliminables.length}`,
+      variant: 'danger',
+    });
+    if (!ok) return;
+    let exitos = 0;
+    for (const g of eliminables) {
+      try {
+        await eliminarGasto(g.id);
+        exitos++;
+      } catch (e) {
+        console.error('Error eliminando bulk', g.id, e);
+      }
+    }
+    toast.success(`${exitos} gastos eliminados`);
+    handleSalirBulkMode();
+  }, [seleccionStats.items, eliminarGasto, confirm, toast, handleSalirBulkMode]);
 
   // Cargar datos según el modo de vista
   useEffect(() => {
@@ -1112,6 +1193,104 @@ export const Gastos: React.FC = () => {
         onLimpiarTodo={limpiarFiltros}
       />
 
+      {/* TAREA-GASTOS-PAGE-V2 F4.a · Toolbar de acciones masivas (multi-select) */}
+      {!loading && gastosVisibles.length > 0 && (
+        <div className={`rounded-xl border-2 transition-all ${
+          bulkMode
+            ? seleccionStats.count > 0
+              ? 'bg-amber-100 border-amber-400 ring-2 ring-amber-200'
+              : 'bg-amber-50 border-amber-200'
+            : 'bg-white border-slate-200'
+        }`}>
+          <div className="px-4 py-2.5 flex flex-wrap items-center gap-3 text-sm">
+            {!bulkMode ? (
+              <button
+                type="button"
+                onClick={() => setBulkMode(true)}
+                className="text-xs font-semibold text-amber-700 hover:text-amber-900 flex items-center gap-1.5"
+              >
+                ☑ Activar selección múltiple
+              </button>
+            ) : (
+              <>
+                <span className="text-xs uppercase tracking-wider text-amber-900 font-bold">Selección:</span>
+                {seleccionStats.count > 0 ? (
+                  <>
+                    <span className="text-sm font-bold text-amber-900 tabular-nums">
+                      {seleccionStats.count} gasto{seleccionStats.count > 1 ? 's' : ''}
+                    </span>
+                    <span className="text-xs text-amber-700 tabular-nums">
+                      · {new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(seleccionStats.total)} total
+                      {seleccionStats.pendientes > 0 && (
+                        <> · {seleccionStats.pendientes} pendientes</>
+                      )}
+                    </span>
+                    <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handleSelectAllVisibles}
+                        className="text-[11px] text-amber-700 hover:text-amber-900 font-medium px-2 py-1 hover:bg-white/60 rounded"
+                      >
+                        Todos visibles ({gastosVisibles.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClearSeleccion}
+                        className="text-[11px] text-slate-600 hover:text-slate-900 font-medium px-2 py-1 hover:bg-white/60 rounded"
+                      >
+                        Limpiar
+                      </button>
+                      <div className="w-px h-5 bg-amber-300 mx-1"></div>
+                      <button
+                        type="button"
+                        onClick={handleBulkExport}
+                        className="text-xs font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg shadow-sm"
+                      >
+                        📥 Exportar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleBulkEliminar}
+                        className="text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg shadow-sm"
+                      >
+                        🗑 Eliminar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSalirBulkMode}
+                        className="text-xs font-medium text-amber-700 hover:text-amber-900 px-2 py-1 hover:bg-white/60 rounded"
+                      >
+                        ✕ Salir
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-xs text-amber-700 italic">Marca los gastos que quieres procesar en masa</span>
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handleSelectAllVisibles}
+                        className="text-[11px] text-amber-700 hover:text-amber-900 font-medium px-2 py-1 hover:bg-white/60 rounded"
+                      >
+                        Todos visibles ({gastosVisibles.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSalirBulkMode}
+                        className="text-xs font-medium text-slate-600 hover:text-slate-900 px-2 py-1 hover:bg-white/60 rounded"
+                      >
+                        ✕ Salir del modo selección
+                      </button>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Tabla de Gastos */}
       <Card padding="md">
         {loading ? (
@@ -1163,6 +1342,9 @@ export const Gastos: React.FC = () => {
                   breadcrumb={resolveBreadcrumb(gasto.categoriaCostoId)}
                   onEditar={handleEditarGasto}
                   onPagar={(g) => setGastoParaPago(g)}
+                  mostrarCheckbox={bulkMode}
+                  seleccionado={seleccionados.has(gasto.id)}
+                  onToggleSeleccion={handleToggleSeleccion}
                 />
               ))}
             </div>
