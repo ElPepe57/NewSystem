@@ -19,6 +19,8 @@ import { useEntidadesPorTipo } from '../../hooks/useEntidadesPorTipo';
 import { useProveedorStore } from '../../store/proveedorStore';
 import { ProveedorForm } from '../../components/modules/ordenCompra/ProveedorForm';
 import type { ProveedorFormData } from '../../types/ordenCompra.types';
+import { useCategoriaCostoStore } from '../../store/categoriaCostoStore';
+import type { BloqueCosto } from '../../types/categoriaCosto.types';
 
 interface GastoFormProps {
   onClose: () => void;
@@ -341,6 +343,101 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   const [showProveedorInline, setShowProveedorInline] = useState(false);
   const [loadingProveedorInline, setLoadingProveedorInline] = useState(false);
 
+  // ── TAREA-GASTOFORM-V2 · Cascada Bloque > Categoria > Subcategoria ──
+  // Modelo de 3 niveles aprobado en S40 (ACUERDOS_REINGENIERIA_2026-04-10).
+  // Reemplaza el selector legacy de CategoriaGasto (GV/GD/GA/GO @deprecated)
+  // con seleccion en cascada que persiste categoriaCostoId.
+  const arbolCategorias = useCategoriaCostoStore((s) => s.arbol);
+  const fetchArbolCategorias = useCategoriaCostoStore((s) => s.fetchArbol);
+  const cargandoCategorias = useCategoriaCostoStore((s) => s.loading);
+
+  useEffect(() => {
+    fetchArbolCategorias();
+  }, [fetchArbolCategorias]);
+
+  // Derivar bloque inicial desde gastoEditar (si tiene categoriaCostoId, buscar en arbol;
+  // si solo tiene categoria legacy, mapear: GA→importacion · GD/GV→venta · GO→periodo)
+  const deriveBloqueInicial = (): BloqueCosto | null => {
+    if (gastoEditar?.categoriaCostoId && arbolCategorias) {
+      // Buscar en cada bloque si la categoria pertenece
+      for (const bloque of ['importacion', 'venta', 'periodo'] as BloqueCosto[]) {
+        const datos = arbolCategorias[bloque];
+        if (!datos) continue;
+        if (datos.padres.some((p) => p.id === gastoEditar.categoriaCostoId)) return bloque;
+        for (const padreId of Object.keys(datos.hijos)) {
+          if (datos.hijos[padreId].some((h) => h.id === gastoEditar.categoriaCostoId)) return bloque;
+        }
+      }
+    }
+    if (!gastoEditar?.categoria) return null;
+    if (gastoEditar.categoria === 'GA') return 'importacion';
+    if (gastoEditar.categoria === 'GD' || gastoEditar.categoria === 'GV') return 'venta';
+    return 'periodo'; // GO
+  };
+
+  const [bloqueSeleccionado, setBloqueSeleccionado] = useState<BloqueCosto | null>(null);
+  const [categoriaPadreId, setCategoriaPadreId] = useState<string | null>(null);
+  const [subcategoriaId, setSubcategoriaId] = useState<string | null>(null);
+
+  // Inicializar la cascada cuando el arbol esta listo (importante para edicion)
+  useEffect(() => {
+    if (!arbolCategorias) return;
+    if (bloqueSeleccionado !== null) return; // ya inicializado
+    const bloqueInicial = deriveBloqueInicial();
+    if (!bloqueInicial) return;
+    setBloqueSeleccionado(bloqueInicial);
+
+    if (gastoEditar?.categoriaCostoId) {
+      const datos = arbolCategorias[bloqueInicial];
+      // ¿es padre o hijo?
+      if (datos.padres.some((p) => p.id === gastoEditar.categoriaCostoId)) {
+        setCategoriaPadreId(gastoEditar.categoriaCostoId);
+        setSubcategoriaId(null);
+      } else {
+        for (const padreId of Object.keys(datos.hijos)) {
+          if (datos.hijos[padreId].some((h) => h.id === gastoEditar.categoriaCostoId)) {
+            setCategoriaPadreId(padreId);
+            setSubcategoriaId(gastoEditar.categoriaCostoId);
+            return;
+          }
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [arbolCategorias]);
+
+  // Handler · al elegir bloque, resetea niveles 2 y 3
+  const handleSeleccionarBloque = (bloque: BloqueCosto) => {
+    setBloqueSeleccionado(bloque);
+    setCategoriaPadreId(null);
+    setSubcategoriaId(null);
+    // Auto-derivar categoria legacy del bloque (mantener compat hasta migracion total)
+    const legacy: CategoriaGasto =
+      bloque === 'importacion' ? 'GA' : bloque === 'venta' ? 'GD' : 'GO';
+    setFormData((prev) => ({ ...prev, categoria: legacy, categoriaCostoId: undefined }));
+  };
+
+  // Handler · al elegir categoria padre, resetea subcategoria y persiste categoriaCostoId
+  const handleSeleccionarCategoriaPadre = (padreId: string) => {
+    setCategoriaPadreId(padreId);
+    setSubcategoriaId(null);
+    setFormData((prev) => ({ ...prev, categoriaCostoId: padreId }));
+  };
+
+  // Handler · al elegir subcategoria, persiste su id como categoriaCostoId
+  const handleSeleccionarSubcategoria = (subId: string) => {
+    setSubcategoriaId(subId);
+    setFormData((prev) => ({ ...prev, categoriaCostoId: subId }));
+  };
+
+  // Datos derivados del arbol para los selectores
+  const categoriasPadreDelBloque = bloqueSeleccionado && arbolCategorias
+    ? arbolCategorias[bloqueSeleccionado]?.padres ?? []
+    : [];
+  const subcategoriasDelPadre = bloqueSeleccionado && categoriaPadreId && arbolCategorias
+    ? arbolCategorias[bloqueSeleccionado]?.hijos?.[categoriaPadreId] ?? []
+    : [];
+
   const handleCrearProveedorInline = async (data: ProveedorFormData) => {
     if (!user?.uid) {
       toast.error('No se pudo identificar al usuario');
@@ -471,51 +568,209 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </div>
           )}
 
-          {/* Sección 1: Categoría */}
-          <div className="space-y-3 sm:space-y-4">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900">Categoría del Gasto</h3>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-              {(Object.keys(CATEGORIAS_GASTO) as CategoriaGasto[]).map((cat) => {
-                const info = CATEGORIAS_GASTO[cat];
-                const isSelected = formData.categoria === cat;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => handleChange('categoria', cat)}
-                    className={`p-2 sm:p-3 rounded-lg border-2 text-left transition-all ${
-                      isSelected
-                        ? getCategoriaColor(cat) + ' ring-2 ring-offset-1 ring-slate-400'
-                        : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="font-semibold text-xs sm:text-sm">{info.codigo}</div>
-                    <div className="text-[10px] sm:text-xs mt-0.5 opacity-80">{info.nombre}</div>
-                  </button>
-                );
-              })}
+          {/* Sección 1: Categorización (TAREA-GASTOFORM-V2 · cascada 3 niveles) */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900">Categorización del Gasto</h3>
+              {bloqueSeleccionado && categoriaPadreId && (
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold ${
+                    bloqueSeleccionado === 'importacion' ? 'bg-blue-100 text-blue-800'
+                    : bloqueSeleccionado === 'venta' ? 'bg-purple-100 text-purple-800'
+                    : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {bloqueSeleccionado === 'importacion' ? '📦 Importación'
+                      : bloqueSeleccionado === 'venta' ? '🛒 Venta'
+                      : '📅 Período'}
+                  </span>
+                  <span className="text-slate-300">›</span>
+                  <span className="font-semibold text-slate-700">
+                    {categoriasPadreDelBloque.find(p => p.id === categoriaPadreId)?.nombre}
+                  </span>
+                  {subcategoriaId && (
+                    <>
+                      <span className="text-slate-300">›</span>
+                      <span className="font-semibold text-slate-700">
+                        {subcategoriasDelPadre.find(s => s.id === subcategoriaId)?.nombre}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Info de categoría seleccionada */}
-            <div className={`p-3 rounded-lg border ${getCategoriaColor(formData.categoria)}`}>
-              <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <div>
-                  <div className="font-medium text-sm">{categoriaInfo.nombre}</div>
-                  <div className="text-xs mt-1 opacity-80">{categoriaInfo.descripcion}</div>
-                  <div className="text-xs mt-2">
-                    <span className="font-medium">Ejemplos: </span>
-                    {categoriaInfo.ejemplos.slice(0, 3).join(', ')}
+            {/* Nivel 1 · Bloque (3 cards visuales con gradient) */}
+            <div>
+              <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
+                Nivel 1 · ¿Qué tipo de gasto es?
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                {/* Importación */}
+                <button
+                  type="button"
+                  onClick={() => handleSeleccionarBloque('importacion')}
+                  className={`rounded-xl overflow-hidden border-2 text-left transition-all ${
+                    bloqueSeleccionado === 'importacion'
+                      ? 'border-blue-500 ring-2 ring-blue-200'
+                      : 'border-slate-200 hover:border-blue-300'
+                  }`}
+                >
+                  <div className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white p-3">
+                    <div className="text-xl mb-0.5">📦</div>
+                    <div className="text-sm font-bold">Importación</div>
                   </div>
-                  <div className="text-xs mt-1">
-                    {categoriaInfo.impactaCTRU
-                      ? '✅ Por defecto se prorratea en CTRU'
-                      : '❌ No impacta CTRU (se descuenta de utilidad de venta)'}
+                  <div className="bg-blue-50 px-3 py-2">
+                    <div className="text-[10px] text-blue-700">Costos directos de traer producto</div>
+                    <div className="text-[10px] text-blue-600 italic mt-0.5">→ flete · aranceles · seguros</div>
+                  </div>
+                </button>
+
+                {/* Venta */}
+                <button
+                  type="button"
+                  onClick={() => handleSeleccionarBloque('venta')}
+                  className={`rounded-xl overflow-hidden border-2 text-left transition-all ${
+                    bloqueSeleccionado === 'venta'
+                      ? 'border-purple-500 ring-2 ring-purple-200'
+                      : 'border-slate-200 hover:border-purple-300'
+                  }`}
+                >
+                  <div className="bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white p-3">
+                    <div className="text-xl mb-0.5">🛒</div>
+                    <div className="text-sm font-bold">Venta</div>
+                  </div>
+                  <div className="bg-purple-50 px-3 py-2">
+                    <div className="text-[10px] text-purple-700">Costos directos por venta</div>
+                    <div className="text-[10px] text-purple-600 italic mt-0.5">→ comisión ML · delivery · empaque</div>
+                  </div>
+                </button>
+
+                {/* Período */}
+                <button
+                  type="button"
+                  onClick={() => handleSeleccionarBloque('periodo')}
+                  className={`rounded-xl overflow-hidden border-2 text-left transition-all ${
+                    bloqueSeleccionado === 'periodo'
+                      ? 'border-amber-500 ring-2 ring-amber-200'
+                      : 'border-slate-200 hover:border-amber-300'
+                  }`}
+                >
+                  <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-3">
+                    <div className="text-xl mb-0.5">📅</div>
+                    <div className="text-sm font-bold">Período</div>
+                  </div>
+                  <div className="bg-amber-50 px-3 py-2">
+                    <div className="text-[10px] text-amber-700">Gastos fijos del mes</div>
+                    <div className="text-[10px] text-amber-600 italic mt-0.5">→ planilla · alquiler · servicios</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Nivel 2 · Categoría padre (filtrada por bloque) */}
+            {bloqueSeleccionado && (
+              <div>
+                <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
+                  Nivel 2 · Categoría
+                  {cargandoCategorias && <span className="ml-2 text-slate-400 italic">cargando...</span>}
+                </div>
+                {categoriasPadreDelBloque.length === 0 && !cargandoCategorias ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                    ⚠ No hay categorías cargadas en el bloque "{bloqueSeleccionado}". Si recién instalaste el sistema, ejecuta el seed:
+                    <code className="block bg-white px-2 py-1 rounded mt-1 font-mono text-[10px]">node scripts/reingenieria/03-seed-categorias-costos.mjs --execute</code>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {categoriasPadreDelBloque.map((padre) => {
+                      const isSelected = categoriaPadreId === padre.id;
+                      const numHijos = arbolCategorias?.[bloqueSeleccionado]?.hijos?.[padre.id]?.length ?? 0;
+                      return (
+                        <button
+                          key={padre.id}
+                          type="button"
+                          onClick={() => handleSeleccionarCategoriaPadre(padre.id)}
+                          className={`p-3 rounded-lg border-2 text-left transition-all ${
+                            isSelected
+                              ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-200'
+                              : 'bg-white border-slate-200 hover:border-amber-300'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-slate-900">{padre.nombre}</div>
+                          {numHijos > 0 && (
+                            <div className="text-[10px] text-slate-500 mt-0.5">{numHijos} sub</div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Nivel 3 · Subcategoría (opcional · filtrada por padre) */}
+            {bloqueSeleccionado && categoriaPadreId && subcategoriasDelPadre.length > 0 && (
+              <div>
+                <div className="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-2">
+                  Nivel 3 · Subcategoría · opcional
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {subcategoriasDelPadre.map((hijo) => {
+                    const isSelected = subcategoriaId === hijo.id;
+                    return (
+                      <button
+                        key={hijo.id}
+                        type="button"
+                        onClick={() => handleSeleccionarSubcategoria(hijo.id)}
+                        className={`p-2.5 rounded-lg border-2 text-left transition-all ${
+                          isSelected
+                            ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-200'
+                            : 'bg-white border-slate-200 hover:border-amber-300'
+                        }`}
+                      >
+                        <div className="text-[11px] font-semibold text-slate-900">{hijo.nombre}</div>
+                      </button>
+                    );
+                  })}
+                  {subcategoriaId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSubcategoriaId(null);
+                        setFormData((prev) => ({ ...prev, categoriaCostoId: categoriaPadreId ?? undefined }));
+                      }}
+                      className="p-2.5 rounded-lg border-2 border-dashed border-slate-300 text-[11px] text-slate-500 hover:border-slate-400"
+                    >
+                      ✕ Sin subcategoría
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Info contextual del bloque seleccionado · impacto contable */}
+            {bloqueSeleccionado && (
+              <div className={`p-3 rounded-lg border text-xs ${
+                bloqueSeleccionado === 'importacion' ? 'bg-blue-50 border-blue-200 text-blue-900'
+                : bloqueSeleccionado === 'venta' ? 'bg-purple-50 border-purple-200 text-purple-900'
+                : 'bg-amber-50 border-amber-200 text-amber-900'
+              }`}>
+                <div className="flex items-start gap-2">
+                  <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="font-semibold">
+                      {bloqueSeleccionado === 'importacion' ? '🎯 Impacto: prorratea a unidades del envío (CTRU)'
+                        : bloqueSeleccionado === 'venta' ? '🎯 Impacto: resta margen contribución de la venta'
+                        : '🎯 Impacto: resta margen operativo del período'}
+                    </div>
+                    <div className="text-[11px] mt-1 opacity-80">
+                      {bloqueSeleccionado === 'importacion' ? 'Ej. flete adicional, aranceles, almacenaje temporal'
+                        : bloqueSeleccionado === 'venta' ? 'Ej. comisión ML, delivery, empaque, descuento por venta'
+                        : 'Ej. recibo Sedapal/Movistar, alquiler, planilla, software'}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Sección: Línea de Negocio */}
