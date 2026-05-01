@@ -230,9 +230,69 @@ PagoUnificadoResult {
 
 **Coordinacion con D-INLINE-8 del Lote 5:** la implementacion del ProveedorForm inline (P-INLINE-2) **es prerequisito** para esta tarea, porque sin el inline form el operador tendria que abandonar el flujo de gasto cada vez que aparece un proveedor nuevo. Recomendado: implementar P-INLINE-2 primero (junto con TAREA-PROVEEDOR-GASTOS · 0.5 ses extra) · ROI inmediato.
 
-**Estado:** declarada · pendiente ejecucion · alta prioridad operativa.
+**Estado:** EN CURSO · F1 verificada (sin cambios · S58b-F5 ya extendio el modelo) · F2 ProveedorForm inline implementado en commit `a254a0f` (1 may 2026) · F3-F4-F5 PAUSADAS hasta cerrar TAREA-GASTOFORM-V2 (declarada abajo) por dependencia de modelo correcto en reportes BI.
 
 **Documentacion:** `docs/mockups/integracion-gasto-tesoreria-s58f.html` · Vista 4 muestra el flujo completo · `docs/mockups/proveedor-form-inline-s58f.html` · Vista 4 muestra el inline form especifico para proveedor.
+
+### TAREA-GASTOFORM-V2 · Modelo de 3 niveles en GastoForm ⭐ DECLARADA
+
+**Origen:** Sesion S58f post-cierre · 1 may 2026 · feedback del usuario al probar F2 de TAREA-PROVEEDOR-GASTOS: *"el modal de nuevo gasto no representa la logica actual del negocio · en algun momento conversamos de intentar estructurar algo de 3 niveles."*
+
+**Hallazgo:** el sistema TIENE infraestructura completa de 3 niveles desde S40 (`ACUERDOS_REINGENIERIA_2026-04-10`) pero el GastoForm.tsx sigue usando el modelo legacy GV/GD/GA/GO marcado @deprecated. El modelo `CategoriaCosto` (jerarquia bloque/categoriaPadreId/nivel) existe junto con service · store · maestro UI · seed pre-poblado · pero el form no lo usa.
+
+**Modelo aprobado (3 niveles):**
+
+| Nivel | Tipo | Ejemplo |
+|-------|------|---------|
+| 1 · Bloque (fijo · 3 opciones) | `BloqueCosto` = `'importacion' \| 'venta' \| 'periodo'` | `periodo` |
+| 2 · Categoria padre (dinamica) | `CategoriaCosto` con `nivel=0` | `Local` |
+| 3 · Subcategoria (dinamica · opcional) | `CategoriaCosto` con `nivel=1` + `categoriaPadreId` | `Agua (Sedapal)` |
+
+**Bloques fijos · semantica de negocio:**
+- `importacion` (Caja 1 · CTRU) · costos directos de traer producto · prorrateo a unidades del envio
+- `venta` (Caja 2 · costos por venta) · comisiones ML · delivery · empaque · resta margen contribucion
+- `periodo` (Caja 3 · gastos fijos del mes) · planilla · alquiler · servicios · resta margen operativo
+
+**Estado actual del codigo:**
+- ✅ `src/types/categoriaCosto.types.ts` · modelo + seed completo
+- ✅ `src/services/categoriaCosto.service.ts`
+- ✅ `src/store/categoriaCostoStore.ts`
+- ✅ `src/components/Maestros/CategoriasCostos.tsx` · UI de gestion
+- ✅ `scripts/reingenieria/03-seed-categorias-costos.mjs` · seed listo
+- ✅ `Gasto.categoriaCostoId?: string` campo agregado
+- ❌ `Gasto.categoria: 'GV'\|'GD'\|'GA'\|'GO'` marcado @deprecated PERO sigue REQUIRED
+- ❌ `GastoForm.tsx` usa selector legacy de `CategoriaGasto` · NO usa cascada de 3 niveles
+
+**Solucion propuesta · 5 fases · ~2 horas:**
+
+| Fase | Esfuerzo | Que incluye |
+|------|----------|-------------|
+| F1 | 15 min | Verificar seed `categoriasCostos` en Firestore prod · ejecutar seed si falta |
+| F2 | 50 min | Reemplazar `<Select>categoria` por 3 cards/grids cascada (Bloque · Categoria · Subcategoria opcional) · setea `categoriaCostoId` |
+| F3 | 25 min | Inline create categoria/subcategoria (P-INLINE-4 del Lote 5 · D-INLINE-8) |
+| F4 | 20 min | Detalle de gasto con breadcrumb 3 pills + cuenta contable + impacto |
+| F5 | 10 min | Script idempotente backfill `categoriaCostoId` en gastos existentes derivando del campo `categoria` legacy |
+
+**8 decisiones canonicas declaradas D-GV2-1 a D-GV2-8** (ver mockup):
+- D-GV2-1 · 3 niveles obligatorios (subcategoria opcional)
+- D-GV2-2 · Bloque define impacto contable automatico
+- D-GV2-3 · Cards con gradient direccional alineadas al canonico (no Select)
+- D-GV2-4 · Campo `categoria` legacy mantenido durante migracion (auto-derivado)
+- D-GV2-5 · Inline create categorias/subcategorias (D-INLINE-8 reusable)
+- D-GV2-6 · Detalle del gasto con breadcrumb 3 pills clicables
+- D-GV2-7 · Reportes BI agrupan por nivel (P&L 3 niveles · heatmap subcat × proveedor)
+- D-GV2-8 · Pre-requisito de F4-F5 de TAREA-PROVEEDOR-GASTOS (sin modelo correcto los reportes hay que rehacerlos)
+
+**Backwards-compatible:** sin breaking · gastos legacy con `categoria` siguen funcionando · al editarlos se les vincula `categoriaCostoId` · el campo legacy auto-derivado del bloque hasta migracion total.
+
+**Coordinacion:**
+- TAREA-PROVEEDOR-GASTOS F1+F2 ya completas (commit `a254a0f`) · son INDEPENDIENTES de GASTOFORM-V2
+- TAREA-PROVEEDOR-GASTOS F3-F4-F5 PAUSADAS hasta cerrar GASTOFORM-V2 · porque los reportes BI dependen del modelo correcto
+- Orden recomendado de ejecucion: GASTOFORM-V2 (~2h) → continuar PROVEEDOR-GASTOS F3+F4+F5 (~2h)
+
+**Estado:** declarada · pendiente ejecucion · alta prioridad operativa · bloqueante de reportes correctos.
+
+**Documentacion:** `docs/mockups/gastoform-v2-3-niveles-s58f.html` · 6 vistas · style canonico Vista 8 · cite ACUERDOS_REINGENIERIA_2026-04-10 seccion 5 (3 cajas) y seccion 6 (categorias pre-pobladas).
 
 ### Tarea pendiente registrada
 

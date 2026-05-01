@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-GASTOFORM-V2-S58f · Modelo de 3 niveles · GastoForm reingeniería</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-orange { background: #ffedd5; color: #9a3412; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-blue { background: #dbeafe; color: #1e40af; }
+  .pill-purple { background: #f3e8ff; color: #6b21a8; }
+  .pill-fuchsia { background: #fae8ff; color: #86198f; }
+  .pill-pink { background: #fce7f3; color: #9d174d; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-zinc { background: #f4f4f5; color: #3f3f46; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .anchored-card { transition: all 0.2s; }
+  .anchored-card:hover { transform: scale(1.02); }
+  .gradient-importacion { background: linear-gradient(135deg, #2563eb, #4f46e5); }
+  .gradient-venta { background: linear-gradient(135deg, #a855f7, #ec4899); }
+  .gradient-periodo { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2.5rem 0; }
+  .bloque-pill { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- ============================================================ -->
+<!-- HEADER -->
+<!-- ============================================================ -->
+
+<div class="bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white">
+  <div class="max-w-7xl mx-auto px-6 py-10">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold">M-GASTOFORM-V2</span>
+      <span class="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold">S58f · post-cierre · reingeniería gastos</span>
+      <span class="bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold">3 niveles · style canónico</span>
+    </div>
+    <h1 class="text-4xl font-bold tracking-tight mb-3">GastoForm v2 · Modelo de 3 niveles</h1>
+    <p class="text-lg text-white/90 max-w-3xl leading-relaxed">Aterrizar visualmente el modelo de costos aprobado en <code class="bg-white/20 px-1.5 rounded">ACUERDOS_REINGENIERIA_2026-04-10</code> · 3 bloques fijos × N categorías padre × N subcategorías. Reemplaza el <code class="bg-white/20 px-1.5 rounded">@deprecated</code> categoria GV/GD/GA/GO con árbol dinámico editable. Aplica el style canónico S58f.</p>
+
+    <!-- Ribbon contexto -->
+    <div class="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+      <div class="flex items-start gap-3">
+        <div class="text-2xl">📣</div>
+        <div class="flex-1">
+          <div class="text-xs uppercase tracking-wider text-white/70 font-semibold mb-1">Cita rectora · 1 may 2026</div>
+          <p class="text-sm italic">"El modal de nuevo gasto no representa la lógica actual del negocio · en algún momento conversamos de intentar estructurar algo de 3 niveles."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · Manifesto del modelo de 3 niveles -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-10">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-9 h-9 rounded-full gradient-periodo text-white flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-2xl font-bold">Manifesto · qué se gana con los 3 niveles</h2>
+  </div>
+
+  <p class="text-base text-slate-600 mb-6 max-w-3xl">El modelo legacy mezclaba "tipos de gasto" en una sola lista plana (GV/GD/GA/GO). El nuevo modelo separa <strong>quién paga el costo</strong> (3 cajas fijas) de <strong>qué cosa específica es</strong> (árbol dinámico).</p>
+
+  <!-- Diagrama del árbol · 3 niveles -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-6">
+    <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-4">Anatomía · Bloque → Categoría → Subcategoría</div>
+
+    <div class="grid grid-cols-3 gap-4">
+
+      <!-- Bloque Importación -->
+      <div class="rounded-2xl overflow-hidden ring-1 ring-blue-200">
+        <div class="gradient-importacion p-4 text-white">
+          <div class="text-xs uppercase tracking-wider text-white/80 font-semibold mb-1">Nivel 1 · Bloque fijo</div>
+          <div class="text-2xl font-bold flex items-center gap-2">📦 Importación</div>
+          <div class="text-xs text-white/80 mt-1">Costos directos de traer producto</div>
+        </div>
+        <div class="bg-blue-50 p-3 space-y-1.5">
+          <div class="text-[10px] uppercase tracking-wider text-blue-700 font-semibold mb-1">Nivel 2 · Categoría padre</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-900">Transporte</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-900">Aranceles</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-900">Seguros</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-900">Manipuleo</div>
+        </div>
+        <div class="bg-blue-100/70 p-3 space-y-1">
+          <div class="text-[10px] uppercase tracking-wider text-blue-700 font-semibold mb-1">Nivel 3 · Subcategoría (ej. Transporte)</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-blue-800">Flete viajero</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-blue-800">Flete courier intl</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-blue-800">Flete local (recojo)</div>
+        </div>
+        <div class="bg-blue-50 px-3 py-2 border-t border-blue-200 text-[10px] text-blue-800 font-semibold">
+          🎯 IMPACTA CTRU · prorrateo a unidades del envío
+        </div>
+      </div>
+
+      <!-- Bloque Venta -->
+      <div class="rounded-2xl overflow-hidden ring-1 ring-purple-200">
+        <div class="gradient-venta p-4 text-white">
+          <div class="text-xs uppercase tracking-wider text-white/80 font-semibold mb-1">Nivel 1 · Bloque fijo</div>
+          <div class="text-2xl font-bold flex items-center gap-2">🛒 Venta</div>
+          <div class="text-xs text-white/80 mt-1">Costos directos por cada venta</div>
+        </div>
+        <div class="bg-purple-50 p-3 space-y-1.5">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-semibold mb-1">Nivel 2 · Categoría padre</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-purple-900">Comisiones</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-purple-900">Distribución</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-purple-900">Empaque</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-purple-900">Marketing Directo</div>
+        </div>
+        <div class="bg-purple-100/70 p-3 space-y-1">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-semibold mb-1">Nivel 3 · Subcategoría (ej. Distribución)</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-purple-800">Olva Courier</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-purple-800">Shalom Empresarial</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-purple-800">Motorizado Lima</div>
+        </div>
+        <div class="bg-purple-50 px-3 py-2 border-t border-purple-200 text-[10px] text-purple-800 font-semibold">
+          🎯 NO IMPACTA CTRU · resta a margen de cada venta
+        </div>
+      </div>
+
+      <!-- Bloque Período -->
+      <div class="rounded-2xl overflow-hidden ring-2 ring-amber-300">
+        <div class="gradient-periodo p-4 text-white relative">
+          <div class="absolute top-2 right-2 bg-white/30 backdrop-blur-sm text-white text-[9px] px-2 py-0.5 rounded-full font-bold">⭐ tu caso Sedapal</div>
+          <div class="text-xs uppercase tracking-wider text-white/80 font-semibold mb-1">Nivel 1 · Bloque fijo</div>
+          <div class="text-2xl font-bold flex items-center gap-2">📅 Período</div>
+          <div class="text-xs text-white/80 mt-1">Gastos fijos del mes (no atribuibles)</div>
+        </div>
+        <div class="bg-amber-50 p-3 space-y-1.5">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold mb-1">Nivel 2 · Categoría padre</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900">Personal</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900 ring-2 ring-amber-400">Local ← Sedapal aquí</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900">Profesionales</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900">Tecnología</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900">Operativos</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900">Financieros</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900">Marketing General</div>
+          <div class="bg-white rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-900">Pérdidas Extraordinarias</div>
+        </div>
+        <div class="bg-amber-100/70 p-3 space-y-1">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold mb-1">Nivel 3 · Subcategoría (ej. Local)</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-amber-800">Alquiler almacén</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-amber-800">Electricidad (Edelnor)</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-amber-800 ring-1 ring-amber-400 font-bold">Agua (Sedapal) ← este</div>
+          <div class="bg-white rounded px-2 py-1 text-[11px] text-amber-800">Internet/Teléfono (Movistar)</div>
+        </div>
+        <div class="bg-amber-50 px-3 py-2 border-t border-amber-200 text-[10px] text-amber-800 font-semibold">
+          🎯 NO IMPACTA CTRU · resta a margen operativo del período
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparativa antes/después -->
+  <div class="grid grid-cols-2 gap-4">
+    <div class="bg-rose-50 border-2 border-rose-200 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-2xl">❌</span>
+        <h3 class="text-base font-bold text-rose-900">Modelo legacy (deprecado)</h3>
+      </div>
+      <div class="bg-white rounded-lg p-3 mb-3 font-mono text-xs">
+        <div class="text-slate-500">// gasto.types.ts línea 307</div>
+        <div><span class="text-rose-600">@deprecated</span> categoria: <span class="text-purple-600">'GV' | 'GD' | 'GA' | 'GO'</span></div>
+      </div>
+      <ul class="text-xs text-rose-800 space-y-1">
+        <li>• Sigla criptica · GV/GD/GA/GO no es legible</li>
+        <li>• Lista plana sin jerarquía</li>
+        <li>• No editable desde UI · cambios requieren deploy</li>
+        <li>• No diferencia "afecta CTRU" vs "no afecta"</li>
+        <li>• Reportes no pueden agrupar por bloque</li>
+      </ul>
+    </div>
+    <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-2xl">✓</span>
+        <h3 class="text-base font-bold text-emerald-900">Modelo nuevo (3 niveles)</h3>
+      </div>
+      <div class="bg-white rounded-lg p-3 mb-3 font-mono text-xs">
+        <div class="text-slate-500">// gasto.types.ts línea 312</div>
+        <div>categoriaCostoId?: <span class="text-blue-600">string</span></div>
+        <div class="text-slate-500 mt-1">// → CategoriaCosto.bloque + categoriaPadreId + nivel</div>
+      </div>
+      <ul class="text-xs text-emerald-800 space-y-1">
+        <li>• 3 bloques fijos con semántica de negocio clara</li>
+        <li>• Árbol jerárquico padre/hijo</li>
+        <li>• Editable desde Maestros · sin deploy</li>
+        <li>• Bloque define automáticamente impacto en CTRU</li>
+        <li>• Reportes BI por bloque · categoría · subcategoría</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · GastoForm v2 · 3 selectores en cascada -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-9 h-9 rounded-full gradient-periodo text-white flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-2xl font-bold">GastoForm v2 · cascada de 3 selectores</h2>
+  </div>
+
+  <p class="text-base text-slate-600 mb-6 max-w-3xl">Patrón de cascada · cada selector filtra al siguiente. Aplicación del style canónico S58f: cards anchored · header gradient · tabular-nums · iconos vibrantes.</p>
+
+  <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xl">
+
+    <!-- Header del modal -->
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <div>
+        <div class="text-xs text-orange-600 uppercase tracking-wider font-semibold">Registrar nuevo gasto</div>
+        <h3 class="text-xl font-bold text-slate-900 mt-0.5">Recibo Sedapal · abril 2026</h3>
+      </div>
+      <button class="w-8 h-8 rounded-full bg-white text-slate-500 flex items-center justify-center">✕</button>
+    </div>
+
+    <div class="p-6 space-y-6">
+
+      <!-- ============================================ -->
+      <!-- BLOQUE A · NIVEL 1 · Selector de Bloque -->
+      <!-- ============================================ -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full gradient-periodo text-white flex items-center justify-center text-xs font-bold">1</div>
+          <label class="text-sm font-bold uppercase tracking-wider text-slate-700">Tipo de gasto · Bloque</label>
+          <span class="pill pill-amber">paso 1 de 3</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-3 ml-9">¿A qué caja de costos pertenece? Define si afecta CTRU o margen.</p>
+
+        <div class="grid grid-cols-3 gap-3 ml-9">
+          <!-- Importación -->
+          <button class="rounded-2xl overflow-hidden ring-1 ring-blue-200 anchored-card text-left hover:ring-blue-400">
+            <div class="gradient-importacion p-3 text-white">
+              <div class="text-2xl mb-1">📦</div>
+              <div class="text-base font-bold">Importación</div>
+            </div>
+            <div class="p-3 bg-blue-50">
+              <div class="text-xs text-blue-900 mb-1">Costos directos de traer producto</div>
+              <div class="text-[10px] text-blue-600 italic">→ flete · aranceles · seguros</div>
+              <div class="mt-2 text-[10px] text-blue-700 font-semibold">⓵ Impacta CTRU</div>
+            </div>
+          </button>
+
+          <!-- Venta -->
+          <button class="rounded-2xl overflow-hidden ring-1 ring-purple-200 anchored-card text-left hover:ring-purple-400">
+            <div class="gradient-venta p-3 text-white">
+              <div class="text-2xl mb-1">🛒</div>
+              <div class="text-base font-bold">Venta</div>
+            </div>
+            <div class="p-3 bg-purple-50">
+              <div class="text-xs text-purple-900 mb-1">Costos directos por cada venta</div>
+              <div class="text-[10px] text-purple-600 italic">→ comisión ML · delivery · empaque</div>
+              <div class="mt-2 text-[10px] text-purple-700 font-semibold">⓵ Resta margen contribución</div>
+            </div>
+          </button>
+
+          <!-- Período · SELECCIONADO -->
+          <button class="rounded-2xl overflow-hidden ring-2 ring-amber-500 ring-offset-2 anchored-card text-left relative">
+            <div class="absolute top-2 right-2 bg-white text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 ring-amber-300">✓ SELECCIONADO</div>
+            <div class="gradient-periodo p-3 text-white">
+              <div class="text-2xl mb-1">📅</div>
+              <div class="text-base font-bold">Período</div>
+            </div>
+            <div class="p-3 bg-amber-100">
+              <div class="text-xs text-amber-900 mb-1 font-semibold">Gastos fijos del mes</div>
+              <div class="text-[10px] text-amber-700 italic">→ Sedapal va aquí</div>
+              <div class="mt-2 text-[10px] text-amber-800 font-semibold">⓵ Resta margen operativo</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- BLOQUE B · NIVEL 2 · Selector Categoría padre -->
+      <!-- ============================================ -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full gradient-periodo text-white flex items-center justify-center text-xs font-bold">2</div>
+          <label class="text-sm font-bold uppercase tracking-wider text-slate-700">Categoría padre</label>
+          <span class="pill pill-amber">paso 2 de 3</span>
+          <span class="text-[11px] text-slate-500">filtrado por bloque "Período"</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-3 ml-9">8 categorías disponibles en este bloque · seleccionar una.</p>
+
+        <div class="grid grid-cols-4 gap-2 ml-9">
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="text-base mb-1">👥</div>
+            <div class="font-bold text-slate-900">Personal</div>
+            <div class="text-[10px] text-slate-500">3 sub</div>
+          </button>
+          <button class="bg-amber-50 border-2 border-amber-500 ring-2 ring-amber-200 rounded-xl p-3 text-left text-xs">
+            <div class="text-base mb-1">🏢</div>
+            <div class="font-bold text-amber-900">Local</div>
+            <div class="text-[10px] text-amber-700 font-semibold">4 sub · seleccionado</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="text-base mb-1">⚖️</div>
+            <div class="font-bold text-slate-900">Profesionales</div>
+            <div class="text-[10px] text-slate-500">2 sub</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="text-base mb-1">💻</div>
+            <div class="font-bold text-slate-900">Tecnología</div>
+            <div class="text-[10px] text-slate-500">3 sub</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="text-base mb-1">🔧</div>
+            <div class="font-bold text-slate-900">Operativos</div>
+            <div class="text-[10px] text-slate-500">3 sub</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="text-base mb-1">🏦</div>
+            <div class="font-bold text-slate-900">Financieros</div>
+            <div class="text-[10px] text-slate-500">3 sub</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="text-base mb-1">📣</div>
+            <div class="font-bold text-slate-900">Marketing</div>
+            <div class="text-[10px] text-slate-500">3 sub</div>
+          </button>
+          <button class="bg-white border-2 border-dashed border-slate-300 hover:border-pink-400 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="text-base mb-1">+</div>
+            <div class="font-bold text-pink-700">Nueva categoría</div>
+            <div class="text-[10px] text-slate-500">inline desde Maestros</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- BLOQUE C · NIVEL 3 · Subcategoría -->
+      <!-- ============================================ -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full gradient-periodo text-white flex items-center justify-center text-xs font-bold">3</div>
+          <label class="text-sm font-bold uppercase tracking-wider text-slate-700">Subcategoría · opcional</label>
+          <span class="pill pill-amber">paso 3 de 3</span>
+          <span class="text-[11px] text-slate-500">filtrado por categoría "Local"</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-3 ml-9">4 subcategorías disponibles · puedes elegir una o dejar solo la categoría padre.</p>
+
+        <div class="grid grid-cols-4 gap-2 ml-9">
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="font-bold text-slate-900">🏠 Alquiler almacén</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="font-bold text-slate-900">⚡ Electricidad</div>
+            <div class="text-[10px] text-slate-500">Edelnor</div>
+          </button>
+          <button class="bg-amber-50 border-2 border-amber-500 ring-2 ring-amber-200 rounded-xl p-3 text-left text-xs">
+            <div class="font-bold text-amber-900">💧 Agua</div>
+            <div class="text-[10px] text-amber-700 font-semibold">Sedapal · seleccionado</div>
+          </button>
+          <button class="bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-left text-xs hover:shadow-sm">
+            <div class="font-bold text-slate-900">🌐 Internet/Teléfono</div>
+            <div class="text-[10px] text-slate-500">Movistar/Claro</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner síntesis -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl p-4 ml-9">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-amber-700 font-semibold mb-1">Categorización completa</div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="bloque-pill gradient-periodo text-white">📅 Período</span>
+              <span class="text-slate-400">›</span>
+              <span class="font-bold text-amber-900">🏢 Local</span>
+              <span class="text-slate-400">›</span>
+              <span class="font-bold text-amber-900">💧 Agua (Sedapal)</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">Impacto contable</div>
+            <div class="text-sm font-bold text-amber-700">Resta margen operativo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Sección · resto del form -->
+      <!-- ============================================ -->
+      <div class="border-t border-slate-200 pt-6 space-y-4">
+        <h4 class="text-sm font-bold uppercase tracking-wider text-slate-700">Datos del gasto</h4>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Monto</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+              <input type="text" value="86.40" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-bold tabular-nums">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Fecha</label>
+            <input type="date" value="2026-04-30" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Vence</label>
+            <input type="date" value="2026-05-15" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+          </div>
+        </div>
+
+        <!-- Selector proveedor con inline (TAREA-PROVEEDOR-GASTOS · ya implementado F2) -->
+        <div class="border-2 border-orange-300 ring-2 ring-orange-100 rounded-lg p-4 bg-orange-50/30">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-[10px] uppercase tracking-wider text-orange-700 font-semibold">🏭 Proveedor del gasto · F2 ya implementado</label>
+            <span class="pill pill-emerald">commit a254a0f</span>
+          </div>
+          <div class="bg-white border-2 border-orange-400 rounded-lg px-3 py-2 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">SP</div>
+              <div>
+                <div class="text-sm font-semibold">SEDAPAL S.A.</div>
+                <div class="text-[10px] text-slate-500 tabular-nums">RUC 20100152356</div>
+              </div>
+            </div>
+            <span class="pill pill-emerald">vinculado</span>
+          </div>
+          <button class="text-[11px] text-pink-600 hover:text-pink-800 font-semibold mt-2">+ Nuevo proveedor (inline)</button>
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Descripción</label>
+          <input type="text" value="Recibo abril 2026 · Av. Salaverry 1234, Jesús María" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+        </div>
+
+        <!-- Toggle recurrente -->
+        <div class="flex items-center justify-between bg-slate-50 rounded-lg p-3">
+          <div class="flex-1">
+            <div class="text-sm font-semibold">Marcar como gasto recurrente</div>
+            <div class="text-[10px] text-slate-500">Auto-recordatorio mensual + auto-creación próximo período</div>
+          </div>
+          <div class="w-9 h-5 bg-amber-500 rounded-full relative cursor-pointer">
+            <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 right-0.5"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between">
+      <div class="text-xs text-slate-500">
+        Persistirá: <code class="bg-white px-1 rounded text-[10px]">categoriaCostoId</code> + <code class="bg-white px-1 rounded text-[10px]">proveedorId</code> + monto + fecha
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-sm text-slate-700 font-medium px-4 py-2 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button class="bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold px-5 py-2 rounded-lg shadow-sm">Guardar Gasto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 3 · 3 casos por bloque -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-9 h-9 rounded-full gradient-periodo text-white flex items-center justify-center text-sm font-bold">3</div>
+    <h2 class="text-2xl font-bold">Los 3 casos · 1 form · 3 comportamientos diferentes</h2>
+  </div>
+
+  <p class="text-base text-slate-600 mb-6 max-w-3xl">El mismo form se adapta a la naturaleza del bloque. El impacto contable y el flujo posterior cambian automáticamente.</p>
+
+  <div class="grid grid-cols-3 gap-4">
+
+    <!-- CASO IMPORTACIÓN -->
+    <div class="bg-white rounded-2xl ring-1 ring-blue-200 overflow-hidden shadow-lg">
+      <div class="gradient-importacion text-white px-4 py-3">
+        <span class="bloque-pill bg-white/20 text-white">📦 Importación</span>
+        <h3 class="font-bold text-base mt-1">Caso · Flete adicional Asia</h3>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="bg-blue-50 rounded-lg p-3 text-xs">
+          <div class="font-bold text-blue-900 mb-1">Escenario real</div>
+          <p class="text-blue-800">Llegó un envío de Asia · proveedor cobró $80 extra de almacenaje temporal. Se carga al ENV-2026-0421 · prorrateo a las 24 unidades.</p>
+        </div>
+        <div class="space-y-1.5 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="bloque-pill gradient-importacion text-white text-[9px]">📦</span>
+            <span class="font-semibold">Manipuleo</span>
+            <span class="text-slate-400">›</span>
+            <span class="font-bold">Almacenaje temporal</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Monto</span>
+            <span class="font-bold tabular-nums">$80 · S/300</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Vinculado a</span>
+            <span class="font-bold">ENV-2026-0421</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Prorrateo</span>
+            <span class="font-bold">por_valor</span>
+          </div>
+        </div>
+        <div class="bg-violet-50 border border-violet-200 rounded-lg p-2 text-[11px]">
+          <div class="font-bold text-violet-900">💎 Impacto en CTRU</div>
+          <div class="text-violet-800">+S/12.50 / unidad · CTRU pasa S/31.23 → S/43.73</div>
+        </div>
+        <div class="text-[10px] text-slate-500 italic">Persiste como CostoLanded en el envío · NO crea fila aislada en módulo Gastos.</div>
+      </div>
+    </div>
+
+    <!-- CASO VENTA -->
+    <div class="bg-white rounded-2xl ring-1 ring-purple-200 overflow-hidden shadow-lg">
+      <div class="gradient-venta text-white px-4 py-3">
+        <span class="bloque-pill bg-white/20 text-white">🛒 Venta</span>
+        <h3 class="font-bold text-base mt-1">Caso · Comisión MercadoLibre</h3>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="bg-purple-50 rounded-lg p-3 text-xs">
+          <div class="font-bold text-purple-900 mb-1">Escenario real</div>
+          <p class="text-purple-800">Venta VTA-2026-1284 generada en ML · plataforma cobra 12% comisión = S/112. Resta directamente del margen de la venta.</p>
+        </div>
+        <div class="space-y-1.5 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="bloque-pill gradient-venta text-white text-[9px]">🛒</span>
+            <span class="font-semibold">Comisiones</span>
+            <span class="text-slate-400">›</span>
+            <span class="font-bold">Comisión ML</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Monto</span>
+            <span class="font-bold tabular-nums">S/ 112.20</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Vinculado a</span>
+            <span class="font-bold">VTA-2026-1284</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Auto-detección</span>
+            <span class="font-bold text-emerald-700">webhook ML ✓</span>
+          </div>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded-lg p-2 text-[11px]">
+          <div class="font-bold text-rose-900">📉 Impacto en margen</div>
+          <div class="text-rose-800">Margen contribución: 47.4% → 35.2% · resta directo</div>
+        </div>
+        <div class="text-[10px] text-slate-500 italic">Persiste como costoVenta en la venta · agrupable por canal.</div>
+      </div>
+    </div>
+
+    <!-- CASO PERÍODO · destacado -->
+    <div class="bg-white rounded-2xl ring-2 ring-amber-400 ring-offset-2 overflow-hidden shadow-lg">
+      <div class="gradient-periodo text-white px-4 py-3 relative">
+        <div class="absolute top-2 right-2 bg-white/30 backdrop-blur-sm text-white text-[9px] px-2 py-0.5 rounded-full font-bold">⭐ tu caso</div>
+        <span class="bloque-pill bg-white/20 text-white">📅 Período</span>
+        <h3 class="font-bold text-base mt-1">Caso · Recibo Sedapal</h3>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="bg-amber-50 rounded-lg p-3 text-xs">
+          <div class="font-bold text-amber-900 mb-1">Escenario real</div>
+          <p class="text-amber-800">Llegó recibo mensual de Sedapal · S/86.40 · vence 15 may. Se paga desde BCP soles. NO afecta producto ni venta · resta margen operativo del mes.</p>
+        </div>
+        <div class="space-y-1.5 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="bloque-pill gradient-periodo text-white text-[9px]">📅</span>
+            <span class="font-semibold">Local</span>
+            <span class="text-slate-400">›</span>
+            <span class="font-bold">Agua (Sedapal)</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Monto</span>
+            <span class="font-bold tabular-nums">S/ 86.40</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Proveedor</span>
+            <span class="font-bold">SEDAPAL S.A.</span>
+          </div>
+          <div class="flex justify-between bg-slate-50 rounded p-2">
+            <span class="text-slate-600">Recurrente</span>
+            <span class="font-bold text-emerald-700">✓ mensual</span>
+          </div>
+        </div>
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-2 text-[11px]">
+          <div class="font-bold text-orange-900">📊 Impacto contable</div>
+          <div class="text-orange-800">Resta margen operativo · no se prorratea a producto/venta</div>
+        </div>
+        <div class="text-[10px] text-slate-500 italic">Persiste en módulo Gastos · agrupable por categoría/subcategoría.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 4 · Maestros · gestión del árbol -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-9 h-9 rounded-full gradient-periodo text-white flex items-center justify-center text-sm font-bold">4</div>
+    <h2 class="text-2xl font-bold">Maestros · gestión del árbol de categorías</h2>
+  </div>
+
+  <p class="text-base text-slate-600 mb-6 max-w-3xl">Existe `src/components/Maestros/CategoriasCostos.tsx` (no canónico aún). Aterrizado al style S58f: tabs de bloque + árbol expandible + crear inline desde el form.</p>
+
+  <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200 px-5 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-xs text-orange-600 uppercase tracking-wider font-semibold">Maestros · Categorías de Costos</div>
+          <h3 class="text-lg font-bold text-slate-900 mt-0.5">Árbol editable · 3 bloques · 19 categorías · 47 subcategorías</h3>
+        </div>
+        <button class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm">+ Nueva categoría</button>
+      </div>
+    </div>
+
+    <!-- Tabs de bloques -->
+    <div class="px-5 py-3 border-b border-slate-200 flex gap-2">
+      <button class="bg-white border border-blue-200 hover:border-blue-400 rounded-lg px-3 py-2 text-xs font-semibold text-blue-900 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+        📦 Importación · 4 cat · 11 sub
+      </button>
+      <button class="bg-white border border-purple-200 hover:border-purple-400 rounded-lg px-3 py-2 text-xs font-semibold text-purple-900 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+        🛒 Venta · 4 cat · 13 sub
+      </button>
+      <button class="bg-amber-100 border-2 border-amber-500 rounded-lg px-3 py-2 text-xs font-bold text-amber-900 flex items-center gap-1.5 ring-2 ring-amber-200">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        📅 Período · 8 cat · 23 sub · activo
+      </button>
+    </div>
+
+    <!-- Árbol del bloque Período -->
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Columna 1 · Categorías padre -->
+      <div class="p-4">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Categorías padre · 8</div>
+        <div class="space-y-1.5">
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>👥</span>
+              <span class="font-semibold flex-1">Personal</span>
+              <span class="text-[10px] text-slate-500">3 sub</span>
+              <span class="text-slate-400 text-xs">›</span>
+            </div>
+          </div>
+          <div class="bg-amber-100 border-2 border-amber-500 rounded-lg p-2.5 cursor-pointer ring-2 ring-amber-200">
+            <div class="flex items-center gap-2 text-sm">
+              <span>🏢</span>
+              <span class="font-bold text-amber-900 flex-1">Local</span>
+              <span class="text-[10px] text-amber-700 font-semibold">4 sub · activo</span>
+              <span class="text-amber-700 text-xs">›</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>⚖️</span>
+              <span class="font-semibold flex-1">Profesionales</span>
+              <span class="text-[10px] text-slate-500">2 sub</span>
+              <span class="text-slate-400 text-xs">›</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>💻</span>
+              <span class="font-semibold flex-1">Tecnología</span>
+              <span class="text-[10px] text-slate-500">3 sub</span>
+              <span class="text-slate-400 text-xs">›</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>🔧</span>
+              <span class="font-semibold flex-1">Operativos</span>
+              <span class="text-[10px] text-slate-500">3 sub</span>
+              <span class="text-slate-400 text-xs">›</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>🏦</span>
+              <span class="font-semibold flex-1">Financieros</span>
+              <span class="text-[10px] text-slate-500">3 sub</span>
+              <span class="text-slate-400 text-xs">›</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>📣</span>
+              <span class="font-semibold flex-1">Marketing General</span>
+              <span class="text-[10px] text-slate-500">3 sub</span>
+              <span class="text-slate-400 text-xs">›</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>⚠️</span>
+              <span class="font-semibold flex-1">Pérdidas Extraordinarias</span>
+              <span class="text-[10px] text-slate-500">4 sub</span>
+              <span class="text-slate-400 text-xs">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 2 · Subcategorías de "Local" -->
+      <div class="p-4 bg-amber-50/30">
+        <div class="text-xs uppercase tracking-wider text-amber-700 font-semibold mb-3">Subcategorías de "Local" · 4</div>
+        <div class="space-y-1.5">
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>🏠</span>
+              <span class="font-semibold flex-1">Alquiler almacén</span>
+              <span class="text-[10px] text-slate-500 tabular-nums">12 gastos</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>⚡</span>
+              <span class="font-semibold flex-1">Electricidad</span>
+              <span class="text-[10px] text-slate-500 tabular-nums">11 gastos</span>
+            </div>
+          </div>
+          <div class="bg-amber-100 border-2 border-amber-500 rounded-lg p-2.5 cursor-pointer ring-2 ring-amber-200">
+            <div class="flex items-center gap-2 text-sm">
+              <span>💧</span>
+              <span class="font-bold text-amber-900 flex-1">Agua (Sedapal)</span>
+              <span class="text-[10px] text-amber-700 font-semibold tabular-nums">11 gastos · activo</span>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5 cursor-pointer hover:border-amber-300">
+            <div class="flex items-center gap-2 text-sm">
+              <span>🌐</span>
+              <span class="font-semibold flex-1">Internet/Teléfono</span>
+              <span class="text-[10px] text-slate-500 tabular-nums">12 gastos</span>
+            </div>
+          </div>
+          <div class="bg-white border-2 border-dashed border-pink-300 rounded-lg p-2.5 cursor-pointer hover:border-pink-400">
+            <div class="flex items-center gap-2 text-sm">
+              <span>+</span>
+              <span class="font-semibold text-pink-700">Nueva subcategoría</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 3 · Detalle de "Agua (Sedapal)" -->
+      <div class="p-4 bg-amber-50">
+        <div class="text-xs uppercase tracking-wider text-amber-700 font-semibold mb-3">Detalle · "Agua (Sedapal)"</div>
+
+        <div class="bg-white rounded-xl ring-1 ring-amber-200 overflow-hidden mb-3">
+          <div class="gradient-periodo text-white px-3 py-2">
+            <span class="bloque-pill bg-white/20 text-white text-[9px]">📅 Período · Local</span>
+            <div class="text-base font-bold mt-1">💧 Agua (Sedapal)</div>
+          </div>
+          <div class="p-3 space-y-2 text-xs">
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-amber-50 rounded p-2">
+                <div class="text-[9px] uppercase text-amber-700 font-semibold">Gastos vinculados</div>
+                <div class="text-base font-bold tabular-nums text-amber-900">11</div>
+              </div>
+              <div class="bg-amber-50 rounded p-2">
+                <div class="text-[9px] uppercase text-amber-700 font-semibold">Total 12m</div>
+                <div class="text-base font-bold tabular-nums text-amber-900">S/ 932.40</div>
+              </div>
+            </div>
+
+            <div class="bg-amber-50 rounded p-2">
+              <div class="text-[9px] uppercase text-amber-700 font-semibold mb-1">Tendencia 12 meses</div>
+              <svg viewBox="0 0 100 24" class="w-full h-6">
+                <path d="M 0,18 L 8,16 L 17,17 L 25,15 L 33,16 L 42,14 L 50,15 L 58,13 L 67,14 L 75,12 L 83,13 L 92,11 L 100,12" fill="none" stroke="#d97706" stroke-width="1.5"/>
+              </svg>
+              <div class="flex justify-between text-[9px] text-amber-600 mt-1">
+                <span>May'25</span>
+                <span class="font-bold">+5% YoY</span>
+              </div>
+            </div>
+
+            <div class="space-y-1 text-[11px]">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Proveedor único</span>
+                <span class="font-bold">SEDAPAL S.A.</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Frecuencia</span>
+                <span class="font-bold">Mensual</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Recibo promedio</span>
+                <span class="font-bold tabular-nums">S/ 84.76</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <button class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-left hover:bg-slate-50">
+            ✏️ Editar nombre/descripción
+          </button>
+          <button class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-left hover:bg-slate-50">
+            📊 Ver todos los gastos
+          </button>
+          <button class="w-full bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 text-xs font-semibold text-left hover:bg-rose-100 text-rose-700">
+            🗑 Desactivar (con migración)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 5 · Detalle del gasto + reportes BI -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-9 h-9 rounded-full gradient-periodo text-white flex items-center justify-center text-sm font-bold">5</div>
+    <h2 class="text-2xl font-bold">Detalle del gasto + reportes BI nuevos</h2>
+  </div>
+
+  <p class="text-base text-slate-600 mb-6 max-w-3xl">Con `categoriaCostoId` correcto, los reportes BI cambian de "lista plana" a "drill-down jerárquico". Aterriza en M-INT-GASTO Vista 1 (Lote 4) actualizado.</p>
+
+  <!-- Detalle del gasto enriquecido -->
+  <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg mb-6">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bloque-pill gradient-periodo text-white">📅 Período</span>
+          <span class="pill pill-amber">Local › Agua</span>
+          <span class="text-xs text-slate-500 tabular-nums">GAS-2026-0142</span>
+          <a href="#" class="pill pill-blue hover:bg-blue-200 cursor-pointer">🏭 Sedapal</a>
+        </div>
+        <h3 class="text-xl font-bold tracking-tight">Recibo Sedapal abril 2026</h3>
+      </div>
+      <div class="text-right">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Monto</div>
+        <div class="text-2xl font-bold tabular-nums">S/ 86.40</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Columna 1 · KPIs -->
+      <div class="col-span-2 p-5">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Estado del pago</h4>
+        <div class="grid grid-cols-3 gap-3 mb-5">
+          <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Total</div>
+            <div class="text-lg font-bold tabular-nums mt-1">S/ 86.40</div>
+          </div>
+          <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Pagado</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-emerald-700">S/ 0.00</div>
+          </div>
+          <div class="bg-rose-50 rounded-lg p-3 border border-rose-100">
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-semibold">Saldo</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-rose-700">S/ 86.40</div>
+          </div>
+        </div>
+
+        <!-- Breadcrumb categorización -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Categorización contable</h4>
+        <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 mb-5">
+          <div class="flex items-center gap-3 text-sm">
+            <span class="bloque-pill gradient-periodo text-white">📅 Período</span>
+            <span class="text-slate-300">›</span>
+            <span class="bloque-pill bg-amber-100 text-amber-900 font-bold">🏢 Local</span>
+            <span class="text-slate-300">›</span>
+            <span class="bloque-pill bg-amber-200 text-amber-900 font-bold">💧 Agua</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+            <div class="bg-white rounded p-2">
+              <div class="text-[10px] uppercase text-slate-500 font-semibold">Impacto</div>
+              <div class="font-bold text-amber-700">Resta margen operativo</div>
+            </div>
+            <div class="bg-white rounded p-2">
+              <div class="text-[10px] uppercase text-slate-500 font-semibold">Cuenta contable</div>
+              <div class="font-bold tabular-nums">63 · Servicios · 6311</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 2 · Sidebar proveedor + reportes -->
+      <div class="p-5 bg-slate-50">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">🏭 Proveedor</h4>
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 mb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm">SP</div>
+            <div class="flex-1">
+              <div class="font-bold text-sm text-blue-900">SEDAPAL S.A.</div>
+              <div class="text-[10px] text-blue-700 tabular-nums">RUC 20100152356</div>
+            </div>
+          </div>
+          <div class="space-y-1 text-[11px] text-blue-800 mt-2">
+            <div class="flex justify-between"><span>Gastos registrados</span><span class="font-bold tabular-nums">11 · 12m</span></div>
+            <div class="flex justify-between"><span>Gasto anual</span><span class="font-bold tabular-nums">S/ 932.40</span></div>
+            <div class="flex justify-between"><span>Próximo</span><span class="font-bold">15 may</span></div>
+          </div>
+        </div>
+
+        <!-- Reportes BI nuevos · destacados -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">📊 Reportes BI · F4</h4>
+        <div class="space-y-2">
+          <a href="#" class="block bg-white border border-slate-200 hover:border-amber-300 rounded-lg p-2.5">
+            <div class="text-xs font-bold text-slate-900">Gasto anual por proveedor</div>
+            <div class="text-[10px] text-slate-500">Top 10 · Sedapal #4</div>
+          </a>
+          <a href="#" class="block bg-white border border-slate-200 hover:border-amber-300 rounded-lg p-2.5">
+            <div class="text-xs font-bold text-slate-900">Gasto por bloque × período</div>
+            <div class="text-[10px] text-slate-500">Importación vs Venta vs Período</div>
+          </a>
+          <a href="#" class="block bg-white border border-slate-200 hover:border-amber-300 rounded-lg p-2.5">
+            <div class="text-xs font-bold text-slate-900">Cruce categoría × proveedor</div>
+            <div class="text-[10px] text-slate-500">Heatmap matriz</div>
+          </a>
+          <a href="#" class="block bg-white border border-slate-200 hover:border-amber-300 rounded-lg p-2.5">
+            <div class="text-xs font-bold text-slate-900">P&L · 3 niveles rentabilidad</div>
+            <div class="text-[10px] text-slate-500">Bruto · Contribución · Operativo</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mini-preview · reporte heatmap matriz Categoría × Proveedor -->
+  <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <div class="flex items-center gap-2">
+        <span class="pill pill-amber">Reporte BI · ejemplo</span>
+        <h4 class="font-bold text-slate-900">Heatmap Categoría × Proveedor · bloque Período</h4>
+      </div>
+    </div>
+    <div class="p-5">
+      <div class="grid grid-cols-7 gap-1 text-[10px] tabular-nums">
+        <div class="font-bold text-slate-700 p-2">Subcategoría / Proveedor</div>
+        <div class="text-center font-semibold text-blue-700 p-2 bg-blue-50 rounded">Movistar</div>
+        <div class="text-center font-semibold text-amber-700 p-2 bg-amber-50 rounded">Sedapal</div>
+        <div class="text-center font-semibold text-rose-700 p-2 bg-rose-50 rounded">Edelnor</div>
+        <div class="text-center font-semibold text-purple-700 p-2 bg-purple-50 rounded">Calidda</div>
+        <div class="text-center font-semibold text-emerald-700 p-2 bg-emerald-50 rounded">Otros</div>
+        <div class="text-center font-bold text-slate-900 p-2 bg-slate-100 rounded">Total</div>
+
+        <div class="font-semibold p-2">🌐 Internet/Teléfono</div>
+        <div class="bg-blue-700 text-white text-center p-2 rounded font-bold">2,628</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-blue-200 text-blue-900 text-center p-2 rounded">240</div>
+        <div class="bg-slate-100 text-slate-900 text-center p-2 rounded font-bold">2,868</div>
+
+        <div class="font-semibold p-2">⚡ Electricidad</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-rose-700 text-white text-center p-2 rounded font-bold">5,400</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-slate-100 text-slate-900 text-center p-2 rounded font-bold">5,400</div>
+
+        <div class="font-semibold p-2">💧 Agua</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-amber-700 text-white text-center p-2 rounded font-bold">932</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-slate-100 text-slate-900 text-center p-2 rounded font-bold">932</div>
+
+        <div class="font-semibold p-2">🔥 Gas</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-purple-500 text-white text-center p-2 rounded font-bold">480</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-slate-100 text-slate-900 text-center p-2 rounded font-bold">480</div>
+
+        <div class="font-semibold p-2">🏠 Alquiler</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-zinc-100 text-slate-400 text-center p-2 rounded">·</div>
+        <div class="bg-emerald-700 text-white text-center p-2 rounded font-bold">36,000</div>
+        <div class="bg-slate-100 text-slate-900 text-center p-2 rounded font-bold">36,000</div>
+
+        <div class="font-bold bg-slate-100 p-2">TOTAL anual</div>
+        <div class="bg-slate-200 text-slate-900 text-center p-2 rounded font-bold">2,628</div>
+        <div class="bg-slate-200 text-slate-900 text-center p-2 rounded font-bold">932</div>
+        <div class="bg-slate-200 text-slate-900 text-center p-2 rounded font-bold">5,400</div>
+        <div class="bg-slate-200 text-slate-900 text-center p-2 rounded font-bold">480</div>
+        <div class="bg-slate-200 text-slate-900 text-center p-2 rounded font-bold">36,240</div>
+        <div class="bg-amber-600 text-white text-center p-2 rounded font-bold">45,680</div>
+      </div>
+
+      <div class="mt-3 text-[10px] text-slate-500 italic">⓵ Click en celda → drill-down a gastos individuales · click en proveedor → ficha · click en subcategoría → todos los gastos del concepto.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 6 · Plan de implementación + decisiones canónicas -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-9 h-9 rounded-full gradient-periodo text-white flex items-center justify-center text-sm font-bold">6</div>
+    <h2 class="text-2xl font-bold">Plan de implementación · TAREA-GASTOFORM-V2</h2>
+  </div>
+
+  <p class="text-base text-slate-600 mb-6 max-w-3xl">5 fases · ~2 horas estimadas · sin breaking. El campo legacy <code class="bg-slate-100 px-1.5 rounded">categoria</code> se mantiene durante migración para no romper gastos existentes.</p>
+
+  <div class="space-y-3">
+    <div class="bg-white rounded-2xl border-2 border-blue-300 overflow-hidden">
+      <div class="bg-blue-50 border-b border-blue-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">F1</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-blue-700 font-semibold">Verificar seed de categorías</div>
+            <div class="font-bold text-blue-900">¿Hay datos en `categoriasCostos` Firestore?</div>
+          </div>
+        </div>
+        <span class="pill pill-blue">15 min</span>
+      </div>
+      <div class="p-4 text-sm text-slate-700">
+        Verificar si el seed S40 corrió en producción. Si no: ejecutar <code class="bg-slate-100 px-1.5 rounded text-xs">scripts/reingenieria/03-seed-categorias-costos.mjs</code>. Si sí: confirmar 19 categorías + 47 subcategorías presentes.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border-2 border-amber-300 overflow-hidden">
+      <div class="bg-amber-50 border-b border-amber-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">F2</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-amber-700 font-semibold">3 selectores cascada en GastoForm</div>
+            <div class="font-bold text-amber-900">Bloque → Categoría → Subcategoría</div>
+          </div>
+        </div>
+        <span class="pill pill-amber">~50 min</span>
+      </div>
+      <div class="p-4 text-sm text-slate-700">
+        Reemplazar `<Select>categoria` (GV/GD/GA/GO) por 3 cards/grids cascada. Cada selector filtra al siguiente · estilo canónico. Setea <code class="bg-slate-100 px-1.5 rounded text-xs">categoriaCostoId</code> en lugar de `categoria`. Mantener `categoria` durante migración: derivar del bloque (importacion→GA · venta→GD · periodo→GO).
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border-2 border-purple-300 overflow-hidden">
+      <div class="bg-purple-50 border-b border-purple-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-purple-500 text-white flex items-center justify-center text-sm font-bold">F3</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-purple-700 font-semibold">Inline · crear categoría/subcategoría</div>
+            <div class="font-bold text-purple-900">P-INLINE-4 del Lote 5 · D-INLINE-8</div>
+          </div>
+        </div>
+        <span class="pill pill-purple">~25 min</span>
+      </div>
+      <div class="p-4 text-sm text-slate-700">
+        Botón "+ Nueva categoría" / "+ Nueva subcategoría" abre modal con `CategoriaCostoForm` mini (2 campos: nombre · descripción). Al guardar refresca el árbol y auto-selecciona. Mismo patrón que F2 de TAREA-PROVEEDOR-GASTOS.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border-2 border-emerald-300 overflow-hidden">
+      <div class="bg-emerald-50 border-b border-emerald-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold">F4</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Detalle del gasto enriquecido</div>
+            <div class="font-bold text-emerald-900">Breadcrumb · cuenta contable · impacto</div>
+          </div>
+        </div>
+        <span class="pill pill-emerald">~20 min</span>
+      </div>
+      <div class="p-4 text-sm text-slate-700">
+        En `Gastos.tsx` mostrar la categorización completa como breadcrumb pill (estilo Vista 5 del mockup) + cuenta contable derivada + impacto contable explícito.
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border-2 border-slate-300 overflow-hidden">
+      <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-slate-500 text-white flex items-center justify-center text-sm font-bold">F5</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate-700 font-semibold">Migración progresiva legacy</div>
+            <div class="font-bold text-slate-900">Backfill `categoriaCostoId` en gastos existentes</div>
+          </div>
+        </div>
+        <span class="pill pill-slate">~10 min</span>
+      </div>
+      <div class="p-4 text-sm text-slate-700">
+        Script idempotente que recorre gastos sin <code class="bg-slate-100 px-1.5 rounded text-xs">categoriaCostoId</code> y deriva: GA → "Manipuleo > Almacenaje temporal" · GD → "Distribución > [genérico]" · GV → "Comisiones > [genérico]" · GO → "Operativos > Suministros". Marcar campo legacy `@deprecated` como omitible al crear (luego de migración total).
+      </div>
+    </div>
+  </div>
+
+  <!-- Decisiones canónicas -->
+  <div class="mt-8 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-200 px-5 py-3">
+      <h3 class="font-bold text-slate-900">Decisiones canónicas declaradas</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-1</span>
+        <div>
+          <strong>3 niveles obligatorios al crear gasto</strong>: Bloque (fijo · 3 opciones) + Categoría padre (obligatoria · filtrada por bloque) + Subcategoría (opcional · filtrada por padre). Sin breaking · permite saltar el nivel 3 cuando no hay subcategoría aplicable.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-2</span>
+        <div>
+          <strong>Bloque define impacto contable automático</strong>: <code class="text-xs bg-slate-100 px-1 rounded">importacion</code> → impactaCTRU=true + asociar a envío · <code class="text-xs bg-slate-100 px-1 rounded">venta</code> → restar margen contribución de venta · <code class="text-xs bg-slate-100 px-1 rounded">periodo</code> → restar margen operativo del mes. Sin que el usuario tenga que decidir.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-3</span>
+        <div>
+          <strong>Cards de bloque con gradient direccional</strong> alineadas al canónico: Importación azul (from-blue-600 to-indigo-600) · Venta purple-fuchsia · Período amber-yellow. Iconos vibrantes 📦 🛒 📅. NO usar select tradicional · cards visuales que comuniquen la naturaleza del bloque.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-4</span>
+        <div>
+          <strong>Campo `categoria` legacy se mantiene durante migración</strong>. Auto-derivado del bloque al guardar: <code class="text-xs bg-slate-100 px-1 rounded">importacion → 'GA'</code> · <code class="text-xs bg-slate-100 px-1 rounded">venta → 'GD'</code> · <code class="text-xs bg-slate-100 px-1 rounded">periodo → 'GO'</code>. Cuando 100% gastos tengan `categoriaCostoId`, se elimina el campo deprecado. Backwards-compatible.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-5</span>
+        <div>
+          <strong>Inline create para categorías/subcategorías</strong>: P-INLINE-4 del Lote 5. Mismo patrón D-INLINE-8 que ProveedorForm inline. Reduce fricción cuando aparece un concepto nuevo (ej. nuevo proveedor de servicios) sin abandonar el form.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-6</span>
+        <div>
+          <strong>Detalle del gasto muestra breadcrumb 3 pills</strong>: <code class="text-xs bg-slate-100 px-1 rounded">[Bloque] › [Categoría] › [Subcategoría]</code>. Cada pill clicable filtra el listado por ese nivel. Patrón canónico de navegación jerárquica.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-7</span>
+        <div>
+          <strong>Reportes BI agrupan por nivel solicitado</strong>: P&L 3 niveles rentabilidad · Heatmap subcategoría × proveedor · Top categorías por gasto · Cruce bloque × período (mensual). Todos sobre <code class="text-xs bg-slate-100 px-1 rounded">categoriaCostoId</code> · imposibles con el modelo legacy.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-GV2-8</span>
+        <div>
+          <strong>Coordinación con TAREA-PROVEEDOR-GASTOS</strong>: TAREA-GASTOFORM-V2 debe ejecutarse <strong>antes</strong> de F4 (reportes BI) y F5 (backfill proveedores) de TAREA-PROVEEDOR-GASTOS. Los reportes solo tienen sentido con el modelo correcto · si se ejecutan con `categoria` legacy, hay que rehacerlos.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cierre · próximo paso recomendado -->
+  <div class="mt-6 bg-gradient-to-br from-orange-600 via-amber-600 to-yellow-500 text-white rounded-2xl p-6">
+    <div class="grid grid-cols-3 gap-4">
+      <div>
+        <div class="text-xs uppercase tracking-wider text-white/70 font-semibold mb-1">Total estimado</div>
+        <div class="text-3xl font-bold tabular-nums">~2 hrs</div>
+        <div class="text-xs text-white/80 mt-1">F1 + F2 + F3 + F4 + F5</div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider text-white/70 font-semibold mb-1">Pre-requisito</div>
+        <div class="text-base font-bold">Seed Firestore</div>
+        <div class="text-xs text-white/80 mt-1">Verificar `categoriasCostos` antes de tocar UI</div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider text-white/70 font-semibold mb-1">Bloquea</div>
+        <div class="text-base font-bold">F3-F4-F5 de PROVEEDOR-GASTOS</div>
+        <div class="text-xs text-white/80 mt-1">Ejecutar primero · luego backfill + reportes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado para REGISTRO -->
+  <div class="mt-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-5 text-sm">
+    <div class="flex items-start gap-3">
+      <div class="text-2xl">📝</div>
+      <div class="flex-1">
+        <div class="font-bold text-emerald-900 mb-1">Para declarar en REGISTRO_IMPLEMENTACION.md</div>
+        <p class="text-emerald-800 text-xs">Nueva tarea formal: <strong>TAREA-GASTOFORM-V2</strong> · prioridad alta · pre-requisito de F4-F5 de TAREA-PROVEEDOR-GASTOS · ~2 horas · sin breaking · 8 decisiones canónicas D-GV2-1 a D-GV2-8 · referencia mockup: <code class="bg-white px-1.5 py-0.5 rounded">docs/mockups/gastoform-v2-3-niveles-s58f.html</code>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>
