@@ -138,9 +138,20 @@ PagoUnificadoResult {
 
 **Prioridad:** ALTA · bloquea operativamente la caja recaudadora pero NO bloquea el diseño · ejecutar despues de cerrar todos los lotes de mockups S58f.
 
-**Estado:** declarada · pendiente ejecucion · sera abordada en sesion(es) post-mockups.
+**Estado:** Fase 1 ✅ CERRADA (1 may 2026 · commit `91aa459`) · Fases 2+3 pendientes (~3 ses)
 
-**Enfoque post-mockups:** Lote 4 (Integraciones) mostrara la vision IDEAL del PagoUnificadoForm v3 operando en cada contexto · esos mockups sirven como spec visual completo para la implementacion. Cuando se ejecute la implementacion, todas las decisiones visuales y semanticas estaran pre-validadas.
+**Fase 1 ejecutada (manifesto S58f visual):**
+- Header `PagoUnificadoForm.tsx`: bg-sky-50 → gradient `from-purple-50 to-fuchsia-50` con monto en tabular-nums + label uppercase tracking-wider
+- Toggle Completo/Parcial: paleta teal → semantica `emerald` (completo) + `amber` (parcial)
+- Toggle Moneda: teal → `purple-600` (alineado al hero del modulo)
+- Inputs: `border-2` + `focus:border-purple-400` + `ring-2 ring-purple-100` consistente con manifesto
+- Labels secundarios: `text-[10px] uppercase tracking-wider text-slate-600 font-bold`
+- Tabular-nums obsesivo en todos los montos
+- 1 archivo modificado (51+/46-) · SIN cambios funcionales · 25+ usos siguen estables · deployed
+
+**Enfoque post-mockups:** Lote 4 (Integraciones) mostrara la vision IDEAL del PagoUnificadoForm v3 operando en cada contexto · esos mockups sirven como spec visual completo para la implementacion. Cuando se ejecuten Fases 2 y 3, todas las decisiones visuales y semanticas estaran pre-validadas.
+
+**Pendiente (Fases 2+3):** cajas recaudadoras + lookup datosBancarios + split por metodo + comprobantes adjuntos · ~3 sesiones · prioridad ALTA (resuelve queja operativa fuerte de caja recaudadora).
 
 ### DEUDA-FLETE-001/002/003 · Brechas en modelado de flete a colaborador ⭐ DECLARADAS
 
@@ -376,7 +387,7 @@ PagoUnificadoResult {
 3. TAREA-PROVEEDOR-GASTOS F4+F5 (~1.5h) → reportes BI + backfill proveedores
 **Total combinado:** ~8 sesiones de implementacion · sin breaking · todas backwards-compatible.
 
-**Estado:** ✅ **CERRADA (4 de 5 fases)** · 1 may 2026 · ~3h efectivas vs 5 ses estimadas. F3.b diferido pragmaticamente.
+**Estado:** ✅ **CERRADA AL 100% (5/5 fases)** · 1 may 2026 · ~4.5h efectivas vs 5 ses estimadas (F3.b cerrado en commit `bccb891`).
 
 **Commits implementados (7):**
 - F1 (677c6d4) · Hero ejecutivo · 5 KPIs anchored con gradient + 3 insights automaticos · ~30 min
@@ -387,7 +398,13 @@ PagoUnificadoResult {
 - F4.c (49bf45f) · Empty state con onboarding · 3 cards de primer gasto + checklist pre-requisitos · ~25 min
 - F5 (270b88c) · Atajos a 7 modulos relacionados (Tesoreria · Maestros · RedLog · Envios · Ventas · Planilla · BI) · ~10 min
 
-**F3.b diferido (no critico):** las 4 vistas alternativas (Lista/Bloque/Calendario/Proveedor) son nice-to-have. El listado base (F3.a) es solido y cubre el caso operativo. Se puede sumar despues sin riesgo.
+**F3.b ✅ CERRADO (1 may 2026 · commit `bccb891`):** se completo la tarea al 100%. 4 vistas alternativas implementadas:
+- VistaPorBloque (~170 lineas) · 3 columnas con header gradient + KPIs + top 5 categorias + lista gastos
+- VistaCalendario (~180 lineas) · grid mensual con dots + panel del dia seleccionado
+- VistaPorProveedor (~170 lineas) · agrupado con sparkline 12m + drill-down
+- Toggle expandido a 5 modos en Gastos.tsx (Listado/Bloque/Calendario/Proveedor/Reportes)
+
+Cada vista responde a una pregunta de negocio distinta: Bloque → "¿En que tipos de costo gasto mas?" · Calendario → "¿Que dias del mes pago?" · Proveedor → "¿A quien le compro mas?" · Reportes → "Inteligencia agregada del periodo".
 
 **Resultado funcional:**
 - Hero protagonista con KPIs accionables (vs cards genericas anteriores)
