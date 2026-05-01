@@ -369,43 +369,45 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         </div>
       )}
 
-      {/* HEADER */}
-      <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
+      {/* HEADER · DEUDA-PAGOFORM-001 Fase 1 visual S58f · gradient + tabular-nums */}
+      <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 border border-purple-200 rounded-xl p-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-sky-600 font-medium">{titulo || `${esIngreso ? 'Cobro' : 'Pago'} ${origen}`}</div>
-            <div className="text-lg font-bold text-sky-900">
+            <div className="text-[10px] uppercase tracking-wider text-purple-700 font-bold">
+              {titulo || `${esIngreso ? 'Cobro' : 'Pago'} ${origen}`}
+            </div>
+            <div className="text-xl font-bold text-purple-900 tabular-nums mt-0.5">
               {monedaOriginal === 'USD' ? '$' : 'S/'} {montoTotal.toFixed(2)}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-sky-500">Pendiente</div>
-            <div className={`text-lg font-bold ${montoPendiente <= 0 ? 'text-emerald-600' : 'text-sky-900'}`}>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Pendiente</div>
+            <div className={`text-xl font-bold tabular-nums mt-0.5 ${montoPendiente <= 0 ? 'text-emerald-600' : 'text-rose-700'}`}>
               {monedaOriginal === 'USD' ? '$' : 'S/'} {montoPendiente.toFixed(2)}
             </div>
           </div>
         </div>
         {pagosAnteriores.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-sky-200">
+          <div className="mt-3 pt-3 border-t border-purple-200">
             <button type="button" onClick={() => setShowHistorial(!showHistorial)}
-              className="flex items-center gap-1 text-xs text-sky-600 hover:text-sky-800">
-              <History className="w-3 h-3" />
-              {pagosAnteriores.length} pago(s) anterior(es)
-              {showHistorial ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              className="flex items-center gap-1.5 text-xs text-purple-700 hover:text-purple-900 font-semibold">
+              <History className="w-3.5 h-3.5" />
+              <span className="tabular-nums">{pagosAnteriores.length}</span> pago(s) anterior(es)
+              {showHistorial ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
             {showHistorial && (
               <div className="mt-2 space-y-1">
                 {pagosAnteriores.map(p => (
-                  <div key={p.id} className="flex items-center justify-between text-xs bg-white rounded-lg p-2 border border-sky-100">
+                  <div key={p.id} className="flex items-center justify-between text-xs bg-white rounded-lg p-2 border border-purple-100">
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-400">
+                      <span className="text-slate-400 tabular-nums">
                         {typeof p.fecha === 'string' ? p.fecha : p.fecha.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px]">
+                      <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
                         {METODOS_PAGO_INFO[p.metodo as MetodoPagoUnificado]?.label ?? p.metodo}
                       </span>
                     </div>
-                    <span className="font-semibold text-sky-800">
+                    <span className="font-bold text-purple-800 tabular-nums">
                       {p.moneda === 'USD' ? '$' : 'S/'} {p.monto.toFixed(2)}
                     </span>
                   </div>
@@ -416,32 +418,35 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         )}
       </div>
 
-      {/* TIPO: Completo/Parcial */}
+      {/* TIPO: Completo/Parcial · DEUDA-PAGOFORM-001 Fase 1 visual S58f */}
       {montoPendiente > 0 && (
-        <div className="flex gap-2">
-          <button type="button" onClick={() => setEsPagoCompleto(true)}
-            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-all ${
-              esPagoCompleto ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500'
-            }`}>
-            <Check className="w-4 h-4 inline mr-1" /> Completo
-          </button>
-          <button type="button" onClick={() => setEsPagoCompleto(false)}
-            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-all ${
-              !esPagoCompleto ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500'
-            }`}>
-            <ArrowRightLeft className="w-4 h-4 inline mr-1" /> Parcial
-          </button>
+        <div>
+          <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Tipo de pago</label>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setEsPagoCompleto(true)}
+              className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border-2 transition-all ${
+                esPagoCompleto ? 'bg-emerald-50 border-emerald-500 text-emerald-700 ring-2 ring-emerald-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+              }`}>
+              <Check className="w-4 h-4 inline mr-1" /> Completo
+            </button>
+            <button type="button" onClick={() => setEsPagoCompleto(false)}
+              className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-bold border-2 transition-all ${
+                !esPagoCompleto ? 'bg-amber-50 border-amber-500 text-amber-700 ring-2 ring-amber-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+              }`}>
+              <ArrowRightLeft className="w-4 h-4 inline mr-1" /> Parcial
+            </button>
+          </div>
         </div>
       )}
 
-      {/* MONEDA */}
+      {/* MONEDA · S58f visual */}
       <div>
-        <label className="block text-xs font-medium text-slate-600 mb-1">Moneda de pago</label>
+        <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Moneda de pago</label>
         <div className="flex gap-2">
           {(['PEN', 'USD'] as const).map(m => (
             <button key={m} type="button" onClick={() => setMonedaPago(m)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
-                monedaPago === m ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${
+                monedaPago === m ? 'bg-purple-50 border-purple-500 text-purple-700 ring-2 ring-purple-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
               }`}>
               {m === 'PEN' ? 'S/ Soles' : '$ Dólares'}
             </button>
@@ -449,9 +454,9 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         </div>
       </div>
 
-      {/* CUENTA — Selector custom agrupado */}
+      {/* CUENTA — Selector custom agrupado · S58f label uppercase */}
       <div ref={selectorRef} className="relative">
-        <label className="block text-xs font-medium text-slate-600 mb-1">
+        <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">
           {esIngreso ? 'Cuenta destino' : 'Cuenta origen'}
         </label>
         {loadingCuentas ? (
@@ -531,7 +536,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       {/* MÉTODO DE PAGO */}
       {metodosDisponibles.length > 0 && (
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Método de pago</label>
+          <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Método de pago</label>
           {metodosDisponibles.length === 1 ? (
             <div className="py-2 px-3 rounded-lg text-xs font-medium bg-teal-50 border border-teal-300 text-teal-700">
               {METODOS_PAGO_INFO[metodosDisponibles[0] as MetodoPagoUnificado]?.label || metodosDisponibles[0]}
@@ -576,7 +581,7 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
       {/* MONTO + TC */}
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label className="text-xs font-medium text-slate-600">Monto ({sim})</label>
+          <label className="text-[10px] uppercase tracking-wider text-slate-600 font-bold">Monto ({sim})</label>
           <button type="button" onClick={() => setShowTC(!showTC)}
             className="text-[10px] text-slate-400 hover:text-slate-600">
             TC: {tipoCambio.toFixed(3)} {showTC ? '▲' : '▼'}
@@ -616,31 +621,31 @@ export const PagoUnificadoForm: React.FC<PagoUnificadoFormProps> = ({
         </div>
       )}
 
-      {/* FECHA + REFERENCIA */}
+      {/* FECHA + REFERENCIA · S58f visual */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">
+          <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">
             <Calendar className="w-3 h-3 inline mr-1" /> Fecha
           </label>
           <input type="date" value={fechaPago} onChange={e => setFechaPago(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300" />
+            className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 tabular-nums" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">
-            Referencia {metodoInfo?.requiereReferencia && <span className="text-red-400">*</span>}
+          <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">
+            Referencia {metodoInfo?.requiereReferencia && <span className="text-rose-500">*</span>}
           </label>
           <input type="text" value={referencia} onChange={e => setReferencia(e.target.value)}
             placeholder="Nro. operación"
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300" />
+            className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 tabular-nums" />
         </div>
       </div>
 
-      {/* NOTAS */}
+      {/* NOTAS · S58f visual */}
       <div>
-        <label className="block text-xs font-medium text-slate-600 mb-1">Notas (opcional)</label>
+        <label className="block text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Notas (opcional)</label>
         <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
           placeholder="Observaciones..."
-          className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-300 resize-none" />
+          className="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 resize-none" />
       </div>
 
       {/* BOTONES */}
