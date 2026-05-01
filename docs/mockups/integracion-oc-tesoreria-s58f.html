@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integración OC ↔ Tesorería · S58f · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; background: #f8fafc; color: #0f172a; }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+
+  .card-base { background: white; border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.2s; }
+  .card-hover:hover { border-color: #cbd5e1; box-shadow: 0 4px 16px rgba(15,23,42,0.06); transform: translateY(-1px); }
+  .card-banking { background: white; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(15,23,42,0.04); }
+
+  .chip-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 500; line-height: 1; white-space: nowrap; }
+  .chip-sm { padding: 2px 7px; font-size: 10px; }
+
+  .gradient-teal-soft { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 60%); }
+  .gradient-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .gradient-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .gradient-indigo-soft { background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%); }
+  .gradient-rose-soft { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 60%); }
+
+  .annotation { padding: 8px 12px; background: #fef3c7; border: 1px dashed #fbbf24; border-radius: 8px; font-size: 11px; color: #78350f; line-height: 1.5; }
+
+  /* Pipeline de OC */
+  .pipe-stage { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; padding: 0 4px; }
+  .pipe-stage::after {
+    content: ''; position: absolute; top: 14px; left: 50%; right: -50%;
+    height: 2px; background: #e2e8f0; z-index: 0;
+  }
+  .pipe-stage:last-child::after { display: none; }
+  .pipe-stage.done::after { background: #14b8a6; }
+  .pipe-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: white; border: 2px solid #cbd5e1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #475569;
+    z-index: 1; position: relative;
+  }
+  .pipe-stage.done .pipe-circle { background: #14b8a6; border-color: #14b8a6; color: white; }
+  .pipe-stage.active .pipe-circle { background: #f59e0b; border-color: #f59e0b; color: white; box-shadow: 0 0 0 4px #fde68a; }
+
+  @keyframes pulse-soft { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- Header del documento -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Lote 4 · Integraciones módulo↔Tesorería · 1/5</div>
+      <div class="text-base font-bold">M-INT-OC-S58f · Detalle OC con panel "Pagos y Tesorería" embebido</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-teal-600 px-2 py-1 rounded">Manifesto S58f</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-30</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1 · DETALLE DE OC con panel embebido                              -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · Detalle OC-2026-088 · panel "Pagos y Tesorería" embebido</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Resuelve <em>"parecen módulos aislados"</em> · panel financiero <strong>dentro</strong> del detalle de la OC · sin saltar a Tesorería para registrar un pago.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Top bar -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="text-slate-500 hover:text-teal-700">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <a class="text-slate-500 hover:text-teal-700">Compras</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <span class="text-slate-900 font-semibold">OC-2026-088</span>
+      </div>
+    </div>
+
+    <!-- Header de la OC -->
+    <div class="px-6 py-5 border-b border-slate-100">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <i data-lucide="shopping-cart" class="w-6 h-6 text-amber-600"></i>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">OC-2026-088</h1>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">En tránsito</span>
+          </div>
+          <p class="text-[13px] text-slate-500 leading-relaxed">
+            <strong class="text-slate-700">SkinTech Korea</strong> · 100 uds Vitamin C Brightening Serum ·
+            confirmada 15 abr · llegada estimada 8 may
+          </p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar PDF
+          </button>
+          <button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="banknote" class="w-3.5 h-3.5"></i>Registrar pago
+          </button>
+        </div>
+      </div>
+
+      <!-- Pipeline de OC -->
+      <div class="mt-5 pt-4 border-t border-slate-100 flex items-stretch gap-1">
+        <div class="pipe-stage done">
+          <div class="pipe-circle"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+          <div class="text-[10px] text-slate-700 font-semibold mt-1.5">Confirmada</div>
+          <div class="text-[9px] text-slate-400">15 abr</div>
+        </div>
+        <div class="pipe-stage done">
+          <div class="pipe-circle"><i data-lucide="check" class="w-3.5 h-3.5"></i></div>
+          <div class="text-[10px] text-slate-700 font-semibold mt-1.5">En tránsito</div>
+          <div class="text-[9px] text-slate-400">25 abr</div>
+        </div>
+        <div class="pipe-stage active">
+          <div class="pipe-circle"><i data-lucide="package-x" class="w-3.5 h-3.5"></i></div>
+          <div class="text-[10px] text-slate-700 font-semibold mt-1.5">En aduana</div>
+          <div class="text-[9px] text-amber-700 font-medium">hoy</div>
+        </div>
+        <div class="pipe-stage">
+          <div class="pipe-circle">4</div>
+          <div class="text-[10px] text-slate-500 mt-1.5">Recibida</div>
+          <div class="text-[9px] text-slate-400">~8 may</div>
+        </div>
+        <div class="pipe-stage">
+          <div class="pipe-circle">5</div>
+          <div class="text-[10px] text-slate-500 mt-1.5">Pagada total</div>
+          <div class="text-[9px] text-slate-400">pendiente</div>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="grid grid-cols-4 divide-x divide-slate-200 mt-5 pt-4 border-t border-slate-100">
+        <div class="px-3 first:pl-0">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Total OC</div>
+          <div class="text-xl font-bold text-slate-900 num-tab tracking-tight">$ 4,300</div>
+          <div class="text-[10px] text-slate-500 num-tab">≈ S/ 15,093 · TC 3.510</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-semibold mb-1">Pagado</div>
+          <div class="text-xl font-bold text-emerald-700 num-tab tracking-tight">$ 3,000</div>
+          <div class="text-[10px] text-emerald-600 num-tab">70% · 2 pagos</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-rose-700 font-semibold mb-1">Saldo</div>
+          <div class="text-xl font-bold text-rose-700 num-tab tracking-tight">$ 1,500</div>
+          <div class="text-[10px] text-rose-700 num-tab pulse-soft">⚠ vence 5 may</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Productos</div>
+          <div class="text-xl font-bold text-slate-900 num-tab tracking-tight">100</div>
+          <div class="text-[10px] text-slate-500 num-tab">unidades</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs de la OC -->
+    <div class="border-b border-slate-200 px-6 bg-white">
+      <div class="flex items-center -mb-px overflow-x-auto">
+        <button class="px-4 py-3 text-[12px] font-semibold text-teal-700 border-b-2 border-teal-600 flex items-center gap-1.5">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Resumen
+        </button>
+        <button class="px-4 py-3 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="package" class="w-3.5 h-3.5"></i>Productos (100)
+        </button>
+        <button class="px-4 py-3 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>Sub-órdenes (3)
+        </button>
+        <button class="px-4 py-3 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="truck" class="w-3.5 h-3.5"></i>Envíos (1)
+        </button>
+        <button class="px-4 py-3 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>Timeline
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido del tab Resumen · 2 cols: información + panel embebido ⭐ -->
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Col 1-2 · Info de la OC -->
+      <div class="col-span-2 p-6">
+        <h3 class="text-sm font-bold text-slate-900 mb-3">Información de la orden</h3>
+        <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[12px] mb-4">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Proveedor</div>
+            <div class="font-medium text-slate-900">SkinTech Korea</div>
+            <div class="text-[10px] text-slate-500">contacto: orders@skintech.kr</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Inco-term</div>
+            <div class="font-medium text-slate-900">EXW Seoul</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Lead time</div>
+            <div class="font-medium text-slate-900">22 días estimado</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Modo de envío</div>
+            <div class="font-medium text-slate-900">Marítimo · Callao</div>
+          </div>
+        </div>
+
+        <h3 class="text-sm font-bold text-slate-900 mb-3 pt-3 border-t border-slate-100">Productos en la orden</h3>
+        <div class="card-base p-3 mb-2 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13px] font-semibold text-slate-900">Vitamin C Brightening Serum · 30ml</div>
+            <div class="text-[11px] text-slate-500"><span class="mono">SKU-PROD-0042</span> · 100 uds @ $ 38.50</div>
+          </div>
+          <div class="text-right num-tab">
+            <div class="text-[14px] font-bold text-slate-900">$ 3,850</div>
+            <div class="text-[10px] text-slate-500">subtotal</div>
+          </div>
+        </div>
+        <div class="text-[11px] text-slate-500 italic mt-2">+ flete USD 450 · subtotal $ 4,300</div>
+      </div>
+
+      <!-- Col 3 · Panel embebido "Pagos y Tesorería" ⭐ -->
+      <div class="p-6 bg-gradient-to-br from-rose-50/30 via-white to-emerald-50/30">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="wallet" class="w-4 h-4 text-rose-600"></i>Pagos y Tesorería
+          </h3>
+          <a class="text-[10px] text-teal-600 hover:text-teal-700 font-medium">Ver en Tesorería →</a>
+        </div>
+
+        <!-- Estado del pago · cuadro principal -->
+        <div class="card-banking p-4 mb-3 gradient-rose-soft">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase tracking-wider text-rose-700 font-bold">Saldo pendiente</span>
+            <span class="chip-pill chip-sm bg-rose-100 text-rose-700 pulse-soft">vence 5 may</span>
+          </div>
+          <div class="text-[24px] font-bold text-rose-700 num-tab tracking-tight">$ 1,500.00</div>
+          <div class="text-[10px] text-slate-600 num-tab mt-1">≈ S/ 5,265 · TC 3.510</div>
+          <div class="mt-3 flex items-center gap-2">
+            <div class="flex-1 h-1.5 rounded-full bg-rose-100 overflow-hidden">
+              <div class="h-full bg-emerald-500" style="width: 70%"></div>
+            </div>
+            <span class="text-[10px] num-tab font-semibold text-emerald-700">70%</span>
+          </div>
+          <button class="w-full mt-3 bg-rose-600 hover:bg-rose-700 text-white text-[12px] font-semibold py-2 rounded-md flex items-center justify-center gap-1.5">
+            <i data-lucide="banknote" class="w-3.5 h-3.5"></i>Registrar pago de $ 1,500
+          </button>
+        </div>
+
+        <!-- Pagos realizados -->
+        <h4 class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Pagos realizados (2)</h4>
+        <div class="space-y-2">
+          <div class="card-base p-2.5 cursor-pointer card-hover">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-[11px] font-semibold text-slate-900">14 abr · BCP USD</div>
+              <div class="text-[12px] font-bold text-emerald-700 num-tab">$ 2,000</div>
+            </div>
+            <div class="text-[10px] text-slate-500 flex items-center gap-1.5">
+              <span class="mono">TES-2026-156</span>
+              <span class="text-slate-300">·</span>
+              <span>transferencia · ref 0042889</span>
+            </div>
+            <a class="text-[10px] text-teal-600 hover:text-teal-700 font-medium mt-1 inline-flex items-center gap-1">
+              Ver movimiento <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>
+            </a>
+          </div>
+          <div class="card-base p-2.5 cursor-pointer card-hover">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-[11px] font-semibold text-slate-900">12 abr · Wise USD</div>
+              <div class="text-[12px] font-bold text-emerald-700 num-tab">$ 1,000</div>
+            </div>
+            <div class="text-[10px] text-slate-500 flex items-center gap-1.5">
+              <span class="mono">TES-2026-148</span>
+              <span class="text-slate-300">·</span>
+              <span>transferencia · ref WISE7821</span>
+            </div>
+            <a class="text-[10px] text-teal-600 hover:text-teal-700 font-medium mt-1 inline-flex items-center gap-1">
+              Ver movimiento <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Acciones secundarias -->
+        <div class="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+          <button class="w-full text-left text-[11px] text-slate-600 hover:text-teal-700 flex items-center gap-1.5 py-1">
+            <i data-lucide="credit-card" class="w-3 h-3"></i>Cargar a tarjeta de crédito
+          </button>
+          <button class="w-full text-left text-[11px] text-slate-600 hover:text-teal-700 flex items-center gap-1.5 py-1">
+            <i data-lucide="layers" class="w-3 h-3"></i>Pago abono distribuido (esta + otras OCs del proveedor)
+          </button>
+          <button class="w-full text-left text-[11px] text-slate-600 hover:text-teal-700 flex items-center gap-1.5 py-1">
+            <i data-lucide="git-fork" class="w-3 h-3"></i>Pago dividido (mi cuenta + TC + efectivo)
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Anotaciones Vista 1 -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Panel "Pagos y Tesorería" siempre visible:</strong> en el detalle de OC · columna derecha · resumen del pago + lista de movimientos vinculados + acciones rápidas. Sin saltar a otro módulo.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ KPI strip de la OC:</strong> Total · Pagado · Saldo · Productos. Vista financiera de un vistazo · pipeline completa con etapas · alerta de vencimiento si aplica.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Movimientos clickables:</strong> cada pago realizado tiene "Ver movimiento →" que lleva al detalle del movimiento de tesorería · cierra el ciclo bidireccional.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 3 acciones secundarias:</strong> cargar a TC · pago abono distribuido · pago dividido. Cubren los casos avanzados sin agregar fricción al caso simple.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · Click "Registrar pago" · PagoUnificadoForm v3 contextual     -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 · Click "Registrar pago" · `PagoUnificadoForm v3` contextual</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Modal centrado · pre-cargado con datos de la OC · usa la versión 3 propuesta del componente (cuando se implemente DEUDA-PAGOFORM-001).
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header del modal -->
+    <div class="bg-gradient-to-br from-rose-50 to-white border-b border-rose-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
+            <i data-lucide="banknote" class="w-5 h-5 text-rose-700"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold tracking-tight text-slate-900">Registrar pago de OC</h2>
+            <p class="text-[12px] text-slate-500">
+              <span class="mono">OC-2026-088</span> · SkinTech Korea · saldo pendiente <span class="font-bold text-rose-700 num-tab">$ 1,500</span>
+            </p>
+          </div>
+        </div>
+        <button class="hover:bg-slate-100 p-1.5 rounded-md">
+          <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cuerpo del form -->
+    <div class="grid grid-cols-2 divide-x divide-slate-200">
+
+      <!-- Col 1 · Variables del pago -->
+      <div class="p-5 bg-slate-50/30">
+        <div class="space-y-3">
+          <!-- Header del pago (auto-cargado) -->
+          <div class="card-banking p-3 bg-sky-50 border border-sky-200">
+            <div class="flex items-center justify-between text-[11px]">
+              <div>
+                <div class="text-slate-500">Total OC</div>
+                <div class="font-bold text-slate-900 num-tab">$ 4,300</div>
+              </div>
+              <div>
+                <div class="text-slate-500">Pendiente</div>
+                <div class="font-bold text-rose-700 num-tab">$ 1,500</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toggle Completo / Parcial -->
+          <div class="flex gap-2">
+            <button class="flex-1 chip-pill bg-teal-50 text-teal-700 border border-teal-200 font-semibold justify-center">
+              <i data-lucide="check" class="w-3 h-3"></i>Pagar completo · $ 1,500
+            </button>
+            <button class="flex-1 chip-pill bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 justify-center">
+              <i data-lucide="arrow-left-right" class="w-3 h-3"></i>Parcial
+            </button>
+          </div>
+
+          <!-- Toggle Split (Fase 3 PagoForm) -->
+          <div class="flex items-center gap-2 p-2 rounded bg-purple-50 border border-purple-200">
+            <input type="checkbox" id="split" class="rounded border-purple-300">
+            <label for="split" class="text-[11px] text-purple-900 font-medium flex-1">
+              Pagaré por más de un método (split)
+            </label>
+            <span class="chip-pill chip-sm bg-white text-purple-700 border border-purple-300">Opt-in</span>
+          </div>
+
+          <!-- Selector cuenta origen -->
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Pagar desde</label>
+            <div class="bg-white border border-slate-200 rounded-md px-2.5 py-2 cursor-pointer flex items-center gap-2">
+              <div class="w-6 h-6 rounded bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white text-[8px] font-bold">IBK</div>
+              <div class="flex-1">
+                <div class="text-[12px] font-semibold text-slate-900">Interbank USD</div>
+                <div class="text-[10px] text-slate-500 num-tab">····8821 · $ 8,420 disp.</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+            </div>
+          </div>
+
+          <!-- Método -->
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Método</label>
+            <div class="flex gap-1.5 flex-wrap">
+              <button class="chip-pill bg-teal-50 text-teal-700 border border-teal-200 font-semibold">
+                <i data-lucide="building" class="w-3 h-3"></i>Transferencia
+              </button>
+              <button class="chip-pill bg-white text-slate-500 border border-slate-200">SWIFT</button>
+              <button class="chip-pill bg-white text-slate-500 border border-slate-200">Wise</button>
+            </div>
+          </div>
+
+          <!-- Monto -->
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Monto</label>
+            <div class="flex items-center gap-2">
+              <span class="text-[12px] text-slate-500">$</span>
+              <input type="number" value="1500.00" class="flex-1 px-2 py-1.5 text-[14px] font-bold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-rose-500">
+            </div>
+            <div class="text-[10px] text-slate-500 mt-1 num-tab">≈ S/ 5,265 al TC del día 3.510</div>
+          </div>
+
+          <!-- Fecha + referencia -->
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Fecha</label>
+              <input type="date" value="2026-04-30" class="w-full px-2 py-1.5 text-[11px] border border-slate-200 rounded">
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Referencia</label>
+              <input type="text" placeholder="Nro. operación" class="w-full px-2 py-1.5 text-[11px] border border-slate-200 rounded">
+            </div>
+          </div>
+
+          <!-- Adjuntar comprobante (Fase 3) -->
+          <div class="border-2 border-dashed border-slate-200 rounded-md p-3 text-center text-[10px] text-slate-400 hover:border-teal-300 hover:bg-teal-50/30 cursor-pointer">
+            <i data-lucide="paperclip" class="w-4 h-4 inline mb-1"></i>
+            <div>Adjuntar comprobante (opcional)</div>
+            <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200 mt-1 inline-flex">Fase 3</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2 · Resumen + impacto -->
+      <div class="p-5">
+        <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-3">Resumen del pago</h3>
+
+        <div class="card-banking gradient-emerald-soft p-3 mb-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase text-emerald-700 font-bold">Total a pagar</span>
+            <span class="text-[18px] font-bold text-emerald-700 num-tab">$ 1,500</span>
+          </div>
+          <div class="text-[10px] text-slate-600 num-tab">≈ S/ 5,265 · TC 3.510</div>
+        </div>
+
+        <h4 class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Impacto en cuentas</h4>
+        <div class="space-y-1.5 mb-4">
+          <div class="card-base p-2.5 flex items-center justify-between">
+            <div class="text-[11px]">
+              <div class="font-semibold text-slate-900">Interbank USD</div>
+              <div class="text-[9px] text-slate-500 num-tab">$ 8,420 → $ 6,920</div>
+            </div>
+            <span class="text-[12px] font-bold text-rose-600 num-tab">−$ 1,500</span>
+          </div>
+          <div class="card-base p-2.5 flex items-center justify-between">
+            <div class="text-[11px]">
+              <div class="font-semibold text-slate-900">CC SkinTech Korea</div>
+              <div class="text-[9px] text-slate-500 num-tab">−$ 1,500 → $ 0 ✓</div>
+            </div>
+            <span class="text-[12px] font-bold text-emerald-700 num-tab">saldó</span>
+          </div>
+          <div class="card-base p-2.5 flex items-center justify-between">
+            <div class="text-[11px]">
+              <div class="font-semibold text-slate-900">OC-2026-088</div>
+              <div class="text-[9px] text-slate-500">estado pago: 70% → 100%</div>
+            </div>
+            <span class="text-[12px] font-bold text-emerald-700">Pagada total ✓</span>
+          </div>
+        </div>
+
+        <!-- Validaciones -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-md p-2.5 mb-3 text-[10px] text-emerald-900 leading-relaxed">
+          <div class="flex items-center gap-1 font-semibold mb-1"><i data-lucide="check" class="w-3 h-3"></i>Validaciones</div>
+          <ul class="space-y-0.5">
+            <li>✓ Saldo suficiente en Interbank USD</li>
+            <li>✓ Moneda compatible (USD)</li>
+            <li>✓ Pago cubre el saldo total · OC quedará 100% pagada</li>
+          </ul>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-2">
+          <button class="flex-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] py-2 rounded-md">Cancelar</button>
+          <button class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[12px] py-2 rounded-md flex items-center justify-center gap-1.5 shadow-sm">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>Confirmar pago
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Pre-cargado con datos de la OC:</strong> proveedor · monto pendiente · moneda · TC actual. El usuario solo elige la cuenta origen y método.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Toggle "split" opt-in (Fase 3):</strong> chip Opt-in indica que es feature avanzada · checkbox lo activa cuando se necesita pagar por más de un método.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Impacto en cuentas visible antes de confirmar:</strong> Interbank USD bajará de $8,420 a $6,920 · CC del proveedor saldará · OC quedará 100% pagada. Decisión informada.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Adjunto de comprobante (Fase 3):</strong> drag&drop opcional · útil para guardar evidencia del pago · queda vinculado al MovimientoFinanciero.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · ANTES / DESPUÉS                                              -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · Antes / Después · resolviendo "módulos aislados"</h2>
+  <p class="text-sm text-slate-600 mb-4">Este patrón se replica en M-INT-VENTA, M-INT-GASTO, M-INT-ENVIO, M-INT-MOV.</p>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-rose-100 text-rose-700 uppercase tracking-wider font-bold text-[10px]">Antes</span>
+        <h3 class="text-sm font-bold text-slate-900">Módulos aislados</h3>
+      </div>
+      <div class="card-banking p-5 bg-rose-50/30 border border-rose-200 space-y-2 text-[12px]">
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Para registrar un pago hay que ir a <strong>/tesoreria → Movimientos → Nuevo</strong></span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Pierdes contexto de la OC · tienes que recordar/buscar el saldo</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">No ves los pagos previos sin buscar manualmente</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Difícil saber cuánto falta · cuándo vence · qué acciones tomaste antes</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-emerald-100 text-emerald-700 uppercase tracking-wider font-bold text-[10px]">Después</span>
+        <h3 class="text-sm font-bold text-slate-900">Panel embebido en detalle de OC</h3>
+      </div>
+      <div class="card-banking p-5 bg-emerald-50/30 border border-emerald-200 space-y-2 text-[12px]">
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Botón "Registrar pago" en el header de la OC · 1 click</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Form pre-cargado · proveedor, monto, moneda, TC ya están</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Pagos previos visibles en panel embebido · click → detalle del movimiento</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">3 acciones avanzadas a la mano: cargar a TC · abono distribuido · pago dividido</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- DECISIONES APLICADAS                                                    -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-slate-900 to-teal-900 text-white rounded-2xl p-6">
+    <div class="text-[11px] uppercase tracking-wider text-teal-300 font-semibold mb-2">M-INT-OC-S58f cerrado · Lote 4 · 1/5</div>
+    <h2 class="text-xl font-bold mb-3 tracking-tight">Detalle OC con panel "Pagos y Tesorería" embebido</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-CH-6 ✅</div>
+        <div class="text-[12px]">Patrón "panel embebido" aplicado · panel financiero dentro del detalle</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">PagoUnificadoForm v3</div>
+        <div class="text-[12px]">Spec visual del form propuesto · split toggle + adjuntos · Fase 3</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Movimientos clickables</div>
+        <div class="text-[12px]">Ciclo bidireccional OC ↔ Tesorería · "Ver movimiento" lleva al detalle</div>
+      </div>
+    </div>
+
+    <div class="mt-5 pt-5 border-t border-white/10 text-[12px] text-slate-300 leading-relaxed">
+      <strong class="text-white">Próximo del Lote 4:</strong>
+      <code class="bg-white/10 px-1.5 py-0.5 rounded ml-1">M-INT-VENTA-S58f</code> ·
+      Detalle de Venta con panel "Cobros" embebido · usa caja recaudadora GK Xpress · split por método (yape + efectivo).
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

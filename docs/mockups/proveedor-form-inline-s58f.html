@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-FORMS-INLINE-S58f · Forms inline modal-in-modal · 4 casos reales</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-sky { background: #e0f2fe; color: #0369a1; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .pill-indigo { background: #e0e7ff; color: #3730a3; }
+  .pill-fuchsia { background: #fae8ff; color: #86198f; }
+  .pill-orange { background: #ffedd5; color: #9a3412; }
+  .pill-teal { background: #ccfbf1; color: #115e59; }
+  .pill-pink { background: #fce7f3; color: #9d174d; }
+  .pill-zinc { background: #f4f4f5; color: #3f3f46; }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2rem 0; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- Header del documento -->
+<div class="max-w-6xl mx-auto px-6 pt-8 pb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="pill pill-pink">M-FORMS-INLINE</span>
+    <span class="pill pill-slate">S58f · Lote 5 · 2 de 2 ⭐ último</span>
+    <span class="pill pill-amber">Reescrito tras feedback usuario</span>
+    <span class="pill pill-violet">Patrón modal-in-modal</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight">Forms inline · 4 casos reales del negocio</h1>
+  <p class="text-sm text-slate-600 mt-1">Resuelve la fricción de tener que <strong>abandonar un flujo</strong> para crear entidades secundarias. Patrón "modal-in-modal" inspirado en Stripe Connect. <strong>4 casos cubiertos visualmente</strong>: 👤 Cliente desde Venta (Vista 1) · 🏭 Proveedor desde Gasto/OC (Vista 4) · 🚚 Colaborador desde Envío · 🏷 Categoría desde Gasto. <em>Medios de pago NO se crean inline · trabajamos con los ya registrados.</em></p>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · Caso 1 · Cliente nuevo inline desde Venta -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-lg font-semibold">Caso 1 · Cliente nuevo inline desde Venta · el más frecuente</h2>
+  </div>
+
+  <div class="bg-fuchsia-50 border border-fuchsia-200 rounded-lg p-4 mb-4 text-sm">
+    <div class="font-semibold text-fuchsia-900 mb-1">Caso real · cliente nuevo entra por WhatsApp</div>
+    <p class="text-fuchsia-800">Recibes un pedido por WhatsApp de <strong>Lucía Fernández</strong> (cliente que nunca ha comprado antes). Estás llenando el form de Venta · al elegir cliente, no aparece. Sin patrón inline tienes que cancelar el form, ir a Clientes, crearla, volver a Ventas, abrir el form otra vez · perdiste contexto. Con inline: 1 click, mini-modal, 3 campos, guardar, sigues con la venta.</p>
+  </div>
+
+  <!-- Composite del modal en modal -->
+  <div class="bg-slate-900/40 rounded-xl p-8 relative">
+
+    <!-- Form de Venta en background -->
+    <div class="bg-white rounded-xl shadow-xl max-w-3xl mx-auto overflow-hidden opacity-50">
+      <div class="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-b border-slate-200 px-5 py-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Nueva venta</div>
+        <h3 class="text-lg font-bold mt-0.5">Registrar venta · paso 1 de 4</h3>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="border-2 border-pink-300 rounded-lg p-3">
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Cliente</label>
+          <div class="text-xs text-slate-500">Buscando cliente... no encontrado</div>
+        </div>
+        <div class="text-xs text-slate-500">[Resto del wizard de venta · productos, dirección, total...]</div>
+      </div>
+    </div>
+
+    <!-- Modal-in-modal · ClienteInlineForm -->
+    <div class="absolute inset-x-0 top-12 mx-auto max-w-md bg-white rounded-xl shadow-2xl border-2 border-pink-300 overflow-hidden">
+      <div class="bg-gradient-to-r from-pink-50 to-rose-50 border-b border-pink-200 px-4 py-3 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-pink-700 font-semibold">Crear cliente nuevo</div>
+          <div class="text-sm font-bold text-pink-900 mt-0.5">Sin abandonar la venta</div>
+        </div>
+        <button class="w-7 h-7 rounded-full bg-white text-pink-600 flex items-center justify-center text-sm">✕</button>
+      </div>
+
+      <div class="p-4 space-y-3">
+        <!-- Banner contexto -->
+        <div class="bg-slate-50 border border-slate-200 rounded p-2 text-[11px] text-slate-600">
+          ℹ️ Al guardar, el cliente se crea en tu base + se selecciona automáticamente en la venta en curso.
+        </div>
+
+        <!-- Tipo cliente -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Tipo</label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button class="bg-pink-50 border-2 border-pink-500 rounded-lg p-2 text-xs ring-2 ring-pink-100">
+              <div class="text-base">👤</div>
+              <div class="font-semibold mt-0.5 text-pink-700">Persona (B2C)</div>
+            </button>
+            <button class="bg-white border-2 border-slate-200 rounded-lg p-2 text-xs hover:border-pink-300">
+              <div class="text-base">🏢</div>
+              <div class="font-semibold mt-0.5">Empresa (B2B)</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Nombre completo</label>
+          <input type="text" placeholder="Ej. Lucía Fernández Castro" value="Lucía Fernández Castro" class="w-full px-3 py-2 border-2 border-pink-300 rounded-lg text-sm focus:outline-none focus:border-pink-500">
+        </div>
+
+        <!-- WhatsApp -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">WhatsApp · principal canal</label>
+          <input type="text" placeholder="+51 9XX XXX XXX" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:border-pink-400">
+        </div>
+
+        <!-- Dirección · opcional pero útil -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Dirección (opcional · para envíos)</label>
+          <input type="text" placeholder="Ej. Av. Salaverry 1234, Jesús María" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-pink-400">
+          <div class="text-[10px] text-slate-500 mt-0.5">Se puede agregar después al despachar</div>
+        </div>
+
+        <!-- Toggle marcar fav -->
+        <div class="flex items-center justify-between bg-slate-50 rounded-lg p-2.5">
+          <div class="flex-1">
+            <div class="text-xs font-semibold">Aceptar comunicaciones</div>
+            <div class="text-[10px] text-slate-500">WhatsApp marketing · seguimiento post-venta</div>
+          </div>
+          <div class="w-9 h-5 bg-pink-500 rounded-full relative cursor-pointer">
+            <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 right-0.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-slate-50 border-t border-slate-200 px-4 py-3 flex items-center justify-between">
+        <button class="text-xs text-slate-700 font-medium px-3 py-1.5 hover:bg-slate-100 rounded">Cancelar</button>
+        <button class="bg-pink-600 hover:bg-pink-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm">
+          Guardar · seguir con venta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notas del flujo -->
+  <div class="mt-4 grid grid-cols-3 gap-3 text-sm">
+    <div class="bg-rose-50 border border-rose-200 rounded-lg p-3">
+      <div class="font-semibold text-rose-900 text-xs uppercase tracking-wider mb-1">Antes (sin patrón)</div>
+      <ul class="text-xs text-rose-800 space-y-1">
+        <li>1. Cancelas Venta · pierdes carrito</li>
+        <li>2. Vas al módulo Clientes</li>
+        <li>3. Click "+ Nuevo cliente"</li>
+        <li>4. Llenas form completo (8 campos)</li>
+        <li>5. Vuelves a Ventas</li>
+        <li>6. Reabres Venta · re-llenas productos</li>
+      </ul>
+      <div class="text-[10px] text-rose-700 mt-2 italic">~3 min · 6 pasos · alto abandono · clientes a veces se quedan sin crear porque "fue solo 1 venta"</div>
+    </div>
+    <div class="bg-pink-50 border-2 border-pink-300 rounded-lg p-3">
+      <div class="font-semibold text-pink-900 text-xs uppercase tracking-wider mb-1">Con patrón inline ✓</div>
+      <ul class="text-xs text-pink-800 space-y-1">
+        <li>1. Click "+ Nuevo cliente" en el selector</li>
+        <li>2. Mini-modal · llenas 3 campos esenciales</li>
+        <li>3. Guardar · vuelves a la venta</li>
+        <li>4. Cliente auto-seleccionado</li>
+        <li>5. Continúas con la venta</li>
+      </ul>
+      <div class="text-[10px] text-pink-700 mt-2 italic">~20 seg · 5 pasos · 0 fricción · datos de cliente siempre se capturan</div>
+    </div>
+    <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+      <div class="font-semibold text-slate-900 text-xs uppercase tracking-wider mb-1">Spec técnico</div>
+      <ul class="text-xs text-slate-700 space-y-1">
+        <li>• Z-index: <code class="text-[9px] bg-white px-1 rounded">z-50</code> form padre · <code class="text-[9px] bg-white px-1 rounded">z-60</code> mini</li>
+        <li>• Form padre opacity 50% al abrir mini</li>
+        <li>• ESC cierra mini · NO el padre</li>
+        <li>• Backdrop blur · darkens padre</li>
+        <li>• Auto-focus al abrir</li>
+        <li>• Devuelve <code class="text-[9px] bg-white px-1 rounded">clienteId</code> al cerrar OK</li>
+        <li>• Form principal recibe el ID y auto-selecciona</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · Tabla resumen · los 4 casos del patrón -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-lg font-semibold">Los 4 casos reales · matriz comparativa</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El patrón modal-in-modal aplica en exactamente <strong>4 lugares del sistema</strong>. Cada uno tiene su propio set de campos esenciales · ninguno excede los 5 campos · todos cumplen las 6 reglas del patrón.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold">
+          <tr>
+            <th class="px-4 py-3 text-left">Caso</th>
+            <th class="px-4 py-3 text-left">Form padre</th>
+            <th class="px-4 py-3 text-left">Frecuencia</th>
+            <th class="px-4 py-3 text-left">Campos esenciales</th>
+            <th class="px-4 py-3 text-left">Después</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="bg-pink-50/30">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-pink">P-INLINE-1</span>
+                <span class="font-semibold">👤 Cliente</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">El más común</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-fuchsia">Wizard de Venta</span><br>
+              <span class="text-slate-500 mt-1 inline-block">Selector "cliente"</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="font-semibold text-emerald-700">Alta</span><br>
+              <span class="text-slate-500">~5-10 veces/semana</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <ol class="list-decimal ml-4 space-y-0.5">
+                <li>Tipo (Persona/Empresa)</li>
+                <li>Nombre completo</li>
+                <li>WhatsApp</li>
+                <li>Dirección (opcional)</li>
+                <li>Aceptar comunicaciones (toggle)</li>
+              </ol>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              Cliente queda creado en módulo Clientes · seleccionado en venta · redirige al paso 2 del wizard
+            </td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-sky">P-INLINE-2</span>
+                <span class="font-semibold">🏭 Proveedor</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">Raro pero real</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-sky">Wizard de OC</span><br>
+              <span class="text-slate-500 mt-1 inline-block">Selector "proveedor"</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="font-semibold text-amber-700">Baja</span><br>
+              <span class="text-slate-500">~1-2 veces/mes</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <ol class="list-decimal ml-4 space-y-0.5">
+                <li>Razón social / Nombre</li>
+                <li>RUC o ID fiscal</li>
+                <li>País de origen</li>
+                <li>Moneda preferida (USD/PEN)</li>
+                <li>Lead time default (días)</li>
+              </ol>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              Proveedor en Red Logística · seleccionado en OC · OCs siguientes pueden reusarlo
+            </td>
+          </tr>
+          <tr class="bg-indigo-50/30">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-indigo">P-INLINE-3</span>
+                <span class="font-semibold">🚚 Colaborador</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">Ocasional</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-indigo">Wizard de Envío</span><br>
+              <span class="text-slate-500 mt-1 inline-block">Selector "transportador"</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="font-semibold text-amber-700">Baja-Media</span><br>
+              <span class="text-slate-500">~2-4 veces/mes (viajeros ocasionales)</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <ol class="list-decimal ml-4 space-y-0.5">
+                <li>Nombre</li>
+                <li>Tipo (viajero / courier intl / transportista local)</li>
+                <li>WhatsApp</li>
+                <li>País de operación</li>
+                <li>Tarifa preset (opcional)</li>
+              </ol>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              Colaborador en Red Logística · seleccionado en envío · su tarifa preset (si la cargas) aplica para el flete del wizard
+            </td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-orange">P-INLINE-4</span>
+                <span class="font-semibold">🏷 Categoría gasto</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">Cuando aparece tipo nuevo</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-orange">Form de Gasto</span><br>
+              <span class="text-slate-500 mt-1 inline-block">Selector "categoría"</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="font-semibold text-slate-700">Muy baja</span><br>
+              <span class="text-slate-500">~1 vez al trimestre</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <ol class="list-decimal ml-4 space-y-0.5">
+                <li>Nombre de la categoría</li>
+                <li>Tipo (operativo / CAPEX / financiero / personal)</li>
+                <li>Cuenta contable asociada (opcional)</li>
+              </ol>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              Categoría en plan de cuentas · disponible para próximos gastos · BI la reconoce automáticamente
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Aclaración explícita -->
+  <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
+    <div class="flex items-start gap-3">
+      <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">!</div>
+      <div class="flex-1">
+        <div class="font-semibold text-amber-900">Lo que NO se crea inline · medios de pago</div>
+        <p class="text-xs text-amber-800 mt-1">El sistema trabaja con los <strong>productos financieros (cuentas, tarjetas, cajas)</strong> que ya están registrados. Crear medios de pago "sobre la marcha" no es un flujo real del negocio · esos se gestionan en su sección dedicada (<code class="text-[10px] bg-white px-1 rounded">/finanzas/productos-financieros</code>) con calma · no en medio de un cobro/pago.</p>
+        <p class="text-[11px] text-amber-700 mt-2 italic">Si en el futuro se necesita "agregar dato bancario inline" para el caso de un proveedor sin cuenta registrada, se puede agregar como caso 5 del patrón · pero hoy no es prioridad.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 4 · Caso 2 · Proveedor nuevo desde Gasto -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-sm font-bold">4</div>
+    <h2 class="text-lg font-semibold">Caso 2 · Proveedor nuevo desde Gasto · vinculando "fuente del gasto"</h2>
+  </div>
+
+  <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4 text-sm">
+    <div class="font-semibold text-orange-900 mb-1">Caso real · gasto de un proveedor que no existe en la base</div>
+    <p class="text-orange-800">Estás registrando el recibo mensual de <strong>Sedapal</strong> (agua) · monto S/ 86.40 · pero Sedapal no existe en tus proveedores (sí existe Movistar y Edelnor de servicios anteriores · Sedapal no). Sin patrón inline tendrías que cancelar el gasto, ir a Proveedores, crearlo, volver a Gastos. Con inline: 1 click, mini-modal, 4 campos, guardar, sigues con el gasto · y desde ese momento Sedapal queda disponible para todos los gastos futuros.</p>
+  </div>
+
+  <!-- Composite del modal en modal · form de Gasto + ProveedorInlineForm -->
+  <div class="bg-slate-900/40 rounded-xl p-8 relative">
+
+    <!-- Form de Gasto en background -->
+    <div class="bg-white rounded-xl shadow-xl max-w-3xl mx-auto overflow-hidden opacity-50">
+      <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200 px-5 py-4">
+        <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Registrar gasto</div>
+        <h3 class="text-lg font-bold mt-0.5">Nuevo gasto · servicios básicos</h3>
+      </div>
+      <div class="p-5 space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-slate-50 rounded-lg p-2 text-xs">
+            <div class="text-slate-500 mb-0.5">Categoría</div>
+            <div class="font-semibold">Servicios básicos</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2 text-xs">
+            <div class="text-slate-500 mb-0.5">Monto</div>
+            <div class="font-semibold tabular-nums">S/ 86.40</div>
+          </div>
+        </div>
+        <div class="border-2 border-pink-300 rounded-lg p-3">
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Proveedor del gasto · NUEVO CAMPO</label>
+          <div class="text-xs text-slate-500">Buscando "Sedapal"... no encontrado</div>
+        </div>
+        <div class="text-xs text-slate-500">[Resto del form: descripción, fecha vencimiento, recurrencia...]</div>
+      </div>
+    </div>
+
+    <!-- Modal-in-modal · ProveedorInlineForm -->
+    <div class="absolute inset-x-0 top-12 mx-auto max-w-md bg-white rounded-xl shadow-2xl border-2 border-pink-300 overflow-hidden">
+      <div class="bg-gradient-to-r from-pink-50 to-rose-50 border-b border-pink-200 px-4 py-3 flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-pink-700 font-semibold">Crear proveedor nuevo</div>
+          <div class="text-sm font-bold text-pink-900 mt-0.5">Sin abandonar el gasto</div>
+        </div>
+        <button class="w-7 h-7 rounded-full bg-white text-pink-600 flex items-center justify-center text-sm">✕</button>
+      </div>
+
+      <div class="p-4 space-y-3">
+        <!-- Banner contexto -->
+        <div class="bg-slate-50 border border-slate-200 rounded p-2 text-[11px] text-slate-600">
+          ℹ️ Al guardar, el proveedor se crea en tu base + se vincula al gasto en curso · disponible para todos los gastos futuros.
+        </div>
+
+        <!-- Tipo proveedor -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Tipo</label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button class="bg-white border-2 border-slate-200 rounded-lg p-2 text-xs hover:border-pink-300">
+              <div class="text-base">👤</div>
+              <div class="font-semibold mt-0.5">Persona</div>
+            </button>
+            <button class="bg-pink-50 border-2 border-pink-500 rounded-lg p-2 text-xs ring-2 ring-pink-100">
+              <div class="text-base">🏭</div>
+              <div class="font-semibold mt-0.5 text-pink-700">Empresa / Servicio</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Razón social -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Razón social / Nombre comercial</label>
+          <input type="text" placeholder="Ej. SEDAPAL S.A." value="SEDAPAL S.A." class="w-full px-3 py-2 border-2 border-pink-300 rounded-lg text-sm focus:outline-none focus:border-pink-500">
+        </div>
+
+        <!-- RUC -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">RUC</label>
+          <input type="text" placeholder="11 dígitos" value="20100152356" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:border-pink-400">
+          <div class="text-[10px] text-emerald-700 font-medium mt-0.5">✓ Validado · empresa activa SUNAT</div>
+        </div>
+
+        <!-- País + Moneda preferida (grid 2 col) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">País</label>
+            <select class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+              <option>🇵🇪 Perú</option>
+              <option>🇺🇸 USA</option>
+              <option>🇨🇴 Colombia</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Moneda</label>
+            <select class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+              <option>S/ Soles (PEN)</option>
+              <option>$ Dólares (USD)</option>
+              <option>€ Euros (EUR)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Categoría default (especialmente útil para gastos recurrentes) -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Categoría default · acelera próximos gastos</label>
+          <select class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+            <option selected>Servicios básicos (agua/luz/gas)</option>
+            <option>Servicios telecom (internet/celular)</option>
+            <option>Logística / fletes</option>
+            <option>Insumos / materia prima</option>
+            <option>Personal / RRHH</option>
+            <option>Otros operativos</option>
+          </select>
+          <div class="text-[10px] text-slate-500 mt-0.5">Cuando registres otro gasto de Sedapal, se pre-llena la categoría.</div>
+        </div>
+
+        <!-- Toggle proveedor recurrente -->
+        <div class="flex items-center justify-between bg-slate-50 rounded-lg p-2.5">
+          <div class="flex-1">
+            <div class="text-xs font-semibold">Marcar como gasto recurrente</div>
+            <div class="text-[10px] text-slate-500">Genera recordatorio mensual + auto-creación del próximo gasto</div>
+          </div>
+          <div class="w-9 h-5 bg-pink-500 rounded-full relative cursor-pointer">
+            <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 right-0.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-slate-50 border-t border-slate-200 px-4 py-3 flex items-center justify-between">
+        <button class="text-xs text-slate-700 font-medium px-3 py-1.5 hover:bg-slate-100 rounded">Cancelar</button>
+        <button class="bg-pink-600 hover:bg-pink-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm">
+          Guardar · seguir con gasto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Después del split: lo que pasa cuando guardas -->
+  <div class="mt-5 grid grid-cols-3 gap-3">
+
+    <div class="bg-pink-50 border border-pink-200 rounded-lg p-4">
+      <div class="text-xs uppercase tracking-wider text-pink-700 font-semibold mb-2">1. Inmediatamente</div>
+      <ul class="text-xs text-pink-800 space-y-1">
+        <li>✓ Sedapal se crea en módulo Proveedores</li>
+        <li>✓ Auto-seleccionado en el gasto en curso</li>
+        <li>✓ Form padre vuelve a foco · datos preservados</li>
+        <li>✓ Continúas llenando descripción · fecha · monto</li>
+      </ul>
+    </div>
+
+    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+      <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-2">2. Próxima vez que llegue recibo Sedapal</div>
+      <ul class="text-xs text-emerald-800 space-y-1">
+        <li>✓ Selector lo muestra inmediatamente</li>
+        <li>✓ Categoría default pre-llenada (servicios básicos)</li>
+        <li>✓ Si marcaste recurrente, gasto se pre-crea automáticamente</li>
+        <li>✓ Vinculación histórica: ves todos los recibos Sedapal en 1 vista</li>
+      </ul>
+    </div>
+
+    <div class="bg-violet-50 border border-violet-200 rounded-lg p-4">
+      <div class="text-xs uppercase tracking-wider text-violet-700 font-semibold mb-2">3. En reportes BI</div>
+      <ul class="text-xs text-violet-800 space-y-1">
+        <li>✓ "Gasto anual Sedapal" como métrica directa</li>
+        <li>✓ Top 10 proveedores de gasto · Sedapal aparece</li>
+        <li>✓ Cruce: Servicios básicos × Sedapal vs Edelnor vs Movistar</li>
+        <li>✓ Detección de duplicados (2 gastos del mismo proveedor en el mismo mes)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Nota sobre los otros 2 casos -->
+  <div class="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm">
+    <div class="font-semibold text-slate-900 mb-2">📋 Los otros 2 casos del patrón siguen exactamente la misma estructura visual</div>
+    <div class="grid grid-cols-2 gap-3 text-xs">
+      <div class="bg-white border border-slate-200 rounded p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="pill pill-indigo">P-INLINE-3</span>
+          <span class="font-semibold">🚚 Colaborador desde Envío</span>
+        </div>
+        <p class="text-slate-600">Mismo modal · 5 campos: Nombre · Tipo (viajero/courier intl/transportista local) · WhatsApp · País · Tarifa preset opcional. Al guardar → seleccionado en el wizard de envío.</p>
+      </div>
+      <div class="bg-white border border-slate-200 rounded p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="pill pill-orange">P-INLINE-4</span>
+          <span class="font-semibold">🏷 Categoría gasto inline</span>
+        </div>
+        <p class="text-slate-600">Mini-modal · 3 campos: Nombre · Tipo (operativo/CAPEX/financiero/personal) · Cuenta contable opcional. Al guardar → disponible en el form de gasto + en BI.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 5 · Patrón canónico · 6 reglas + anti-patrones -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center text-sm font-bold">5</div>
+    <h2 class="text-lg font-semibold">Patrón canónico · 6 reglas + 3 anti-patrones</h2>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- Reglas del patrón -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-pink-50 border-b border-pink-200 px-4 py-3">
+        <div class="text-xs uppercase tracking-wider text-pink-700 font-semibold">Reglas del patrón modal-in-modal</div>
+        <div class="text-sm font-semibold text-pink-900 mt-1">Cumplir las 6 para no caer en anti-patrones</div>
+      </div>
+      <div class="p-5 space-y-3 text-sm">
+        <div class="flex gap-3">
+          <span class="pill pill-pink flex-shrink-0">R1</span>
+          <div>
+            <strong>Solo 1 nivel de anidamiento</strong>. Modal en modal está OK · modal en modal en modal NO. Si necesitas más niveles, replantea el flujo.
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <span class="pill pill-pink flex-shrink-0">R2</span>
+          <div>
+            <strong>El modal padre nunca se cierra</strong> al abrir el inline. Mantiene su estado completo · al cerrar el inline, el padre vuelve a foco con datos preservados.
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <span class="pill pill-pink flex-shrink-0">R3</span>
+          <div>
+            <strong>El modal padre se atenúa visualmente</strong>. Opacity 50% + backdrop blur. Hace evidente cuál es el activo · evita clicks accidentales.
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <span class="pill pill-pink flex-shrink-0">R4</span>
+          <div>
+            <strong>ESC cierra solo el inline</strong>. NO el padre. El padre solo se cierra con su propio botón ✕ o por la acción explícita del usuario.
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <span class="pill pill-pink flex-shrink-0">R5</span>
+          <div>
+            <strong>Auto-selección al cerrar OK</strong>. La entidad recién creada se devuelve al padre y se selecciona automáticamente. No hay "ahora búscala en la lista".
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <span class="pill pill-pink flex-shrink-0">R6</span>
+          <div>
+            <strong>Form inline NUNCA tiene sub-flujos largos</strong>. Máximo 5 campos esenciales · 1 toggle opcional · sin tabs ni wizards. Si necesitas más, redirige a página completa.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API genérica del manager -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-emerald-50 border-b border-emerald-200 px-4 py-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Hook genérico reutilizable</div>
+        <div class="text-sm font-semibold text-emerald-900 mt-1">useInlineFormManager()</div>
+      </div>
+      <div class="p-5 text-sm space-y-3">
+        <p class="text-slate-700">Un único hook abstrae el comportamiento común. Cada uno de los 4 forms inline solo declara: campos + onSubmit. El hook se encarga de z-index · backdrop · ESC handling · focus management · auto-selección.</p>
+
+        <div class="bg-slate-900 text-slate-100 rounded-lg p-3 text-[11px] font-mono leading-relaxed">
+          <div class="text-pink-300">// Uso típico</div>
+          <div class="mt-1">const inlineForm = <span class="text-yellow-300">useInlineFormManager</span>({</div>
+          <div class="ml-4">titulo: <span class="text-emerald-300">'Crear cliente'</span>,</div>
+          <div class="ml-4">campos: clienteCampos,</div>
+          <div class="ml-4">onSubmit: <span class="text-yellow-300">crearCliente</span>,</div>
+          <div class="ml-4">onSelect: (id) =&gt; <span class="text-yellow-300">setClienteId</span>(id)</div>
+          <div>});</div>
+          <div class="mt-2"><span class="text-pink-300">{...}</span></div>
+          <div>&lt;<span class="text-blue-300">CtaInline</span> onClick={inlineForm.<span class="text-yellow-300">abrir</span>}&gt;</div>
+          <div class="ml-2">+ Nuevo cliente</div>
+          <div>&lt;/<span class="text-blue-300">CtaInline</span>&gt;</div>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-700">
+          <div class="font-semibold mb-1">Lo que el hook resuelve automáticamente</div>
+          <ul class="space-y-0.5 ml-4 list-disc">
+            <li>Apilamiento z-index correcto</li>
+            <li>Atenuación del padre + backdrop</li>
+            <li>ESC handling diferenciado</li>
+            <li>Focus management al abrir/cerrar</li>
+            <li>Devuelve el ID nuevo al padre</li>
+            <li>Validación + estados loading/error</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anti-patrones -->
+  <div class="mt-6 bg-rose-50 border border-rose-200 rounded-xl p-5">
+    <div class="text-sm font-bold text-rose-900 mb-3 flex items-center gap-2">
+      <span>⛔</span>
+      <span>Anti-patrones que evitamos con este patrón</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-xs text-rose-800">
+      <div class="bg-white border border-rose-200 rounded-lg p-3">
+        <div class="font-semibold mb-1">❌ "Cerrar y volver"</div>
+        <p>El usuario tiene que cerrar el form padre para crear una entidad y luego abrirlo de nuevo. Pierde contexto · re-llena datos · alta tasa de abandono. Especialmente costoso en wizard de venta donde se pierde el carrito.</p>
+      </div>
+      <div class="bg-white border border-rose-200 rounded-lg p-3">
+        <div class="font-semibold mb-1">❌ "Pseudo-creación inline en el dropdown"</div>
+        <p>Permitir tipear texto libre en un selector que normalmente requiere buscar. Crea inconsistencia de datos · imposible auditar · clientes "fantasma" sin WhatsApp ni dirección.</p>
+      </div>
+      <div class="bg-white border border-rose-200 rounded-lg p-3">
+        <div class="font-semibold mb-1">❌ "Wizard infinito"</div>
+        <p>Tener un mini-form que abre otro mini-form que abre otro... Una vez está OK · más es señal de que el flujo necesita rediseño. Ningún caso real del negocio requiere 2+ niveles.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- DECISIONES Y CIERRE -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <h3 class="font-semibold text-slate-900">Decisiones declaradas en este mockup (revisadas tras feedback)</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-1</span>
+        <div>
+          <strong>Patrón modal-in-modal con 6 reglas claras</strong>. Solo 1 nivel anidamiento · padre nunca se cierra · padre se atenúa · ESC cierra solo el inline · auto-selección al cerrar OK · max 5 campos esenciales.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-2</span>
+        <div>
+          <strong>Aplicar a 4 casos reales del negocio</strong>: Cliente en Venta (P-INLINE-1 · alta frecuencia) · Proveedor en OC (P-INLINE-2 · baja) · Colaborador en Envío (P-INLINE-3 · baja-media) · Categoría gasto en Gasto (P-INLINE-4 · muy baja).
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-3</span>
+        <div>
+          <strong>NO aplicar a medios de pago</strong>. Los productos financieros se gestionan en su sección dedicada con calma · no en medio de cobros/pagos. Trabajamos solo con los ya registrados. Se reserva como "caso 5" para el futuro si surge la necesidad.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-4</span>
+        <div>
+          <strong>Hook genérico <code class="text-xs bg-slate-100 px-1 rounded">useInlineFormManager()</code></strong>. Abstracta z-index · backdrop · ESC · focus · auto-selección. Cada form inline solo declara campos + onSubmit. Reutilizable a través de los 4 casos.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-5</span>
+        <div>
+          <strong>3 anti-patrones declarados</strong> que el patrón previene: "cerrar y volver" · "pseudo-creación inline en dropdown" · "wizard infinito". Documentados como guía para code reviews futuras.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-6</span>
+        <div>
+          <strong>Esfuerzo: ~1.5 sesiones para hook + 1er form (Cliente, el más urgente)</strong> + ~0.5 sesión por cada form adicional reutilizando el manager. Total para 4 forms inline: ~3 sesiones distribuibles.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-7</span>
+        <div>
+          <strong>Priorizar por frecuencia real</strong>: implementar primero P-INLINE-1 Cliente (alta freq · ROI inmediato) · luego P-INLINE-2 Proveedor (revaluado a media-alta porque desbloquea TAREA-PROVEEDOR-GASTOS) · luego P-INLINE-3 Colaborador · luego P-INLINE-4 Categoría.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-pink flex-shrink-0">D-INLINE-8</span>
+        <div>
+          <strong>ProveedorForm inline aplica también desde Gasto</strong>, no solo desde OC. Caso real: registrar recibo de Sedapal cuando aún no existe como proveedor. El form inline es idéntico (5 campos) · solo cambia el contexto del padre (form de Gasto en vez de wizard de OC). Agrega "Categoría default" pre-llenable que acelera próximos gastos del mismo proveedor.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cambios respecto a la versión previa -->
+  <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-5">
+    <div class="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
+      <span>📝</span>
+      <span>Cambios respecto a la versión previa del mockup</span>
+    </div>
+    <div class="text-xs text-amber-800 space-y-1">
+      <p><strong>Eliminado:</strong> Vista 1 (DatoBancarioForm inline · agregar Plin de Ana) · Vista 2 (Promover yape pasivo a caja recaudadora) · 2 decisiones relacionadas a medios de pago.</p>
+      <p><strong>Agregado:</strong> Vista 1 nueva (ClienteForm inline desde Venta · el caso más frecuente) · Vista 2 nueva (matriz comparativa de los 4 casos reales) · banner explícito sobre "lo que NO aplica".</p>
+      <p><strong>Refinado:</strong> Decisiones reescritas para reflejar foco real · D-INLINE-3 ahora es declaración explícita de qué se excluye · D-INLINE-7 prioriza por frecuencia.</p>
+      <p class="italic mt-2">Cita del feedback usuario: <em>"yo para lo que son medios de pago, solo trabajo con los medios que ya existen ahí"</em>. El mockup ahora refleja eso.</p>
+    </div>
+  </div>
+
+  <!-- Cierre del Lote 5 -->
+  <div class="mt-4 bg-emerald-50 border-2 border-emerald-300 rounded-xl p-5">
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center text-2xl flex-shrink-0">✓</div>
+      <div class="flex-1">
+        <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Lote 5 · Componentes transversales (revisado)</div>
+        <div class="text-lg font-bold text-emerald-900 mt-0.5">CERRADO · 2 de 2 mockups · 16 decisiones</div>
+        <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <span class="pill pill-gray">M-PAGOFORM-V3</span>
+            <div class="font-semibold text-slate-900 mt-1">Spec definitivo del PagoForm</div>
+            <div class="text-slate-500 mt-0.5">9 decisiones · 4 modos · 3 fases</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <span class="pill pill-pink">M-FORMS-INLINE</span>
+            <div class="font-semibold text-slate-900 mt-1">Patrón modal-in-modal · 4 casos</div>
+            <div class="text-slate-500 mt-0.5">7 decisiones · Cliente · Proveedor · Colaborador · Categoría</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>

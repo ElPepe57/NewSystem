@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manifesto Visual S58f · Sistema de diseño BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Animaciones canónicas */
+  @keyframes pulse-soft { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .slide-up { animation: slide-up 0.3s ease-out; }
+
+  /* Gradient sutiles canónicos */
+  .gradient-teal-soft { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 60%); }
+  .gradient-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .gradient-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .gradient-rose-soft { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 60%); }
+  .gradient-slate-soft { background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 60%); }
+  .gradient-indigo-soft { background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%); }
+
+  /* Card canónico */
+  .card-base {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+  }
+
+  /* Banking-grade card (más fuerte) */
+  .card-banking {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  /* Sección del manifesto */
+  .section-anchor {
+    scroll-margin-top: 80px;
+  }
+
+  /* Color swatches */
+  .swatch {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    color: white;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* Pill chip canónico */
+  .chip-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    line-height: 1;
+  }
+
+  /* Mono para identificadores */
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+
+  /* Header anclas */
+  .anchor-link {
+    color: #94a3b8;
+    margin-left: 8px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  h2:hover .anchor-link, h3:hover .anchor-link { opacity: 1; }
+  .anchor-link:hover { color: #0d9488; }
+
+  /* Sticky nav */
+  .sticky-nav {
+    position: sticky;
+    top: 0;
+    background: rgba(248, 250, 252, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 40;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero del manifesto -->
+<header class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 text-white py-12">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-lg">V</div>
+      <div>
+        <div class="text-[11px] uppercase tracking-wider text-teal-300">BusinessMN v2 · Vita Skin Peru</div>
+        <div class="text-sm text-slate-300">Sistema de diseño</div>
+      </div>
+    </div>
+    <h1 class="text-4xl font-bold tracking-tight mb-3">Manifesto Visual S58f</h1>
+    <p class="text-lg text-slate-300 max-w-2xl leading-relaxed">
+      La constitución visual del sistema. Antes de producir 15 mockups, este documento
+      establece la paleta, tipografía, patrones y principios que harán que todo se sienta
+      como <strong class="text-white">una sola pieza moderna</strong>.
+    </p>
+    <div class="mt-6 flex gap-3 flex-wrap">
+      <span class="bg-white/10 backdrop-blur px-3 py-1 rounded-full text-xs">Inspirado en Stripe · Mercury · Linear · Notion</span>
+      <span class="bg-white/10 backdrop-blur px-3 py-1 rounded-full text-xs">Banking-grade</span>
+      <span class="bg-white/10 backdrop-blur px-3 py-1 rounded-full text-xs">2026-04-29</span>
+    </div>
+  </div>
+</header>
+
+<!-- Sticky nav -->
+<nav class="sticky-nav border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-6 py-2 flex items-center gap-4 overflow-x-auto scrollbar-hide text-[12px] font-medium">
+    <a href="#principios" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Principios</a>
+    <a href="#paleta" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Paleta</a>
+    <a href="#tipografia" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Tipografía</a>
+    <a href="#cards" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Cards</a>
+    <a href="#kpi" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">KPIs</a>
+    <a href="#chips" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Chips</a>
+    <a href="#botones" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Botones</a>
+    <a href="#headers" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Headers</a>
+    <a href="#empty" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Empty states</a>
+    <a href="#micro" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Micro-interacciones</a>
+    <a href="#voz" class="text-slate-600 hover:text-teal-700 whitespace-nowrap">Voz y tono</a>
+  </div>
+</nav>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 1. PRINCIPIOS                                                        -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="principios" class="section-anchor max-w-6xl mx-auto px-6 py-12">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">01 · Filosofía</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Principios fundadores
+    <a href="#principios" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">Cada decisión visual responde a uno de estos 6 principios. Si una pantalla no respeta alguno, debe corregirse.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="card-base p-5">
+      <div class="text-xs font-bold text-teal-700 uppercase tracking-wider mb-1">P1</div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Densidad informativa con jerarquía clara</h3>
+      <p class="text-[13px] text-slate-600 leading-relaxed">No esconder datos detrás de clicks. Mostrar lo relevante de un vistazo, con tamaños y pesos que guíen el ojo. Como Bloomberg Terminal pero hermoso.</p>
+    </div>
+
+    <div class="card-base p-5">
+      <div class="text-xs font-bold text-teal-700 uppercase tracking-wider mb-1">P2</div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Banking-grade restraint</h3>
+      <p class="text-[13px] text-slate-600 leading-relaxed">Los números dicen la verdad. Sin gradientes flashy, sin emojis decorativos, sin shadow excesivo. Mercury / Stripe Atlas.</p>
+    </div>
+
+    <div class="card-base p-5">
+      <div class="text-xs font-bold text-teal-700 uppercase tracking-wider mb-1">P3</div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Color con propósito semántico</h3>
+      <p class="text-[13px] text-slate-600 leading-relaxed">Teal = marca y acciones primarias. Emerald = positivo. Rose = negativo. Amber = atención. Slate = neutro. Nada decorativo.</p>
+    </div>
+
+    <div class="card-base p-5">
+      <div class="text-xs font-bold text-teal-700 uppercase tracking-wider mb-1">P4</div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Tabular-nums siempre</h3>
+      <p class="text-[13px] text-slate-600 leading-relaxed">Cualquier número (saldo, monto, porcentaje, contador) usa <code class="text-[11px] bg-slate-100 px-1 rounded">font-feature-settings: "tnum"</code>. Alineación vertical perfecta.</p>
+    </div>
+
+    <div class="card-base p-5">
+      <div class="text-xs font-bold text-teal-700 uppercase tracking-wider mb-1">P5</div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Micro-interacciones sutiles</h3>
+      <p class="text-[13px] text-slate-600 leading-relaxed">Hover ligero (translate-y -1px + shadow), focus ring teal, transiciones 150-200ms cubic-bezier. Nunca saltos bruscos.</p>
+    </div>
+
+    <div class="card-base p-5">
+      <div class="text-xs font-bold text-teal-700 uppercase tracking-wider mb-1">P6</div>
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Cada pantalla declara su propósito</h3>
+      <p class="text-[13px] text-slate-600 leading-relaxed">Header con título + subtítulo descriptivo. El usuario nunca duda de para qué es la pantalla actual.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 2. PALETA                                                            -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="paleta" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">02 · Paleta</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Sistema de color
+    <a href="#paleta" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">5 escalas semánticas + neutro. Cada escala con 9 niveles (50-900) usable en background, border y text.</p>
+
+  <!-- Teal (marca + acciones primarias) -->
+  <div class="mb-8">
+    <h3 class="text-sm font-bold text-slate-900 mb-1">Teal · Marca y acciones primarias</h3>
+    <p class="text-[12px] text-slate-500 mb-3">Botones primary, links, indicadores activos, focus ring</p>
+    <div class="grid grid-cols-9 gap-1">
+      <div class="swatch" style="background:#f0fdfa; color:#134e4a">50</div>
+      <div class="swatch" style="background:#ccfbf1; color:#134e4a">100</div>
+      <div class="swatch" style="background:#99f6e4; color:#134e4a">200</div>
+      <div class="swatch" style="background:#5eead4; color:#134e4a">300</div>
+      <div class="swatch" style="background:#2dd4bf">400</div>
+      <div class="swatch" style="background:#14b8a6">500</div>
+      <div class="swatch" style="background:#0d9488">600</div>
+      <div class="swatch" style="background:#0f766e">700</div>
+      <div class="swatch" style="background:#115e59">800</div>
+    </div>
+  </div>
+
+  <!-- Emerald (positivo) -->
+  <div class="mb-6">
+    <h3 class="text-sm font-bold text-slate-900 mb-1">Emerald · Positivo / éxito</h3>
+    <p class="text-[12px] text-slate-500 mb-3">Saldos a favor, ingresos, confirmaciones, success states</p>
+    <div class="grid grid-cols-9 gap-1">
+      <div class="swatch" style="background:#ecfdf5; color:#064e3b">50</div>
+      <div class="swatch" style="background:#d1fae5; color:#064e3b">100</div>
+      <div class="swatch" style="background:#a7f3d0; color:#064e3b">200</div>
+      <div class="swatch" style="background:#6ee7b7; color:#064e3b">300</div>
+      <div class="swatch" style="background:#34d399">400</div>
+      <div class="swatch" style="background:#10b981">500</div>
+      <div class="swatch" style="background:#059669">600</div>
+      <div class="swatch" style="background:#047857">700</div>
+      <div class="swatch" style="background:#064e3b">800</div>
+    </div>
+  </div>
+
+  <!-- Rose (negativo) -->
+  <div class="mb-6">
+    <h3 class="text-sm font-bold text-slate-900 mb-1">Rose · Negativo / urgencia</h3>
+    <p class="text-[12px] text-slate-500 mb-3">Saldos en contra, egresos, errores, alertas críticas</p>
+    <div class="grid grid-cols-9 gap-1">
+      <div class="swatch" style="background:#fff1f2; color:#881337">50</div>
+      <div class="swatch" style="background:#ffe4e6; color:#881337">100</div>
+      <div class="swatch" style="background:#fecdd3; color:#881337">200</div>
+      <div class="swatch" style="background:#fda4af; color:#881337">300</div>
+      <div class="swatch" style="background:#fb7185">400</div>
+      <div class="swatch" style="background:#f43f5e">500</div>
+      <div class="swatch" style="background:#e11d48">600</div>
+      <div class="swatch" style="background:#be123c">700</div>
+      <div class="swatch" style="background:#881337">800</div>
+    </div>
+  </div>
+
+  <!-- Amber (atención) -->
+  <div class="mb-6">
+    <h3 class="text-sm font-bold text-slate-900 mb-1">Amber · Atención / pendiente</h3>
+    <p class="text-[12px] text-slate-500 mb-3">Vencimientos próximos, datos por revisar, warnings no críticos</p>
+    <div class="grid grid-cols-9 gap-1">
+      <div class="swatch" style="background:#fffbeb; color:#78350f">50</div>
+      <div class="swatch" style="background:#fef3c7; color:#78350f">100</div>
+      <div class="swatch" style="background:#fde68a; color:#78350f">200</div>
+      <div class="swatch" style="background:#fcd34d; color:#78350f">300</div>
+      <div class="swatch" style="background:#fbbf24">400</div>
+      <div class="swatch" style="background:#f59e0b">500</div>
+      <div class="swatch" style="background:#d97706">600</div>
+      <div class="swatch" style="background:#b45309">700</div>
+      <div class="swatch" style="background:#78350f">800</div>
+    </div>
+  </div>
+
+  <!-- Slate (neutro) -->
+  <div class="mb-6">
+    <h3 class="text-sm font-bold text-slate-900 mb-1">Slate · Neutro / información</h3>
+    <p class="text-[12px] text-slate-500 mb-3">Backgrounds, borders, texto, separadores. La columna vertebral del sistema.</p>
+    <div class="grid grid-cols-9 gap-1">
+      <div class="swatch" style="background:#f8fafc; color:#0f172a">50</div>
+      <div class="swatch" style="background:#f1f5f9; color:#0f172a">100</div>
+      <div class="swatch" style="background:#e2e8f0; color:#0f172a">200</div>
+      <div class="swatch" style="background:#cbd5e1; color:#0f172a">300</div>
+      <div class="swatch" style="background:#94a3b8">400</div>
+      <div class="swatch" style="background:#64748b">500</div>
+      <div class="swatch" style="background:#475569">600</div>
+      <div class="swatch" style="background:#334155">700</div>
+      <div class="swatch" style="background:#0f172a">800</div>
+    </div>
+  </div>
+
+  <!-- Acentos secundarios -->
+  <div class="grid grid-cols-3 gap-4">
+    <div>
+      <h4 class="text-xs font-bold text-slate-900 mb-1">Sky · Información neutra</h4>
+      <p class="text-[11px] text-slate-500 mb-2">Tags clientes, info badges</p>
+      <div class="grid grid-cols-3 gap-1">
+        <div class="swatch" style="background:#f0f9ff; color:#0c4a6e">50</div>
+        <div class="swatch" style="background:#e0f2fe; color:#0c4a6e">100</div>
+        <div class="swatch" style="background:#0284c7">600</div>
+      </div>
+    </div>
+    <div>
+      <h4 class="text-xs font-bold text-slate-900 mb-1">Purple · Categórico</h4>
+      <p class="text-[11px] text-slate-500 mb-2">Colaboradores, Yape, MercadoPago</p>
+      <div class="grid grid-cols-3 gap-1">
+        <div class="swatch" style="background:#faf5ff; color:#581c87">50</div>
+        <div class="swatch" style="background:#f3e8ff; color:#581c87">100</div>
+        <div class="swatch" style="background:#9333ea">600</div>
+      </div>
+    </div>
+    <div>
+      <h4 class="text-xs font-bold text-slate-900 mb-1">Indigo · TC / Tarjetas crédito</h4>
+      <p class="text-[11px] text-slate-500 mb-2">Cargos a TC, líneas crédito</p>
+      <div class="grid grid-cols-3 gap-1">
+        <div class="swatch" style="background:#eef2ff; color:#312e81">50</div>
+        <div class="swatch" style="background:#e0e7ff; color:#312e81">100</div>
+        <div class="swatch" style="background:#4f46e5">600</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 3. TIPOGRAFÍA                                                        -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="tipografia" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">03 · Tipografía</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Jerarquía tipográfica
+    <a href="#tipografia" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">Stack: <code class="text-[12px] bg-slate-100 px-1.5 py-0.5 rounded">-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI"</code>. Sin font custom — performance + nativo.</p>
+
+  <div class="card-banking p-8 space-y-6">
+    <!-- Display -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Display · Hero ejecutivo</span>
+        <span class="text-[10px] text-slate-400 mono">36px / 700 / -0.025em</span>
+      </div>
+      <div class="text-4xl font-bold tracking-tight text-slate-900">Patrimonio total · S/ 124,580.50</div>
+    </div>
+
+    <!-- H1 -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">H1 · Título de página</span>
+        <span class="text-[10px] text-slate-400 mono">24px / 700 / -0.02em</span>
+      </div>
+      <div class="text-2xl font-bold tracking-tight text-slate-900">Tesorería</div>
+      <div class="text-[13px] text-slate-500 mt-0.5">Productos financieros · Movimientos · Operación diaria del dinero</div>
+    </div>
+
+    <!-- H2 -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">H2 · Sección dentro de página</span>
+        <span class="text-[10px] text-slate-400 mono">18px / 700</span>
+      </div>
+      <div class="text-lg font-bold text-slate-900">Movimientos recientes</div>
+    </div>
+
+    <!-- H3 / Card title -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">H3 · Título de card</span>
+        <span class="text-[10px] text-slate-400 mono">14px / 700</span>
+      </div>
+      <div class="text-sm font-bold text-slate-900">BCP Cuenta Corriente Soles</div>
+    </div>
+
+    <!-- Body large -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Body · Texto principal</span>
+        <span class="text-[10px] text-slate-400 mono">14px / 400</span>
+      </div>
+      <div class="text-sm text-slate-700">El saldo total de tus cuentas en soles peruanos asciende a S/ 124,580.50 distribuido entre 5 productos financieros activos.</div>
+    </div>
+
+    <!-- Body small -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Small · Subtítulos / metadata</span>
+        <span class="text-[10px] text-slate-400 mono">13px / 400</span>
+      </div>
+      <div class="text-[13px] text-slate-500">Última actualización hace 2 minutos · 5 productos activos</div>
+    </div>
+
+    <!-- Caption -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Caption · Labels y chips</span>
+        <span class="text-[10px] text-slate-400 mono">11-12px / 500</span>
+      </div>
+      <div class="text-[12px] text-slate-600 font-medium">Saldo disponible</div>
+    </div>
+
+    <!-- Numeric -->
+    <div class="border-b border-slate-100 pb-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Numeric · Tabular nums</span>
+        <span class="text-[10px] text-slate-400 mono">tabular-nums / variable</span>
+      </div>
+      <div class="space-y-1 num-tab">
+        <div class="text-3xl font-bold text-slate-900">S/ 124,580.50</div>
+        <div class="text-base font-semibold text-emerald-600">+ S/ 4,200.00</div>
+        <div class="text-sm text-slate-500">3,510.25</div>
+      </div>
+    </div>
+
+    <!-- Mono -->
+    <div>
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Mono · Identificadores</span>
+        <span class="text-[10px] text-slate-400 mono">SF Mono / 11-12px</span>
+      </div>
+      <div class="space-y-1">
+        <div class="mono text-[12px] text-slate-700">OC-2026-088</div>
+        <div class="mono text-[11px] text-slate-500">····3842</div>
+        <div class="mono text-[11px] text-slate-400">VT-2026-091</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reglas de uso -->
+  <div class="grid grid-cols-2 gap-4 mt-6">
+    <div class="card-base p-4">
+      <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-1">✓ HACER</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>• Tabular-nums en TODO número</li>
+        <li>• -0.02em letter-spacing en headers</li>
+        <li>• Subtítulo descriptivo bajo H1</li>
+        <li>• Mono para identificadores (OC, número cuenta)</li>
+        <li>• Font-weight 500-700 para énfasis</li>
+      </ul>
+    </div>
+    <div class="card-base p-4">
+      <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-1">✗ NO HACER</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>• Texto centrado en bloques largos</li>
+        <li>• Más de 3 niveles de jerarquía visible</li>
+        <li>• Italic para énfasis (usar weight)</li>
+        <li>• Underline en texto que no es link</li>
+        <li>• ALL CAPS en bloques de texto largos</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 4. CARDS                                                             -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="cards" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">04 · Cards</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Sistema de cards
+    <a href="#cards" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">3 niveles. La sombra y el border crecen con la importancia.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <!-- Card básico -->
+    <div>
+      <div class="card-base card-hover p-5 cursor-pointer">
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-2">Cuenta Bancaria</div>
+        <div class="text-sm font-bold text-slate-900 mb-1">BCP Cta Corriente</div>
+        <div class="text-xl font-bold text-slate-900 num-tab mt-2">S/ 24,580<span class="text-base text-slate-400 font-normal">.50</span></div>
+        <div class="text-[11px] text-emerald-600 mt-1 num-tab">+ 2.4% vs mes anterior</div>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-2 mono">.card-base + .card-hover</div>
+      <div class="text-[10px] text-slate-400">Default · listados, KPIs, cards de fila</div>
+    </div>
+
+    <!-- Card destacado -->
+    <div>
+      <div class="card-banking p-5 gradient-teal-soft">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[10px] uppercase tracking-wider text-teal-700 font-semibold">Patrimonio total</div>
+          <div class="w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-teal-700"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900 num-tab tracking-tight">S/ 124,580<span class="text-xl text-slate-400 font-normal">.50</span></div>
+        <div class="text-[12px] text-slate-600 mt-2 flex items-center gap-1.5">
+          <span class="text-emerald-600 font-semibold num-tab">+8.2%</span>
+          <span class="text-slate-400">vs mes anterior</span>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-2 mono">.card-banking + .gradient-soft</div>
+      <div class="text-[10px] text-slate-400">Hero · KPIs ejecutivos, métricas principales</div>
+    </div>
+
+    <!-- Card alerta -->
+    <div>
+      <div class="card-banking p-5 gradient-rose-soft cursor-pointer">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="chip-pill" style="background:#fff1f2;color:#9f1239;border:1px solid #fecdd3">Urgente</span>
+            </div>
+            <div class="text-sm font-bold text-slate-900 mb-0.5">Pago vencido OC-2026-088</div>
+            <div class="text-[12px] text-slate-600">Saldo pendiente <span class="font-semibold text-slate-900 num-tab">$ 1,500.00</span> · venció hace 2 días</div>
+          </div>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-2 mono">.card-banking + alerta</div>
+      <div class="text-[10px] text-slate-400">Estado · alertas críticas, banners de acción</div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 5. KPI                                                                -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="kpi" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">05 · KPIs</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Strip de KPIs
+    <a href="#kpi" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">El patrón canónico para mostrar 3-4 métricas clave de un dashboard. Banking-grade, sin gradientes flashy.</p>
+
+  <div class="card-banking p-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 divide-x divide-slate-200">
+      <div class="px-4 first:pl-0">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Saldo PEN</div>
+        <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">S/ 124,580<span class="text-base text-slate-400 font-normal">.50</span></div>
+        <div class="text-[11px] text-emerald-600 mt-1.5 flex items-center gap-1 num-tab">
+          <i data-lucide="trending-up" class="w-3 h-3"></i>+8.2% mes
+        </div>
+      </div>
+      <div class="px-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Saldo USD</div>
+        <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">US$ 18,420<span class="text-base text-slate-400 font-normal">.00</span></div>
+        <div class="text-[11px] text-slate-500 mt-1.5 num-tab">TC prom 3.510</div>
+      </div>
+      <div class="px-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Por cobrar</div>
+        <div class="text-2xl font-bold text-amber-700 num-tab tracking-tight">S/ 12,400<span class="text-base text-amber-300 font-normal">.00</span></div>
+        <div class="text-[11px] text-amber-700 mt-1.5 num-tab">8 entidades</div>
+      </div>
+      <div class="px-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Por pagar</div>
+        <div class="text-2xl font-bold text-rose-700 num-tab tracking-tight">S/ 8,200<span class="text-base text-rose-300 font-normal">.00</span></div>
+        <div class="text-[11px] text-rose-700 mt-1.5 num-tab">3 vencidos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 6. CHIPS                                                             -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="chips" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">06 · Chips</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Chips y badges
+    <a href="#chips" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">Pill rounded-full siempre. Tamaño según contexto. Color según semántica.</p>
+
+  <div class="space-y-4">
+    <!-- Estado / status -->
+    <div class="card-base p-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-3">Estado / status</h3>
+      <div class="flex flex-wrap gap-2">
+        <span class="chip-pill" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0">
+          <i data-lucide="check" class="w-3 h-3"></i>Pagado
+        </span>
+        <span class="chip-pill" style="background:#fef3c7;color:#b45309;border:1px solid #fde68a">
+          <i data-lucide="clock" class="w-3 h-3"></i>Pendiente
+        </span>
+        <span class="chip-pill" style="background:#fff1f2;color:#9f1239;border:1px solid #fecdd3">
+          <i data-lucide="alert-circle" class="w-3 h-3"></i>Vencido
+        </span>
+        <span class="chip-pill" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1">
+          <i data-lucide="archive" class="w-3 h-3"></i>Cerrado
+        </span>
+        <span class="chip-pill" style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">
+          <i data-lucide="credit-card" class="w-3 h-3"></i>Cargado a TC
+        </span>
+      </div>
+    </div>
+
+    <!-- Filtro toggleable -->
+    <div class="card-base p-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-3">Filtro toggleable (referencia #6)</h3>
+      <div class="flex flex-wrap gap-2 items-center">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Estado:</span>
+        <button class="chip-pill bg-slate-900 text-white shadow-sm">
+          <i data-lucide="list" class="w-3 h-3"></i>Todas <span class="text-white/70 num-tab">42</span>
+        </button>
+        <button class="chip-pill" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0">
+          <i data-lucide="arrow-down-to-line" class="w-3 h-3"></i>Por cobrar <span class="opacity-60 num-tab">15</span>
+        </button>
+        <button class="chip-pill" style="background:#fff1f2;color:#9f1239;border:1px solid #fecdd3">
+          <i data-lucide="arrow-up-from-line" class="w-3 h-3"></i>Por pagar <span class="opacity-60 num-tab">8</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tipos de entidad -->
+    <div class="card-base p-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-3">Tipos de entidad</h3>
+      <div class="flex flex-wrap gap-2">
+        <span class="chip-pill" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd">
+          <i data-lucide="users" class="w-3 h-3"></i>Cliente
+        </span>
+        <span class="chip-pill" style="background:#fef3c7;color:#b45309;border:1px solid #fde68a">
+          <i data-lucide="building" class="w-3 h-3"></i>Proveedor
+        </span>
+        <span class="chip-pill" style="background:#f3e8ff;color:#7e22ce;border:1px solid #e9d5ff">
+          <i data-lucide="truck" class="w-3 h-3"></i>Colaborador
+        </span>
+        <span class="chip-pill" style="background:#d1fae5;color:#047857;border:1px solid #a7f3d0">
+          <i data-lucide="id-card" class="w-3 h-3"></i>Empleado
+        </span>
+      </div>
+    </div>
+
+    <!-- Identificadores -->
+    <div class="card-base p-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-3">Identificadores (mono · clickables)</h3>
+      <div class="flex flex-wrap gap-2">
+        <span class="chip-pill mono cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-colors" style="background:#f1f5f9;color:#475569">OC-2026-088</span>
+        <span class="chip-pill mono cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-colors" style="background:#f1f5f9;color:#475569">VT-2026-091</span>
+        <span class="chip-pill mono cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-colors" style="background:#f1f5f9;color:#475569">TES-088</span>
+        <span class="chip-pill mono cursor-pointer hover:bg-teal-50 hover:text-teal-700 transition-colors" style="background:#fef3c7;color:#b45309">LOTE-007</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 7. BOTONES                                                           -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="botones" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">07 · Botones</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Sistema de botones
+    <a href="#botones" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">5 variantes. La jerarquía visual indica la importancia de la acción.</p>
+
+  <div class="card-banking p-6 space-y-5">
+    <!-- Primary -->
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex-1">
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Primary · acción dominante</h3>
+        <p class="text-[12px] text-slate-500">Una por pantalla. La acción principal que el usuario debe hacer.</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[13px] px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm">
+          <i data-lucide="plus" class="w-4 h-4"></i>Nuevo movimiento
+        </button>
+      </div>
+    </div>
+
+    <!-- Primary soft -->
+    <div class="flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
+      <div class="flex-1">
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Primary soft · acción semántica</h3>
+        <p class="text-[12px] text-slate-500">Acciones contextuales con color semántico (cobro=verde, pago=rojo, etc).</p>
+      </div>
+      <div class="flex gap-2 flex-wrap justify-end">
+        <button class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-medium text-[13px] px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <i data-lucide="dollar-sign" class="w-4 h-4"></i>Registrar cobro
+        </button>
+        <button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-medium text-[13px] px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <i data-lucide="banknote" class="w-4 h-4"></i>Registrar pago
+        </button>
+      </div>
+    </div>
+
+    <!-- Outline -->
+    <div class="flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
+      <div class="flex-1">
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Outline · acción secundaria</h3>
+        <p class="text-[12px] text-slate-500">Acciones útiles pero no la principal. Exportar, importar, filtrar.</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[13px] px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <i data-lucide="download" class="w-4 h-4"></i>Exportar
+        </button>
+        <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[13px] px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <i data-lucide="filter" class="w-4 h-4"></i>Filtrar
+        </button>
+      </div>
+    </div>
+
+    <!-- Ghost -->
+    <div class="flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
+      <div class="flex-1">
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Ghost · acción utilitaria</h3>
+        <p class="text-[12px] text-slate-500">Refresh, ayuda, ajustes menores. Aparece pero no compite por atención.</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="hover:bg-slate-100 text-slate-600 font-medium text-[13px] px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>Actualizar
+        </button>
+      </div>
+    </div>
+
+    <!-- Danger -->
+    <div class="flex items-center justify-between gap-4 border-t border-slate-100 pt-5">
+      <div class="flex-1">
+        <h3 class="text-sm font-bold text-slate-900 mb-1">Danger · acción destructiva</h3>
+        <p class="text-[12px] text-slate-500">Solo aparece dentro de modal de confirmación. Nunca como acción primaria de pantalla.</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="bg-rose-600 hover:bg-rose-700 text-white font-medium text-[13px] px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors shadow-sm">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>Eliminar definitivamente
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 8. HEADERS DE PÁGINA                                                 -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="headers" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">08 · Headers</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Header de página
+    <a href="#headers" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">Cada página declara: qué es + para qué sirve + qué puedo hacer aquí. P6 (principio 6) en acción.</p>
+
+  <div class="card-banking p-6">
+    <div class="flex items-start justify-between gap-4 mb-1">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <i data-lucide="wallet" class="w-6 h-6 text-teal-600"></i>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Tesorería</h1>
+        </div>
+        <p class="text-[13px] text-slate-500 leading-relaxed max-w-2xl">
+          Productos financieros del negocio · Movimientos · Conversiones · Pagos masivos.
+          La operación diaria del dinero.
+        </p>
+      </div>
+      <div class="flex gap-2 flex-shrink-0">
+        <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar
+        </button>
+        <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors shadow-sm">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo producto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-3 grid grid-cols-2 gap-4">
+    <div class="card-base p-4">
+      <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-1">✓ HACER</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>• Ícono + título + subtítulo descriptivo</li>
+        <li>• Acciones a la derecha</li>
+        <li>• Subtítulo describe propósito, no solo lista features</li>
+      </ul>
+    </div>
+    <div class="card-base p-4">
+      <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-1">✗ NO HACER</div>
+      <ul class="text-[12px] text-slate-700 space-y-1">
+        <li>• Solo el título sin contexto</li>
+        <li>• Más de 2-3 botones de acción</li>
+        <li>• Subtítulo genérico tipo "Gestiona tu..."</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 9. EMPTY STATES                                                      -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="empty" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">09 · Empty states</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Estados vacíos
+    <a href="#empty" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">Cuando no hay datos, mostrar el camino. Nunca un cuadro gris vacío.</p>
+
+  <div class="card-banking p-12 text-center">
+    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center mx-auto mb-4">
+      <i data-lucide="wallet" class="w-8 h-8 text-teal-600"></i>
+    </div>
+    <h3 class="text-base font-bold text-slate-900 mb-1.5">Aún no tienes productos financieros</h3>
+    <p class="text-[13px] text-slate-500 mb-5 max-w-sm mx-auto leading-relaxed">
+      Registra tu primera cuenta bancaria, billetera digital o tarjeta para empezar a operar la tesorería del negocio.
+    </p>
+    <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[13px] px-4 py-2 rounded-lg inline-flex items-center gap-1.5 transition-colors shadow-sm">
+      <i data-lucide="plus" class="w-4 h-4"></i>Crear mi primer producto
+    </button>
+    <div class="mt-4 text-[11px] text-slate-400">
+      O <a class="text-teal-600 hover:text-teal-700 font-medium">importa desde Excel</a>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 10. MICRO-INTERACCIONES                                              -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="micro" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">10 · Micro-interacciones</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Animaciones y feedback
+    <a href="#micro" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">Sutiles, rápidas, intencionales. Comunican estado sin distraer.</p>
+
+  <div class="card-banking p-6 space-y-5">
+    <div class="border-b border-slate-100 pb-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-2">Hover en cards · -1px translate + shadow soft</h3>
+      <p class="text-[12px] text-slate-500 mb-3">Indica clickeabilidad sin gritar.</p>
+      <div class="card-base card-hover p-4 cursor-pointer max-w-md">
+        <div class="text-[11px] text-slate-500">Pasa el mouse aquí</div>
+        <div class="text-sm font-semibold text-slate-900 mt-1">Card con micro-hover</div>
+      </div>
+      <code class="block code-block mt-3">transform: translateY(-1px); box-shadow: 0 4px 16px rgba(15,23,42,0.06);
+transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);</code>
+    </div>
+
+    <div class="border-b border-slate-100 pb-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-2">Focus ring · teal-500 · 2px</h3>
+      <p class="text-[12px] text-slate-500 mb-3">Accesibilidad. Aparece al tab por teclado o focus programático.</p>
+      <input type="text" placeholder="Click aquí o tab desde el anterior" class="w-full md:w-1/2 px-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all">
+    </div>
+
+    <div class="border-b border-slate-100 pb-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-2">Pulse soft · alertas urgentes</h3>
+      <p class="text-[12px] text-slate-500 mb-3">Para badges de notificación que requieren atención inmediata.</p>
+      <div class="flex gap-3 items-center">
+        <div class="relative">
+          <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center">
+            <i data-lucide="bell" class="w-4 h-4 text-slate-600"></i>
+          </div>
+          <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center pulse-soft">3</span>
+        </div>
+        <span class="text-[12px] text-slate-600">Badge con pulse</span>
+      </div>
+    </div>
+
+    <div class="border-b border-slate-100 pb-5">
+      <h3 class="text-sm font-bold text-slate-900 mb-2">Slide-up · entrada de elementos</h3>
+      <p class="text-[12px] text-slate-500 mb-3">Cuando aparece nuevo contenido (toast, panel, sub-row), entra desde abajo con fade.</p>
+      <div class="slide-up bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-lg text-[12px] inline-flex items-center gap-2">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>Movimiento registrado correctamente
+      </div>
+      <code class="block code-block mt-3">@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+animation: slide-up 0.3s ease-out;</code>
+    </div>
+
+    <div>
+      <h3 class="text-sm font-bold text-slate-900 mb-2">Loading skeleton · placeholder con shimmer</h3>
+      <p class="text-[12px] text-slate-500 mb-3">Cuando datos están cargando, mostrar la silueta del contenido. Nunca spinner solo.</p>
+      <div class="space-y-2 max-w-md">
+        <div class="h-4 bg-slate-100 rounded animate-pulse w-3/4"></div>
+        <div class="h-4 bg-slate-100 rounded animate-pulse w-full"></div>
+        <div class="h-4 bg-slate-100 rounded animate-pulse w-1/2"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- 11. VOZ Y TONO                                                       -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section id="voz" class="section-anchor max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="mb-2 text-[11px] uppercase tracking-wider text-teal-700 font-semibold">11 · Voz</div>
+  <h2 class="text-3xl font-bold tracking-tight text-slate-900 mb-2">Voz y tono del sistema
+    <a href="#voz" class="anchor-link">#</a>
+  </h2>
+  <p class="text-slate-600 mb-8 max-w-3xl">Cómo escribimos textos en la interfaz. Profesional, claro, conciso.</p>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div class="card-base p-5">
+      <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold mb-2">✓ HACER</div>
+      <div class="space-y-3 text-[12px] text-slate-700">
+        <div>
+          <div class="font-semibold text-slate-900">"Pago vencido · OC-2026-088"</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Específico + identificable</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900">"Saldo pendiente $ 1,500.00 · venció hace 2 días"</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Contexto + número exacto + tiempo relativo</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900">"Movimiento registrado correctamente"</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Confirmación clara, sin exclamación</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900">"Aún no tienes productos financieros"</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Empty state honesto + sugiere acción</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-base p-5">
+      <div class="text-[11px] uppercase tracking-wider text-rose-700 font-bold mb-2">✗ NO HACER</div>
+      <div class="space-y-3 text-[12px] text-slate-700">
+        <div>
+          <div class="font-semibold text-slate-900 line-through">"¡Atención! Tienes pagos por vencer"</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Exclamaciones, vago, sin acción</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 line-through">"Algo salió mal :("</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Emoji decorativo, sin información útil</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 line-through">"¡Felicidades! Tu movimiento se ha guardado exitosamente!"</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Verboso, exclamativo, infantilizante</div>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 line-through">"No hay nada que mostrar aquí"</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Vacío sin propósito, sin call to action</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<!-- FOOTER · Decisiones                                                  -->
+<!-- ──────────────────────────────────────────────────────────────────── -->
+<section class="max-w-6xl mx-auto px-6 py-12 border-t border-slate-200">
+  <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 text-white">
+    <div class="text-[11px] uppercase tracking-wider text-teal-300 font-semibold mb-2">Manifesto cerrado</div>
+    <h2 class="text-2xl font-bold mb-3">11 secciones · 6 principios · 5 paletas semánticas · 3 niveles de cards</h2>
+    <p class="text-slate-300 mb-6 leading-relaxed max-w-3xl">
+      Este es el sistema de diseño que aplicaré a los 15 mockups de S58f. Cada mockup obedecerá estos principios y patrones, garantizando coherencia total. Si algo no cumple, hay que arreglar el mockup, no el manifesto.
+    </p>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Inspiración</div>
+        <div class="text-[12px] font-medium">Stripe Atlas · Mercury · Linear · Notion</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Densidad</div>
+        <div class="text-[12px] font-medium">Alta, con jerarquía clara</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Tono</div>
+        <div class="text-[12px] font-medium">Banking-grade · profesional</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Audiencia</div>
+        <div class="text-[12px] font-medium">Dueño + operador del negocio</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 text-center text-[12px] text-slate-500">
+    <strong>Próximo paso:</strong> tras tu validación, produzco los 15 mockups del Lote 2 al 7 con este manifesto aplicado.
+  </div>
+</section>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

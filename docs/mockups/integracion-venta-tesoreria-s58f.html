@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-INT-VENTA-S58f · Detalle Venta · Panel Cobros embebido</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-sky { background: #e0f2fe; color: #0369a1; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .pill-fuchsia { background: #fae8ff; color: #86198f; }
+  .group-header { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; padding: 0.5rem 0.75rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+  .opt-row { padding: 0.625rem 0.75rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s; }
+  .opt-row:hover { background: #f8fafc; }
+  .opt-row.selected { background: #eff6ff; border-left: 3px solid #2563eb; padding-left: calc(0.75rem - 3px); }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2rem 0; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- Header del documento -->
+<div class="max-w-6xl mx-auto px-6 pt-8 pb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="pill pill-fuchsia">M-INT-VENTA</span>
+    <span class="pill pill-slate">S58f · Lote 4 · 2 de 5</span>
+    <span class="pill pill-emerald">Caja recaudadora GK · Split</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight">Detalle de Venta · Panel Cobros embebido</h1>
+  <p class="text-sm text-slate-600 mt-1">Resuelve la eterna discusión "te yapearon vs te pagaron en efectivo" con caja recaudadora GK Xpress + split de pago.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · DETALLE DE VENTA con panel Cobros embebido -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-lg font-semibold">Vista del detalle de venta · escenario real</h2>
+  </div>
+
+  <!-- Contexto del caso -->
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-sm">
+    <div class="font-semibold text-amber-900 mb-1">Caso real · "te yapearon vs te pagaron"</div>
+    <p class="text-amber-800">Cliente compra Travel Kit (S/890) y Toning Toner (S/45) = <span class="tabular-nums font-semibold">S/935</span>. Paga: <span class="tabular-nums">S/500 Yape</span> al número de <strong>GK Xpress</strong> (courier) + <span class="tabular-nums">S/435 efectivo</span> que se queda con GK. Mañana GK liquida ambos a Vita.</p>
+  </div>
+
+  <!-- Card del detalle de venta -->
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <!-- Header hero -->
+    <div class="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-b border-slate-200 p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="pill pill-fuchsia">VENTA</span>
+            <span class="text-xs text-slate-500 tabular-nums">VTA-2026-1284</span>
+            <span class="pill pill-emerald">Despachada</span>
+            <span class="pill pill-amber">Cobro pendiente</span>
+          </div>
+          <h3 class="text-xl font-bold tracking-tight">María Fernanda López</h3>
+          <p class="text-sm text-slate-600 mt-0.5">+51 987 654 321 · maria.lopez@gmail.com · Surco, Lima</p>
+        </div>
+        <div class="text-right">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Total venta</div>
+          <div class="text-2xl font-bold tabular-nums">S/ 935.00</div>
+          <div class="text-xs text-slate-500 mt-0.5">2 productos · 30 abr 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="border-b border-slate-200 px-5 py-4">
+      <div class="flex items-center gap-2 text-xs">
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div>
+          <span class="text-emerald-700 font-medium">Confirmada</span>
+        </div>
+        <div class="flex-1 h-px bg-emerald-300"></div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div>
+          <span class="text-emerald-700 font-medium">Despachada</span>
+        </div>
+        <div class="flex-1 h-px bg-amber-300"></div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center font-bold">3</div>
+          <span class="text-amber-700 font-semibold">Cobrando</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-200"></div>
+        <div class="flex items-center gap-1.5 opacity-50">
+          <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold">4</div>
+          <span class="text-slate-500">Liquidada</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs internos -->
+    <div class="px-5 border-b border-slate-200 flex gap-6 text-sm">
+      <button class="py-3 border-b-2 border-fuchsia-500 text-fuchsia-700 font-semibold">Resumen</button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Productos (2)</button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Logística</button>
+      <button class="py-3 border-b-2 border-fuchsia-500 text-fuchsia-700 font-semibold flex items-center gap-1.5">
+        Cobros
+        <span class="pill pill-amber tabular-nums">S/ 935 pdte</span>
+      </button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Auditoría</button>
+    </div>
+
+    <!-- Cuerpo principal · grid 2 columnas -->
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Columna izquierda: KPIs del cobro -->
+      <div class="col-span-2 p-5">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Estado del cobro</h4>
+
+        <!-- KPIs en grid 4 columnas -->
+        <div class="grid grid-cols-4 gap-3 mb-5">
+          <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Total venta</div>
+            <div class="text-lg font-bold tabular-nums mt-1">S/ 935.00</div>
+          </div>
+          <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Cobrado</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-emerald-700">S/ 0.00</div>
+          </div>
+          <div class="bg-amber-50 rounded-lg p-3 border border-amber-100">
+            <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold">En tránsito</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-amber-700">S/ 0.00</div>
+          </div>
+          <div class="bg-rose-50 rounded-lg p-3 border border-rose-100">
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-semibold">Saldo</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-rose-700">S/ 935.00</div>
+          </div>
+        </div>
+
+        <!-- Línea explicativa estados -->
+        <div class="text-xs text-slate-500 mb-5 flex items-center gap-3">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Cobrado = en cuenta Vita</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>En tránsito = en caja recaudadora del courier</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Saldo = pendiente del cliente</span>
+        </div>
+
+        <!-- Banner contextual -->
+        <div class="bg-fuchsia-50 border border-fuchsia-200 rounded-lg p-4 mb-5">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-fuchsia-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">!</div>
+            <div class="flex-1">
+              <div class="font-semibold text-fuchsia-900 text-sm">Esta venta fue despachada por <strong>GK Xpress</strong> (courier)</div>
+              <p class="text-xs text-fuchsia-800 mt-1">Si el cliente paga al courier (yape o efectivo), <strong>no entra a tu cuenta directa</strong>. Se acumula en la caja recaudadora del courier hasta que liquide.</p>
+              <p class="text-xs text-fuchsia-700 mt-2">📍 GK Xpress liquida los lunes y jueves · próxima liquidación: <span class="font-semibold">jueves 1 may</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección registrar cobro -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+            <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Cobros registrados</div>
+            <button class="text-xs text-fuchsia-600 hover:text-fuchsia-800 font-medium">+ Ver historial completo</button>
+          </div>
+          <div class="p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-slate-100 mx-auto flex items-center justify-center text-2xl mb-2">📭</div>
+            <div class="text-sm font-medium text-slate-700">Aún no se ha registrado ningún cobro</div>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Cuando GK confirme cómo te pagaron, registra acá.</p>
+            <button class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">
+              💰 Registrar cobro
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: contexto del courier -->
+      <div class="p-5 bg-slate-50">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Courier asignado</h4>
+
+        <!-- Card del courier -->
+        <div class="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-bold">GK</div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm">GK Xpress</div>
+              <div class="text-xs text-slate-500">Courier local · Lima</div>
+            </div>
+          </div>
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Volumen mes</span>
+              <span class="font-semibold tabular-nums">42 envíos</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Saldo en caja</span>
+              <span class="font-semibold tabular-nums text-amber-700">S/ 3,420.00</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Próx. liquidación</span>
+              <span class="font-semibold">Jue 1 may</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Métodos de recaudación de GK -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Recauda en</h4>
+        <div class="space-y-2 text-sm">
+          <div class="bg-white rounded-lg border border-slate-200 p-3 flex items-center gap-2">
+            <span class="text-base">📱</span>
+            <div class="flex-1">
+              <div class="text-xs font-semibold">Yape personal GK</div>
+              <div class="text-[11px] text-slate-500 tabular-nums">+51 987 123 456</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-3 flex items-center gap-2">
+            <span class="text-base">💵</span>
+            <div class="flex-1">
+              <div class="text-xs font-semibold">Efectivo</div>
+              <div class="text-[11px] text-slate-500">A entregar en próx. liquidación</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-3 flex items-center gap-2">
+            <span class="text-base">🏦</span>
+            <div class="flex-1">
+              <div class="text-xs font-semibold">Plin GK</div>
+              <div class="text-[11px] text-slate-500 tabular-nums">+51 987 123 456</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-200">
+          <a href="#" class="text-xs text-fuchsia-600 hover:text-fuchsia-800 font-medium">→ Ver caja recaudadora GK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · PagoUnificadoForm v3 con SPLIT activo -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-lg font-semibold">Click "Registrar cobro" · PagoUnificadoForm v3 modo cobro · split activo</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Acá se materializa la <strong>FASE 3</strong> del refactor (DEUDA-PAGOFORM-001). El form recibe contexto de la venta + flag <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">permiteSplit=true</code> y muestra el toggle de split. El selector de cuenta destino tiene los 3 grupos jerárquicos.</p>
+
+  <!-- Modal centrado del form -->
+  <div class="bg-slate-900/40 rounded-xl p-8">
+    <div class="bg-white rounded-xl shadow-2xl max-w-3xl mx-auto overflow-hidden">
+
+      <!-- Header del modal -->
+      <div class="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between">
+        <div>
+          <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Registrar cobro</div>
+          <h3 class="text-lg font-bold mt-0.5">Venta VTA-2026-1284 · María Fernanda López</h3>
+          <p class="text-xs text-slate-600 mt-0.5">Saldo pendiente: <span class="tabular-nums font-semibold text-rose-700">S/ 935.00</span></p>
+        </div>
+        <button class="w-8 h-8 rounded-full bg-white text-slate-500 hover:text-slate-700 flex items-center justify-center">✕</button>
+      </div>
+
+      <!-- Cuerpo del form -->
+      <div class="p-5 space-y-5">
+
+        <!-- Toggle completo / parcial / split -->
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Tipo de cobro</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200 hover:bg-slate-200">
+              <div class="font-semibold">Completo</div>
+              <div class="text-[11px] text-slate-500">S/ 935.00 en 1 método</div>
+            </button>
+            <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200 hover:bg-slate-200">
+              <div class="font-semibold">Parcial</div>
+              <div class="text-[11px] text-slate-500">Abono &lt; saldo</div>
+            </button>
+            <button class="bg-fuchsia-50 text-fuchsia-700 text-sm py-2.5 rounded-lg font-semibold border-2 border-fuchsia-500 ring-2 ring-fuchsia-100">
+              <div>Split</div>
+              <div class="text-[11px] text-fuchsia-600">Varios métodos</div>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1.5">⓵ Split = el cliente pagó usando más de un método. Cada línea va a una caja distinta.</p>
+        </div>
+
+        <!-- Bloque 1 línea de split -->
+        <div class="border border-fuchsia-200 rounded-lg overflow-hidden">
+          <div class="bg-fuchsia-50 px-4 py-2.5 border-b border-fuchsia-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-fuchsia-500 text-white flex items-center justify-center text-xs font-bold">1</div>
+              <span class="text-sm font-semibold text-fuchsia-900">Línea 1 · Yape</span>
+            </div>
+            <button class="text-xs text-rose-600 hover:text-rose-800">✕ Quitar</button>
+          </div>
+          <div class="p-4 grid grid-cols-2 gap-4">
+
+            <!-- Cuenta destino con dropdown abierto -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Destino del cobro</label>
+              <div class="relative">
+                <div class="bg-white border-2 border-fuchsia-300 rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="pill pill-violet">Caja recaudadora</span>
+                    <span class="text-sm font-medium">Yape GK Xpress</span>
+                  </div>
+                  <span class="text-slate-400">▼</span>
+                </div>
+
+                <!-- Dropdown abierto -->
+                <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-2xl border border-slate-200 z-10 overflow-hidden max-h-96 overflow-y-auto">
+                  <!-- Buscador -->
+                  <div class="p-2 border-b border-slate-200 bg-slate-50">
+                    <input type="text" placeholder="Buscar cuenta o caja..." class="w-full text-sm px-3 py-1.5 border border-slate-200 rounded-md bg-white focus:outline-none focus:border-fuchsia-400">
+                  </div>
+
+                  <!-- Grupo 1: Mis cuentas -->
+                  <div class="group-header">📊 Mis cuentas (Vita Skin Peru)</div>
+                  <div class="opt-row">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">🏦</span>
+                        <div>
+                          <div class="text-sm font-medium">BCP cuenta soles</div>
+                          <div class="text-[11px] text-slate-500 tabular-nums">194-12345678-0-12</div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-slate-500 tabular-nums">S/ 28,450</span>
+                    </div>
+                  </div>
+                  <div class="opt-row">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">📱</span>
+                        <div>
+                          <div class="text-sm font-medium">Yape Vita</div>
+                          <div class="text-[11px] text-slate-500 tabular-nums">+51 999 888 777</div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-slate-500 tabular-nums">S/ 1,240</span>
+                    </div>
+                  </div>
+                  <div class="opt-row">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">💵</span>
+                        <div>
+                          <div class="text-sm font-medium">Caja oficina</div>
+                          <div class="text-[11px] text-slate-500">Efectivo SMP</div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-slate-500 tabular-nums">S/ 580</span>
+                    </div>
+                  </div>
+
+                  <!-- Grupo 2: Cajas recaudadoras (DESTACADO) -->
+                  <div class="group-header bg-fuchsia-50 text-fuchsia-700">🤝 Cajas recaudadoras · cobranzas en tránsito</div>
+                  <div class="opt-row selected">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">📱</span>
+                        <div>
+                          <div class="text-sm font-medium">Yape GK Xpress</div>
+                          <div class="text-[11px] text-fuchsia-700 font-medium">Courier · liquida Jue/Lun</div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-amber-700 font-semibold tabular-nums">S/ 3,420</span>
+                    </div>
+                  </div>
+                  <div class="opt-row">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">💵</span>
+                        <div>
+                          <div class="text-sm font-medium">Efectivo GK Xpress</div>
+                          <div class="text-[11px] text-slate-500">Courier · liquida Jue/Lun</div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-amber-700 font-semibold tabular-nums">S/ 880</span>
+                    </div>
+                  </div>
+                  <div class="opt-row">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">🏦</span>
+                        <div>
+                          <div class="text-sm font-medium">Plin GK Xpress</div>
+                          <div class="text-[11px] text-slate-500">Courier · liquida Jue/Lun</div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-amber-700 font-semibold tabular-nums">S/ 220</span>
+                    </div>
+                  </div>
+                  <div class="opt-row">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">📱</span>
+                        <div>
+                          <div class="text-sm font-medium">Yape Olva (alterno)</div>
+                          <div class="text-[11px] text-slate-500">Courier nacional</div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-slate-500 tabular-nums">S/ 0</span>
+                    </div>
+                  </div>
+
+                  <!-- Grupo 3: Yapes pasivos -->
+                  <div class="group-header">💤 Yapes pasivos · solo referencia</div>
+                  <div class="opt-row opacity-60">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">📱</span>
+                        <div>
+                          <div class="text-sm font-medium">Yape Carlos (vendedor)</div>
+                          <div class="text-[11px] text-slate-500">No mueve saldo</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] text-slate-400">datosBancarios</span>
+                    </div>
+                  </div>
+
+                  <!-- Footer del dropdown -->
+                  <div class="p-2 bg-slate-50 border-t border-slate-200">
+                    <button class="text-xs text-fuchsia-600 hover:text-fuchsia-800 font-medium">+ Crear nueva caja recaudadora</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Monto -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+                <input type="text" value="500.00" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums focus:outline-none focus:border-fuchsia-400">
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">Pagado por Yape al número de GK</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque 2 línea de split -->
+        <div class="border border-fuchsia-200 rounded-lg overflow-hidden">
+          <div class="bg-fuchsia-50 px-4 py-2.5 border-b border-fuchsia-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-fuchsia-500 text-white flex items-center justify-center text-xs font-bold">2</div>
+              <span class="text-sm font-semibold text-fuchsia-900">Línea 2 · Efectivo</span>
+            </div>
+            <button class="text-xs text-rose-600 hover:text-rose-800">✕ Quitar</button>
+          </div>
+          <div class="p-4 grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Destino del cobro</label>
+              <div class="bg-white border-2 border-slate-200 rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between hover:border-fuchsia-300">
+                <div class="flex items-center gap-2">
+                  <span class="pill pill-violet">Caja recaudadora</span>
+                  <span class="text-sm font-medium">Efectivo GK Xpress</span>
+                </div>
+                <span class="text-slate-400">▼</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+                <input type="text" value="435.00" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums focus:outline-none focus:border-fuchsia-400">
+              </div>
+              <div class="text-[11px] text-slate-500 mt-1">Lo entregó en efectivo a GK</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón añadir más líneas -->
+        <button class="w-full text-sm text-fuchsia-600 hover:text-fuchsia-800 font-medium py-2 border-2 border-dashed border-fuchsia-200 rounded-lg hover:border-fuchsia-300">
+          + Añadir otra línea de pago
+        </button>
+
+        <!-- Validación de totales -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">✓</span>
+            <span class="text-sm font-medium text-emerald-900">Totales cuadran</span>
+          </div>
+          <div class="text-xs text-emerald-800">
+            <span class="tabular-nums">S/ 500 + S/ 435 = </span>
+            <span class="font-bold tabular-nums">S/ 935.00</span>
+            <span class="ml-1">/ S/ 935.00 saldo</span>
+          </div>
+        </div>
+
+        <!-- Fecha + nota -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Fecha del cobro</label>
+            <input type="date" value="2026-04-30" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-fuchsia-400">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Referencia (opcional)</label>
+            <input type="text" placeholder="Ej. ID Yape GK 8472..." class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-fuchsia-400">
+          </div>
+        </div>
+
+        <!-- Preview de impacto -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-3">Impacto en cuentas</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-base">📱</span>
+                <span>Yape GK Xpress</span>
+                <span class="pill pill-violet">caja</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-slate-500 tabular-nums">S/ 3,420</span>
+                <span class="text-slate-400">→</span>
+                <span class="font-semibold tabular-nums text-emerald-700">S/ 3,920</span>
+                <span class="pill pill-emerald tabular-nums">+500</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-base">💵</span>
+                <span>Efectivo GK Xpress</span>
+                <span class="pill pill-violet">caja</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-slate-500 tabular-nums">S/ 880</span>
+                <span class="text-slate-400">→</span>
+                <span class="font-semibold tabular-nums text-emerald-700">S/ 1,315</span>
+                <span class="pill pill-emerald tabular-nums">+435</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600">
+            ℹ️ Cuando GK liquide, las cajas se vacían y el dinero entra a tu BCP soles. Se registrará una <strong>conversión</strong> automática.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+        <div class="text-xs text-slate-500">
+          Esta operación creará <span class="font-semibold">2 movimientos</span> tipo <span class="pill pill-emerald">cobro</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-sm text-slate-700 hover:text-slate-900 font-medium px-4 py-2 rounded-lg hover:bg-slate-100">Cancelar</button>
+          <button class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm">
+            Registrar 2 cobros (S/ 935)
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 3 · DESPUÉS · Estado tras registrar -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">3</div>
+    <h2 class="text-lg font-semibold">Después · Estado tras registrar el split</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El panel "Cobros" se actualiza con las 2 líneas de cobro · saldo en 0 · pipeline avanza a "Liquidando" (esperando que GK liquide).</p>
+
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- Card 1 · Panel cobros actualizado -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-emerald-50 border-b border-emerald-200 px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Panel "Cobros"</div>
+          <span class="pill pill-emerald">Cobrado completo</span>
+        </div>
+      </div>
+      <div class="p-4">
+        <div class="grid grid-cols-4 gap-2 mb-4">
+          <div class="bg-slate-50 rounded p-2">
+            <div class="text-[9px] uppercase text-slate-500 font-semibold">Total</div>
+            <div class="text-sm font-bold tabular-nums">S/ 935</div>
+          </div>
+          <div class="bg-emerald-50 rounded p-2 border border-emerald-100">
+            <div class="text-[9px] uppercase text-emerald-700 font-semibold">Cobrado</div>
+            <div class="text-sm font-bold tabular-nums text-emerald-700">S/ 0</div>
+          </div>
+          <div class="bg-amber-50 rounded p-2 border border-amber-100">
+            <div class="text-[9px] uppercase text-amber-700 font-semibold">En tránsito</div>
+            <div class="text-sm font-bold tabular-nums text-amber-700">S/ 935</div>
+          </div>
+          <div class="bg-rose-50 rounded p-2 border border-rose-100">
+            <div class="text-[9px] uppercase text-rose-700 font-semibold">Saldo</div>
+            <div class="text-sm font-bold tabular-nums text-rose-700">S/ 0</div>
+          </div>
+        </div>
+
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Cobros registrados</div>
+        <div class="space-y-2">
+          <div class="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📱</span>
+              <div>
+                <div class="text-sm font-medium">Yape GK Xpress</div>
+                <div class="text-[11px] text-slate-500">30 abr · 14:32</div>
+              </div>
+            </div>
+            <div class="text-sm font-bold tabular-nums text-amber-700">S/ 500.00</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base">💵</span>
+              <div>
+                <div class="text-sm font-medium">Efectivo GK Xpress</div>
+                <div class="text-[11px] text-slate-500">30 abr · 14:32</div>
+              </div>
+            </div>
+            <div class="text-sm font-bold tabular-nums text-amber-700">S/ 435.00</div>
+          </div>
+        </div>
+
+        <div class="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+          ⏳ Liquida cuando GK confirme. Próx. liquidación: <strong>jueves 1 may</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 · Vista desde caja recaudadora GK -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-violet-50 border-b border-violet-200 px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="text-xs uppercase tracking-wider text-violet-700 font-semibold">Caja recaudadora GK Xpress</div>
+          <span class="pill pill-violet">Vista courier</span>
+        </div>
+      </div>
+      <div class="p-4">
+        <div class="text-xs text-slate-600 mb-3">Tras este cobro, la caja de GK suma <strong class="text-amber-700">+S/ 935</strong>:</div>
+
+        <div class="space-y-2">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <span class="text-base">📱</span>
+                <span class="text-sm font-medium">Yape GK</span>
+              </div>
+              <div class="text-sm font-bold tabular-nums text-amber-700">S/ 3,920.00</div>
+            </div>
+            <div class="text-[11px] text-slate-500">Antes S/ 3,420 · +500 (María L.)</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <span class="text-base">💵</span>
+                <span class="text-sm font-medium">Efectivo GK</span>
+              </div>
+              <div class="text-sm font-bold tabular-nums text-amber-700">S/ 1,315.00</div>
+            </div>
+            <div class="text-[11px] text-slate-500">Antes S/ 880 · +435 (María L.)</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🏦</span>
+                <span class="text-sm font-medium">Plin GK</span>
+              </div>
+              <div class="text-sm font-bold tabular-nums text-slate-700">S/ 220.00</div>
+            </div>
+            <div class="text-[11px] text-slate-500">Sin cambios</div>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between">
+          <div class="text-xs text-slate-600">Saldo total caja GK</div>
+          <div class="text-base font-bold tabular-nums text-amber-700">S/ 5,455.00</div>
+        </div>
+
+        <div class="mt-3 bg-violet-50 border border-violet-200 rounded-lg p-3 text-xs text-violet-800">
+          🤝 Cuando GK liquide, este saldo se transfiere a tus cuentas vía <strong>conversión</strong>. Cada caja → cuenta destino correspondiente.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- DECISIONES Y PRÓXIMOS PASOS -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <h3 class="font-semibold text-slate-900">Decisiones declaradas en este mockup</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-INT-VENTA-1</span>
+        <div>
+          <strong>Panel "Cobros" embebido en detalle de venta.</strong> Mismo patrón que OC: pipeline + KPIs + área principal de cobros + sidebar con courier asignado y sus métodos de recaudación.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-INT-VENTA-2</span>
+        <div>
+          <strong>3 estados claros del cobro</strong>: Cobrado (mi cuenta) · En tránsito (caja recaudadora) · Saldo (cliente debe). Resuelve el limbo conceptual de "le pagaron al courier pero no me llega aún".
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-INT-VENTA-3</span>
+        <div>
+          <strong>Selector de cuenta destino con 3 grupos jerárquicos</strong>: Mis cuentas / Cajas recaudadoras (DESTACADO con color violet) / Yapes pasivos (datosBancarios). Cada grupo tiene su propósito claro.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-INT-VENTA-4</span>
+        <div>
+          <strong>Toggle Completo / Parcial / Split</strong> en lugar del actual binario. Split es opt-in vía <code class="text-xs bg-slate-100 px-1 rounded">permiteSplit=true</code> · resuelve "te yapearon vs te pagaron en efectivo" oficialmente.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-INT-VENTA-5</span>
+        <div>
+          <strong>Validación de totales en split</strong>: badge verde "Totales cuadran" o rojo "Falta S/X" en tiempo real. Sumatoria = saldo pendiente.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-INT-VENTA-6</span>
+        <div>
+          <strong>Preview de impacto en cuentas</strong> antes de confirmar. Muestra antes/después de cada caja afectada. Banking-grade transparency.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-INT-VENTA-7</span>
+        <div>
+          <strong>Liquidación pendiente como "transit"</strong>. Cuando se cobra a caja recaudadora, el dinero sigue siendo de Vita pero está en custodia del courier. Se libera con la liquidación (próximo mockup).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximo del lote -->
+  <div class="mt-4 bg-fuchsia-50 border border-fuchsia-200 rounded-xl p-4 flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-fuchsia-700 font-semibold">Próximo del Lote 4</div>
+      <div class="text-sm font-semibold text-fuchsia-900 mt-1">M-INT-GASTO-S58f · Detalle Gasto con panel "Pago" embebido</div>
+      <p class="text-xs text-fuchsia-700 mt-1">Caso simple: gasto operativo (Internet S/120) · selector solo "Mis cuentas" · sin caja recaudadora · sin split.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="pill pill-slate">2/5</span>
+      <span class="text-fuchsia-400">→</span>
+      <span class="pill pill-fuchsia">3/5</span>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>

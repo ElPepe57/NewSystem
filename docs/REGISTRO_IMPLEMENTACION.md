@@ -2,8 +2,247 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-04-29 (Sesion S58e · Imp-L11.b–e CERRADA — Cleanup KPIs duplicados + barra de filtros completa estilo M6 + mini-calendar inline + reorganizacion en 2 filas. Patron validado por usuario como 6a referencia canonica del sistema. Tarea pendiente declarada: adopcion global del filtro en /compras /envios /productos /ventas etc. Ultimo deploy: 33a5b46 → https://vitaskinperu.web.app)
+**Ultima actualizacion:** 2026-05-01 (**Sesion S58f ✅ CERRADA FORMALMENTE** · DISEÑO INTEGRAL — 7 de 7 lotes cerrados · 17 mockups producidos · ~155 decisiones declaradas · 4 tareas/deudas formales: TAREA-PROVEEDOR-GASTOS (~3.5h · alta prioridad operativa) · DEUDA-PAGOFORM-001 (3 fases · ~3 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL (~6-8 ses replicacion canonico). Roadmap de implementacion definido en M-JOURNEY: F1 Quick wins · F2 PagoForm v3 · F3 Mapas + canonico · F4 Flete · F5 Migracion global. Total estimado: ~12.5 ses core + 6-8 ses migracion. Sin commits de codigo en S58f · trabajo 100% en mockups HTML. Listo para empezar implementacion cuando se decida.)
 **Branch activo:** main
+
+---
+
+## SESION S58f — DISEÑO INTEGRAL · 5 LOTES DE MOCKUPS · sin codigo todavia
+
+### Fecha y alcance
+
+**Fecha de apertura:** 2026-04-30
+**Estado:** En curso · Lote 4/7 en produccion
+**Modalidad:** Diseño visual antes de codigo (design-driven development) · solo mockups HTML hasta cerrar todos los lotes
+**Sin commits de codigo en esta sesion** · cuando se ejecute la implementacion sera en sesion(es) dedicada(s) post-aprobacion
+
+### Origen y filosofia
+
+Tras observacion del usuario en sesion anterior: *"siento que ha quedado en un limbo, no esta integrado al flujo del negocio, parecen modulos aislados"*. Se decide reformular completo el sistema visual con 25+ mockups en 7 lotes coherentes, reusando referencias canonicas S54.x + S58e validadas.
+
+Cita rectora del usuario: *"quiero que mi negocio quede como las versiones de los mock ups de la sesion 58, y quiero que el flujo se adapte como si fuera algo natural del proceso y adicionalmente quiero que integres todo, porque ahora en algunos casos parecen modulo aislados y eso no esta bien"*.
+
+### Documentos foundacionales producidos
+
+1. **`docs/AUDITORIA_FINANZAS_360_S58f.md`** — diagnostico honesto del estado real de Finanzas/Tesoreria · 14 fases del plan original revisadas · gaps identificados
+2. **`docs/CHARTER_MODULOS_S58f.md`** — constitucion del sistema · que hace cada pagina · responsabilidades · tabla maestra de propiedad · 12 decisiones D-CH-1 a D-CH-12
+3. **`docs/MAPA_360_EXTENDIDO_S58f.md`** — inventario completo de las 35 paginas del sistema (vs 14 que se asumian inicialmente) · sub-componentes · wizards · gaps
+4. **`docs/mockups/manifesto-visual-s58f.html`** — sistema de diseño · paleta · tipografia · 11 secciones canonicas · inspirado en Stripe/Mercury/Linear/Notion
+
+### Lotes de mockups (estado a 2026-04-30)
+
+**Lote 1 · SHELL global (parcialmente entregado):**
+- ✅ `nav-shell-global-s58f.html` — sidebar definitivo + top action bar + breadcrumbs + notificaciones
+
+**Lote 2 · INVENTARIO REIMAGINADO ✅ CERRADO (3 mockups):**
+- ✅ `productos-rediseno-s58f.html` — M-PROD · 5 vistas · 10 decisiones D-INV-1 a 10
+- ✅ `stock-rediseno-s58f.html` — M-STOCK · 7 vistas · 14 decisiones · mapa logistico extendido con 5 flujos
+- ✅ `productos-intel-s58f.html` — M-INTEL · 4 vistas · 17 decisiones · pipeline de valorizacion por ubicacion
+
+**Lote 3 · TESORERIA INTEGRADA ✅ CERRADO (2 mockups):**
+- ✅ `tesoreria-layout-s58f.html` — M-TES-LAYOUT · 4 vistas · 7 sub-rutas (Panorama home + 6 operativas) · 5 visualizaciones inteligentes
+- ✅ `caja-agente-recaudador-s58f.html` — M-CAJA-AGENTE · 5 vistas · caso GK Xpress (90% envios) · cadena conceptual creacion caja · multiples cajas por agente · pagos divididos · auditoria por metodo
+
+**Lote 4 · INTEGRACIONES MODULO↔TESORERIA ✅ CERRADO (5 mockups · 41 decisiones · 3 deudas):**
+- ✅ `integracion-oc-tesoreria-s58f.html` — M-INT-OC · 3 vistas · 7 decisiones D-INT-OC-1 a 7
+- ✅ `integracion-venta-tesoreria-s58f.html` — M-INT-VENTA · 3 vistas · 7 decisiones D-INT-VENTA-1 a 7 · caja recaudadora GK + split
+- ✅ `integracion-gasto-tesoreria-s58f.html` — M-INT-GASTO · 4 vistas · 13 decisiones D-INT-GASTO-1 a 13 · caso simple con split de origen + **proveedor del gasto como campo formal** (D-INT-GASTO-11/12/13 agregadas tras feedback usuario · Vista 4 muestra flujo crear gasto + proveedor inline · cambios de modelo de datos documentados)
+- ✅ `integracion-envio-tesoreria-s58f.html` — M-INT-ENVIO · 3 vistas · 9 decisiones D-INT-ENVIO-1 a 9 · split + tercero + CTRU · ✓ validado contra codigo real (3 deudas detectadas DEUDA-FLETE-001/002/003)
+- ✅ `integracion-movimiento-docs-s58f.html` — M-INT-MOV · 3 vistas · 8 decisiones D-INT-MOV-1 a 8 · navegacion inversa + casos huerfanos legitimos · cierra el circulo del lote
+
+**Lote 5 · COMPONENTES TRANSVERSALES ✅ CERRADO (2 mockups · 16 decisiones):**
+- ✅ `pago-unificado-form-v3-s58f.html` — M-PAGOFORM-V3 · 4 vistas · 9 decisiones D-PAGOFORM-V3-1 a 9 · spec definitivo del componente · API completa + matriz 4 modos + anatomia 9 bloques + plan 3 fases · sirve como spec de implementacion de DEUDA-PAGOFORM-001
+- ✅ `proveedor-form-inline-s58f.html` — M-FORMS-INLINE · 5 vistas · 8 decisiones D-INLINE-1 a 8 · patron modal-in-modal · **REESCRITO + AMPLIADO 2 veces tras feedback usuario**. (1) Eliminados casos de medios de pago · enfocado en 4 casos reales: Cliente en Venta · Proveedor en OC/Gasto · Colaborador en Envio · Categoria gasto. (2) Vista 4 nueva agregada con modal visual del ProveedorForm inline desde Gasto (caso Sedapal) · D-INLINE-8 declara que ProveedorForm inline aplica tambien desde Gasto, no solo desde OC. Conecta directamente con TAREA-PROVEEDOR-GASTOS.
+
+**Lote 6 · MAPAS + DESIGN CANONICO ✅ CERRADO (3 mockups · 33 decisiones · style language unificado):**
+- ✅ `mapa-calor-inventario-s58f.html` — M-MAPA-CALOR · 4 vistas · 10 decisiones D-MAPA-1 a 10 · heatmap + BCG matrix + drill-down + acciones masivas · 4 cuadrantes (Criticos/Estrellas/Excesivos/Inactivos) con acciones especificas · integracion con OCWizardV3 existente para creacion masiva · responde "¿que reabastecer?"
+- ✅ `mapa-ventas-geografico-s58f.html` — M-MAPA-VENTAS · 8 vistas · 16 decisiones D-VENTAS-1 a 16 · **AMPLIADO 4 VECES tras feedback usuario**:
+  - (1) Mockup base: mapa SVG Peru 24 regiones · heatmap dia×hora · analisis recurrencia VIP/Regulares/Una-compra · drill-down regional Lima
+  - (2) Vista 5 agregada tras "hay posibilidad de zoom a distrito": mapa SVG de Lima Metropolitana con 43 distritos + breadcrumb + zoom multi-nivel Z0/Z1/Z2 + stack tecnico (Mapbox GL JS + datos INEI)
+  - (3) Vistas 6+7 agregadas tras "quiero ver que productos salen + mapa de calor mas que cuadrantes": **heatmap matriz multi-cruce con paleta continua**. Vista 6 Productos×Regiones detecta ceguera regional. Vista 7 Productos×Tiempo detecta estacionalidad/tendencias/zombis. 1 motor · 6+ cruces · 5 patrones automaticos
+  - (4) Vista 8 agregada tras "como manejan los mapas las empresas mas grandes y modernas + cards insertados con productos": **mapa con cards anchored estilo Airbnb + Stripe Radar + Linear + DoorDash**. Mapa como protagonista (75%) + cards flotantes ancladas a coordenadas con producto destacado + sparkline + CTAs · card expandida (Miraflores/Colágeno) + 4 compactas + cluster automatico · drawer lateral con stack reorderable · story mode con tour de 5 escenas · capas toggleables (Top Producto · Volumen S/ · Clientes · Crecimiento) · benchmark percentil 95 industria. Responde "¿donde · cuando · quien · QUE compra?" con 8 visualizaciones complementarias.
+- ✅ `ventas-design-canonico-s58f.html` — M-VENTAS-DESIGN-CANONICO · 5 bloques · 7 decisiones D-VENTAS-CANONICO-1 a 7 · **CIERRE DEL LOTE tras feedback usuario** ("siento que cada uno tiene una presentacion diferenciada, y eso hay que aterrizarlo en un solo style"). Manifesto de 8 reglas canonicas + 5 componentes reutilizables (AnchoredCard expandida/compacta · StackDrawer · ChipBar · Cluster · SparklineMini) + aterrizaje de las 8 vistas previas en el style + tokens visuales (paleta · tipografia · espaciado · radius · shadows) + plan de migracion de 4 fases (~5 sesiones) + tabla ejecutiva qué adoptar/descartar. **Vista 8 declarada como ANCLA del style language del modulo Ventas**. Excepcion legitima D-VENTAS-CANONICO-3 declarada para heatmap matriz. TAREA-DESIGN-SYSTEM-GLOBAL declarada para replicar a otros modulos (Inventario teal · Tesoreria emerald · Envios indigo).
+
+**Lote 7 · JOURNEY CONSOLIDADO ✅ CERRADO (1 mockup · 8 decisiones · cierre formal S58f):**
+- ✅ `journey-consolidado-s58f.html` — M-JOURNEY · 4 vistas · narrativa day-in-life del operador José · 10 momentos clave del día (07:00 panorama mobile → 19:00 cierre dashboard) cada uno con AnchoredCard estilo canonico + grafo de conexiones entre los 7 lotes (Design Canonico al centro · Lote 4 como hub · Lote 7 como cierre) + comparativa antes/despues con metricas cuantificadas (-30% clicks · -85% tiempo crear OCs · +100% trazabilidad · ~95% percentil visual industria) + roadmap completo de implementacion en 5 fases (~12.5 ses core + 6-8 ses migracion global) + inventario completo de la sesion (17 mockups · ~155 decisiones · 4 tareas/deudas) + cita rectora del usuario.
+
+### Visualizaciones para Tesoreria
+
+Documento auxiliar producido: **`docs/mockups/tesoreria-visualizaciones-s58f.html`** con 12 visualizaciones propuestas (6 estado + 6 evolucion temporal). Combo de 5 elegido para shell:
+- #7 Linea de Evolucion del Saldo
+- #8 Cash Flow Forecast 30d
+- #1 Pipeline Cash Flow
+- #2 Calendario de Obligaciones
+- #3 Sugerencias del Dia (3 columnas)
+
+Las otras 7 quedan como "Intel" para sub-tab futura `/tesoreria/intel`.
+
+### Decision arquitectonica · Tesoreria (de la auditoria 360)
+
+Antes: `/tesoreria` huerfano del sidebar · 1108 lineas con tabs viejas · M1-M7 desconectados.
+
+Despues: `/tesoreria` con 7 sub-rutas (Panorama home + Productos M1 + Movimientos M6 + Conversiones M7 + Transferencias M7 + Pagos masivos M5 + Pipeline M3) · accesible desde sidebar bajo "Finanzas y Contabilidad".
+
+### Decision arquitectonica · Caja Recaudadora
+
+Modelo final aprobado:
+- 1 agente recaudador (proveedor en Red Logistica) puede tener N cajas (yape, plin, BCP, efectivo) cada una `ProductoFinanciero` independiente con saldo trackeable
+- Cajas son mayoritariamente read-only · operaciones nacen en otros modulos (Ventas/Envios) usando PagoUnificadoForm
+- Solo accion local: "Liquidar saldo a BCP" (transferencia entre cuentas)
+- Pagos divididos entre N metodos = 1 cobro distribuido en N lineas
+- datosBancarios[] de fichas alimentan el selector del PagoUnificadoForm
+- Promocion de dato pasivo a CajaRecaudadora con 1 click cuando aplica
+
+### DEUDA-PAGOFORM-001 · Refactor PagoUnificadoForm a v3 ⭐ DECLARADA
+
+**Origen:** Sesion S58f · auditoria del componente actual revelo 8 gaps que bloquean operativamente el caso caja recaudadora (90% de envios via GK Xpress).
+
+**Auditoria:** `docs/mockups/auditoria-pagounificadoform-s58f.html` (6 vistas)
+
+**Componente actual:** `src/components/modules/pagos/PagoUnificadoForm.tsx` · 663 lineas · v2 · usado en 25+ lugares
+
+**8 gaps identificados:**
+1. Sin split por metodo (caso S/500 yape + S/300 efectivo en mismo cobro)
+2. Sin destino "tercero" para cobros (yape de GK no aparece en selector)
+3. Sin lookup en datosBancarios[] de fichas (Red Logistica/Personas)
+4. Sin promocion a Caja Recaudadora (banner S58c pendiente)
+5. Semantica "origen" para cobros (`cuentaOrigenId` confuso para mantenimiento)
+6. Sin "agregar dato bancario inline" (interrumpe flujo)
+7. Sin captura de comprobante (sin evidencia adjunta para resolver discusiones con agente)
+8. Visual S58e/S58f no aplicado (estilo legacy v2)
+
+**Plan de 3 fases backwards-compatible (sin breaking en los 25+ usos actuales):**
+
+| Fase | Cubre | Esfuerzo | Breaking? |
+|---|---|---|---|
+| 1 | Manifesto S58f visual (FIX 8) | ~3-4h | No |
+| 2 | Cajas recaudadoras + lookup + promocion (FIX 2,3,4,5,6) | ~1 sesion | No (props opt-in) |
+| 3 | Split por metodo + comprobantes (FIX 1,7) | ~1.5 sesiones | No (campo `lineas[]` opcional) |
+
+**Total estimado:** ~3 sesiones de implementacion
+
+**Estrategia API v3:**
+```typescript
+PagoUnificadoFormProps {
+  // ... props actuales sin cambios ...
+  permiteSplit?: boolean              // FASE 3 · opt-in
+  permiteDestinoTercero?: boolean     // FASE 2 · opt-in
+  proveedorId?: string                // FASE 2 · contexto
+  permiteAdjuntos?: boolean           // FASE 3 · opt-in
+}
+PagoUnificadoResult {
+  // ... campos actuales sin cambios (1-a-1 sigue funcionando) ...
+  lineas?: Array<{ cuentaId, metodoPago, monto, ... }>  // FASE 3 · si presente · es split
+}
+```
+
+**Prioridad:** ALTA · bloquea operativamente la caja recaudadora pero NO bloquea el diseño · ejecutar despues de cerrar todos los lotes de mockups S58f.
+
+**Estado:** declarada · pendiente ejecucion · sera abordada en sesion(es) post-mockups.
+
+**Enfoque post-mockups:** Lote 4 (Integraciones) mostrara la vision IDEAL del PagoUnificadoForm v3 operando en cada contexto · esos mockups sirven como spec visual completo para la implementacion. Cuando se ejecute la implementacion, todas las decisiones visuales y semanticas estaran pre-validadas.
+
+### DEUDA-FLETE-001/002/003 · Brechas en modelado de flete a colaborador ⭐ DECLARADAS
+
+**Origen:** Sesion S58f · Lote 4 · al producir mockup M-INT-ENVIO el usuario pidio "verificar contexto completo de envios para determinar si esta bien calculado". Auditoria via `system-context-reader` revelo que el primer mockup tenia error matematico (CTRU S/18.42 vs real S/31.23) Y revelo 3 brechas conceptuales entre lo que el mockup planteaba como "natural del proceso" y lo que el codigo soporta hoy.
+
+**Auditoria documentada:** `docs/mockups/integracion-envio-tesoreria-s58f.html` · seccion "Deudas tecnicas detectadas durante validacion contra codigo real" al final del mockup.
+
+**Veredicto sobre el mockup:** corregido en la misma sesion · CTRU recalculado con prorrateo correcto (S/365 / 24 = S/15.21/u flete · CTRU total S/31.23/u) · barras de progreso reproporcionadas (Producto 38.7% / Casilla 12.6% / Flete 48.7%) · banner del header con badge "✓ validado contra codigo real".
+
+---
+
+**DEUDA-FLETE-001 · Modalidad "Tarifa por libra del envio" como nativa del wizard**
+
+- **Estado actual:** wizard tiene 4 modalidades (`flete_total` · `tarifa_unidad` · `por_producto` · `por_tramos`). Ninguna calcula directamente `peso_total_envio × tarifa_lb × TC`. El operador hace el calculo a mano e ingresa el resultado en `flete_total`.
+- **Notas del codigo:** `EnvioWizard/envioWizardTypes.ts:34-38` define ModalidadCosto. Los `tramoPeso` que si existen son por peso UNITARIO del SKU, no por libra total del envio.
+- **Impacto operativo:** el operador puede equivocarse en el calculo · no hay trazabilidad de la tarifa pactada vs. el monto resultante · imposible auditar tarifas historicas por viajero.
+- **Solucion propuesta:** agregar 5ª modalidad `tarifa_por_lb_envio` con campos `tarifaUSDPorLb` + `pesoTotalLb` · calculo automatico del total · prorrateo igual que `flete_total` (uniforme).
+- **Esfuerzo estimado:** 0.5 sesion · sin migracion de datos · cambios en wizard + persistencia.
+- **Prioridad:** media · operativamente desbloqueado pero eleva calidad del flujo.
+
+---
+
+**DEUDA-FLETE-002 · "Anticipo" como concepto de primera clase**
+
+- **Estado actual:** sistema modela pagos parciales secuenciales contra `costoFleteTotal` sin distinguir semanticamente entre "anticipo (pre-viaje)" y "saldo final (post-recepcion)". Estado se reduce a `pendiente / parcial / pagado` (`envio.pagos.service.ts:31-84`).
+- **Impacto operativo:** reportes financieros no diferencian capital de trabajo (anticipos out-flow ANTES de recibir mercaderia) de pagos finales (post-recepcion). Hace dificil medir flujo de caja anticipado por viajero o calcular DIO (Days Inventory Outstanding) por colaborador.
+- **Solucion propuesta:** campo `tipoPagoColaborador: 'anticipo' | 'saldo' | 'parcial'` en cada `MovimientoCC` · UI agrupa por tipo · BI puede medir DIO por viajero.
+- **Migracion:** default `'parcial'` para movimientos pre-existentes (no breaking).
+- **Esfuerzo estimado:** 1 sesion · cambio en tipo + service + UI + dashboard de Red Logistica.
+- **Prioridad:** media · desbloquea reportes financieros mas finos.
+
+---
+
+**DEUDA-FLETE-003 · Reajuste automatico del flete por diferencia de peso real**
+
+- **Estado actual:** si peso real (ej. 19.5 lb) difiere del estimado (ej. 18 lb), el operador debe editar manualmente `costoFleteTotal` o agregar un nuevo `CostoLanded` por la diferencia. No hay flujo nativo de "confirmar peso real → recalcular flete".
+- **Impacto operativo:** riesgo alto de olvidar el reajuste · CTRU queda mal calculado · margen real no refleja el flete realmente pagado · diferencia se acumula como "fuga" no detectada.
+- **Solucion propuesta:** en pantalla de recepcion del envio, campo "Peso real lb" (vs. peso registrado) · si difiere, modal de confirmacion que recalcula `costoFleteTotal` segun la modalidad usada y agrega un `CostoLanded` de ajuste con `categoriaCostoId='ajuste-flete'`.
+- **Dependencia:** requiere DEUDA-FLETE-001 cerrada (necesita modalidad nativa de tarifa por libra para recalcular automaticamente).
+- **Esfuerzo estimado:** 1 sesion · cambios en flujo de recepcion + nueva categoria de costo.
+- **Prioridad:** media · reduce error humano en cierre financiero del envio.
+
+---
+
+**Coordinacion entre las 3 deudas:** se recomienda ejecutarlas en sesion conjunta o secuencial muy cercana. FLETE-001 → FLETE-003 (dependencia tecnica directa). FLETE-002 puede ir en paralelo con cualquiera.
+
+**Total estimado consolidado:** ~2.5 sesiones de implementacion · sin breaking en datos existentes · todas backwards-compatible.
+
+### TAREA-PROVEEDOR-GASTOS · Modelar la "fuente del gasto" formalmente ⭐ DECLARADA
+
+**Origen:** Sesion S58f · Lote 5/6 · feedback del usuario tras revisar mockups: *"quiero empezar a registrar proveedores de Gastos, porque creo que ahora gasto existe solo en general como datos, y realmente me interesa agregar como la fuente (proveedor) del gasto"*.
+
+**Estado actual del modelo:** El tipo `Gasto` carece de un vinculo formal a la entidad que origina el gasto (Movistar · Sedapal · Edelnor · etc). Cada gasto tiene categoria + monto + fecha + descripcion, pero el "Movistar" del recibo solo aparece como string en la descripcion · no como `proveedorId` referenciable.
+
+**Lo que se quiere agregar:**
+1. Campo `proveedorId?: string` en tipo Gasto (opcional · backwards-compatible)
+2. Selector de proveedor en el form de gasto · con inline form para crear proveedores nuevos sin abandonar el flujo (D-INLINE-8 del Lote 5)
+3. Card del proveedor en detalle del gasto con KPIs especificos (servicios activos · gastos registrados · gasto anual total · proximo vencimiento)
+4. Reportes BI nuevos: "Gasto anual por proveedor" · "Top 10 proveedores de gasto" · "Gastos por proveedor × categoria"
+5. Reglas de negocio: deteccion de duplicados (2 gastos del mismo proveedor en el mismo mes con monto similar) · alerta auditoria
+
+**Casos reales del negocio:**
+- Pago Movistar internet oficina (recurrente · S/219/mes · S/2,628/año)
+- Pago Sedapal agua (recurrente · S/86/mes)
+- Pago Edelnor luz (recurrente · S/450/mes)
+- Compra Saga Falabella mobiliario (no recurrente · capex)
+
+**Beneficios concretos:**
+- Auditoria fiscal: gastos con RUC permiten deducir IGV automaticamente
+- Deteccion de fraudes/duplicados al pagar 2 veces el mismo recibo
+- Negociacion: ver "gasto anual Movistar" sirve para renegociar planes
+- BI cruzado: cuanto del gasto operativo va a cada proveedor
+
+**Solucion propuesta · 1 sesion estimada:**
+
+| Fase | Que incluye | Esfuerzo |
+|---|---|---|
+| F1 | Tipo Gasto extendido + migracion (default null) | 30 min |
+| F2 | Selector proveedor en GastoForm + inline form | 1h |
+| F3 | Card proveedor en detalle + sidebar enriquecida | 30 min |
+| F4 | 3 reportes BI basicos (anual por proveedor + top 10 + cruce con categoria) | 1h |
+| F5 | Backfill manual de top 10 proveedores frecuentes | 30 min |
+
+**Total:** ~3.5 horas · una sesion compacta. Sin breaking · gastos existentes siguen funcionando con `proveedorId = null`.
+
+**Coordinacion con DEUDA-PAGOFORM-001:** independientes. Se puede ejecutar antes, despues, o en paralelo. NO bloquean entre si.
+
+**Coordinacion con D-INLINE-8 del Lote 5:** la implementacion del ProveedorForm inline (P-INLINE-2) **es prerequisito** para esta tarea, porque sin el inline form el operador tendria que abandonar el flujo de gasto cada vez que aparece un proveedor nuevo. Recomendado: implementar P-INLINE-2 primero (junto con TAREA-PROVEEDOR-GASTOS · 0.5 ses extra) · ROI inmediato.
+
+**Estado:** declarada · pendiente ejecucion · alta prioridad operativa.
+
+**Documentacion:** `docs/mockups/integracion-gasto-tesoreria-s58f.html` · Vista 4 muestra el flujo completo · `docs/mockups/proveedor-form-inline-s58f.html` · Vista 4 muestra el inline form especifico para proveedor.
+
+### Tarea pendiente registrada
+
+**TAREA-LOTE-7:** completar el ultimo mockup antes de tocar codigo
+- ✅ Lote 4: 5 mockups CERRADO (M-INT-OC, M-INT-VENTA, M-INT-GASTO, M-INT-ENVIO, M-INT-MOV)
+- ✅ Lote 5: 2 mockups CERRADO (M-PAGOFORM-V3, M-PROVEEDORFORM-INLINE)
+- ✅ Lote 6: 1 mockup CERRADO (M-MAPA-CALOR)
+- ⏳ Lote 7: 1 mockup (Journey consolidado · ultimo de la sesion)
+
+Total restante: 1 mockup antes de iniciar implementacion.
 
 ---
 

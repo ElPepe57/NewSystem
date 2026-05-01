@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auditoría · PagoUnificadoForm · S58f · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; background: #f8fafc; color: #0f172a; }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+
+  .card-base { background: white; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .card-banking { background: white; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+
+  .chip-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 500; line-height: 1; white-space: nowrap; }
+  .chip-sm { padding: 2px 7px; font-size: 10px; }
+
+  .annotation { padding: 8px 12px; background: #fef3c7; border: 1px dashed #fbbf24; border-radius: 8px; font-size: 11px; color: #78350f; line-height: 1.5; }
+
+  .gap-card {
+    background: white;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .gap-card.fixed {
+    border: 1px solid #a7f3d0;
+    background: #f0fdf4;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header del documento -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Auditoría componente</div>
+      <div class="text-base font-bold">PagoUnificadoForm · naturaleza · lógica · presentación · gaps</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-amber-600 px-2 py-1 rounded">📋 Auditoría</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-30</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1 · NATURALEZA · qué es y dónde se usa                            -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · Naturaleza del componente</h2>
+  <p class="text-sm text-slate-600 mb-4">Lo que es · lo que reemplaza · dónde se usa hoy.</p>
+
+  <div class="grid grid-cols-3 gap-4">
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Versión actual</div>
+      <div class="text-[20px] font-bold text-slate-900 mb-1">v2 · 663 líneas</div>
+      <div class="text-[11px] text-slate-600 leading-relaxed">
+        <code class="bg-slate-100 px-1 rounded text-[10px]">src/components/modules/pagos/PagoUnificadoForm.tsx</code>
+      </div>
+    </div>
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Reemplazó a</div>
+      <div class="text-[20px] font-bold text-slate-900 mb-1">4 formularios</div>
+      <div class="text-[11px] text-slate-600 leading-relaxed">
+        PagoForm (OC) · PagoGastoForm · PagoViajeroModal · VentaForm paso pago
+      </div>
+    </div>
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Usado en</div>
+      <div class="text-[20px] font-bold text-slate-900 mb-1">25+ lugares</div>
+      <div class="text-[11px] text-slate-600 leading-relaxed">
+        OC · Ventas · Cotizaciones · Envíos · Gastos · Adelantos · CC entidades
+      </div>
+    </div>
+  </div>
+
+  <!-- Donde se usa -->
+  <div class="card-banking p-5 mt-4">
+    <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-3">Lugares concretos donde se invoca</h3>
+    <div class="grid grid-cols-2 gap-2 text-[11px]">
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><code class="mono">OrdenesCompra/OrdenesCompra.tsx</code> · pago a proveedor</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><code class="mono">Ventas/VentaForm.tsx</code> · cobro a cliente</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><code class="mono">Cotizaciones/Cotizaciones.tsx</code> · adelantos</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><code class="mono">Envios/Envios.tsx</code> · pago de flete</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><code class="mono">Gastos/GastoForm.tsx</code> · pago gasto</div>
+      <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i><code class="mono">Gastos/Gastos.tsx</code> · listado · pago rápido</div>
+      <div class="flex items-center gap-2"><i data-lucide="loader" class="w-3 h-3 text-amber-600"></i><code class="mono">Finanzas/EntidadCCDetailModal.tsx</code> · placeholder (no integrado todavía)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · LÓGICA · cómo funciona internamente                          -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 · Lógica interna · cómo funciona</h2>
+  <p class="text-sm text-slate-600 mb-4">El flujo completo del componente · entradas · transformaciones · salidas.</p>
+
+  <div class="card-banking overflow-hidden">
+    <div class="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-2">
+      <i data-lucide="git-branch" class="w-4 h-4 text-slate-700"></i>
+      <span class="text-[12px] font-semibold text-slate-900">Flujo de datos del componente</span>
+    </div>
+    <div class="p-6 grid grid-cols-3 gap-4">
+
+      <!-- ENTRADAS -->
+      <div>
+        <div class="text-[11px] font-bold text-sky-700 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <i data-lucide="arrow-down-to-line" class="w-3 h-3"></i>Props (entrada)
+        </div>
+        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-[11px] mono space-y-0.5">
+          <div><span class="text-sky-700">origen:</span> OrigenPago</div>
+          <div><span class="text-sky-700">esIngreso:</span> boolean</div>
+          <div><span class="text-sky-700">montoTotal:</span> number</div>
+          <div><span class="text-sky-700">montoPendiente:</span> number</div>
+          <div><span class="text-sky-700">monedaOriginal:</span> 'PEN'|'USD'</div>
+          <div><span class="text-sky-700">tcDocumento?:</span> number</div>
+          <div><span class="text-sky-700">pagosAnteriores:</span> []</div>
+          <div><span class="text-sky-700">destinatario?:</span> {`{...}`}</div>
+          <div class="text-sky-600">onSubmit · onCancel</div>
+        </div>
+      </div>
+
+      <!-- LÓGICA -->
+      <div>
+        <div class="text-[11px] font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <i data-lucide="cpu" class="w-3 h-3"></i>Lógica interna
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] space-y-1.5">
+          <div><strong>1.</strong> Carga cuentas de Tesorería (filtra activas)</div>
+          <div><strong>2.</strong> Filtra cuentas por moneda elegida</div>
+          <div><strong>3.</strong> Auto-selecciona cuenta default</div>
+          <div><strong>4.</strong> Métodos derivan de cuenta (metodosDisponibles + metodosDetalle)</div>
+          <div><strong>5.</strong> Auto-selecciona primer método</div>
+          <div><strong>6.</strong> Carga TC del día si no viene del documento</div>
+          <div><strong>7.</strong> Calcula equivalencia PEN/USD en vivo</div>
+          <div><strong>8.</strong> Valida: monto > 0, TC > 0, cuenta seleccionada, método</div>
+          <div><strong>9.</strong> Detecta saldo insuficiente (excepto crédito)</div>
+          <div><strong>10.</strong> Visualiza línea de crédito con impacto</div>
+        </div>
+      </div>
+
+      <!-- SALIDA -->
+      <div>
+        <div class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <i data-lucide="arrow-up-from-line" class="w-3 h-3"></i>onSubmit (salida)
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-[11px] mono space-y-0.5">
+          <div><span class="text-emerald-700">fechaPago:</span> Date</div>
+          <div><span class="text-emerald-700">monedaPago:</span> 'PEN'|'USD'</div>
+          <div><span class="text-emerald-700">montoOriginal:</span> number</div>
+          <div><span class="text-emerald-700">montoUSD:</span> number</div>
+          <div><span class="text-emerald-700">montoPEN:</span> number</div>
+          <div><span class="text-emerald-700">tipoCambio:</span> number</div>
+          <div class="bg-rose-100 px-1 rounded"><span class="text-rose-800 font-bold">metodoPago:</span> string ⚠</div>
+          <div class="bg-rose-100 px-1 rounded"><span class="text-rose-800 font-bold">cuentaOrigenId:</span> string ⚠</div>
+          <div class="bg-rose-100 px-1 rounded"><span class="text-rose-800 font-bold">cuentaOrigenNombre:</span> string ⚠</div>
+          <div><span class="text-emerald-700">esPagoCompleto:</span> boolean</div>
+        </div>
+        <div class="text-[10px] text-rose-600 mt-1.5 leading-relaxed">
+          ⚠ Singulares · 1 cuenta + 1 método + 1 monto · sin split
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · PRESENTACIÓN · UX actual                                     -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · Presentación actual · 11 secciones del form</h2>
+  <p class="text-sm text-slate-600 mb-4">Lo que ve el usuario hoy al usar el componente · estructura ordenada de secciones.</p>
+
+  <div class="card-banking overflow-hidden">
+    <div class="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-2">
+      <i data-lucide="layout-template" class="w-4 h-4 text-slate-700"></i>
+      <span class="text-[12px] font-semibold text-slate-900">Estructura del form (en orden vertical)</span>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">1. Banner destinatario (condicional)</div>
+          <div class="text-slate-700">Solo si se provee · "Pagando a Carlos M. (colaborador)"</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">2. Header de monto</div>
+          <div class="text-slate-700">Total + Pendiente + (opcional) historial pagos previos</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">3. Toggle Completo / Parcial</div>
+          <div class="text-slate-700">Auto-fill del monto pendiente vs manual</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">4. Toggle Moneda PEN / USD</div>
+          <div class="text-slate-700">Filtra cuentas disponibles por moneda</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">5. Selector de cuenta agrupado</div>
+          <div class="text-slate-700">Custom dropdown · agrupado por banco / digital / efectivo</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">6. Línea de crédito (condicional)</div>
+          <div class="text-slate-700">Si la cuenta es crédito · barra visual + impacto del pago</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">7. Métodos de pago (chips)</div>
+          <div class="text-slate-700">Derivados de la cuenta · transferencia / yape / plin / efectivo</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">8. Canal vinculado (condicional)</div>
+          <div class="text-slate-700">Si Yape/Plin tiene identificador · muestra teléfono + botón copiar</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">9. Monto + TC editable</div>
+          <div class="text-slate-700">Input con TC del día · expandible para editar TC</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">10. Equivalencia (condicional)</div>
+          <div class="text-slate-700">Si moneda pago ≠ moneda original · muestra conversión</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">11. Fecha + Referencia + Notas</div>
+          <div class="text-slate-700">Date picker · número operación · notas libres</div>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3 text-[11px]">
+          <div class="text-slate-500 font-bold mb-0.5">12. Botones</div>
+          <div class="text-slate-700">Cancelar + Registrar Cobro/Pago · mobile optimized (48px alto)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 4 · GAPS IDENTIFICADOS                                            -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 4 · 8 gaps identificados · qué necesitamos vs qué tenemos</h2>
+  <p class="text-sm text-slate-600 mb-4">Necesidades del negocio (tus mensajes) que el componente actual no cubre.</p>
+
+  <div class="grid grid-cols-2 gap-3">
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 1</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Sin split por método</div>
+          <div class="text-[11px] text-slate-600 mt-1">Tu caso: cliente paga S/500 yape + S/300 efectivo. Hoy hay que registrar 2 pagos separados, perdiendo el vínculo a la misma venta.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 2</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Sin destino "tercero" para cobros</div>
+          <div class="text-[11px] text-slate-600 mt-1">Solo muestra cuentas propias en el selector. Si el cliente paga al yape de GK, no hay forma de seleccionarlo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 3</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Sin lookup en datosBancarios</div>
+          <div class="text-[11px] text-slate-600 mt-1">No detecta automáticamente que un yape pertenece a un proveedor (Red Logística), aunque esos datos ya están registrados.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 4</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Sin promoción a Caja Recaudadora</div>
+          <div class="text-[11px] text-slate-600 mt-1">No hay banner sugiriendo "promover datoBancario a CuentaCaja" cuando aplica (el flujo S58c está pendiente).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 5</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Semántica "origen" para cobros</div>
+          <div class="text-[11px] text-slate-600 mt-1">Internamente la prop se llama <code class="text-[10px]">cuentaOrigenId</code> aunque sea destino en cobros. Confusión técnica para mantenimiento.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 6</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Sin "agregar dato bancario inline"</div>
+          <div class="text-[11px] text-slate-600 mt-1">Si quieres registrar un yape nuevo de un proveedor existente, hay que ir a su ficha · interrumpe el flujo del cobro.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 7</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Sin captura de comprobante</div>
+          <div class="text-[11px] text-slate-600 mt-1">No permite adjuntar foto del yape, recibo de transferencia, etc. Para resolver discusiones después con GK falta evidencia adjunta.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-rose-100 text-rose-700 font-bold">GAP 8</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Visual S58e no aplicado</div>
+          <div class="text-[11px] text-slate-600 mt-1">El componente está en estilo legacy v2 · no usa el manifesto S58f (pill chips, tabular-nums, banking-grade cards).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 5 · PROPUESTA v3 · cambios mínimos pero impactantes              -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 5 · Propuesta v3 · cambios mínimos pero impactantes</h2>
+  <p class="text-sm text-slate-600 mb-4">Cómo evolucionar el componente sin romper los 25+ lugares que ya lo usan.</p>
+
+  <div class="card-banking p-5 bg-gradient-to-br from-slate-900 to-slate-800 text-white mb-5">
+    <h3 class="text-sm font-bold mb-3 text-emerald-300 uppercase tracking-wider">Estrategia · backwards compatible</h3>
+    <p class="text-[12px] text-slate-300 leading-relaxed mb-3">
+      Mantener la API actual intacta · agregar nuevas props/campos como opcionales · migración gradual módulo por módulo.
+    </p>
+    <pre class="text-[11px] mono leading-relaxed bg-slate-950 rounded p-3 overflow-x-auto">
+// API v3 · backwards compatible
+
+interface PagoUnificadoFormProps {
+  // ... props actuales sin cambios ...
+
+  // ─── NUEVAS PROPS (opcionales · opt-in) ───
+  permiteSplit?: boolean;              // habilita modo split · default false
+  permiteDestinoTercero?: boolean;     // habilita selector con cajas recaudadoras · default false
+  proveedorId?: string;                // contexto del proveedor (para lookup datosBancarios)
+  permiteAdjuntos?: boolean;           // permite subir comprobante · default false
+}
+
+interface PagoUnificadoResult {
+  // ... campos actuales sin cambios (1-a-1 sigue funcionando) ...
+
+  // ─── NUEVO CAMPO OPCIONAL ───
+  lineas?: Array<{                    // si presente · es split · ignora cuentaOrigenId/metodoPago
+    cuentaId: string;
+    metodoPago: string;
+    monto: number;
+    referencia?: string;
+    comprobanteUrl?: string;
+  }>;
+}</pre>
+  </div>
+
+  <!-- 8 mejoras propuestas vs gaps -->
+  <div class="grid grid-cols-2 gap-3">
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 1</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Split por método inline</div>
+          <div class="text-[11px] text-slate-600 mt-1">Toggle "Pagaron por más de un método" agrega líneas dinámicas con suma validada. Output usa <code class="text-[10px]">lineas[]</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 2</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">3 grupos en selector</div>
+          <div class="text-[11px] text-slate-600 mt-1">Mis cuentas · Cajas recaudadoras · Datos bancarios pasivos (con chip ⭐ Sugerido).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 3</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Lookup cruzado en fichas</div>
+          <div class="text-[11px] text-slate-600 mt-1">Carga datosBancarios[] de proveedores activos · agrupa los del proveedor del documento (si <code class="text-[10px]">proveedorId</code> se provee) primero.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 4</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Banner promoción inline</div>
+          <div class="text-[11px] text-slate-600 mt-1">Cuando se selecciona un dato pasivo · banner "Promover a Caja recaudadora" con botón único click · transacción atómica.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 5</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Renombrar a "cuentaSeleccionadaId"</div>
+          <div class="text-[11px] text-slate-600 mt-1">Nombre semántico que aplica para origen (pago) y destino (cobro). Mantener alias <code class="text-[10px]">cuentaOrigenId</code> deprecado para compatibilidad.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 6</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">"+ Agregar dato bancario" al pie</div>
+          <div class="text-[11px] text-slate-600 mt-1">Botón al pie del dropdown · abre mini-form para agregar yape/cuenta a la ficha del proveedor sin salir del flujo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 7</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Adjuntar comprobante</div>
+          <div class="text-[11px] text-slate-600 mt-1">Sección opcional al final · drag&drop o botón · subir foto del yape/recibo · queda guardado en el movimiento.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-card fixed">
+      <div class="flex items-start gap-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">FIX 8</span>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">Aplicar manifesto S58f</div>
+          <div class="text-[11px] text-slate-600 mt-1">Pill chips · tabular-nums en montos · cards banking-grade · paleta semántica · animaciones consistentes con resto de S58f.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 6 · PLAN DE MIGRACIÓN                                            -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 6 · Plan de migración · sin romper nada</h2>
+  <p class="text-sm text-slate-600 mb-4">3 fases · cada una independiente · puede pausarse en cualquier punto.</p>
+
+  <div class="space-y-3">
+
+    <!-- FASE 1 -->
+    <div class="card-banking p-5">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center font-bold text-emerald-700">1</div>
+        <div class="flex-1">
+          <h3 class="text-[14px] font-bold text-slate-900">Fase 1 · Mejoras visuales (Manifesto S58f)</h3>
+          <p class="text-[11px] text-slate-600">FIX 8 · sin tocar lógica · solo presentación.</p>
+        </div>
+        <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">~3-4 horas</span>
+      </div>
+      <div class="ml-11 text-[11px] text-slate-700 space-y-1">
+        <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>Pill chips en toggles (completo/parcial · moneda · método)</div>
+        <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>tabular-nums en todos los montos</div>
+        <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>Cards banking-grade con sombra sutil</div>
+        <div class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i>Sin breaking changes · sin tocar API</div>
+      </div>
+    </div>
+
+    <!-- FASE 2 -->
+    <div class="card-banking p-5">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center font-bold text-amber-700">2</div>
+        <div class="flex-1">
+          <h3 class="text-[14px] font-bold text-slate-900">Fase 2 · Cajas recaudadoras + lookup datosBancarios</h3>
+          <p class="text-[11px] text-slate-600">FIX 2, 3, 4, 5, 6 · agregar opt-in props · sin romper compatibilidad.</p>
+        </div>
+        <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">~1 sesión</span>
+      </div>
+      <div class="ml-11 text-[11px] text-slate-700 space-y-1">
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-amber-600"></i>Nueva prop <code class="text-[10px]">permiteDestinoTercero</code> (opt-in)</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-amber-600"></i>Nueva prop <code class="text-[10px]">proveedorId</code> para contexto</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-amber-600"></i>Selector con 3 grupos (mis cuentas + cajas + pasivos)</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-amber-600"></i>Banner promoción inline (S58c)</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-amber-600"></i>Service: lookup cross-fichas + crear caja en transacción</div>
+      </div>
+    </div>
+
+    <!-- FASE 3 -->
+    <div class="card-banking p-5">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-700">3</div>
+        <div class="flex-1">
+          <h3 class="text-[14px] font-bold text-slate-900">Fase 3 · Split por método + comprobantes</h3>
+          <p class="text-[11px] text-slate-600">FIX 1, 7 · cambio mayor · requiere actualizar también el service de tesorería.</p>
+        </div>
+        <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">~1.5 sesiones</span>
+      </div>
+      <div class="ml-11 text-[11px] text-slate-700 space-y-1">
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-purple-600"></i>Nueva prop <code class="text-[10px]">permiteSplit</code> (opt-in)</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-purple-600"></i>Toggle "Pagaron por más de un método" en form</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-purple-600"></i>Output con <code class="text-[10px]">lineas[]</code> opcional · validación de suma</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-purple-600"></i>Service crea N movimientos atómicos en runTransaction</div>
+        <div class="flex items-center gap-2"><i data-lucide="circle-dot" class="w-3 h-3 text-purple-600"></i>Drag&drop de comprobante al pie del form</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- DECISIÓN FINAL                                                          -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-8">
+    <div class="text-[11px] uppercase tracking-wider text-emerald-300 font-semibold mb-2">Auditoría completa · decisión pendiente</div>
+    <h2 class="text-2xl font-bold mb-3 tracking-tight">PagoUnificadoForm · 8 gaps identificados · plan de 3 fases</h2>
+
+    <p class="text-[12px] text-slate-300 leading-relaxed mb-4">
+      El componente actual es <strong>sólido y bien usado</strong> (25+ lugares). No hay que reescribirlo. Hay que <strong>evolucionarlo en 3 fases independientes</strong>, manteniendo la API existente y agregando nuevas capacidades como opt-in.
+    </p>
+
+    <div class="grid grid-cols-3 gap-3 mt-4">
+      <div class="bg-emerald-500/20 border border-emerald-400/30 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-emerald-300 font-bold mb-1">Fase 1 · 3-4h</div>
+        <div class="text-[12px] font-bold mb-1">Visual S58f</div>
+        <div class="text-[10px] text-slate-300">Sin breaking · solo presentación</div>
+      </div>
+      <div class="bg-amber-500/20 border border-amber-400/30 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-amber-300 font-bold mb-1">Fase 2 · 1 ses</div>
+        <div class="text-[12px] font-bold mb-1">Cajas recaudadoras</div>
+        <div class="text-[10px] text-slate-300">Selector + lookup + promoción</div>
+      </div>
+      <div class="bg-purple-500/20 border border-purple-400/30 rounded-lg p-3">
+        <div class="text-[10px] uppercase text-purple-300 font-bold mb-1">Fase 3 · 1.5 ses</div>
+        <div class="text-[12px] font-bold mb-1">Split + comprobantes</div>
+        <div class="text-[10px] text-slate-300">Cambio mayor + service</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10 text-[12px] text-slate-300 leading-relaxed">
+      <strong class="text-white">Tu decisión:</strong>
+      <span class="block mt-2">
+        🅰 · Ejecutamos las <strong>3 fases secuenciales</strong> antes de continuar Lote 4 (Integraciones).<br>
+        🅱 · Solo Fase 1 + 2 ahora · Fase 3 (split) cuando se necesite operativamente.<br>
+        🅲 · Documentar como <strong>deuda técnica priorizada</strong> y continuar con Lote 4 · ejecutar después.<br>
+      </span>
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

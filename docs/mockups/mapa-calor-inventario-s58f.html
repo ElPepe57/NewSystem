@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-MAPA-CALOR-S58f · Heatmap de inventario · Decision tool</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-sky { background: #e0f2fe; color: #0369a1; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .pill-indigo { background: #e0e7ff; color: #3730a3; }
+  .pill-fuchsia { background: #fae8ff; color: #86198f; }
+  .pill-orange { background: #ffedd5; color: #9a3412; }
+  .pill-purple { background: #f3e8ff; color: #6b21a8; }
+  .pill-zinc { background: #f4f4f5; color: #3f3f46; }
+  .heat-cell { transition: all 0.15s; cursor: pointer; }
+  .heat-cell:hover { transform: scale(1.05); z-index: 10; box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2rem 0; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- Header del documento -->
+<div class="max-w-7xl mx-auto px-6 pt-8 pb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="pill pill-purple">M-MAPA-CALOR</span>
+    <span class="pill pill-slate">S58f · Lote 6 · 1 de 1</span>
+    <span class="pill pill-emerald">Decision tool · 4 cuadrantes</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight">Mapa de Calor · Inventario · Decision tool</h1>
+  <p class="text-sm text-slate-600 mt-1">Visualización en 1 pantalla del estado de TODO tu inventario · qué reabastecer urgente · qué está dando rentabilidad · qué pausar · qué discontinuar. Inspirado en BCG Matrix + Tableau heatmaps. Click en cualquier celda → drill-down con histórico + acciones directas.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · Heatmap principal · matriz rotación vs stock -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-lg font-semibold">Heatmap principal · cada SKU posicionado por rotación + stock</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Eje X = velocidad de rotación (días para vender el stock actual) · Eje Y = nivel de stock relativo al objetivo. La intersección produce 4 cuadrantes con acciones claras.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+
+    <!-- Toolbar superior -->
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3 text-sm">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Filtros</div>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Toda la línea</option>
+          <option>Skincare</option>
+          <option>Suplementos</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Todos los tipos</option>
+          <option>Simple</option>
+          <option>Pack</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Todas las ubicaciones</option>
+          <option>Almacén SMP</option>
+          <option>La Victoria</option>
+          <option>Casillas USA</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Últimos 30 días</option>
+          <option>Últimos 60 días</option>
+          <option>Últimos 90 días</option>
+          <option>Año actual</option>
+        </select>
+        <span class="text-xs text-slate-500">·</span>
+        <span class="text-xs text-slate-700">Mostrando <strong>47</strong> SKUs</span>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <button class="bg-purple-100 text-purple-700 font-semibold px-3 py-1.5 rounded">Heatmap</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">BCG Matrix</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">Lista</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">📥 Export</button>
+      </div>
+    </div>
+
+    <!-- Heatmap grid -->
+    <div class="p-6">
+      <div class="grid grid-cols-12 gap-3 min-h-[460px] relative">
+
+        <!-- Eje Y label -->
+        <div class="col-span-1 flex items-center justify-center">
+          <div class="transform -rotate-90 origin-center text-xs uppercase tracking-wider text-slate-500 font-semibold whitespace-nowrap">
+            ← Stock alto · Stock bajo →
+          </div>
+        </div>
+
+        <!-- Heatmap content -->
+        <div class="col-span-11">
+
+          <!-- Etiquetas cuadrantes superiores -->
+          <div class="grid grid-cols-2 gap-3 mb-2">
+            <div class="bg-blue-50/40 border border-blue-200 rounded-t-lg px-3 py-1.5 text-center">
+              <div class="text-xs font-bold text-blue-900">📦 EXCESIVOS · stock alto · rotación lenta</div>
+              <div class="text-[10px] text-blue-700">Liquidar · promociones · pausar reabastecimiento</div>
+            </div>
+            <div class="bg-emerald-50/40 border border-emerald-200 rounded-t-lg px-3 py-1.5 text-center">
+              <div class="text-xs font-bold text-emerald-900">⭐ ESTRELLAS · stock alto · rotación rápida</div>
+              <div class="text-[10px] text-emerald-700">Mantener inversión · prioridad reabastecimiento</div>
+            </div>
+          </div>
+
+          <!-- Grid celdas · cuadrantes superiores -->
+          <div class="grid grid-cols-12 gap-1 mb-1">
+            <!-- Excesivos (col 1-6) -->
+            <div class="heat-cell col-span-2 bg-blue-200 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums">SKC-0089</div>
+              <div class="text-[10px] text-blue-900 truncate">Mascarilla A</div>
+              <div class="text-[10px] text-blue-700 mt-0.5">120u · 180d</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-blue-100 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SKC-12</div>
+              <div class="text-blue-700">95u</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-blue-300 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SUP-08</div>
+              <div class="text-blue-900">230u</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-blue-200 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums">SKC-0034</div>
+              <div class="text-[10px] text-blue-900 truncate">Toner B 100ml</div>
+              <div class="text-[10px] text-blue-700 mt-0.5">85u · 145d</div>
+            </div>
+            <!-- Estrellas (col 7-12) -->
+            <div class="heat-cell col-span-2 bg-emerald-300 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums">SKC-0041</div>
+              <div class="text-[10px] text-emerald-900 truncate">Travel Kit</div>
+              <div class="text-[10px] text-emerald-700 mt-0.5">42u · 12d ⚡</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-emerald-200 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SKC-22</div>
+              <div class="text-emerald-700">68u</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-emerald-200 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SUP-15</div>
+              <div class="text-emerald-700">54u</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-emerald-400 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums text-white">SUP-0012</div>
+              <div class="text-[10px] text-white truncate">Colágeno Premium</div>
+              <div class="text-[10px] text-emerald-50 mt-0.5">75u · 8d ⚡</div>
+            </div>
+          </div>
+
+          <!-- Línea media · división de cuadrantes -->
+          <div class="grid grid-cols-12 gap-1 my-1">
+            <div class="heat-cell col-span-1 bg-blue-100 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SKC-04</div>
+              <div class="text-blue-700">62u</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-slate-100 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums text-slate-700">SKC-0067</div>
+              <div class="text-[10px] text-slate-600 truncate">Sérum descontinuado</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">38u · 240d</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-amber-100 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums">SKC-0028</div>
+              <div class="text-[10px] text-amber-900 truncate">Cleanser facial</div>
+              <div class="text-[10px] text-amber-700 mt-0.5">28u · 45d</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-amber-200 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SUP-04</div>
+              <div class="text-amber-900">22u</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-emerald-100 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SKC-31</div>
+              <div class="text-emerald-700">36u</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-emerald-200 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums">SKC-0019</div>
+              <div class="text-[10px] text-emerald-900 truncate">Niacinamide Sérum</div>
+              <div class="text-[10px] text-emerald-700 mt-0.5">31u · 14d</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-emerald-100 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SKC-25</div>
+              <div class="text-emerald-700">28u</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-emerald-300 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums">SUP-0007</div>
+              <div class="text-[10px] text-emerald-900 truncate">Vitamina D3</div>
+              <div class="text-[10px] text-emerald-700 mt-0.5">29u · 11d</div>
+            </div>
+          </div>
+
+          <!-- Etiquetas cuadrantes inferiores -->
+          <div class="grid grid-cols-2 gap-3 mb-1 mt-2">
+            <div class="bg-zinc-100 border border-zinc-300 rounded-b-lg px-3 py-1.5 text-center">
+              <div class="text-xs font-bold text-zinc-900">💀 INACTIVOS · stock bajo · rotación lenta</div>
+              <div class="text-[10px] text-zinc-700">Discontinuar · liquidar resto · NO reabastecer</div>
+            </div>
+            <div class="bg-rose-50 border border-rose-200 rounded-b-lg px-3 py-1.5 text-center">
+              <div class="text-xs font-bold text-rose-900">🔥 CRÍTICOS · stock bajo · rotación rápida</div>
+              <div class="text-[10px] text-rose-700">REABASTECER YA · pérdida de venta inminente</div>
+            </div>
+          </div>
+
+          <!-- Grid celdas · cuadrantes inferiores -->
+          <div class="grid grid-cols-12 gap-1">
+            <div class="heat-cell col-span-2 bg-zinc-200 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums text-zinc-700">SKC-0072</div>
+              <div class="text-[10px] text-zinc-600 truncate">Bálsamo verano</div>
+              <div class="text-[10px] text-zinc-500 mt-0.5">8u · 320d</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-zinc-200 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SUP-22</div>
+              <div class="text-zinc-600">3u</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-zinc-100 rounded p-2 text-xs">
+              <div class="font-bold tabular-nums">SKC-0055</div>
+              <div class="text-[10px] text-slate-700 truncate">Aceite estación</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">5u · 280d</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-zinc-100 rounded p-1.5 text-[10px]">
+              <div class="font-bold">SKC-09</div>
+              <div class="text-slate-600">12u</div>
+            </div>
+            <!-- Críticos · destacados -->
+            <div class="heat-cell col-span-2 bg-rose-400 rounded p-2 text-xs ring-2 ring-rose-600">
+              <div class="font-bold tabular-nums text-white flex items-center gap-1">SKC-0033 🔥</div>
+              <div class="text-[10px] text-white truncate font-semibold">Soothing Cream 50ml</div>
+              <div class="text-[10px] text-rose-50 mt-0.5">4u · 2d ⚠️</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-rose-300 rounded p-1.5 text-[10px]">
+              <div class="font-bold text-rose-900">SKC-37</div>
+              <div class="text-rose-800">6u</div>
+            </div>
+            <div class="heat-cell col-span-2 bg-rose-500 rounded p-2 text-xs ring-2 ring-rose-700">
+              <div class="font-bold tabular-nums text-white flex items-center gap-1">SUP-0003 🔥</div>
+              <div class="text-[10px] text-white truncate font-semibold">Magnesio bisglicinato</div>
+              <div class="text-[10px] text-rose-100 mt-0.5">2u · 1d ⚠️</div>
+            </div>
+            <div class="heat-cell col-span-1 bg-rose-300 rounded p-1.5 text-[10px]">
+              <div class="font-bold text-rose-900">SKC-44</div>
+              <div class="text-rose-800">8u</div>
+            </div>
+          </div>
+
+          <!-- Eje X label -->
+          <div class="text-center text-xs uppercase tracking-wider text-slate-500 font-semibold mt-3">
+            ← Rotación lenta (300+ días)  ·  Rotación rápida (&lt; 15 días) →
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen por cuadrante -->
+    <div class="border-t border-slate-200 grid grid-cols-4 divide-x divide-slate-200">
+      <div class="p-4 text-center">
+        <div class="text-xs uppercase tracking-wider text-rose-700 font-semibold mb-1">🔥 Críticos</div>
+        <div class="text-2xl font-bold tabular-nums text-rose-700">8</div>
+        <div class="text-xs text-slate-600 mt-0.5">SKUs · S/12,400 ventas/mes en riesgo</div>
+        <button class="mt-2 text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold px-3 py-1.5 rounded shadow-sm">Ver lista priorizada</button>
+      </div>
+      <div class="p-4 text-center">
+        <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-1">⭐ Estrellas</div>
+        <div class="text-2xl font-bold tabular-nums text-emerald-700">12</div>
+        <div class="text-xs text-slate-600 mt-0.5">SKUs · 67% del volumen mensual</div>
+        <button class="mt-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded shadow-sm">Plan de inversión</button>
+      </div>
+      <div class="p-4 text-center">
+        <div class="text-xs uppercase tracking-wider text-blue-700 font-semibold mb-1">📦 Excesivos</div>
+        <div class="text-2xl font-bold tabular-nums text-blue-700">14</div>
+        <div class="text-xs text-slate-600 mt-0.5">SKUs · S/28,500 capital amarrado</div>
+        <button class="mt-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1.5 rounded shadow-sm">Plan liquidación</button>
+      </div>
+      <div class="p-4 text-center">
+        <div class="text-xs uppercase tracking-wider text-zinc-700 font-semibold mb-1">💀 Inactivos</div>
+        <div class="text-2xl font-bold tabular-nums text-zinc-700">13</div>
+        <div class="text-xs text-slate-600 mt-0.5">SKUs · candidatos a discontinuar</div>
+        <button class="mt-2 text-xs bg-zinc-600 hover:bg-zinc-700 text-white font-semibold px-3 py-1.5 rounded shadow-sm">Revisar discontinuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · Drill-down de un SKU específico -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-lg font-semibold">Click en celda · drill-down completo + acciones directas</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Al hacer click en SKC-0033 (Soothing Cream · cuadrante crítico) · side panel con histórico, sugerencias y CTAs directos sin perder el contexto del mapa.</p>
+
+  <div class="grid grid-cols-3 gap-4">
+
+    <!-- Mini heatmap a la izquierda -->
+    <div class="col-span-1 bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Mapa (mini)</div>
+      <div class="grid grid-cols-4 gap-1 mb-3">
+        <div class="bg-blue-200 rounded h-10"></div>
+        <div class="bg-blue-100 rounded h-10"></div>
+        <div class="bg-emerald-200 rounded h-10"></div>
+        <div class="bg-emerald-300 rounded h-10"></div>
+        <div class="bg-blue-100 rounded h-10"></div>
+        <div class="bg-slate-100 rounded h-10"></div>
+        <div class="bg-amber-100 rounded h-10"></div>
+        <div class="bg-emerald-200 rounded h-10"></div>
+        <div class="bg-zinc-200 rounded h-10"></div>
+        <div class="bg-zinc-100 rounded h-10"></div>
+        <div class="bg-rose-400 rounded h-10 ring-4 ring-rose-700 ring-offset-2"></div>
+        <div class="bg-rose-300 rounded h-10"></div>
+      </div>
+      <div class="text-[11px] text-slate-500 text-center italic">SKC-0033 destacado en el mapa</div>
+    </div>
+
+    <!-- Detalle del SKU -->
+    <div class="col-span-2 bg-white rounded-xl border-2 border-rose-300 overflow-hidden shadow-sm">
+      <div class="bg-gradient-to-r from-rose-50 to-pink-50 border-b border-rose-200 px-5 py-4">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="pill pill-rose">🔥 CRÍTICO</span>
+              <span class="text-xs text-slate-500 tabular-nums">SKC-0033</span>
+              <span class="pill pill-fuchsia">Skincare</span>
+              <span class="pill pill-zinc">Simple</span>
+            </div>
+            <h3 class="text-xl font-bold tracking-tight">Soothing Cream 50ml</h3>
+            <p class="text-sm text-slate-600 mt-0.5">Stock se agota en 2 días · perderás S/3,200 ventas si no actúas hoy.</p>
+          </div>
+          <div class="text-right">
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Stock actual</div>
+            <div class="text-3xl font-bold tabular-nums text-rose-700">4</div>
+            <div class="text-xs text-rose-600 mt-0.5">unidades</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-5 space-y-4">
+
+        <!-- KPIs del SKU -->
+        <div class="grid grid-cols-4 gap-3">
+          <div class="bg-slate-50 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Vendidas 30d</div>
+            <div class="text-lg font-bold tabular-nums">68</div>
+            <div class="text-[10px] text-emerald-600">+22% vs mes prev</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Velocidad</div>
+            <div class="text-lg font-bold tabular-nums">2.3 u/día</div>
+            <div class="text-[10px] text-amber-600">↑ creciendo</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Días stock</div>
+            <div class="text-lg font-bold tabular-nums text-rose-700">1.7</div>
+            <div class="text-[10px] text-rose-600">⚠️ &lt;3</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Margen</div>
+            <div class="text-lg font-bold tabular-nums">42%</div>
+            <div class="text-[10px] text-emerald-600">healthy</div>
+          </div>
+        </div>
+
+        <!-- Mini gráfica histórica -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Stock vs ventas · últimos 30 días</div>
+            <span class="text-[11px] text-slate-500">Stock objetivo: 60u · stock min: 15u</span>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3 h-32 relative flex items-end gap-px">
+            <!-- Stock line + bars -->
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 90%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 88%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 85%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 82%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 78%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 75%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 72%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 68%"></div>
+            <div class="flex-1 bg-emerald-200 rounded-t" style="height: 65%"></div>
+            <div class="flex-1 bg-emerald-300 rounded-t" style="height: 62%"></div>
+            <div class="flex-1 bg-amber-300 rounded-t" style="height: 58%"></div>
+            <div class="flex-1 bg-amber-300 rounded-t" style="height: 54%"></div>
+            <div class="flex-1 bg-amber-300 rounded-t" style="height: 50%"></div>
+            <div class="flex-1 bg-amber-400 rounded-t" style="height: 45%"></div>
+            <div class="flex-1 bg-amber-400 rounded-t" style="height: 40%"></div>
+            <div class="flex-1 bg-amber-500 rounded-t" style="height: 35%"></div>
+            <div class="flex-1 bg-amber-500 rounded-t" style="height: 30%"></div>
+            <div class="flex-1 bg-rose-400 rounded-t" style="height: 25%"></div>
+            <div class="flex-1 bg-rose-400 rounded-t" style="height: 22%"></div>
+            <div class="flex-1 bg-rose-500 rounded-t" style="height: 18%"></div>
+            <div class="flex-1 bg-rose-500 rounded-t" style="height: 15%"></div>
+            <div class="flex-1 bg-rose-500 rounded-t" style="height: 12%"></div>
+            <div class="flex-1 bg-rose-600 rounded-t" style="height: 10%"></div>
+            <div class="flex-1 bg-rose-600 rounded-t" style="height: 8%"></div>
+            <div class="flex-1 bg-rose-700 rounded-t" style="height: 7%"></div>
+            <div class="flex-1 bg-rose-700 rounded-t" style="height: 6%"></div>
+            <div class="flex-1 bg-rose-700 rounded-t" style="height: 5%"></div>
+            <div class="flex-1 bg-rose-800 rounded-t" style="height: 4%"></div>
+            <!-- Línea stock min -->
+            <div class="absolute left-0 right-0 border-t-2 border-dashed border-rose-500" style="bottom: 22%"></div>
+            <div class="absolute right-2 text-[9px] text-rose-700 font-semibold" style="bottom: 23%">stock min 15u</div>
+          </div>
+          <div class="flex items-center gap-3 text-[10px] text-slate-500 mt-2">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-300 rounded"></span>Stock saludable</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-amber-400 rounded"></span>Bajando rápido</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 bg-rose-500 rounded"></span>Crítico (&lt; min)</span>
+          </div>
+        </div>
+
+        <!-- Sugerencia del sistema -->
+        <div class="bg-rose-50 border border-rose-200 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-base flex-shrink-0">⚡</div>
+            <div class="flex-1">
+              <div class="font-semibold text-rose-900 text-sm">Acción sugerida · OC urgente de 80 unidades</div>
+              <p class="text-xs text-rose-800 mt-1">Lead time del proveedor: 18 días · velocidad actual 2.3 u/día → 41 unidades vendidas mientras llega → si pides 80u tendrás cobertura para 35 días extra (stock objetivo).</p>
+              <div class="grid grid-cols-3 gap-2 mt-3 text-[11px]">
+                <div class="bg-white rounded p-2">
+                  <div class="text-slate-500 text-[10px]">Cantidad sugerida</div>
+                  <div class="font-bold tabular-nums">80u</div>
+                </div>
+                <div class="bg-white rounded p-2">
+                  <div class="text-slate-500 text-[10px]">Costo estimado</div>
+                  <div class="font-bold tabular-nums">$640</div>
+                </div>
+                <div class="bg-white rounded p-2">
+                  <div class="text-slate-500 text-[10px]">Llegada esperada</div>
+                  <div class="font-bold">~18 may</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones directas -->
+        <div class="grid grid-cols-3 gap-2">
+          <button class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-3 py-2.5 rounded-lg shadow-sm">
+            🛒 Crear OC urgente (80u)
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-sm font-medium px-3 py-2.5 rounded-lg">
+            📊 Ver historial completo
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-sm font-medium px-3 py-2.5 rounded-lg">
+            ⚙️ Ajustar stock objetivo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 3 · Modo BCG Matrix (vista alternativa) -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">3</div>
+    <h2 class="text-lg font-semibold">Vista alternativa · BCG Matrix · cuadrantes con productos listados</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Toggle "BCG Matrix" reemplaza el heatmap por una matriz 2x2 con los productos listados dentro de cada cuadrante · útil para reuniones de planificación · más fácil de presentar a stakeholders.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <!-- Toolbar -->
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Modo</div>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded text-xs">Heatmap</button>
+        <button class="bg-purple-100 text-purple-700 font-semibold px-3 py-1.5 rounded text-xs">BCG Matrix</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded text-xs">Lista</button>
+      </div>
+    </div>
+
+    <!-- Matrix 2x2 -->
+    <div class="grid grid-cols-2 gap-3 p-5">
+
+      <!-- EXCESIVOS (top-left) -->
+      <div class="border-2 border-blue-200 rounded-xl overflow-hidden">
+        <div class="bg-blue-50 px-4 py-3 border-b border-blue-200 flex items-center justify-between">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-blue-700 font-semibold">📦 EXCESIVOS</div>
+            <div class="text-sm font-bold text-blue-900 mt-0.5">14 SKUs · S/28,500 capital amarrado</div>
+          </div>
+          <span class="text-2xl">📦</span>
+        </div>
+        <div class="p-3 space-y-2 max-h-72 overflow-y-auto text-xs">
+          <div class="flex items-center justify-between bg-blue-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0089</span>
+            <span class="flex-1 ml-2 truncate">Mascarilla A</span>
+            <span class="tabular-nums text-blue-700">120u · 180d</span>
+          </div>
+          <div class="flex items-center justify-between bg-blue-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SUP-0008</span>
+            <span class="flex-1 ml-2 truncate">Magnesio premium</span>
+            <span class="tabular-nums text-blue-700">230u · 145d</span>
+          </div>
+          <div class="flex items-center justify-between bg-blue-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0034</span>
+            <span class="flex-1 ml-2 truncate">Toner B 100ml</span>
+            <span class="tabular-nums text-blue-700">85u · 145d</span>
+          </div>
+          <div class="flex items-center justify-between bg-blue-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0012</span>
+            <span class="flex-1 ml-2 truncate">Limpiador suave</span>
+            <span class="tabular-nums text-blue-700">95u · 130d</span>
+          </div>
+          <div class="text-center text-blue-600 italic py-1">+ 10 más...</div>
+        </div>
+        <div class="bg-blue-50 px-4 py-2.5 border-t border-blue-200 text-xs font-semibold text-blue-900 flex items-center justify-between">
+          <span>Acción recomendada · Liquidar / Pausar reabastecimiento</span>
+          <button class="bg-blue-600 text-white px-3 py-1 rounded">Plan →</button>
+        </div>
+      </div>
+
+      <!-- ESTRELLAS (top-right) -->
+      <div class="border-2 border-emerald-200 rounded-xl overflow-hidden">
+        <div class="bg-emerald-50 px-4 py-3 border-b border-emerald-200 flex items-center justify-between">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">⭐ ESTRELLAS</div>
+            <div class="text-sm font-bold text-emerald-900 mt-0.5">12 SKUs · 67% del volumen mensual</div>
+          </div>
+          <span class="text-2xl">⭐</span>
+        </div>
+        <div class="p-3 space-y-2 max-h-72 overflow-y-auto text-xs">
+          <div class="flex items-center justify-between bg-emerald-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SUP-0012</span>
+            <span class="flex-1 ml-2 truncate">Colágeno Premium ⚡</span>
+            <span class="tabular-nums text-emerald-700">75u · 8d</span>
+          </div>
+          <div class="flex items-center justify-between bg-emerald-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0041</span>
+            <span class="flex-1 ml-2 truncate">Travel Kit Skincare ⚡</span>
+            <span class="tabular-nums text-emerald-700">42u · 12d</span>
+          </div>
+          <div class="flex items-center justify-between bg-emerald-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SUP-0007</span>
+            <span class="flex-1 ml-2 truncate">Vitamina D3</span>
+            <span class="tabular-nums text-emerald-700">29u · 11d</span>
+          </div>
+          <div class="flex items-center justify-between bg-emerald-50/40 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0019</span>
+            <span class="flex-1 ml-2 truncate">Niacinamide Sérum</span>
+            <span class="tabular-nums text-emerald-700">31u · 14d</span>
+          </div>
+          <div class="text-center text-emerald-600 italic py-1">+ 8 más...</div>
+        </div>
+        <div class="bg-emerald-50 px-4 py-2.5 border-t border-emerald-200 text-xs font-semibold text-emerald-900 flex items-center justify-between">
+          <span>Acción recomendada · Mantener inversión + reabastecer prioritariamente</span>
+          <button class="bg-emerald-600 text-white px-3 py-1 rounded">Plan →</button>
+        </div>
+      </div>
+
+      <!-- INACTIVOS (bottom-left) -->
+      <div class="border-2 border-zinc-300 rounded-xl overflow-hidden">
+        <div class="bg-zinc-100 px-4 py-3 border-b border-zinc-300 flex items-center justify-between">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-zinc-700 font-semibold">💀 INACTIVOS</div>
+            <div class="text-sm font-bold text-zinc-900 mt-0.5">13 SKUs · candidatos a discontinuar</div>
+          </div>
+          <span class="text-2xl">💀</span>
+        </div>
+        <div class="p-3 space-y-2 max-h-72 overflow-y-auto text-xs">
+          <div class="flex items-center justify-between bg-zinc-50 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0072</span>
+            <span class="flex-1 ml-2 truncate">Bálsamo verano</span>
+            <span class="tabular-nums text-zinc-600">8u · 320d</span>
+          </div>
+          <div class="flex items-center justify-between bg-zinc-50 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0055</span>
+            <span class="flex-1 ml-2 truncate">Aceite estación</span>
+            <span class="tabular-nums text-zinc-600">5u · 280d</span>
+          </div>
+          <div class="flex items-center justify-between bg-zinc-50 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SUP-0022</span>
+            <span class="flex-1 ml-2 truncate">Suplemento legacy</span>
+            <span class="tabular-nums text-zinc-600">3u · 295d</span>
+          </div>
+          <div class="text-center text-zinc-500 italic py-1">+ 10 más...</div>
+        </div>
+        <div class="bg-zinc-100 px-4 py-2.5 border-t border-zinc-300 text-xs font-semibold text-zinc-900 flex items-center justify-between">
+          <span>Acción recomendada · Liquidar resto + evaluar discontinuar</span>
+          <button class="bg-zinc-700 text-white px-3 py-1 rounded">Plan →</button>
+        </div>
+      </div>
+
+      <!-- CRÍTICOS (bottom-right) -->
+      <div class="border-2 border-rose-300 rounded-xl overflow-hidden ring-4 ring-rose-100">
+        <div class="bg-rose-50 px-4 py-3 border-b border-rose-200 flex items-center justify-between">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-rose-700 font-semibold">🔥 CRÍTICOS · ATENDER HOY</div>
+            <div class="text-sm font-bold text-rose-900 mt-0.5">8 SKUs · S/12,400 ventas/mes en riesgo</div>
+          </div>
+          <span class="text-2xl animate-pulse">🔥</span>
+        </div>
+        <div class="p-3 space-y-2 max-h-72 overflow-y-auto text-xs">
+          <div class="flex items-center justify-between bg-rose-50 rounded px-2 py-1.5 border border-rose-200">
+            <span class="font-semibold tabular-nums text-rose-900">SUP-0003</span>
+            <span class="flex-1 ml-2 truncate font-semibold text-rose-900">Magnesio bisglicinato ⚠️</span>
+            <span class="tabular-nums text-rose-700 font-bold">2u · 1d</span>
+          </div>
+          <div class="flex items-center justify-between bg-rose-50 rounded px-2 py-1.5 border border-rose-200">
+            <span class="font-semibold tabular-nums text-rose-900">SKC-0033</span>
+            <span class="flex-1 ml-2 truncate font-semibold text-rose-900">Soothing Cream ⚠️</span>
+            <span class="tabular-nums text-rose-700 font-bold">4u · 2d</span>
+          </div>
+          <div class="flex items-center justify-between bg-rose-50/60 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0037</span>
+            <span class="flex-1 ml-2 truncate">Toning Toner</span>
+            <span class="tabular-nums text-rose-700">6u · 3d</span>
+          </div>
+          <div class="flex items-center justify-between bg-rose-50/60 rounded px-2 py-1.5">
+            <span class="font-semibold tabular-nums">SKC-0044</span>
+            <span class="flex-1 ml-2 truncate">Hidratante diario</span>
+            <span class="tabular-nums text-rose-700">8u · 4d</span>
+          </div>
+          <div class="text-center text-rose-600 italic py-1">+ 4 más...</div>
+        </div>
+        <div class="bg-rose-50 px-4 py-2.5 border-t border-rose-200 text-xs font-semibold text-rose-900 flex items-center justify-between">
+          <span>Acción recomendada · REABASTECER YA · OCs urgentes</span>
+          <button class="bg-rose-600 text-white px-3 py-1 rounded animate-pulse">⚡ Crear 8 OCs</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 4 · Acciones masivas + integración con OC -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">4</div>
+    <h2 class="text-lg font-semibold">Acciones masivas · crear N OCs simultáneas + plan de liquidación</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Click "⚡ Crear 8 OCs" en el cuadrante Críticos · abre wizard masivo agrupado por proveedor · revisa todas las OCs en un solo flujo · confirma todas a la vez · ahorra tiempo cuando hay múltiples reabastecimientos urgentes.</p>
+
+  <div class="bg-white rounded-xl border-2 border-rose-300 overflow-hidden shadow-lg">
+    <div class="bg-gradient-to-r from-rose-50 to-pink-50 border-b border-rose-200 px-5 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-xs uppercase tracking-wider text-rose-700 font-semibold">Wizard de OCs masivas</div>
+          <h3 class="text-lg font-bold text-rose-900 mt-0.5">8 SKUs críticos · 3 proveedores</h3>
+        </div>
+        <div class="text-right">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Total estimado</div>
+          <div class="text-2xl font-bold tabular-nums text-rose-700">$2,840</div>
+          <div class="text-xs text-slate-500">≈ S/10,621</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-3">
+
+      <!-- Proveedor 1 -->
+      <div class="border border-slate-200 rounded-lg overflow-hidden">
+        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" checked class="w-4 h-4">
+            <span class="font-semibold text-sm">Proveedor A · Skincare Korea</span>
+            <span class="pill pill-sky">5 SKUs</span>
+          </div>
+          <div class="text-sm font-bold tabular-nums">$1,720</div>
+        </div>
+        <div class="divide-y divide-slate-100 text-xs">
+          <div class="px-4 py-2 grid grid-cols-12 gap-2 items-center">
+            <input type="checkbox" checked class="col-span-1 w-3.5 h-3.5">
+            <span class="col-span-2 font-semibold tabular-nums">SKC-0033</span>
+            <span class="col-span-4 truncate">Soothing Cream 50ml</span>
+            <span class="col-span-2 text-rose-700 font-semibold">2u stock · 80u OC</span>
+            <span class="col-span-3 text-right tabular-nums">$640</span>
+          </div>
+          <div class="px-4 py-2 grid grid-cols-12 gap-2 items-center">
+            <input type="checkbox" checked class="col-span-1 w-3.5 h-3.5">
+            <span class="col-span-2 font-semibold tabular-nums">SKC-0037</span>
+            <span class="col-span-4 truncate">Toning Toner 200ml</span>
+            <span class="col-span-2 text-rose-700 font-semibold">6u stock · 60u OC</span>
+            <span class="col-span-3 text-right tabular-nums">$420</span>
+          </div>
+          <div class="px-4 py-2 grid grid-cols-12 gap-2 items-center">
+            <input type="checkbox" checked class="col-span-1 w-3.5 h-3.5">
+            <span class="col-span-2 font-semibold tabular-nums">SKC-0044</span>
+            <span class="col-span-4 truncate">Hidratante diario 75ml</span>
+            <span class="col-span-2 text-rose-700 font-semibold">8u stock · 50u OC</span>
+            <span class="col-span-3 text-right tabular-nums">$380</span>
+          </div>
+          <div class="px-4 py-2 text-center text-slate-500 italic">+ 2 más</div>
+        </div>
+      </div>
+
+      <!-- Proveedor 2 -->
+      <div class="border border-slate-200 rounded-lg overflow-hidden">
+        <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" checked class="w-4 h-4">
+            <span class="font-semibold text-sm">Proveedor B · Suplementos USA</span>
+            <span class="pill pill-sky">2 SKUs</span>
+          </div>
+          <div class="text-sm font-bold tabular-nums">$890</div>
+        </div>
+        <div class="divide-y divide-slate-100 text-xs">
+          <div class="px-4 py-2 grid grid-cols-12 gap-2 items-center">
+            <input type="checkbox" checked class="col-span-1 w-3.5 h-3.5">
+            <span class="col-span-2 font-semibold tabular-nums">SUP-0003</span>
+            <span class="col-span-4 truncate">Magnesio bisglicinato</span>
+            <span class="col-span-2 text-rose-700 font-semibold">2u stock · 40u OC</span>
+            <span class="col-span-3 text-right tabular-nums">$520</span>
+          </div>
+          <div class="px-4 py-2 grid grid-cols-12 gap-2 items-center">
+            <input type="checkbox" checked class="col-span-1 w-3.5 h-3.5">
+            <span class="col-span-2 font-semibold tabular-nums">SUP-0011</span>
+            <span class="col-span-4 truncate">Omega-3 EPA</span>
+            <span class="col-span-2 text-amber-700 font-semibold">12u stock · 30u OC</span>
+            <span class="col-span-3 text-right tabular-nums">$370</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proveedor 3 colapsado -->
+      <div class="border border-slate-200 rounded-lg overflow-hidden">
+        <div class="bg-slate-50 px-4 py-2.5 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="w-4 h-4">
+            <span class="font-semibold text-sm text-slate-600">Proveedor C · Local</span>
+            <span class="pill pill-zinc">1 SKU · S/870 ≈ $230</span>
+          </div>
+          <button class="text-xs text-slate-500">Expandir ▼</button>
+        </div>
+      </div>
+
+      <!-- Resumen + acción -->
+      <div class="bg-slate-50 border-2 border-slate-200 rounded-lg p-4 mt-3">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-sm font-semibold">Resumen final</div>
+          <span class="pill pill-emerald">7 de 8 SKUs seleccionados</span>
+        </div>
+        <div class="grid grid-cols-4 gap-2 text-xs mb-3">
+          <div class="bg-white rounded p-2">
+            <div class="text-[10px] text-slate-500">OCs a crear</div>
+            <div class="font-bold tabular-nums">2</div>
+          </div>
+          <div class="bg-white rounded p-2">
+            <div class="text-[10px] text-slate-500">SKUs total</div>
+            <div class="font-bold tabular-nums">7</div>
+          </div>
+          <div class="bg-white rounded p-2">
+            <div class="text-[10px] text-slate-500">Unidades total</div>
+            <div class="font-bold tabular-nums">290u</div>
+          </div>
+          <div class="bg-white rounded p-2">
+            <div class="text-[10px] text-slate-500">Total USD</div>
+            <div class="font-bold tabular-nums text-rose-700">$2,610</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm flex-1">
+            ⚡ Crear 2 OCs urgentes
+          </button>
+          <button class="bg-white hover:bg-slate-100 border border-slate-200 text-sm font-medium px-4 py-2 rounded-lg">
+            💾 Guardar como borrador
+          </button>
+          <button class="bg-white hover:bg-slate-100 border border-slate-200 text-sm font-medium px-4 py-2 rounded-lg">
+            ✕ Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- DECISIONES Y CIERRE -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <h3 class="font-semibold text-slate-900">Decisiones declaradas en este mockup</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-1</span>
+        <div>
+          <strong>4 cuadrantes con acciones claras</strong>: Críticos (reabastecer YA) · Estrellas (mantener inversión) · Excesivos (liquidar / pausar) · Inactivos (discontinuar). Cada cuadrante usa color semántico (rose · emerald · blue · zinc) y acción específica.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-2</span>
+        <div>
+          <strong>Eje X = velocidad de rotación · Eje Y = stock relativo</strong>. La intersección define automáticamente el cuadrante. Período del eje X configurable (30/60/90d / año). Stock objetivo y mínimo se setean por SKU en su ficha.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-3</span>
+        <div>
+          <strong>3 modos de visualización</strong>: Heatmap (default · grilla densa) · BCG Matrix (cuadrantes con listas · presentaciones) · Lista (ordenada por urgencia · operativa). Toggle en toolbar.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-4</span>
+        <div>
+          <strong>Drill-down completo en click</strong>. Side panel con KPIs (vendidas 30d · velocidad · días stock · margen) + gráfica histórica stock vs ventas + sugerencia del sistema con cantidad/costo/llegada estimada + 3 CTAs directos (crear OC · ver historial · ajustar objetivo).
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-5</span>
+        <div>
+          <strong>Filtros multi-dimensionales</strong>: línea (Skincare/Suplementos) · tipo (Simple/Pack) · ubicación (almacén/casilla) · período. Combinaciones aplican en tiempo real.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-6</span>
+        <div>
+          <strong>Acciones masivas desde cuadrante</strong>. Click "⚡ Crear 8 OCs" abre wizard agrupado por proveedor · selecciona/deselecciona cada SKU · cantidades pre-calculadas según velocidad + lead time · confirmas todo en 1 paso. Reduce gestión de N OCs individuales a 1 flujo.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-7</span>
+        <div>
+          <strong>Sugerencia automática del sistema</strong>: cantidad sugerida calculada como <code class="text-xs bg-slate-100 px-1 rounded">velocidad × (lead_time + buffer)</code> · costo estimado en USD usando última OC del SKU · llegada estimada usando lead time del proveedor.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-8</span>
+        <div>
+          <strong>Resumen agregado por cuadrante</strong>: cantidad de SKUs · métrica clave por cuadrante (Críticos = ventas en riesgo · Estrellas = % volumen · Excesivos = capital amarrado · Inactivos = candidatos discontinuar). Permite gestión por excepción · enfocas atención solo en lo que importa.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-9</span>
+        <div>
+          <strong>Integración con OCWizard</strong>. El "Crear OCs masivas" no reinventa flujo · usa el OCWizardV3 existente con datos pre-poblados · respeta todas las decisiones D-OC-* del wizard ya canónico (referencia 5 del sistema). Reusa · no reinventa.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-purple flex-shrink-0">D-MAPA-10</span>
+        <div>
+          <strong>Heatmap como dashboard ejecutivo · accesible desde sidebar</strong>. Ruta: <code class="text-xs bg-slate-100 px-1 rounded">/inventario/mapa-calor</code> bajo "Inventario y Stock". Reemplaza la idea de "10 reportes diferentes" con 1 vista unificada y accionable.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximo del lote -->
+  <div class="mt-4 bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-purple-700 font-semibold">Lote 6 ✅ CERRADO · próximo lote final</div>
+      <div class="text-sm font-semibold text-purple-900 mt-1">M-JOURNEY-S58f · Day-in-life del operador</div>
+      <p class="text-xs text-purple-700 mt-1">El último mockup del proyecto S58f. Mostrará cómo se conectan los 6 lotes en un día de trabajo real · narrativa de uso · cierre de la sesión de mockups.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="pill pill-emerald">6/7</span>
+      <span class="text-purple-400">→</span>
+      <span class="pill pill-purple">7/7 ⭐</span>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>

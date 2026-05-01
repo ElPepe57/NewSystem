@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-INT-ENVIO-S58f · Detalle Envío · Panel Pago a colaborador embebido</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-sky { background: #e0f2fe; color: #0369a1; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .pill-indigo { background: #e0e7ff; color: #3730a3; }
+  .pill-fuchsia { background: #fae8ff; color: #86198f; }
+  .pill-zinc { background: #f4f4f5; color: #3f3f46; }
+  .group-header { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; padding: 0.5rem 0.75rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+  .opt-row { padding: 0.625rem 0.75rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s; }
+  .opt-row:hover { background: #f8fafc; }
+  .opt-row.selected { background: #eef2ff; border-left: 3px solid #4f46e5; padding-left: calc(0.75rem - 3px); }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2rem 0; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- Header del documento -->
+<div class="max-w-6xl mx-auto px-6 pt-8 pb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="pill pill-indigo">M-INT-ENVIO</span>
+    <span class="pill pill-slate">S58f · Lote 4 · 4 de 5</span>
+    <span class="pill pill-violet">Caso intermedio · split + tercero + CTRU</span>
+    <span class="pill pill-emerald">✓ validado contra código real</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight">Detalle de Envío · Panel Pago a colaborador embebido</h1>
+  <p class="text-sm text-slate-600 mt-1">Reúne <strong>todas las features</strong> del lote: split de pago, destinatario tercero (colaborador con sus datosBancarios como referencia), pagos parciales contra <code class="text-xs bg-slate-100 px-1 rounded">costoFleteTotal</code>, e impacto en <strong>CTRU</strong> (costo total real unitario · prorrateado vía <code class="text-xs bg-slate-100 px-1 rounded">CostoLanded</code>). Mockup auditado contra el modelo real · 3 deudas detectadas y declaradas al final del documento.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · DETALLE DEL ENVÍO con panel Pago a colaborador embebido -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-lg font-semibold">Vista del detalle de envío · escenario real</h2>
+  </div>
+
+  <!-- Contexto del caso -->
+  <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-4 text-sm">
+    <div class="font-semibold text-violet-900 mb-1">Caso real · viajero internacional con pago parcial + saldo final split</div>
+    <p class="text-violet-800"><strong>Ana Quispe</strong> (viajera) trajo una caja desde <strong>Casilla USA La Victoria</strong>. Tarifa pactada externamente: <span class="tabular-nums">$5/lb</span> · Peso inicial 18 lb → registrado como <strong>modalidad <code class="text-xs bg-white px-1 rounded">flete_total</code> = $90.00</strong> (el sistema no tiene "tarifa por libra" nativa · ver DEUDA-FLETE-001). Pago parcial S/300 antes del viaje. Al recibir, peso real 19.5 lb · se ajustó manualmente <code class="text-xs bg-white px-1 rounded">costoFleteTotal</code> a $97.50 ≈ S/365 → saldo S/65. <strong>Saldo: S/40 efectivo + S/25 yape (split).</strong> Impacta el <strong>CTRU</strong> de las 24 unidades.</p>
+  </div>
+
+  <!-- Card del detalle de envío -->
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <!-- Header hero -->
+    <div class="bg-gradient-to-r from-indigo-50 to-violet-50 border-b border-slate-200 p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="pill pill-indigo">ENVÍO · Tipo C</span>
+            <span class="text-xs text-slate-500 tabular-nums">ENV-2026-0421</span>
+            <span class="pill pill-emerald">Recepcionado</span>
+            <span class="pill pill-amber">estado parcial · saldo S/65</span>
+            <span class="pill pill-zinc">Caja USA → SMP</span>
+          </div>
+          <h3 class="text-xl font-bold tracking-tight">Casilla USA La Victoria → Almacén SMP</h3>
+          <p class="text-sm text-slate-600 mt-0.5">Viajera Ana Quispe · 24 unidades · 19.5 lb · Recibido 28 abr 2026</p>
+        </div>
+        <div class="text-right">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">CTRU dinámico</div>
+          <div class="text-2xl font-bold tabular-nums">S/ 31.23</div>
+          <div class="text-xs text-slate-500 mt-0.5">/ unidad · subió +S/1.18</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline de envío -->
+    <div class="border-b border-slate-200 px-5 py-4">
+      <div class="flex items-center gap-2 text-xs">
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div>
+          <span class="text-emerald-700 font-medium">Confirmado</span>
+        </div>
+        <div class="flex-1 h-px bg-emerald-300"></div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div>
+          <span class="text-emerald-700 font-medium">En tránsito</span>
+        </div>
+        <div class="flex-1 h-px bg-emerald-300"></div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div>
+          <span class="text-emerald-700 font-medium">Recepcionado</span>
+        </div>
+        <div class="flex-1 h-px bg-amber-300"></div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center font-bold">4</div>
+          <span class="text-amber-700 font-semibold">Liquidando flete</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-2">Cuando el flete final esté pagado · CTRU se cierra y el envío pasa a "Cerrado financieramente".</p>
+    </div>
+
+    <!-- Tabs internos -->
+    <div class="px-5 border-b border-slate-200 flex gap-6 text-sm">
+      <button class="py-3 border-b-2 border-indigo-500 text-indigo-700 font-semibold">Resumen</button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Productos (24)</button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Logística</button>
+      <button class="py-3 border-b-2 border-indigo-500 text-indigo-700 font-semibold flex items-center gap-1.5">
+        Pago a colaborador
+        <span class="pill pill-amber tabular-nums">S/ 65 pdte</span>
+      </button>
+      <button class="py-3 text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+        Costos / CTRU
+        <span class="pill pill-violet">dinámico</span>
+      </button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Auditoría</button>
+    </div>
+
+    <!-- Cuerpo principal · grid 3 columnas -->
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Columna izquierda: Pago a colaborador -->
+      <div class="col-span-2 p-5">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Estado del pago de flete</h4>
+
+        <!-- KPIs en grid 4 columnas -->
+        <div class="grid grid-cols-4 gap-3 mb-5">
+          <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Flete final</div>
+            <div class="text-lg font-bold tabular-nums mt-1">S/ 365.00</div>
+            <div class="text-[10px] text-slate-500 mt-0.5">≈ $97.50 · TC 3.74</div>
+          </div>
+          <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Pago parcial</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-emerald-700">S/ 300.00</div>
+            <div class="text-[10px] text-emerald-600 mt-0.5">Registrado 18 abr</div>
+          </div>
+          <div class="bg-rose-50 rounded-lg p-3 border border-rose-100">
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-semibold">Saldo</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-rose-700">S/ 65.00</div>
+            <div class="text-[10px] text-rose-600 mt-0.5">Por liquidar</div>
+          </div>
+          <div class="bg-violet-50 rounded-lg p-3 border border-violet-100">
+            <div class="text-[10px] uppercase tracking-wider text-violet-700 font-semibold">Impacto CTRU</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-violet-700">+S/ 1.18</div>
+            <div class="text-[10px] text-violet-600 mt-0.5">/ unidad · 24 uds</div>
+          </div>
+        </div>
+
+        <!-- Banner contextual: peso variable -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-5">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">⚖️</div>
+            <div class="flex-1">
+              <div class="font-semibold text-amber-900 text-sm">Flete reajustado manualmente · peso real 19.5 lb (estimado 18 lb)</div>
+              <p class="text-xs text-amber-800 mt-1">Tarifa pactada externamente: <span class="font-semibold tabular-nums">$5/lb</span> · diferencia <span class="font-semibold tabular-nums">+1.5 lb = +$7.50 ≈ +S/28</span>. Se editó <code class="text-[10px] bg-white px-1 rounded">costoFleteTotal</code> y se agregó +S/28 como nuevo <code class="text-[10px] bg-white px-1 rounded">CostoLanded</code> que reprorratea CTRU.</p>
+              <p class="text-xs text-amber-700 mt-2">📐 Cálculo manual: 19.5 × $5 = $97.50 × TC 3.74 = <strong>S/365</strong> · −S/300 pagado = <strong>S/65 saldo</strong> · ver DEUDA-FLETE-003 (reajuste auto).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección historial pagos -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden mb-4">
+          <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+            <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Pagos a Ana Quispe (esta operación)</div>
+            <span class="text-[11px] text-slate-500">2 movimientos previstos</span>
+          </div>
+
+          <!-- Pago parcial ya registrado -->
+          <div class="px-4 py-3 border-b border-slate-200 bg-emerald-50/30">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">1</div>
+                <div>
+                  <div class="text-sm font-semibold">Pago parcial pre-viaje <span class="text-[10px] text-slate-500 font-normal italic ml-1">(visualmente "anticipo")</span></div>
+                  <div class="text-[11px] text-slate-500">18 abr · BCP soles · Yape Ana referencia</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="text-sm font-bold tabular-nums text-emerald-700">−S/ 300.00</div>
+                <span class="pill pill-emerald">Pagado · estado parcial</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Saldo pendiente -->
+          <div class="px-4 py-3 bg-amber-50/30">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-amber-400 text-white flex items-center justify-center text-xs font-bold">2</div>
+                <div>
+                  <div class="text-sm font-semibold">Liquidación de flete</div>
+                  <div class="text-[11px] text-slate-500">Pendiente · acordado pagar al recibir</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="text-sm font-bold tabular-nums text-amber-700">S/ 65.00</div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm">
+                  💸 Liquidar saldo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones secundarias -->
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <button class="bg-white border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 text-left">
+            <div class="font-semibold text-slate-900">+ Servicio adicional</div>
+            <div class="text-[10px] text-slate-500">Cargo extra fuera de tarifa</div>
+          </button>
+          <button class="bg-white border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 text-left">
+            <div class="font-semibold text-slate-900">Reajustar tarifa</div>
+            <div class="text-[10px] text-slate-500">Cambiar $/lb o flete fijo</div>
+          </button>
+          <button class="bg-white border border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 text-left">
+            <div class="font-semibold text-slate-900">Vincular múltiples envíos</div>
+            <div class="text-[10px] text-slate-500">Liquidar 2+ envíos juntos</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Card del colaborador + CTRU resumen -->
+      <div class="p-5 bg-slate-50">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Colaborador asignado</h4>
+
+        <!-- Card del colaborador -->
+        <div class="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">AQ</div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm">Ana Quispe</div>
+              <div class="text-xs text-slate-500">Viajera internacional</div>
+            </div>
+          </div>
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Modalidad usada</span>
+              <span class="font-semibold tabular-nums">Flete total · USD</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Tarifa pactada (externa)</span>
+              <span class="font-semibold tabular-nums">$5.00/lb</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Viajes este año</span>
+              <span class="font-semibold tabular-nums">4 · 73 lb total</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Tiempo medio entrega</span>
+              <span class="font-semibold">12 días</span>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-amber-700 italic">⓵ "$5/lb" se calcula fuera del sistema · ver DEUDA-FLETE-001.</div>
+        </div>
+
+        <!-- Datos bancarios de Ana (referencia · datosBancarios) -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Datos para enviarle el pago</h4>
+        <div class="space-y-2 text-sm mb-4">
+          <div class="bg-white rounded-lg border border-slate-200 p-2.5 flex items-center gap-2">
+            <span class="text-base">📱</span>
+            <div class="flex-1">
+              <div class="text-xs font-semibold">Yape</div>
+              <div class="text-[11px] text-slate-500 tabular-nums">+51 987 234 567</div>
+            </div>
+            <button class="text-[10px] text-indigo-600 hover:text-indigo-800 font-medium">Copiar</button>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-2.5 flex items-center gap-2">
+            <span class="text-base">🏦</span>
+            <div class="flex-1">
+              <div class="text-xs font-semibold">BCP soles</div>
+              <div class="text-[11px] text-slate-500 tabular-nums">194-09-12345-0-08</div>
+            </div>
+            <button class="text-[10px] text-indigo-600 hover:text-indigo-800 font-medium">Copiar</button>
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-500 italic mb-4">⓵ Estos son <strong>datosBancarios pasivos</strong> · solo referencia · no mueven saldo en tu sistema.</p>
+
+        <!-- CTRU mini-card -->
+        <div class="bg-violet-50 rounded-lg border border-violet-200 p-3">
+          <div class="text-xs uppercase tracking-wider text-violet-700 font-semibold mb-2">CTRU dinámico · 24 uds</div>
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between">
+              <span class="text-violet-700">Producto</span>
+              <span class="font-semibold tabular-nums">S/ 12.10</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-violet-700">Casilla USA</span>
+              <span class="font-semibold tabular-nums">S/ 3.92</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-violet-700">Flete viajera</span>
+              <span class="font-semibold tabular-nums">S/ 15.21</span>
+            </div>
+            <div class="border-t border-violet-200 pt-1.5 flex justify-between">
+              <span class="text-violet-900 font-semibold">CTRU total</span>
+              <span class="font-bold tabular-nums text-violet-900">S/ 31.23</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-violet-700 mt-2 italic">Flete S/365 / 24 uds = S/15.21/u (prorrateo uniforme · <code class="bg-white px-1 rounded">fijo_por_unidad</code>). Cuando se liquide el saldo, el <code class="bg-white px-1 rounded">CostoLanded</code> queda en estado <code class="bg-white px-1 rounded">confirmado</code>.</p>
+        </div>
+
+        <a href="#" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium mt-3 inline-block">→ Ver desglose completo CTRU</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · PagoUnificadoForm v3 · pago a colaborador con split -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-lg font-semibold">Click "Liquidar saldo" · Form v3 con destinatario tercero + split</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Este es el caso <strong>completo</strong> del form. Combina: <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">permiteSplit=true</code> · <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">permiteDestinoTercero=true</code> · <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">colaboradorId=Ana</code>. Pago split: S/40 efectivo + S/25 yape · ambos hacia datosBancarios de Ana (referencia, no mueven saldo).</p>
+
+  <!-- Modal centrado del form -->
+  <div class="bg-slate-900/40 rounded-xl p-8">
+    <div class="bg-white rounded-xl shadow-2xl max-w-3xl mx-auto overflow-hidden">
+
+      <!-- Header del modal -->
+      <div class="bg-gradient-to-r from-indigo-50 to-violet-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between">
+        <div>
+          <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Liquidar flete a colaborador</div>
+          <h3 class="text-lg font-bold mt-0.5">Envío ENV-2026-0421 · Ana Quispe</h3>
+          <p class="text-xs text-slate-600 mt-0.5">Saldo pendiente: <span class="tabular-nums font-semibold text-rose-700">S/ 65.00</span> · de S/ 365 totales</p>
+        </div>
+        <button class="w-8 h-8 rounded-full bg-white text-slate-500 hover:text-slate-700 flex items-center justify-center">✕</button>
+      </div>
+
+      <!-- Cuerpo del form -->
+      <div class="p-5 space-y-5">
+
+        <!-- Destinatario fijo (auto-cargado) -->
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Pagar a</label>
+          <div class="bg-indigo-50 border-2 border-indigo-200 rounded-lg px-3 py-2.5 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">AQ</div>
+            <div class="flex-1">
+              <div class="text-sm font-semibold">Ana Quispe</div>
+              <div class="text-[11px] text-slate-500">Viajera · pre-cargada del envío ENV-2026-0421</div>
+            </div>
+            <span class="pill pill-indigo">Tercero · contexto fijo</span>
+          </div>
+        </div>
+
+        <!-- Toggle de 3 opciones · Split activo -->
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Tipo de pago</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200 hover:bg-slate-200">
+              <div class="font-semibold">Completo</div>
+              <div class="text-[11px] text-slate-500">S/ 65.00 en 1 método</div>
+            </button>
+            <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200 hover:bg-slate-200">
+              <div class="font-semibold">Parcial</div>
+              <div class="text-[11px] text-slate-500">Abono &lt; saldo</div>
+            </button>
+            <button class="bg-indigo-50 text-indigo-700 text-sm py-2.5 rounded-lg font-semibold border-2 border-indigo-500 ring-2 ring-indigo-100">
+              <div>Split</div>
+              <div class="text-[11px] text-indigo-600">Varios métodos</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bloque 1 línea de split · Efectivo -->
+        <div class="border border-indigo-200 rounded-lg overflow-hidden">
+          <div class="bg-indigo-50 px-4 py-2.5 border-b border-indigo-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">1</div>
+              <span class="text-sm font-semibold text-indigo-900">Línea 1 · Efectivo</span>
+            </div>
+            <button class="text-xs text-rose-600 hover:text-rose-800">✕ Quitar</button>
+          </div>
+          <div class="p-4 grid grid-cols-3 gap-4">
+
+            <!-- Mi cuenta origen -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Pagar desde</label>
+              <div class="bg-white border-2 border-indigo-300 rounded-lg px-3 py-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">💵</span>
+                  <div>
+                    <div class="text-sm font-medium">Caja oficina</div>
+                    <div class="text-[11px] text-slate-500">SMP · S/580</div>
+                  </div>
+                </div>
+                <span class="text-slate-400">▼</span>
+              </div>
+            </div>
+
+            <!-- Cuenta destino (referencia datosBancarios de Ana) -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Le entregaste por</label>
+              <div class="bg-white border-2 border-slate-200 rounded-lg px-3 py-2 flex items-center justify-between hover:border-indigo-300">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🤝</span>
+                  <div>
+                    <div class="text-sm font-medium">Mano</div>
+                    <div class="text-[11px] text-slate-500">Sin destino digital</div>
+                  </div>
+                </div>
+                <span class="text-slate-400">▼</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-1">Opcional · referencia</div>
+            </div>
+
+            <!-- Monto -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+                <input type="text" value="40.00" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums focus:outline-none focus:border-indigo-400">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque 2 línea de split · Yape (con dropdown abierto del destino) -->
+        <div class="border border-indigo-200 rounded-lg overflow-hidden">
+          <div class="bg-indigo-50 px-4 py-2.5 border-b border-indigo-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">2</div>
+              <span class="text-sm font-semibold text-indigo-900">Línea 2 · Yape</span>
+            </div>
+            <button class="text-xs text-rose-600 hover:text-rose-800">✕ Quitar</button>
+          </div>
+          <div class="p-4 grid grid-cols-3 gap-4">
+
+            <!-- Mi cuenta origen -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Pagar desde</label>
+              <div class="bg-white border-2 border-indigo-300 rounded-lg px-3 py-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">📱</span>
+                  <div>
+                    <div class="text-sm font-medium">Yape Vita</div>
+                    <div class="text-[11px] text-slate-500">S/1,240</div>
+                  </div>
+                </div>
+                <span class="text-slate-400">▼</span>
+              </div>
+            </div>
+
+            <!-- Cuenta destino con dropdown abierto -->
+            <div class="relative">
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Le yapeaste a</label>
+              <div class="bg-white border-2 border-indigo-400 rounded-lg px-3 py-2 flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">📱</span>
+                  <div>
+                    <div class="text-sm font-medium">Yape Ana</div>
+                    <div class="text-[11px] text-slate-500 tabular-nums">+51 987 234 567</div>
+                  </div>
+                </div>
+                <span class="text-slate-400">▼</span>
+              </div>
+
+              <!-- Dropdown abierto · destinos terceros -->
+              <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-2xl border border-slate-200 z-10 overflow-hidden">
+                <div class="p-2 border-b border-slate-200 bg-slate-50">
+                  <input type="text" placeholder="Buscar destino..." class="w-full text-sm px-3 py-1.5 border border-slate-200 rounded-md bg-white focus:outline-none focus:border-indigo-400">
+                </div>
+
+                <!-- Grupo 1: Datos bancarios de Ana (datosBancarios pasivos) -->
+                <div class="group-header bg-violet-50 text-violet-700">💤 Datos de Ana Quispe · referencia (no mueven saldo)</div>
+                <div class="opt-row selected">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="text-base">📱</span>
+                      <div>
+                        <div class="text-sm font-medium">Yape Ana</div>
+                        <div class="text-[11px] text-indigo-700 font-medium tabular-nums">+51 987 234 567</div>
+                      </div>
+                    </div>
+                    <span class="text-[10px] text-slate-400">datosBancarios</span>
+                  </div>
+                </div>
+                <div class="opt-row">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="text-base">🏦</span>
+                      <div>
+                        <div class="text-sm font-medium">BCP soles Ana</div>
+                        <div class="text-[11px] text-slate-500 tabular-nums">194-09-12345-0-08</div>
+                      </div>
+                    </div>
+                    <span class="text-[10px] text-slate-400">datosBancarios</span>
+                  </div>
+                </div>
+
+                <!-- Grupo 2: Sin destino digital -->
+                <div class="group-header">🤝 Sin destino digital</div>
+                <div class="opt-row">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🤝</span>
+                    <div>
+                      <div class="text-sm font-medium">Entregado en mano</div>
+                      <div class="text-[11px] text-slate-500">Sin referencia adicional</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="opt-row">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">➕</span>
+                    <div>
+                      <div class="text-sm font-medium text-indigo-600">Agregar otro dato bancario a Ana</div>
+                      <div class="text-[11px] text-slate-500">Nuevo Yape, Plin o cuenta</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Monto -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+                <input type="text" value="25.00" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums focus:outline-none focus:border-indigo-400">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón añadir más líneas -->
+        <button class="w-full text-sm text-indigo-600 hover:text-indigo-800 font-medium py-2 border-2 border-dashed border-indigo-200 rounded-lg hover:border-indigo-300">
+          + Añadir otra línea de pago
+        </button>
+
+        <!-- Validación de totales -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">✓</span>
+            <span class="text-sm font-medium text-emerald-900">Totales cuadran</span>
+          </div>
+          <div class="text-xs text-emerald-800">
+            <span class="tabular-nums">S/ 40 + S/ 25 = </span>
+            <span class="font-bold tabular-nums">S/ 65.00</span>
+            <span class="ml-1">/ S/ 65.00 saldo</span>
+          </div>
+        </div>
+
+        <!-- Fecha + Notas -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Fecha de pago</label>
+            <input type="date" value="2026-04-30" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-400">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Notas</label>
+            <input type="text" placeholder="Liquidación tras peso real..." class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-400">
+          </div>
+        </div>
+
+        <!-- Preview de impacto · cuentas mías + CTRU -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-3">Impacto en cuentas y CTRU</div>
+
+          <!-- Mis cuentas -->
+          <div class="space-y-2 text-sm mb-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-base">💵</span>
+                <span>Caja oficina</span>
+                <span class="pill pill-slate">cuenta</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-slate-500 tabular-nums">S/ 580</span>
+                <span class="text-slate-400">→</span>
+                <span class="font-semibold tabular-nums text-rose-700">S/ 540</span>
+                <span class="pill pill-rose tabular-nums">−40</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-base">📱</span>
+                <span>Yape Vita</span>
+                <span class="pill pill-slate">cuenta</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-slate-500 tabular-nums">S/ 1,240</span>
+                <span class="text-slate-400">→</span>
+                <span class="font-semibold tabular-nums text-rose-700">S/ 1,215</span>
+                <span class="pill pill-rose tabular-nums">−25</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTRU consolidación -->
+          <div class="border-t border-slate-200 pt-3">
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center gap-2">
+                <span class="text-base">📦</span>
+                <span>CTRU envío ENV-2026-0421</span>
+                <span class="pill pill-violet">se cierra</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-slate-500 tabular-nums">S/ 31.23 dinámico</span>
+                <span class="text-slate-400">→</span>
+                <span class="font-semibold tabular-nums text-violet-700">S/ 31.23 final</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600">
+            ℹ️ Se generan <strong>2 movimientos</strong> tipo <span class="pill pill-indigo">pago colaborador</span> · ambos vinculados a <code class="text-[10px] bg-white px-1 rounded">ENV-2026-0421</code> y a <code class="text-[10px] bg-white px-1 rounded">Ana Quispe</code>. <code class="text-[10px] bg-white px-1 rounded">CostoLanded</code> pasa de <code class="text-[10px] bg-white px-1 rounded">estimado</code> a <code class="text-[10px] bg-white px-1 rounded">confirmado</code>.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+        <div class="text-xs text-slate-500">
+          Operación creará <span class="font-semibold">2 movimientos</span> · cerrará el flete del envío
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-sm text-slate-700 hover:text-slate-900 font-medium px-4 py-2 rounded-lg hover:bg-slate-100">Cancelar</button>
+          <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm">
+            Liquidar saldo (S/ 65)
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 3 · DESPUÉS · CTRU final + envío cerrado -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">3</div>
+    <h2 class="text-lg font-semibold">Después · CTRU se cierra · envío financieramente cerrado</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El flete está liquidado completo. <code class="text-xs bg-slate-100 px-1 rounded">CostoLanded</code> pasa de <code class="text-xs bg-slate-100 px-1 rounded">estimado</code> a <code class="text-xs bg-slate-100 px-1 rounded">confirmado</code> (S46 · cierre financiero) y el CTRU se propaga a las 24 unidades del envío. Trazabilidad completa: <strong>pago parcial + 2 líneas de split</strong>.</p>
+
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- Card 1 · Panel pago actualizado -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-emerald-50 border-b border-emerald-200 px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Panel "Pago a colaborador"</div>
+          <span class="pill pill-emerald">Cerrado · S/365 pagados</span>
+        </div>
+      </div>
+      <div class="p-4">
+        <!-- Pipeline avanzado -->
+        <div class="flex items-center gap-2 text-xs mb-4">
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+            <span class="text-emerald-700 font-medium">Confirmado</span>
+          </div>
+          <div class="flex-1 h-px bg-emerald-300"></div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+            <span class="text-emerald-700 font-medium">En tránsito</span>
+          </div>
+          <div class="flex-1 h-px bg-emerald-300"></div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+            <span class="text-emerald-700 font-medium">Recepcionado</span>
+          </div>
+          <div class="flex-1 h-px bg-emerald-300"></div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+            <span class="text-emerald-700 font-medium">Cerrado</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2 mb-4">
+          <div class="bg-slate-50 rounded p-2">
+            <div class="text-[9px] uppercase text-slate-500 font-semibold">Flete</div>
+            <div class="text-sm font-bold tabular-nums">S/ 365</div>
+          </div>
+          <div class="bg-emerald-50 rounded p-2 border border-emerald-100">
+            <div class="text-[9px] uppercase text-emerald-700 font-semibold">Pagado</div>
+            <div class="text-sm font-bold tabular-nums text-emerald-700">S/ 365</div>
+          </div>
+          <div class="bg-slate-50 rounded p-2">
+            <div class="text-[9px] uppercase text-slate-500 font-semibold">Saldo</div>
+            <div class="text-sm font-bold tabular-nums text-slate-500">S/ 0</div>
+          </div>
+          <div class="bg-violet-50 rounded p-2 border border-violet-100">
+            <div class="text-[9px] uppercase text-violet-700 font-semibold">CTRU</div>
+            <div class="text-sm font-bold tabular-nums text-violet-700">S/ 31.23</div>
+          </div>
+        </div>
+
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Trazabilidad completa</div>
+        <div class="space-y-2">
+          <div class="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">1</div>
+              <div>
+                <div class="text-sm font-medium">Pago parcial pre-viaje</div>
+                <div class="text-[11px] text-slate-500">18 abr · BCP soles → Yape Ana</div>
+              </div>
+            </div>
+            <div class="text-sm font-bold tabular-nums text-rose-700">−S/ 300</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">2</div>
+              <div>
+                <div class="text-sm font-medium">Liquidación · línea 1</div>
+                <div class="text-[11px] text-slate-500">30 abr · Caja oficina → Mano</div>
+              </div>
+            </div>
+            <div class="text-sm font-bold tabular-nums text-rose-700">−S/ 40</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">3</div>
+              <div>
+                <div class="text-sm font-medium">Liquidación · línea 2</div>
+                <div class="text-[11px] text-slate-500">30 abr · Yape Vita → Yape Ana</div>
+              </div>
+            </div>
+            <div class="text-sm font-bold tabular-nums text-rose-700">−S/ 25</div>
+          </div>
+        </div>
+
+        <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-800">
+          ✓ 3 movimientos · trazabilidad completa Ana ↔ Vita · CTRU consolidado y propagado a las 24 unidades.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 · CTRU desglose final + impacto en uds -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-violet-50 border-b border-violet-200 px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="text-xs uppercase tracking-wider text-violet-700 font-semibold">CTRU final · 24 unidades</div>
+          <span class="pill pill-violet">Definitivo</span>
+        </div>
+      </div>
+      <div class="p-4">
+        <div class="text-center mb-4">
+          <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Costo total real / unidad</div>
+          <div class="text-3xl font-bold tabular-nums mt-1 text-violet-700">S/ 31.23</div>
+          <div class="text-xs text-slate-500 mt-1">CostoLanded pasa a confirmado</div>
+        </div>
+
+        <!-- Desglose CTRU -->
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Desglose por componente</div>
+        <div class="space-y-2 mb-4">
+          <div class="bg-slate-50 rounded-lg p-2.5">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium">Producto base</span>
+              <span class="font-bold tabular-nums">S/ 12.10</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-1.5">
+              <div class="bg-slate-500 h-1.5 rounded-full" style="width: 38.7%"></div>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-0.5">38.7%</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2.5">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium">Casilla USA</span>
+              <span class="font-bold tabular-nums">S/ 3.92</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-1.5">
+              <div class="bg-amber-500 h-1.5 rounded-full" style="width: 12.6%"></div>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-0.5">12.6%</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-2.5">
+            <div class="flex justify-between text-sm mb-1">
+              <div class="flex items-center gap-1.5">
+                <span class="font-medium">Flete viajera Ana</span>
+                <span class="pill pill-emerald">recién cerrado</span>
+              </div>
+              <span class="font-bold tabular-nums text-violet-700">S/ 15.21</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-1.5">
+              <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 48.7%"></div>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-0.5">48.7% · componente más alto</div>
+          </div>
+        </div>
+
+        <!-- Cálculo del flete -->
+        <div class="bg-violet-50/50 border border-violet-100 rounded-lg p-3 mb-3 text-xs text-violet-800">
+          <div class="font-semibold mb-1">Cálculo del flete unitario</div>
+          <p class="tabular-nums">S/365 flete total ÷ 24 uds = <strong>S/15.21/u</strong> (modalidad <code class="bg-white px-1 rounded">fijo_por_unidad</code>)</p>
+          <p class="text-[10px] text-violet-700 mt-1">Si se usara <code class="bg-white px-1 rounded">total_por_peso</code> o <code class="bg-white px-1 rounded">variado_por_producto</code>, la suma de prorrateos sigue siendo S/365 pero distribuido distinto entre SKU. Verificado contra <code class="bg-white px-1 rounded">prorrateoLanded.ts:31-110</code>.</p>
+        </div>
+
+        <!-- Sugerencia margen -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-800">
+          💡 <strong>Margen objetivo 35%</strong>: precio sugerido <span class="tabular-nums font-bold">S/48.05</span> · si vendes a S/55 → margen real <strong class="tabular-nums">43.2%</strong>
+        </div>
+
+        <a href="#" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium mt-3 inline-block">→ Ver desglose CTRU por SKU</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- DECISIONES Y PRÓXIMOS PASOS -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <h3 class="font-semibold text-slate-900">Decisiones declaradas en este mockup</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-1</span>
+        <div>
+          <strong>Panel "Pago a colaborador" embebido en detalle de envío</strong>. KPIs específicos: Flete final · Anticipo · Saldo · Impacto CTRU. Sidebar con card del colaborador + datosBancarios + mini CTRU. Tab visible solo cuando hay flete pactado.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-2</span>
+        <div>
+          <strong>"Anticipo + saldo" como visualización UX</strong>, no como concepto del modelo. El sistema solo registra pagos parciales secuenciales contra <code class="text-xs bg-slate-100 px-1 rounded">costoFleteTotal</code> (estados <code class="text-xs bg-slate-100 px-1 rounded">pendiente / parcial / pagado</code>). El panel agrupa visualmente "1er pago" y "2do pago" pero no requiere campos nuevos en el modelo.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-3</span>
+        <div>
+          <strong>Form v3 con destinatario tercero pre-cargado</strong>. <code class="text-xs bg-slate-100 px-1 rounded">colaboradorId={ana.id}</code> auto-popula el bloque "Pagar a" como <strong>contexto fijo</strong> (no editable). Coherente con OC (proveedorId fijo) y venta (clienteId fijo).
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-4</span>
+        <div>
+          <strong>Selector "Le yapeaste a" con 2 grupos</strong>: datosBancarios del colaborador (referencia · violet) + "Sin destino digital" (mano, otros). NO se muestran cajas recaudadoras ni cuentas propias como destino · solo del tercero específico del envío.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-5</span>
+        <div>
+          <strong>Split aplica con destinos diferentes</strong>. Línea 1 puede ser efectivo (sin destino digital) · Línea 2 puede ser yape al Yape de Ana. Cada línea tiene su origen + destino + monto independientes. Modela fielmente la realidad: "le di S/40 en mano y le yapee S/25 a su número".
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-6</span>
+        <div>
+          <strong>Preview de impacto incluye CTRU</strong>. Además del antes/después de cuentas, muestra cómo el CTRU del envío pasa de "dinámico" a "definitivo" cuando se cierra el saldo. Es el feedback de negocio más importante del flujo.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-7</span>
+        <div>
+          <strong>Tarifa "$5/lb" se calcula externamente</strong>. El sistema hoy solo expone modalidades <code class="text-xs bg-slate-100 px-1 rounded">flete_total</code> / <code class="text-xs bg-slate-100 px-1 rounded">tarifa_unidad</code> / <code class="text-xs bg-slate-100 px-1 rounded">por_producto</code> / <code class="text-xs bg-slate-100 px-1 rounded">por_tramos</code> (los tramos son por peso unitario del SKU, no por libra total del envío). Para "$5/lb × 19.5 lb" hoy se ingresa <code class="text-xs bg-slate-100 px-1 rounded">flete_total = $97.50</code>. La modalidad "tarifa por libra del envío" como nativa queda declarada en <strong>DEUDA-FLETE-001</strong>.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-8</span>
+        <div>
+          <strong>Acciones secundarias contextuales</strong>: + Servicio adicional (cargo extra) · Reajustar tarifa · Vincular múltiples envíos. Esta última permite liquidar 2+ envíos del mismo colaborador en un solo pago consolidado.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-indigo flex-shrink-0">D-INT-ENVIO-9</span>
+        <div>
+          <strong>Pago propaga a CTRU de unidades vía CostoLanded</strong>. Verificado contra <code class="text-xs bg-slate-100 px-1 rounded">envio.recepcion.service.ts:184-191</code>: <code class="text-xs bg-slate-100 px-1 rounded">ctru = costoProductoPEN + costoFletePEN + costosLandedPEN</code>. El flete entra como <code class="text-xs bg-slate-100 px-1 rounded">CostoLanded</code> con prorrateo según modalidad del wizard (<code class="text-xs bg-slate-100 px-1 rounded">fijo_por_unidad</code> · <code class="text-xs bg-slate-100 px-1 rounded">variado_por_producto</code> · <code class="text-xs bg-slate-100 px-1 rounded">total_por_peso</code>). En todas las modalidades, la suma de prorrateos = monto total del flete (S/365).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección DEUDAS DETECTADAS -->
+  <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl overflow-hidden">
+    <div class="bg-amber-100 border-b border-amber-200 px-5 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-amber-700">⚠️</span>
+        <h3 class="font-semibold text-amber-900">Deudas técnicas detectadas durante validación contra código real</h3>
+      </div>
+      <p class="text-xs text-amber-800 mt-1">El mapeo del sistema (vía <code class="bg-white px-1 rounded">system-context-reader</code>) reveló 3 brechas entre lo que el mockup propone como "natural del proceso" y lo que el código actual soporta. Se declaran formalmente para tratamiento posterior.</p>
+    </div>
+    <div class="p-5 space-y-4 text-sm">
+
+      <div class="bg-white rounded-lg border border-amber-200 p-4">
+        <div class="flex items-start gap-3 mb-2">
+          <span class="pill pill-amber flex-shrink-0">DEUDA-FLETE-001</span>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">Modalidad "Tarifa por libra del envío" como nativa del wizard</div>
+            <div class="text-xs text-slate-600 mt-1">Hoy el wizard tiene 4 modalidades pero ninguna calcula directamente <code class="text-[10px] bg-slate-100 px-1 rounded">peso_total_envio × tarifa_lb × TC</code>. El usuario hace el cálculo a mano e ingresa el resultado en <code class="text-[10px] bg-slate-100 px-1 rounded">flete_total</code>. Los <code class="text-[10px] bg-slate-100 px-1 rounded">tramoPeso</code> que sí existen son por peso unitario del SKU.</div>
+          </div>
+        </div>
+        <div class="ml-2 pl-2 border-l-2 border-amber-200 text-xs space-y-0.5 text-slate-700">
+          <div><strong>Impacto:</strong> el operador puede equivocarse en el cálculo manual · no hay trazabilidad de la tarifa pactada vs. el monto resultante.</div>
+          <div><strong>Solución propuesta:</strong> agregar 5ª modalidad <code class="text-[10px] bg-slate-100 px-1 rounded">tarifa_por_lb_envio</code> con campos <code class="text-[10px] bg-slate-100 px-1 rounded">tarifaUSDPorLb</code> + <code class="text-[10px] bg-slate-100 px-1 rounded">pesoTotalLb</code> · cálculo automático del total · prorrateo igual que <code class="text-[10px] bg-slate-100 px-1 rounded">flete_total</code>.</div>
+          <div><strong>Esfuerzo estimado:</strong> 0.5 sesión · sin migración de datos.</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg border border-amber-200 p-4">
+        <div class="flex items-start gap-3 mb-2">
+          <span class="pill pill-amber flex-shrink-0">DEUDA-FLETE-002</span>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">"Anticipo" como concepto de primera clase</div>
+            <div class="text-xs text-slate-600 mt-1">Hoy el sistema modela pagos parciales secuenciales contra <code class="text-[10px] bg-slate-100 px-1 rounded">costoFleteTotal</code> sin distinguir semánticamente entre "anticipo (pre-viaje)" y "saldo final (post-recepción)". El estado se reduce a <code class="text-[10px] bg-slate-100 px-1 rounded">pendiente / parcial / pagado</code>.</div>
+          </div>
+        </div>
+        <div class="ml-2 pl-2 border-l-2 border-amber-200 text-xs space-y-0.5 text-slate-700">
+          <div><strong>Impacto:</strong> reportes financieros no diferencian capital de trabajo (anticipos out-flow antes de recibir mercadería) de pagos finales (post-recepción). Hace difícil medir flujo de caja anticipado por viajero.</div>
+          <div><strong>Solución propuesta:</strong> campo <code class="text-[10px] bg-slate-100 px-1 rounded">tipoPagoColaborador: 'anticipo' | 'saldo' | 'parcial'</code> en cada <code class="text-[10px] bg-slate-100 px-1 rounded">MovimientoCC</code>. UI agrupa por tipo · BI puede medir DIO (Days Inventory Outstanding) por viajero.</div>
+          <div><strong>Esfuerzo estimado:</strong> 1 sesión · migración default <code class="text-[10px] bg-slate-100 px-1 rounded">'parcial'</code> a movimientos pre-existentes.</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg border border-amber-200 p-4">
+        <div class="flex items-start gap-3 mb-2">
+          <span class="pill pill-amber flex-shrink-0">DEUDA-FLETE-003</span>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">Reajuste automático del flete por diferencia de peso real</div>
+            <div class="text-xs text-slate-600 mt-1">Hoy si el peso real (19.5 lb) difiere del estimado (18 lb), el operador debe editar manualmente <code class="text-[10px] bg-slate-100 px-1 rounded">costoFleteTotal</code> o agregar un nuevo <code class="text-[10px] bg-slate-100 px-1 rounded">CostoLanded</code> por la diferencia. No hay flujo nativo de "confirmar peso real → recalcular flete".</div>
+          </div>
+        </div>
+        <div class="ml-2 pl-2 border-l-2 border-amber-200 text-xs space-y-0.5 text-slate-700">
+          <div><strong>Impacto:</strong> riesgo de olvidar el reajuste · CTRU queda mal calculado · margen real no refleja el flete realmente pagado.</div>
+          <div><strong>Solución propuesta:</strong> en pantalla de recepción del envío, campo "Peso real lb" (vs. peso registrado) · si difiere, modal de confirmación que recalcula <code class="text-[10px] bg-slate-100 px-1 rounded">costoFleteTotal</code> según la modalidad usada y agrega un <code class="text-[10px] bg-slate-100 px-1 rounded">CostoLanded</code> de ajuste con <code class="text-[10px] bg-slate-100 px-1 rounded">categoriaCostoId='ajuste-flete'</code>.</div>
+          <div><strong>Esfuerzo estimado:</strong> 1 sesión · solo si DEUDA-FLETE-001 está cerrada (depende de tener tarifa por libra nativa).</div>
+        </div>
+      </div>
+
+      <div class="bg-amber-100/50 rounded-lg p-3 text-xs text-amber-900 mt-3">
+        <strong>📋 Estado:</strong> 3 deudas declaradas en <code class="text-[10px] bg-white px-1 rounded">REGISTRO_IMPLEMENTACION.md</code> · prioridad media · no bloquean implementación de M-INT-ENVIO porque hoy el operador puede ejecutar manualmente · pero tratarlas eleva la calidad operativa del flujo de envíos.
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximo del lote -->
+  <div class="mt-4 bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-indigo-700 font-semibold">Próximo del Lote 4</div>
+      <div class="text-sm font-semibold text-indigo-900 mt-1">M-INT-MOV-S58f · Detalle Movimiento individual con docs origen</div>
+      <p class="text-xs text-indigo-700 mt-1">El último mockup del lote. Vista al revés: desde Tesorería abrir un movimiento individual y ver el doc origen vinculado (OC, venta, gasto, envío). Patrón de navegación inversa · cierra el círculo de integración.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="pill pill-slate">4/5</span>
+      <span class="text-indigo-400">→</span>
+      <span class="pill pill-indigo">5/5</span>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>

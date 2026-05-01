@@ -1,0 +1,2799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productos · Rediseño S58f · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Card canónico (manifesto) */
+  .card-base {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+  }
+  .card-banking {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  /* Pill chip canónico */
+  .chip-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .chip-sm {
+    padding: 2px 7px;
+    font-size: 10px;
+  }
+
+  /* Gradients */
+  .gradient-teal-soft { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 60%); }
+  .gradient-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .gradient-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .gradient-indigo-soft { background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%); }
+
+  /* Anotación */
+  .annotation {
+    padding: 8px 12px;
+    background: #fef3c7;
+    border: 1px dashed #fbbf24;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #78350f;
+    line-height: 1.5;
+  }
+
+  /* SKU avatar (color hash) */
+  .sku-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    border: 2px solid white;
+    margin-left: -6px;
+    flex-shrink: 0;
+  }
+
+  /* Mini sparkline (canvas-like via gradient) */
+  .sparkline-up {
+    background: linear-gradient(to top, transparent, transparent 30%, #d1fae5 30%, #d1fae5 100%);
+    background-image:
+      linear-gradient(to top right, transparent 49%, #10b981 49%, #10b981 51%, transparent 51%);
+    height: 24px;
+    width: 60px;
+    border-radius: 4px;
+  }
+
+  /* Linear-style row hover */
+  .linear-row {
+    transition: background 0.1s ease;
+  }
+  .linear-row:hover {
+    background: #f8fafc;
+  }
+
+  /* Focus ring */
+  .focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #14b8a6;
+  }
+
+  /* Animations */
+  @keyframes pulse-soft { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .slide-up { animation: slide-up 0.3s ease-out; }
+
+  /* Sub-tab pill */
+  .sub-tab {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+    border-radius: 6px;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .sub-tab:hover { background: #f1f5f9; color: #334155; }
+  .sub-tab.active {
+    background: white;
+    color: #0d9488;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.08);
+    font-weight: 600;
+  }
+
+  /* Producto row v3 · vista densa horizontal robusta */
+  .prod-row {
+    display: grid;
+    grid-template-columns: 56px minmax(280px, 1fr) 130px 130px 100px 80px;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s ease;
+  }
+  .prod-row:hover { background: #fafbfc; }
+  .prod-row.header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    font-weight: 600;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .prod-col-actions { display: flex; justify-content: flex-end; gap: 4px; }
+  .text-right-col { text-align: right; }
+
+  /* Producto título + meta */
+  .prod-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .prod-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+  .prod-meta-sep { color: #cbd5e1; }
+  .prod-meta-brand { color: #475569; font-weight: 500; }
+  .prod-sku { color: #94a3b8; font-family: ui-monospace, monospace; font-size: 10.5px; }
+
+  /* Score badge */
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: ui-monospace, monospace;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header del documento -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Lote 2 · Inventario reimaginado</div>
+      <div class="text-base font-bold">M-PROD-S58f · Productos rediseñado · Catálogo + Investigación + Calculadora</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-teal-600 px-2 py-1 rounded">Manifesto S58f aplicado</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-29</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1 · PRODUCTOS · PÁGINA PRINCIPAL                                  -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · Página principal de Productos</h2>
+  <p class="text-sm text-slate-600 mb-4">Catálogo maestro con header descriptivo · KPI strip · filtros canónicos referencia #6 · listado denso estilo Linear/Notion</p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Top bar (breadcrumbs estilo M-NAV-01) -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="text-slate-500 hover:text-teal-700">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <a class="text-slate-500 hover:text-teal-700">Operación Logística</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <span class="text-slate-900 font-semibold">Productos</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="hover:bg-slate-100 text-slate-600 text-[11px] px-2 py-1 rounded inline-flex items-center gap-1">
+          <i data-lucide="keyboard" class="w-3 h-3"></i>
+          <span class="text-[10px] mono">⌘K</span>
+        </button>
+        <div class="w-px h-4 bg-slate-300"></div>
+        <button class="hover:bg-slate-100 p-1.5 rounded">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-slate-500"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- HEADER (P6: cada página declara su propósito) -->
+    <div class="px-6 py-5 border-b border-slate-100">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1.5">
+            <i data-lucide="package" class="w-6 h-6 text-teal-600"></i>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Productos</h1>
+          </div>
+          <p class="text-[13px] text-slate-500 leading-relaxed max-w-2xl">
+            Catálogo maestro · qué vendemos, cómo se configura, qué cuesta traerlo y cuánto se gana.
+          </p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+            <i data-lucide="calculator" class="w-3.5 h-3.5"></i>Calculadora
+          </button>
+          <div class="w-px h-6 bg-slate-200 self-center"></div>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>Importar
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar
+          </button>
+          <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo producto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP (manifesto sección 05) -->
+    <div class="px-6 py-5 bg-slate-50 border-b border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-4 divide-x divide-slate-200">
+        <div class="px-4 first:pl-0">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Productos activos</div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">142</div>
+          <div class="text-[11px] text-slate-500 mt-1.5 num-tab">+ 8 este mes</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Variantes (SKUs)</div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">387</div>
+          <div class="text-[11px] text-slate-500 mt-1.5 num-tab">de 142 productos</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">En investigación</div>
+          <div class="text-2xl font-bold text-amber-700 num-tab tracking-tight">12</div>
+          <div class="text-[11px] text-amber-700 mt-1.5 num-tab flex items-center gap-1">
+            <i data-lucide="search" class="w-3 h-3"></i>3 con análisis listo
+          </div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Margen promedio</div>
+          <div class="text-2xl font-bold text-emerald-600 num-tab tracking-tight">42<span class="text-base text-emerald-300 font-normal">%</span></div>
+          <div class="text-[11px] text-emerald-600 mt-1.5 num-tab flex items-center gap-1">
+            <i data-lucide="trending-up" class="w-3 h-3"></i>+3.2 vs trim. anterior
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTROS CANÓNICOS (referencia #6) -->
+    <div class="px-6 py-3 border-b border-slate-200 bg-white">
+      <div class="space-y-2.5">
+        <!-- Fila 1: chips toggle -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button class="chip-pill bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100">
+            <i data-lucide="calendar" class="w-3 h-3"></i>
+            Todo el periodo
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Línea:</span>
+          <button class="chip-pill bg-slate-900 text-white shadow-sm">
+            <i data-lucide="grid-3x3" class="w-3 h-3"></i>Todas <span class="text-white/70 num-tab">142</span>
+          </button>
+          <button class="chip-pill bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+            <i data-lucide="droplets" class="w-3 h-3"></i>Skincare <span class="opacity-60 num-tab">100</span>
+          </button>
+          <button class="chip-pill bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100">
+            <i data-lucide="pill" class="w-3 h-3"></i>Suplementos <span class="opacity-60 num-tab">42</span>
+          </button>
+
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Tipo:</span>
+          <button class="chip-pill bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100">
+            <i data-lucide="box" class="w-3 h-3"></i>Simple <span class="opacity-60 num-tab">129</span>
+          </button>
+          <button class="chip-pill bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+            <i data-lucide="package-2" class="w-3 h-3"></i>Pack <span class="opacity-60 num-tab">13</span>
+          </button>
+
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Estado:</span>
+          <button class="chip-pill bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+            <i data-lucide="check" class="w-3 h-3"></i>Activos <span class="opacity-60 num-tab">128</span>
+          </button>
+          <button class="chip-pill bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+            <i data-lucide="search" class="w-3 h-3"></i>En investigación <span class="opacity-60 num-tab">12</span>
+          </button>
+          <button class="chip-pill bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100">
+            <i data-lucide="archive" class="w-3 h-3"></i>Archivados <span class="opacity-60 num-tab">2</span>
+          </button>
+        </div>
+
+        <!-- Divider sutil -->
+        <div class="border-t border-slate-100"></div>
+
+        <!-- Fila 2: búsqueda + orden + limpiar -->
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1 min-w-[260px]">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+            <input type="text" placeholder="Buscar por nombre, marca, SKU…" class="w-full pl-9 pr-9 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-slate-400">
+          </div>
+          <button class="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-slate-100 transition-colors">
+            <span class="text-slate-400 font-normal text-[11px]">Ordenar:</span>
+            <span>Más vendidos</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTADO · grid robusto · estilo Linear/Stripe -->
+    <div class="bg-white" style="overflow-x: auto;">
+
+      <!-- Header con etiquetas de columnas -->
+      <div class="prod-row header" style="min-width: 880px;">
+        <div></div>
+        <div>Producto</div>
+        <div class="text-right-col">Variantes · Stock</div>
+        <div class="text-right-col">Precio venta</div>
+        <div class="text-right-col">Margen</div>
+        <div class="text-right-col">Acciones</div>
+      </div>
+
+      <!-- Producto 1 · Skincare simple -->
+      <div class="prod-row" style="min-width: 880px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="prod-name">Vitamin C Brightening Serum</div>
+          <div class="prod-meta">
+            <span class="prod-sku">SKU-PROD-0042</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="prod-meta-brand">SkinCeuticals</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+            <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Activo</span>
+          </div>
+        </div>
+        <div class="text-right-col">
+          <div class="flex items-center justify-end mb-1">
+            <div class="sku-avatar" style="background:#0d9488;margin-left:0">30</div>
+            <div class="sku-avatar" style="background:#f59e0b">15</div>
+            <div class="sku-avatar" style="background:#8b5cf6">+2</div>
+          </div>
+          <div class="text-[10px] text-slate-500 num-tab">4 variantes · 87 uds</div>
+        </div>
+        <div class="text-right-col num-tab">
+          <div class="text-[14px] font-semibold text-slate-900">S/ 285.00</div>
+          <div class="text-[11px] text-slate-500">desde S/ 95</div>
+        </div>
+        <div class="text-right-col">
+          <div class="text-[14px] font-semibold text-emerald-600 num-tab">52%</div>
+          <div class="flex justify-end mt-1">
+            <div class="sparkline-up"></div>
+          </div>
+        </div>
+        <div class="prod-col-actions">
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Producto 2 · Suplemento simple -->
+      <div class="prod-row" style="min-width: 880px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center ring-1 ring-indigo-200/50">
+            <i data-lucide="pill" class="w-5 h-5 text-indigo-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="prod-name">Collagen Peptides 90 caps</div>
+          <div class="prod-meta">
+            <span class="prod-sku">SKU-PROD-0028</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="prod-meta-brand">NeoCell</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="chip-pill chip-sm bg-indigo-50 text-indigo-700 border border-indigo-200">Suplementos</span>
+            <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200">Stock bajo</span>
+          </div>
+        </div>
+        <div class="text-right-col">
+          <div class="flex items-center justify-end mb-1">
+            <div class="sku-avatar" style="background:#0d9488;margin-left:0">90</div>
+            <div class="sku-avatar" style="background:#f59e0b">180</div>
+          </div>
+          <div class="text-[10px] text-rose-700 font-semibold num-tab">2 variantes · 12 uds</div>
+        </div>
+        <div class="text-right-col num-tab">
+          <div class="text-[14px] font-semibold text-slate-900">S/ 175.00</div>
+          <div class="text-[11px] text-slate-500">desde S/ 95</div>
+        </div>
+        <div class="text-right-col">
+          <div class="text-[14px] font-semibold text-emerald-600 num-tab">38%</div>
+        </div>
+        <div class="prod-col-actions">
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Producto 3 · Pack DENTRO de Skincare -->
+      <div class="prod-row" style="min-width: 880px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50 relative">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center shadow-sm">
+              <i data-lucide="package-2" class="w-2.5 h-2.5 text-white"></i>
+            </div>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="prod-name">Anti-Aging Routine Kit</div>
+          <div class="prod-meta">
+            <span class="prod-sku">SKU-PACK-0007</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="prod-meta-brand">SkinCeuticals + NeoCell</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+            <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Pack · 3 SKCs</span>
+          </div>
+        </div>
+        <div class="text-right-col">
+          <div class="flex items-center justify-end mb-1">
+            <div class="sku-avatar" style="background:#f59e0b;margin-left:0">S</div>
+            <div class="sku-avatar" style="background:#8b5cf6">P</div>
+            <div class="sku-avatar" style="background:#0d9488">C</div>
+          </div>
+          <div class="text-[10px] text-purple-700 font-semibold num-tab">3 componentes</div>
+        </div>
+        <div class="text-right-col num-tab">
+          <div class="text-[14px] font-semibold text-slate-900">S/ 520.00</div>
+          <div class="text-[11px] text-emerald-600 font-medium">−12% vs sueltos</div>
+        </div>
+        <div class="text-right-col">
+          <div class="text-[14px] font-semibold text-emerald-600 num-tab">48%</div>
+        </div>
+        <div class="prod-col-actions">
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Producto 4 · En investigación (fondo destacado) -->
+      <div class="prod-row" style="background:#fffbeb;min-width: 880px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-300">
+            <i data-lucide="search" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="prod-name">Retinol 1% Night Treatment</div>
+          <div class="prod-meta">
+            <span class="prod-sku">SKU-PROD-NEW-003</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="prod-meta-brand">The Ordinary</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+            <span class="chip-pill chip-sm bg-amber-100 text-amber-800 border border-amber-300">En investigación</span>
+          </div>
+        </div>
+        <div class="text-right-col">
+          <div class="text-[11px] text-slate-400 italic">aún no creado</div>
+        </div>
+        <div class="text-right-col num-tab">
+          <div class="text-[14px] font-semibold text-amber-700">S/ 95</div>
+          <div class="text-[10px] text-amber-600 font-medium">estimado · 3 comp.</div>
+        </div>
+        <div class="text-right-col">
+          <div class="text-[14px] font-semibold text-amber-700 num-tab">~58%</div>
+          <div class="text-[10px] text-slate-500">proyectado</div>
+        </div>
+        <div class="prod-col-actions">
+          <button class="text-[11px] bg-amber-600 hover:bg-amber-700 text-white font-medium px-2.5 py-1.5 rounded-md whitespace-nowrap">
+            Ver análisis
+          </button>
+        </div>
+      </div>
+
+      <!-- Producto 5 · Skincare simple -->
+      <div class="prod-row" style="min-width: 880px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="prod-name">Hyaluronic Acid Hydrating Toner</div>
+          <div class="prod-meta">
+            <span class="prod-sku">SKU-PROD-0019</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="prod-meta-brand">CeraVe</span>
+            <span class="prod-meta-sep">·</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+            <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Activo</span>
+          </div>
+        </div>
+        <div class="text-right-col">
+          <div class="flex items-center justify-end mb-1">
+            <div class="sku-avatar" style="background:#0d9488;margin-left:0">200</div>
+          </div>
+          <div class="text-[10px] text-slate-500 num-tab">1 variante · 45 uds</div>
+        </div>
+        <div class="text-right-col num-tab">
+          <div class="text-[14px] font-semibold text-slate-900">S/ 75.00</div>
+        </div>
+        <div class="text-right-col">
+          <div class="text-[14px] font-semibold text-emerald-600 num-tab">35%</div>
+        </div>
+        <div class="prod-col-actions">
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+          <button class="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-teal-700 transition-colors">
+            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Más productos placeholder -->
+      <div class="text-center py-4 text-[11px] text-slate-400 border-t border-slate-100">
+        <i data-lucide="more-horizontal" class="w-4 h-4 inline-block text-slate-300"></i>
+        <span class="ml-2">137 productos más en el catálogo</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Anotaciones de la Vista 1 (actualizadas con feedback del usuario) -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation">
+      <strong>D-INV-1 aplicada:</strong> esta página NO tiene "apartado de inventario". Stock vive en /stock (drill-down a unidades), aquí solo se gestiona el catálogo.
+    </div>
+    <div class="annotation">
+      <strong>P6 aplicada:</strong> el subtítulo declara <em>"qué vendemos, cómo se configura, qué cuesta traerlo y cuánto se gana"</em> — el usuario sabe qué hacer aquí al primer vistazo.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Modelo corregido (D-INV-7):</strong> Pack NO es una línea de negocio — es un <strong>tipo</strong> de producto dentro de una línea. Filtros separados:
+      <strong>Línea</strong> (Skincare 100, Suplementos 42) + <strong>Tipo</strong> (Simple 129, Pack 13).
+      Los packs aparecen con badge "Pack · 3 SKCs" y mantienen su línea (un pack de Skincare se ve como Skincare).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Layout flex (no grid rígido):</strong> filas con flex + anchos fijos por columna (icon 44px · main flex-1 · variantes 110px · precio 130px · margen 90px · acciones 90px). Resuelve el desbordamiento que tenía el grid-template-columns anterior.
+    </div>
+    <div class="annotation">
+      <strong>Referencia #6 aplicada:</strong> filtros canónicos en 2 filas (chips arriba + búsqueda+orden abajo). Mismo patrón que <code>FiltrosFinanzasBar</code>.
+    </div>
+    <div class="annotation">
+      <strong>Banking-grade:</strong> divisores verticales en KPIs, sin gradientes flashy, números tabulares, paleta semántica del manifesto.
+    </div>
+  </div>
+
+  <!-- Box explicativo del modelo Línea/Tipo -->
+  <div class="card-banking mt-4 p-5 bg-gradient-to-br from-purple-50 to-white border border-purple-200">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="layers" class="w-5 h-5 text-purple-700"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-[11px] uppercase tracking-wider text-purple-700 font-bold mb-1">D-INV-7 · Aclaración del modelo</div>
+        <h3 class="text-sm font-bold text-slate-900 mb-2">Pack ≠ Línea de negocio · Pack = Tipo de producto</h3>
+        <div class="text-[12px] text-slate-700 leading-relaxed mb-3">
+          Tu negocio tiene <strong>2 líneas reales</strong>: Skincare y Suplementos. Los <strong>Packs</strong> son una forma de empaquetar productos
+          de cualquier línea — un Pack de Skincare es un Pack que sigue siendo Skincare. No son una tercera categoría aparte.
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-[11px]">
+          <div class="bg-white border border-purple-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">✗ ANTES</div>
+            <div class="text-slate-700">Categoría: <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare 87</span> · <span class="chip-pill chip-sm bg-indigo-50 text-indigo-700 border border-indigo-200">Suplementos 42</span> · <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Packs 13</span></div>
+            <div class="text-rose-700 mt-1.5 text-[10px]">Pack mezclado al mismo nivel — confunde el modelo.</div>
+          </div>
+          <div class="bg-white border border-emerald-200 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">✓ DESPUÉS</div>
+            <div class="text-slate-700">Línea: <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare 100</span> · <span class="chip-pill chip-sm bg-indigo-50 text-indigo-700 border border-indigo-200">Suplementos 42</span></div>
+            <div class="text-slate-700 mt-1">Tipo: <span class="chip-pill chip-sm bg-slate-50 text-slate-700 border border-slate-200">Simple 129</span> · <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Pack 13</span></div>
+            <div class="text-emerald-700 mt-1.5 text-[10px]">Skincare sube de 87 a 100 al absorber sus packs · modelo correcto.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · DETALLE DE PRODUCTO (modal)                                   -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 · Detalle de producto</h2>
+  <p class="text-sm text-slate-600 mb-4">Modal con header sticky · 4 tabs (Resumen / Variantes / Investigación / Calculadora) · contenido por tab</p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Modal header (sticky) -->
+    <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="droplets" class="w-6 h-6 text-amber-700"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-0.5">
+              <span class="mono">SKU-PROD-0042</span>
+              <span>·</span>
+              <span>SkinCeuticals</span>
+              <span>·</span>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Activo</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-slate-900">Vitamin C Brightening Serum</h2>
+            <p class="text-[12px] text-slate-500 mt-0.5">Anti-edad · Skincare · Serum</p>
+          </div>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>Editar
+          </button>
+          <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nueva variante
+          </button>
+          <button class="hover:bg-slate-100 p-1.5 rounded-md">
+            <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI strip del producto (manifesto sección 05) -->
+      <div class="grid grid-cols-4 divide-x divide-slate-200 mt-5 pt-4 border-t border-slate-100">
+        <div class="px-3 first:pl-0">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Variantes</div>
+          <div class="text-lg font-bold text-slate-900 num-tab">4</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Stock total</div>
+          <div class="text-lg font-bold text-slate-900 num-tab">87 <span class="text-[10px] text-slate-400 font-normal">unid.</span></div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Vendidas (30d)</div>
+          <div class="text-lg font-bold text-emerald-600 num-tab">42</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Margen prom.</div>
+          <div class="text-lg font-bold text-emerald-600 num-tab">52%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs (sticky bajo header) -->
+    <div class="border-b border-slate-200 px-6 bg-white sticky top-0 z-10">
+      <div class="flex gap-1 -mb-px">
+        <button class="px-4 py-3 text-[12px] font-semibold text-teal-700 border-b-2 border-teal-600 flex items-center gap-1.5">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Resumen
+        </button>
+        <button class="px-4 py-3 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>Variantes (4)
+        </button>
+        <button class="px-4 py-3 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="search" class="w-3.5 h-3.5"></i>Investigación
+          <span class="chip-pill chip-sm bg-amber-100 text-amber-700">3 nuevos</span>
+        </button>
+        <button class="px-4 py-3 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>Histórico
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido tab Resumen -->
+    <div class="p-6 grid grid-cols-3 gap-4 bg-slate-50">
+
+      <!-- Información básica -->
+      <div class="col-span-2 space-y-3">
+        <div class="card-base p-5">
+          <h3 class="text-sm font-bold text-slate-900 mb-3">Información del producto</h3>
+          <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-[13px]">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Marca</div>
+              <div class="text-slate-900 font-medium">SkinCeuticals</div>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Categoría</div>
+              <div class="text-slate-900 font-medium">Skincare · Serums anti-edad</div>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Concentración activa</div>
+              <div class="text-slate-900 font-medium">15% Vitamin C + Ferulic Acid</div>
+            </div>
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Origen</div>
+              <div class="text-slate-900 font-medium">Estados Unidos</div>
+            </div>
+            <div class="col-span-2">
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-0.5">Descripción</div>
+              <div class="text-slate-700 leading-relaxed">Serum antioxidante con 15% L-Ascorbic Acid puro + 1% Vitamin E + 0.5% Ferulic Acid. Reduce líneas de expresión, mejora luminosidad y previene daño solar.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Precios y proveedores -->
+        <div class="card-base p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-slate-900">Proveedores recomendados</h3>
+            <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium">Ver todos →</button>
+          </div>
+          <div class="space-y-2">
+            <div class="card-base p-3 card-hover cursor-pointer flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] font-semibold text-slate-900">SkinTech Korea</span>
+                  <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Top elección</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Costo unitario <span class="num-tab font-semibold text-slate-700">$ 38.50</span> · 12 OCs · score 4.8/5</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[11px] text-slate-500">Lead time</div>
+                <div class="text-[12px] font-semibold text-slate-900 num-tab">22d</div>
+              </div>
+            </div>
+            <div class="card-base p-3 card-hover cursor-pointer flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="building" class="w-4 h-4 text-slate-600"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-[13px] font-semibold text-slate-900">Beauty Wholesale USA</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Costo unitario <span class="num-tab font-semibold text-slate-700">$ 42.00</span> · 7 OCs · score 4.5/5</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[11px] text-slate-500">Lead time</div>
+                <div class="text-[12px] font-semibold text-slate-900 num-tab">14d</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar derecho: insights -->
+      <div class="space-y-3">
+        <!-- Precio recomendado -->
+        <div class="card-banking p-4 gradient-emerald-soft">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold mb-1">Precio venta sugerido</div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">S/ 285<span class="text-base text-slate-400 font-normal">.00</span></div>
+          <div class="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
+            Mínimo competencia <span class="font-semibold text-slate-800 num-tab">S/ 300</span> − 5% = <span class="font-semibold text-emerald-600 num-tab">S/ 285</span>
+          </div>
+          <div class="mt-3 pt-3 border-t border-emerald-200/50 grid grid-cols-2 gap-2 text-[11px]">
+            <div>
+              <div class="text-slate-500">Costo landed</div>
+              <div class="font-semibold text-slate-900 num-tab">S/ 138</div>
+            </div>
+            <div>
+              <div class="text-slate-500">Margen</div>
+              <div class="font-semibold text-emerald-600 num-tab">52%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Punto de equilibrio -->
+        <div class="card-banking p-4 gradient-indigo-soft">
+          <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-semibold mb-1">Punto de equilibrio</div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">18 <span class="text-base text-slate-400 font-normal">unid.</span></div>
+          <div class="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
+            Recuperar inversión OC mínima de <span class="font-semibold num-tab">$ 1,925</span>
+          </div>
+          <button class="mt-3 text-[11px] text-indigo-600 hover:text-indigo-700 font-semibold inline-flex items-center gap-1">
+            Abrir calculadora →
+          </button>
+        </div>
+
+        <!-- Competencia -->
+        <div class="card-base p-4">
+          <div class="text-[11px] font-semibold text-slate-900 mb-2">Competencia en Perú</div>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-600">Mac Cosmetics</span>
+              <span class="num-tab font-semibold text-slate-900">S/ 320</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-600">Sephora PE</span>
+              <span class="num-tab font-semibold text-slate-900">S/ 310</span>
+            </div>
+            <div class="flex items-center justify-between border-t border-slate-100 pt-1.5">
+              <span class="text-slate-600 font-semibold">Mínimo</span>
+              <span class="num-tab font-semibold text-emerald-600">S/ 300</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation mt-3">
+    <strong>Modal tipo Referencia Canónica #3 (OrdenCompraCard):</strong> header con KPI strip + tabs sticky + contenido por tab. La diferencia es que aquí los tabs son más livianos porque Productos no tiene tantos eventos como una OC.
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · TAB INVESTIGACIÓN DE MERCADO                                  -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · Tab Investigación de mercado</h2>
+  <p class="text-sm text-slate-600 mb-4">Sub-módulo nativo del producto · análisis de proveedores · comparación con competencia · histórico</p>
+
+  <div class="card-banking overflow-hidden">
+    <!-- Header tab -->
+    <div class="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i data-lucide="search" class="w-4 h-4 text-amber-700"></i>
+        <span class="text-[13px] font-semibold text-amber-900">Investigación · Vitamin C Brightening Serum</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+          <i data-lucide="plus" class="w-3 h-3 text-emerald-600"></i>Agregar proveedor
+        </button>
+        <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+          <i data-lucide="plus" class="w-3 h-3 text-rose-600"></i>Agregar competidor
+        </button>
+      </div>
+    </div>
+
+    <!-- 2 columnas: proveedores + competencia -->
+    <div class="grid grid-cols-2 divide-x divide-slate-200">
+
+      <!-- Proveedores (recolectados) -->
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="package-search" class="w-4 h-4 text-slate-600"></i>
+            Proveedores investigados
+          </h3>
+          <span class="text-[11px] text-slate-500">5 fuentes</span>
+        </div>
+        <div class="space-y-2">
+          <div class="card-base p-3 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div>
+                <div class="text-[12px] font-semibold text-slate-900">SkinTech Korea</div>
+                <div class="text-[10px] text-slate-500">www.skintech.kr · Última cot. hace 12 días</div>
+              </div>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Top</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-[11px] mt-2 pt-2 border-t border-slate-100">
+              <div>
+                <div class="text-slate-500">Costo EXW</div>
+                <div class="num-tab font-semibold text-slate-900">$ 38.50</div>
+              </div>
+              <div>
+                <div class="text-slate-500">Impuestos est.</div>
+                <div class="num-tab font-semibold text-slate-900">$ 6.93 <span class="text-[9px] text-slate-400 font-normal">(18%)</span></div>
+              </div>
+              <div>
+                <div class="text-slate-500">Total landed</div>
+                <div class="num-tab font-semibold text-emerald-700">$ 45.43</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-base p-3 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div>
+                <div class="text-[12px] font-semibold text-slate-900">Beauty Wholesale USA</div>
+                <div class="text-[10px] text-slate-500">www.beautywholesale.com · Hace 8 días</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-[11px] mt-2 pt-2 border-t border-slate-100">
+              <div>
+                <div class="text-slate-500">Costo EXW</div>
+                <div class="num-tab font-semibold text-slate-900">$ 42.00</div>
+              </div>
+              <div>
+                <div class="text-slate-500">Impuestos est.</div>
+                <div class="num-tab font-semibold text-slate-900">$ 7.56 <span class="text-[9px] text-slate-400 font-normal">(18%)</span></div>
+              </div>
+              <div>
+                <div class="text-slate-500">Total landed</div>
+                <div class="num-tab font-semibold text-slate-700">$ 49.56</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-base p-3 card-hover cursor-pointer opacity-75">
+            <div class="flex items-start justify-between mb-1">
+              <div>
+                <div class="text-[12px] font-semibold text-slate-900">Alibaba · Various</div>
+                <div class="text-[10px] text-slate-500">Múltiples vendedores · Hace 3 días</div>
+              </div>
+              <span class="chip-pill chip-sm bg-slate-100 text-slate-600">Sin uso</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-[11px] mt-2 pt-2 border-t border-slate-100">
+              <div>
+                <div class="text-slate-500">Costo EXW</div>
+                <div class="num-tab font-semibold text-slate-900">$ 22.00</div>
+              </div>
+              <div>
+                <div class="text-slate-500">Impuestos est.</div>
+                <div class="num-tab font-semibold text-slate-900">$ 3.96 <span class="text-[9px] text-slate-400 font-normal">(18%)</span></div>
+              </div>
+              <div>
+                <div class="text-slate-500">Total landed</div>
+                <div class="num-tab font-semibold text-slate-700">$ 25.96</div>
+              </div>
+            </div>
+            <div class="text-[10px] text-amber-700 mt-2 flex items-center gap-1">
+              <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+              Calidad no verificada · riesgo alto
+            </div>
+          </div>
+
+          <!-- Card vacío para crear inline -->
+          <button class="w-full p-3 border-2 border-dashed border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30 rounded-xl text-[11px] text-slate-500 hover:text-emerald-700 transition-colors flex items-center justify-center gap-1.5 font-medium">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            Agregar nuevo proveedor a investigar
+          </button>
+        </div>
+      </div>
+
+      <!-- Competencia (precios PE) -->
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="store" class="w-4 h-4 text-slate-600"></i>
+            Competencia en Perú
+          </h3>
+          <span class="text-[11px] text-slate-500">3 vendedores</span>
+        </div>
+        <div class="space-y-2">
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded bg-rose-50 flex items-center justify-center flex-shrink-0">
+              <span class="text-[10px] font-bold text-rose-700">MAC</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Mac Cosmetics PE</div>
+              <div class="text-[10px] text-slate-500">Tienda física · Capturado hace 5 días</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-bold text-slate-900 num-tab">S/ 320</div>
+              <div class="text-[9px] text-slate-400">+12% vs nuestro</div>
+            </div>
+          </div>
+
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded bg-purple-50 flex items-center justify-center flex-shrink-0">
+              <span class="text-[10px] font-bold text-purple-700">SEP</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Sephora PE</div>
+              <div class="text-[10px] text-slate-500">Online · Capturado hace 2 días</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-bold text-slate-900 num-tab">S/ 310</div>
+              <div class="text-[9px] text-slate-400">+8% vs nuestro</div>
+            </div>
+          </div>
+
+          <div class="card-base p-3 flex items-center gap-3 ring-2 ring-emerald-300 bg-emerald-50/30">
+            <div class="w-9 h-9 rounded bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="award" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Vita Skin · TÚ</div>
+              <div class="text-[10px] text-emerald-700">Mínimo competencia − 5% · Estrategia ganadora</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-bold text-emerald-700 num-tab">S/ 285</div>
+              <div class="text-[9px] text-emerald-600 font-semibold">Recomendado</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card vacío para agregar competidor inline -->
+        <button class="w-full mt-2 p-3 border-2 border-dashed border-slate-200 hover:border-rose-300 hover:bg-rose-50/30 rounded-xl text-[11px] text-slate-500 hover:text-rose-700 transition-colors flex items-center justify-center gap-1.5 font-medium">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          Agregar nuevo competidor PE
+        </button>
+
+        <!-- Insight -->
+        <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+          <div class="flex items-start gap-2">
+            <i data-lucide="lightbulb" class="w-4 h-4 text-indigo-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[11px] text-indigo-900 leading-relaxed">
+              <strong>Insight:</strong> con costo landed S/ 138 + venta a S/ 285, mantienes 52% margen Y eres el más barato de Perú. Sweet spot.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Crear inline (proveedor + competidor):</strong> ambas columnas tienen card-vacío con CTA "Agregar nuevo …" al final. Click abre modal compacto con campos mínimos. El proveedor creado queda registrado completo en Personas → Proveedores (D-PROV).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Sin Lead/MOQ · con Impuestos:</strong> reemplazados los campos que no usabas (MOQ, Lead time) por <strong>Costo FOB · Impuestos est. (18%) · Total landed</strong>. Ahora la card te dice directo cuánto te cuesta REAL el producto al llegar a Perú.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 4 · CALCULADORA · MODAL CENTRADO · análisis financiero completo   -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 4 · Calculadora · Modal centrado con análisis financiero completo (4B ✓)</h2>
+  <p class="text-sm text-slate-600 mb-1">
+    Click en el botón <strong>"Calculadora"</strong> del header de Productos → abre modal grande centrado con backdrop blur · auto-precarga + análisis financiero rico en una sola pantalla.
+  </p>
+  <p class="text-[12px] text-emerald-700 mb-4 font-medium">
+    ⚡ 1 sola entrada · 1 modal completo · sin popover/vista-completa duplicados.
+  </p>
+
+  <!-- ANEXO REFERENCIA · Sección: 2 estados del popover smart (DESCARTADO en favor del Modal) -->
+  <div class="grid grid-cols-2 gap-4 mb-6 opacity-40 hover:opacity-100 transition-opacity">
+    <div class="col-span-2 mb-2">
+      <span class="chip-pill bg-slate-100 text-slate-600 border border-slate-200">Anexo · descartado en favor del Modal centrado</span>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- ESTADO 1 · Popover vacío con buscador                              -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-slate-100 text-slate-700 border border-slate-200">Estado 1</span>
+        <h3 class="text-sm font-bold text-slate-900">Vacío · esperando producto</h3>
+      </div>
+
+      <div class="card-banking overflow-hidden relative bg-slate-100" style="height: 540px;">
+        <!-- Listado en background visible -->
+        <div class="absolute inset-0 bg-white">
+          <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="package" class="w-5 h-5 text-teal-600"></i>
+              <span class="text-base font-bold text-slate-900">Productos</span>
+            </div>
+            <button class="bg-indigo-600 text-white font-medium text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1 ring-2 ring-indigo-300 ring-offset-1">
+              <i data-lucide="calculator" class="w-3 h-3"></i>Calculadora
+            </button>
+          </div>
+          <div class="p-4 space-y-2 opacity-70">
+            <div style="display:grid;grid-template-columns:36px 1fr 80px;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9;">
+              <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-3.5 h-3.5 text-amber-700"></i></div>
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+              <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 285</div>
+            </div>
+            <div style="display:grid;grid-template-columns:36px 1fr 80px;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9;">
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center"><i data-lucide="pill" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Collagen Peptides 90 caps</div>
+              <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 175</div>
+            </div>
+            <div style="display:grid;grid-template-columns:36px 1fr 80px;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9;">
+              <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-3.5 h-3.5 text-amber-700"></i></div>
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Hyaluronic Acid Toner</div>
+              <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 75</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Popover anclado al botón con buscador prominent -->
+        <div class="absolute top-12 right-4 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden slide-up" style="width: 380px;">
+          <!-- Header -->
+          <div class="bg-gradient-to-br from-indigo-50 to-white px-4 py-3 border-b border-indigo-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="calculator" class="w-4 h-4 text-indigo-700"></i>
+              <h2 class="text-[13px] font-bold text-slate-900">Calculadora rápida</h2>
+            </div>
+            <button class="hover:bg-slate-100 p-1 rounded">
+              <i data-lucide="x" class="w-3.5 h-3.5 text-slate-500"></i>
+            </button>
+          </div>
+
+          <!-- Buscador prominent -->
+          <div class="p-4">
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1.5">Producto a calcular</label>
+            <div class="relative">
+              <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+              <input type="text" placeholder="Buscar producto del catálogo…" class="w-full pl-9 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400">
+            </div>
+            <div class="text-[10px] text-slate-400 mt-1.5">o <a class="text-indigo-600 hover:text-indigo-700 font-medium">cálculo libre</a> sin producto</div>
+          </div>
+
+          <!-- Empty state body -->
+          <div class="px-4 pb-4 pt-2 border-t border-slate-100">
+            <div class="text-center py-6">
+              <div class="w-12 h-12 mx-auto rounded-full bg-slate-50 flex items-center justify-center mb-2">
+                <i data-lucide="package-search" class="w-6 h-6 text-slate-400"></i>
+              </div>
+              <div class="text-[12px] font-semibold text-slate-700 mb-1">Selecciona un producto</div>
+              <div class="text-[11px] text-slate-500 leading-relaxed">
+                Te pre-cargaremos el costo del proveedor más barato,<br>impuestos, TC y precio competencia
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer (deshabilitado) -->
+          <div class="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+            <button class="text-[10px] text-slate-400 font-medium" disabled>
+              <i data-lucide="maximize-2" class="w-2.5 h-2.5 inline"></i> Vista completa
+            </button>
+            <button class="text-[10px] bg-slate-200 text-slate-400 font-medium px-2.5 py-1 rounded cursor-not-allowed" disabled>
+              Crear OC
+            </button>
+          </div>
+        </div>
+
+        <!-- Hint dropdown autocomplete (simulado, abajo del search) -->
+        <div class="absolute top-[180px] right-4 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden" style="width: 348px;">
+          <div class="px-3 py-2 bg-slate-50 border-b border-slate-100">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Sugerencias mientras tipeas</div>
+          </div>
+          <div class="max-h-[180px] overflow-y-auto">
+            <div class="px-3 py-2 hover:bg-slate-50 cursor-pointer flex items-center gap-2.5 border-b border-slate-100 bg-indigo-50/30">
+              <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+                <div class="text-[10px] text-slate-500 truncate"><span class="mono">SKU-PROD-0042</span> · SkinCeuticals</div>
+              </div>
+              <div class="text-[11px] font-semibold text-slate-900 num-tab">S/ 285</div>
+            </div>
+            <div class="px-3 py-2 hover:bg-slate-50 cursor-pointer flex items-center gap-2.5 border-b border-slate-100">
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-slate-900 truncate">Collagen Peptides 90 caps</div>
+                <div class="text-[10px] text-slate-500 truncate"><span class="mono">SKU-PROD-0028</span> · NeoCell</div>
+              </div>
+              <div class="text-[11px] font-semibold text-slate-900 num-tab">S/ 175</div>
+            </div>
+            <div class="px-3 py-2 hover:bg-slate-50 cursor-pointer flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="search" class="w-4 h-4 text-amber-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-slate-900 truncate">Retinol 1% Night Treatment</div>
+                <div class="text-[10px] text-slate-500 truncate"><span class="mono">NEW-003</span> · The Ordinary · <span class="text-amber-700 font-medium">en investigación</span></div>
+              </div>
+              <div class="text-[11px] font-semibold text-amber-700 num-tab">S/ 95<span class="text-[9px]">est.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- ESTADO 2 · Popover con producto seleccionado · auto-precarga       -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-emerald-100 text-emerald-700 border border-emerald-200">Estado 2</span>
+        <h3 class="text-sm font-bold text-slate-900">Producto cargado · datos auto-completados</h3>
+      </div>
+
+      <div class="card-banking overflow-hidden relative bg-slate-100" style="height: 540px;">
+        <!-- Listado en background -->
+        <div class="absolute inset-0 bg-white">
+          <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="package" class="w-5 h-5 text-teal-600"></i>
+              <span class="text-base font-bold text-slate-900">Productos</span>
+            </div>
+            <button class="bg-indigo-600 text-white font-medium text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1 ring-2 ring-indigo-300 ring-offset-1">
+              <i data-lucide="calculator" class="w-3 h-3"></i>Calculadora
+            </button>
+          </div>
+          <div class="p-4 space-y-2 opacity-70">
+            <div style="display:grid;grid-template-columns:36px 1fr 80px;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9;">
+              <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-3.5 h-3.5 text-amber-700"></i></div>
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+              <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 285</div>
+            </div>
+            <div style="display:grid;grid-template-columns:36px 1fr 80px;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9;">
+              <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center"><i data-lucide="pill" class="w-3.5 h-3.5 text-indigo-700"></i></div>
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Collagen Peptides 90 caps</div>
+              <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 175</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Popover con producto cargado -->
+        <div class="absolute top-12 right-4 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden" style="width: 380px; max-height: 510px;">
+          <!-- Header -->
+          <div class="bg-gradient-to-br from-indigo-50 to-white px-4 py-3 border-b border-indigo-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="calculator" class="w-4 h-4 text-indigo-700"></i>
+              <h2 class="text-[13px] font-bold text-slate-900">Calculadora rápida</h2>
+            </div>
+            <button class="hover:bg-slate-100 p-1 rounded">
+              <i data-lucide="x" class="w-3.5 h-3.5 text-slate-500"></i>
+            </button>
+          </div>
+
+          <!-- Producto seleccionado (chip removible) -->
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0 ring-1 ring-amber-200">
+                <i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+                <div class="text-[10px] text-slate-500 truncate"><span class="mono">SKU-PROD-0042</span> · SkinCeuticals</div>
+              </div>
+              <button class="text-slate-400 hover:text-slate-700 hover:bg-white p-1 rounded" title="Cambiar producto">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Inputs (auto vs manual) -->
+          <div class="p-4 space-y-3 overflow-y-auto" style="max-height: 280px;">
+
+            <!-- Proveedor auto-seleccionado -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Proveedor</label>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i data-lucide="zap" class="w-2.5 h-2.5"></i>Auto · más barato
+                </span>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-[12px] text-slate-700 flex items-center justify-between">
+                <span class="font-medium">SkinTech Korea</span>
+                <button class="text-[10px] text-indigo-600 hover:text-indigo-700 font-medium">Cambiar</button>
+              </div>
+            </div>
+
+            <!-- Cantidad (manual) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Cantidad a importar</label>
+                <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Manual</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <input type="number" value="100" class="flex-1 px-2 py-1 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <span class="text-[11px] text-slate-500">uds</span>
+              </div>
+            </div>
+
+            <!-- Costo FOB (auto desde proveedor) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Costo FOB unitario</label>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i data-lucide="zap" class="w-2.5 h-2.5"></i>Auto
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] text-slate-500">US$</span>
+                <input type="number" value="38.50" step="0.01" class="flex-1 px-2 py-1 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
+            </div>
+
+            <!-- Flete por unidad (manual) ⭐ -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Flete por unidad ⭐</label>
+                <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Manual</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] text-slate-500">US$</span>
+                <input type="number" value="4.50" step="0.01" placeholder="por uds" class="flex-1 px-2 py-1 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Total flete: <span class="num-tab font-semibold">$ 450</span></div>
+            </div>
+
+            <!-- Impuestos auto-calculados -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Impuestos est. (18%)</label>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i data-lucide="zap" class="w-2.5 h-2.5"></i>Auto
+                </span>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-[13px] text-slate-700 num-tab font-semibold">$ 6.93 <span class="text-[10px] text-slate-400 font-normal">/ uds</span></div>
+            </div>
+
+            <!-- TC del día -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">TC del día</label>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i data-lucide="zap" class="w-2.5 h-2.5"></i>Auto · SUNAT
+                </span>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded px-2.5 py-1.5 text-[13px] text-slate-700 num-tab font-semibold">3.510</div>
+            </div>
+
+            <!-- Precio venta · default -5% editable ⭐ -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Precio venta sugerido ⭐</label>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <i data-lucide="zap" class="w-2.5 h-2.5"></i>Auto · mín − 5%
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] text-slate-500">S/</span>
+                <input type="number" value="285" class="flex-1 px-2 py-1 text-[13px] font-semibold border border-emerald-200 ring-1 ring-emerald-100 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">
+                Mín competencia: <span class="num-tab font-semibold text-slate-700">S/ 300</span> (Sephora) · default = mín − 5% = <span class="num-tab font-semibold text-emerald-600">S/ 285</span>
+              </div>
+            </div>
+
+            <!-- Resultados · 4 KPIs compactos -->
+            <div class="mt-3 space-y-1.5">
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold mb-1">Resultados</div>
+
+              <!-- Grid 2x2 de KPIs -->
+              <div class="grid grid-cols-2 gap-1.5">
+                <!-- Punto equilibrio -->
+                <div class="card-base p-2">
+                  <div class="text-[9px] uppercase text-indigo-700 font-semibold flex items-center gap-1">
+                    <i data-lucide="target" class="w-2.5 h-2.5"></i>Punto equilibrio
+                  </div>
+                  <div class="text-[14px] font-bold text-slate-900 num-tab mt-0.5">53 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+                  <div class="text-[9px] text-slate-500 num-tab">vendiendo 53 de 100</div>
+                </div>
+
+                <!-- Tiempo recuperación ⭐ -->
+                <div class="card-base p-2">
+                  <div class="text-[9px] uppercase text-amber-700 font-semibold flex items-center gap-1">
+                    <i data-lucide="clock" class="w-2.5 h-2.5"></i>Recuperas en
+                  </div>
+                  <div class="text-[14px] font-bold text-slate-900 num-tab mt-0.5">~4 <span class="text-[10px] text-slate-400 font-normal">meses</span></div>
+                  <div class="text-[9px] text-slate-500 num-tab">vel. 14 uds/mes hist.</div>
+                </div>
+
+                <!-- Margen -->
+                <div class="card-base p-2">
+                  <div class="text-[9px] uppercase text-emerald-700 font-semibold flex items-center gap-1">
+                    <i data-lucide="percent" class="w-2.5 h-2.5"></i>Margen unit.
+                  </div>
+                  <div class="text-[14px] font-bold text-slate-900 num-tab mt-0.5">52%</div>
+                  <div class="text-[9px] text-slate-500 num-tab">+S/ 134.07/uds</div>
+                </div>
+
+                <!-- Ganancia total -->
+                <div class="card-banking gradient-emerald-soft p-2">
+                  <div class="text-[9px] uppercase text-emerald-700 font-semibold flex items-center gap-1">
+                    <i data-lucide="trending-up" class="w-2.5 h-2.5"></i>Ganancia total
+                  </div>
+                  <div class="text-[14px] font-bold text-emerald-700 num-tab mt-0.5">S/ 13,407</div>
+                  <div class="text-[9px] text-emerald-600 num-tab">+88.8% ROI</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+            <button class="text-[10px] text-indigo-600 font-medium hover:text-indigo-700 flex items-center gap-1">
+              <i data-lucide="maximize-2" class="w-2.5 h-2.5"></i>Vista completa
+            </button>
+            <button class="text-[11px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-md flex items-center gap-1 shadow-sm">
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>Crear OC
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Cierre de la sección anexa -->
+</div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- ANEXO · Otras opciones que descartamos                                -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mt-8 pt-6 border-t border-slate-200">
+    <h3 class="text-sm font-bold text-slate-700 mb-1">Anexo · alternativas descartadas</h3>
+    <p class="text-[11px] text-slate-500 mb-3">Para referencia · elegimos modal centrado por contenido rico (KPIs · cash flow · sensibilidad · histórico · insights).</p>
+  </div>
+
+  <div class="mb-6 opacity-50 hover:opacity-100 transition-opacity">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="chip-pill bg-slate-100 text-slate-600 border border-slate-200">Descartada</span>
+      <h3 class="text-base font-bold text-slate-900">Opción 4A · Slide-over overlay</h3>
+    </div>
+    <p class="text-[12px] text-slate-600 mb-3 max-w-3xl">
+      El panel se desliza desde la derecha y va <strong>ENCIMA</strong> del listado, no lo empuja.
+      Backdrop semitransparente con blur detrás · ESC o click en backdrop cierra · animación 300ms.
+      <strong>Es el patrón más usado por SaaS modernos.</strong>
+    </p>
+
+    <div class="card-banking overflow-hidden relative" style="height: 540px;">
+      <!-- Listado de productos (intacto, sin moverse) -->
+      <div class="absolute inset-0 bg-white">
+        <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="package" class="w-5 h-5 text-teal-600"></i>
+              <span class="text-base font-bold text-slate-900">Productos</span>
+              <span class="text-[11px] text-slate-500">142 productos</span>
+            </div>
+            <button class="bg-indigo-100 border border-indigo-300 text-indigo-700 font-medium text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1 ring-2 ring-indigo-400 ring-offset-1">
+              <i data-lucide="calculator" class="w-3 h-3"></i>Calculadora
+            </button>
+          </div>
+        </div>
+        <!-- Listado simulado -->
+        <div class="p-4 space-y-2">
+          <div class="prod-row-mini" style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+            <div class="text-[12px] font-semibold text-slate-900">Vitamin C Brightening Serum</div>
+            <div class="text-[11px] text-slate-500 num-tab text-right">4 vars</div>
+            <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 285</div>
+            <div class="text-[12px] font-semibold text-emerald-600 num-tab text-right">52%</div>
+          </div>
+          <div class="prod-row-mini" style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;">
+            <div class="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center"><i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i></div>
+            <div class="text-[12px] font-semibold text-slate-900">Collagen Peptides 90 caps</div>
+            <div class="text-[11px] text-slate-500 num-tab text-right">2 vars</div>
+            <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 175</div>
+            <div class="text-[12px] font-semibold text-emerald-600 num-tab text-right">38%</div>
+          </div>
+          <div class="prod-row-mini" style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center relative"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i><div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center"><i data-lucide="package-2" class="w-2 h-2 text-white"></i></div></div>
+            <div class="text-[12px] font-semibold text-slate-900">Anti-Aging Routine Kit</div>
+            <div class="text-[11px] text-purple-700 font-medium num-tab text-right">3 SKCs</div>
+            <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 520</div>
+            <div class="text-[12px] font-semibold text-emerald-600 num-tab text-right">48%</div>
+          </div>
+          <div class="prod-row-mini" style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+            <div class="text-[12px] font-semibold text-slate-900">Hyaluronic Acid Hydrating Toner</div>
+            <div class="text-[11px] text-slate-500 num-tab text-right">1 var</div>
+            <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 75</div>
+            <div class="text-[12px] font-semibold text-emerald-600 num-tab text-right">35%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backdrop (semitransparente con blur) -->
+      <div class="absolute inset-0" style="background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(2px);"></div>
+
+      <!-- Slide-over panel desde la derecha (encima del backdrop) -->
+      <div class="absolute top-0 right-0 bottom-0 bg-white shadow-2xl slide-up" style="width: 460px;">
+        <!-- Header del panel -->
+        <div class="bg-gradient-to-br from-indigo-50 to-white border-b border-indigo-200 px-5 py-4">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <i data-lucide="calculator" class="w-5 h-5 text-indigo-700"></i>
+                <h2 class="text-base font-bold text-slate-900">Calculadora de rentabilidad</h2>
+              </div>
+              <p class="text-[11px] text-slate-500">Simula · proyecta · compara escenarios</p>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="hover:bg-slate-100 p-1.5 rounded-md" title="Esc">
+                <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+              </button>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center gap-2 text-[11px]">
+            <button class="chip-pill bg-white border border-slate-200 text-slate-700">
+              <i data-lucide="search" class="w-3 h-3"></i>Pre-cargar producto…
+            </button>
+            <span class="text-slate-400">o</span>
+            <button class="text-indigo-600 font-medium">cálculo libre</button>
+          </div>
+        </div>
+        <!-- Contenido compacto -->
+        <div class="p-5 space-y-3 overflow-y-auto" style="max-height: 380px;">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Cantidad</label>
+              <input type="number" value="100" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Costo FOB</label>
+              <input type="number" value="38.50" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Flete + Imp.</label>
+              <input type="number" value="450" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">TC</label>
+              <input type="number" value="3.510" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Precio venta</label>
+            <input type="number" value="285" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+
+          <!-- Resultados compactos -->
+          <div class="card-banking gradient-emerald-soft p-3 mt-3">
+            <div class="flex items-center justify-between">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Ganancia 100 uds</div>
+              <div class="text-xl font-bold text-emerald-700 num-tab">S/ 13,407</div>
+            </div>
+            <div class="text-[10px] text-slate-600 num-tab mt-1">+88.8% sobre inversión · punto eq: 53 uds</div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-1.5">
+            <div class="card-base p-2 text-center">
+              <div class="text-[9px] uppercase text-rose-700 font-semibold">Pesim.</div>
+              <div class="text-[11px] font-bold text-slate-900 num-tab">+4,452</div>
+            </div>
+            <div class="card-base p-2 text-center ring-1 ring-emerald-300">
+              <div class="text-[9px] uppercase text-emerald-700 font-semibold">Base</div>
+              <div class="text-[11px] font-bold text-emerald-600 num-tab">+13,407</div>
+            </div>
+            <div class="card-base p-2 text-center">
+              <div class="text-[9px] uppercase text-teal-700 font-semibold">Opt.</div>
+              <div class="text-[11px] font-bold text-slate-900 num-tab">+16,089</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer del panel -->
+        <div class="absolute bottom-0 left-0 right-0 px-5 py-3 border-t border-slate-200 flex items-center justify-between bg-white">
+          <button class="text-[11px] text-slate-500 hover:text-slate-700 font-medium">Limpiar</button>
+          <button class="text-[11px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-md flex items-center gap-1">
+            <i data-lucide="arrow-right" class="w-3 h-3"></i>Crear OC
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation mt-2" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>Pros:</strong> el listado NO se mueve · backdrop con blur respeta el contexto · animación nativa moderna · ESC para cerrar · es el patrón estándar en Stripe Dashboard, Linear, Vercel, GitHub.
+      <strong>Contras:</strong> cubre parte derecha del listado mientras está abierto.
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- 4B base · referencia rápida del modal vacío (esta es la elegida)     -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-6 opacity-50 hover:opacity-100 transition-opacity">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="chip-pill bg-emerald-50 text-emerald-700 border border-emerald-200">Patrón base elegido</span>
+      <h3 class="text-base font-bold text-slate-900">Opción 4B · Modal centrado (versión simple · referencia)</h3>
+    </div>
+    <p class="text-[12px] text-slate-600 mb-3 max-w-3xl">
+      Modal centrado en pantalla con backdrop blur · más enfocado · el usuario no ve el listado mientras calcula.
+      Estilo Notion / Figma.
+    </p>
+
+    <div class="card-banking overflow-hidden relative" style="height: 480px;">
+      <!-- Listado en background -->
+      <div class="absolute inset-0 bg-white">
+        <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center gap-2">
+          <i data-lucide="package" class="w-5 h-5 text-teal-600"></i>
+          <span class="text-base font-bold text-slate-900">Productos</span>
+        </div>
+        <div class="p-8 text-center text-slate-300 text-[13px]">
+          <i data-lucide="layers" class="w-12 h-12 mx-auto mb-2"></i>
+          Listado de productos
+        </div>
+      </div>
+
+      <!-- Backdrop -->
+      <div class="absolute inset-0" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px);"></div>
+
+      <!-- Modal centrado -->
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl overflow-hidden" style="width: 560px;">
+        <div class="bg-gradient-to-br from-indigo-50 to-white px-5 py-4 border-b border-indigo-200 flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-0.5">
+              <i data-lucide="calculator" class="w-5 h-5 text-indigo-700"></i>
+              <h2 class="text-base font-bold text-slate-900">Calculadora de rentabilidad</h2>
+            </div>
+            <p class="text-[11px] text-slate-500">Simula importaciones · compara escenarios</p>
+          </div>
+          <button class="hover:bg-slate-100 p-1.5 rounded-md">
+            <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+          </button>
+        </div>
+        <div class="p-5">
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Cantidad</label>
+              <input type="number" value="100" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab">
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Costo FOB</label>
+              <input type="number" value="38.50" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab">
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Precio venta</label>
+              <input type="number" value="285" class="w-full px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded-md num-tab">
+            </div>
+          </div>
+          <div class="card-banking gradient-emerald-soft p-3 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Ganancia 100 uds</div>
+              <div class="text-[10px] text-slate-600 num-tab">+88.8% · pe 53 uds</div>
+            </div>
+            <div class="text-2xl font-bold text-emerald-700 num-tab">S/ 13,407</div>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-between items-center">
+          <button class="text-[11px] text-slate-500 font-medium">Cancelar</button>
+          <button class="text-[11px] bg-indigo-600 text-white font-medium px-3 py-1.5 rounded-md">Crear OC</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation mt-2">
+      <strong>Pros:</strong> foco total · el cálculo es la única acción · simple de implementar.
+      <strong>Contras:</strong> cubre todo el contenido · se siente "modal pesado" no "herramienta" · no dejas algo abierto mientras consultas el listado.
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- OPCIÓN 4C base (sin smart) · referencia                              -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-6 opacity-50 hover:opacity-100 transition-opacity">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="chip-pill bg-slate-100 text-slate-600 border border-slate-200">Versión base · sin auto-precarga</span>
+      <h3 class="text-base font-bold text-slate-900">Opción 4C base · Popover sin smart features</h3>
+    </div>
+    <p class="text-[12px] text-slate-600 mb-3 max-w-3xl">
+      Pequeño panel que se descuelga del botón <em>Calculadora</em> · muy ligero · NO bloquea nada del listado · útil para cálculos rápidos.
+      Si necesitas más, "Abrir vista completa" lleva a página dedicada.
+    </p>
+
+    <div class="card-banking overflow-hidden relative" style="height: 480px;">
+      <!-- Listado en background (sin oscurecer · totalmente accesible) -->
+      <div class="absolute inset-0 bg-white">
+        <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="package" class="w-5 h-5 text-teal-600"></i>
+            <span class="text-base font-bold text-slate-900">Productos</span>
+          </div>
+          <button class="bg-indigo-600 text-white font-medium text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1 ring-2 ring-indigo-300 ring-offset-1">
+            <i data-lucide="calculator" class="w-3 h-3"></i>Calculadora
+          </button>
+        </div>
+        <!-- Listado simulado totalmente visible -->
+        <div class="p-4 space-y-2">
+          <div class="prod-row-mini" style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+            <div class="text-[12px] font-semibold text-slate-900">Vitamin C Brightening Serum</div>
+            <div class="text-[11px] text-slate-500 num-tab text-right">4 vars</div>
+            <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 285</div>
+            <div class="text-[12px] font-semibold text-emerald-600 num-tab text-right">52%</div>
+          </div>
+          <div class="prod-row-mini" style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;">
+            <div class="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center"><i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i></div>
+            <div class="text-[12px] font-semibold text-slate-900">Collagen Peptides 90 caps</div>
+            <div class="text-[11px] text-slate-500 num-tab text-right">2 vars</div>
+            <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 175</div>
+            <div class="text-[12px] font-semibold text-emerald-600 num-tab text-right">38%</div>
+          </div>
+          <div class="prod-row-mini" style="display:grid;grid-template-columns:40px 1fr 100px 100px 80px;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+            <div class="text-[12px] font-semibold text-slate-900">Hyaluronic Acid Hydrating Toner</div>
+            <div class="text-[11px] text-slate-500 num-tab text-right">1 var</div>
+            <div class="text-[12px] font-semibold text-slate-900 num-tab text-right">S/ 75</div>
+            <div class="text-[12px] font-semibold text-emerald-600 num-tab text-right">35%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Popover anclado al botón (top-right) · NO bloquea nada -->
+      <div class="absolute top-12 right-4 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden slide-up" style="width: 360px;">
+        <div class="bg-gradient-to-br from-indigo-50 to-white px-4 py-3 border-b border-indigo-200">
+          <div class="flex items-center gap-2">
+            <i data-lucide="calculator" class="w-4 h-4 text-indigo-700"></i>
+            <h2 class="text-[13px] font-bold text-slate-900">Cálculo rápido</h2>
+            <span class="ml-auto text-[10px] text-slate-400 mono">⌘K</span>
+          </div>
+        </div>
+        <div class="p-4 space-y-2">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Cantidad</label>
+              <input type="number" value="100" class="w-full px-2 py-1 text-[12px] font-semibold border border-slate-200 rounded num-tab">
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Costo FOB</label>
+              <input type="number" value="38.50" class="w-full px-2 py-1 text-[12px] font-semibold border border-slate-200 rounded num-tab">
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold block mb-1">Precio venta</label>
+            <input type="number" value="285" class="w-full px-2 py-1 text-[12px] font-semibold border border-slate-200 rounded num-tab">
+          </div>
+
+          <div class="card-banking gradient-emerald-soft p-2.5 mt-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[9px] uppercase text-emerald-700 font-semibold">Ganancia</div>
+                <div class="text-[9px] text-slate-500 num-tab">+88.8% · pe 53 uds</div>
+              </div>
+              <div class="text-[16px] font-bold text-emerald-700 num-tab">S/ 13,407</div>
+            </div>
+          </div>
+        </div>
+        <div class="px-4 py-2 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+          <button class="text-[10px] text-indigo-600 font-medium hover:text-indigo-700 flex items-center gap-1">
+            <i data-lucide="maximize-2" class="w-2.5 h-2.5"></i>Vista completa
+          </button>
+          <button class="text-[10px] bg-indigo-600 text-white font-medium px-2 py-1 rounded">Crear OC</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation mt-2">
+      <strong>Pros:</strong> NO oculta NADA del listado · ligero · perfecto para cálculo rápido · puede convivir con el detalle abierto.
+      <strong>Contras:</strong> espacio limitado para 3 escenarios · si necesitas todo lo grande, "Vista completa" abre página dedicada.
+    </div>
+  </div>
+
+  <!-- DECISIÓN FINAL · 4B Modal centrado · 7 variables -->
+  <div class="card-banking p-5 bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 mt-4">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="check" class="w-5 h-5 text-emerald-700"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-[11px] uppercase tracking-wider text-emerald-700 font-bold">D-INV-9 ✅ CERRADA</div>
+        <h3 class="text-sm font-bold text-slate-900">Calculadora = Modal centrado · 7 variables del escenario · análisis financiero completo</h3>
+        <p class="text-[12px] text-slate-700 mt-1 mb-2">
+          1 entrada (botón Calculadora) · modal centrado con backdrop blur · buscador en header · 7 variables (4 auto + 3 manuales) · 5 KPIs + cash flow + sensibilidad + histórico + insights.
+        </p>
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="bg-white border border-emerald-100 rounded p-2">
+            <div class="font-semibold text-emerald-800 mb-1">Auto (4):</div>
+            <div class="text-slate-700">2 · Costo EXW (desde investigación) · 3 · Impuesto · 5 · TC del día · 7 · Velocidad de venta</div>
+          </div>
+          <div class="bg-white border border-sky-100 rounded p-2">
+            <div class="font-semibold text-sky-800 mb-1">Manual (3):</div>
+            <div class="text-slate-700">1 · Cantidad · 4 · Flete por unidad · 6 · Precio venta (con default editable)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 4-BIS · MODAL CALCULADORA · análisis financiero completo          -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 4-Bis · Modal Calculadora abierto · análisis financiero completo</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Click en botón <strong>"Calculadora"</strong> del header de Productos → modal centrado con backdrop blur · buscador en el header · todo el análisis en una sola pantalla.
+  </p>
+
+  <!-- Simulación: página de Productos con modal abierto encima -->
+  <div class="relative bg-slate-100 rounded-xl overflow-hidden" style="min-height: 920px;">
+
+    <!-- Background: página de Productos atenuada -->
+    <div class="absolute inset-0 bg-white opacity-40" style="filter: blur(1px);">
+      <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="package" class="w-5 h-5 text-teal-600"></i>
+          <span class="text-base font-bold text-slate-900">Productos</span>
+        </div>
+        <button class="bg-indigo-100 text-indigo-700 text-[11px] px-2.5 py-1 rounded-md ring-2 ring-indigo-400 ring-offset-1">
+          <i data-lucide="calculator" class="w-3 h-3 inline"></i> Calculadora
+        </button>
+      </div>
+      <div class="p-12 text-center text-slate-400 text-[13px]">
+        <i data-lucide="layers" class="w-12 h-12 mx-auto mb-2"></i>
+        Listado de productos
+      </div>
+    </div>
+
+    <!-- Backdrop oscurecido con blur -->
+    <div class="absolute inset-0" style="background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(6px);"></div>
+
+    <!-- MODAL CENTRADO (la calculadora) -->
+    <div class="relative z-10 max-w-6xl mx-auto my-6 card-banking overflow-hidden shadow-2xl rounded-2xl" style="border: 1px solid rgba(255,255,255,0.2);">
+
+    <!-- Header del modal con BUSCADOR integrado -->
+    <div class="bg-gradient-to-br from-indigo-50 to-white border-b border-indigo-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="calculator" class="w-5 h-5 text-indigo-700"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold tracking-tight text-slate-900">Calculadora · Análisis financiero</h1>
+            <p class="text-[12px] text-slate-500">Simulación de importación · proyección de rentabilidad · análisis de escenarios</p>
+          </div>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>Comparar
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>Guardar
+          </button>
+          <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>Crear OC
+          </button>
+          <div class="w-px h-7 bg-slate-200 mx-1"></div>
+          <button class="hover:bg-slate-100 p-1.5 rounded-md" title="Cerrar (Esc)">
+            <i data-lucide="x" class="w-4 h-4 text-slate-500"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Buscador de producto + chip de producto seleccionado -->
+      <div class="flex items-center gap-3">
+        <!-- Buscador (con dropdown opcional debajo) -->
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"></i>
+          <input type="text" placeholder="Cambiar producto · buscar por nombre, SKU, marca…" class="w-full pl-9 pr-3 py-2 text-[12px] border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <span class="text-[11px] text-slate-400">o</span>
+        <button class="text-[11px] text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1">
+          <i data-lucide="x-circle" class="w-3 h-3"></i>cálculo libre sin producto
+        </button>
+        <div class="w-px h-5 bg-slate-200 ml-1"></div>
+        <!-- Chip producto seleccionado -->
+        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg pl-2 pr-1 py-1">
+          <div class="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
+            <i data-lucide="droplets" class="w-3 h-3 text-amber-700"></i>
+          </div>
+          <div class="text-[11px]">
+            <span class="font-semibold text-slate-900">Vitamin C Brightening Serum</span>
+            <span class="text-slate-400 ml-1">· <span class="mono">SKU-PROD-0042</span></span>
+          </div>
+          <button class="hover:bg-amber-100 p-0.5 rounded ml-1" title="Quitar producto">
+            <i data-lucide="x" class="w-3 h-3 text-amber-700"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout: inputs (col 1) + análisis (cols 2-3) -->
+    <div class="grid grid-cols-3 divide-x divide-slate-200">
+
+      <!-- Columna 1 · Variables del escenario (7 cerradas) -->
+      <div class="p-5 bg-slate-50/50">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider">Variables del escenario</h3>
+          <button class="text-[10px] text-indigo-600 hover:text-indigo-700 font-medium">Reset auto</button>
+        </div>
+        <p class="text-[10px] text-slate-400 mb-3">7 variables · 4 auto · 3 manuales</p>
+
+        <div class="space-y-2.5">
+          <!-- 1 · Cantidad (manual) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">1 · Cantidad</label>
+              <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Manual</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <input type="number" value="100" class="flex-1 px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <span class="text-[11px] text-slate-500">uds</span>
+            </div>
+          </div>
+
+          <!-- 2 · Costo EXW (auto desde investigación) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">2 · Costo EXW / uds</label>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Auto · investigación</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-500">US$</span>
+              <input type="number" value="38.50" class="flex-1 px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+            <div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
+              <i data-lucide="link-2" class="w-2.5 h-2.5"></i>
+              Tomado de <span class="font-medium text-slate-700">SkinTech Korea</span> (más barato investigado)
+            </div>
+          </div>
+
+          <!-- 3 · Impuesto · DUAL toggle % o monto -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">3 · Impuesto</label>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Auto</span>
+            </div>
+            <!-- Toggle modo: % vs monto -->
+            <div class="flex items-center gap-1 mb-1.5 bg-white border border-slate-200 rounded p-0.5">
+              <button class="flex-1 px-2 py-1 text-[10px] font-semibold rounded text-white bg-indigo-600 transition-colors">
+                Porcentual %
+              </button>
+              <button class="flex-1 px-2 py-1 text-[10px] font-medium rounded text-slate-500 hover:bg-slate-50 transition-colors">
+                Monto fijo $
+              </button>
+            </div>
+            <!-- Modo % activo (visible) -->
+            <div class="flex items-center gap-1.5">
+              <input type="number" value="18" class="flex-1 px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <span class="text-[11px] text-slate-500">% sobre EXW</span>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-0.5">= <span class="num-tab font-semibold text-slate-700">$ 6.93 / uds</span> · Total: <span class="num-tab font-semibold">$ 693</span></div>
+          </div>
+
+          <!-- 4 · Flete por producto (manual) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">4 · Flete / uds</label>
+              <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Manual</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-500">US$</span>
+              <input type="number" value="4.50" class="flex-1 px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Total flete: <span class="num-tab font-semibold">$ 450</span></div>
+          </div>
+
+          <!-- 5 · TC del día (auto) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">5 · TC del día</label>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Auto SUNAT</span>
+            </div>
+            <div class="bg-white border border-slate-200 rounded px-2.5 py-1.5 text-[13px] num-tab font-semibold text-slate-700">3.510</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Actualizado al 30 abr 2026</div>
+          </div>
+
+          <!-- 6 · Precio venta (auto default mín-5%, editable) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">6 · Precio venta</label>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Auto · mín − 5%</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-500">S/</span>
+              <input type="number" value="285" class="flex-1 px-2.5 py-1.5 text-[13px] font-semibold border border-emerald-200 ring-1 ring-emerald-100 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+            <div class="text-[10px] text-slate-500 mt-0.5">Mín comp: S/ 300 (Sephora) · −5% = S/ 285</div>
+          </div>
+
+          <!-- 7 · Velocidad de venta (auto histórico, editable) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">7 · Velocidad de venta</label>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Auto histórico</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <input type="number" value="14" class="flex-1 px-2.5 py-1.5 text-[13px] font-semibold border border-slate-200 rounded num-tab focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <span class="text-[11px] text-slate-500">uds/mes</span>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-0.5">Promedio últimos 6 meses · ene-mar muy buenos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columnas 2-3 · Análisis -->
+      <div class="col-span-2 p-6 bg-white">
+
+        <!-- KPIs grandes (5) -->
+        <div class="mb-6">
+          <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-3">Resultados clave</h3>
+          <div class="grid grid-cols-5 gap-3">
+            <!-- Inversión total -->
+            <div class="card-base p-3">
+              <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="wallet" class="w-2.5 h-2.5"></i>Inversión total
+              </div>
+              <div class="text-xl font-bold text-slate-900 num-tab tracking-tight">S/ 15,093</div>
+              <div class="text-[10px] text-slate-500 num-tab mt-0.5">≈ $ 4,300</div>
+            </div>
+
+            <!-- Punto equilibrio -->
+            <div class="card-banking gradient-indigo-soft p-3">
+              <div class="text-[9px] uppercase tracking-wider text-indigo-700 font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="target" class="w-2.5 h-2.5"></i>Punto equilibrio
+              </div>
+              <div class="text-xl font-bold text-slate-900 num-tab tracking-tight">53 <span class="text-sm text-slate-400 font-normal">uds</span></div>
+              <div class="text-[10px] text-slate-700 num-tab mt-0.5">53% del lote</div>
+            </div>
+
+            <!-- Tiempo recuperación ⭐ -->
+            <div class="card-banking gradient-amber-soft p-3">
+              <div class="text-[9px] uppercase tracking-wider text-amber-700 font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="clock" class="w-2.5 h-2.5"></i>Recuperas en
+              </div>
+              <div class="text-xl font-bold text-slate-900 num-tab tracking-tight">~4 <span class="text-sm text-slate-400 font-normal">meses</span></div>
+              <div class="text-[10px] text-slate-700 num-tab mt-0.5">a 14 uds/mes</div>
+            </div>
+
+            <!-- Margen unitario -->
+            <div class="card-base p-3">
+              <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="percent" class="w-2.5 h-2.5"></i>Margen
+              </div>
+              <div class="text-xl font-bold text-emerald-600 num-tab tracking-tight">52%</div>
+              <div class="text-[10px] text-slate-500 num-tab mt-0.5">+S/ 134.07/uds</div>
+            </div>
+
+            <!-- ROI total -->
+            <div class="card-banking gradient-emerald-soft p-3">
+              <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-semibold mb-1 flex items-center gap-1">
+                <i data-lucide="trending-up" class="w-2.5 h-2.5"></i>ROI total
+              </div>
+              <div class="text-xl font-bold text-emerald-700 num-tab tracking-tight">+88.8%</div>
+              <div class="text-[10px] text-slate-700 num-tab mt-0.5">S/ 13,407 ganancia</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cash flow timeline -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider">Flujo de caja proyectado</h3>
+            <span class="text-[11px] text-slate-500">basado en velocidad histórica · 14 uds/mes</span>
+          </div>
+          <div class="card-base p-4">
+            <!-- Timeline visual -->
+            <div class="relative" style="height: 120px;">
+              <!-- Línea 0 (cero) -->
+              <div class="absolute left-0 right-0 top-1/2 border-t border-dashed border-slate-300"></div>
+              <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 text-[9px] text-slate-400 num-tab font-semibold">0</div>
+
+              <!-- Barras mensuales -->
+              <div class="absolute inset-0 flex items-stretch gap-1.5 px-6">
+                <!-- Mes 0 (inversión) -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-top: 50%;">
+                  <div class="w-full bg-rose-200 rounded-t" style="height: 100%; max-height: 60px;"></div>
+                  <div class="text-[9px] text-rose-600 font-bold num-tab mt-0.5">−15,093</div>
+                  <div class="text-[9px] text-slate-500">M0 · OC</div>
+                </div>
+                <!-- Mes 1 -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-top: 35%;">
+                  <div class="w-full bg-rose-100 rounded-t" style="height: 60%; max-height: 36px;"></div>
+                  <div class="text-[9px] text-rose-500 num-tab mt-0.5">−11,103</div>
+                  <div class="text-[9px] text-slate-500">M1</div>
+                </div>
+                <!-- Mes 2 -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-top: 25%;">
+                  <div class="w-full bg-rose-100 rounded-t" style="height: 40%; max-height: 24px;"></div>
+                  <div class="text-[9px] text-rose-500 num-tab mt-0.5">−7,113</div>
+                  <div class="text-[9px] text-slate-500">M2</div>
+                </div>
+                <!-- Mes 3 -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-top: 12%;">
+                  <div class="w-full bg-amber-100 rounded-t" style="height: 25%; max-height: 15px;"></div>
+                  <div class="text-[9px] text-amber-600 num-tab mt-0.5">−3,123</div>
+                  <div class="text-[9px] text-slate-500">M3</div>
+                </div>
+                <!-- Mes 4 (breakeven) -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-bottom: 50%;">
+                  <div class="w-full bg-emerald-100 rounded-b" style="height: 5%; max-height: 8px;"></div>
+                  <div class="text-[9px] text-emerald-700 font-bold num-tab mt-0.5">+867</div>
+                  <div class="text-[9px] text-emerald-700 font-bold">M4 ✓</div>
+                </div>
+                <!-- Mes 5 -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-bottom: 50%;">
+                  <div class="w-full bg-emerald-200 rounded-b" style="height: 30%; max-height: 18px;"></div>
+                  <div class="text-[9px] text-emerald-600 num-tab mt-0.5">+4,857</div>
+                  <div class="text-[9px] text-slate-500">M5</div>
+                </div>
+                <!-- Mes 6 -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-bottom: 50%;">
+                  <div class="w-full bg-emerald-300 rounded-b" style="height: 60%; max-height: 36px;"></div>
+                  <div class="text-[9px] text-emerald-600 num-tab mt-0.5">+8,847</div>
+                  <div class="text-[9px] text-slate-500">M6</div>
+                </div>
+                <!-- Mes 7 -->
+                <div class="flex-1 flex flex-col justify-end items-center" style="margin-bottom: 50%;">
+                  <div class="w-full bg-emerald-400 rounded-b" style="height: 90%; max-height: 54px;"></div>
+                  <div class="text-[9px] text-emerald-700 font-bold num-tab mt-0.5">+13,407</div>
+                  <div class="text-[9px] text-emerald-700 font-bold">M7 · 100%</div>
+                </div>
+              </div>
+            </div>
+            <!-- Leyenda -->
+            <div class="flex items-center justify-between text-[10px] mt-3 pt-3 border-t border-slate-100">
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-rose-200 rounded"></div><span class="text-slate-600">Capital atrapado</span></div>
+                <div class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-amber-100 rounded"></div><span class="text-slate-600">Cerca del breakeven</span></div>
+                <div class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-emerald-300 rounded"></div><span class="text-slate-600">Ganancia</span></div>
+              </div>
+              <div class="text-emerald-700 font-medium">✓ Breakeven en M4 · ganancia total en M7</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Análisis de sensibilidad -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider">Análisis de sensibilidad</h3>
+            <span class="text-[11px] text-slate-500">¿qué pasa si las ventas no van como esperamos?</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <!-- Pesimista -->
+            <div class="card-base p-4">
+              <div class="flex items-center gap-1.5 mb-2">
+                <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                <span class="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Pesimista</span>
+                <span class="text-[10px] text-slate-500">vendes 70%</span>
+              </div>
+              <div class="space-y-1.5 text-[12px]">
+                <div class="flex justify-between"><span class="text-slate-500">Ventas:</span><span class="num-tab font-semibold text-slate-900">70 uds</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Tiempo recup:</span><span class="num-tab font-semibold text-slate-900">~5 meses</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Ganancia:</span><span class="num-tab font-semibold text-rose-600">+S/ 4,452</span></div>
+                <div class="flex justify-between border-t border-slate-100 pt-1"><span class="text-slate-500">ROI:</span><span class="num-tab font-bold text-rose-600">+29.5%</span></div>
+              </div>
+            </div>
+
+            <!-- Base -->
+            <div class="card-banking gradient-emerald-soft p-4 ring-1 ring-emerald-300">
+              <div class="flex items-center gap-1.5 mb-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Base</span>
+                <span class="text-[10px] text-emerald-700 font-semibold">esperado</span>
+              </div>
+              <div class="space-y-1.5 text-[12px]">
+                <div class="flex justify-between"><span class="text-slate-500">Ventas:</span><span class="num-tab font-semibold text-slate-900">100 uds</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Tiempo recup:</span><span class="num-tab font-semibold text-slate-900">~4 meses</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Ganancia:</span><span class="num-tab font-semibold text-emerald-700">+S/ 13,407</span></div>
+                <div class="flex justify-between border-t border-emerald-200/50 pt-1"><span class="text-slate-500">ROI:</span><span class="num-tab font-bold text-emerald-700">+88.8%</span></div>
+              </div>
+            </div>
+
+            <!-- Optimista -->
+            <div class="card-base p-4">
+              <div class="flex items-center gap-1.5 mb-2">
+                <div class="w-2 h-2 rounded-full bg-teal-500"></div>
+                <span class="text-[11px] font-bold text-teal-700 uppercase tracking-wider">Optimista</span>
+                <span class="text-[10px] text-slate-500">precio +20%</span>
+              </div>
+              <div class="space-y-1.5 text-[12px]">
+                <div class="flex justify-between"><span class="text-slate-500">Ventas:</span><span class="num-tab font-semibold text-slate-900">100 uds @ 342</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Tiempo recup:</span><span class="num-tab font-semibold text-slate-900">~3.3 meses</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Ganancia:</span><span class="num-tab font-semibold text-teal-700">+S/ 19,107</span></div>
+                <div class="flex justify-between border-t border-slate-100 pt-1"><span class="text-slate-500">ROI:</span><span class="num-tab font-bold text-teal-700">+126.6%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layout 2 cols: Comparación histórica + Insights -->
+        <div class="grid grid-cols-2 gap-4">
+
+          <!-- Comparación con histórico -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider">vs. Histórico OCs</h3>
+            </div>
+            <div class="card-base p-4">
+              <div class="text-[11px] text-slate-500 mb-3">Promedio últimas 3 OCs del mismo producto:</div>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-[11px]">
+                  <div>
+                    <div class="font-semibold text-slate-700">ROI promedio</div>
+                    <div class="text-[10px] text-slate-500 num-tab">OC-042, OC-217, OC-088</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[14px] font-bold text-slate-900 num-tab">+76%</div>
+                    <div class="text-[10px] text-emerald-600 font-semibold num-tab">este: +88.8% ⬆ +12pp</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100">
+                  <div>
+                    <div class="font-semibold text-slate-700">Tiempo recup. prom</div>
+                    <div class="text-[10px] text-slate-500">vendieron 100% en ~5 meses</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[14px] font-bold text-slate-900 num-tab">5.0 m</div>
+                    <div class="text-[10px] text-emerald-600 font-semibold num-tab">este: 4 m ⬇ −1 m</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100">
+                  <div>
+                    <div class="font-semibold text-slate-700">Margen prom</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[14px] font-bold text-slate-900 num-tab">48%</div>
+                    <div class="text-[10px] text-emerald-600 font-semibold num-tab">este: 52% ⬆ +4pp</div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] text-emerald-700 leading-relaxed font-medium">
+                ✓ Este escenario supera el histórico en 3/3 dimensiones
+              </div>
+            </div>
+          </div>
+
+          <!-- Insights y riesgos -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider">Insights · riesgos</h3>
+            </div>
+            <div class="space-y-2">
+              <div class="card-banking gradient-emerald-soft p-3">
+                <div class="flex items-start gap-2">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-700 flex-shrink-0 mt-0.5"></i>
+                  <div class="text-[11px] text-slate-700 leading-relaxed">
+                    <strong class="text-emerald-900">Producto en alza:</strong> ventas +133% en abril vs feb. El escenario base es probablemente conservador.
+                  </div>
+                </div>
+              </div>
+              <div class="card-banking gradient-amber-soft p-3">
+                <div class="flex items-start gap-2">
+                  <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+                  <div class="text-[11px] text-slate-700 leading-relaxed">
+                    <strong class="text-amber-900">Riesgo TC:</strong> el dólar puede variar ±5% en 22 días (lead time). Sensibilidad: si TC sube a 3.65, ROI baja a +82%.
+                  </div>
+                </div>
+              </div>
+              <div class="card-banking gradient-indigo-soft p-3">
+                <div class="flex items-start gap-2">
+                  <i data-lucide="zap" class="w-3.5 h-3.5 text-indigo-700 flex-shrink-0 mt-0.5"></i>
+                  <div class="text-[11px] text-slate-700 leading-relaxed">
+                    <strong class="text-indigo-900">Capital atrapado:</strong> S/ 15,093 estarán "fuera" 4 meses. ¿Tienes liquidez para otros productos en ese período?
+                  </div>
+                </div>
+              </div>
+              <div class="card-banking p-3 bg-gradient-to-br from-purple-50 to-white border border-purple-200">
+                <div class="flex items-start gap-2">
+                  <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-purple-700 flex-shrink-0 mt-0.5"></i>
+                  <div class="text-[11px] text-slate-700 leading-relaxed">
+                    <strong class="text-purple-900">Sugerencia:</strong> considera 75 uds en vez de 100 si quieres recuperar más rápido (3 meses) y dejar capital para otro producto.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    </div> <!-- /modal centrado -->
+  </div> <!-- /backdrop wrapper -->
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 7 variables cerradas:</strong> Cantidad · Costo EXW · Impuesto (% o monto) · Flete/uds · TC · Precio venta · Velocidad venta. <strong>4 auto + 3 manuales.</strong>
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Costo EXW desde Investigación:</strong> el sistema toma el costo del proveedor más barato investigado · referenciado con link visual <em>"Tomado de SkinTech Korea"</em> · si cambias el proveedor en investigación, recalcula.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Impuesto dual (%/monto):</strong> toggle entre porcentual (default 18%) y monto fijo $. Útil para cuando sabes el monto exacto del despacho aduanero, no solo el % estimado.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Cash flow timeline + sensibilidad + histórico + insights:</strong> 4 bloques de análisis financiero que responden cuándo recuperas, qué pasa si va mal, cómo te comparas con tu pasado, y qué riesgos hay.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 5 · TAB HISTÓRICO · Timeline cronológico mixto (Opción D)         -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 5 · Tab "Histórico" · Timeline cronológico mixto (Opción D ✓)</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Toda la vida del producto en un solo lugar · OCs · ajustes de precio · ventas · investigación · mermas · todo en cronológico.
+    Cada evento es clickeable y lleva al módulo dueño.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header del tab Histórico -->
+    <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="git-commit" class="w-4 h-4 text-slate-700"></i>
+          <span class="text-[13px] font-semibold text-slate-900">Histórico · Vitamin C Brightening Serum</span>
+          <span class="text-[11px] text-slate-500">desde la creación del producto · 247 días</span>
+        </div>
+        <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+          <i data-lucide="download" class="w-3 h-3"></i>Exportar timeline
+        </button>
+      </div>
+
+      <!-- KPI strip resumido del periodo -->
+      <div class="grid grid-cols-5 divide-x divide-slate-200 pt-3 border-t border-slate-100">
+        <div class="px-3 first:pl-0">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Eventos totales</div>
+          <div class="text-lg font-bold text-slate-900 num-tab">87</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">OCs</div>
+          <div class="text-lg font-bold text-amber-700 num-tab">3</div>
+          <div class="text-[10px] text-slate-500 num-tab">225 uds compradas</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Vendidas</div>
+          <div class="text-lg font-bold text-sky-700 num-tab">138</div>
+          <div class="text-[10px] text-slate-500">en 87 ventas</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Ajustes precio</div>
+          <div class="text-lg font-bold text-emerald-700 num-tab">2</div>
+          <div class="text-[10px] text-emerald-600">+S/ 5 promedio</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Margen evolución</div>
+          <div class="text-lg font-bold text-emerald-700 num-tab">50% → 52%</div>
+          <div class="text-[10px] text-emerald-600">+2pp en 8 meses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros de timeline -->
+    <div class="px-6 py-3 border-b border-slate-200 bg-white">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Filtrar:</span>
+        <button class="chip-pill bg-slate-900 text-white shadow-sm">
+          <i data-lucide="list" class="w-3 h-3"></i>Todos <span class="text-white/70 num-tab">87</span>
+        </button>
+        <button class="chip-pill bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+          <i data-lucide="shopping-cart" class="w-3 h-3"></i>OCs <span class="opacity-60 num-tab">3</span>
+        </button>
+        <button class="chip-pill bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100">
+          <i data-lucide="store" class="w-3 h-3"></i>Ventas <span class="opacity-60 num-tab">87</span>
+        </button>
+        <button class="chip-pill bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+          <i data-lucide="trending-up" class="w-3 h-3"></i>Precio <span class="opacity-60 num-tab">2</span>
+        </button>
+        <button class="chip-pill bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100">
+          <i data-lucide="layers" class="w-3 h-3"></i>Variantes <span class="opacity-60 num-tab">4</span>
+        </button>
+        <button class="chip-pill bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+          <i data-lucide="search" class="w-3 h-3"></i>Investigación <span class="opacity-60 num-tab">5</span>
+        </button>
+        <button class="chip-pill bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">
+          <i data-lucide="alert-triangle" class="w-3 h-3"></i>Mermas <span class="opacity-60 num-tab">2</span>
+        </button>
+
+        <div class="w-px h-5 bg-slate-200 mx-1"></div>
+
+        <button class="chip-pill bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100">
+          <i data-lucide="calendar" class="w-3 h-3"></i>Últimos 90 días
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Layout 2 cols: timeline + insights sidebar -->
+    <div class="grid grid-cols-3 divide-x divide-slate-200">
+
+      <!-- Timeline (col-span-2) -->
+      <div class="col-span-2 p-6 bg-slate-50/30">
+
+        <!-- HOY · anchor superior -->
+        <div class="relative mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-teal-600 ring-4 ring-teal-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="circle-dot" class="w-4 h-4 text-white"></i>
+            </div>
+            <div>
+              <div class="text-[12px] font-bold text-teal-700">HOY · 29 abril 2026</div>
+              <div class="text-[11px] text-slate-500">Estado actual: 87 uds en stock · S/ 285 precio venta · margen 52%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mes: ABRIL 2026 -->
+        <div class="mb-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold ml-12 mb-2">Abril 2026</div>
+        </div>
+
+        <!-- Evento · Venta agregada del mes -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-sky-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="store" class="w-2.5 h-2.5 text-sky-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[12px] font-bold text-slate-900">42 unidades vendidas</span>
+                <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Ventas</span>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">+133% vs feb</span>
+              </div>
+              <span class="text-[10px] text-slate-400">28 abr</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed mb-2">
+              Mejor mes histórico del producto · 18 clientes únicos · 3 ventas con cantidad mayor a 5 uds.
+            </div>
+            <div class="flex items-center gap-3 text-[11px]">
+              <div class="num-tab"><span class="text-slate-500">Ingresos:</span> <span class="font-semibold text-slate-900">S/ 11,970</span></div>
+              <span class="text-slate-300">·</span>
+              <div class="num-tab"><span class="text-slate-500">Ticket prom:</span> <span class="font-semibold">S/ 285</span></div>
+              <span class="text-slate-300">·</span>
+              <a class="text-teal-600 hover:text-teal-700 font-medium">Ver detalle de ventas →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evento · OC confirmada -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-amber-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="shopping-cart" class="w-2.5 h-2.5 text-amber-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">OC-2026-088 confirmada</span>
+                <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Compra</span>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Stock + 100 uds</span>
+              </div>
+              <span class="text-[10px] text-slate-400">15 abr</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed mb-2">
+              Reposición de inventario tras alza de ventas en marzo · proveedor habitual SkinTech Korea.
+            </div>
+            <div class="flex items-center gap-3 text-[11px]">
+              <div class="num-tab"><span class="text-slate-500">Costo unit:</span> <span class="font-semibold text-slate-900">$ 38.50</span></div>
+              <span class="text-slate-300">·</span>
+              <div class="num-tab"><span class="text-slate-500">Total OC:</span> <span class="font-semibold">$ 4,300</span></div>
+              <span class="text-slate-300">·</span>
+              <div><span class="text-slate-500">Lead time:</span> <span class="font-semibold text-emerald-600">22d (esperado)</span></div>
+              <span class="text-slate-300">·</span>
+              <a class="text-teal-600 hover:text-teal-700 font-medium">Abrir OC-088 →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evento · Investigación actualizada -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-amber-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="search" class="w-2.5 h-2.5 text-amber-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Nuevo competidor agregado · Sephora PE</span>
+                <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Investigación</span>
+              </div>
+              <span class="text-[10px] text-slate-400">10 abr</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed mb-2">
+              Sephora PE captado a S/ 310 · ahora son 3 competidores en PE · mínimo se mantiene en S/ 300.
+            </div>
+            <div class="flex items-center gap-3 text-[11px]">
+              <a class="text-teal-600 hover:text-teal-700 font-medium">Ver tab Investigación →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mes: MARZO 2026 -->
+        <div class="mb-2 mt-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold ml-12 mb-2">Marzo 2026</div>
+        </div>
+
+        <!-- Evento · Ajuste de precio -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-emerald-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="trending-up" class="w-2.5 h-2.5 text-emerald-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Precio ajustado</span>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Precio</span>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200 num-tab">+1.8%</span>
+              </div>
+              <span class="text-[10px] text-slate-400">22 mar</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed mb-2">
+              Subió de <span class="num-tab font-semibold">S/ 280 → S/ 285</span> · razón: Sephora subió a S/ 310, mantenemos − 5% mínimo competencia.
+            </div>
+            <div class="flex items-center gap-3 text-[11px]">
+              <div class="num-tab"><span class="text-slate-500">Margen:</span> <span class="font-semibold text-emerald-600">51% → 52% ⬆</span></div>
+              <span class="text-slate-300">·</span>
+              <div class="text-slate-500">Por: <span class="font-medium text-slate-700">José LP</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evento · Variante agregada -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-purple-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="layers" class="w-2.5 h-2.5 text-purple-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Nueva variante · 50ml</span>
+                <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Variante</span>
+              </div>
+              <span class="text-[10px] text-slate-400">12 mar</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed">
+              Agregada presentación 50ml a S/ 450 · ya hay 4 variantes (15ml, 30ml, 50ml, set viaje).
+            </div>
+          </div>
+        </div>
+
+        <!-- Mes: FEBRERO 2026 -->
+        <div class="mb-2 mt-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold ml-12 mb-2">Febrero 2026</div>
+        </div>
+
+        <!-- Evento · Merma -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-rose-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="alert-triangle" class="w-2.5 h-2.5 text-rose-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Merma · 2 unidades dañadas</span>
+                <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200">Merma</span>
+              </div>
+              <span class="text-[10px] text-slate-400">25 feb</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed mb-2">
+              Lote LOTE-2026-007 · 2 frascos rotos al recibir · costo asumido por seguro de transporte.
+            </div>
+            <div class="flex items-center gap-3 text-[11px]">
+              <div class="num-tab"><span class="text-slate-500">Pérdida:</span> <span class="font-semibold text-rose-600">−S/ 277</span> <span class="text-slate-400">(reembolsada)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evento · Venta del mes -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-sky-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="store" class="w-2.5 h-2.5 text-sky-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">18 unidades vendidas</span>
+                <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Ventas</span>
+              </div>
+              <span class="text-[10px] text-slate-400">28 feb</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed mb-2">
+              Mes regular · 14 clientes únicos · ingresos S/ 5,040.
+            </div>
+          </div>
+        </div>
+
+        <!-- Mes: ENERO 2026 -->
+        <div class="mb-2 mt-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold ml-12 mb-2">Enero 2026</div>
+        </div>
+
+        <!-- Evento · OC anterior -->
+        <div class="relative pl-12 pb-5">
+          <div class="absolute left-3 top-0 bottom-0 w-px bg-slate-200"></div>
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-amber-100 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="shopping-cart" class="w-2.5 h-2.5 text-amber-700"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">OC-2026-042 confirmada</span>
+                <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Compra</span>
+              </div>
+              <span class="text-[10px] text-slate-400">8 ene</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed mb-2">
+              75 unidades · costo unit <span class="num-tab font-semibold">$ 39.00</span> · lead 21d (1d antes de lo esperado).
+            </div>
+            <div class="flex items-center gap-3 text-[11px]">
+              <a class="text-teal-600 hover:text-teal-700 font-medium">Abrir OC-042 →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Origen · creación del producto -->
+        <div class="relative pl-12">
+          <div class="absolute left-1 top-1.5 w-5 h-5 rounded-full bg-slate-200 ring-4 ring-white flex items-center justify-center">
+            <i data-lucide="plus" class="w-2.5 h-2.5 text-slate-600"></i>
+          </div>
+          <div class="card-base p-4 card-hover cursor-pointer opacity-80">
+            <div class="flex items-start justify-between mb-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[12px] font-bold text-slate-900">Producto creado</span>
+                <span class="chip-pill chip-sm bg-slate-100 text-slate-600 border border-slate-200">Origen</span>
+              </div>
+              <span class="text-[10px] text-slate-400">25 ago 2025</span>
+            </div>
+            <div class="text-[11px] text-slate-600 leading-relaxed">
+              Producto registrado en catálogo · precio inicial S/ 280 · margen 50% · creado por José LP.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sidebar derecho: Insights automáticos -->
+      <div class="p-5 space-y-3 bg-white">
+
+        <h3 class="text-[12px] font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-600"></i>
+          Insights automáticos
+        </h3>
+        <p class="text-[10px] text-slate-500 mb-2">Lo que el timeline te está diciendo:</p>
+
+        <!-- Insight 1 -->
+        <div class="card-banking gradient-emerald-soft p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700"></i>
+            <span class="text-[11px] font-bold text-emerald-900">Producto en alza</span>
+          </div>
+          <div class="text-[11px] text-slate-700 leading-relaxed">
+            Ventas <span class="font-semibold num-tab">+133%</span> en abr vs feb. La OC-088 fue oportuna.
+          </div>
+        </div>
+
+        <!-- Insight 2 -->
+        <div class="card-banking gradient-amber-soft p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-700"></i>
+            <span class="text-[11px] font-bold text-amber-900">Atento al stock</span>
+          </div>
+          <div class="text-[11px] text-slate-700 leading-relaxed">
+            Al ritmo de abril (42 uds/mes), las 100 de la OC-088 duran <span class="font-semibold">~70 días</span>. Considera reposición en junio.
+          </div>
+        </div>
+
+        <!-- Insight 3 -->
+        <div class="card-banking gradient-indigo-soft p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-indigo-700"></i>
+            <span class="text-[11px] font-bold text-indigo-900">Costo bajando</span>
+          </div>
+          <div class="text-[11px] text-slate-700 leading-relaxed">
+            Costo unitario pasó de <span class="num-tab">$ 41.20 (2025) → $ 38.50 (2026)</span>. Margen subiendo sin tocar precio.
+          </div>
+        </div>
+
+        <!-- Insight 4 -->
+        <div class="card-banking gradient-teal-soft p-3">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-teal-700"></i>
+            <span class="text-[11px] font-bold text-teal-900">Precio competitivo</span>
+          </div>
+          <div class="text-[11px] text-slate-700 leading-relaxed">
+            Sigues siendo el más barato (PE) pero con margen 52%. Podrías subir hasta <span class="font-semibold num-tab">S/ 295</span> manteniendo ventaja.
+          </div>
+        </div>
+
+        <!-- Insight 5 · sugerencia -->
+        <div class="card-banking p-3 bg-gradient-to-br from-purple-50 to-white border border-purple-200">
+          <div class="flex items-center gap-1.5 mb-1">
+            <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-purple-700"></i>
+            <span class="text-[11px] font-bold text-purple-900">Sugerencia</span>
+          </div>
+          <div class="text-[11px] text-slate-700 leading-relaxed mb-2">
+            Considera promocionar el pack "Anti-Aging Routine Kit" (incluye este producto). Está vendiendo poco vs su potencial.
+          </div>
+          <button class="text-[10px] text-purple-700 hover:text-purple-800 font-semibold">Ver pack →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Anotaciones -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Opción D implementada · Timeline cronológico mixto:</strong> 7 tipos de eventos (OCs, ventas, precios, variantes, investigación, mermas, origen) en orden cronológico. Cada uno con dot de color, fecha relativa y descripción contextual.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Sidebar de Insights automáticos:</strong> 5 cards generadas automáticamente leyendo el timeline. Detectan: producto en alza · stock bajo · costo bajando · precio competitivo · sugerencias accionables.
+    </div>
+    <div class="annotation">
+      <strong>HOY como anchor superior:</strong> el timeline empieza con el estado actual ("87 uds en stock · S/ 285 · margen 52%") y desciende cronológicamente. Patrón GitHub commits / Linear activity.
+    </div>
+    <div class="annotation">
+      <strong>Filtros por tipo:</strong> chips toggle que filtran eventos. "OCs (3)" oculta todo lo demás. Útil cuando el timeline tiene 100+ eventos y solo te interesa una dimensión.
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 text-white rounded-2xl p-8">
+    <div class="text-[11px] uppercase tracking-wider text-teal-300 font-semibold mb-2">M-PROD-S58f v3 · feedback aplicado</div>
+    <h2 class="text-2xl font-bold mb-3 tracking-tight">Productos rediseñado · 5 vistas · Manifesto S58f + correcciones del usuario</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-1</div>
+        <div class="text-[12px]">Sin "apartado de inventario" — Productos = solo catálogo</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-7</div>
+        <div class="text-[12px]">Pack es <em>tipo</em>, no línea · Línea (Skincare/Suplementos) + Tipo (Simple/Pack)</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-8 ⭐ NEW</div>
+        <div class="text-[12px]">Investigación: agregar proveedor + competidor inline · sin Lead/MOQ · con Impuestos</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-9 ✅ CERRADA</div>
+        <div class="text-[12px]">Calculadora = modal centrado · 7 variables (4 auto + 3 manuales): Cantidad, Costo EXW, Impuesto (%/monto), Flete/uds, TC, Precio, Velocidad · análisis completo</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-10 ✅</div>
+        <div class="text-[12px]">Tab Histórico = Timeline cronológico mixto · 7 tipos eventos · sidebar Insights automáticos</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Banking-grade + manifesto</div>
+        <div class="text-[12px]">Tabular-nums · paleta semántica · ring sutil · grid robusto</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10 text-[12px] text-slate-300 leading-relaxed">
+      <strong class="text-white">M-PROD-S58f cerrado al 100% ✓</strong> · 5 vistas + 10 decisiones aplicadas. Próximo:
+      <code class="bg-white/10 px-1.5 py-0.5 rounded ml-1">M-STOCK-S58f</code> ·
+      Stock rediseñado con drill-down a Unidades (resuelve "pésima gestión en lectura" que reportaste).
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

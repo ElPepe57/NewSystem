@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-INT-GASTO-S58f · Detalle Gasto · Panel Pago embebido</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-sky { background: #e0f2fe; color: #0369a1; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-orange { background: #ffedd5; color: #9a3412; }
+  .pill-zinc { background: #f4f4f5; color: #3f3f46; }
+  .group-header { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; padding: 0.5rem 0.75rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+  .opt-row { padding: 0.625rem 0.75rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s; }
+  .opt-row:hover { background: #f8fafc; }
+  .opt-row.selected { background: #fff7ed; border-left: 3px solid #ea580c; padding-left: calc(0.75rem - 3px); }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2rem 0; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- Header del documento -->
+<div class="max-w-6xl mx-auto px-6 pt-8 pb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="pill pill-orange">M-INT-GASTO</span>
+    <span class="pill pill-slate">S58f · Lote 4 · 3 de 5</span>
+    <span class="pill pill-zinc">Caso simple · sin split · sin caja</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight">Detalle de Gasto · Panel Pago embebido</h1>
+  <p class="text-sm text-slate-600 mt-1">Mismo patrón que M-INT-OC y M-INT-VENTA · el split <strong>también aplica</strong> (pagar S/100 yape + S/119 BCP es válido). Lo que se simplifica vs cobro es el <strong>scope del selector</strong>: solo "Mis cuentas" · sin cajas recaudadoras · sin yapes pasivos como destino.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · DETALLE DEL GASTO con panel Pago embebido -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-lg font-semibold">Vista del detalle de gasto · escenario real</h2>
+  </div>
+
+  <!-- Contexto del caso -->
+  <div class="bg-zinc-50 border border-zinc-200 rounded-lg p-4 mb-4 text-sm">
+    <div class="font-semibold text-zinc-900 mb-1">Caso real · gasto operativo recurrente</div>
+    <p class="text-zinc-700">Factura mensual <strong>Movistar internet oficina SMP</strong> · plan Fibra 600 Mbps · monto fijo <span class="tabular-nums font-semibold">S/ 219.00</span>. Vence el 5 de mayo. Se paga desde BCP soles vía Web Banking. <strong>No hay courier · no hay split · no hay caja recaudadora.</strong> Es la "transacción más simple posible" en el sistema.</p>
+  </div>
+
+  <!-- Card del detalle de gasto -->
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <!-- Header hero -->
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200 p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="pill pill-orange">GASTO</span>
+            <span class="text-xs text-slate-500 tabular-nums">GAS-2026-0142</span>
+            <span class="pill pill-zinc">Recurrente</span>
+            <span class="pill pill-amber">Pago pendiente</span>
+            <span class="pill pill-rose">Vence en 5 días</span>
+            <a href="#" class="pill pill-sky hover:bg-sky-200 cursor-pointer">🏭 Proveedor: Movistar</a>
+          </div>
+          <h3 class="text-xl font-bold tracking-tight">Internet oficina SMP</h3>
+          <p class="text-sm text-slate-600 mt-0.5">Servicio mensual · Plan Fibra 600 Mbps · Categoría: Servicios básicos · Proveedor: <a href="#" class="text-sky-600 hover:text-sky-800 font-medium">Movistar (RUC 20100017491)</a></p>
+        </div>
+        <div class="text-right">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Monto</div>
+          <div class="text-2xl font-bold tabular-nums">S/ 219.00</div>
+          <div class="text-xs text-slate-500 mt-0.5">Vence 5 may 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipeline simplificado · solo 3 etapas -->
+    <div class="border-b border-slate-200 px-5 py-4">
+      <div class="flex items-center gap-2 text-xs">
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div>
+          <span class="text-emerald-700 font-medium">Registrado</span>
+        </div>
+        <div class="flex-1 h-px bg-amber-300"></div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center font-bold">2</div>
+          <span class="text-amber-700 font-semibold">Por pagar</span>
+        </div>
+        <div class="flex-1 h-px bg-slate-200"></div>
+        <div class="flex items-center gap-1.5 opacity-50">
+          <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold">3</div>
+          <span class="text-slate-500">Pagado</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-500 mt-2">Pipeline simple · gastos operativos no requieren etapas de logística ni cobro.</p>
+    </div>
+
+    <!-- Tabs internos -->
+    <div class="px-5 border-b border-slate-200 flex gap-6 text-sm">
+      <button class="py-3 border-b-2 border-orange-500 text-orange-700 font-semibold">Resumen</button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Detalle</button>
+      <button class="py-3 border-b-2 border-orange-500 text-orange-700 font-semibold flex items-center gap-1.5">
+        Pago
+        <span class="pill pill-amber tabular-nums">S/ 219 pdte</span>
+      </button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Historial recurrente</button>
+      <button class="py-3 text-slate-600 hover:text-slate-900">Auditoría</button>
+    </div>
+
+    <!-- Cuerpo principal · grid 3 columnas -->
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Columna izquierda: Estado del pago -->
+      <div class="col-span-2 p-5">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Estado del pago</h4>
+
+        <!-- KPIs en grid 3 columnas (más simple que venta · no hay "en tránsito") -->
+        <div class="grid grid-cols-3 gap-3 mb-5">
+          <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Total a pagar</div>
+            <div class="text-lg font-bold tabular-nums mt-1">S/ 219.00</div>
+          </div>
+          <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+            <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold">Pagado</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-emerald-700">S/ 0.00</div>
+          </div>
+          <div class="bg-rose-50 rounded-lg p-3 border border-rose-100">
+            <div class="text-[10px] uppercase tracking-wider text-rose-700 font-semibold">Saldo</div>
+            <div class="text-lg font-bold tabular-nums mt-1 text-rose-700">S/ 219.00</div>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-500 mb-5">⓵ Solo 3 KPIs · no aplica "en tránsito" porque el pago es directo desde tus cuentas. Patrón se simplifica vs venta con courier.</p>
+
+        <!-- Banner alerta -->
+        <div class="bg-rose-50 border border-rose-200 rounded-lg p-4 mb-5">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">!</div>
+            <div class="flex-1">
+              <div class="font-semibold text-rose-900 text-sm">Vence en 5 días · 5 de mayo de 2026</div>
+              <p class="text-xs text-rose-700 mt-1">Movistar suspende el servicio si no se paga antes del vencimiento. Banca móvil del BCP recomendada para evitar comisión por pago en agencia.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección registrar pago -->
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+            <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Pagos registrados</div>
+            <button class="text-xs text-orange-600 hover:text-orange-800 font-medium">+ Ver historial recurrente (12 meses)</button>
+          </div>
+          <div class="p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-slate-100 mx-auto flex items-center justify-center text-2xl mb-2">📭</div>
+            <div class="text-sm font-medium text-slate-700">Pago de mayo aún no registrado</div>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Cuando pagues desde Web Banking, registra acá para que cuadre tu BCP.</p>
+            <div class="flex items-center justify-center gap-2">
+              <button class="bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">
+                💸 Registrar pago
+              </button>
+              <button class="bg-white text-slate-700 hover:bg-slate-50 text-sm font-semibold px-4 py-2 rounded-lg shadow-sm border border-slate-200">
+                📎 Subir comprobante
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Historial recurrente -->
+      <div class="p-5 bg-slate-50">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Tendencia 12 meses</h4>
+
+        <!-- Mini gráfica de barras -->
+        <div class="bg-white rounded-lg border border-slate-200 p-3 mb-4">
+          <div class="flex items-end justify-between h-20 gap-1 mb-2">
+            <div class="flex-1 bg-slate-300 rounded-sm" style="height: 60%"></div>
+            <div class="flex-1 bg-slate-300 rounded-sm" style="height: 60%"></div>
+            <div class="flex-1 bg-slate-300 rounded-sm" style="height: 60%"></div>
+            <div class="flex-1 bg-slate-400 rounded-sm" style="height: 75%"></div>
+            <div class="flex-1 bg-slate-400 rounded-sm" style="height: 75%"></div>
+            <div class="flex-1 bg-slate-400 rounded-sm" style="height: 75%"></div>
+            <div class="flex-1 bg-slate-400 rounded-sm" style="height: 75%"></div>
+            <div class="flex-1 bg-slate-400 rounded-sm" style="height: 75%"></div>
+            <div class="flex-1 bg-orange-300 rounded-sm" style="height: 85%"></div>
+            <div class="flex-1 bg-orange-300 rounded-sm" style="height: 85%"></div>
+            <div class="flex-1 bg-orange-400 rounded-sm" style="height: 95%"></div>
+            <div class="flex-1 bg-orange-500 rounded-sm" style="height: 100%"></div>
+          </div>
+          <div class="text-[10px] text-slate-500 flex justify-between">
+            <span>May'25</span>
+            <span>Abr'26</span>
+          </div>
+        </div>
+
+        <div class="space-y-1.5 text-xs mb-4">
+          <div class="flex justify-between">
+            <span class="text-slate-600">Promedio mensual</span>
+            <span class="font-semibold tabular-nums">S/ 198.50</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">Mes actual vs promedio</span>
+            <span class="font-semibold tabular-nums text-amber-700">+10.3%</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">Anualizado</span>
+            <span class="font-semibold tabular-nums">S/ 2,628</span>
+          </div>
+        </div>
+
+        <!-- Card del proveedor · ahora destacada como entidad formal -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">🏭 Proveedor del gasto</h4>
+        <div class="bg-sky-50 border-2 border-sky-200 rounded-lg p-3 mb-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-base">M</div>
+            <div class="flex-1">
+              <div class="font-bold text-sm text-sky-900">Movistar</div>
+              <div class="text-[11px] text-sky-700 tabular-nums">RUC 20100017491</div>
+            </div>
+            <span class="pill pill-sky">Proveedor</span>
+          </div>
+          <div class="space-y-1.5 text-xs text-sky-800 bg-white/60 rounded p-2">
+            <div class="flex justify-between">
+              <span class="text-sky-600">Servicios activos</span>
+              <span class="font-semibold tabular-nums">3</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sky-600">Gastos registrados</span>
+              <span class="font-semibold tabular-nums">37 · 12 meses</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sky-600">Gasto anual total</span>
+              <span class="font-bold tabular-nums">S/ 7,840</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sky-600">Próximo vencimiento</span>
+              <span class="font-semibold">5 may 2026</span>
+            </div>
+          </div>
+          <div class="mt-2 flex items-center gap-2">
+            <a href="#" class="text-[11px] text-sky-700 hover:text-sky-900 font-medium flex-1">→ Ver ficha proveedor</a>
+            <a href="#" class="text-[11px] text-sky-700 hover:text-sky-900 font-medium">→ Histórico</a>
+          </div>
+        </div>
+
+        <!-- Toggle automatización -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-orange-900">Auto-recordatorio</span>
+            <div class="w-9 h-5 bg-orange-500 rounded-full relative cursor-pointer">
+              <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 right-0.5"></div>
+            </div>
+          </div>
+          <p class="text-[11px] text-orange-800">Aviso 3 días antes del vencimiento.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · PagoUnificadoForm v3 SIMPLIFICADO -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-lg font-semibold">Click "Registrar pago" · PagoUnificadoForm v3 simplificado</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El form recibe contexto del gasto con <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">permiteSplit=true</code> (siempre · es real que se paga con varios métodos) y <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">permiteDestinoTercero=false</code> (no aplica para gastos). El selector solo muestra "Mis cuentas" · sin cajas recaudadoras ni yapes pasivos. <strong>Caso mostrado: pago split S/100 Yape + S/119 BCP.</strong></p>
+
+  <div class="grid grid-cols-3 gap-4">
+
+    <!-- Comparativa lateral -->
+    <div class="col-span-1">
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden sticky top-4">
+        <div class="bg-orange-50 border-b border-orange-200 px-4 py-3">
+          <div class="text-xs uppercase tracking-wider text-orange-700 font-semibold">Cobro vs Pago</div>
+          <div class="text-sm font-semibold text-orange-900 mt-1">Mismo form · scope distinto</div>
+        </div>
+        <div class="p-4 space-y-3 text-xs">
+          <div>
+            <div class="font-semibold text-slate-700 mb-1.5">Lo que comparten</div>
+            <ul class="space-y-1 text-slate-600">
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Toggle Completo/Parcial/Split</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Validación de totales</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Preview de impacto</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Adjuntos opcionales</li>
+            </ul>
+            <p class="text-[11px] text-slate-500 mt-2 italic">Pagar S/100 yape + S/119 BCP a Movistar es real · el split aplica.</p>
+          </div>
+          <div class="border-t border-slate-200 pt-3">
+            <div class="font-semibold text-slate-700 mb-1.5">COBRO (venta) selector tiene</div>
+            <ul class="space-y-1 text-slate-600">
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Mis cuentas</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Cajas recaudadoras 🤝</li>
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Yapes pasivos 💤</li>
+            </ul>
+          </div>
+          <div class="border-t border-slate-200 pt-3">
+            <div class="font-semibold text-slate-700 mb-1.5">PAGO (gasto) selector tiene</div>
+            <ul class="space-y-1 text-slate-600">
+              <li class="flex items-center gap-1.5"><span class="text-emerald-600">✓</span> Mis cuentas</li>
+              <li class="flex items-center gap-1.5"><span class="text-rose-500">✕</span> <span class="line-through text-slate-400">Cajas recaudadoras</span></li>
+              <li class="flex items-center gap-1.5"><span class="text-rose-500">✕</span> <span class="line-through text-slate-400">Yapes pasivos</span></li>
+            </ul>
+            <p class="text-[11px] text-slate-500 mt-2 italic">No tiene sentido pagar a una caja recaudadora del courier (es destino de cobro, no de pago).</p>
+          </div>
+          <div class="border-t border-slate-200 pt-3">
+            <div class="font-semibold text-slate-700 mb-1.5">Props clave</div>
+            <pre class="bg-slate-50 p-2 rounded text-[10px] overflow-x-auto"><code>permiteSplit={true}
+permiteDestinoTercero={false}
+permiteAdjuntos={true}
+modo="pago"
+scopeOrigen={['mis-cuentas']}</code></pre>
+          </div>
+          <div class="border-t border-slate-200 pt-3">
+            <div class="font-semibold text-slate-700 mb-1.5">Lo que se simplifica</div>
+            <p class="text-slate-600">El selector pasa de 3 grupos (cobro) a 1 grupo (pago). El split funciona idéntico en ambos modos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal del form simplificado -->
+    <div class="col-span-2">
+      <div class="bg-slate-900/40 rounded-xl p-6">
+        <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+
+          <!-- Header del modal -->
+          <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between">
+            <div>
+              <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Registrar pago</div>
+              <h3 class="text-lg font-bold mt-0.5">Movistar · Internet oficina SMP</h3>
+              <p class="text-xs text-slate-600 mt-0.5">Saldo pendiente: <span class="tabular-nums font-semibold text-rose-700">S/ 219.00</span> · Vence 5 may</p>
+            </div>
+            <button class="w-8 h-8 rounded-full bg-white text-slate-500 hover:text-slate-700 flex items-center justify-center">✕</button>
+          </div>
+
+          <!-- Cuerpo del form -->
+          <div class="p-5 space-y-5">
+
+            <!-- Toggle de 3 opciones · Split activo -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Tipo de pago</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200 hover:bg-slate-200">
+                  <div class="font-semibold">Completo</div>
+                  <div class="text-[11px] text-slate-500">S/ 219.00 en 1 método</div>
+                </button>
+                <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200 hover:bg-slate-200">
+                  <div class="font-semibold">Parcial</div>
+                  <div class="text-[11px] text-slate-500">Abono &lt; saldo</div>
+                </button>
+                <button class="bg-orange-50 text-orange-700 text-sm py-2.5 rounded-lg font-semibold border-2 border-orange-500 ring-2 ring-orange-100">
+                  <div>Split</div>
+                  <div class="text-[11px] text-orange-600">Varios métodos</div>
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1.5">⓵ Pago real: S/100 desde Yape Vita + S/119 desde BCP soles. Cada línea genera un movimiento independiente.</p>
+            </div>
+
+            <!-- Bloque 1 línea de split -->
+            <div class="border border-orange-200 rounded-lg overflow-hidden">
+              <div class="bg-orange-50 px-4 py-2.5 border-b border-orange-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold">1</div>
+                  <span class="text-sm font-semibold text-orange-900">Línea 1 · Yape</span>
+                </div>
+                <button class="text-xs text-rose-600 hover:text-rose-800">✕ Quitar</button>
+              </div>
+              <div class="p-4 grid grid-cols-2 gap-4">
+
+                <!-- Cuenta origen con dropdown abierto -->
+                <div>
+                  <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Pagar desde</label>
+                  <div class="relative">
+                    <div class="bg-white border-2 border-orange-300 rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">📱</span>
+                        <div>
+                          <div class="text-sm font-medium">Yape Vita</div>
+                          <div class="text-[11px] text-slate-500 tabular-nums">+51 999 888 777</div>
+                        </div>
+                      </div>
+                      <span class="text-slate-400">▼</span>
+                    </div>
+
+                    <!-- Dropdown abierto · solo mis cuentas -->
+                    <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-2xl border border-slate-200 z-10 overflow-hidden">
+                      <div class="p-2 border-b border-slate-200 bg-slate-50">
+                        <input type="text" placeholder="Buscar cuenta..." class="w-full text-sm px-3 py-1.5 border border-slate-200 rounded-md bg-white focus:outline-none focus:border-orange-400">
+                      </div>
+
+                      <!-- SOLO Grupo: Mis cuentas -->
+                      <div class="group-header">📊 Mis cuentas (Vita Skin Peru)</div>
+                      <div class="opt-row">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <span class="text-base">🏦</span>
+                            <div>
+                              <div class="text-sm font-medium">BCP cuenta soles</div>
+                              <div class="text-[11px] text-slate-500 tabular-nums">194-12345678-0-12</div>
+                            </div>
+                          </div>
+                          <span class="text-xs text-slate-500 tabular-nums">S/ 28,450</span>
+                        </div>
+                      </div>
+                      <div class="opt-row">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <span class="text-base">🏦</span>
+                            <div>
+                              <div class="text-sm font-medium">BBVA cuenta soles</div>
+                              <div class="text-[11px] text-slate-500 tabular-nums">011-04-12-0182739</div>
+                            </div>
+                          </div>
+                          <span class="text-xs text-slate-500 tabular-nums">S/ 8,200</span>
+                        </div>
+                      </div>
+                      <div class="opt-row selected">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <span class="text-base">📱</span>
+                            <div>
+                              <div class="text-sm font-medium">Yape Vita</div>
+                              <div class="text-[11px] text-orange-700 font-medium">+51 999 888 777 · disponible</div>
+                            </div>
+                          </div>
+                          <span class="text-xs font-semibold tabular-nums text-emerald-700">S/ 1,240</span>
+                        </div>
+                      </div>
+                      <div class="opt-row">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <span class="text-base">💳</span>
+                            <div>
+                              <div class="text-sm font-medium">TC Visa BCP</div>
+                              <div class="text-[11px] text-slate-500">Línea disponible</div>
+                            </div>
+                          </div>
+                          <span class="text-xs text-slate-500 tabular-nums">S/ 6,420</span>
+                        </div>
+                      </div>
+                      <div class="opt-row">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <span class="text-base">💵</span>
+                            <div>
+                              <div class="text-sm font-medium">Caja oficina</div>
+                              <div class="text-[11px] text-slate-500">Efectivo SMP</div>
+                            </div>
+                          </div>
+                          <span class="text-xs text-slate-500 tabular-nums">S/ 580</span>
+                        </div>
+                      </div>
+
+                      <div class="bg-slate-50 px-3 py-2 border-t border-slate-200 text-[10px] text-slate-500 text-center italic">
+                        Solo mis cuentas · sin cajas recaudadoras ni yapes pasivos
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Monto -->
+                <div>
+                  <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+                    <input type="text" value="100.00" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums focus:outline-none focus:border-orange-400">
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1">Pagado por Yape</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bloque 2 línea de split -->
+            <div class="border border-orange-200 rounded-lg overflow-hidden">
+              <div class="bg-orange-50 px-4 py-2.5 border-b border-orange-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold">2</div>
+                  <span class="text-sm font-semibold text-orange-900">Línea 2 · BCP</span>
+                </div>
+                <button class="text-xs text-rose-600 hover:text-rose-800">✕ Quitar</button>
+              </div>
+              <div class="p-4 grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Pagar desde</label>
+                  <div class="bg-white border-2 border-slate-200 rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between hover:border-orange-300">
+                    <div class="flex items-center gap-2">
+                      <span class="text-base">🏦</span>
+                      <div>
+                        <div class="text-sm font-medium">BCP cuenta soles</div>
+                        <div class="text-[11px] text-slate-500 tabular-nums">194-12345678-0-12</div>
+                      </div>
+                    </div>
+                    <span class="text-slate-400">▼</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+                    <input type="text" value="119.00" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums focus:outline-none focus:border-orange-400">
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1">Pagado por banca móvil</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón añadir más líneas -->
+            <button class="w-full text-sm text-orange-600 hover:text-orange-800 font-medium py-2 border-2 border-dashed border-orange-200 rounded-lg hover:border-orange-300">
+              + Añadir otra línea de pago
+            </button>
+
+            <!-- Validación de totales -->
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">✓</span>
+                <span class="text-sm font-medium text-emerald-900">Totales cuadran</span>
+              </div>
+              <div class="text-xs text-emerald-800">
+                <span class="tabular-nums">S/ 100 + S/ 119 = </span>
+                <span class="font-bold tabular-nums">S/ 219.00</span>
+                <span class="ml-1">/ S/ 219.00 saldo</span>
+              </div>
+            </div>
+
+            <!-- Fecha + Referencia -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Fecha de pago</label>
+                <input type="date" value="2026-04-30" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-orange-400">
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Referencia (opcional)</label>
+                <input type="text" placeholder="Ej. Op. BCP 0023847..." class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm focus:outline-none focus:border-orange-400">
+              </div>
+            </div>
+
+            <!-- Adjunto -->
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Comprobante (opcional)</label>
+              <div class="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center hover:border-orange-300 hover:bg-orange-50/50 cursor-pointer transition">
+                <div class="text-2xl mb-1">📎</div>
+                <div class="text-sm font-medium text-slate-700">Arrastra el voucher o haz clic para subir</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">PDF · PNG · JPG · máx 5 MB · puedes subir más de uno</div>
+              </div>
+            </div>
+
+            <!-- Preview de impacto · 2 líneas -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+              <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-3">Impacto en cuentas</div>
+              <div class="space-y-2 text-sm">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">📱</span>
+                    <span>Yape Vita</span>
+                    <span class="pill pill-slate">cuenta</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-500 tabular-nums">S/ 1,240</span>
+                    <span class="text-slate-400">→</span>
+                    <span class="font-semibold tabular-nums text-rose-700">S/ 1,140</span>
+                    <span class="pill pill-rose tabular-nums">−100</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">🏦</span>
+                    <span>BCP cuenta soles</span>
+                    <span class="pill pill-slate">cuenta</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-500 tabular-nums">S/ 28,450</span>
+                    <span class="text-slate-400">→</span>
+                    <span class="font-semibold tabular-nums text-rose-700">S/ 28,331</span>
+                    <span class="pill pill-rose tabular-nums">−119</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600">
+                ℹ️ Se generan <strong>2 movimientos</strong> tipo <span class="pill pill-orange">gasto</span> · sin conversiones ni cajas intermedias · ambos vinculados al mismo doc origen <code class="text-[10px] bg-white px-1 rounded">GAS-2026-0142</code>.
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Footer del modal -->
+          <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+            <div class="text-xs text-slate-500">
+              Esta operación creará <span class="font-semibold">2 movimientos</span> tipo <span class="pill pill-orange">gasto</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="text-sm text-slate-700 hover:text-slate-900 font-medium px-4 py-2 rounded-lg hover:bg-slate-100">Cancelar</button>
+              <button class="bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm">
+                Registrar 2 pagos (S/ 219)
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 3 · DESPUÉS · Estado tras registrar -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-sm font-bold">3</div>
+    <h2 class="text-lg font-semibold">Después · Estado tras registrar el pago</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El gasto pasa a "Pagado" generando 2 movimientos (uno por línea del split). No hay liquidación pendiente · no hay caja intermedia · ambos movimientos quedan vinculados al mismo doc origen.</p>
+
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- Card 1 · Panel pago actualizado -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-emerald-50 border-b border-emerald-200 px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Panel "Pago"</div>
+          <span class="pill pill-emerald">Pagado completo</span>
+        </div>
+      </div>
+      <div class="p-4">
+        <!-- Pipeline avanzado -->
+        <div class="flex items-center gap-2 text-xs mb-4">
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+            <span class="text-emerald-700 font-medium">Registrado</span>
+          </div>
+          <div class="flex-1 h-px bg-emerald-300"></div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+            <span class="text-emerald-700 font-medium">Por pagar</span>
+          </div>
+          <div class="flex-1 h-px bg-emerald-300"></div>
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+            <span class="text-emerald-700 font-medium">Pagado</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          <div class="bg-slate-50 rounded p-2">
+            <div class="text-[9px] uppercase text-slate-500 font-semibold">Total</div>
+            <div class="text-sm font-bold tabular-nums">S/ 219</div>
+          </div>
+          <div class="bg-emerald-50 rounded p-2 border border-emerald-100">
+            <div class="text-[9px] uppercase text-emerald-700 font-semibold">Pagado</div>
+            <div class="text-sm font-bold tabular-nums text-emerald-700">S/ 219</div>
+          </div>
+          <div class="bg-slate-50 rounded p-2">
+            <div class="text-[9px] uppercase text-slate-500 font-semibold">Saldo</div>
+            <div class="text-sm font-bold tabular-nums text-slate-500">S/ 0</div>
+          </div>
+        </div>
+
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Pagos registrados (split de 2)</div>
+        <div class="space-y-2">
+          <div class="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📱</span>
+              <div>
+                <div class="text-sm font-medium">Yape Vita</div>
+                <div class="text-[11px] text-slate-500">30 abr · 09:14 · línea 1</div>
+              </div>
+            </div>
+            <div class="text-sm font-bold tabular-nums text-rose-700">−S/ 100.00</div>
+          </div>
+          <div class="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🏦</span>
+              <div>
+                <div class="text-sm font-medium">BCP cuenta soles</div>
+                <div class="text-[11px] text-slate-500">30 abr · 09:14 · Op. 0023847 · línea 2</div>
+              </div>
+            </div>
+            <div class="text-sm font-bold tabular-nums text-rose-700">−S/ 119.00</div>
+          </div>
+        </div>
+
+        <div class="mt-2 flex items-center gap-2">
+          <span class="pill pill-emerald">📎 voucher_yape.png</span>
+          <span class="pill pill-emerald">📎 voucher_bcp.pdf</span>
+        </div>
+
+        <div class="mt-3 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-800">
+          ✓ Gasto cerrado · 2 movimientos vinculados a <code class="text-[10px] bg-white px-1 rounded">GAS-2026-0142</code> · próximo Movistar en 30 días.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 · 2 cuentas afectadas (split) -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-50 border-b border-slate-200 px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="text-xs uppercase tracking-wider text-slate-700 font-semibold">Impacto en cuentas (split)</div>
+          <span class="pill pill-slate">2 cuentas afectadas</span>
+        </div>
+      </div>
+      <div class="p-4">
+        <!-- Yape Vita -->
+        <div class="bg-orange-50 border border-orange-100 rounded-lg p-3 mb-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📱</span>
+              <span class="text-sm font-semibold">Yape Vita</span>
+            </div>
+            <div class="text-base font-bold tabular-nums">S/ 1,140.00</div>
+          </div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-500">Antes S/ 1,240 · línea 1 split</span>
+            <span class="text-rose-700 font-semibold">−S/ 100</span>
+          </div>
+        </div>
+
+        <!-- BCP soles -->
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-3">
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🏦</span>
+              <span class="text-sm font-semibold">BCP cuenta soles</span>
+            </div>
+            <div class="text-base font-bold tabular-nums">S/ 28,331.00</div>
+          </div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-500">Antes S/ 28,450 · línea 2 split</span>
+            <span class="text-rose-700 font-semibold">−S/ 119</span>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 text-xs text-slate-600 mb-3">
+          <strong>Total egreso:</strong> <span class="tabular-nums font-semibold text-rose-700">S/ 219.00</span> · cuadra con monto del gasto.
+        </div>
+
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Otros movimientos del día</div>
+        <div class="space-y-2">
+          <div class="bg-slate-50/50 rounded-lg p-3 flex items-center justify-between opacity-70">
+            <div class="flex-1">
+              <div class="text-sm font-medium text-slate-600">Pago OC-2026-088</div>
+              <div class="text-[11px] text-slate-500">29 abr · 14:22 · BCP soles</div>
+            </div>
+            <div class="text-sm tabular-nums text-rose-600">−S/ 11,250</div>
+          </div>
+          <div class="bg-slate-50/50 rounded-lg p-3 flex items-center justify-between opacity-70">
+            <div class="flex-1">
+              <div class="text-sm font-medium text-slate-600">Liquidación GK Xpress</div>
+              <div class="text-[11px] text-slate-500">28 abr · 11:00 · BCP soles</div>
+            </div>
+            <div class="text-sm tabular-nums text-emerald-600">+S/ 5,455</div>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-200">
+          <a href="#" class="text-xs text-orange-600 hover:text-orange-800 font-medium">→ Ver historial consolidado de cuentas</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 4 · Flujo "crear gasto + proveedor inline" -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center text-sm font-bold">4</div>
+    <h2 class="text-lg font-semibold">Crear gasto nuevo · proveedor con inline form</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Flujo end-to-end · registrar el primer recibo de Sedapal (proveedor que no existe). Con el patrón inline del Lote 5, no hay que abandonar el form. <strong>Estado actual del sistema</strong>: el campo "Proveedor del gasto" no existe formalmente · esto es lo que <code class="text-xs bg-slate-100 px-1 rounded">TAREA-PROVEEDOR-GASTOS</code> agrega.</p>
+
+  <!-- Form de crear gasto -->
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Registrar nuevo gasto</div>
+        <h3 class="text-lg font-bold mt-0.5">Recibo Sedapal abril 2026</h3>
+      </div>
+      <button class="w-8 h-8 rounded-full bg-white text-slate-500 flex items-center justify-center">✕</button>
+    </div>
+
+    <div class="p-5 space-y-5">
+
+      <!-- Categoría + Tipo -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Categoría</label>
+          <select class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+            <option>Servicios básicos (agua/luz/gas)</option>
+            <option>Servicios telecom</option>
+            <option>Logística</option>
+            <option>Insumos</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Tipo</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="bg-orange-50 text-orange-700 text-sm py-2 rounded-lg font-semibold border-2 border-orange-500">Recurrente</button>
+            <button class="bg-slate-100 text-slate-700 text-sm py-2 rounded-lg font-medium border border-slate-200">Único</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector PROVEEDOR · campo nuevo · destacado -->
+      <div class="border-2 border-orange-300 ring-2 ring-orange-100 rounded-lg p-4 bg-orange-50/30">
+        <div class="flex items-center justify-between mb-2">
+          <label class="block text-xs uppercase tracking-wider text-orange-700 font-semibold">🏭 Proveedor del gasto · CAMPO NUEVO</label>
+          <span class="pill pill-orange">TAREA-PROVEEDOR-GASTOS</span>
+        </div>
+
+        <!-- Selector con dropdown abierto -->
+        <div class="relative">
+          <div class="bg-white border-2 border-orange-400 rounded-lg px-3 py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-2 flex-1">
+              <input type="text" placeholder="Buscar proveedor..." value="Sedapal" class="flex-1 text-sm bg-transparent border-0 focus:outline-none">
+            </div>
+            <span class="text-slate-400">▼</span>
+          </div>
+
+          <!-- Dropdown abierto -->
+          <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-2xl border border-slate-200 z-10 overflow-hidden">
+            <!-- Resultados de búsqueda -->
+            <div class="px-3 py-4 text-center text-xs text-slate-500 italic border-b border-slate-100">
+              No se encontró "Sedapal" en tus proveedores actuales.<br>
+              <span class="text-[10px]">Movistar · Edelnor · Calidda son los proveedores existentes de servicios básicos.</span>
+            </div>
+
+            <!-- Botón crear inline -->
+            <button class="w-full px-3 py-3 bg-pink-50 hover:bg-pink-100 border-t border-pink-200 text-left flex items-center gap-2 transition">
+              <div class="w-8 h-8 rounded-full bg-pink-500 text-white flex items-center justify-center text-sm font-bold">+</div>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-pink-900">Crear "Sedapal" como proveedor nuevo</div>
+                <div class="text-[10px] text-pink-700">Inline form · sin abandonar este gasto · queda disponible para todos los gastos futuros</div>
+              </div>
+              <span class="text-pink-600">→</span>
+            </button>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-orange-700 italic mt-2">⓵ Campo opcional al inicio · pero altamente recomendado para tener trazabilidad de fuente del gasto · habilita reportes de "gasto anual por proveedor".</p>
+      </div>
+
+      <!-- Resto del form · monto, fecha, descripción -->
+      <div class="grid grid-cols-3 gap-4 opacity-50">
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Monto</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+            <input type="text" value="86.40" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Fecha vencimiento</label>
+          <input type="date" value="2026-05-15" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Descripción</label>
+          <input type="text" placeholder="Recibo abril 2026" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+        </div>
+      </div>
+
+      <div class="text-[11px] text-slate-400 italic">↑ Campos pendientes hasta crear el proveedor inline.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-slate-50 border-t border-slate-200 px-5 py-3 flex items-center justify-between">
+      <div class="text-xs text-slate-500">
+        Click "Crear Sedapal" → modal inline encima · D-INLINE-8 del Lote 5
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-sm text-slate-700 font-medium px-4 py-2 rounded-lg hover:bg-slate-100">Cancelar</button>
+        <button class="bg-orange-300 text-white text-sm font-semibold px-5 py-2 rounded-lg cursor-not-allowed" disabled>
+          Guardar gasto (necesita proveedor)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Beneficios del campo proveedor -->
+  <div class="mt-5 grid grid-cols-3 gap-3">
+    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+      <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-1">📊 Reportes nuevos</div>
+      <ul class="text-xs text-emerald-800 space-y-1 mt-2">
+        <li>• "Gasto anual Movistar = S/7,840"</li>
+        <li>• Top 10 proveedores de gasto</li>
+        <li>• Gastos por proveedor × categoría</li>
+        <li>• Detección de duplicados (2 gastos del mismo proveedor en el mismo mes)</li>
+      </ul>
+    </div>
+    <div class="bg-violet-50 border border-violet-200 rounded-lg p-4">
+      <div class="text-xs uppercase tracking-wider text-violet-700 font-semibold mb-1">🔍 Auditoría</div>
+      <ul class="text-xs text-violet-800 space-y-1 mt-2">
+        <li>• Ver todos los recibos de Sedapal en 1 vista</li>
+        <li>• Detectar incrementos sospechosos por proveedor</li>
+        <li>• Validar coherencia con extractos bancarios</li>
+        <li>• Cumplimiento fiscal: gastos con RUC para deducir IGV</li>
+      </ul>
+    </div>
+    <div class="bg-sky-50 border border-sky-200 rounded-lg p-4">
+      <div class="text-xs uppercase tracking-wider text-sky-700 font-semibold mb-1">🚀 Operativo</div>
+      <ul class="text-xs text-sky-800 space-y-1 mt-2">
+        <li>• Próximo recibo Sedapal · proveedor pre-cargado</li>
+        <li>• Categoría default heredada del proveedor</li>
+        <li>• Auto-recordatorio mensual del recurrente</li>
+        <li>• Auto-creación pendiente de pago + alerta</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Cambios de modelo de datos -->
+  <div class="mt-4 bg-slate-900 text-slate-100 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-base">📐</span>
+      <h3 class="font-bold text-white">Cambios de modelo de datos requeridos</h3>
+    </div>
+    <pre class="text-xs leading-relaxed overflow-x-auto"><code><span class="text-slate-500">// Tipo Gasto · ANTES (sin fuente formal)</span>
+<span class="text-pink-300">interface</span> <span class="text-blue-300">Gasto</span> {
+  <span class="text-yellow-300">id</span>: <span class="text-blue-300">string</span>;
+  <span class="text-yellow-300">categoriaId</span>: <span class="text-blue-300">string</span>;
+  <span class="text-yellow-300">monto</span>: <span class="text-blue-300">number</span>;
+  <span class="text-yellow-300">fecha</span>: <span class="text-blue-300">Date</span>;
+  <span class="text-yellow-300">descripcion</span>: <span class="text-blue-300">string</span>;
+}
+
+<span class="text-slate-500">// Tipo Gasto · DESPUÉS (con proveedorId opcional · backwards-compatible)</span>
+<span class="text-pink-300">interface</span> <span class="text-blue-300">Gasto</span> {
+  <span class="text-yellow-300">id</span>: <span class="text-blue-300">string</span>;
+  <span class="text-yellow-300">categoriaId</span>: <span class="text-blue-300">string</span>;
+  <span class="text-yellow-300">monto</span>: <span class="text-blue-300">number</span>;
+  <span class="text-yellow-300">fecha</span>: <span class="text-blue-300">Date</span>;
+  <span class="text-yellow-300">descripcion</span>: <span class="text-blue-300">string</span>;
+  <span class="text-emerald-300">proveedorId</span>?: <span class="text-blue-300">string</span>;        <span class="text-slate-500">// NUEVO · opcional</span>
+  <span class="text-emerald-300">esRecurrente</span>?: <span class="text-blue-300">boolean</span>;     <span class="text-slate-500">// NUEVO · auto-recordatorio</span>
+  <span class="text-emerald-300">recurrenciaCadaDias</span>?: <span class="text-blue-300">number</span>; <span class="text-slate-500">// NUEVO · 30 default</span>
+}
+
+<span class="text-slate-500">// Migración · 0 breaking · gastos existentes siguen sin proveedor (null)</span>
+<span class="text-slate-500">// UAT: probar con 5-10 proveedores frecuentes · luego batch backfill manual</span>
+</code></pre>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- DECISIONES Y PRÓXIMOS PASOS -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <h3 class="font-semibold text-slate-900">Decisiones declaradas en este mockup</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-1</span>
+        <div>
+          <strong>Pipeline de 3 etapas (no 4)</strong>: Registrado → Por pagar → Pagado. Gastos operativos no requieren etapas de logística ni cobro intermedio.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-2</span>
+        <div>
+          <strong>3 KPIs (no 4)</strong>: Total · Pagado · Saldo. No aplica "En tránsito" porque el dinero sale directo de tu cuenta sin intermediarios.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-3</span>
+        <div>
+          <strong>Split de pago también aplica</strong>. Pagar a Movistar con S/100 Yape + S/119 BCP es real y válido. La diferencia con cobro está en el <strong>scope del selector</strong> (<code class="text-xs bg-slate-100 px-1 rounded">scopeOrigen=['mis-cuentas']</code>) · no en deshabilitar el split. Cobro tiene 3 grupos (Mis cuentas + Cajas recaudadoras + Yapes pasivos) · pago tiene 1.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-4</span>
+        <div>
+          <strong>Sidebar de tendencia 12 meses</strong> (no de courier como en venta). Gastos recurrentes muestran su evolución histórica + promedio + delta vs mes actual + anualizado proyectado. Patrón análogo al sidebar de "Caja recaudadora" pero para gastos.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-5</span>
+        <div>
+          <strong>Auto-recordatorio toggle</strong> en el panel de detalle. Configurable inline · 3 días antes del vencimiento. Útil porque los gastos recurrentes son los que más fácil se olvidan.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-6</span>
+        <div>
+          <strong>Badge "Vence en X días"</strong> en el header con color semántico (rose si &lt;7d · amber si &lt;15d · slate si &gt;15d). Se calcula contra <code class="text-xs bg-slate-100 px-1 rounded">fechaVencimiento</code>.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-7</span>
+        <div>
+          <strong>Adjunto opcional siempre disponible</strong>. <code class="text-xs bg-slate-100 px-1 rounded">permiteAdjuntos=true</code> por default en gastos · útil para guardar voucher BCP o factura PDF junto al movimiento. Aporta evidencia para auditoría.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-8</span>
+        <div>
+          <strong>Validación inline del monto</strong>: chip verde "✓ Coincide con saldo" o ámbar "Parcial · queda S/X" en tiempo real. Resuelve el error humano de tipear S/21.90 en lugar de S/219.00. En split: chip verde "Totales cuadran S/100 + S/119 = S/219" o rojo "Falta S/X".
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-9</span>
+        <div>
+          <strong>Cada línea del split = 1 movimiento independiente</strong>. Mismo doc origen (<code class="text-xs bg-slate-100 px-1 rounded">GAS-2026-0142</code>), pero 2 movimientos diferentes en el book. Permite conciliar Yape Vita y BCP por separado con sus propios estados de cuenta. Patrón idéntico al de cobro split.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-10</span>
+        <div>
+          <strong>Adjuntos múltiples permitidos</strong>. Cuando hay split, suele haber 2 vouchers (uno por método). El form acepta varios archivos en la misma operación · cada voucher se asocia visualmente a la línea correspondiente.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-11</span>
+        <div>
+          <strong>Campo "proveedor del gasto" como entidad formal</strong>. Hoy los gastos existen "en general como datos" sin fuente vinculada · agregar <code class="text-xs bg-slate-100 px-1 rounded">proveedorId?: string</code> al tipo Gasto (opcional · backwards-compatible). Habilita: reportes "gasto anual por proveedor" · detección de duplicados · auditoría fiscal con RUC para deducir IGV. Declarado como <strong>TAREA-PROVEEDOR-GASTOS</strong>.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-12</span>
+        <div>
+          <strong>Sidebar enriquecida con info del proveedor</strong>. Card prominente con avatar + RUC + KPIs específicos: servicios activos · gastos registrados · gasto anual total · próximo vencimiento. 2 enlaces directos: "Ver ficha proveedor" + "Histórico". Aplica el principio de banking-grade transparency también para gastos.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-orange flex-shrink-0">D-INT-GASTO-13</span>
+        <div>
+          <strong>Selector de proveedor con inline form integrado</strong>. Cuando se busca proveedor que no existe (ej. "Sedapal"), botón pink prominente "+ Crear como proveedor nuevo" · usa patrón D-INLINE-8 · sin abandonar el form de gasto · 5 campos esenciales · queda disponible inmediatamente para gastos futuros.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximo del lote -->
+  <div class="mt-4 bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-orange-700 font-semibold">Próximo del Lote 4</div>
+      <div class="text-sm font-semibold text-orange-900 mt-1">M-INT-ENVIO-S58f · Detalle Envío con panel "Pago a colaborador" embebido</div>
+      <p class="text-xs text-orange-700 mt-1">Caso intermedio: pago a viajero/courier por flete · puede tener split (efectivo + yape) · liquidación pre o post entrega · CTRU como contexto.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="pill pill-slate">3/5</span>
+      <span class="text-orange-400">→</span>
+      <span class="pill pill-orange">4/5</span>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell Global · Sidebar + Top Bar · S58f</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif; background: #f1f5f9; }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Animaciones sutiles para badges de actividad */
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+  /* Hover sutil de items del sidebar */
+  .sidebar-item { transition: all 0.15s ease; }
+  .sidebar-item:hover { background: rgba(15, 118, 110, 0.06); }
+  .sidebar-item.active {
+    background: linear-gradient(90deg, rgba(15,118,110,0.10) 0%, rgba(15,118,110,0.04) 100%);
+    border-left: 3px solid #0d9488;
+  }
+  .sidebar-item.active .sidebar-icon { color: #0d9488; }
+  .sidebar-item.active .sidebar-label { color: #0d9488; font-weight: 600; }
+
+  /* Badges semánticos */
+  .badge-alert { background: #ef4444; color: white; }
+  .badge-warn { background: #f59e0b; color: white; }
+  .badge-info { background: #3b82f6; color: white; }
+  .badge-neutral { background: #94a3b8; color: white; }
+
+  /* Notificación dot */
+  .notif-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+
+  /* Top bar action button */
+  .top-action-btn {
+    transition: all 0.12s ease;
+  }
+  .top-action-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  /* Cmd+K shortcut visual */
+  .kbd-shortcut {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-bottom-width: 2px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    color: #475569;
+  }
+
+  /* Breadcrumb chevrons */
+  .breadcrumb-chevron { color: #cbd5e1; margin: 0 6px; }
+  .breadcrumb-link { color: #64748b; transition: color 0.15s; }
+  .breadcrumb-link:hover { color: #0d9488; }
+  .breadcrumb-current { color: #0f172a; font-weight: 600; }
+
+  /* Annotation labels */
+  .annotation {
+    position: relative;
+    padding: 6px 10px;
+    background: #fef3c7;
+    border: 1px dashed #fbbf24;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #78350f;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Header del documento (no es parte del mockup, es para contexto) -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Lote 1 · Shell Global</div>
+      <div class="text-base font-bold">Sidebar definitivo + Top Action Bar + Breadcrumbs + Notificaciones</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-teal-600 px-2 py-1 rounded">M-NAV-01</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-29</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA PRINCIPAL · App layout completa con shell propuesto                -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · App completa con Shell global propuesto</h2>
+  <p class="text-sm text-slate-600 mb-4">Cómo se ve el ERP cuando un usuario está dentro. Sidebar + Top bar + área de contenido + breadcrumbs.</p>
+
+  <div class="bg-slate-100 rounded-2xl p-3 shadow-2xl border border-slate-300">
+    <!-- Browser chrome simulado -->
+    <div class="flex items-center gap-2 mb-2 px-1">
+      <div class="flex gap-1.5">
+        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+      </div>
+      <div class="flex-1 bg-white rounded-md px-3 py-1 text-xs text-slate-500 ml-3 border border-slate-200">
+        🔒 vitaskinperu.web.app/tesoreria
+      </div>
+    </div>
+
+    <!-- App container -->
+    <div class="bg-white rounded-xl overflow-hidden flex" style="height: 720px;">
+
+      <!-- ============== SIDEBAR ============== -->
+      <aside class="w-60 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+
+        <!-- Logo + empresa -->
+        <div class="px-4 py-4 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center">
+              <span class="text-white font-bold text-sm">V</span>
+            </div>
+            <div class="min-w-0">
+              <div class="text-[13px] font-bold text-slate-900 truncate">Vita Skin Peru</div>
+              <div class="text-[10px] text-slate-500">SAC · RUC 20559***...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search inline + Cmd+K hint -->
+        <div class="px-3 py-3 border-b border-slate-100">
+          <button class="w-full flex items-center gap-2 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-md text-[12px] text-slate-500 transition-colors">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+            <span class="flex-1 text-left">Buscar todo…</span>
+            <span class="kbd-shortcut">⌘K</span>
+          </button>
+        </div>
+
+        <!-- Nav items -->
+        <nav class="flex-1 overflow-y-auto py-2 scrollbar-hide">
+
+          <!-- Sección: Operación diaria -->
+          <div class="px-3 mt-1 mb-1">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold px-2 py-1">Operación</div>
+          </div>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="layout-dashboard" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Dashboard</span>
+            <span class="badge-warn text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab">3</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="shopping-cart" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Compras</span>
+            <span class="text-[10px] text-slate-400 num-tab">12</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="store" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Ventas</span>
+            <span class="badge-warn text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab">2</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="package" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Productos</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="truck" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Envíos</span>
+            <span class="text-[10px] text-slate-400 num-tab">8</span>
+          </a>
+
+          <!-- Sección: Finanzas y Contabilidad -->
+          <div class="px-3 mt-4 mb-1">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold px-2 py-1">Finanzas y Contabilidad</div>
+          </div>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="trending-up" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Finanzas</span>
+            <span class="badge-warn text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab">5</span>
+          </a>
+
+          <a class="sidebar-item active flex items-center gap-2.5 px-4 py-2 text-[13px]">
+            <i data-lucide="wallet" class="sidebar-icon w-4 h-4"></i>
+            <span class="sidebar-label flex-1">Tesorería</span>
+            <span class="badge-alert text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab pulse-dot">2</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="receipt" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Gastos</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="dollar-sign" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Tipo de Cambio</span>
+          </a>
+
+          <!-- Sección: Personas -->
+          <div class="px-3 mt-4 mb-1">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold px-2 py-1">Personas</div>
+          </div>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="users" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Clientes</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="building" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Proveedores</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="user-cog" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Red Logística</span>
+            <span class="text-[9px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded font-semibold">GK</span>
+          </a>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="id-card" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Empleados</span>
+          </a>
+
+          <!-- Sección: Configuración -->
+          <div class="px-3 mt-4 mb-1">
+            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold px-2 py-1">Sistema</div>
+          </div>
+
+          <a class="sidebar-item flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-700">
+            <i data-lucide="settings" class="sidebar-icon w-4 h-4 text-slate-500"></i>
+            <span class="sidebar-label flex-1">Configuración</span>
+          </a>
+        </nav>
+
+        <!-- Footer del sidebar: usuario + status -->
+        <div class="px-3 py-3 border-t border-slate-100">
+          <div class="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[11px] font-bold">JL</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-700 truncate">José LP</div>
+              <div class="text-[10px] text-slate-500">Administrador</div>
+            </div>
+            <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-slate-400"></i>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ============== ÁREA DE CONTENIDO ============== -->
+      <main class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- TOP ACTION BAR -->
+        <div class="bg-white border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 flex-shrink-0">
+
+          <!-- Breadcrumbs -->
+          <div class="flex items-center text-[12px] flex-1 min-w-0">
+            <a class="breadcrumb-link">Inicio</a>
+            <i data-lucide="chevron-right" class="breadcrumb-chevron w-3 h-3"></i>
+            <a class="breadcrumb-link">Finanzas y Contabilidad</a>
+            <i data-lucide="chevron-right" class="breadcrumb-chevron w-3 h-3"></i>
+            <span class="breadcrumb-current">Tesorería</span>
+            <span class="text-slate-300 mx-2">·</span>
+            <span class="text-[11px] text-slate-500">miércoles, 29 de abril de 2026</span>
+          </div>
+
+          <!-- Acciones globales rápidas -->
+          <div class="flex items-center gap-1.5">
+            <button class="top-action-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium text-slate-700">
+              <i data-lucide="plus" class="w-3.5 h-3.5 text-teal-600"></i>
+              <span>Movimiento</span>
+            </button>
+            <button class="top-action-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium text-slate-700">
+              <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-teal-600"></i>
+              <span>Conversión</span>
+            </button>
+            <button class="top-action-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium text-slate-700">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-teal-600"></i>
+              <span>Transferencia</span>
+            </button>
+
+            <div class="w-px h-5 bg-slate-200 mx-1"></div>
+
+            <!-- Notificaciones -->
+            <button class="relative top-action-btn p-2 rounded-md bg-white border border-slate-200">
+              <i data-lucide="bell" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span class="notif-dot"></span>
+            </button>
+
+            <!-- Tareas -->
+            <button class="top-action-btn p-2 rounded-md bg-white border border-slate-200">
+              <i data-lucide="check-square" class="w-3.5 h-3.5 text-slate-600"></i>
+            </button>
+
+            <!-- Ayuda -->
+            <button class="top-action-btn p-2 rounded-md bg-white border border-slate-200">
+              <i data-lucide="help-circle" class="w-3.5 h-3.5 text-slate-600"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Área de contenido placeholder -->
+        <div class="flex-1 overflow-y-auto bg-slate-50 p-6">
+
+          <!-- Hero del módulo Tesorería (preview de M-TES-LAYOUT) -->
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="wallet" class="w-6 h-6 text-teal-600"></i>
+                  Tesorería
+                </h1>
+                <p class="text-[13px] text-slate-500 mt-0.5">Productos financieros · Movimientos · Operación diaria del dinero</p>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-3 py-1.5 text-[12px] bg-white border border-slate-200 rounded-md hover:bg-slate-50 flex items-center gap-1.5">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  Exportar
+                </button>
+                <button class="px-3 py-1.5 text-[12px] bg-teal-600 text-white rounded-md hover:bg-teal-700 flex items-center gap-1.5">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  Nuevo producto
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub-tabs estilo FinanzasLayout -->
+          <div class="flex items-center gap-1 mb-5 border-b border-slate-200">
+            <button class="px-3 py-2 text-[12px] font-semibold text-teal-700 border-b-2 border-teal-600 -mb-px flex items-center gap-1.5">
+              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+              Productos
+            </button>
+            <button class="px-3 py-2 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="list" class="w-3.5 h-3.5"></i>
+              Movimientos
+            </button>
+            <button class="px-3 py-2 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
+              Conversiones
+            </button>
+            <button class="px-3 py-2 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+              Pagos masivos
+            </button>
+            <button class="px-3 py-2 text-[12px] font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>
+              Pipeline
+            </button>
+          </div>
+
+          <!-- Contenido placeholder mostrando que aquí iría VistaPorTitular -->
+          <div class="bg-white border border-slate-200 rounded-xl p-8 text-center">
+            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center">
+              <i data-lucide="layout-grid" class="w-8 h-8 text-teal-600"></i>
+            </div>
+            <div class="text-[13px] font-semibold text-slate-700 mb-1">Aquí iría la <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">VistaPorTitular</code> (mockup M1 ya existente)</div>
+            <div class="text-[11px] text-slate-500">
+              Definida pixel-perfect en <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">tesoreria-productos-listado-s58e.html</code>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-3">
+              Ver mockup separado <strong>M-TES-LAYOUT-S58f</strong> (Lote 2) para detalle completo del shell de Tesorería con sub-rutas.
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · Sidebar detallado con anotaciones                              -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 · Sidebar definitivo · Decisiones de diseño</h2>
+  <p class="text-sm text-slate-600 mb-4">Cada elemento del sidebar tiene un propósito. Las anotaciones explican el porqué.</p>
+
+  <div class="grid grid-cols-12 gap-4">
+    <!-- Sidebar replica para anotar -->
+    <div class="col-span-4">
+      <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+
+        <!-- Logo -->
+        <div class="px-4 py-4 border-b border-slate-100 bg-slate-50">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center">
+              <span class="text-white font-bold text-sm">V</span>
+            </div>
+            <div>
+              <div class="text-[13px] font-bold text-slate-900">Vita Skin Peru</div>
+              <div class="text-[10px] text-slate-500">SAC · RUC 20559***...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="px-3 py-3 border-b border-slate-100">
+          <button class="w-full flex items-center gap-2 px-2.5 py-1.5 bg-slate-50 rounded-md text-[12px] text-slate-500">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+            <span class="flex-1 text-left">Buscar todo…</span>
+            <span class="kbd-shortcut">⌘K</span>
+          </button>
+        </div>
+
+        <!-- Operación -->
+        <div class="px-5 mt-1 mb-1">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold py-1">Operación</div>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Dashboard</span>
+          <span class="badge-warn text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab">3</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="shopping-cart" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Compras</span>
+          <span class="text-[10px] text-slate-400 num-tab">12</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="store" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Ventas</span>
+          <span class="badge-warn text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab">2</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="package" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Productos</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="truck" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Envíos</span>
+          <span class="text-[10px] text-slate-400 num-tab">8</span>
+        </div>
+
+        <!-- Finanzas -->
+        <div class="px-5 mt-3 mb-1">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold py-1">Finanzas y Contabilidad</div>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="trending-up" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Finanzas</span>
+          <span class="badge-warn text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab">5</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 bg-teal-50 border-l-3 border-teal-600">
+          <i data-lucide="wallet" class="w-4 h-4 text-teal-600"></i>
+          <span class="flex-1 text-teal-700 font-semibold">Tesorería</span>
+          <span class="badge-alert text-[10px] px-1.5 py-0.5 rounded-full font-bold num-tab">2</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="receipt" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Gastos</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="dollar-sign" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Tipo de Cambio</span>
+        </div>
+
+        <!-- Personas -->
+        <div class="px-5 mt-3 mb-1">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold py-1">Personas</div>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="users" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Clientes</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="building" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Proveedores</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="user-cog" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Red Logística</span>
+          <span class="text-[9px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded font-semibold">GK</span>
+        </div>
+        <div class="px-4 py-2 text-[13px] flex items-center gap-2.5 hover:bg-slate-50">
+          <i data-lucide="id-card" class="w-4 h-4 text-slate-500"></i>
+          <span class="flex-1">Empleados</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Anotaciones -->
+    <div class="col-span-8 space-y-3">
+      <div class="annotation">
+        <strong>1 · Buscador global con ⌘K</strong><br>
+        Atajo persistente. Click o teclado abre el Command Palette (M-NAV-02). Es el "tejido conectivo" universal — desde acá se llega a cualquier cosa.
+      </div>
+
+      <div class="annotation">
+        <strong>2 · Agrupación por intención de uso (no por equipo)</strong><br>
+        <span class="font-semibold">Operación</span>: cosas del flujo diario (compras, ventas, envíos) ·
+        <span class="font-semibold">Finanzas</span>: visión y operación del dinero ·
+        <span class="font-semibold">Personas</span>: maestros de contrapartes ·
+        <span class="font-semibold">Sistema</span>: configuración. Antes había "Comprador, Almacenero, Finanzas" como tags por rol — ahora la jerarquía es por flujo natural del negocio.
+      </div>
+
+      <div class="annotation">
+        <strong>3 · Tesorería en sidebar como ítem propio</strong><br>
+        Resuelve el dolor reportado: hoy es ruta huérfana. Aquí queda al mismo nivel que Finanzas. <span class="font-semibold">Finanzas = visión ejecutiva</span> (¿cómo está el negocio?), <span class="font-semibold">Tesorería = operación</span> (¿qué hago hoy?).
+      </div>
+
+      <div class="annotation">
+        <strong>4 · Badges semánticos de actividad</strong><br>
+        🔴 rojo + pulse = urgencia (pagos vencidos, OC en riesgo) · 🟡 ámbar = atención (cartera vencida, alertas ejecutivas) · ⚪ gris claro = solo conteo informativo (12 OCs en proceso). El sidebar deja de ser solo navegación: se vuelve panel de alertas pasivo.
+      </div>
+
+      <div class="annotation">
+        <strong>5 · Indicador "GK" en Red Logística</strong><br>
+        Como Red Logística gestiona el 90% de tus envíos vía GK Xpress, un mini-tag visual en el sidebar recuerda al usuario su rol estratégico. Pequeño detalle, pero refuerza la integración.
+      </div>
+
+      <div class="annotation">
+        <strong>6 · Footer con perfil + selector empresa (futuro multi-tenant)</strong><br>
+        Avatar + nombre + rol. Click → menú de perfil (cambiar contraseña, cerrar sesión, configurar preferencias). Espacio reservado para selector de empresa cuando se active multi-tenant.
+      </div>
+
+      <div class="annotation">
+        <strong>7 · Logo + datos fiscales de la empresa</strong><br>
+        Refuerza identidad. RUC visible (truncado por privacidad) ayuda a confirmar entorno correcto en demos / capturas / soporte.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · Top Action Bar detalle + breadcrumbs + notificaciones          -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · Top Action Bar · Acciones globales + contexto</h2>
+  <p class="text-sm text-slate-600 mb-4">Esta barra es persistente en TODAS las páginas. Las acciones son las mismas siempre — no dependen del módulo en el que estés.</p>
+
+  <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+    <!-- Top action bar -->
+    <div class="bg-white border-b border-slate-200 px-6 py-2.5 flex items-center gap-3">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="breadcrumb-link">Inicio</a>
+        <i data-lucide="chevron-right" class="breadcrumb-chevron w-3 h-3"></i>
+        <a class="breadcrumb-link">Finanzas y Contabilidad</a>
+        <i data-lucide="chevron-right" class="breadcrumb-chevron w-3 h-3"></i>
+        <span class="breadcrumb-current">Tesorería</span>
+        <span class="text-slate-300 mx-2">·</span>
+        <span class="text-[11px] text-slate-500">miércoles, 29 de abril de 2026</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="top-action-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium text-slate-700">
+          <i data-lucide="plus" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span>Movimiento</span>
+        </button>
+        <button class="top-action-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium text-slate-700">
+          <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span>Conversión</span>
+        </button>
+        <button class="top-action-btn flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium text-slate-700">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span>Transferencia</span>
+        </button>
+        <div class="w-px h-5 bg-slate-200 mx-1"></div>
+        <button class="relative top-action-btn p-2 rounded-md bg-white border border-slate-200">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-slate-600"></i>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="top-action-btn p-2 rounded-md bg-white border border-slate-200">
+          <i data-lucide="check-square" class="w-3.5 h-3.5 text-slate-600"></i>
+        </button>
+        <button class="top-action-btn p-2 rounded-md bg-white border border-slate-200">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5 text-slate-600"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Anotaciones a continuación -->
+    <div class="grid grid-cols-2 gap-4 p-5 bg-slate-50">
+      <div>
+        <div class="annotation mb-2">
+          <strong>A · Breadcrumbs jerárquicos</strong><br>
+          Muestran SIEMPRE la ruta completa: Inicio → Sección → Módulo → Sub-vista. Cada nodo es clickeable. Resuelve "no sé dónde estoy".
+        </div>
+        <div class="annotation mb-2">
+          <strong>B · Fecha visible</strong><br>
+          Sirve de contexto + recordatorio operativo (ej: "es 29, mañana cierre del mes").
+        </div>
+      </div>
+      <div>
+        <div class="annotation mb-2">
+          <strong>C · 3 acciones de tesorería globales</strong><br>
+          <span class="font-semibold">Movimiento · Conversión · Transferencia</span>: las 3 acciones financieras más frecuentes están a 1 click desde CUALQUIER página. Resuelve "no quiero ir a /tesoreria solo para registrar un pago rápido".
+        </div>
+        <div class="annotation mb-2">
+          <strong>D · Notificaciones / Tareas / Ayuda</strong><br>
+          Iconos universales. El dot rojo en bell = hay notificaciones nuevas. Click abre dropdown lateral.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 4 · Panel de notificaciones desplegado                             -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 4 · Panel de notificaciones · Estado dropdown abierto</h2>
+  <p class="text-sm text-slate-600 mb-4">Click en el bell del top bar despliega un panel con las notificaciones operativas más relevantes. Cada una tiene deep-link al módulo correcto.</p>
+
+  <div class="flex justify-end">
+    <div class="w-96 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Header -->
+      <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <div class="text-[14px] font-bold text-slate-900">Notificaciones</div>
+          <div class="text-[11px] text-slate-500">5 nuevas · 12 sin leer</div>
+        </div>
+        <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium">Marcar todo como leído</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex border-b border-slate-100 px-4">
+        <button class="px-2 py-2 text-[11px] font-semibold text-teal-700 border-b-2 border-teal-600 -mb-px">Todas (12)</button>
+        <button class="px-2 py-2 text-[11px] font-medium text-slate-500 ml-2">Urgentes (2)</button>
+        <button class="px-2 py-2 text-[11px] font-medium text-slate-500 ml-2">Mensiones</button>
+      </div>
+
+      <!-- Listado de notif -->
+      <div class="max-h-96 overflow-y-auto">
+
+        <!-- HOY -->
+        <div class="px-4 py-2 text-[10px] uppercase tracking-wider text-slate-400 font-semibold bg-slate-50">Hoy · 29 abr</div>
+
+        <!-- Notif urgente -->
+        <a class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 cursor-pointer">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-red-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="text-[12px] font-semibold text-slate-900">Pago vencido</span>
+                <span class="badge-alert text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Urgente</span>
+              </div>
+              <div class="text-[11px] text-slate-600 leading-snug">OC-2026-088 venció el 27 abr. Saldo pendiente <span class="font-semibold text-slate-900 num-tab">$ 1,500.00</span></div>
+              <div class="text-[10px] text-slate-400 mt-0.5">hace 2 horas · proveedor SkinTech Korea</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 cursor-pointer">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="clock" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900 mb-0.5">Cobro al yape de GK Xpress</div>
+              <div class="text-[11px] text-slate-600 leading-snug">Cliente Sofía López pagó <span class="font-semibold num-tab">S/ 800.00</span>. ¿Promover a caja recaudadora?</div>
+              <div class="flex gap-2 mt-1.5">
+                <button class="text-[11px] px-2 py-1 bg-teal-600 text-white rounded font-medium">Promover</button>
+                <button class="text-[11px] px-2 py-1 bg-white border border-slate-200 text-slate-600 rounded">Más tarde</button>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 cursor-pointer">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900 mb-0.5">Conversión completada</div>
+              <div class="text-[11px] text-slate-600 leading-snug"><span class="num-tab">$ 1,000.00</span> → <span class="num-tab">S/ 3,510.00</span> · TC 3.510</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">hace 4 horas · BCP Empresa USD → BCP Empresa Soles</div>
+            </div>
+          </div>
+        </a>
+
+        <!-- AYER -->
+        <div class="px-4 py-2 text-[10px] uppercase tracking-wider text-slate-400 font-semibold bg-slate-50">Ayer · 28 abr</div>
+
+        <a class="block px-4 py-3 hover:bg-slate-50 border-b border-slate-100 cursor-pointer">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900 mb-0.5">Cargo a tarjeta BBVA Visa</div>
+              <div class="text-[11px] text-slate-600 leading-snug">OC-2026-085 cargada <span class="font-semibold num-tab">$ 2,400.00</span>. Estado de cuenta: 12 may</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">hace 1 día</div>
+            </div>
+          </div>
+        </a>
+
+        <a class="block px-4 py-3 hover:bg-slate-50 cursor-pointer">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="trending-up" class="w-4 h-4 text-slate-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900 mb-0.5">Resumen semanal disponible</div>
+              <div class="text-[11px] text-slate-600 leading-snug">Tu reporte de la semana 17 está listo</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">hace 1 día</div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-4 py-2.5 border-t border-slate-100 text-center">
+        <button class="text-[12px] text-teal-600 hover:text-teal-700 font-medium">Ver todas las notificaciones</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation mt-4 max-w-2xl">
+    <strong>Notificaciones inteligentes con call-to-action</strong><br>
+    Cada notif tiene <span class="font-semibold">contexto + monto + entidad + fecha relativa</span>. Las urgentes incluyen botones de acción inline (ej: "Promover" para datosBancarios → CajaRecaudadora). El usuario resuelve cosas sin abandonar el contexto actual. Resuelve "no quiero ir a 5 módulos para hacer 1 acción".
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 5 · Estado actual vs propuesta · comparación lado a lado          -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 5 · Antes / Después · Comparación con el sidebar actual</h2>
+  <p class="text-sm text-slate-600 mb-4">Confirmación de qué cambia y por qué.</p>
+
+  <div class="grid grid-cols-2 gap-4">
+    <!-- ANTES -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-red-100 text-red-700 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded">Hoy</span>
+        <h3 class="text-sm font-bold text-slate-900">Sidebar actual</h3>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 text-[12px] space-y-1.5">
+        <div class="text-slate-500 text-[10px] uppercase tracking-wider font-semibold">Operación</div>
+        <div class="pl-2">📊 Dashboard</div>
+        <div class="pl-2">🛒 Compras</div>
+        <div class="pl-2">🏪 Ventas</div>
+        <div class="pl-2">📦 Productos</div>
+        <div class="pl-2">🚚 Envíos</div>
+        <div class="text-slate-500 text-[10px] uppercase tracking-wider font-semibold mt-3">Finanzas y Contabilidad</div>
+        <div class="pl-2">💰 Finanzas</div>
+        <div class="pl-2 text-red-600 line-through opacity-60">~~Tesorería~~ <span class="text-red-600 no-underline italic text-[10px]">no existe en sidebar</span></div>
+        <div class="pl-2">📋 Gastos Fijos</div>
+        <div class="pl-2">💱 Tipo de Cambio</div>
+        <div class="text-slate-500 text-[10px] uppercase tracking-wider font-semibold mt-3">Personas</div>
+        <div class="pl-2">👥 Clientes</div>
+        <div class="pl-2">🏢 Proveedores</div>
+        <div class="pl-2">🚛 Red Logística</div>
+        <div class="pl-2">🪪 Empleados</div>
+      </div>
+      <div class="text-[11px] text-red-600 mt-2 leading-snug">
+        ❌ Tesorería no aparece · ❌ No hay buscador global · ❌ No hay alertas visibles · ❌ Sin separación visual entre operación y finanzas
+      </div>
+    </div>
+
+    <!-- DESPUÉS -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-emerald-100 text-emerald-700 text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded">Propuesta</span>
+        <h3 class="text-sm font-bold text-slate-900">Sidebar S58f</h3>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-emerald-200 p-4 text-[12px] space-y-1.5">
+        <div class="bg-slate-50 rounded px-2 py-1.5 flex items-center gap-2 border border-slate-200">
+          <i data-lucide="search" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-slate-500">Buscar todo…</span>
+          <span class="ml-auto text-[9px] bg-white border border-slate-200 px-1.5 rounded font-mono">⌘K</span>
+        </div>
+        <div class="text-slate-500 text-[10px] uppercase tracking-wider font-semibold mt-2">Operación</div>
+        <div class="pl-2">📊 Dashboard <span class="bg-amber-500 text-white text-[9px] rounded-full px-1.5 ml-1">3</span></div>
+        <div class="pl-2">🛒 Compras <span class="text-slate-400 text-[10px] ml-1">12</span></div>
+        <div class="pl-2">🏪 Ventas <span class="bg-amber-500 text-white text-[9px] rounded-full px-1.5 ml-1">2</span></div>
+        <div class="pl-2">📦 Productos</div>
+        <div class="pl-2">🚚 Envíos <span class="text-slate-400 text-[10px] ml-1">8</span></div>
+        <div class="text-slate-500 text-[10px] uppercase tracking-wider font-semibold mt-3">Finanzas y Contabilidad</div>
+        <div class="pl-2">💰 Finanzas <span class="bg-amber-500 text-white text-[9px] rounded-full px-1.5 ml-1">5</span></div>
+        <div class="pl-2 bg-teal-50 -mx-2 px-4 py-1 border-l-2 border-teal-600">
+          <span class="text-teal-700 font-semibold">💼 Tesorería</span>
+          <span class="bg-red-500 text-white text-[9px] rounded-full px-1.5 ml-1 pulse-dot">2</span>
+          <span class="text-[9px] text-emerald-700 italic ml-2">⭐ NUEVO</span>
+        </div>
+        <div class="pl-2">📋 Gastos</div>
+        <div class="pl-2">💱 Tipo de Cambio</div>
+        <div class="text-slate-500 text-[10px] uppercase tracking-wider font-semibold mt-3">Personas</div>
+        <div class="pl-2">👥 Clientes</div>
+        <div class="pl-2">🏢 Proveedores</div>
+        <div class="pl-2">🚛 Red Logística <span class="text-[8px] text-teal-700 bg-teal-50 px-1 rounded ml-1 font-semibold">GK</span></div>
+        <div class="pl-2">🪪 Empleados</div>
+      </div>
+      <div class="text-[11px] text-emerald-700 mt-2 leading-snug">
+        ✅ Tesorería visible · ✅ Buscador ⌘K · ✅ Badges de actividad · ✅ Tag GK en Red Logística · ✅ Jerarquía clara
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- FOOTER · cómo seguir                                                     -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-teal-50 to-white border border-teal-200 rounded-xl p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+      <i data-lucide="check-square" class="w-5 h-5 text-teal-600"></i>
+      Decisiones tomadas en este mockup (para validar)
+    </h3>
+    <div class="grid grid-cols-2 gap-3 text-[12px]">
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-1 · Tesorería en sidebar</div>
+        <div class="text-slate-600 leading-snug">Bajo "Finanzas y Contabilidad", al mismo nivel que Finanzas.</div>
+      </div>
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-2 · Buscador global ⌘K</div>
+        <div class="text-slate-600 leading-snug">Acceso desde sidebar (botón) y desde teclado (atajo). Detalle en M-NAV-02.</div>
+      </div>
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-3 · Badges semánticos</div>
+        <div class="text-slate-600 leading-snug">Rojo+pulse=urgente · Ámbar=atención · Gris=conteo. Sidebar como panel pasivo de alertas.</div>
+      </div>
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-4 · Top action bar persistente</div>
+        <div class="text-slate-600 leading-snug">3 acciones de tesorería + bell + tareas + ayuda en TODA página.</div>
+      </div>
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-5 · Breadcrumbs jerárquicos</div>
+        <div class="text-slate-600 leading-snug">Inicio → Sección → Módulo → Sub-vista. Cada nodo clickeable.</div>
+      </div>
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-6 · Notificaciones con CTA inline</div>
+        <div class="text-slate-600 leading-snug">Cada notif relevante tiene botón de acción (ej: "Promover" GK Xpress) sin salir del dropdown.</div>
+      </div>
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-7 · Indicador GK en Red Logística</div>
+        <div class="text-slate-600 leading-snug">Tag "GK" recuerda que el 90% del flujo logístico pasa por ahí.</div>
+      </div>
+      <div class="bg-white rounded-lg p-3 border border-slate-200">
+        <div class="font-semibold text-slate-900 mb-1">D-NAV-8 · Footer perfil + (futuro multi-tenant)</div>
+        <div class="text-slate-600 leading-snug">Avatar + nombre + rol. Espacio para selector de empresa.</div>
+      </div>
+    </div>
+
+    <div class="mt-4 pt-4 border-t border-teal-200">
+      <div class="text-[12px] font-semibold text-slate-900 mb-1">Próximos mockups del Lote 1:</div>
+      <div class="text-[11px] text-slate-600 leading-relaxed">
+        <strong>M-NAV-02</strong> · Command Palette (⌘K) — secciones, búsqueda fuzzy, navegación con teclado.<br>
+        <strong>M-NAV-03</strong> · Detalle del top header — perfil dropdown, panel notificaciones expandido, panel de tareas.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-MAPA-VENTAS-S58f · Análisis geográfico/temporal de ventas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-sky { background: #e0f2fe; color: #0369a1; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .pill-indigo { background: #e0e7ff; color: #3730a3; }
+  .pill-fuchsia { background: #fae8ff; color: #86198f; }
+  .pill-orange { background: #ffedd5; color: #9a3412; }
+  .pill-purple { background: #f3e8ff; color: #6b21a8; }
+  .pill-zinc { background: #f4f4f5; color: #3f3f46; }
+  .pill-teal { background: #ccfbf1; color: #115e59; }
+  .heat-cell { transition: all 0.15s; cursor: pointer; }
+  .heat-cell:hover { transform: scale(1.05); z-index: 10; }
+  .map-region { transition: all 0.2s; cursor: pointer; }
+  .map-region:hover { stroke-width: 3; opacity: 0.85; }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2rem 0; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- Header del documento -->
+<div class="max-w-7xl mx-auto px-6 pt-8 pb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="pill pill-fuchsia">M-MAPA-VENTAS</span>
+    <span class="pill pill-slate">S58f · Lote 6 · 2 de 2 (ampliado)</span>
+    <span class="pill pill-emerald">Análisis geográfico + temporal + cliente</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight">Mapa de Ventas · Análisis geográfico, temporal y de clientes</h1>
+  <p class="text-sm text-slate-600 mt-1">Complementa M-MAPA-CALOR con la pregunta opuesta: <strong>¿dónde · cuándo · quién · qué se vende?</strong>. Stack visual de <strong>8 vistas</strong>: heatmap geográfico Z0/Z1/Z2 + día×hora + recurrencia clientes + drill-down regional + matriz multi-cruce continua + <strong>cards anchored estilo Airbnb/Stripe/Linear</strong> (Vista 8 · benchmark percentil 95 industria). Útil para marketing focalizado, anticipar estacionalidad, detectar ceguera regional, y leer "Miraflores · Colágeno S/8,820 · ↗+22%" de un vistazo sin clicks.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · Mapa geográfico del Perú -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-lg font-semibold">Mapa geográfico · ventas por región del Perú</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Vista principal · regiones del Perú coloreadas según volumen de ventas. Click en región → drill-down a ciudades + distritos + clientes específicos.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+
+    <!-- Toolbar -->
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3 text-sm">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Filtros</div>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Últimos 90 días</option>
+          <option>Últimos 30 días</option>
+          <option>Año actual</option>
+          <option>Año pasado</option>
+          <option>Personalizado</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Todos los productos</option>
+          <option>Skincare</option>
+          <option>Suplementos</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Métrica: Monto S/</option>
+          <option>Métrica: # Ventas</option>
+          <option>Métrica: # Clientes</option>
+          <option>Métrica: Ticket promedio</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <button class="bg-fuchsia-100 text-fuchsia-700 font-semibold px-3 py-1.5 rounded">🗺 Mapa</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">📊 Tabla</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">📥 Export</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Mapa SVG simplificado -->
+      <div class="col-span-2 p-5">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Mapa del Perú · regiones · ventas Q1-Q2 2026</div>
+
+        <!-- SVG simplificado del mapa de Perú (representativo) -->
+        <div class="bg-slate-50 rounded-lg p-4 relative" style="height: 460px;">
+          <svg viewBox="0 0 400 500" class="w-full h-full">
+            <!-- Costa Norte -->
+            <path class="map-region" d="M 80,40 L 130,30 L 145,80 L 130,120 L 90,110 Z" fill="#fbcfe8" stroke="#be185d" stroke-width="1.5">
+              <title>Tumbes/Piura · S/8,450</title>
+            </path>
+            <text x="105" y="80" font-size="9" fill="#831843" font-weight="600" text-anchor="middle">Norte</text>
+            <text x="105" y="92" font-size="8" fill="#9d174d" text-anchor="middle">S/8.4k</text>
+
+            <!-- La Libertad / Trujillo -->
+            <path class="map-region" d="M 130,120 L 145,80 L 165,130 L 155,170 L 120,165 Z" fill="#f9a8d4" stroke="#be185d" stroke-width="1.5">
+              <title>La Libertad · S/12,200</title>
+            </path>
+            <text x="140" y="135" font-size="9" fill="#831843" font-weight="600" text-anchor="middle">Trujillo</text>
+            <text x="140" y="147" font-size="8" fill="#9d174d" text-anchor="middle">S/12.2k</text>
+
+            <!-- Lima Metropolitana - DESTACADA -->
+            <path class="map-region" d="M 110,210 L 175,200 L 195,265 L 165,295 L 105,280 Z" fill="#a21caf" stroke="#581c87" stroke-width="2" opacity="0.95">
+              <title>Lima Metropolitana · S/142,800</title>
+            </path>
+            <text x="148" y="245" font-size="11" fill="white" font-weight="700" text-anchor="middle">Lima</text>
+            <text x="148" y="260" font-size="10" fill="white" text-anchor="middle">S/142.8k</text>
+            <text x="148" y="273" font-size="8" fill="#f3e8ff" text-anchor="middle">68% del total</text>
+
+            <!-- Callao -->
+            <path class="map-region" d="M 95,225 L 120,220 L 115,255 L 95,250 Z" fill="#c084fc" stroke="#7e22ce" stroke-width="1.5">
+              <title>Callao · S/18,900</title>
+            </path>
+            <text x="106" y="240" font-size="8" fill="white" font-weight="600" text-anchor="middle">Callao</text>
+
+            <!-- Sierra Centro -->
+            <path class="map-region" d="M 195,265 L 245,275 L 250,330 L 200,335 Z" fill="#fde68a" stroke="#a16207" stroke-width="1.5">
+              <title>Junín/Huánuco · S/6,150</title>
+            </path>
+            <text x="222" y="300" font-size="9" fill="#78350f" font-weight="600" text-anchor="middle">Centro</text>
+            <text x="222" y="312" font-size="8" fill="#92400e" text-anchor="middle">S/6.1k</text>
+
+            <!-- Ica/Sur -->
+            <path class="map-region" d="M 165,295 L 195,265 L 200,335 L 175,365 L 145,340 Z" fill="#f9a8d4" stroke="#be185d" stroke-width="1.5">
+              <title>Ica · S/14,300</title>
+            </path>
+            <text x="175" y="320" font-size="9" fill="#831843" font-weight="600" text-anchor="middle">Ica</text>
+            <text x="175" y="332" font-size="8" fill="#9d174d" text-anchor="middle">S/14.3k</text>
+
+            <!-- Arequipa -->
+            <path class="map-region" d="M 175,365 L 230,360 L 245,415 L 200,425 Z" fill="#f472b6" stroke="#9d174d" stroke-width="1.5">
+              <title>Arequipa · S/22,100</title>
+            </path>
+            <text x="207" y="395" font-size="10" fill="white" font-weight="700" text-anchor="middle">Arequipa</text>
+            <text x="207" y="408" font-size="8" fill="#fce7f3" text-anchor="middle">S/22.1k</text>
+
+            <!-- Cusco / sierra sur -->
+            <path class="map-region" d="M 245,360 L 300,355 L 305,415 L 245,415 Z" fill="#fde68a" stroke="#a16207" stroke-width="1.5">
+              <title>Cusco · S/5,800</title>
+            </path>
+            <text x="275" y="385" font-size="9" fill="#78350f" font-weight="600" text-anchor="middle">Cusco</text>
+            <text x="275" y="397" font-size="8" fill="#92400e" text-anchor="middle">S/5.8k</text>
+
+            <!-- Selva (Loreto) -->
+            <path class="map-region" d="M 245,140 L 320,130 L 335,210 L 270,220 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1.5">
+              <title>Loreto · S/890</title>
+            </path>
+            <text x="290" y="175" font-size="9" fill="#3f3f46" font-weight="600" text-anchor="middle">Loreto</text>
+            <text x="290" y="187" font-size="8" fill="#52525b" text-anchor="middle">S/0.9k</text>
+
+            <!-- San Martín -->
+            <path class="map-region" d="M 220,170 L 275,165 L 270,220 L 215,220 Z" fill="#fde68a" stroke="#a16207" stroke-width="1.5">
+              <title>San Martín · S/4,200</title>
+            </path>
+            <text x="245" y="195" font-size="9" fill="#78350f" font-weight="600" text-anchor="middle">San Martín</text>
+
+            <!-- Puno (sur sierra) -->
+            <path class="map-region" d="M 305,355 L 355,360 L 350,425 L 305,415 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1.5">
+              <title>Puno · S/1,400</title>
+            </path>
+            <text x="330" y="392" font-size="9" fill="#3f3f46" font-weight="600" text-anchor="middle">Puno</text>
+
+          </svg>
+
+          <!-- Leyenda -->
+          <div class="absolute bottom-3 left-3 bg-white rounded-lg shadow-sm border border-slate-200 p-2 text-[10px]">
+            <div class="font-semibold text-slate-700 mb-1">Volumen ventas</div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-purple-700 rounded"></div><span>S/100k+</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-pink-400 rounded"></div><span>S/10-50k</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-pink-200 rounded"></div><span>S/5-10k</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-amber-200 rounded"></div><span>S/1-5k</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-zinc-200 rounded"></div><span>&lt; S/1k</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar · Top regiones + insights -->
+      <div class="p-5 bg-slate-50">
+
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Top regiones (90 días)</h4>
+        <div class="space-y-2 mb-5">
+          <div class="bg-purple-100 border border-purple-300 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-purple-900 text-sm">🥇 Lima Metropolitana</span>
+              <span class="font-bold tabular-nums text-purple-900">S/ 142,800</span>
+            </div>
+            <div class="text-[10px] text-purple-700 flex justify-between">
+              <span>68% del total · 312 ventas · 184 clientes</span>
+              <span class="text-emerald-700 font-semibold">+18% vs Q1</span>
+            </div>
+          </div>
+          <div class="bg-pink-100 border border-pink-300 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-pink-900 text-sm">🥈 Arequipa</span>
+              <span class="font-bold tabular-nums text-pink-900">S/ 22,100</span>
+            </div>
+            <div class="text-[10px] text-pink-700 flex justify-between">
+              <span>10.5% · 48 ventas · 31 clientes</span>
+              <span class="text-emerald-700 font-semibold">+24% vs Q1</span>
+            </div>
+          </div>
+          <div class="bg-violet-100 border border-violet-300 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-violet-900 text-sm">🥉 Callao</span>
+              <span class="font-bold tabular-nums text-violet-900">S/ 18,900</span>
+            </div>
+            <div class="text-[10px] text-violet-700 flex justify-between">
+              <span>9% · 38 ventas · 22 clientes</span>
+              <span class="text-amber-700 font-semibold">+5% vs Q1</span>
+            </div>
+          </div>
+          <div class="bg-pink-50 border border-pink-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-slate-900 text-sm">4️⃣ Ica</span>
+              <span class="font-bold tabular-nums">S/ 14,300</span>
+            </div>
+            <div class="text-[10px] text-slate-600 flex justify-between">
+              <span>6.8% · 28 ventas · 19 clientes</span>
+              <span class="text-emerald-700 font-semibold">+42% ⚡</span>
+            </div>
+          </div>
+          <div class="bg-pink-50 border border-pink-200 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-slate-900 text-sm">5️⃣ Trujillo</span>
+              <span class="font-bold tabular-nums">S/ 12,200</span>
+            </div>
+            <div class="text-[10px] text-slate-600 flex justify-between">
+              <span>5.8% · 24 ventas · 17 clientes</span>
+              <span class="text-rose-700 font-semibold">−12%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Insights automáticos -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Insights del sistema</h4>
+        <div class="space-y-2">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-xs">
+            <div class="font-semibold text-emerald-900">⚡ Ica creció 42%</div>
+            <p class="text-emerald-800 mt-0.5 text-[11px]">3 clientes nuevos del mes · oportunidad de envío directo regional sin costo Lima.</p>
+          </div>
+          <div class="bg-rose-50 border border-rose-200 rounded-lg p-2.5 text-xs">
+            <div class="font-semibold text-rose-900">⚠️ Trujillo bajó 12%</div>
+            <p class="text-rose-800 mt-0.5 text-[11px]">2 clientes top sin recompra · revisar follow-up post-venta.</p>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-xs">
+            <div class="font-semibold text-amber-900">💡 Loreto y Puno &lt; S/2k</div>
+            <p class="text-amber-800 mt-0.5 text-[11px]">Logística cara hacia selva/altiplano · evaluar si vale el costo de adquisición.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen agregado al pie -->
+    <div class="border-t border-slate-200 grid grid-cols-5 divide-x divide-slate-200">
+      <div class="p-3 text-center">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Total Q1-Q2</div>
+        <div class="text-base font-bold tabular-nums text-purple-700">S/ 209,840</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Ventas</div>
+        <div class="text-base font-bold tabular-nums">486</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Clientes únicos</div>
+        <div class="text-base font-bold tabular-nums">274</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Ticket promedio</div>
+        <div class="text-base font-bold tabular-nums">S/ 432</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Regiones activas</div>
+        <div class="text-base font-bold tabular-nums">11 / 24</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · Heatmap día × hora · cuándo compran -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-lg font-semibold">Heatmap temporal · día de semana × hora del día</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Cuándo compran tus clientes. Útil para planear: cuándo enviar campañas WhatsApp, cuándo tener atención lista, cuándo programar promociones flash.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+
+    <div class="p-5">
+      <div class="grid grid-cols-25 gap-px text-[9px]" style="grid-template-columns: 60px repeat(24, 1fr);">
+        <!-- Header horas -->
+        <div></div>
+        <div class="text-center text-slate-500 font-semibold py-1">0</div>
+        <div class="text-center text-slate-400">1</div>
+        <div class="text-center text-slate-400">2</div>
+        <div class="text-center text-slate-400">3</div>
+        <div class="text-center text-slate-400">4</div>
+        <div class="text-center text-slate-400">5</div>
+        <div class="text-center text-slate-500 font-semibold">6</div>
+        <div class="text-center text-slate-400">7</div>
+        <div class="text-center text-slate-400">8</div>
+        <div class="text-center text-slate-500 font-semibold">9</div>
+        <div class="text-center text-slate-400">10</div>
+        <div class="text-center text-slate-400">11</div>
+        <div class="text-center text-slate-500 font-semibold">12</div>
+        <div class="text-center text-slate-400">13</div>
+        <div class="text-center text-slate-400">14</div>
+        <div class="text-center text-slate-500 font-semibold">15</div>
+        <div class="text-center text-slate-400">16</div>
+        <div class="text-center text-slate-400">17</div>
+        <div class="text-center text-slate-500 font-semibold">18</div>
+        <div class="text-center text-slate-400">19</div>
+        <div class="text-center text-slate-400">20</div>
+        <div class="text-center text-slate-500 font-semibold">21</div>
+        <div class="text-center text-slate-400">22</div>
+        <div class="text-center text-slate-400">23</div>
+
+        <!-- Lunes -->
+        <div class="text-right text-slate-700 font-semibold py-1.5 pr-2">Lun</div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell ring-1 ring-pink-700"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+
+        <!-- Martes -->
+        <div class="text-right text-slate-700 font-semibold py-1.5 pr-2">Mar</div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+
+        <!-- Miércoles -->
+        <div class="text-right text-slate-700 font-semibold py-1.5 pr-2">Mié</div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+
+        <!-- Jueves -->
+        <div class="text-right text-slate-700 font-semibold py-1.5 pr-2">Jue</div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+
+        <!-- Viernes -->
+        <div class="text-right text-slate-700 font-semibold py-1.5 pr-2">Vie</div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+
+        <!-- Sábado -->
+        <div class="text-right text-slate-700 font-semibold py-1.5 pr-2">Sáb</div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-800 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-800 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-700 rounded h-6 heat-cell ring-2 ring-pink-900"></div>
+        <div class="bg-pink-600 rounded h-6 heat-cell ring-1 ring-pink-800"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+
+        <!-- Domingo -->
+        <div class="text-right text-slate-700 font-semibold py-1.5 pr-2">Dom</div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-500 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-400 rounded h-6 heat-cell"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-300 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-200 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-pink-100 rounded h-6"></div>
+        <div class="bg-zinc-100 rounded h-6"></div>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="mt-3 flex items-center justify-between text-[10px]">
+        <div class="text-slate-500">⓵ Cada celda = ventas en esa hora del día (toda la última semana)</div>
+        <div class="flex items-center gap-1">
+          <span class="text-slate-500">Menos</span>
+          <div class="w-4 h-3 bg-zinc-100 rounded"></div>
+          <div class="w-4 h-3 bg-pink-200 rounded"></div>
+          <div class="w-4 h-3 bg-pink-400 rounded"></div>
+          <div class="w-4 h-3 bg-pink-600 rounded"></div>
+          <div class="w-4 h-3 bg-pink-800 rounded"></div>
+          <span class="text-slate-500">Más</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="border-t border-slate-200 grid grid-cols-3 divide-x divide-slate-200">
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-base">🔥</span>
+          <span class="text-xs uppercase tracking-wider text-pink-700 font-semibold">Pico semanal</span>
+        </div>
+        <div class="text-sm font-bold">Sábado · 14h-16h</div>
+        <p class="text-xs text-slate-600 mt-1">87 ventas las últimas 4 semanas. Lanzar campañas WhatsApp viernes 18h para captar el momento de decisión sabado mediodía.</p>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-base">📈</span>
+          <span class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Picos secundarios</span>
+        </div>
+        <div class="text-sm font-bold">Vie 19h-21h · Mar 20h-21h</div>
+        <p class="text-xs text-slate-600 mt-1">Después del trabajo en días laborales. Buen momento para "promo flash 1h".</p>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-base">💤</span>
+          <span class="text-xs uppercase tracking-wider text-slate-700 font-semibold">Horario muerto</span>
+        </div>
+        <div class="text-sm font-bold">Dom mañana · 0h-8h todos</div>
+        <p class="text-xs text-slate-600 mt-1">No tiene sentido programar atención ni envíos. Liberar al equipo · concentrarlo en horarios pico.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 3 · Análisis de recurrencia · clientes nuevos vs repeat -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">3</div>
+    <h2 class="text-lg font-semibold">Análisis de recurrencia · ¿quién compra?</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Distinguir cliente nuevo vs cliente repetidor · medir LTV (Lifetime Value) · identificar tu top 20 que probablemente concentra el 80% del volumen.</p>
+
+  <div class="grid grid-cols-3 gap-4">
+
+    <!-- Card 1 · Distribución -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Distribución de clientes</div>
+
+      <!-- Donut chart simulado -->
+      <div class="flex items-center justify-center mb-4">
+        <div class="relative w-40 h-40">
+          <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#fce7f3" stroke-width="14"></circle>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#a21caf" stroke-width="14" stroke-dasharray="125 251" stroke-dashoffset="0"></circle>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#f472b6" stroke-width="14" stroke-dasharray="83 251" stroke-dashoffset="-125"></circle>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#fbcfe8" stroke-width="14" stroke-dasharray="43 251" stroke-dashoffset="-208"></circle>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center flex-col">
+            <div class="text-2xl font-bold tabular-nums">274</div>
+            <div class="text-[10px] text-slate-500">clientes únicos</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded bg-purple-700"></div>
+            <span>VIP (5+ compras)</span>
+          </div>
+          <span class="font-semibold tabular-nums">42 · 50%</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded bg-pink-400"></div>
+            <span>Regulares (2-4)</span>
+          </div>
+          <span class="font-semibold tabular-nums">86 · 33%</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded bg-pink-200"></div>
+            <span>Una compra</span>
+          </div>
+          <span class="font-semibold tabular-nums">146 · 17%</span>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-slate-200 text-[11px] text-slate-600">
+        <strong>Insight:</strong> El 15% (VIP) genera el 50% de los ingresos · enfocarse en retención.
+      </div>
+    </div>
+
+    <!-- Card 2 · Top 10 clientes (LTV) -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Top 10 clientes · LTV histórico</div>
+      <div class="space-y-1.5 text-xs">
+        <a href="#" class="flex items-center justify-between hover:bg-slate-50 rounded px-2 py-1.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-purple-700 w-4 text-right">1</span>
+            <span class="font-semibold">María F. López</span>
+            <span class="pill pill-purple">VIP</span>
+          </div>
+          <div class="text-right">
+            <div class="font-bold tabular-nums">S/8,420</div>
+            <div class="text-[10px] text-slate-500">12 compras</div>
+          </div>
+        </a>
+        <a href="#" class="flex items-center justify-between hover:bg-slate-50 rounded px-2 py-1.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-purple-700 w-4 text-right">2</span>
+            <span class="font-semibold">Carlos Pérez</span>
+            <span class="pill pill-purple">VIP</span>
+          </div>
+          <div class="text-right">
+            <div class="font-bold tabular-nums">S/6,150</div>
+            <div class="text-[10px] text-slate-500">9 compras</div>
+          </div>
+        </a>
+        <a href="#" class="flex items-center justify-between hover:bg-slate-50 rounded px-2 py-1.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-purple-700 w-4 text-right">3</span>
+            <span class="font-semibold">Diana Ríos</span>
+            <span class="pill pill-purple">VIP</span>
+          </div>
+          <div class="text-right">
+            <div class="font-bold tabular-nums">S/4,890</div>
+            <div class="text-[10px] text-slate-500">8 compras</div>
+          </div>
+        </a>
+        <a href="#" class="flex items-center justify-between hover:bg-slate-50 rounded px-2 py-1.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-purple-700 w-4 text-right">4</span>
+            <span class="font-semibold">Andrés Salazar</span>
+            <span class="pill pill-purple">VIP</span>
+          </div>
+          <div class="text-right">
+            <div class="font-bold tabular-nums">S/4,120</div>
+            <div class="text-[10px] text-slate-500">11 compras</div>
+          </div>
+        </a>
+        <a href="#" class="flex items-center justify-between hover:bg-slate-50 rounded px-2 py-1.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-purple-700 w-4 text-right">5</span>
+            <span class="font-semibold">Lucía Mendoza</span>
+            <span class="pill pill-pink">Regular</span>
+          </div>
+          <div class="text-right">
+            <div class="font-bold tabular-nums">S/3,820</div>
+            <div class="text-[10px] text-slate-500">7 compras</div>
+          </div>
+        </a>
+        <a href="#" class="flex items-center justify-between hover:bg-slate-50 rounded px-2 py-1.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-500 w-4 text-right">6</span>
+            <span>Patricia Vega</span>
+            <span class="pill pill-pink">Regular</span>
+          </div>
+          <div class="text-right">
+            <div class="font-bold tabular-nums">S/3,200</div>
+            <div class="text-[10px] text-slate-500">5 compras</div>
+          </div>
+        </a>
+        <a href="#" class="flex items-center justify-between hover:bg-slate-50 rounded px-2 py-1.5">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-500 w-4 text-right">7</span>
+            <span>Roberto Silva</span>
+            <span class="pill pill-pink">Regular</span>
+          </div>
+          <div class="text-right">
+            <div class="font-bold tabular-nums">S/2,950</div>
+            <div class="text-[10px] text-slate-500">6 compras</div>
+          </div>
+        </a>
+        <div class="text-center text-slate-400 italic py-1">+ 3 más...</div>
+      </div>
+
+      <button class="mt-3 w-full text-xs bg-fuchsia-50 hover:bg-fuchsia-100 text-fuchsia-700 font-semibold py-2 rounded-lg">
+        Ver lista completa de 274 clientes →
+      </button>
+    </div>
+
+    <!-- Card 3 · Cohorts de retención -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Retención por cohort · cuándo entraron</div>
+
+      <div class="space-y-2 text-xs">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold">Q1 2026 (88 nuevos)</span>
+            <span class="text-emerald-700 font-semibold tabular-nums">42% retención</span>
+          </div>
+          <div class="flex h-3 rounded overflow-hidden bg-slate-100">
+            <div class="bg-purple-700" style="width: 42%"></div>
+            <div class="bg-pink-300" style="width: 58%"></div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-0.5">37 volvieron · 51 una sola vez</div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold">Q4 2025 (74 nuevos)</span>
+            <span class="text-emerald-700 font-semibold tabular-nums">51% retención</span>
+          </div>
+          <div class="flex h-3 rounded overflow-hidden bg-slate-100">
+            <div class="bg-purple-700" style="width: 51%"></div>
+            <div class="bg-pink-300" style="width: 49%"></div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-0.5">38 volvieron · 36 una sola vez</div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold">Q3 2025 (62 nuevos)</span>
+            <span class="text-emerald-700 font-semibold tabular-nums">58% retención</span>
+          </div>
+          <div class="flex h-3 rounded overflow-hidden bg-slate-100">
+            <div class="bg-purple-700" style="width: 58%"></div>
+            <div class="bg-pink-300" style="width: 42%"></div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-0.5">36 volvieron · 26 una sola vez</div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold">Q2 2025 (50 nuevos)</span>
+            <span class="text-emerald-700 font-semibold tabular-nums">64% retención</span>
+          </div>
+          <div class="flex h-3 rounded overflow-hidden bg-slate-100">
+            <div class="bg-purple-700" style="width: 64%"></div>
+            <div class="bg-pink-300" style="width: 36%"></div>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-0.5">32 volvieron · 18 una sola vez</div>
+        </div>
+      </div>
+
+      <div class="mt-3 bg-amber-50 border border-amber-200 rounded p-2 text-[11px] text-amber-900">
+        <strong>⚠️ Patrón:</strong> retención cae con cohorts más nuevos · Q1 2026 solo 42%. Investigar si producto/servicio Q1 difiere del de cohorts antiguos.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 4 · Top productos por zona + drill-down región -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">4</div>
+    <h2 class="text-lg font-semibold">Drill-down · click en Lima Metropolitana del mapa</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Click en una región del mapa abre vista expandida con: distritos · top productos en esa región · clientes específicos · comparativa vs otras regiones · sugerencias.</p>
+
+  <div class="bg-white rounded-xl border-2 border-purple-300 overflow-hidden shadow-lg">
+    <div class="bg-gradient-to-r from-purple-50 to-fuchsia-50 border-b border-purple-200 px-5 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="pill pill-purple">DRILL-DOWN</span>
+            <span class="pill pill-zinc">Q1-Q2 2026</span>
+            <span class="pill pill-emerald">+18% vs Q1</span>
+          </div>
+          <h3 class="text-xl font-bold tracking-tight">Lima Metropolitana</h3>
+          <p class="text-sm text-slate-600 mt-0.5">68% del total nacional · 312 ventas · 184 clientes únicos</p>
+        </div>
+        <div class="text-right">
+          <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">Total ventas</div>
+          <div class="text-2xl font-bold tabular-nums text-purple-700">S/ 142,800</div>
+          <div class="text-xs text-slate-500 mt-0.5">Ticket promedio S/ 458</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Top distritos -->
+      <div class="p-5">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Top 8 distritos · Lima</h4>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">1.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">Surco</span>
+                <span class="font-bold tabular-nums">S/28,400</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-purple-700 h-1.5 rounded" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">2.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">Miraflores</span>
+                <span class="font-bold tabular-nums">S/22,800</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-purple-700 h-1.5 rounded" style="width: 80%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">3.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">San Borja</span>
+                <span class="font-bold tabular-nums">S/18,200</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-purple-600 h-1.5 rounded" style="width: 64%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">4.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">San Isidro</span>
+                <span class="font-bold tabular-nums">S/15,400</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-pink-500 h-1.5 rounded" style="width: 54%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">5.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">Jesús María</span>
+                <span class="font-bold tabular-nums">S/12,900</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-pink-400 h-1.5 rounded" style="width: 45%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">6.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">La Molina</span>
+                <span class="font-bold tabular-nums">S/10,400</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-pink-400 h-1.5 rounded" style="width: 36%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">7.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">Magdalena</span>
+                <span class="font-bold tabular-nums">S/8,200</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-pink-300 h-1.5 rounded" style="width: 29%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-slate-500 font-bold tabular-nums">8.</span>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <span class="font-semibold">Pueblo Libre</span>
+                <span class="font-bold tabular-nums">S/6,800</span>
+              </div>
+              <div class="bg-slate-100 rounded h-1.5 mt-1">
+                <div class="bg-pink-200 h-1.5 rounded" style="width: 24%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top productos en Lima -->
+      <div class="p-5 bg-slate-50">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Top productos en Lima</h4>
+        <div class="space-y-2 text-xs">
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">SKC-0041 Travel Kit</div>
+                <div class="text-[10px] text-slate-500">42 unidades · 27% del Travel Kit nacional</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold tabular-nums">S/19,800</div>
+                <div class="text-[10px] text-emerald-700">+34%</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">SUP-0012 Colágeno Premium</div>
+                <div class="text-[10px] text-slate-500">68u · 91% del nacional</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold tabular-nums">S/14,200</div>
+                <div class="text-[10px] text-emerald-700">+22%</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">SKC-0033 Soothing Cream</div>
+                <div class="text-[10px] text-slate-500">52u · alta concentración Surco/Miraflores</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold tabular-nums">S/12,400</div>
+                <div class="text-[10px] text-emerald-700">+18%</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">SKC-0019 Niacinamide Sérum</div>
+                <div class="text-[10px] text-slate-500">31u · skincare premium</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold tabular-nums">S/8,900</div>
+                <div class="text-[10px] text-emerald-700">+11%</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">SUP-0007 Vitamina D3</div>
+                <div class="text-[10px] text-slate-500">29u · cliente repetidor</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold tabular-nums">S/5,400</div>
+                <div class="text-[10px] text-amber-700">+3%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sugerencias automáticas para Lima -->
+      <div class="p-5">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Sugerencias del sistema · Lima</h4>
+        <div class="space-y-3 text-xs">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+            <div class="font-semibold text-emerald-900 mb-1">⚡ Surco concentra 20% de Lima</div>
+            <p class="text-emerald-800 text-[11px]">Vale la pena un courier dedicado a esa zona. Reduce 30% el tiempo de entrega vs courier general · clientes Surco compran más cuando llega rápido.</p>
+            <button class="mt-2 text-[11px] bg-emerald-600 text-white px-3 py-1 rounded">Crear courier zona →</button>
+          </div>
+
+          <div class="bg-fuchsia-50 border border-fuchsia-200 rounded-lg p-3">
+            <div class="font-semibold text-fuchsia-900 mb-1">📈 Miraflores creció 40% Q2 vs Q1</div>
+            <p class="text-fuchsia-800 text-[11px]">Boom de skincare premium. Considerar aumentar stock SKC-0019 + lanzamiento producto premium adicional.</p>
+            <button class="mt-2 text-[11px] bg-fuchsia-600 text-white px-3 py-1 rounded">Plan promo zona →</button>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div class="font-semibold text-amber-900 mb-1">⚠️ Lima Norte ausente</div>
+            <p class="text-amber-800 text-[11px]">Comas, SMP, Independencia no tienen ventas. Mercado de S/M+ habitantes. Probar piloto: 1 mes campaña WhatsApp + envío express gratis.</p>
+            <button class="mt-2 text-[11px] bg-amber-600 text-white px-3 py-1 rounded">Plan expansión →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 5 · Zoom geográfico nivel distrito · Lima Metropolitana -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">5</div>
+    <h2 class="text-lg font-semibold">Zoom geográfico · Lima Metropolitana nivel distrito</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Click + zoom en una región abre el mapa al siguiente nivel de detalle. <strong>43 distritos de Lima Metropolitana</strong> coloreados con la misma paleta semántica. Mismo patrón aplicaría para Arequipa Metropolitana, Trujillo, etc. Soporta scroll wheel · pinch · botones +/−.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+
+    <!-- Toolbar con breadcrumb + controles zoom -->
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-fuchsia-600 hover:text-fuchsia-800 font-medium">🇵🇪 Perú</a>
+        <span class="text-slate-400">/</span>
+        <span class="font-semibold text-slate-900">Lima Metropolitana</span>
+        <span class="pill pill-purple ml-2">Z1 · 43 distritos</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="bg-white border border-slate-200 rounded px-2.5 py-1 text-sm hover:bg-slate-100 font-bold">−</button>
+        <span class="text-xs text-slate-500 tabular-nums">Z1</span>
+        <button class="bg-white border border-slate-200 rounded px-2.5 py-1 text-sm hover:bg-slate-100 font-bold">+</button>
+        <span class="text-slate-300">·</span>
+        <button class="text-xs text-slate-600 hover:bg-slate-100 px-3 py-1 rounded">↺ Reset</button>
+        <button class="text-xs text-fuchsia-600 hover:bg-fuchsia-50 px-3 py-1 rounded font-semibold">← Volver a Perú</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-0 divide-x divide-slate-200">
+
+      <!-- Mapa zoom Lima -->
+      <div class="col-span-2 p-5">
+        <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3 flex items-center justify-between">
+          <span>Mapa de Lima Metropolitana · 43 distritos</span>
+          <span class="text-[10px] text-slate-400 italic">Pinch / scroll para zoom · click distrito para drill-down a Z2</span>
+        </div>
+
+        <!-- SVG de Lima Metropolitana con distritos -->
+        <div class="bg-slate-50 rounded-lg p-4 relative" style="height: 540px;">
+          <svg viewBox="0 0 600 540" class="w-full h-full">
+
+            <!-- Océano (background sutil) -->
+            <rect x="0" y="0" width="200" height="540" fill="#f0f9ff" opacity="0.5"/>
+            <text x="80" y="270" font-size="11" fill="#7dd3fc" font-style="italic">Océano Pacífico</text>
+
+            <!-- Lima Norte · grupo distritos -->
+            <!-- Ancón -->
+            <path class="map-region" d="M 220,30 L 290,40 L 280,80 L 215,75 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1">
+              <title>Ancón · S/0</title>
+            </path>
+            <text x="248" y="58" font-size="8" fill="#3f3f46" text-anchor="middle">Ancón</text>
+
+            <!-- Santa Rosa -->
+            <path class="map-region" d="M 215,75 L 280,80 L 275,110 L 218,108 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1">
+              <title>Santa Rosa · S/0</title>
+            </path>
+            <text x="245" y="95" font-size="8" fill="#3f3f46" text-anchor="middle">Sta Rosa</text>
+
+            <!-- Carabayllo -->
+            <path class="map-region" d="M 280,80 L 350,75 L 360,140 L 290,145 Z" fill="#fde68a" stroke="#a16207" stroke-width="1">
+              <title>Carabayllo · S/1,200</title>
+            </path>
+            <text x="320" y="115" font-size="8" fill="#78350f" text-anchor="middle">Carabayllo</text>
+
+            <!-- Comas -->
+            <path class="map-region" d="M 218,108 L 290,145 L 285,180 L 215,170 Z" fill="#fef3c7" stroke="#a16207" stroke-width="1">
+              <title>Comas · S/680</title>
+            </path>
+            <text x="252" y="148" font-size="8" fill="#78350f" text-anchor="middle">Comas</text>
+
+            <!-- Puente Piedra -->
+            <path class="map-region" d="M 290,145 L 360,140 L 350,185 L 285,180 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1">
+              <title>Puente Piedra · S/0</title>
+            </path>
+            <text x="320" y="165" font-size="8" fill="#3f3f46" text-anchor="middle">Pte Piedra</text>
+
+            <!-- Los Olivos -->
+            <path class="map-region" d="M 215,170 L 285,180 L 280,210 L 218,205 Z" fill="#fde68a" stroke="#a16207" stroke-width="1">
+              <title>Los Olivos · S/2,400</title>
+            </path>
+            <text x="247" y="193" font-size="8" fill="#78350f" text-anchor="middle">Los Olivos</text>
+
+            <!-- San Martín de Porres -->
+            <path class="map-region" d="M 285,180 L 350,185 L 345,220 L 280,215 Z" fill="#fef3c7" stroke="#a16207" stroke-width="1">
+              <title>SMP · S/950</title>
+            </path>
+            <text x="315" y="203" font-size="8" fill="#78350f" text-anchor="middle">SMP</text>
+
+            <!-- Independencia -->
+            <path class="map-region" d="M 218,205 L 280,215 L 275,240 L 220,235 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1">
+              <title>Independencia · S/0</title>
+            </path>
+            <text x="247" y="225" font-size="8" fill="#3f3f46" text-anchor="middle">Indep.</text>
+
+            <!-- ====== LIMA CENTRO ====== -->
+
+            <!-- Cercado de Lima -->
+            <path class="map-region" d="M 280,215 L 345,220 L 340,260 L 275,255 Z" fill="#f9a8d4" stroke="#be185d" stroke-width="1.5">
+              <title>Cercado de Lima · S/8,400</title>
+            </path>
+            <text x="307" y="238" font-size="9" fill="#831843" font-weight="600" text-anchor="middle">Cercado</text>
+
+            <!-- Breña -->
+            <path class="map-region" d="M 220,235 L 275,255 L 270,280 L 218,270 Z" fill="#fbcfe8" stroke="#be185d" stroke-width="1">
+              <title>Breña · S/3,200</title>
+            </path>
+            <text x="245" y="260" font-size="8" fill="#831843" text-anchor="middle">Breña</text>
+
+            <!-- Pueblo Libre · activo -->
+            <path class="map-region" d="M 218,270 L 270,280 L 265,310 L 212,300 Z" fill="#f9a8d4" stroke="#be185d" stroke-width="1.5">
+              <title>Pueblo Libre · S/6,800</title>
+            </path>
+            <text x="243" y="293" font-size="9" fill="#831843" font-weight="600" text-anchor="middle">Pueblo L.</text>
+
+            <!-- Magdalena · activo -->
+            <path class="map-region" d="M 212,300 L 265,310 L 260,340 L 210,330 Z" fill="#f472b6" stroke="#9d174d" stroke-width="1.5">
+              <title>Magdalena · S/8,200</title>
+            </path>
+            <text x="237" y="323" font-size="9" fill="#fdf2f8" font-weight="600" text-anchor="middle">Magdalena</text>
+
+            <!-- Jesús María · TOP -->
+            <path class="map-region" d="M 270,280 L 340,260 L 335,300 L 265,310 Z" fill="#a21caf" stroke="#581c87" stroke-width="2">
+              <title>Jesús María · S/12,900</title>
+            </path>
+            <text x="302" y="287" font-size="10" fill="white" font-weight="700" text-anchor="middle">Jesús M.</text>
+            <text x="302" y="298" font-size="8" fill="#f3e8ff" text-anchor="middle">S/12.9k</text>
+
+            <!-- Lince -->
+            <path class="map-region" d="M 335,300 L 380,290 L 375,320 L 330,330 Z" fill="#f472b6" stroke="#9d174d" stroke-width="1.5">
+              <title>Lince · S/7,100</title>
+            </path>
+            <text x="355" y="312" font-size="9" fill="white" font-weight="600" text-anchor="middle">Lince</text>
+
+            <!-- San Isidro · TOP -->
+            <path class="map-region" d="M 265,310 L 335,300 L 330,330 L 260,340 Z" fill="#9333ea" stroke="#581c87" stroke-width="2">
+              <title>San Isidro · S/15,400</title>
+            </path>
+            <text x="297" y="320" font-size="10" fill="white" font-weight="700" text-anchor="middle">San Isidro</text>
+            <text x="297" y="331" font-size="8" fill="#f3e8ff" text-anchor="middle">S/15.4k</text>
+
+            <!-- Miraflores · TOP -->
+            <path class="map-region" d="M 210,330 L 260,340 L 255,375 L 205,365 Z" fill="#7e22ce" stroke="#4c1d95" stroke-width="2">
+              <title>Miraflores · S/22,800</title>
+            </path>
+            <text x="232" y="353" font-size="10" fill="white" font-weight="700" text-anchor="middle">Miraflores</text>
+            <text x="232" y="365" font-size="8" fill="#f3e8ff" text-anchor="middle">S/22.8k</text>
+
+            <!-- Surquillo -->
+            <path class="map-region" d="M 260,340 L 330,330 L 325,365 L 255,375 Z" fill="#f9a8d4" stroke="#be185d" stroke-width="1">
+              <title>Surquillo · S/4,200</title>
+            </path>
+            <text x="290" y="355" font-size="9" fill="#831843" text-anchor="middle">Surquillo</text>
+
+            <!-- San Borja · TOP -->
+            <path class="map-region" d="M 330,330 L 395,320 L 390,360 L 325,365 Z" fill="#a21caf" stroke="#581c87" stroke-width="2">
+              <title>San Borja · S/18,200</title>
+            </path>
+            <text x="360" y="345" font-size="10" fill="white" font-weight="700" text-anchor="middle">San Borja</text>
+            <text x="360" y="357" font-size="8" fill="#f3e8ff" text-anchor="middle">S/18.2k</text>
+
+            <!-- Surco · TOP MAYOR -->
+            <path class="map-region" d="M 255,375 L 390,360 L 395,420 L 250,425 Z" fill="#581c87" stroke="#3b0764" stroke-width="2.5">
+              <title>Santiago de Surco · S/28,400 ⭐ TOP</title>
+            </path>
+            <text x="322" y="395" font-size="12" fill="white" font-weight="700" text-anchor="middle">⭐ SURCO</text>
+            <text x="322" y="410" font-size="9" fill="#e9d5ff" text-anchor="middle">S/28.4k · Top distrito</text>
+
+            <!-- San Juan de Miraflores -->
+            <path class="map-region" d="M 250,425 L 320,425 L 318,470 L 248,468 Z" fill="#fde68a" stroke="#a16207" stroke-width="1">
+              <title>SJM · S/2,100</title>
+            </path>
+            <text x="284" y="448" font-size="8" fill="#78350f" text-anchor="middle">SJM</text>
+
+            <!-- Villa María del Triunfo -->
+            <path class="map-region" d="M 320,425 L 395,420 L 390,470 L 318,470 Z" fill="#fde68a" stroke="#a16207" stroke-width="1">
+              <title>VMT · S/1,400</title>
+            </path>
+            <text x="356" y="448" font-size="8" fill="#78350f" text-anchor="middle">VMT</text>
+
+            <!-- Chorrillos -->
+            <path class="map-region" d="M 205,365 L 255,375 L 250,425 L 200,420 Z" fill="#fbcfe8" stroke="#be185d" stroke-width="1">
+              <title>Chorrillos · S/3,400</title>
+            </path>
+            <text x="227" y="395" font-size="8" fill="#831843" text-anchor="middle">Chorrillos</text>
+
+            <!-- Barranco -->
+            <path class="map-region" d="M 200,420 L 250,425 L 248,468 L 198,460 Z" fill="#f472b6" stroke="#9d174d" stroke-width="1.5">
+              <title>Barranco · S/6,100</title>
+            </path>
+            <text x="223" y="445" font-size="9" fill="white" font-weight="600" text-anchor="middle">Barranco</text>
+
+            <!-- Villa El Salvador -->
+            <path class="map-region" d="M 198,460 L 248,468 L 245,510 L 195,505 Z" fill="#fef3c7" stroke="#a16207" stroke-width="1">
+              <title>VES · S/890</title>
+            </path>
+            <text x="222" y="487" font-size="8" fill="#78350f" text-anchor="middle">VES</text>
+
+            <!-- ====== LIMA ESTE ====== -->
+
+            <!-- San Juan de Lurigancho -->
+            <path class="map-region" d="M 350,185 L 425,180 L 430,240 L 360,245 Z" fill="#fef3c7" stroke="#a16207" stroke-width="1">
+              <title>SJL · S/1,800</title>
+            </path>
+            <text x="390" y="213" font-size="9" fill="#78350f" text-anchor="middle">SJL</text>
+
+            <!-- El Agustino -->
+            <path class="map-region" d="M 345,220 L 360,245 L 355,275 L 340,260 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1">
+              <title>El Agustino · S/0</title>
+            </path>
+            <text x="350" y="252" font-size="7" fill="#3f3f46" text-anchor="middle">Agustino</text>
+
+            <!-- Ate -->
+            <path class="map-region" d="M 380,290 L 460,285 L 465,335 L 390,340 Z" fill="#fde68a" stroke="#a16207" stroke-width="1">
+              <title>Ate · S/2,800</title>
+            </path>
+            <text x="420" y="312" font-size="9" fill="#78350f" text-anchor="middle">Ate</text>
+
+            <!-- Santa Anita -->
+            <path class="map-region" d="M 360,245 L 425,240 L 425,285 L 360,290 Z" fill="#fde68a" stroke="#a16207" stroke-width="1">
+              <title>Sta Anita · S/1,600</title>
+            </path>
+            <text x="392" y="265" font-size="9" fill="#78350f" text-anchor="middle">Sta Anita</text>
+
+            <!-- La Molina · TOP -->
+            <path class="map-region" d="M 390,340 L 465,335 L 470,395 L 395,395 Z" fill="#a21caf" stroke="#581c87" stroke-width="2">
+              <title>La Molina · S/10,400</title>
+            </path>
+            <text x="430" y="365" font-size="10" fill="white" font-weight="700" text-anchor="middle">La Molina</text>
+            <text x="430" y="377" font-size="8" fill="#f3e8ff" text-anchor="middle">S/10.4k</text>
+
+            <!-- Cieneguilla -->
+            <path class="map-region" d="M 470,335 L 530,340 L 535,395 L 470,395 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1">
+              <title>Cieneguilla · S/0</title>
+            </path>
+            <text x="500" y="367" font-size="9" fill="#3f3f46" text-anchor="middle">Cieneguilla</text>
+
+            <!-- Pachacámac -->
+            <path class="map-region" d="M 395,395 L 470,395 L 475,445 L 395,445 Z" fill="#e5e7eb" stroke="#71717a" stroke-width="1">
+              <title>Pachacámac · S/0</title>
+            </path>
+            <text x="432" y="420" font-size="9" fill="#3f3f46" text-anchor="middle">Pachacámac</text>
+
+            <!-- Lurín -->
+            <path class="map-region" d="M 320,470 L 395,445 L 405,510 L 325,510 Z" fill="#fef3c7" stroke="#a16207" stroke-width="1">
+              <title>Lurín · S/580</title>
+            </path>
+            <text x="362" y="487" font-size="9" fill="#78350f" text-anchor="middle">Lurín</text>
+
+            <!-- Callao (en azul · provincia distinta) -->
+            <path class="map-region" d="M 130,250 L 200,245 L 205,310 L 200,365 L 145,355 L 135,300 Z" fill="#c084fc" stroke="#7e22ce" stroke-width="1.5" opacity="0.95">
+              <title>Callao · S/18,900 (provincia distinta)</title>
+            </path>
+            <text x="170" y="305" font-size="11" fill="white" font-weight="700" text-anchor="middle">Callao</text>
+            <text x="170" y="318" font-size="8" fill="#f3e8ff" text-anchor="middle">prov. distinta</text>
+
+          </svg>
+
+          <!-- Mini-mapa de orientación -->
+          <div class="absolute bottom-3 left-3 bg-white rounded-lg shadow-md border border-slate-200 p-2 w-40">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Posición</div>
+            <svg viewBox="0 0 100 130" class="w-full h-20">
+              <path d="M 30,15 L 50,12 L 55,40 L 65,80 L 70,115 L 30,115 Z" fill="#e5e7eb" stroke="#94a3b8" stroke-width="0.5"/>
+              <rect x="38" y="55" width="20" height="20" fill="#a21caf" stroke="#581c87" stroke-width="0.5"/>
+              <text x="48" y="68" font-size="6" fill="white" text-anchor="middle">aquí</text>
+            </svg>
+            <div class="text-[10px] text-slate-500 text-center mt-1">Lima Metro</div>
+          </div>
+
+          <!-- Leyenda -->
+          <div class="absolute bottom-3 right-3 bg-white rounded-lg shadow-sm border border-slate-200 p-2 text-[10px]">
+            <div class="font-semibold text-slate-700 mb-1">Volumen distrito</div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-purple-900 rounded"></div><span>S/25k+ (top)</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-purple-700 rounded"></div><span>S/10-25k</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-purple-400 rounded"></div><span>S/5-10k</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-pink-200 rounded"></div><span>S/1-5k</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-amber-200 rounded"></div><span>&lt; S/1k</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-4 h-3 bg-zinc-200 rounded"></div><span>Sin ventas</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Lima · contexto del nivel actual -->
+      <div class="p-5 bg-slate-50">
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3">Lima Metropolitana · Z1</h4>
+
+        <!-- KPIs del nivel -->
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <div class="bg-white rounded-lg border border-slate-200 p-2.5">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">Distritos activos</div>
+            <div class="text-lg font-bold tabular-nums">22 / 43</div>
+            <div class="text-[10px] text-amber-700">51% cobertura</div>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-2.5">
+            <div class="text-[10px] uppercase text-slate-500 font-semibold">Concentración</div>
+            <div class="text-lg font-bold tabular-nums">62%</div>
+            <div class="text-[10px] text-slate-500">en top 5 distritos</div>
+          </div>
+        </div>
+
+        <!-- Distrito hovered/seleccionado -->
+        <div class="bg-purple-100 border-2 border-purple-400 rounded-lg p-3 mb-4">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-semibold mb-1">Distrito destacado</div>
+          <div class="text-sm font-bold text-purple-900 mb-1">⭐ Santiago de Surco</div>
+          <div class="space-y-1 text-xs text-purple-800">
+            <div class="flex justify-between"><span>Ventas Q1-Q2</span><span class="font-bold tabular-nums">S/ 28,400</span></div>
+            <div class="flex justify-between"><span>Ventas</span><span class="tabular-nums">62</span></div>
+            <div class="flex justify-between"><span>Clientes</span><span class="tabular-nums">38</span></div>
+            <div class="flex justify-between"><span>Ticket prom</span><span class="tabular-nums">S/ 458</span></div>
+          </div>
+          <button class="w-full mt-2 bg-purple-600 text-white text-xs font-semibold px-3 py-1.5 rounded">
+            🔍 Zoom Z2 → manzanas + clientes
+          </button>
+        </div>
+
+        <!-- Áreas blancas / oportunidad -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Áreas sin ventas</h4>
+        <div class="space-y-1.5 text-xs mb-4">
+          <div class="bg-white border border-amber-200 rounded p-2">
+            <div class="font-semibold text-amber-900">Lima Norte (4 distritos)</div>
+            <div class="text-[10px] text-amber-700">Ancón · Santa Rosa · Pte Piedra · Indep.</div>
+          </div>
+          <div class="bg-white border border-amber-200 rounded p-2">
+            <div class="font-semibold text-amber-900">Lima Sur (3 distritos)</div>
+            <div class="text-[10px] text-amber-700">Pachacámac · Cieneguilla · El Agustino</div>
+          </div>
+          <div class="bg-white border border-amber-200 rounded p-2">
+            <div class="font-semibold text-amber-900">VES, Pucusana</div>
+            <div class="text-[10px] text-amber-700">~S/M habitantes sin penetración</div>
+          </div>
+        </div>
+
+        <!-- Acciones del nivel -->
+        <h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Acciones</h4>
+        <div class="space-y-1.5">
+          <button class="w-full text-left text-xs bg-white border border-slate-200 hover:bg-slate-100 rounded px-3 py-2">
+            📊 Comparar Lima vs otras regiones
+          </button>
+          <button class="w-full text-left text-xs bg-white border border-slate-200 hover:bg-slate-100 rounded px-3 py-2">
+            🚀 Plan expansión Lima Norte
+          </button>
+          <button class="w-full text-left text-xs bg-white border border-slate-200 hover:bg-slate-100 rounded px-3 py-2">
+            📥 Exportar mapa PNG
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner Z2 disponible -->
+    <div class="border-t border-slate-200 bg-purple-50 px-5 py-3">
+      <div class="flex items-center gap-3">
+        <div class="text-base">🔍</div>
+        <div class="flex-1 text-xs">
+          <strong class="text-purple-900">Z2 disponible · próximo nivel de zoom</strong>
+          <span class="text-purple-700"> · Click en cualquier distrito (ej. Surco) abre vista a nivel manzana con puntos de clientes individuales · útil para optimizar ruta del courier dedicado.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stack técnico recomendado -->
+  <div class="mt-6 bg-slate-900 text-slate-100 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-base">🛠</span>
+      <h3 class="font-bold text-white">Stack técnico recomendado para implementar el zoom multi-nivel</h3>
+    </div>
+    <div class="grid grid-cols-4 gap-3 text-xs">
+      <div class="bg-slate-800 rounded-lg p-3 ring-2 ring-purple-500">
+        <div class="font-bold text-purple-300 mb-1">⭐ Mapbox GL JS</div>
+        <div class="text-slate-300 mb-2">Recomendación principal</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Vector tiles · zoom infinito</li>
+          <li>✓ Estilos custom (paleta nuestra)</li>
+          <li>✓ Performance excelente</li>
+          <li>✓ Mobile pinch nativo</li>
+          <li>~ Pago tras 50k loads/mes</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-emerald-300 mb-1">Leaflet + OSM</div>
+        <div class="text-slate-300 mb-2">Alternativa gratuita</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ 100% open source</li>
+          <li>✓ Comunidad enorme</li>
+          <li>~ Estilos menos premium</li>
+          <li>~ Tiles raster (más pesados)</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-yellow-300 mb-1">Google Maps</div>
+        <div class="text-slate-300 mb-2">Si ya usas Maps</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Cobertura Perú perfecta</li>
+          <li>✓ Familiar para usuarios</li>
+          <li>~ Costo escala con uso</li>
+          <li>~ Estilos limitados</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-pink-300 mb-1">react-simple-maps</div>
+        <div class="text-slate-300 mb-2">Solo Z0-Z1</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Liviano · React-friendly</li>
+          <li>✓ TopoJSON estático</li>
+          <li>✗ NO soporta Z2 dinámico</li>
+          <li>✗ Sin tiles</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-3 bg-slate-800 rounded-lg p-3 text-xs text-slate-300">
+      <strong class="text-white">Datos para Perú:</strong> INEI publica shapefiles oficiales gratuitos (<code class="text-yellow-300">descarga.inei.gob.pe</code>) con 24 regiones · 196 provincias · 1,874 distritos. Convertir a TopoJSON con <code class="text-yellow-300">mapshaper</code> reduce 60% el tamaño y permite zoom fluido.
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 6 · Heatmap matriz Productos × Regiones -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">6</div>
+    <h2 class="text-lg font-semibold">Heatmap matriz · Productos × Regiones · ¿qué se vende dónde?</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Cada celda = unidades vendidas del SKU en esa región (último período seleccionado). Color por intensidad · paleta continua (no cuadrantes). Detecta <strong>ceguera regional</strong>: productos que solo se venden en Lima · cobertura desigual · oportunidades de expansión por SKU.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+
+    <!-- Toolbar -->
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3 text-sm">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Cruzar</div>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option selected>Productos × Regiones</option>
+          <option>Productos × Tiempo (12 meses)</option>
+          <option>Productos × Clientes top 30</option>
+          <option>Productos × Hora del día</option>
+          <option>Productos × Categoría cliente (B2B/B2C)</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Métrica: Unidades</option>
+          <option>Métrica: Monto S/</option>
+          <option>Métrica: % participación</option>
+          <option>Métrica: Margen</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Últimos 90 días</option>
+          <option>Últimos 30 días</option>
+          <option>Año actual</option>
+        </select>
+        <select class="text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+          <option>Top 20 SKUs</option>
+          <option>Solo Skincare</option>
+          <option>Solo Suplementos</option>
+          <option>Todos</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <button class="bg-fuchsia-100 text-fuchsia-700 font-semibold px-3 py-1.5 rounded">🔥 Heatmap</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">📊 Tabla</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">📥 Export</button>
+      </div>
+    </div>
+
+    <!-- Heatmap matrix -->
+    <div class="p-4 overflow-x-auto">
+      <table class="w-full text-[10px] tabular-nums">
+        <thead>
+          <tr>
+            <th class="text-left p-2 sticky left-0 bg-white" style="min-width: 220px">SKU · Producto</th>
+            <th class="text-center p-2 bg-purple-100 font-bold text-purple-900">LIM</th>
+            <th class="text-center p-2 bg-fuchsia-50 font-bold text-fuchsia-700">AQP</th>
+            <th class="text-center p-2 bg-fuchsia-50 font-bold text-fuchsia-700">CAL</th>
+            <th class="text-center p-2 bg-fuchsia-50 font-bold text-fuchsia-700">ICA</th>
+            <th class="text-center p-2 bg-pink-50 font-bold text-pink-700">TRU</th>
+            <th class="text-center p-2 bg-pink-50 font-bold text-pink-700">PIU</th>
+            <th class="text-center p-2 bg-amber-50 font-bold text-amber-700">CUS</th>
+            <th class="text-center p-2 bg-amber-50 font-bold text-amber-700">JUN</th>
+            <th class="text-center p-2 bg-amber-50 font-bold text-amber-700">SMR</th>
+            <th class="text-center p-2 bg-zinc-50 font-bold text-zinc-700">PUN</th>
+            <th class="text-center p-2 bg-zinc-50 font-bold text-zinc-700">LOR</th>
+            <th class="text-center p-2 bg-slate-100 font-bold text-slate-900">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t border-slate-100">
+            <td class="p-2 sticky left-0 bg-white border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-fuchsia">SKC-0041</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Travel Kit Skincare</div>
+                  <div class="text-[9px] text-slate-500">Pack · 4 productos</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-purple-700 text-white text-center font-bold rounded heat-cell">42</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">8</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">7</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">3</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">2</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-slate-100 text-slate-900 text-center font-bold rounded">63</td>
+          </tr>
+          <tr class="border-t border-slate-100">
+            <td class="p-2 sticky left-0 bg-white border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-emerald">SUP-0012</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Colágeno Premium</div>
+                  <div class="text-[9px] text-slate-500">Suplemento · 30u</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-purple-800 text-white text-center font-bold rounded heat-cell">68</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">2</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">2</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-slate-100 text-slate-900 text-center font-bold rounded">73</td>
+          </tr>
+          <tr class="border-t border-slate-100">
+            <td class="p-2 sticky left-0 bg-white border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-fuchsia">SKC-0033</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Soothing Cream 50ml</div>
+                  <div class="text-[9px] text-slate-500">Skincare · simple</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-purple-600 text-white text-center font-bold rounded heat-cell">52</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">12</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">9</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">5</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">4</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">2</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-slate-100 text-slate-900 text-center font-bold rounded">85</td>
+          </tr>
+          <tr class="border-t border-slate-100 bg-amber-50/30">
+            <td class="p-2 sticky left-0 bg-amber-50/30 border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-emerald">SUP-0007</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Vitamina D3</div>
+                  <div class="text-[9px] text-amber-700 font-semibold">⚡ Distribución pareja</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-pink-500 text-white text-center font-bold rounded heat-cell">29</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">15</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">12</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">8</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">7</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">6</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">5</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">4</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">3</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">2</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-slate-100 text-slate-900 text-center font-bold rounded">92</td>
+          </tr>
+          <tr class="border-t border-slate-100 bg-rose-50/30">
+            <td class="p-2 sticky left-0 bg-rose-50/30 border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-fuchsia">SKC-0089</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Mascarilla A</div>
+                  <div class="text-[9px] text-rose-700 font-semibold">⚠️ Solo Lima</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">18</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-slate-100 text-slate-900 text-center font-bold rounded">19</td>
+          </tr>
+          <tr class="border-t border-slate-200 bg-slate-50">
+            <td class="p-2 sticky left-0 bg-slate-50 text-center text-slate-500 italic" colspan="13">
+              + 15 SKUs más · click "Mostrar todos" para expandir
+            </td>
+          </tr>
+          <tr class="border-t-2 border-slate-300 bg-slate-100 font-bold">
+            <td class="p-2 sticky left-0 bg-slate-100 border-r border-slate-200 text-slate-900">TOTAL UNIDADES</td>
+            <td class="p-2 text-center text-purple-900 tabular-nums">487</td>
+            <td class="p-2 text-center text-fuchsia-700 tabular-nums">87</td>
+            <td class="p-2 text-center text-fuchsia-700 tabular-nums">62</td>
+            <td class="p-2 text-center text-pink-700 tabular-nums">42</td>
+            <td class="p-2 text-center text-pink-700 tabular-nums">31</td>
+            <td class="p-2 text-center text-pink-700 tabular-nums">15</td>
+            <td class="p-2 text-center text-amber-700 tabular-nums">11</td>
+            <td class="p-2 text-center text-amber-700 tabular-nums">8</td>
+            <td class="p-2 text-center text-amber-700 tabular-nums">6</td>
+            <td class="p-2 text-center text-zinc-700 tabular-nums">3</td>
+            <td class="p-2 text-center text-zinc-700 tabular-nums">2</td>
+            <td class="p-2 text-center text-slate-900 tabular-nums">754</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Leyenda -->
+      <div class="flex items-center justify-between mt-3 text-[10px]">
+        <div class="text-slate-500 italic">⓵ Hover en cada celda muestra monto exacto y % del total · click abre drill-down del SKU+región</div>
+        <div class="flex items-center gap-1">
+          <span class="text-slate-500">Menos vendido</span>
+          <div class="w-4 h-3 bg-zinc-100 rounded"></div>
+          <div class="w-4 h-3 bg-pink-100 rounded"></div>
+          <div class="w-4 h-3 bg-pink-300 rounded"></div>
+          <div class="w-4 h-3 bg-pink-500 rounded"></div>
+          <div class="w-4 h-3 bg-purple-500 rounded"></div>
+          <div class="w-4 h-3 bg-purple-700 rounded"></div>
+          <div class="w-4 h-3 bg-purple-800 rounded"></div>
+          <span class="text-slate-500">Más vendido</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights detectados -->
+    <div class="border-t border-slate-200 grid grid-cols-3 divide-x divide-slate-200">
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-base">⚠️</span>
+          <span class="text-xs uppercase tracking-wider text-rose-700 font-semibold">Ceguera regional detectada</span>
+        </div>
+        <div class="text-sm font-bold">SKC-0089 Mascarilla A · solo Lima</div>
+        <p class="text-xs text-slate-600 mt-1">95% en Lima · 0 en regiones secundarias. Probable: nunca se hizo push regional. Probar piloto Arequipa + Trujillo (1 mes campaña dedicada).</p>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-base">⚡</span>
+          <span class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Distribución pareja</span>
+        </div>
+        <div class="text-sm font-bold">SUP-0007 Vitamina D3 · 11 regiones activas</div>
+        <p class="text-xs text-slate-600 mt-1">Único SKU con cobertura nacional real. Modelo a replicar: ¿qué tiene D3 que no tienen los otros suplementos? (precio · campaña · logística)</p>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-base">💎</span>
+          <span class="text-xs uppercase tracking-wider text-purple-700 font-semibold">Concentración Lima</span>
+        </div>
+        <div class="text-sm font-bold">SUP-0012 Colágeno · 93% Lima</div>
+        <p class="text-xs text-slate-600 mt-1">Producto premium · pocos compradores fuera de Lima. NO es "ceguera" sino mercado natural · evaluar si vale invertir en expansión o reforzar Lima.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 7 · Heatmap matriz Productos × Tiempo · estacionalidad -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">7</div>
+    <h2 class="text-lg font-semibold">Heatmap matriz · Productos × Tiempo · estacionalidad y tendencias</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Misma matriz · pero columnas son los últimos 12 meses. Detecta <strong>estacionalidad</strong> (productos que suben en X mes), <strong>tendencias</strong> (subida/caída sostenida) y <strong>productos zombi</strong> (que dejaron de venderse). Útil para planificación de OCs anticipadas y campañas estacionales.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+
+    <!-- Toolbar simplificada -->
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span class="pill pill-fuchsia">Vista activa</span>
+        <span class="font-semibold">Productos × Tiempo (12 meses)</span>
+        <span class="text-slate-500">· Métrica: Unidades</span>
+      </div>
+      <div class="text-slate-500 italic">May 2025 → Abr 2026</div>
+    </div>
+
+    <!-- Heatmap tiempo -->
+    <div class="p-4 overflow-x-auto">
+      <table class="w-full text-[10px] tabular-nums">
+        <thead>
+          <tr>
+            <th class="text-left p-2 sticky left-0 bg-white" style="min-width: 220px">SKU · Producto</th>
+            <th class="text-center p-1.5 text-slate-600">May'25</th>
+            <th class="text-center p-1.5 text-slate-600">Jun</th>
+            <th class="text-center p-1.5 text-slate-600">Jul</th>
+            <th class="text-center p-1.5 text-slate-600">Ago</th>
+            <th class="text-center p-1.5 text-slate-600">Sep</th>
+            <th class="text-center p-1.5 text-slate-600">Oct</th>
+            <th class="text-center p-1.5 text-slate-600">Nov</th>
+            <th class="text-center p-1.5 text-slate-600">Dic'25</th>
+            <th class="text-center p-1.5 text-slate-600">Ene'26</th>
+            <th class="text-center p-1.5 text-slate-600">Feb</th>
+            <th class="text-center p-1.5 text-slate-600">Mar</th>
+            <th class="text-center p-1.5 bg-pink-50 text-pink-700 font-bold">Abr</th>
+            <th class="text-center p-1.5 bg-slate-100 text-slate-900 font-bold">Tend.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t border-slate-100">
+            <td class="p-2 sticky left-0 bg-white border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-fuchsia">SKC-0041</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Travel Kit</div>
+                  <div class="text-[9px] text-emerald-700 font-semibold">📈 Subida sostenida</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">8</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">12</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">14</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">18</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">22</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">28</td>
+            <td class="p-1 bg-pink-500 text-white text-center font-bold rounded heat-cell">35</td>
+            <td class="p-1 bg-purple-500 text-white text-center font-bold rounded heat-cell">42</td>
+            <td class="p-1 bg-purple-500 text-white text-center font-bold rounded heat-cell">38</td>
+            <td class="p-1 bg-purple-500 text-white text-center font-bold rounded heat-cell">40</td>
+            <td class="p-1 bg-purple-600 text-white text-center font-bold rounded heat-cell">48</td>
+            <td class="p-1 bg-purple-700 text-white text-center font-bold rounded heat-cell ring-1 ring-purple-900">63</td>
+            <td class="p-1 text-center font-bold text-emerald-700">↗ +688%</td>
+          </tr>
+          <tr class="border-t border-slate-100 bg-amber-50/30">
+            <td class="p-2 sticky left-0 bg-amber-50/30 border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-emerald">SUP-0007</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Vitamina D3</div>
+                  <div class="text-[9px] text-amber-700 font-semibold">☀️ Estacional invierno</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">48</td>
+            <td class="p-1 bg-pink-500 text-white text-center font-bold rounded heat-cell">82</td>
+            <td class="p-1 bg-purple-500 text-white text-center font-bold rounded heat-cell">115</td>
+            <td class="p-1 bg-purple-700 text-white text-center font-bold rounded heat-cell ring-1 ring-purple-900">142</td>
+            <td class="p-1 bg-purple-600 text-white text-center font-bold rounded heat-cell">128</td>
+            <td class="p-1 bg-pink-500 text-white text-center font-bold rounded heat-cell">85</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">52</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">38</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">22</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">18</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">35</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">92</td>
+            <td class="p-1 text-center font-semibold text-amber-700">↗ pico Ago</td>
+          </tr>
+          <tr class="border-t border-slate-100">
+            <td class="p-2 sticky left-0 bg-white border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-emerald">SUP-0012</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Colágeno Premium</div>
+                  <div class="text-[9px] text-emerald-700 font-semibold">📈 Boom Q1</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">25</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">22</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">38</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">42</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">52</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">58</td>
+            <td class="p-1 bg-pink-500 text-white text-center font-bold rounded heat-cell">62</td>
+            <td class="p-1 bg-pink-500 text-white text-center font-bold rounded heat-cell">68</td>
+            <td class="p-1 bg-purple-500 text-white text-center font-bold rounded heat-cell">82</td>
+            <td class="p-1 bg-purple-600 text-white text-center font-bold rounded heat-cell">95</td>
+            <td class="p-1 bg-purple-600 text-white text-center font-bold rounded heat-cell">98</td>
+            <td class="p-1 bg-purple-700 text-white text-center font-bold rounded heat-cell ring-1 ring-purple-900">73</td>
+            <td class="p-1 text-center font-bold text-emerald-700">↗ +192%</td>
+          </tr>
+          <tr class="border-t border-slate-100 bg-amber-50/30">
+            <td class="p-2 sticky left-0 bg-amber-50/30 border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-fuchsia">SKC-0044</span>
+                <div>
+                  <div class="font-semibold text-slate-900">Hidratante diario</div>
+                  <div class="text-[9px] text-amber-700 font-semibold">☀️ Pico verano</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">18</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">12</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">9</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">8</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">11</td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">22</td>
+            <td class="p-1 bg-pink-300 text-pink-900 text-center font-bold rounded heat-cell">38</td>
+            <td class="p-1 bg-pink-500 text-white text-center font-bold rounded heat-cell">52</td>
+            <td class="p-1 bg-purple-500 text-white text-center font-bold rounded heat-cell">68</td>
+            <td class="p-1 bg-purple-600 text-white text-center font-bold rounded heat-cell">72</td>
+            <td class="p-1 bg-purple-500 text-white text-center font-bold rounded heat-cell">55</td>
+            <td class="p-1 bg-pink-400 text-white text-center font-bold rounded heat-cell">40</td>
+            <td class="p-1 text-center font-semibold text-amber-700">↗ pico Feb</td>
+          </tr>
+          <tr class="border-t border-slate-100 bg-rose-50/30">
+            <td class="p-2 sticky left-0 bg-rose-50/30 border-r border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="pill pill-zinc">SUP-0022</span>
+                <div>
+                  <div class="font-semibold text-slate-700">Suplemento legacy</div>
+                  <div class="text-[9px] text-rose-700 font-semibold">💀 Zombi · descontinuar</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-1 bg-pink-200 text-pink-900 text-center rounded heat-cell">15</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">8</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">5</td>
+            <td class="p-1 bg-pink-100 text-slate-700 text-center rounded heat-cell">3</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">2</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">1</td>
+            <td class="p-1 bg-zinc-100 text-slate-400 text-center rounded heat-cell">·</td>
+            <td class="p-1 text-center font-bold text-rose-700">↘ −100%</td>
+          </tr>
+          <tr class="border-t-2 border-slate-300 bg-slate-100 font-bold">
+            <td class="p-2 sticky left-0 bg-slate-100 border-r border-slate-200 text-slate-900">TOTAL MES</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">368</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">385</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">478</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">528</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">552</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">490</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">485</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">512</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">498</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">525</td>
+            <td class="p-2 text-center text-slate-700 tabular-nums">578</td>
+            <td class="p-2 text-center text-purple-900 tabular-nums">589</td>
+            <td class="p-2 text-center text-emerald-700">↗</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4 patrones detectados -->
+    <div class="border-t border-slate-200 grid grid-cols-4 divide-x divide-slate-200">
+      <div class="p-3 text-center">
+        <div class="text-base mb-1">📈</div>
+        <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-1">En subida</div>
+        <div class="text-[11px] text-slate-700">Travel Kit · Colágeno · Magnesio</div>
+        <div class="text-[10px] text-slate-500 mt-1 italic">Aumentar OCs preventivas</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-base mb-1">━</div>
+        <div class="text-xs uppercase tracking-wider text-slate-700 font-semibold mb-1">Estables</div>
+        <div class="text-[11px] text-slate-700">Soothing Cream · Niacinamide</div>
+        <div class="text-[10px] text-slate-500 mt-1 italic">Mantener inversión actual</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-base mb-1">☀️</div>
+        <div class="text-xs uppercase tracking-wider text-amber-700 font-semibold mb-1">Estacionales</div>
+        <div class="text-[11px] text-slate-700">Vit D3 (invierno) · Hidratante (verano)</div>
+        <div class="text-[10px] text-slate-500 mt-1 italic">Anticipar OC 60 días antes del pico</div>
+      </div>
+      <div class="p-3 text-center">
+        <div class="text-base mb-1">💀</div>
+        <div class="text-xs uppercase tracking-wider text-rose-700 font-semibold mb-1">Zombis</div>
+        <div class="text-[11px] text-slate-700">SUP-0022 Suplemento legacy</div>
+        <div class="text-[10px] text-slate-500 mt-1 italic">Liquidar y discontinuar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Otros cruces posibles del mismo motor -->
+  <div class="mt-6 bg-violet-50 border border-violet-200 rounded-xl p-5">
+    <div class="text-sm font-bold text-violet-900 mb-3 flex items-center gap-2">
+      <span>🔀</span>
+      <span>El mismo motor de heatmap soporta otros cruces · todos disponibles desde el dropdown del toolbar</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-xs">
+      <div class="bg-white border border-violet-200 rounded-lg p-3">
+        <div class="font-semibold text-violet-900 mb-1">📍 Productos × Regiones</div>
+        <p class="text-slate-600">¿Qué se vende dónde? Detecta ceguera regional. <strong class="text-violet-700">Vista 6 ←</strong></p>
+      </div>
+      <div class="bg-white border border-violet-200 rounded-lg p-3">
+        <div class="font-semibold text-violet-900 mb-1">📅 Productos × Tiempo</div>
+        <p class="text-slate-600">Estacionalidad y tendencias. <strong class="text-violet-700">Vista 7 ←</strong></p>
+      </div>
+      <div class="bg-white border border-violet-200 rounded-lg p-3">
+        <div class="font-semibold text-violet-900 mb-1">👥 Productos × Clientes top 30</div>
+        <p class="text-slate-600">¿Qué compra cada cliente VIP? Patrones de cross-sell · oportunidades de upsell.</p>
+      </div>
+      <div class="bg-white border border-violet-200 rounded-lg p-3">
+        <div class="font-semibold text-violet-900 mb-1">🕐 Productos × Hora del día</div>
+        <p class="text-slate-600">¿Qué se vende en sábado tarde vs viernes noche? Optimiza campañas WhatsApp por SKU.</p>
+      </div>
+      <div class="bg-white border border-violet-200 rounded-lg p-3">
+        <div class="font-semibold text-violet-900 mb-1">🏢 Productos × Categoría cliente</div>
+        <p class="text-slate-600">B2B (empresas/clínicas) vs B2C (consumidor final). Diferenciar segmentos.</p>
+      </div>
+      <div class="bg-white border border-violet-200 rounded-lg p-3">
+        <div class="font-semibold text-violet-900 mb-1">🎯 Productos × Canal</div>
+        <p class="text-slate-600">WhatsApp · web · referidos · físico. Atribuir performance por canal de adquisición.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-7xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 8 · Mapa con cards anchored estilo Airbnb + Stripe + Linear -->
+<!-- ============================================================ -->
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center text-sm font-bold">8</div>
+    <h2 class="text-lg font-semibold">Mapa con cards anchored · benchmark Airbnb/Stripe/Linear</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El layout que las empresas top de la industria usan: mapa como protagonista + <strong>cards flotantes ancladas a coordenadas</strong> con producto destacado + métricas + sparkline + CTA directo. <em>"En Miraflores el Colágeno vendió X unidades · S/Y · ↗ creciendo 22%"</em> · todo visible de un vistazo, sin clicks.</p>
+
+  <!-- Container principal · mapa + drawer lateral -->
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-lg">
+
+    <!-- Toolbar superior · estilo Mapbox Studio -->
+    <div class="bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3 text-sm">
+        <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Capas activas</div>
+        <button class="bg-fuchsia-100 text-fuchsia-700 font-semibold px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-fuchsia-500"></span>
+          Top Producto
+        </button>
+        <button class="bg-emerald-100 text-emerald-700 font-semibold px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Volumen S/
+        </button>
+        <button class="bg-slate-100 text-slate-500 px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+          Clientes top
+        </button>
+        <button class="bg-slate-100 text-slate-500 px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+          Crecimiento
+        </button>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <button class="bg-violet-100 text-violet-700 font-semibold px-3 py-1.5 rounded flex items-center gap-1.5">
+          ▶ Tour Lima
+        </button>
+        <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded">⤢ Pantalla completa</button>
+        <button class="text-slate-600 hover:bg-slate-100 px-3 py-1.5 rounded">📥</button>
+      </div>
+    </div>
+
+    <!-- Layout principal · mapa + drawer -->
+    <div class="grid grid-cols-4 gap-0">
+
+      <!-- Mapa con cards ancladas (col-span-3) -->
+      <div class="col-span-3 relative bg-gradient-to-br from-slate-50 to-blue-50/30" style="height: 720px;">
+
+        <!-- SVG mapa Lima como background -->
+        <svg viewBox="0 0 600 540" class="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
+          <!-- Océano -->
+          <rect x="0" y="0" width="200" height="540" fill="#dbeafe" opacity="0.4"/>
+
+          <!-- Distritos Lima (simplificados · paleta más sutil para destacar cards) -->
+          <path class="map-region" d="M 220,30 L 290,40 L 280,80 L 215,75 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+          <path class="map-region" d="M 280,80 L 350,75 L 360,140 L 290,145 Z" fill="#fef3c7" stroke="#fbbf24" stroke-width="0.5"/>
+          <path class="map-region" d="M 218,108 L 290,145 L 285,180 L 215,170 Z" fill="#fef3c7" stroke="#fbbf24" stroke-width="0.5"/>
+          <path class="map-region" d="M 215,170 L 285,180 L 280,210 L 218,205 Z" fill="#fde68a" stroke="#f59e0b" stroke-width="0.5"/>
+          <path class="map-region" d="M 285,180 L 350,185 L 345,220 L 280,215 Z" fill="#fef3c7" stroke="#fbbf24" stroke-width="0.5"/>
+
+          <!-- Lima Centro -->
+          <path class="map-region" d="M 280,215 L 345,220 L 340,260 L 275,255 Z" fill="#fbcfe8" stroke="#ec4899" stroke-width="0.5"/>
+          <path class="map-region" d="M 220,235 L 275,255 L 270,280 L 218,270 Z" fill="#fce7f3" stroke="#ec4899" stroke-width="0.5"/>
+          <path class="map-region" d="M 218,270 L 270,280 L 265,310 L 212,300 Z" fill="#fbcfe8" stroke="#ec4899" stroke-width="0.5"/>
+          <path class="map-region" d="M 212,300 L 265,310 L 260,340 L 210,330 Z" fill="#f9a8d4" stroke="#db2777" stroke-width="1"/>
+
+          <!-- JESÚS MARÍA · destino card -->
+          <path class="map-region" d="M 270,280 L 340,260 L 335,300 L 265,310 Z" fill="#a21caf" stroke="#581c87" stroke-width="2" opacity="0.85"/>
+
+          <!-- LINCE -->
+          <path class="map-region" d="M 335,300 L 380,290 L 375,320 L 330,330 Z" fill="#f9a8d4" stroke="#db2777" stroke-width="1"/>
+
+          <!-- SAN ISIDRO · destino card -->
+          <path class="map-region" d="M 265,310 L 335,300 L 330,330 L 260,340 Z" fill="#9333ea" stroke="#581c87" stroke-width="2" opacity="0.85"/>
+
+          <!-- MIRAFLORES · CARD EXPANDIDA -->
+          <path class="map-region" d="M 210,330 L 260,340 L 255,375 L 205,365 Z" fill="#7e22ce" stroke="#4c1d95" stroke-width="2.5" opacity="0.9"/>
+
+          <!-- SURQUILLO -->
+          <path class="map-region" d="M 260,340 L 330,330 L 325,365 L 255,375 Z" fill="#fbcfe8" stroke="#ec4899" stroke-width="0.5"/>
+
+          <!-- SAN BORJA · destino card -->
+          <path class="map-region" d="M 330,330 L 395,320 L 390,360 L 325,365 Z" fill="#a21caf" stroke="#581c87" stroke-width="2" opacity="0.85"/>
+
+          <!-- SURCO · destino card grande -->
+          <path class="map-region" d="M 255,375 L 390,360 L 395,420 L 250,425 Z" fill="#581c87" stroke="#3b0764" stroke-width="3" opacity="0.92"/>
+
+          <!-- LA MOLINA · destino card -->
+          <path class="map-region" d="M 390,340 L 465,335 L 470,395 L 395,395 Z" fill="#a21caf" stroke="#581c87" stroke-width="2" opacity="0.85"/>
+
+          <!-- BARRANCO -->
+          <path class="map-region" d="M 200,420 L 250,425 L 248,468 L 198,460 Z" fill="#f472b6" stroke="#db2777" stroke-width="1.5"/>
+
+          <!-- Otros distritos en gris sutil -->
+          <path class="map-region" d="M 250,425 L 320,425 L 318,470 L 248,468 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.5"/>
+          <path class="map-region" d="M 320,425 L 395,420 L 390,470 L 318,470 Z" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.5"/>
+          <path class="map-region" d="M 205,365 L 255,375 L 250,425 L 200,420 Z" fill="#fce7f3" stroke="#ec4899" stroke-width="0.5"/>
+
+          <!-- Líneas de conexión card-distrito (pulse animation visual) -->
+          <line x1="232" y1="353" x2="120" y2="245" stroke="#7e22ce" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+          <line x1="322" y1="395" x2="490" y2="500" stroke="#581c87" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+          <line x1="297" y1="320" x2="430" y2="80" stroke="#581c87" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+          <line x1="360" y1="345" x2="490" y2="180" stroke="#581c87" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+          <line x1="430" y1="365" x2="540" y2="320" stroke="#581c87" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+
+        </svg>
+
+        <!-- ===================== CARDS FLOTANTES ANCHORED ===================== -->
+
+        <!-- CARD EXPANDIDA · Miraflores · Colágeno -->
+        <div class="absolute" style="top: 32%; left: 5%; width: 240px;">
+          <div class="bg-white rounded-2xl shadow-2xl ring-1 ring-purple-200 overflow-hidden hover:scale-105 transition-transform">
+            <!-- Header gradient · estilo Stripe -->
+            <div class="bg-gradient-to-br from-purple-600 to-fuchsia-600 px-3 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="text-white text-[10px] font-bold uppercase tracking-wider">📍 Miraflores</span>
+              </div>
+              <span class="bg-white/20 text-white text-[9px] px-1.5 py-0.5 rounded-full font-semibold">TOP</span>
+            </div>
+
+            <!-- Producto destacado -->
+            <div class="p-3">
+              <div class="flex items-start gap-2 mb-2">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-2xl flex-shrink-0">💊</div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Top producto</div>
+                  <div class="font-bold text-sm text-slate-900 truncate">Colágeno Premium</div>
+                  <div class="text-[10px] text-slate-500 tabular-nums">SUP-0012</div>
+                </div>
+              </div>
+
+              <!-- Métricas -->
+              <div class="grid grid-cols-2 gap-2 mb-2">
+                <div class="bg-slate-50 rounded-lg px-2 py-1.5">
+                  <div class="text-[9px] uppercase text-slate-500 font-semibold">Vendido</div>
+                  <div class="text-sm font-bold tabular-nums text-purple-700">42 u</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg px-2 py-1.5">
+                  <div class="text-[9px] uppercase text-slate-500 font-semibold">Total</div>
+                  <div class="text-sm font-bold tabular-nums text-purple-700">S/ 8,820</div>
+                </div>
+              </div>
+
+              <!-- Sparkline · estilo Stripe Radar -->
+              <div class="bg-purple-50 rounded-lg px-2 py-2 mb-2">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[9px] text-purple-700 font-semibold uppercase tracking-wider">Tendencia 12m</span>
+                  <span class="text-[10px] text-emerald-600 font-bold tabular-nums">↗ +22%</span>
+                </div>
+                <svg viewBox="0 0 100 24" class="w-full h-6">
+                  <path d="M 0,18 L 8,16 L 16,17 L 24,14 L 32,12 L 40,10 L 48,11 L 56,8 L 64,7 L 72,5 L 80,4 L 88,3 L 100,2"
+                        fill="none" stroke="#a855f7" stroke-width="1.5"/>
+                  <path d="M 0,18 L 8,16 L 16,17 L 24,14 L 32,12 L 40,10 L 48,11 L 56,8 L 64,7 L 72,5 L 80,4 L 88,3 L 100,2 L 100,24 L 0,24 Z"
+                        fill="url(#sparkGrad1)" opacity="0.3"/>
+                  <defs>
+                    <linearGradient id="sparkGrad1" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#a855f7"/>
+                      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+
+              <!-- CTAs · estilo DoorDash -->
+              <div class="grid grid-cols-2 gap-1.5">
+                <button class="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-semibold py-1.5 rounded-lg transition">Ver SKU</button>
+                <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] font-semibold py-1.5 rounded-lg">📊 Detalle</button>
+              </div>
+            </div>
+          </div>
+          <!-- Pin de conexión hacia Miraflores -->
+          <div class="absolute -right-3 top-1/2 w-3 h-3 bg-purple-700 rounded-full ring-4 ring-purple-200 animate-pulse"></div>
+        </div>
+
+        <!-- CARD COMPACTA · Surco -->
+        <div class="absolute" style="top: 80%; right: 12%; width: 200px;">
+          <div class="bg-white rounded-xl shadow-xl ring-1 ring-purple-100 overflow-hidden hover:scale-105 transition-transform cursor-pointer">
+            <div class="bg-gradient-to-r from-purple-700 to-purple-900 px-2.5 py-1.5 flex items-center justify-between">
+              <span class="text-white text-[10px] font-bold uppercase tracking-wider">⭐ Surco</span>
+              <span class="bg-white/20 text-white text-[8px] px-1.5 py-0.5 rounded-full font-semibold">#1 LIMA</span>
+            </div>
+            <div class="p-2.5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-400 to-pink-600 flex items-center justify-center text-base">🧴</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-bold text-xs text-slate-900 truncate">Travel Kit Skincare</div>
+                  <div class="text-[9px] text-slate-500">SKC-0041</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[10px]">
+                <div>
+                  <span class="text-slate-500">62u · </span>
+                  <span class="font-bold tabular-nums text-purple-700">S/ 28,400</span>
+                </div>
+                <span class="text-emerald-600 font-bold">↗ +18%</span>
+              </div>
+            </div>
+          </div>
+          <div class="absolute -left-3 top-1/2 w-3 h-3 bg-purple-900 rounded-full ring-4 ring-purple-200"></div>
+        </div>
+
+        <!-- CARD COMPACTA · San Isidro -->
+        <div class="absolute" style="top: 5%; right: 15%; width: 200px;">
+          <div class="bg-white rounded-xl shadow-xl ring-1 ring-purple-100 overflow-hidden hover:scale-105 transition-transform cursor-pointer">
+            <div class="bg-gradient-to-r from-purple-600 to-fuchsia-600 px-2.5 py-1.5 flex items-center justify-between">
+              <span class="text-white text-[10px] font-bold uppercase tracking-wider">📍 San Isidro</span>
+              <span class="bg-white/20 text-white text-[8px] px-1.5 py-0.5 rounded-full font-semibold">B2B alto</span>
+            </div>
+            <div class="p-2.5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-base">💊</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-bold text-xs text-slate-900 truncate">Vit D3 + Magnesio</div>
+                  <div class="text-[9px] text-slate-500">2 SKUs · pack ejecutivo</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[10px]">
+                <div>
+                  <span class="text-slate-500">38u · </span>
+                  <span class="font-bold tabular-nums text-purple-700">S/ 15,400</span>
+                </div>
+                <span class="text-emerald-600 font-bold">↗ +28%</span>
+              </div>
+            </div>
+          </div>
+          <div class="absolute -left-3 top-1/2 w-3 h-3 bg-purple-600 rounded-full ring-4 ring-purple-200"></div>
+        </div>
+
+        <!-- CARD COMPACTA · La Molina -->
+        <div class="absolute" style="top: 18%; right: 5%; width: 200px;">
+          <div class="bg-white rounded-xl shadow-xl ring-1 ring-purple-100 overflow-hidden hover:scale-105 transition-transform cursor-pointer">
+            <div class="bg-gradient-to-r from-purple-600 to-fuchsia-600 px-2.5 py-1.5 flex items-center justify-between">
+              <span class="text-white text-[10px] font-bold uppercase tracking-wider">📍 La Molina</span>
+              <span class="bg-white/20 text-white text-[8px] px-1.5 py-0.5 rounded-full font-semibold">Familias</span>
+            </div>
+            <div class="p-2.5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-400 to-pink-600 flex items-center justify-center text-base">🧴</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-bold text-xs text-slate-900 truncate">Soothing Cream</div>
+                  <div class="text-[9px] text-slate-500">SKC-0033</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[10px]">
+                <div>
+                  <span class="text-slate-500">28u · </span>
+                  <span class="font-bold tabular-nums text-purple-700">S/ 10,400</span>
+                </div>
+                <span class="text-emerald-600 font-bold">↗ +12%</span>
+              </div>
+            </div>
+          </div>
+          <div class="absolute -left-3 top-1/2 w-3 h-3 bg-purple-600 rounded-full ring-4 ring-purple-200"></div>
+        </div>
+
+        <!-- CARD COMPACTA · San Borja -->
+        <div class="absolute" style="top: 50%; right: 5%; width: 200px;">
+          <div class="bg-white rounded-xl shadow-xl ring-1 ring-purple-100 overflow-hidden hover:scale-105 transition-transform cursor-pointer">
+            <div class="bg-gradient-to-r from-purple-600 to-fuchsia-600 px-2.5 py-1.5 flex items-center justify-between">
+              <span class="text-white text-[10px] font-bold uppercase tracking-wider">📍 San Borja</span>
+              <span class="bg-white/20 text-white text-[8px] px-1.5 py-0.5 rounded-full font-semibold">Mix</span>
+            </div>
+            <div class="p-2.5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-400 to-pink-600 flex items-center justify-center text-base">🧴</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-bold text-xs text-slate-900 truncate">Niacinamide Sérum</div>
+                  <div class="text-[9px] text-slate-500">SKC-0019 · skincare premium</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[10px]">
+                <div>
+                  <span class="text-slate-500">31u · </span>
+                  <span class="font-bold tabular-nums text-purple-700">S/ 18,200</span>
+                </div>
+                <span class="text-emerald-600 font-bold">↗ +15%</span>
+              </div>
+            </div>
+          </div>
+          <div class="absolute -left-3 top-1/2 w-3 h-3 bg-purple-600 rounded-full ring-4 ring-purple-200"></div>
+        </div>
+
+        <!-- CARD CLUSTER · cuando hay muchos cerca -->
+        <div class="absolute" style="top: 32%; right: 38%; width: 110px;">
+          <div class="bg-white/95 backdrop-blur-sm rounded-full shadow-lg ring-2 ring-fuchsia-200 px-3 py-2 hover:scale-110 transition cursor-pointer">
+            <div class="flex items-center gap-1.5">
+              <div class="flex -space-x-1.5">
+                <div class="w-6 h-6 rounded-full bg-purple-500 ring-2 ring-white flex items-center justify-center text-[9px] text-white font-bold">JM</div>
+                <div class="w-6 h-6 rounded-full bg-fuchsia-500 ring-2 ring-white flex items-center justify-center text-[9px] text-white font-bold">L</div>
+                <div class="w-6 h-6 rounded-full bg-pink-500 ring-2 ring-white flex items-center justify-center text-[9px] text-white font-bold">+1</div>
+              </div>
+              <div class="text-[10px]">
+                <div class="font-bold text-slate-900">3 zonas</div>
+                <div class="text-[9px] text-slate-500">click expandir</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etiqueta del mapa central · sutil -->
+        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] text-slate-600 shadow-sm">
+          🗺 Lima Metropolitana · 11 distritos con ventas · Q1-Q2 2026
+        </div>
+
+        <!-- Mini-controles zoom estilo Mapbox -->
+        <div class="absolute top-3 left-3 bg-white rounded-lg shadow-md border border-slate-200 flex flex-col">
+          <button class="w-8 h-8 hover:bg-slate-50 border-b border-slate-100 text-base font-bold text-slate-700">+</button>
+          <button class="w-8 h-8 hover:bg-slate-50 border-b border-slate-100 text-base font-bold text-slate-700">−</button>
+          <button class="w-8 h-8 hover:bg-slate-50 text-xs">🧭</button>
+        </div>
+      </div>
+
+      <!-- Drawer lateral · stack de cards reorderable estilo Linear -->
+      <div class="col-span-1 bg-slate-50 border-l border-slate-200 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-xs uppercase tracking-wider text-slate-600 font-semibold">📋 Stack lateral</h4>
+          <button class="text-[10px] text-fuchsia-600 hover:text-fuchsia-800 font-medium">Ordenar ↕</button>
+        </div>
+
+        <p class="text-[11px] text-slate-500 mb-3 italic">Cards reorderable · drag&drop · misma data del mapa pero priorizable manualmente</p>
+
+        <div class="space-y-2">
+
+          <!-- Card mini · #1 Surco -->
+          <div class="bg-white rounded-lg ring-1 ring-purple-200 p-2.5 cursor-grab hover:ring-2 hover:ring-purple-400">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="text-[9px] text-slate-400 cursor-grab">☰</div>
+              <span class="text-[9px] text-purple-700 font-bold uppercase">⭐ Surco</span>
+              <span class="ml-auto text-[8px] text-slate-400">#1</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-6 h-6 rounded bg-fuchsia-500 flex items-center justify-center text-xs">🧴</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold truncate">Travel Kit</div>
+                <div class="text-[9px] tabular-nums text-purple-700 font-bold">S/ 28,400</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card mini · Miraflores · destacada (la expandida en mapa) -->
+          <div class="bg-purple-50 rounded-lg ring-2 ring-purple-400 p-2.5 cursor-grab">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="text-[9px] text-slate-400 cursor-grab">☰</div>
+              <span class="text-[9px] text-purple-700 font-bold uppercase">📍 Miraflores</span>
+              <span class="ml-auto text-[8px] bg-purple-700 text-white px-1.5 py-0.5 rounded-full">expandida</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center text-xs">💊</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold truncate">Colágeno Premium</div>
+                <div class="text-[9px] tabular-nums text-purple-700 font-bold">S/ 8,820 · 42u</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- San Borja -->
+          <div class="bg-white rounded-lg ring-1 ring-purple-200 p-2.5 cursor-grab hover:ring-2 hover:ring-purple-400">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="text-[9px] text-slate-400 cursor-grab">☰</div>
+              <span class="text-[9px] text-purple-700 font-bold uppercase">📍 San Borja</span>
+              <span class="ml-auto text-[8px] text-slate-400">#3</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-6 h-6 rounded bg-fuchsia-500 flex items-center justify-center text-xs">🧴</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold truncate">Niacinamide Sérum</div>
+                <div class="text-[9px] tabular-nums text-purple-700 font-bold">S/ 18,200</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- San Isidro -->
+          <div class="bg-white rounded-lg ring-1 ring-purple-200 p-2.5 cursor-grab hover:ring-2 hover:ring-purple-400">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="text-[9px] text-slate-400 cursor-grab">☰</div>
+              <span class="text-[9px] text-purple-700 font-bold uppercase">📍 San Isidro</span>
+              <span class="ml-auto text-[8px] text-slate-400">#4</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center text-xs">💊</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold truncate">Vit D3 + Magnesio</div>
+                <div class="text-[9px] tabular-nums text-purple-700 font-bold">S/ 15,400</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Jesús María -->
+          <div class="bg-white rounded-lg ring-1 ring-fuchsia-200 p-2.5 cursor-grab hover:ring-2 hover:ring-fuchsia-400">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="text-[9px] text-slate-400 cursor-grab">☰</div>
+              <span class="text-[9px] text-fuchsia-700 font-bold uppercase">📍 Jesús María</span>
+              <span class="ml-auto text-[8px] text-slate-400">#5</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-6 h-6 rounded bg-pink-500 flex items-center justify-center text-xs">🧴</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold truncate">Cleanser facial</div>
+                <div class="text-[9px] tabular-nums text-fuchsia-700 font-bold">S/ 12,900</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- La Molina -->
+          <div class="bg-white rounded-lg ring-1 ring-fuchsia-200 p-2.5 cursor-grab hover:ring-2 hover:ring-fuchsia-400">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="text-[9px] text-slate-400 cursor-grab">☰</div>
+              <span class="text-[9px] text-fuchsia-700 font-bold uppercase">📍 La Molina</span>
+              <span class="ml-auto text-[8px] text-slate-400">#6</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-6 h-6 rounded bg-fuchsia-500 flex items-center justify-center text-xs">🧴</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[10px] font-semibold truncate">Soothing Cream</div>
+                <div class="text-[9px] tabular-nums text-fuchsia-700 font-bold">S/ 10,400</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center text-[10px] text-slate-400 italic mt-3">+ 5 distritos más</div>
+        </div>
+
+        <!-- Acciones del drawer -->
+        <div class="mt-4 pt-4 border-t border-slate-200 space-y-1.5">
+          <button class="w-full text-left text-[10px] bg-white border border-slate-200 hover:bg-slate-100 rounded px-2 py-1.5 font-medium text-slate-700">
+            ▶ Tour guiado · 5 escenas
+          </button>
+          <button class="w-full text-left text-[10px] bg-white border border-slate-200 hover:bg-slate-100 rounded px-2 py-1.5 font-medium text-slate-700">
+            📤 Compartir vista actual
+          </button>
+          <button class="w-full text-left text-[10px] bg-white border border-slate-200 hover:bg-slate-100 rounded px-2 py-1.5 font-medium text-slate-700">
+            💾 Guardar como dashboard
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Benchmark inspiración · 4 columnas con empresas referencia -->
+  <div class="mt-6 bg-slate-900 text-slate-100 rounded-xl p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-base">🎨</span>
+      <h3 class="font-bold text-white">Inspiración · cómo lo hacen las empresas top de la industria</h3>
+    </div>
+    <div class="grid grid-cols-4 gap-3 text-xs">
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-fuchsia-300 mb-1">🏠 Airbnb</div>
+        <div class="text-slate-300 mb-2">Cards de listings flotantes</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Ancladas a coordenadas exactas</li>
+          <li>✓ Cluster cuando hay muchas cerca</li>
+          <li>✓ Foto + precio prominente</li>
+          <li>→ Adoptado: cards anchored + cluster</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-purple-300 mb-1">💳 Stripe Radar</div>
+        <div class="text-slate-300 mb-2">Sparklines + tipografía banking</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Mini-charts internos</li>
+          <li>✓ Tabular-nums impecable</li>
+          <li>✓ Gradientes sutiles</li>
+          <li>→ Adoptado: sparkline en card expandida</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-emerald-300 mb-1">⚡ Linear</div>
+        <div class="text-slate-300 mb-2">Stack lateral reorderable</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Drag&drop priorización</li>
+          <li>✓ Estética premium minimalista</li>
+          <li>✓ Anti-sobrecarga visual</li>
+          <li>→ Adoptado: drawer lateral con stack</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-amber-300 mb-1">🍔 DoorDash</div>
+        <div class="text-slate-300 mb-2">CTAs directos en card</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Botón "Ver" sin abandonar mapa</li>
+          <li>✓ Acción inmediata · 0 clicks extra</li>
+          <li>✓ Sticky en zoom</li>
+          <li>→ Adoptado: CTAs en card expandida</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-3 grid grid-cols-3 gap-3 text-xs">
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-blue-300 mb-1">🗺 Mapbox Studio</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Annotation layers toggleables</li>
+          <li>→ Adoptado: capas activas en toolbar (Top Producto · Volumen · Clientes · Crecimiento)</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-rose-300 mb-1">🏘 Zillow</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Pins con métrica prominente</li>
+          <li>→ Adoptado: monto S/ visible en card compacta sin hover</li>
+        </ul>
+      </div>
+      <div class="bg-slate-800 rounded-lg p-3">
+        <div class="font-bold text-violet-300 mb-1">📊 Tableau Spatial</div>
+        <ul class="text-slate-400 space-y-0.5 text-[11px]">
+          <li>✓ Tooltips persistentes · narrativa visual</li>
+          <li>→ Adoptado: botón "▶ Tour Lima" con 5 escenas guiadas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparativa antes/después -->
+  <div class="mt-4 grid grid-cols-2 gap-4">
+    <div class="bg-rose-50 border border-rose-200 rounded-xl p-5">
+      <div class="text-xs uppercase tracking-wider text-rose-700 font-semibold mb-2">❌ Layout anterior · percentil 60</div>
+      <ul class="text-xs text-rose-800 space-y-1">
+        <li>• Mapa + sidebar + tabla = 3 áreas separadas</li>
+        <li>• Datos del producto al hacer hover (cognitive load)</li>
+        <li>• Sin elementos visuales del producto (foto/icono)</li>
+        <li>• Cards de regiones sin info de SKUs</li>
+        <li>• Patrón genérico de dashboard administrativo</li>
+        <li>• "Funcional pero olvidable"</li>
+      </ul>
+    </div>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
+      <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-2">✓ Layout nuevo · percentil 95</div>
+      <ul class="text-xs text-emerald-800 space-y-1">
+        <li>• Mapa como protagonista · cards anchored sobre él</li>
+        <li>• Producto + métricas + tendencia visibles sin click</li>
+        <li>• Iconos vibrantes por categoría del SKU</li>
+        <li>• Card expandida (Miraflores/Colágeno) + compactas resto</li>
+        <li>• Cluster cuando hay zonas densas</li>
+        <li>• "Memorable · estilo Stripe/Airbnb"</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <h3 class="font-semibold text-slate-900">Decisiones declaradas en este mockup</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-1</span>
+        <div>
+          <strong>Mapa geográfico SVG del Perú</strong> con 24 regiones · color por intensidad de ventas (paleta secuencial pink → purple). Métricas configurables: Monto / # Ventas / # Clientes / Ticket promedio. Click en región → drill-down completo.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-2</span>
+        <div>
+          <strong>Heatmap día×hora · 7×24 grid</strong>. Cada celda = ventas en esa hora del día (suma de últimas N semanas). Útil para planificar campañas WhatsApp · atención al cliente · turnos del equipo.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-3</span>
+        <div>
+          <strong>Análisis de recurrencia con 3 segmentos</strong>: VIP (5+ compras) · Regulares (2-4) · Una compra. Calculado sobre ventana móvil de 12 meses. Donut + Top 10 LTV + cohorts de retención por trimestre.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-4</span>
+        <div>
+          <strong>Drill-down por región con 3 columnas</strong>: distritos (con barras de progreso) + top productos en esa zona + sugerencias automáticas del sistema (acciones concretas con CTAs directos).
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-5</span>
+        <div>
+          <strong>Sugerencias automáticas del sistema</strong> generadas por reglas: crecimiento &gt; X% → sugiere plan zona · región sin ventas → sugiere expansión · concentración alta → sugiere courier dedicado · retención cayendo → alerta investigar.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-6</span>
+        <div>
+          <strong>Insights del sistema con paleta semántica</strong>: emerald (oportunidad de crecer) · amber (atención requerida) · rose (alerta de caída). 3 insights por defecto en sidebar del mapa principal.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-7</span>
+        <div>
+          <strong>Complementa M-MAPA-CALOR · no lo duplica</strong>. M-MAPA-CALOR responde "¿qué reabastecer?" (decisiones de inventario). M-MAPA-VENTAS responde "¿dónde · cuándo · quién compra?" (decisiones de marketing/expansión). Son herramientas distintas para preguntas distintas.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-8</span>
+        <div>
+          <strong>Ruta sugerida</strong>: <code class="text-xs bg-slate-100 px-1 rounded">/ventas/mapa</code> bajo "Ventas y CRM" en sidebar. Reemplaza idea de "10 reportes diferentes" con 1 vista accionable orientada a decisiones.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-9</span>
+        <div>
+          <strong>Zoom multi-nivel · 3 niveles definidos</strong>: <code class="text-xs bg-slate-100 px-1 rounded">Z0</code> Perú (24 regiones · vista panorama nacional) · <code class="text-xs bg-slate-100 px-1 rounded">Z1</code> Lima Metropolitana (43 distritos · vista regional) · <code class="text-xs bg-slate-100 px-1 rounded">Z2</code> Distrito específico (manzanas + puntos de clientes individuales · ruta de courier · futuro). Patrón aplicable a Arequipa, Trujillo y otras regiones metropolitanas. Sidebar y KPIs se actualizan según nivel · breadcrumb clicable para volver.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-10</span>
+        <div>
+          <strong>Stack técnico recomendado · Mapbox GL JS + datos INEI</strong>. Vector tiles para zoom fluido infinito · pinch/scroll nativo en mobile · estilos custom alineados al manifesto S58f · pago tras 50k loads/mes (suficientemente alto para uso interno). Alternativa gratuita: Leaflet + OpenStreetMap. Datos: INEI publica shapefiles oficiales (24 regiones · 196 provincias · 1,874 distritos) · convertir a TopoJSON con <code class="text-xs bg-slate-100 px-1 rounded">mapshaper</code> reduce 60% el tamaño. NO usar react-simple-maps (no soporta Z2 dinámico).
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-11</span>
+        <div>
+          <strong>Heatmap matriz multi-cruce · paleta continua · NO cuadrantes</strong>. Para ventas, el patrón continuo (color por intensidad) es más útil que los cuadrantes BCG-style. Permite exploración libre sin forzar etiquetas. Eje X y eje Y configurables vía dropdown del toolbar: Productos × Regiones (Vista 6) · Productos × Tiempo (Vista 7) · Productos × Clientes · Productos × Hora · Productos × Canal · Productos × Categoría cliente. <strong>1 motor visual · 6+ cruces de análisis</strong>. Métrica por celda también configurable: Unidades · Monto · % participación · Margen.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-12</span>
+        <div>
+          <strong>Detección automática de patrones por SKU</strong>. El sistema clasifica cada SKU en uno de 5 patrones según su comportamiento temporal: 📈 En subida · ━ Estable · ☀️ Estacional (con detección del pico mensual) · 💀 Zombi (cayendo a 0) · 🔥 Boom (subida explosiva reciente). Tag visible junto al SKU en la matriz · facilita lectura rápida sin tener que interpretar el heatmap. Recomendaciones operativas por patrón: zombi → liquidar · estacional → anticipar OC 60 días · subida → aumentar OCs preventivas.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-13</span>
+        <div>
+          <strong>Cards anchored sobre el mapa · benchmark Airbnb/Stripe</strong>. Layout principal con el mapa como protagonista (75%) + cards flotantes ancladas a coordenadas (no son tooltips · son elementos persistentes). Patrón inspirado en Airbnb (listings sobre mapa) + Stripe Radar (sparklines internas) + DoorDash (CTAs directos) + Linear (estética premium). Resuelve el feedback "el layout no me convence" elevándolo de percentil 60 a percentil 95 de la industria.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-14</span>
+        <div>
+          <strong>2 modos de card · expandida y compacta</strong>. Card expandida (1 a 3 por mapa · destaca distritos top): foto/icono producto + métricas en grid + sparkline 12m + 2 CTAs. Card compacta (5-8 por mapa): producto + monto + tendencia % en una línea. Cluster automático cuando hay 3+ cards en zona pequeña (avatares apilados + "click expandir"). Densidad informativa sin saturación visual.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-15</span>
+        <div>
+          <strong>Drawer lateral con stack reorderable + Story mode</strong>. Drawer derecho (25%) con cards mini de cada distrito · drag&drop para reordenar prioridad · misma data del mapa pero gestionable por el usuario. <strong>Story mode</strong>: botón "▶ Tour Lima" con 5 escenas pre-grabadas (intro nacional → Lima → top distritos → áreas blancas → siguiente paso). Pattern Tableau Spatial · educa al usuario nuevo en 60 segundos.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-fuchsia flex-shrink-0">D-VENTAS-16</span>
+        <div>
+          <strong>Toolbar con capas activas toggleables</strong>. Patrón Mapbox Studio: 4 capas (Top Producto · Volumen S/ · Clientes top · Crecimiento) cada una con su color semántico · activables independientemente. Las cards anchored se actualizan según las capas activas. Permite vistas focalizadas sin perder contexto del mapa.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cierre del Lote 6 -->
+  <div class="mt-4 bg-emerald-50 border-2 border-emerald-300 rounded-xl p-5">
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center text-2xl flex-shrink-0">✓</div>
+      <div class="flex-1">
+        <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Lote 6 · Mapas de Calor (ampliado tras feedback)</div>
+        <div class="text-lg font-bold text-emerald-900 mt-0.5">CERRADO · 2 de 2 mockups · 18 decisiones</div>
+        <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <span class="pill pill-purple">M-MAPA-CALOR</span>
+            <div class="font-semibold text-slate-900 mt-1">Decisiones de inventario</div>
+            <div class="text-slate-500 mt-0.5">10 decisiones · 4 cuadrantes · ¿qué reabastecer?</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-3">
+            <span class="pill pill-fuchsia">M-MAPA-VENTAS</span>
+            <div class="font-semibold text-slate-900 mt-1">Geográfico + temporal + matriz + cards anchored</div>
+            <div class="text-slate-500 mt-0.5">16 decisiones · 8 vistas · benchmark Airbnb/Stripe/Linear</div>
+          </div>
+        </div>
+        <p class="text-sm text-emerald-800 mt-3">2 herramientas complementarias · 2 preguntas distintas · 0 solapamiento. Cita del feedback usuario: <em>"mi idea de reporte o mapa de calor, también era más que nada para verificar las ventas por ubicación, región, ciudad, productos, valores, recurrencia"</em>. Cubierto.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximo del lote -->
+  <div class="mt-4 bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-purple-700 font-semibold">Solo queda 1 mockup · cierre de la sesión S58f</div>
+      <div class="text-sm font-semibold text-purple-900 mt-1">M-JOURNEY-S58f · Day-in-life del operador</div>
+      <p class="text-xs text-purple-700 mt-1">Narrativa consolidada · cómo se conectan los 7 lotes en un día de trabajo real · cierre formal de la sesión de mockups antes de iniciar implementación.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="pill pill-emerald">6/7 ✓</span>
+      <span class="text-purple-400">→</span>
+      <span class="pill pill-purple">7/7 ⭐</span>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>

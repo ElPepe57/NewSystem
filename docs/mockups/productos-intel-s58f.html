@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productos Intel · Rediseño S58f · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .card-base {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+  }
+  .card-banking {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  .chip-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .chip-sm {
+    padding: 2px 7px;
+    font-size: 10px;
+  }
+
+  .gradient-teal-soft { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 60%); }
+  .gradient-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .gradient-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .gradient-rose-soft { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 60%); }
+  .gradient-sky-soft { background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 60%); }
+  .gradient-indigo-soft { background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%); }
+  .gradient-purple-soft { background: linear-gradient(135deg, #faf5ff 0%, #ffffff 60%); }
+
+  .annotation {
+    padding: 8px 12px;
+    background: #fef3c7;
+    border: 1px dashed #fbbf24;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #78350f;
+    line-height: 1.5;
+  }
+
+  /* Liquidez score badge */
+  .liquidez-bar {
+    display: inline-flex;
+    gap: 2px;
+  }
+  .liquidez-bar-segment {
+    width: 6px;
+    height: 14px;
+    border-radius: 1px;
+  }
+
+  /* Valuation pipeline (vista estrella) */
+  .pipeline-stage {
+    flex: 1;
+    min-width: 130px;
+    position: relative;
+  }
+  .pipeline-stage::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid #cbd5e1;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    z-index: 5;
+  }
+  .pipeline-stage:last-child::after { display: none; }
+
+  /* Intel row */
+  .intel-row {
+    display: grid;
+    grid-template-columns: 56px minmax(220px, 1fr) 110px 100px 110px 130px 130px 80px;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s ease;
+  }
+  .intel-row:hover { background: #fafbfc; }
+  .intel-row.header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    font-weight: 600;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  @keyframes pulse-soft { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- Header del documento -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Lote 2 · Inventario reimaginado</div>
+      <div class="text-base font-bold">M-INTEL-S58f · Productos Intel · Valorización por ubicación · "Cuánto vale mi stock en todo momento"</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-teal-600 px-2 py-1 rounded">Manifesto S58f</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-30</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1 · LISTADO PRINCIPAL · Productos Intel                           -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · Página principal · Productos Intel</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Tu cita: <em>"me interesaba mucho la ciencia de inteligencia de productos para entender el valor de los productos y saber el valor de los mismos en cada punto en el que se encontrara para poder valorizar mi stock en todo momento."</em>
+    Este módulo lo resuelve · valorización + lead time + score liquidez + sugerencias de reposición.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Top bar -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="text-slate-500 hover:text-teal-700">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <a class="text-slate-500 hover:text-teal-700">Análisis y Decisiones</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <span class="text-slate-900 font-semibold">Productos Intel</span>
+      </div>
+    </div>
+
+    <!-- HEADER (P6) -->
+    <div class="px-6 py-5 border-b border-slate-100">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1.5">
+            <i data-lucide="zap" class="w-6 h-6 text-indigo-600"></i>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Productos Intel</h1>
+          </div>
+          <p class="text-[13px] text-slate-500 leading-relaxed max-w-2xl">
+            Inteligencia de catálogo · valor del stock en cada punto del proceso · lead time real · score de liquidez · sugerencias de reposición basadas en datos.
+          </p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Reporte ejecutivo
+          </button>
+          <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors shadow-sm">
+            <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i>Sugerencias del día
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP ejecutivo -->
+    <div class="px-6 py-5 bg-slate-50 border-b border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-5 divide-x divide-slate-200">
+        <div class="px-4 first:pl-0">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Valor stock total</div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">S/ 428,547</div>
+          <div class="text-[11px] text-slate-500 num-tab mt-1.5">a precio de venta</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Capital invertido</div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">S/ 198,320</div>
+          <div class="text-[11px] text-slate-500 num-tab mt-1.5">costo landed</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold mb-1.5">Margen potencial</div>
+          <div class="text-2xl font-bold text-emerald-600 num-tab tracking-tight">S/ 230,227</div>
+          <div class="text-[11px] text-emerald-600 num-tab mt-1.5 flex items-center gap-1">
+            <i data-lucide="trending-up" class="w-3 h-3"></i>+116% si vendes todo
+          </div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold mb-1.5">Capital atrapado</div>
+          <div class="text-2xl font-bold text-amber-700 num-tab tracking-tight">S/ 62,143</div>
+          <div class="text-[11px] text-amber-700 num-tab mt-1.5">en aduana + tránsito</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-rose-700 font-semibold mb-1.5">Stock lento</div>
+          <div class="text-2xl font-bold text-rose-700 num-tab tracking-tight">8</div>
+          <div class="text-[11px] text-rose-700 num-tab mt-1.5 flex items-center gap-1">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i>productos &gt;180d sin venta
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTROS canónicos -->
+    <div class="px-6 py-3 border-b border-slate-200 bg-white">
+      <div class="space-y-2.5">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Score liquidez:</span>
+          <button class="chip-pill bg-slate-900 text-white shadow-sm">
+            <i data-lucide="grid-3x3" class="w-3 h-3"></i>Todos <span class="text-white/70 num-tab">142</span>
+          </button>
+          <button class="chip-pill bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+            <i data-lucide="zap" class="w-3 h-3"></i>Líquidos <span class="opacity-60 num-tab">87</span>
+          </button>
+          <button class="chip-pill bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+            <i data-lucide="clock" class="w-3 h-3"></i>Medios <span class="opacity-60 num-tab">47</span>
+          </button>
+          <button class="chip-pill bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">
+            <i data-lucide="snail" class="w-3 h-3"></i>Lentos <span class="opacity-60 num-tab">8</span>
+          </button>
+
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Acción:</span>
+          <button class="chip-pill bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+            <i data-lucide="trending-up" class="w-3 h-3"></i>Reponer <span class="opacity-60 num-tab">12</span>
+          </button>
+          <button class="chip-pill bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+            <i data-lucide="eye" class="w-3 h-3"></i>Vigilar <span class="opacity-60 num-tab">23</span>
+          </button>
+          <button class="chip-pill bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">
+            <i data-lucide="zap-off" class="w-3 h-3"></i>Liquidar <span class="opacity-60 num-tab">5</span>
+          </button>
+        </div>
+
+        <div class="border-t border-slate-100"></div>
+
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1 min-w-[260px]">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+            <input type="text" placeholder="Buscar producto, SKU…" class="w-full pl-9 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+          <button class="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-slate-100 transition-colors">
+            <span class="text-slate-400 font-normal text-[11px]">Ordenar:</span>
+            <span>Mayor margen potencial</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTADO -->
+    <div class="bg-white" style="overflow-x: auto;">
+
+      <div class="intel-row header" style="min-width: 1100px;">
+        <div></div>
+        <div>Producto</div>
+        <div>Score liquidez</div>
+        <div class="text-right">Lead time</div>
+        <div class="text-right">Velocidad</div>
+        <div class="text-right">Capital invertido</div>
+        <div class="text-right">Margen potencial</div>
+        <div class="text-right">Acción</div>
+      </div>
+
+      <!-- Producto 1 · Vitamin C · líquido -->
+      <div class="intel-row" style="min-width: 1100px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PROD-0042</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">SkinCeuticals</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+          </div>
+        </div>
+        <div>
+          <div class="liquidez-bar mb-1">
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-200"></div>
+          </div>
+          <div class="text-[10px] font-bold text-emerald-700 num-tab">85 · LÍQUIDO</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-slate-900 num-tab">22d</div>
+          <div class="text-[10px] text-slate-500 num-tab">prom. 3 OCs</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-emerald-600 num-tab">14<span class="text-[10px] text-slate-400 font-normal">/mes</span></div>
+          <div class="text-[10px] text-emerald-600 num-tab">+133% vs feb</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">S/ 13,131</div>
+          <div class="text-[10px] text-slate-500 num-tab">87 uds × 150.93</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 11,668</div>
+          <div class="text-[10px] text-emerald-600 num-tab font-semibold">+88% margen</div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+            <i data-lucide="trending-up" class="w-2.5 h-2.5"></i>Reponer
+          </span>
+        </div>
+      </div>
+
+      <!-- Producto 2 · Collagen · medio -->
+      <div class="intel-row" style="min-width: 1100px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center ring-1 ring-indigo-200/50">
+            <i data-lucide="pill" class="w-5 h-5 text-indigo-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Collagen Peptides 90 caps</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PROD-0028</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">NeoCell</span>
+            <span class="chip-pill chip-sm bg-indigo-50 text-indigo-700 border border-indigo-200">Suplementos</span>
+          </div>
+        </div>
+        <div>
+          <div class="liquidez-bar mb-1">
+            <div class="liquidez-bar-segment bg-amber-500"></div>
+            <div class="liquidez-bar-segment bg-amber-500"></div>
+            <div class="liquidez-bar-segment bg-amber-500"></div>
+            <div class="liquidez-bar-segment bg-amber-200"></div>
+            <div class="liquidez-bar-segment bg-amber-200"></div>
+          </div>
+          <div class="text-[10px] font-bold text-amber-700 num-tab">62 · MEDIO</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-slate-900 num-tab">28d</div>
+          <div class="text-[10px] text-slate-500 num-tab">prom. 5 OCs</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-amber-600 num-tab">8<span class="text-[10px] text-slate-400 font-normal">/mes</span></div>
+          <div class="text-[10px] text-slate-500 num-tab">estable</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">S/ 1,302</div>
+          <div class="text-[10px] text-slate-500 num-tab">12 uds × 108.50</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 798</div>
+          <div class="text-[10px] text-emerald-600 num-tab font-semibold">+38% margen</div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200 font-semibold pulse-soft">
+            <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i>Reponer ya
+          </span>
+        </div>
+      </div>
+
+      <!-- Producto 3 · Anti-Aging Pack · alto valor -->
+      <div class="intel-row" style="min-width: 1100px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50 relative">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center">
+              <i data-lucide="package-2" class="w-2.5 h-2.5 text-white"></i>
+            </div>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Anti-Aging Routine Kit</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PACK-0007</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">SkinCeuticals + NeoCell</span>
+            <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Pack</span>
+          </div>
+        </div>
+        <div>
+          <div class="liquidez-bar mb-1">
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+            <div class="liquidez-bar-segment bg-emerald-500"></div>
+          </div>
+          <div class="text-[10px] font-bold text-emerald-700 num-tab">92 · LÍQUIDO</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-slate-900 num-tab">25d</div>
+          <div class="text-[10px] text-slate-500 num-tab">prom. 2 OCs</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-emerald-600 num-tab">5<span class="text-[10px] text-slate-400 font-normal">/mes</span></div>
+          <div class="text-[10px] text-emerald-600 num-tab">+25% vs trim.</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">S/ 5,940</div>
+          <div class="text-[10px] text-slate-500 num-tab">22 packs × 270</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 5,500</div>
+          <div class="text-[10px] text-emerald-600 num-tab font-semibold">+93% margen</div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+            <i data-lucide="trending-up" class="w-2.5 h-2.5"></i>Reponer
+          </span>
+        </div>
+      </div>
+
+      <!-- Producto 4 · Hyaluronic · vence pronto + lento -->
+      <div class="intel-row" style="min-width: 1100px; background: #fff1f230;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-rose-300">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Hyaluronic Acid Hydrating Toner</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PROD-0019</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">CeraVe</span>
+            <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200 pulse-soft">⚠ 8 vencen 27d</span>
+          </div>
+        </div>
+        <div>
+          <div class="liquidez-bar mb-1">
+            <div class="liquidez-bar-segment bg-rose-500"></div>
+            <div class="liquidez-bar-segment bg-rose-500"></div>
+            <div class="liquidez-bar-segment bg-rose-200"></div>
+            <div class="liquidez-bar-segment bg-rose-200"></div>
+            <div class="liquidez-bar-segment bg-rose-200"></div>
+          </div>
+          <div class="text-[10px] font-bold text-rose-700 num-tab">35 · LENTO</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-slate-900 num-tab">18d</div>
+          <div class="text-[10px] text-slate-500 num-tab">prom. 4 OCs</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-semibold text-rose-600 num-tab">2<span class="text-[10px] text-slate-400 font-normal">/mes</span></div>
+          <div class="text-[10px] text-rose-600 num-tab">−40% vs hist.</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">S/ 2,025</div>
+          <div class="text-[10px] text-slate-500 num-tab">45 uds × 45</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 1,350</div>
+          <div class="text-[10px] text-emerald-600 num-tab font-semibold">+33% margen</div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200 font-semibold">
+            <i data-lucide="zap-off" class="w-2.5 h-2.5"></i>Liquidar
+          </span>
+        </div>
+      </div>
+
+      <!-- Producto 5 · Retinol · en investigación -->
+      <div class="intel-row" style="min-width: 1100px; background: #fffbeb40;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-300">
+            <i data-lucide="search" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Retinol 1% Night Treatment</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">NEW-003</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">The Ordinary</span>
+            <span class="chip-pill chip-sm bg-amber-100 text-amber-800 border border-amber-300">En investigación</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-400 italic">sin histórico aún</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[12px] text-slate-400 italic">est. 22d</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[12px] text-slate-400 italic">proyectado</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-amber-700 num-tab">S/ 4,300<span class="text-[11px] font-normal">est.</span></div>
+          <div class="text-[10px] text-slate-500 num-tab">si traes 100 uds</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[14px] font-bold text-amber-700 num-tab">+S/ 5,200<span class="text-[11px] font-normal">est.</span></div>
+          <div class="text-[10px] text-amber-600 num-tab font-semibold">+58% proy.</div>
+        </div>
+        <div class="text-right">
+          <button class="text-[10px] bg-amber-600 hover:bg-amber-700 text-white font-medium px-2 py-1 rounded">
+            Calcular
+          </button>
+        </div>
+      </div>
+
+      <div class="text-center py-4 text-[11px] text-slate-400 border-t border-slate-100">
+        <i data-lucide="more-horizontal" class="w-4 h-4 inline-block text-slate-300"></i>
+        <span class="ml-2">137 productos más</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Score liquidez visual:</strong> 5 segmentos coloreados (estilo signal bars) · Líquido (verde) / Medio (ámbar) / Lento (rosa) · respuesta inmediata al "qué tan rápido se mueve este producto".
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ KPI strip ejecutivo:</strong> Valor stock total · Capital invertido · Margen potencial · Capital atrapado · Stock lento. Vista CFO en 1 strip.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Acción sugerida por producto:</strong> chip "Reponer" / "Reponer ya" / "Liquidar" / "Calcular" basada en velocidad + score + vencimientos. Decisiones accionables, no solo datos.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Productos en investigación incluidos:</strong> con valores proyectados (italic + chip estimado). Aparecen en el listado para evaluar oportunidad antes de traer.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · DETALLE · VALORIZACIÓN POR UBICACIÓN ⭐ (la pieza estrella)   -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 ⭐ · Valorización por ubicación · "Cuánto vale mi stock en cada punto"</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    <strong>La pieza que pediste específicamente.</strong> Para cada producto, su pipeline de ubicaciones con valor unitario en cada punto + valor total acumulado.
+    El producto vale distinto según donde está: en proveedor solo costo EXW, en aduana ya tiene flete + impuestos, en almacén tiene costo landed completo, vendido genera ingresos.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header del producto -->
+    <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
+            <i data-lucide="droplets" class="w-6 h-6 text-amber-700"></i>
+          </div>
+          <div>
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-0.5">
+              <span class="mono">SKU-PROD-0042</span>
+              <span>·</span>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Score 85 · Líquido</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-slate-900">Vitamin C Brightening Serum</h2>
+            <p class="text-[12px] text-slate-500 mt-0.5">SkinCeuticals · Skincare · 187 uds totales en pipeline (todos los puntos)</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>Ver en Productos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIPELINE DE VALORIZACIÓN ⭐ -->
+    <div class="px-6 py-6 bg-slate-50/50">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>Pipeline de valorización
+        </h3>
+        <div class="text-[11px] text-slate-500">El valor unitario crece con cada etapa que recorre el producto</div>
+      </div>
+
+      <!-- Pipeline horizontal con flechas -->
+      <div class="flex items-stretch gap-3 mb-1">
+
+        <!-- Etapa 1: En Proveedor -->
+        <div class="pipeline-stage card-banking p-3 bg-white">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="factory" class="w-3 h-3 text-slate-500"></i>
+            <span class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">1. En Proveedor</span>
+          </div>
+          <div class="text-[10px] text-slate-400 mb-1.5">SkinTech Korea</div>
+          <div class="text-[18px] font-bold text-slate-900 num-tab">0 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+          <div class="border-t border-slate-100 mt-2 pt-1.5 space-y-0.5">
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Costo unit.</span>
+              <span class="num-tab font-semibold text-slate-700">$ 38.50</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">≈ S/</span>
+              <span class="num-tab font-semibold text-slate-700">135.13</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 2: En Casillas USA -->
+        <div class="pipeline-stage card-banking p-3 bg-white ring-1 ring-sky-200">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="globe" class="w-3 h-3 text-sky-600"></i>
+            <span class="text-[9px] uppercase tracking-wider text-sky-700 font-bold">2. Casillas USA</span>
+          </div>
+          <div class="text-[10px] text-sky-700 mb-1.5">Anghely + Felicitas</div>
+          <div class="text-[18px] font-bold text-slate-900 num-tab">35 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+          <div class="border-t border-slate-100 mt-2 pt-1.5 space-y-0.5">
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Costo unit.</span>
+              <span class="num-tab font-semibold text-slate-700">$ 38.50</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Total</span>
+              <span class="num-tab font-bold text-sky-700">S/ 4,729</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 3: En Aduana -->
+        <div class="pipeline-stage card-banking p-3 bg-white ring-1 ring-amber-200">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="package-x" class="w-3 h-3 text-amber-600"></i>
+            <span class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">3. Aduana</span>
+          </div>
+          <div class="text-[10px] text-amber-700 mb-1.5">Callao</div>
+          <div class="text-[18px] font-bold text-slate-900 num-tab">10 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+          <div class="border-t border-slate-100 mt-2 pt-1.5 space-y-0.5">
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">+ flete</span>
+              <span class="num-tab font-semibold text-slate-700">$ 4.50</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Costo unit.</span>
+              <span class="num-tab font-semibold text-amber-700">$ 43.00</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Total</span>
+              <span class="num-tab font-bold text-amber-700">S/ 1,509</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 4: En Almacén PE (costo landed completo) -->
+        <div class="pipeline-stage card-banking p-3 gradient-teal-soft ring-1 ring-teal-300">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="warehouse" class="w-3 h-3 text-teal-600"></i>
+            <span class="text-[9px] uppercase tracking-wider text-teal-700 font-bold">4. Almacén PE</span>
+          </div>
+          <div class="text-[10px] text-teal-700 mb-1.5">Lima SMP</div>
+          <div class="text-[18px] font-bold text-slate-900 num-tab">87 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+          <div class="border-t border-teal-200/50 mt-2 pt-1.5 space-y-0.5">
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">+ impuestos 18%</span>
+              <span class="num-tab font-semibold text-slate-700">$ 6.93</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Costo landed</span>
+              <span class="num-tab font-semibold text-teal-700">S/ 150.93</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Total</span>
+              <span class="num-tab font-bold text-teal-700">S/ 13,131</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 5: Reservadas/Con driver -->
+        <div class="pipeline-stage card-banking p-3 bg-white ring-1 ring-purple-200">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="truck" class="w-3 h-3 text-purple-600"></i>
+            <span class="text-[9px] uppercase tracking-wider text-purple-700 font-bold">5. En entrega</span>
+          </div>
+          <div class="text-[10px] text-purple-700 mb-1.5">Drivers + reservadas</div>
+          <div class="text-[18px] font-bold text-slate-900 num-tab">21 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+          <div class="border-t border-slate-100 mt-2 pt-1.5 space-y-0.5">
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Costo landed</span>
+              <span class="num-tab font-semibold text-slate-700">S/ 150.93</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Total</span>
+              <span class="num-tab font-bold text-purple-700">S/ 3,170</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 6: Vendido (genera ingresos) -->
+        <div class="pipeline-stage card-banking p-3 gradient-emerald-soft ring-1 ring-emerald-300">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="check-circle" class="w-3 h-3 text-emerald-600"></i>
+            <span class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">6. Vendido (mes)</span>
+          </div>
+          <div class="text-[10px] text-emerald-700 mb-1.5">Abril 2026</div>
+          <div class="text-[18px] font-bold text-slate-900 num-tab">42 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+          <div class="border-t border-emerald-200/50 mt-2 pt-1.5 space-y-0.5">
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Precio venta</span>
+              <span class="num-tab font-semibold text-emerald-700">S/ 285</span>
+            </div>
+            <div class="flex justify-between text-[10px]">
+              <span class="text-slate-500">Ingresos</span>
+              <span class="num-tab font-bold text-emerald-700">S/ 11,970</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen del pipeline -->
+      <div class="grid grid-cols-4 gap-3 mt-5 pt-5 border-t border-slate-200">
+        <div class="card-banking p-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Capital invertido total</div>
+          <div class="text-[24px] font-bold text-slate-900 num-tab tracking-tight">S/ 22,539</div>
+          <div class="text-[10px] text-slate-500 mt-1 num-tab">en 153 uds del pipeline (sin vendidas)</div>
+        </div>
+        <div class="card-banking gradient-amber-soft p-4">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold mb-1">Capital atrapado</div>
+          <div class="text-[24px] font-bold text-amber-700 num-tab tracking-tight">S/ 6,238</div>
+          <div class="text-[10px] text-slate-600 mt-1 num-tab">en casillas + aduana (45 uds)</div>
+        </div>
+        <div class="card-banking gradient-emerald-soft p-4">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold mb-1">Si vendieras todo el stock</div>
+          <div class="text-[24px] font-bold text-emerald-700 num-tab tracking-tight">+S/ 24,591</div>
+          <div class="text-[10px] text-slate-600 mt-1 num-tab">187 uds × S/ 285 − costo</div>
+        </div>
+        <div class="card-banking gradient-indigo-soft p-4">
+          <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-semibold mb-1">Ingresos abril (real)</div>
+          <div class="text-[24px] font-bold text-indigo-700 num-tab tracking-tight">S/ 11,970</div>
+          <div class="text-[10px] text-slate-600 mt-1 num-tab">42 uds vendidas · margen S/ 5,634</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights del producto -->
+    <div class="px-6 py-5 border-t border-slate-200 bg-white">
+      <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-600"></i>Insights de inteligencia
+      </h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="card-banking gradient-emerald-soft p-3">
+          <div class="flex items-start gap-2">
+            <i data-lucide="zap" class="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[12px] text-slate-700 leading-relaxed">
+              <strong class="text-emerald-900">Score liquidez 85 · Líquido</strong><br>
+              Velocidad real <span class="num-tab font-semibold">14 uds/mes</span> · stock actual dura ~6 meses · margen +88% saludable.
+            </div>
+          </div>
+        </div>
+        <div class="card-banking gradient-amber-soft p-3">
+          <div class="flex items-start gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[12px] text-slate-700 leading-relaxed">
+              <strong class="text-amber-900">28% del stock fuera de PE</strong><br>
+              Tienes <span class="num-tab font-semibold">S/ 6,238</span> en casillas/aduana sin generar ingresos. Lead time de 22d puede mejorar acelerando tránsito.
+            </div>
+          </div>
+        </div>
+        <div class="card-banking gradient-indigo-soft p-3">
+          <div class="flex items-start gap-2">
+            <i data-lucide="trending-up" class="w-4 h-4 text-indigo-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[12px] text-slate-700 leading-relaxed">
+              <strong class="text-indigo-900">Tendencia ascendente</strong><br>
+              Ventas <span class="num-tab font-semibold">+133%</span> en abril vs feb. La OC-088 fue oportuna · prepara la siguiente.
+            </div>
+          </div>
+        </div>
+        <div class="card-banking p-3 bg-gradient-to-br from-purple-50 to-white border border-purple-200">
+          <div class="flex items-start gap-2">
+            <i data-lucide="lightbulb" class="w-4 h-4 text-purple-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[12px] text-slate-700 leading-relaxed">
+              <strong class="text-purple-900">Sugerencia accionable</strong><br>
+              Considera traer 100 uds más en mayo (vs 75 promedio) para anticipar el alza de ventas y aprovechar costo unit estable de SkinTech Korea.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Pipeline de 6 etapas:</strong> Proveedor → Casillas → Aduana → Almacén → Drivers → Vendido. En cada etapa: cantidad + costo unitario que va creciendo + valor total acumulado.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Costo crece con cada etapa:</strong> Proveedor $38.50 → Aduana $43 (+ flete) → Almacén PE $43.93 + 18% imp = S/ 150.93 landed. Refleja tu cita: <em>"el valor en cada punto donde se encontrara"</em>.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 4 KPIs ejecutivos del producto:</strong> Capital invertido · Capital atrapado · Si vendieras todo · Ingresos reales del mes. La foto financiera completa por SKU.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Insights con sugerencias:</strong> no solo te dice "score 85", te dice "considera traer 100 uds en mayo". Datos accionables.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · SUGERENCIAS DEL DÍA · centro de decisiones                    -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · "Sugerencias del día" · centro de decisiones</h2>
+  <p class="text-sm text-slate-600 mb-4">Drawer/modal con todas las acciones recomendadas hoy · agrupadas por urgencia · clickables al producto correspondiente.</p>
+
+  <div class="card-banking overflow-hidden">
+
+    <div class="bg-gradient-to-br from-indigo-50 to-white border-b border-indigo-200 px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <i data-lucide="lightbulb" class="w-5 h-5 text-indigo-700"></i>
+            <h2 class="text-base font-bold text-slate-900">Sugerencias del día · 30 abril 2026</h2>
+          </div>
+          <p class="text-[11px] text-slate-500">15 acciones recomendadas · revisión 30s</p>
+        </div>
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="check-check" class="w-3 h-3"></i>Ejecutar todas las urgentes
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 divide-x divide-slate-200">
+
+      <!-- URGENTE -->
+      <div class="p-5 bg-rose-50/30">
+        <div class="flex items-center gap-1.5 mb-3">
+          <div class="w-2 h-2 rounded-full bg-rose-500 pulse-soft"></div>
+          <h3 class="text-[12px] font-bold text-rose-900 uppercase tracking-wider">Urgente · 4</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="zap-off" class="w-3.5 h-3.5 text-rose-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Liquidar Hyaluronic Toner</div>
+                <div class="text-[10px] text-slate-500">8 uds vencen en 27 días · LOTE-2025-238</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+              <span class="text-[10px] text-slate-500">Pérdida potencial:</span>
+              <span class="text-[11px] font-bold text-rose-600 num-tab">−S/ 360</span>
+            </div>
+          </div>
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Reponer Collagen Peptides</div>
+                <div class="text-[10px] text-slate-500">Solo 3 uds libres · velocidad 8/mes</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+              <span class="text-[10px] text-slate-500">Días restantes:</span>
+              <span class="text-[11px] font-bold text-rose-600 num-tab">11d</span>
+            </div>
+          </div>
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Casilla Felicitas saturada</div>
+                <div class="text-[10px] text-slate-500">94% capacidad mes · redirige próximo envío</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+              <span class="text-[10px] text-slate-500">Capacidad libre:</span>
+              <span class="text-[11px] font-bold text-rose-600 num-tab">6 uds</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIGILAR -->
+      <div class="p-5 bg-amber-50/30">
+        <div class="flex items-center gap-1.5 mb-3">
+          <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+          <h3 class="text-[12px] font-bold text-amber-900 uppercase tracking-wider">Vigilar · 6</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Vitamin C en alza · prepara OC</div>
+                <div class="text-[10px] text-slate-500">+133% ventas vs feb · stock actual dura 6m</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+              <span class="text-[10px] text-slate-500">Sugerido:</span>
+              <span class="text-[11px] font-bold text-amber-700 num-tab">100 uds en mayo</span>
+            </div>
+          </div>
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="package-x" class="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Aduana Callao &gt;7d</div>
+                <div class="text-[10px] text-slate-500">10 uds del LOTE-099 · mayor al promedio</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="globe" class="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Anghely 87% capacidad</div>
+                <div class="text-[10px] text-slate-500">Tendencia ascendente · puede saturar mayo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPORTUNIDADES -->
+      <div class="p-5 bg-emerald-50/30">
+        <div class="flex items-center gap-1.5 mb-3">
+          <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+          <h3 class="text-[12px] font-bold text-emerald-900 uppercase tracking-wider">Oportunidades · 5</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-emerald-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Retinol 1% · evaluar inversión</div>
+                <div class="text-[10px] text-slate-500">Margen proyectado +58% · 3 competidores PE</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+              <span class="text-[10px] text-slate-500">Recuperación est:</span>
+              <span class="text-[11px] font-bold text-emerald-600 num-tab">~3 meses</span>
+            </div>
+          </div>
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="package-2" class="w-3.5 h-3.5 text-emerald-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Pack Anti-Aging score 92</div>
+                <div class="text-[10px] text-slate-500">Margen +93% · podrías promocionar más</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-base p-3 cursor-pointer card-hover">
+            <div class="flex items-start gap-2 mb-1">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-700 flex-shrink-0 mt-0.5"></i>
+              <div>
+                <div class="text-[11px] font-bold text-slate-900">Costo SkinTech bajando</div>
+                <div class="text-[10px] text-slate-500">$41.20 (2025) → $38.50 (2026) · margen subió</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation mt-3" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+    <strong>⭐ Centro de decisiones diario:</strong> 3 columnas (Urgente · Vigilar · Oportunidades) con todas las acciones priorizadas. Cada card es clickable y lleva al producto/ubicación correspondiente. Reduce análisis manual a 30 segundos al día.
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 4 · ANTES / DESPUÉS                                               -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 4 · Cómo resuelve la "ciencia de inteligencia de productos"</h2>
+  <p class="text-sm text-slate-600 mb-4">Tu cita: <em>"me interesaba mucho la ciencia de inteligencia de productos para entender el valor de los productos y saber el valor de los mismos en cada punto en el que se encontrara"</em>. Esto resuelve cada parte:</p>
+
+  <div class="grid grid-cols-2 gap-4">
+
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 1</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Quería entender el valor de los productos"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">No tenías una vista clara de cuánto vale el catálogo en términos financieros · solo cantidades sin valor monetario.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN</div>
+        <span class="text-slate-700">KPI strip ejecutivo: Valor stock total · Capital invertido · Margen potencial · Capital atrapado. Vista CFO en una sola fila.</span>
+      </div>
+    </div>
+
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 2</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Saber el valor en cada punto donde se encontrara"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">No sabías cuánto vale tu stock fragmentado · ¿lo que está en aduana cuánto vale realmente?</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN</div>
+        <span class="text-slate-700">Pipeline de valorización · 6 etapas con costo unitario que crece (Proveedor $38.50 → Aduana $43 → Almacén PE S/ 150.93 landed completo).</span>
+      </div>
+    </div>
+
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 3</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Valorizar mi stock en todo momento"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">Sin ver tendencias ni proyecciones · solo foto del momento.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN</div>
+        <span class="text-slate-700">"Si vendieras todo el stock: +S/ 24,591" · "Ingresos reales del mes: S/ 11,970" · margen actual + proyectado por producto.</span>
+      </div>
+    </div>
+
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 4</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Datos sin acción concreta"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">Reportes mostraban números pero no decían qué hacer.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN</div>
+        <span class="text-slate-700">"Sugerencias del día" · 15 acciones priorizadas (Urgente / Vigilar / Oportunidades). Cada una con click directo al producto. 30 segundos para revisar todo.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- DECISIONES APLICADAS                                                    -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white rounded-2xl p-8">
+    <div class="text-[11px] uppercase tracking-wider text-indigo-300 font-semibold mb-2">M-INTEL-S58f cerrado · Lote 2 completo ✓</div>
+    <h2 class="text-2xl font-bold mb-3 tracking-tight">Productos Intel rediseñado · valorización por ubicación + score liquidez + sugerencias accionables</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-300 font-semibold mb-1">D-INV-15 ⭐</div>
+        <div class="text-[12px]">Pipeline de valorización · 6 etapas con costo creciente</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-300 font-semibold mb-1">D-INV-16 ⭐</div>
+        <div class="text-[12px]">Score liquidez visual (5 segmentos · Líquido/Medio/Lento)</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-300 font-semibold mb-1">D-INV-17 ⭐</div>
+        <div class="text-[12px]">Sugerencias del día · 3 columnas Urgente/Vigilar/Oportunidades</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-300 font-semibold mb-1">Datos accionables</div>
+        <div class="text-[12px]">No solo números · cada KPI tiene insight + acción sugerida</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-300 font-semibold mb-1">Vista CFO</div>
+        <div class="text-[12px]">5 KPIs ejecutivos · Capital invertido · Margen · Atrapado · Lento</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-300 font-semibold mb-1">Productos en investigación</div>
+        <div class="text-[12px]">Aparecen con valores proyectados · evalúa antes de traer</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10">
+      <div class="text-[14px] font-bold text-white mb-2">🎉 Lote 2 · INVENTARIO REIMAGINADO · cerrado al 100%</div>
+      <div class="grid grid-cols-3 gap-3 text-[12px] text-slate-300">
+        <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>M-PROD-S58f · Productos (5 vistas · 10 D)</div>
+        <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>M-STOCK-S58f · Stock + Unidades (7 vistas · 14 D)</div>
+        <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>M-INTEL-S58f · Intel + Valorización (4 vistas · 17 D)</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10 text-[12px] text-slate-300 leading-relaxed">
+      <strong class="text-white">Próximo lote:</strong>
+      <code class="bg-white/10 px-1.5 py-0.5 rounded ml-1">Lote 3 · Tesorería integrada</code> ·
+      M-TES-LAYOUT (shell con sub-rutas) + M-CAJA-AGENTE (caso GK Xpress 90% de tus envíos).
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

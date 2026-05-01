@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesorería · Shell S58f · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; background: #f8fafc; color: #0f172a; }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .card-base { background: white; border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.2s; }
+  .card-hover:hover { border-color: #cbd5e1; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06); transform: translateY(-1px); }
+  .card-banking { background: white; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+
+  .chip-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 500; transition: all 0.15s; line-height: 1; white-space: nowrap; }
+  .chip-sm { padding: 2px 7px; font-size: 10px; }
+
+  .gradient-teal-soft { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 60%); }
+  .gradient-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .gradient-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .gradient-rose-soft { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 60%); }
+  .gradient-indigo-soft { background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%); }
+
+  .annotation { padding: 8px 12px; background: #fef3c7; border: 1px dashed #fbbf24; border-radius: 8px; font-size: 11px; color: #78350f; line-height: 1.5; }
+
+  /* Sub-tab estilo módulo */
+  .module-tab {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .module-tab:hover { color: #334155; border-bottom-color: #cbd5e1; }
+  .module-tab.active {
+    color: #0d9488;
+    border-bottom-color: #0d9488;
+    font-weight: 600;
+  }
+  .module-tab .badge {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    font-weight: 600;
+  }
+  .module-tab.active .badge { background: #ccfbf1; color: #0f766e; }
+
+  /* Producto financiero card preview */
+  .pf-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .pf-card:hover { border-color: #14b8a6; box-shadow: 0 4px 16px rgba(20, 184, 166, 0.08); }
+
+  /* Bank logo placeholder */
+  .bank-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+  .bank-bcp { background: linear-gradient(135deg, #003876 0%, #0066b3 100%); }
+  .bank-ibk { background: linear-gradient(135deg, #00a99d 0%, #00c4b3 100%); }
+  .bank-bbva { background: linear-gradient(135deg, #004481 0%, #1973b8 100%); }
+  .bank-yape { background: linear-gradient(135deg, #6a2c7e 0%, #9333ea 100%); }
+  .bank-cash { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+
+  @keyframes pulse-soft { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- Header del documento -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Lote 3 · Tesorería integrada</div>
+      <div class="text-base font-bold">M-TES-LAYOUT-S58f · Shell de Tesorería · ensambla M1-M7 existentes en sub-rutas</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-teal-600 px-2 py-1 rounded">Manifesto S58f</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-30</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1 · SHELL DE TESORERÍA · home con tab "Productos" activa          -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · Shell de Tesorería · home con tab "Productos" activa</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Reemplaza el shell legacy de <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Tesoreria.tsx</code> (1108 líneas con tabs viejas).
+    Ahora: ruta accesible desde sidebar (D-CH-2 cumplida) · header descriptivo · KPI strip operativo · 6 sub-rutas que ensamblan los mockups M1-M7 existentes.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Top bar -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="text-slate-500 hover:text-teal-700">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <a class="text-slate-500 hover:text-teal-700">Finanzas y Contabilidad</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <span class="text-slate-900 font-semibold">Tesorería</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="hover:bg-slate-100 text-slate-600 text-[11px] px-2 py-1 rounded inline-flex items-center gap-1">
+          <i data-lucide="keyboard" class="w-3 h-3"></i>
+          <span class="text-[10px] mono">⌘K</span>
+        </button>
+        <button class="relative hover:bg-slate-100 p-1.5 rounded">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span class="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full pulse-soft"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- HEADER (P6: cada página declara su propósito) -->
+    <div class="px-6 py-5 border-b border-slate-100">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1.5">
+            <i data-lucide="wallet" class="w-6 h-6 text-teal-600"></i>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Tesorería</h1>
+          </div>
+          <p class="text-[13px] text-slate-500 leading-relaxed max-w-2xl">
+            La operación diaria del dinero · productos financieros, movimientos, conversiones, pagos.
+            <span class="text-teal-700 font-medium">Donde se mueve plata de verdad.</span>
+          </p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>Actualizar
+          </button>
+          <button class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="circle-dollar-sign" class="w-3.5 h-3.5"></i>Cobro rápido
+          </button>
+          <button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="banknote" class="w-3.5 h-3.5"></i>Pago rápido
+          </button>
+          <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo producto
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP OPERATIVO -->
+    <div class="px-6 py-5 bg-slate-50 border-b border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-5 divide-x divide-slate-200">
+        <div class="px-4 first:pl-0">
+          <div class="text-[10px] uppercase tracking-wider text-teal-700 font-semibold mb-1.5 flex items-center gap-1">
+            <i data-lucide="banknote" class="w-3 h-3"></i>Saldo total PEN
+          </div>
+          <div class="text-2xl font-bold text-teal-700 num-tab tracking-tight">S/ 124,580<span class="text-base text-slate-400 font-normal">.50</span></div>
+          <div class="text-[11px] text-slate-500 num-tab mt-1.5">5 cuentas locales</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-teal-700 font-semibold mb-1.5 flex items-center gap-1">
+            <i data-lucide="dollar-sign" class="w-3 h-3"></i>Saldo total USD
+          </div>
+          <div class="text-2xl font-bold text-teal-700 num-tab tracking-tight">US$ 18,420<span class="text-base text-slate-400 font-normal">.00</span></div>
+          <div class="text-[11px] text-slate-500 num-tab mt-1.5">TC prom 3.510 · ≈ S/ 64,654</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold mb-1.5 flex items-center gap-1">
+            <i data-lucide="clock" class="w-3 h-3"></i>Pendientes
+          </div>
+          <div class="text-2xl font-bold text-amber-700 num-tab tracking-tight">S/ 12,400</div>
+          <div class="text-[11px] text-amber-700 num-tab mt-1.5">8 entidades · 3 vencidos</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5 flex items-center gap-1">
+            <i data-lucide="activity" class="w-3 h-3"></i>Movimientos hoy
+          </div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">14</div>
+          <div class="text-[11px] text-emerald-600 num-tab mt-1.5">+ S/ 8,420 neto</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-semibold mb-1.5 flex items-center gap-1">
+            <i data-lucide="users" class="w-3 h-3"></i>Caja recaudadora
+          </div>
+          <div class="text-2xl font-bold text-purple-700 num-tab tracking-tight">S/ 2,840</div>
+          <div class="text-[11px] text-purple-700 num-tab mt-1.5 flex items-center gap-1">
+            <i data-lucide="zap" class="w-3 h-3"></i>GK Xpress · pendiente
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- SUB-TABS / SUB-RUTAS · ensambla M1-M7 + Panorama                  -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="border-b border-slate-200 px-6 bg-white">
+      <div class="flex items-center -mb-px overflow-x-auto scrollbar-hide">
+        <button class="module-tab active">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Panorama
+          <span class="badge bg-amber-100 text-amber-800" style="background:#fef3c7;color:#b45309;">⭐</span>
+        </button>
+        <button class="module-tab">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Productos
+          <span class="badge num-tab">12</span>
+        </button>
+        <button class="module-tab">
+          <i data-lucide="list" class="w-3.5 h-3.5"></i>Movimientos
+          <span class="badge num-tab">2,847</span>
+        </button>
+        <button class="module-tab">
+          <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>Conversiones
+        </button>
+        <button class="module-tab">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>Transferencias
+        </button>
+        <button class="module-tab">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i>Pagos masivos
+          <span class="badge num-tab">3</span>
+        </button>
+        <button class="module-tab">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Pipeline
+        </button>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- CONTENIDO TAB ACTIVA: PANORAMA · 5 visualizaciones inteligentes   -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="px-6 py-5 bg-slate-50/30">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900">Panorama del día</h2>
+            <span class="chip-pill chip-sm bg-teal-50 text-teal-700 border border-teal-200">Home default</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-0.5">5 vistas inteligentes · estado actual + evolución temporal + acción del día · revisión 30s</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-[11px] text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1">
+            <i data-lucide="settings-2" class="w-3 h-3"></i>Personalizar
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1">
+            <i data-lucide="download" class="w-3 h-3"></i>Exportar
+          </button>
+        </div>
+      </div>
+
+      <!-- FILA 1 · Evolución temporal -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+
+        <!-- #7 · Línea de Evolución del Saldo -->
+        <div class="card-banking p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-teal-700"></i>
+              <span class="text-[12px] font-bold text-slate-900">Evolución del saldo</span>
+            </div>
+            <div class="flex items-center gap-1 bg-slate-50 rounded border border-slate-200 p-0.5 text-[10px]">
+              <button class="px-1.5 py-0.5 text-slate-500 rounded">7d</button>
+              <button class="px-1.5 py-0.5 bg-teal-50 text-teal-700 font-semibold rounded">30d</button>
+              <button class="px-1.5 py-0.5 text-slate-500 rounded">90d</button>
+              <button class="px-1.5 py-0.5 text-slate-500 rounded">1a</button>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2 mb-2">
+            <div class="text-[22px] font-bold text-slate-900 num-tab tracking-tight">S/ 124,580</div>
+            <div class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3 h-3"></i>+12.8%
+              <span class="text-slate-400 font-normal">vs hace 30d</span>
+            </div>
+          </div>
+          <!-- Gráfico SVG -->
+          <svg viewBox="0 0 380 100" class="w-full h-24">
+            <defs>
+              <linearGradient id="line-grad-shell-7" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#14b8a6" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Eje Y mínimo -->
+            <line x1="0" y1="80" x2="380" y2="80" stroke="#fca5a5" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"></line>
+            <text x="3" y="78" font-size="8" fill="#dc2626" font-weight="600">mín S/ 50K</text>
+            <!-- Área -->
+            <path d="M 0 60 L 30 55 L 60 45 L 90 65 L 120 30 L 150 35 L 180 70 L 210 60 L 240 35 L 270 25 L 300 40 L 330 30 L 360 18 L 380 22 L 380 100 L 0 100 Z" fill="url(#line-grad-shell-7)"></path>
+            <!-- Línea -->
+            <path d="M 0 60 L 30 55 L 60 45 L 90 65 L 120 30 L 150 35 L 180 70 L 210 60 L 240 35 L 270 25 L 300 40 L 330 30 L 360 18 L 380 22" stroke="#0d9488" stroke-width="2.5" fill="none"></path>
+            <!-- Eventos clickables -->
+            <circle cx="90" cy="65" r="4" fill="#ef4444" stroke="white" stroke-width="2"></circle>
+            <circle cx="180" cy="70" r="4" fill="#ef4444" stroke="white" stroke-width="2"></circle>
+            <circle cx="270" cy="25" r="4" fill="#10b981" stroke="white" stroke-width="2"></circle>
+            <circle cx="360" cy="18" r="4" fill="#10b981" stroke="white" stroke-width="2"></circle>
+          </svg>
+          <div class="grid grid-cols-2 gap-2 mt-1 text-[10px]">
+            <div class="flex items-center gap-1 text-slate-500">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span>5 abr · OC-088 (−$4,300)
+            </div>
+            <div class="flex items-center gap-1 text-slate-500">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>22 abr · 5 ventas (+S/12K)
+            </div>
+          </div>
+        </div>
+
+        <!-- #8 · Cash Flow Forecast 30d -->
+        <div class="card-banking p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="line-chart" class="w-3.5 h-3.5 text-indigo-700"></i>
+              <span class="text-[12px] font-bold text-slate-900">Forecast 30d · proyección</span>
+            </div>
+            <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200 pulse-soft">
+              <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>Alerta 18 may
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2 mb-2">
+            <div class="text-[22px] font-bold text-indigo-700 num-tab tracking-tight">S/ 48K</div>
+            <div class="text-[11px] text-rose-600 font-semibold">proyectado al 18 may</div>
+          </div>
+          <svg viewBox="0 0 380 100" class="w-full h-24">
+            <defs>
+              <linearGradient id="line-grad-shell-8" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Línea mínimo -->
+            <line x1="0" y1="75" x2="380" y2="75" stroke="#fca5a5" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"></line>
+            <text x="3" y="73" font-size="8" fill="#dc2626" font-weight="600">mín S/ 50K</text>
+            <!-- Línea HOY divisor -->
+            <line x1="190" y1="0" x2="190" y2="92" stroke="#94a3b8" stroke-width="1" stroke-dasharray="2,2"></line>
+            <text x="187" y="98" font-size="7" fill="#64748b" text-anchor="end" font-weight="700">HOY</text>
+            <text x="193" y="98" font-size="7" fill="#6366f1" font-weight="700">→ Forecast</text>
+            <!-- Línea histórica (real) -->
+            <path d="M 0 35 L 30 40 L 60 30 L 90 50 L 120 25 L 150 20 L 180 22 L 190 22" stroke="#0d9488" stroke-width="2.5" fill="none"></path>
+            <!-- Línea proyectada (punteada) -->
+            <path d="M 190 22 L 230 40 L 270 60 L 310 80 L 350 70 L 380 72" stroke="#6366f1" stroke-width="2.5" fill="none" stroke-dasharray="5,3"></path>
+            <!-- Punto crítico -->
+            <circle cx="310" cy="80" r="4" fill="#ef4444" stroke="white" stroke-width="2"></circle>
+          </svg>
+          <div class="text-[10px] text-rose-700 font-semibold mt-1 flex items-start gap-1">
+            <i data-lucide="alert-triangle" class="w-3 h-3 flex-shrink-0 mt-0.5"></i>
+            <span>Saldo cae bajo el mínimo el 18 may si pagas las 3 OCs programadas y no cobras a tiempo. Considera diferir alguna OC o acelerar cobranza.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FILA 2 · Estado actual -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+
+        <!-- #1 · Pipeline Cash Flow -->
+        <div class="card-banking p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="git-commit" class="w-3.5 h-3.5 text-emerald-700"></i>
+              <span class="text-[12px] font-bold text-slate-900">Pipeline Cash Flow</span>
+            </div>
+            <span class="text-[10px] text-slate-500">estado del dinero ahora</span>
+          </div>
+          <!-- Pipeline horizontal con 5 etapas -->
+          <div class="flex items-stretch gap-2 mb-2">
+            <div class="flex-1 text-center p-2 rounded-md" style="background:#fff1f2; border:1px solid #fecdd3;">
+              <div class="text-[8px] uppercase font-bold text-rose-700 tracking-wider">Pendientes</div>
+              <div class="text-[14px] font-bold text-rose-700 num-tab">S/ 24K</div>
+              <div class="text-[8px] text-slate-500">por cobrar</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 self-center flex-shrink-0"></i>
+            <div class="flex-1 text-center p-2 rounded-md gradient-teal-soft" style="border:1px solid #99f6e4;">
+              <div class="text-[8px] uppercase font-bold text-teal-700 tracking-wider">En cuenta</div>
+              <div class="text-[14px] font-bold text-teal-700 num-tab">S/ 124K</div>
+              <div class="text-[8px] text-slate-500">disponible</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 self-center flex-shrink-0"></i>
+            <div class="flex-1 text-center p-2 rounded-md gradient-amber-soft" style="border:1px solid #fde68a;">
+              <div class="text-[8px] uppercase font-bold text-amber-700 tracking-wider">Reservado</div>
+              <div class="text-[14px] font-bold text-amber-700 num-tab">S/ 8K</div>
+              <div class="text-[8px] text-slate-500">comprometido</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 self-center flex-shrink-0"></i>
+            <div class="flex-1 text-center p-2 rounded-md gradient-indigo-soft" style="border:1px solid #c7d2fe;">
+              <div class="text-[8px] uppercase font-bold text-indigo-700 tracking-wider">En pago</div>
+              <div class="text-[14px] font-bold text-indigo-700 num-tab">S/ 12K</div>
+              <div class="text-[8px] text-slate-500">5 OCs</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 self-center flex-shrink-0"></i>
+            <div class="flex-1 text-center p-2 rounded-md gradient-emerald-soft" style="border:1px solid #a7f3d0;">
+              <div class="text-[8px] uppercase font-bold text-emerald-700 tracking-wider">Ejecutado</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">S/ 42K</div>
+              <div class="text-[8px] text-slate-500">mes</div>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-600 leading-relaxed mt-2 pt-2 border-t border-slate-100">
+            <strong class="text-slate-900">Insight:</strong> S/ 24K pendientes de cobro es 19% de tu saldo · acelerar cobranza acortaría el ciclo de tu dinero.
+          </div>
+        </div>
+
+        <!-- #2 · Calendario de Obligaciones -->
+        <div class="card-banking p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-700"></i>
+              <span class="text-[12px] font-bold text-slate-900">Calendario de obligaciones</span>
+              <span class="text-[10px] text-slate-500">· mayo 2026</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-[9px]">
+              <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>Vencido</span>
+              <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>TC</span>
+              <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>OC</span>
+              <span class="flex items-center gap-0.5"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Sueldo</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 gap-0.5 text-center">
+            <div class="text-[9px] text-slate-400 font-semibold">L</div><div class="text-[9px] text-slate-400 font-semibold">M</div><div class="text-[9px] text-slate-400 font-semibold">X</div><div class="text-[9px] text-slate-400 font-semibold">J</div><div class="text-[9px] text-slate-400 font-semibold">V</div><div class="text-[9px] text-slate-400 font-semibold">S</div><div class="text-[9px] text-slate-400 font-semibold">D</div>
+            <div class="cal-day text-slate-300">28</div><div class="cal-day text-slate-300">29</div><div class="cal-day text-slate-300">30</div><div class="cal-day has-event" style="background:#ccfbf1">1<div class="event-dot bg-emerald-500"></div></div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div>
+            <div class="cal-day has-event" style="background:#fee2e2">5<div class="event-dot bg-rose-500"></div></div><div class="cal-day">6</div><div class="cal-day has-event" style="background:#fef3c7">7<div class="event-dot bg-amber-500"></div></div><div class="cal-day">8</div><div class="cal-day has-event" style="background:#e0e7ff">9<div class="event-dot bg-indigo-500"></div></div><div class="cal-day">10</div><div class="cal-day">11</div>
+            <div class="cal-day has-event" style="background:#fef3c7">12<div class="event-dot bg-amber-500"></div></div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day has-event" style="background:#e0e7ff">15<div class="event-dot bg-indigo-500"></div></div><div class="cal-day has-event" style="background:#dcfce7">16<div class="event-dot bg-emerald-500"></div></div><div class="cal-day">17</div><div class="cal-day">18</div>
+            <div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day has-event" style="background:#fef3c7">21<div class="event-dot bg-amber-500"></div></div><div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div>
+            <div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day has-event" style="background:#dcfce7">29<div class="event-dot bg-emerald-500"></div></div><div class="cal-day has-event" style="background:#fee2e2">30<div class="event-dot bg-rose-500"></div></div><div class="cal-day">31</div><div class="cal-day text-slate-300">1</div>
+          </div>
+          <div class="text-[10px] text-slate-600 mt-2 pt-2 border-t border-slate-100 space-y-0.5">
+            <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span><span class="font-semibold text-rose-700">5 may:</span> OC-088 vence ⚠</div>
+            <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span><span class="font-semibold text-amber-700">12 may:</span> estado BBVA Visa Gold</div>
+            <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span><span class="font-semibold text-emerald-700">29 may:</span> sueldos del mes</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FILA 3 · Acción del día (full width) -->
+      <div class="card-banking p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-indigo-700"></i>
+            <span class="text-[12px] font-bold text-slate-900">Sugerencias del día</span>
+            <span class="text-[10px] text-slate-500">· 13 acciones priorizadas · revisión 30s</span>
+          </div>
+          <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[10px] px-2.5 py-1 rounded-md flex items-center gap-1">
+            <i data-lucide="check-check" class="w-3 h-3"></i>Ejecutar urgentes
+          </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <!-- URGENTE -->
+          <div class="bg-rose-50/50 border border-rose-200 rounded-lg p-3">
+            <div class="flex items-center gap-1.5 mb-2">
+              <div class="w-2 h-2 rounded-full bg-rose-500 pulse-soft"></div>
+              <span class="text-[10px] font-bold text-rose-900 uppercase tracking-wider">Urgente · 4</span>
+            </div>
+            <div class="space-y-1.5">
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-rose-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="alert-circle" class="w-3 h-3 text-rose-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">Pago OC-088 vencido</div>
+                    <div class="text-[9px] text-slate-500">$ 1,500 · venció hace 2d</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-rose-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="credit-card" class="w-3 h-3 text-rose-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">BBVA Visa Gold paga en 2d</div>
+                    <div class="text-[9px] text-slate-500">S/ 4,820 · estado de cuenta</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-rose-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="zap" class="w-3 h-3 text-rose-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">Liquidar GK Xpress</div>
+                    <div class="text-[9px] text-slate-500">S/ 2,840 acumulados sin liquidar</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIGILAR -->
+          <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-3">
+            <div class="flex items-center gap-1.5 mb-2">
+              <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+              <span class="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Vigilar · 6</span>
+            </div>
+            <div class="space-y-1.5">
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-amber-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="trending-down" class="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">Saldo BCP &lt; mínimo</div>
+                    <div class="text-[9px] text-slate-500">S/ 42K vs mín S/ 50K</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-amber-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="clock" class="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">3 conversiones idle</div>
+                    <div class="text-[9px] text-slate-500">USD sin convertir hace 7d</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-amber-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="clock" class="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">8 cobros vencidos</div>
+                    <div class="text-[9px] text-slate-500">S/ 12K · acelerar gestión</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OPORTUNIDADES -->
+          <div class="bg-emerald-50/50 border border-emerald-200 rounded-lg p-3">
+            <div class="flex items-center gap-1.5 mb-2">
+              <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <span class="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">Oportunidades · 3</span>
+            </div>
+            <div class="space-y-1.5">
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-emerald-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="trending-up" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">TC favorable hoy</div>
+                    <div class="text-[9px] text-slate-500">3.490 vs prom 3.510 · convertir USD</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-emerald-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="gift" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">Descuento pronto pago</div>
+                    <div class="text-[9px] text-slate-500">SkinTech ofrece 3% si pagas hoy</div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white border border-slate-200 rounded p-2 cursor-pointer hover:border-emerald-300">
+                <div class="flex items-start gap-1.5">
+                  <i data-lucide="zap" class="w-3 h-3 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="text-[10px] font-bold text-slate-900">Alta velocidad cobranza</div>
+                    <div class="text-[9px] text-slate-500">Promedio 8d vs 12d hist · aprovecha</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Anotaciones Vista 1 -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Tesorería visible en sidebar (D-CH-2):</strong> resuelve el dolor "no está accesible" · breadcrumbs · accesible con ⌘K.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Header con propósito (P6):</strong> <em>"La operación diaria del dinero. Donde se mueve plata de verdad"</em> · diferencia vs Finanzas (visión ejecutiva).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ KPI strip operativo siempre visible:</strong> 5 métricas del día. No cambian al cambiar de sub-tab.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 7 sub-tabs (Panorama + 6 operativas):</strong> Panorama (default · home) · Productos (M1) · Movimientos (M6) · Conversiones (M7) · Transferencias (M7) · Pagos masivos (M5) · Pipeline (M3).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Panorama como home default:</strong> al abrir Tesorería ves el dashboard inteligente (5 vistas). Si necesitas operar, 1 click te lleva a la sub-tab correcta.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Shell limpio:</strong> sin sobrecarga · cada sub-tab tiene su propio espacio · usuario no debe scrollear todo el dashboard si solo quiere registrar un movimiento.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1B · Shell con tab "Productos" activa (al hacer click)            -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1B · Cuando haces click en sub-tab "Productos"</h2>
+  <p class="text-sm text-slate-600 mb-4">Mismo shell · sub-tabs cambian de activa · contenido cambia a productos por titular (M1 ensamblado).</p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header simulado compacto -->
+    <div class="bg-slate-50 border-b border-slate-200 px-6 py-2 text-[11px] text-slate-500">
+      <span>Inicio › Finanzas y Contabilidad › <strong class="text-slate-900">Tesorería</strong> › Productos</span>
+    </div>
+    <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2">
+      <i data-lucide="wallet" class="w-5 h-5 text-teal-600"></i>
+      <span class="text-base font-bold text-slate-900">Tesorería</span>
+      <span class="text-[10px] text-slate-400">(KPIs y header se mantienen idénticos)</span>
+    </div>
+
+    <!-- Sub-tabs con Productos activa -->
+    <div class="border-b border-slate-200 px-6 bg-white">
+      <div class="flex items-center -mb-px overflow-x-auto scrollbar-hide">
+        <button class="module-tab">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Panorama
+          <span class="badge" style="background:#fef3c7;color:#b45309;">⭐</span>
+        </button>
+        <button class="module-tab active">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Productos
+          <span class="badge num-tab">12</span>
+        </button>
+        <button class="module-tab">
+          <i data-lucide="list" class="w-3.5 h-3.5"></i>Movimientos
+          <span class="badge num-tab">2,847</span>
+        </button>
+        <button class="module-tab"><i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>Conversiones</button>
+        <button class="module-tab"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>Transferencias</button>
+        <button class="module-tab"><i data-lucide="layers" class="w-3.5 h-3.5"></i>Pagos masivos<span class="badge num-tab">3</span></button>
+        <button class="module-tab"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Pipeline</button>
+      </div>
+    </div>
+
+    <!-- Contenido tab Productos -->
+    <div class="px-6 py-5 bg-white">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900">Productos financieros</h2>
+            <span class="chip-pill chip-sm bg-teal-50 text-teal-700 border border-teal-200">
+              <i data-lucide="info" class="w-2.5 h-2.5"></i>M1 ensamblado
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-0.5">12 productos · 3 titulares · agrupados por titular o banco</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1">
+            <i data-lucide="filter" class="w-3 h-3"></i>Filtros
+          </button>
+          <div class="flex items-center gap-1 bg-white rounded-md border border-slate-200 p-0.5">
+            <button class="px-2 py-0.5 text-[11px] font-semibold text-teal-700 bg-teal-50 rounded">Por titular</button>
+            <button class="px-2 py-0.5 text-[11px] font-medium text-slate-500">Por banco</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vita Skin SAC -->
+      <div class="mb-4">
+        <div class="flex items-center gap-2 mb-2 pb-1.5 border-b border-slate-100">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold text-[11px]">V</div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">Vita Skin Peru SAC</div>
+            <div class="text-[10px] text-slate-500">Empresa · 8 productos · S/ 89,420 · US$ 14,200</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="pf-card">
+            <div class="flex items-start gap-2.5 mb-2">
+              <div class="bank-logo bank-bcp">BCP</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-slate-900 truncate">BCP Cta Corriente</div>
+                <div class="text-[10px] text-slate-500 mono">····3842 · soles</div>
+              </div>
+              <span class="chip-pill chip-sm bg-teal-50 text-teal-700 border border-teal-200">Principal</span>
+            </div>
+            <div class="text-[20px] font-bold text-slate-900 num-tab tracking-tight">S/ 42,580<span class="text-[12px] text-slate-400 font-normal">.50</span></div>
+          </div>
+          <div class="pf-card">
+            <div class="flex items-start gap-2.5 mb-2">
+              <div class="bank-logo bank-ibk">IBK</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-slate-900 truncate">Interbank USD</div>
+                <div class="text-[10px] text-slate-500 mono">····8821 · dólares</div>
+              </div>
+            </div>
+            <div class="text-[20px] font-bold text-slate-900 num-tab tracking-tight">US$ 8,420</div>
+          </div>
+          <div class="pf-card">
+            <div class="flex items-start gap-2.5 mb-2">
+              <div class="bank-logo bank-bbva">BBVA</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-slate-900 truncate">BBVA Visa Gold</div>
+                <div class="text-[10px] text-slate-500 mono">····5533 · TC empresa</div>
+              </div>
+              <span class="chip-pill chip-sm bg-indigo-50 text-indigo-700 border border-indigo-200">TC</span>
+            </div>
+            <div class="text-[20px] font-bold text-rose-700 num-tab tracking-tight">−S/ 4,820</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GK Xpress -->
+      <div>
+        <div class="flex items-center gap-2 mb-2 pb-1.5 border-b border-slate-100">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-[11px]">GK</div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">GK Xpress · Caja recaudadora</div>
+            <div class="text-[10px] text-slate-500">Proveedor · 1 producto · 90% de tus envíos</div>
+          </div>
+          <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200 ml-auto pulse-soft">⭐ Crítico</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="pf-card" style="border:1px solid #c084fc; background: linear-gradient(135deg, #faf5ff 0%, #ffffff 60%);">
+            <div class="flex items-start gap-2.5 mb-2">
+              <div class="bank-logo bank-yape">Y</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[12px] font-bold text-slate-900 truncate">Yape GK Xpress</div>
+                <div class="text-[10px] text-slate-500 mono">9XX-XXX-XXX · recaudadora</div>
+              </div>
+            </div>
+            <div class="text-[20px] font-bold text-slate-900 num-tab tracking-tight">S/ 2,840</div>
+            <div class="text-[10px] text-purple-700 mt-0.5 font-medium">Pendiente liquidar</div>
+            <button class="text-[10px] text-purple-700 hover:text-purple-800 font-semibold mt-1.5 flex items-center gap-1">
+              <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>Ver M-CAJA-AGENTE
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="annotation mt-3" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+    <strong>⭐ Cambio de tab limpio:</strong> click en "Productos" · solo cambia el contenido del área de tab · KPI strip + header se mantienen · sin recarga de página · estado preservado.
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · NAVEGACIÓN ENTRE SUB-TABS · cómo se conectan los M1-M7        -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 · Mapa de sub-tabs · cómo cada uno ensambla los mockups M1-M7</h2>
+  <p class="text-sm text-slate-600 mb-4">Cada sub-ruta usa un mockup ya diseñado en S58e · sin reinventar nada · solo ensamblar bien.</p>
+
+  <div class="grid grid-cols-3 gap-3">
+
+    <!-- Tab Panorama (NUEVO · home default) -->
+    <div class="card-banking p-4 cursor-pointer card-hover ring-2 ring-amber-300" style="background:linear-gradient(135deg, #fffbeb 0%, #ffffff 60%);">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">/tesoreria · Panorama</div>
+          <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">⭐ Home default</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">
+        Dashboard inteligente · 5 vistas (evolución + estado + acción) · revisión 30s al día.
+      </p>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+        <i data-lucide="zap" class="w-3 h-3"></i>
+        <span><strong>5 visualizaciones:</strong> Evolución · Forecast · Pipeline CF · Calendario · Sugerencias</span>
+      </div>
+    </div>
+
+    <!-- Tab Productos -->
+    <div class="card-banking p-4 cursor-pointer card-hover">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+          <i data-lucide="layout-grid" class="w-4 h-4 text-teal-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">/tesoreria/productos</div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">
+        Vista por titular o por banco · cards de productos financieros · click abre detalle (M2).
+      </p>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+        <i data-lucide="link-2" class="w-3 h-3"></i>
+        <span>Ensambla: <strong>M1</strong> (productos listado) + <strong>M2</strong> (detalle modal)</span>
+      </div>
+    </div>
+
+    <!-- Tab Movimientos -->
+    <div class="card-banking p-4 cursor-pointer card-hover">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+          <i data-lucide="list" class="w-4 h-4 text-slate-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">/tesoreria/movimientos</div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">
+        Libro mayor unificado de todos los movimientos · filtros canónicos referencia #6 · KPI strip ingresos/egresos.
+      </p>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+        <i data-lucide="link-2" class="w-3 h-3"></i>
+        <span>Ensambla: <strong>M6</strong> (movimientos libro mayor)</span>
+      </div>
+    </div>
+
+    <!-- Tab Conversiones -->
+    <div class="card-banking p-4 cursor-pointer card-hover">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+          <i data-lucide="arrow-left-right" class="w-4 h-4 text-amber-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">/tesoreria/conversiones</div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">
+        Wizard banking-grade conversiones PEN ↔ USD · histórico · Pool USD TCPA.
+      </p>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+        <i data-lucide="link-2" class="w-3 h-3"></i>
+        <span>Ensambla: <strong>M7</strong> (modo conversión)</span>
+      </div>
+    </div>
+
+    <!-- Tab Transferencias -->
+    <div class="card-banking p-4 cursor-pointer card-hover">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
+          <i data-lucide="refresh-cw" class="w-4 h-4 text-sky-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">/tesoreria/transferencias</div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">
+        Wizard transferencias entre cuentas propias · misma moneda o conversión interna.
+      </p>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+        <i data-lucide="link-2" class="w-3 h-3"></i>
+        <span>Ensambla: <strong>M7</strong> (modo transferencia)</span>
+      </div>
+    </div>
+
+    <!-- Tab Pagos masivos -->
+    <div class="card-banking p-4 cursor-pointer card-hover">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+          <i data-lucide="layers" class="w-4 h-4 text-purple-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">/tesoreria/pagos-masivos</div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">
+        Wizard 4 pasos · subir CSV o seleccionar varios documentos · ejecutar batch · reporte.
+      </p>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+        <i data-lucide="link-2" class="w-3 h-3"></i>
+        <span>Ensambla: <strong>M5</strong> (pagos masivos wizard)</span>
+      </div>
+    </div>
+
+    <!-- Tab Pipeline -->
+    <div class="card-banking p-4 cursor-pointer card-hover">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+          <i data-lucide="git-branch" class="w-4 h-4 text-emerald-700"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900">/tesoreria/pipeline</div>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">
+        Pipeline de tesorería expandido · etapas operativas · cuellos de botella.
+      </p>
+      <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+        <i data-lucide="link-2" class="w-3 h-3"></i>
+        <span>Ensambla: <strong>M3</strong> (pipeline expandido)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Diagrama de relaciones -->
+  <div class="card-banking p-5 mt-4 bg-gradient-to-br from-slate-50 to-white">
+    <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-3">Mapa de relaciones · M1-M7 dentro del shell</h3>
+    <pre class="text-[11px] text-slate-700 leading-relaxed overflow-x-auto" style="font-family: ui-monospace, monospace;">
+M-TES-LAYOUT-S58f (este shell)
+  │
+  ├── /tesoreria              → ⭐ PANORAMA (home default · 5 visualizaciones)
+  │                              · #7 Línea evolución saldo
+  │                              · #8 Forecast 30d con alertas
+  │                              · #1 Pipeline cash flow
+  │                              · #2 Calendario obligaciones
+  │                              · #3 Sugerencias del día (3 cols)
+  │
+  ├── /tesoreria/productos    → ensambla M1 + M2 (productos por titular/banco)
+  │     └── M4 drill-down     → click en titular → abre M4 (drill por persona/empresa)
+  │
+  ├── /tesoreria/movimientos  → ensambla M6 (libro mayor · filtros canónicos)
+  │
+  ├── /tesoreria/conversiones → ensambla M7 modo conversión
+  │
+  ├── /tesoreria/transferencias → ensambla M7 modo transferencia
+  │
+  ├── /tesoreria/pagos-masivos  → ensambla M5 (wizard 4 pasos)
+  │
+  └── /tesoreria/pipeline       → ensambla M3 (pipeline expandido)
+
+  + Caja recaudadora aparece como titular en /tesoreria/productos
+    → click abre M-CAJA-AGENTE-S58f (siguiente mockup) ⭐</pre>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · ANTES vs DESPUÉS · resuelve "tesorería en limbo"              -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · Antes / Después · resolviendo "Tesorería en limbo"</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Tu cita: <em>"siento que ha quedado en un limbo, no esta en ningun lugar accesible, tampoco esta integrado adecuadamente en el flujo del negocio."</em> Esto resuelve cada parte:
+  </p>
+
+  <div class="grid grid-cols-2 gap-4">
+
+    <!-- ANTES -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-rose-100 text-rose-700 uppercase tracking-wider font-bold text-[10px]">Hoy</span>
+        <h3 class="text-sm font-bold text-slate-900">Tesorería actual</h3>
+      </div>
+      <div class="card-banking p-5 bg-rose-50/30 border border-rose-200 space-y-2 text-[12px]">
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>Huérfana del sidebar</strong> · solo accesible vía buttons en /finanzas</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>1108 líneas en Tesoreria.tsx</strong> con 7 tabs viejas mezcladas</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>Componentes M1-M7 existentes pero desconectados</strong> · cada uno trabaja aislado</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>GK Xpress (90% de envíos) sin lugar dedicado</strong> · cobros y descuentos en limbo</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>Sin diferenciación clara vs Finanzas</strong> · el usuario duda dónde abrir cada cosa</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESPUÉS -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-emerald-100 text-emerald-700 uppercase tracking-wider font-bold text-[10px]">Propuesta S58f</span>
+        <h3 class="text-sm font-bold text-slate-900">Shell con sub-rutas</h3>
+      </div>
+      <div class="card-banking p-5 bg-emerald-50/30 border border-emerald-200 space-y-2 text-[12px]">
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>Sidebar visible</strong> · Finanzas y Contabilidad → Tesorería · breadcrumbs claros</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>TesoreriaLayout</strong> con 6 sub-rutas claras · cada una su URL</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>M1-M7 ensamblados</strong> · cada mockup pixel-perfect ya hecho aparece donde corresponde</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>GK Xpress como titular destacado</strong> · "Caja recaudadora" con CTA a M-CAJA-AGENTE</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700"><strong>Header declara propósito</strong> · "La operación diaria del dinero. Donde se mueve plata de verdad"</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- DECISIONES APLICADAS                                                    -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 text-white rounded-2xl p-8">
+    <div class="text-[11px] uppercase tracking-wider text-teal-300 font-semibold mb-2">M-TES-LAYOUT-S58f cerrado</div>
+    <h2 class="text-2xl font-bold mb-3 tracking-tight">Shell de Tesorería · 6 sub-rutas que ensamblan M1-M7 · accesible desde sidebar</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-CH-2 ✅</div>
+        <div class="text-[12px]">Tesorería en sidebar · ya no huérfana</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-CH-3 ✅</div>
+        <div class="text-[12px]">Finanzas = ejecutivo · Tesorería = operativo · audiencias separadas</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">M1 ensamblado</div>
+        <div class="text-[12px]">Productos por titular como home default</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">M2-M7 ensamblados</div>
+        <div class="text-[12px]">Cada uno en su sub-ruta · sin duplicación</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">GK Xpress destacado</div>
+        <div class="text-[12px]">Caja recaudadora como titular crítico · CTA a M-CAJA-AGENTE</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Acciones rápidas</div>
+        <div class="text-[12px]">Cobro / Pago / Conversión / Transferencia / Movimiento desde header</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">⭐ Panorama del día</div>
+        <div class="text-[12px]">5 visualizaciones inteligentes · evolución + estado + acción · personalizable</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">⭐ Forecast 30d</div>
+        <div class="text-[12px]">Proyección de saldo · alertas cuando se proyecta saldo bajo el mínimo</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">⭐ Calendario obligaciones</div>
+        <div class="text-[12px]">Vista mensual · pagos por tipo (vencido/TC/OC/sueldos) · "qué pago esta semana"</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10 text-[12px] text-slate-300 leading-relaxed">
+      <strong class="text-white">Próximo del Lote 3:</strong>
+      <code class="bg-white/10 px-1.5 py-0.5 rounded ml-1">M-CAJA-AGENTE-S58f</code> ·
+      Caja recaudadora con banner promoción + vista dedicada del caso GK Xpress (90% de envíos) + workflow de los 5 eventos del Caso B documentado en arquitectura-finanzas-s58.md.
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

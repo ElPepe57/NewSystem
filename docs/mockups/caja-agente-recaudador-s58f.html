@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caja Recaudadora · GK Xpress · S58f · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; background: #f8fafc; color: #0f172a; }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+
+  .card-base { background: white; border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.2s; }
+  .card-hover:hover { border-color: #cbd5e1; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06); transform: translateY(-1px); }
+  .card-banking { background: white; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+
+  .chip-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 500; line-height: 1; white-space: nowrap; }
+  .chip-sm { padding: 2px 7px; font-size: 10px; }
+
+  .gradient-purple-soft { background: linear-gradient(135deg, #faf5ff 0%, #ffffff 60%); }
+  .gradient-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .gradient-rose-soft { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 60%); }
+  .gradient-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .gradient-teal-soft { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 60%); }
+  .gradient-sky-soft { background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 60%); }
+
+  .annotation { padding: 8px 12px; background: #fef3c7; border: 1px dashed #fbbf24; border-radius: 8px; font-size: 11px; color: #78350f; line-height: 1.5; }
+
+  /* Timeline event */
+  .event-step {
+    position: relative;
+    padding-left: 40px;
+    padding-bottom: 24px;
+  }
+  .event-step::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 28px;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+  }
+  .event-step:last-child::before { display: none; }
+  .event-step .step-circle {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    z-index: 5;
+  }
+  .event-step.active .step-circle { background: #9333ea; border-color: #9333ea; color: white; }
+  .event-step.done .step-circle { background: #10b981; border-color: #10b981; color: white; }
+
+  /* Saldo cards mini */
+  .balance-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: all 0.15s;
+  }
+  .balance-card.update {
+    background: #fefce8;
+    border-color: #fcd34d;
+  }
+  .balance-card.cero {
+    background: #f0fdf4;
+    border-color: #86efac;
+  }
+
+  @keyframes pulse-soft { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .slide-in { animation: slide-in 0.3s ease-out; }
+</style>
+</head>
+<body>
+
+<!-- Header del documento -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Lote 3 · Tesorería integrada</div>
+      <div class="text-base font-bold">M-CAJA-AGENTE-S58f · Caja recaudadora · GK Xpress · 90% de envíos</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-purple-600 px-2 py-1 rounded">⭐ Pieza crítica</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-30</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1 · DETALLE DE CAJA RECAUDADORA                                   -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · Detalle de Caja Recaudadora · Yape GK Xpress</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Vista dedicada cuando entras al producto financiero <strong>Yape · GK Xpress</strong> · agente recaudador con responsable tercero · gestiona cobros + descuentos + liquidaciones de tu 90% de envíos.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header del producto -->
+    <div class="bg-gradient-to-br from-purple-50 via-white to-slate-50 border-b border-purple-200 px-6 py-5">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div class="flex items-start gap-3">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-lg ring-2 ring-purple-200">
+            GK
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-0.5">
+              <h2 class="text-xl font-bold tracking-tight text-slate-900">Yape · GK Xpress</h2>
+              <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Caja recaudadora</span>
+              <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200 pulse-soft">⭐ 90% envíos</span>
+            </div>
+            <p class="text-[12px] text-slate-500">
+              <span class="mono">9XX-XXX-541</span> · vinculada a Yape · responsable tercero: <strong class="text-slate-700">GK Xpress (Carlos M.)</strong>
+            </p>
+            <div class="flex items-center gap-2 mt-1.5 text-[11px]">
+              <a class="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1">
+                <i data-lucide="external-link" class="w-3 h-3"></i>Ver ficha en Red Logística
+              </a>
+              <span class="text-slate-300">·</span>
+              <a class="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1">
+                <i data-lucide="external-link" class="w-3 h-3"></i>Ver CC del proveedor
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar conciliación
+          </button>
+          <button class="bg-purple-600 hover:bg-purple-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="arrow-right-left" class="w-3.5 h-3.5"></i>Liquidar saldo a BCP
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI strip de la caja -->
+      <div class="grid grid-cols-5 divide-x divide-slate-200 pt-4 border-t border-slate-100">
+        <div class="px-3 first:pl-0">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Saldo actual</div>
+          <div class="text-[22px] font-bold text-purple-700 num-tab tracking-tight">S/ 2,840</div>
+          <div class="text-[10px] text-purple-600 font-medium mt-0.5">pendiente liquidar</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-semibold mb-1">Cobros recibidos (mes)</div>
+          <div class="text-[22px] font-bold text-emerald-700 num-tab tracking-tight">S/ 18,420</div>
+          <div class="text-[10px] text-slate-500 num-tab mt-0.5">37 cobros · 14 clientes</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-rose-700 font-semibold mb-1">Servicios descontados</div>
+          <div class="text-[22px] font-bold text-rose-700 num-tab tracking-tight">S/ 3,200</div>
+          <div class="text-[10px] text-slate-500 num-tab mt-0.5">128 carreras · S/ 25 c/u</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-sky-700 font-semibold mb-1">Liquidado al negocio</div>
+          <div class="text-[22px] font-bold text-sky-700 num-tab tracking-tight">S/ 12,380</div>
+          <div class="text-[10px] text-slate-500 num-tab mt-0.5">5 transferencias · BCP</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold mb-1">CC del proveedor</div>
+          <div class="text-[22px] font-bold text-emerald-700 num-tab tracking-tight">S/ 0</div>
+          <div class="text-[10px] text-emerald-600 font-medium num-tab mt-0.5">conciliado · sin deuda</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout 2 cols: balance + movimientos -->
+    <div class="grid grid-cols-3 divide-x divide-slate-200">
+
+      <!-- Col 1 · Estado del balance -->
+      <div class="p-5 bg-slate-50/50">
+        <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <i data-lucide="scale" class="w-3.5 h-3.5 text-slate-700"></i>Balance del mes
+        </h3>
+
+        <!-- Ecuación visual -->
+        <div class="space-y-2 mb-4">
+          <div class="balance-card">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span class="text-[11px] font-semibold text-slate-700">Cobros entrantes</span>
+              </div>
+              <span class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 18,420</span>
+            </div>
+            <div class="text-[10px] text-slate-500">37 cobros · clientes pagaron al yape de GK</div>
+          </div>
+
+          <div class="balance-card">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="minus-circle" class="w-3.5 h-3.5 text-rose-600"></i>
+                <span class="text-[11px] font-semibold text-slate-700">Descuentos GK</span>
+              </div>
+              <span class="text-[14px] font-bold text-rose-700 num-tab">−S/ 3,200</span>
+            </div>
+            <div class="text-[10px] text-slate-500">128 carreras × S/ 25 · servicios prestados</div>
+          </div>
+
+          <div class="balance-card">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-sky-600"></i>
+                <span class="text-[11px] font-semibold text-slate-700">Transferido al negocio</span>
+              </div>
+              <span class="text-[14px] font-bold text-sky-700 num-tab">−S/ 12,380</span>
+            </div>
+            <div class="text-[10px] text-slate-500">5 transferencias a BCP Soles Empresa</div>
+          </div>
+
+          <!-- Resultado -->
+          <div class="balance-card update mt-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="equal" class="w-3.5 h-3.5 text-amber-700"></i>
+                <span class="text-[11px] font-bold text-amber-900">Saldo actual en yape GK</span>
+              </div>
+              <span class="text-[18px] font-bold text-amber-700 num-tab">S/ 2,840</span>
+            </div>
+            <div class="text-[10px] text-amber-700">pendiente liquidar al negocio · próx. transferencia est. 5 may</div>
+          </div>
+        </div>
+
+        <!-- Insight -->
+        <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+          <div class="flex items-start gap-2">
+            <i data-lucide="lightbulb" class="w-4 h-4 text-purple-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[11px] text-slate-700 leading-relaxed">
+              <strong class="text-purple-900">Insight:</strong> GK te ha cobrado <span class="num-tab font-semibold">S/ 18.4K</span> y descontado <span class="num-tab font-semibold">S/ 3.2K</span> de carreras. Los <span class="num-tab font-semibold">S/ 2.8K restantes</span> deberían transferirse pronto · si pasa más de 7d sin transferir, considera escalar.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2 · Movimientos del mes -->
+      <div class="p-5 col-span-2">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-slate-700"></i>Movimientos del mes (últimos 30d)
+          </h3>
+          <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium">Ver todos →</button>
+        </div>
+
+        <!-- Filtros mini -->
+        <div class="flex items-center gap-1.5 mb-3 flex-wrap">
+          <button class="chip-pill chip-sm bg-slate-900 text-white">Todos · 178</button>
+          <button class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Cobros · 37</button>
+          <button class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200">Descuentos · 128</button>
+          <button class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Liquidaciones · 5</button>
+          <button class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Conciliación · 8</button>
+        </div>
+
+        <!-- Lista de movimientos -->
+        <div class="space-y-1.5 text-[11px]">
+          <!-- Hoy -->
+          <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold mt-2">HOY · 30 abr</div>
+
+          <div class="card-base p-2.5 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Cobro de Sofía López · venta VT-091</div>
+              <div class="text-[10px] text-slate-500"><span class="mono">YAP-2026-0420</span> · contraentrega · 14:32</div>
+            </div>
+            <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 285</div>
+          </div>
+
+          <div class="card-base p-2.5 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="minus" class="w-3.5 h-3.5 text-rose-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Descuento · 6 carreras del lote</div>
+              <div class="text-[10px] text-slate-500">aplicado a CC GK Xpress · S/ 25 c/u · 11:15</div>
+            </div>
+            <div class="text-[14px] font-bold text-rose-700 num-tab">−S/ 150</div>
+          </div>
+
+          <!-- Ayer -->
+          <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold mt-3">29 abr</div>
+
+          <div class="card-base p-2.5 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-sky-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Transferencia a BCP Soles Empresa</div>
+              <div class="text-[10px] text-slate-500">GK liquidó parcial · queda saldo 2,840 · 16:45</div>
+            </div>
+            <div class="text-[14px] font-bold text-sky-700 num-tab">−S/ 4,500</div>
+          </div>
+
+          <div class="card-base p-2.5 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="plus" class="w-3.5 h-3.5 text-emerald-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Cobro de Ramón Mendoza · venta VT-088</div>
+              <div class="text-[10px] text-slate-500"><span class="mono">YAP-2026-0418</span> · contraentrega · 09:22</div>
+            </div>
+            <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 520</div>
+          </div>
+
+          <div class="card-base p-2.5 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="minus" class="w-3.5 h-3.5 text-rose-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Descuento · 4 carreras</div>
+              <div class="text-[10px] text-slate-500">aplicado a CC GK Xpress · 17:40</div>
+            </div>
+            <div class="text-[14px] font-bold text-rose-700 num-tab">−S/ 100</div>
+          </div>
+
+          <!-- Footer -->
+          <div class="text-center py-2 text-[10px] text-slate-400">
+            <i data-lucide="more-horizontal" class="w-3 h-3 inline-block"></i>
+            <span class="ml-1">173 movimientos más en el periodo</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Anotaciones Vista 1 -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Diferenciada visualmente:</strong> color morado en todo (avatar GK · chip "Caja recaudadora" · saldo) recuerda que esta cuenta NO es nuestra · es del agente · solo trackeamos lo que nos corresponde.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ KPI strip de la caja:</strong> 5 métricas que cuentan toda la historia · Saldo actual · Cobros · Descuentos · Liquidado · Estado CC del agente. Vista de 1 vistazo.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Balance en ecuación visual:</strong> Cobros (+) − Descuentos (−) − Transferido (−) = Saldo actual. Auditoría matemática siempre verificable.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Vista mayoritariamente read-only:</strong> solo "Exportar conciliación" y "Liquidar saldo a BCP" · las operaciones del día se hacen <strong>desde Ventas y Envíos</strong> usando PagoUnificadoForm (ver Vista 1B).
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1B · CÓMO SE ALIMENTA LA CAJA · entry points desde otros módulos -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1B · Cómo se alimenta la caja · entry points desde otros módulos</h2>
+  <p class="text-sm text-slate-600 mb-1">
+    <strong>La caja NO se opera desde aquí.</strong> Las transacciones se inician desde <strong>donde naturalmente ocurren</strong> (Ventas, Envíos, etc.) usando el componente transversal <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">PagoUnificadoForm</code>.
+  </p>
+  <p class="text-[12px] text-emerald-700 mb-4 font-medium">
+    ⚡ El sistema detecta automáticamente cuando el método de pago apunta a esta caja recaudadora · sin que el usuario tenga que recordarlo.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header de la sección -->
+    <div class="bg-gradient-to-br from-purple-50 to-white border-b border-purple-200 px-6 py-4">
+      <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+        <i data-lucide="git-fork" class="w-3.5 h-3.5 text-purple-700"></i>3 entry points alimentan esta caja
+      </h3>
+      <p class="text-[11px] text-slate-500">
+        Desde Ventas (cobros) · Envíos (pagos a colaborador) · Tesorería (liquidación al BCP)
+      </p>
+    </div>
+
+    <!-- 3 entry points en columnas -->
+    <div class="grid grid-cols-3 divide-x divide-slate-200">
+
+      <!-- Entry Point 1: Desde Ventas -->
+      <div class="p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+            <i data-lucide="store" class="w-4 h-4 text-emerald-700"></i>
+          </div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">1 · Desde Ventas</div>
+            <div class="text-[10px] text-slate-500">Cliente paga al yape de GK</div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-600 leading-relaxed mb-3">
+          En el detalle de una venta · usuario abre <code class="bg-slate-100 px-1 py-0.5 rounded text-[10px]">PagoUnificadoForm</code> · selecciona método "Yape · GK Xpress".
+          El sistema detecta el yape y registra el cobro en la caja automáticamente.
+        </p>
+
+        <!-- Mock del flujo -->
+        <div class="bg-slate-50 rounded-lg p-3 space-y-2">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Vista desde /ventas/VT-091</div>
+          <div class="bg-white border border-slate-200 rounded p-2.5 text-[11px]">
+            <div class="font-semibold text-slate-900 mb-1">PagoUnificadoForm · Cobro</div>
+            <div class="space-y-1.5 text-[10px]">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Cliente</span>
+                <span class="font-medium text-slate-900">Sofía López</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Monto</span>
+                <span class="font-bold text-emerald-700 num-tab">S/ 800</span>
+              </div>
+              <div>
+                <span class="text-slate-500">Método</span>
+                <div class="bg-purple-50 border border-purple-200 rounded px-2 py-1 mt-0.5 flex items-center gap-1.5">
+                  <i data-lucide="zap" class="w-3 h-3 text-purple-700"></i>
+                  <span class="font-semibold text-purple-900">Yape · GK Xpress</span>
+                  <span class="chip-pill chip-sm bg-purple-100 text-purple-700 ml-auto">Caja recaud.</span>
+                </div>
+              </div>
+              <div class="text-[9px] text-purple-700 font-medium pt-1 border-t border-slate-100 mt-1">
+                <i data-lucide="info" class="w-2.5 h-2.5 inline"></i> Auto: cobro registrado en Yape GK Xpress
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-[10px] text-slate-500 leading-relaxed">
+          <strong class="text-slate-700">Resultado en la caja:</strong> +S/ 800 · CC Cliente saldó automáticamente.
+        </div>
+      </div>
+
+      <!-- Entry Point 2: Desde Envíos -->
+      <div class="p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-9 h-9 rounded-lg bg-rose-100 flex items-center justify-center">
+            <i data-lucide="truck" class="w-4 h-4 text-rose-700"></i>
+          </div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">2 · Desde Envíos</div>
+            <div class="text-[10px] text-slate-500">Descontar carreras del saldo</div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-600 leading-relaxed mb-3">
+          Cuando GK te factura carreras y quiere descontar del saldo · usas
+          <code class="bg-slate-100 px-1 py-0.5 rounded text-[10px]">PagoUnificadoForm</code> para pagar el envío y eliges "Aplicar saldo de Yape GK".
+        </p>
+
+        <div class="bg-slate-50 rounded-lg p-3 space-y-2">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Vista desde /envios/E-088</div>
+          <div class="bg-white border border-slate-200 rounded p-2.5 text-[11px]">
+            <div class="font-semibold text-slate-900 mb-1">PagoUnificadoForm · Pago colaborador</div>
+            <div class="space-y-1.5 text-[10px]">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Beneficiario</span>
+                <span class="font-medium text-slate-900">GK Xpress</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Monto</span>
+                <span class="font-bold text-rose-700 num-tab">S/ 150 (6 carreras)</span>
+              </div>
+              <div>
+                <span class="text-slate-500">Origen del pago</span>
+                <div class="bg-purple-50 border border-purple-200 rounded px-2 py-1 mt-0.5 flex items-center gap-1.5">
+                  <i data-lucide="wallet" class="w-3 h-3 text-purple-700"></i>
+                  <span class="font-semibold text-purple-900">Saldo Yape GK Xpress</span>
+                  <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 ml-auto">S/ 100 disp.</span>
+                </div>
+              </div>
+              <div class="text-[9px] text-amber-700 font-medium pt-1 border-t border-slate-100 mt-1">
+                <i data-lucide="alert-triangle" class="w-2.5 h-2.5 inline"></i> Yape solo tiene 100 · 50 quedan en CC GK
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-[10px] text-slate-500 leading-relaxed">
+          <strong class="text-slate-700">Resultado:</strong> Yape GK: −100 · CC GK: +100 (deuda parcial restante S/ 50).
+        </div>
+      </div>
+
+      <!-- Entry Point 3: Desde Tesorería · liquidación -->
+      <div class="p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center">
+            <i data-lucide="arrow-right-left" class="w-4 h-4 text-purple-700"></i>
+          </div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">3 · Desde Tesorería</div>
+            <div class="text-[10px] text-slate-500">Liquidar al BCP (única acción local)</div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-600 leading-relaxed mb-3">
+          Cuando GK transfiere fondos al BCP del negocio · es la <strong>única acción que nace en Tesorería</strong>.
+          Botón "Liquidar saldo a BCP" en el header de la caja.
+        </p>
+
+        <div class="bg-slate-50 rounded-lg p-3 space-y-2">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Vista desde la caja recaudadora</div>
+          <div class="bg-white border border-slate-200 rounded p-2.5 text-[11px]">
+            <div class="font-semibold text-slate-900 mb-1">Wizard · Liquidar saldo</div>
+            <div class="space-y-1.5 text-[10px]">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Origen</span>
+                <span class="font-medium text-purple-900">Yape GK · S/ 2,840</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Destino</span>
+                <span class="font-medium text-slate-900">BCP Soles Empresa</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Monto a transferir</span>
+                <span class="font-bold text-sky-700 num-tab">S/ 2,840 (todo)</span>
+              </div>
+              <div class="text-[9px] text-emerald-700 font-medium pt-1 border-t border-slate-100 mt-1">
+                <i data-lucide="check" class="w-2.5 h-2.5 inline"></i> Yape queda en S/ 0 · BCP +S/ 2,840
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-[10px] text-slate-500 leading-relaxed">
+          <strong class="text-slate-700">Por qué aquí:</strong> es una transferencia entre cuentas (la caja → BCP). Es la única operación que conceptualmente vive en Tesorería · las otras 2 viven donde se origina la transacción de negocio.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Diagrama de flujo -->
+  <div class="card-banking p-5 mt-4 bg-gradient-to-br from-slate-50 to-white">
+    <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-3">El flujo correcto · módulos alimentan la caja</h3>
+    <pre class="text-[11px] text-slate-700 leading-relaxed overflow-x-auto" style="font-family: ui-monospace, monospace;">
+                                  ┌──────────────────────┐
+   📈 VENTAS                      │                       │
+   detalle venta                  │   PagoUnificadoForm   │
+   "Cliente paga"   ──────────────▶  (componente único    │
+                                  │   transversal)         │
+   🚚 ENVÍOS                      │                       │
+   detalle envío                  │   detecta automática-  │
+   "Pagar carrera" ───────────────▶  mente que el método   │ ─────▶  💼 Caja Recaudadora
+                                  │   apunta a la caja    │         (read-only · audita · concilia)
+   💰 TESORERÍA                   │   recaudadora          │
+   caja recaudadora               │                       │
+   "Liquidar al BCP" ─────────────▶  registra en su       │
+                                  │   contraparte correcta│
+                                  └──────────────────────┘
+
+  La caja NO tiene operaciones propias · solo refleja lo que pasa en otros módulos.</pre>
+  </div>
+
+  <!-- Anotaciones -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Caja read-only mayoritariamente:</strong> sus acciones son <em>"Exportar conciliación"</em> y <em>"Liquidar saldo a BCP"</em>. Las operaciones del día se hacen donde naturalmente viven.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ PagoUnificadoForm como hub central:</strong> componente transversal que detecta automáticamente cuando el método de pago apunta a la caja recaudadora · sin lógica duplicada.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Saldo Yape GK aparece como origen disponible:</strong> en el PagoUnificadoForm de Envíos, cuando pagas a GK, ofrece "Aplicar saldo de Yape GK" como opción de origen · si alcanza, se descuenta directo · si no, se aplica parcial y el resto queda como deuda en CC.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Coherente con Lote 4:</strong> esto se verá en M-INT-VENTA y M-INT-ENVIO con detalle del PagoUnificadoForm contextual. La caja es el "destino" · los módulos son la "fuente" de operación.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · CÓMO SE CREA LA CAJA · cadena lógica completa                 -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 · Cómo se crea la caja recaudadora · lógica del sistema</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Tu pregunta clave: <em>"¿cómo creo el yape de GK en el PagoUnificadoForm? ¿Cómo entiende el sistema que tiene que crear una caja?"</em>.
+    Aquí está la cadena conceptual + 3 caminos posibles.
+  </p>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- CADENA CONCEPTUAL                                                  -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="card-banking p-5 bg-gradient-to-br from-slate-900 to-slate-800 text-white mb-5">
+    <h3 class="text-sm font-bold uppercase tracking-wider mb-3 text-purple-300">Cadena conceptual · 3 niveles</h3>
+    <div class="space-y-3">
+      <!-- Nivel 1 -->
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0 font-bold text-[12px]">1</div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold mb-1">Ficha del proveedor en <span class="text-teal-300">Red Logística</span></div>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            GK Xpress tiene un campo <code class="bg-white/10 px-1 py-0.5 rounded">datosBancarios[]</code> donde registras sus yapes, cuentas, etc.
+            Son <strong>datos pasivos</strong> · sin saldo trackeado · solo para que sepas dónde le pagas.
+          </p>
+        </div>
+      </div>
+      <div class="ml-4 pl-7 text-purple-300 text-[10px]">↓ datos pasivos disponibles</div>
+
+      <!-- Nivel 2 -->
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-700 flex items-center justify-center flex-shrink-0 font-bold text-[12px]">2</div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold mb-1">Detección desde <span class="text-amber-300">PagoUnificadoForm</span></div>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            Cuando el usuario tipea/elige un yape al registrar cobro, el sistema busca ese número en <code class="bg-white/10 px-1 py-0.5 rounded">datosBancarios[]</code> de TODOS los proveedores.
+            Si lo encuentra · sabe a quién pertenece · sugiere convertirlo en caja.
+          </p>
+        </div>
+      </div>
+      <div class="ml-4 pl-7 text-purple-300 text-[10px]">↓ "este yape es de GK"</div>
+
+      <!-- Nivel 3 -->
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-700 flex items-center justify-center flex-shrink-0 font-bold text-[12px]">3</div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold mb-1">Promoción a <span class="text-purple-300">Caja Recaudadora (ProductoFinanciero)</span></div>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            El usuario confirma · se crea automáticamente un <code class="bg-white/10 px-1 py-0.5 rounded">ProductoFinanciero</code> tipo <code class="bg-white/10 px-1 py-0.5 rounded">caja_efectivo</code> con
+            <code class="bg-white/10 px-1 py-0.5 rounded">titularEntidadTipo: 'proveedor'</code> · <code class="bg-white/10 px-1 py-0.5 rounded">titularEntidadId: GK_id</code> · ahora trackeable con saldo.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- 3 CAMINOS POSIBLES                                                 -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <h3 class="text-base font-bold text-slate-900 mb-3">3 caminos para crear la caja · ⭐ B es el principal</h3>
+
+  <div class="grid grid-cols-3 gap-4 mb-5">
+
+    <!-- Camino A · Pre-creación manual -->
+    <div class="card-banking p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill chip-sm bg-slate-100 text-slate-600">Camino A</span>
+        <span class="text-[11px] font-bold text-slate-700">Pre-creación manual</span>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-3">
+        Operador setup-first · va a Tesorería → "Nuevo producto" → tipo "Caja recaudadora" → selecciona proveedor (GK) → elige uno de sus datosBancarios.
+      </p>
+      <div class="bg-slate-50 rounded p-2 text-[10px] text-slate-700 leading-relaxed">
+        <strong>Ventaja:</strong> control total · creas la caja antes de que ocurra el primer cobro.<br>
+        <strong>Desventaja:</strong> requiere recordar hacerlo · más clicks.
+      </div>
+      <div class="text-[10px] text-slate-500 mt-2 italic">Útil para operadores estructurados que prefieren preparar todo antes.</div>
+    </div>
+
+    <!-- Camino B · Detección automática ⭐ -->
+    <div class="card-banking p-4 ring-2 ring-emerald-300 bg-gradient-to-br from-emerald-50 to-white">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill chip-sm bg-emerald-100 text-emerald-700 font-bold">⭐ Camino B</span>
+        <span class="text-[11px] font-bold text-slate-700">Detección automática</span>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-3">
+        Operador registra cobro normal · tipea/pega el número del yape · el sistema detecta que es de GK (de su <code class="bg-slate-100 px-1 rounded">datosBancarios</code>) · banner aparece sugiriendo promover.
+      </p>
+      <div class="bg-emerald-100/50 border border-emerald-200 rounded p-2 text-[10px] text-slate-700 leading-relaxed">
+        <strong>Ventaja:</strong> menor fricción · 1 click para confirmar · el sistema trabaja por ti.<br>
+        <strong>Desventaja:</strong> requiere que datosBancarios estén bien registrados antes.
+      </div>
+      <div class="text-[10px] text-emerald-700 mt-2 font-medium italic">Camino principal recomendado · flujo natural del operador.</div>
+    </div>
+
+    <!-- Camino C · Selector inline en form -->
+    <div class="card-banking p-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill chip-sm bg-slate-100 text-slate-600">Camino C</span>
+        <span class="text-[11px] font-bold text-slate-700">Selector inline</span>
+      </div>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-3">
+        En el PagoUnificadoForm, opción "Yape (de tercero)" muestra un selector con todas las cajas recaudadoras existentes + opción "Crear nueva caja".
+      </p>
+      <div class="bg-slate-50 rounded p-2 text-[10px] text-slate-700 leading-relaxed">
+        <strong>Ventaja:</strong> elección explícita · útil cuando hay muchas cajas (5+).<br>
+        <strong>Desventaja:</strong> más fricción visual · pasos extra.
+      </div>
+      <div class="text-[10px] text-slate-500 mt-2 italic">Útil cuando ya tienes varias cajas activas y necesitas elegir.</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- FLUJO B PASO A PASO · screenshots simulados                       -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <h3 class="text-base font-bold text-slate-900 mb-3">⭐ Camino B paso a paso · el flujo principal</h3>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- PASO 0 · prerequisito -->
+    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start gap-3">
+        <div class="w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center flex-shrink-0 font-bold text-[11px] text-slate-700">0</div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Prerequisito · datosBancarios de GK ya registrados</div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            En Red Logística → ficha de GK Xpress → sección "Datos bancarios" tiene su yape <span class="mono font-semibold text-slate-800">9XX-XXX-541</span> registrado como dato pasivo.
+            <strong class="text-slate-700">Sin esto, el camino B no funciona</strong> (caería al camino A o C).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 1 · Usuario abre PagoUnificadoForm -->
+    <div class="border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-[11px]">1</div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Usuario está en /ventas/VT-091 · abre <code class="bg-slate-100 px-1 py-0.5 rounded text-[10px]">PagoUnificadoForm</code></div>
+          <p class="text-[11px] text-slate-600">Cliente y monto precargados desde la venta · solo falta elegir destino del dinero.</p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-lg p-4 ml-10 max-w-lg">
+        <div class="text-[11px] font-bold text-slate-900 mb-3">PagoUnificadoForm · modo "Cobro"</div>
+        <div class="space-y-2 text-[11px]">
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Cliente</label>
+            <div class="bg-slate-50 border border-slate-200 rounded px-2 py-1 mt-0.5">Sofía López · VT-091</div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Monto</label>
+            <div class="bg-slate-50 border border-slate-200 rounded px-2 py-1 mt-0.5 num-tab font-semibold">S/ 800.00</div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">¿A dónde entra el dinero?</label>
+            <div class="bg-white border border-slate-200 rounded px-2 py-1 mt-0.5 text-slate-400 flex items-center gap-1">
+              <span>— Selecciona destino —</span>
+              <span class="ml-auto text-slate-400">▾</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2 · Click en selector · aparece dropdown jerárquico -->
+    <div class="border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-[11px]">2</div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Click en selector · aparece dropdown jerárquico (3 grupos)</div>
+          <p class="text-[11px] text-slate-600">
+            <strong>No tipea nada</strong> · solo selecciona. El sistema muestra todo lo que ya conoce: cuentas propias, cajas recaudadoras existentes, y datos bancarios pasivos de terceros (sin promover aún).
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-lg shadow-md ml-10 max-w-lg overflow-hidden">
+        <!-- Buscador del selector -->
+        <div class="px-3 py-2 border-b border-slate-100 bg-slate-50 flex items-center gap-2">
+          <i data-lucide="search" class="w-3 h-3 text-slate-400"></i>
+          <input type="text" placeholder="Buscar por nombre, banco, número..." class="flex-1 bg-transparent text-[11px] focus:outline-none">
+        </div>
+
+        <!-- Grupo 1: Mis cuentas -->
+        <div class="px-3 pt-2 pb-1">
+          <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
+            <i data-lucide="wallet" class="w-2.5 h-2.5"></i>Mis cuentas
+            <span class="text-slate-400 normal-case text-[9px] font-normal ml-auto">5 productos</span>
+          </div>
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-[11px]">
+          <div class="bank-logo bank-bcp" style="width:24px;height:24px;font-size:8px">BCP</div>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">BCP Cta Corriente Soles</div>
+            <div class="text-[9px] text-slate-500 mono">····3842 · S/ 42,580 disponible</div>
+          </div>
+          <span class="chip-pill chip-sm bg-teal-50 text-teal-700">PEN</span>
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-[11px]">
+          <div class="bank-logo bank-yape" style="width:24px;height:24px;font-size:8px">Y</div>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">Yape · José LP (mío)</div>
+            <div class="text-[9px] text-slate-500 mono">9XX-XXX-***12 · S/ 1,840 disp.</div>
+          </div>
+          <span class="chip-pill chip-sm bg-teal-50 text-teal-700">Mío</span>
+        </div>
+
+        <!-- Grupo 2: Cajas recaudadoras existentes -->
+        <div class="px-3 pt-3 pb-1 border-t border-slate-100">
+          <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
+            <i data-lucide="users" class="w-2.5 h-2.5"></i>Cajas recaudadoras (terceros · trackean saldo)
+            <span class="text-slate-400 normal-case text-[9px] font-normal ml-auto">0 cajas</span>
+          </div>
+        </div>
+        <div class="px-3 py-2 text-[10px] text-slate-400 italic">
+          Aún no tienes cajas recaudadoras configuradas. Si recibes cobros frecuentes en yapes de terceros (como GK Xpress), promueve uno desde abajo ↓
+        </div>
+
+        <!-- Grupo 3: Datos bancarios pasivos de terceros (no promovidos) -->
+        <div class="px-3 pt-3 pb-1 border-t border-slate-100">
+          <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold flex items-center gap-1">
+            <i data-lucide="zap" class="w-2.5 h-2.5"></i>Yapes de terceros · pueden promoverse
+            <span class="text-amber-600 normal-case text-[9px] font-normal ml-auto">de fichas Red Logística / Personas</span>
+          </div>
+        </div>
+        <!-- Yape de GK destacado -->
+        <div class="px-3 py-1.5 bg-amber-50/40 hover:bg-amber-100/40 cursor-pointer flex items-center gap-2 text-[11px] ring-2 ring-amber-300 m-1 rounded">
+          <div class="bank-logo bank-yape" style="width:24px;height:24px;font-size:8px">Y</div>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">Yape · GK Xpress</div>
+            <div class="text-[9px] text-slate-500 mono">9XX-XXX-541 · de Red Logística · proveedor 90% envíos</div>
+          </div>
+          <span class="chip-pill chip-sm bg-amber-100 text-amber-700">⭐ Sugerido</span>
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-[11px]">
+          <div class="bank-logo bank-yape" style="width:24px;height:24px;font-size:8px">Y</div>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">Yape · Felicitas</div>
+            <div class="text-[9px] text-slate-500 mono">9XX-XXX-208 · casilla USA</div>
+          </div>
+        </div>
+        <div class="px-3 py-1.5 hover:bg-slate-50 cursor-pointer flex items-center gap-2 text-[11px]">
+          <div class="bank-logo bank-yape" style="width:24px;height:24px;font-size:8px">Y</div>
+          <div class="flex-1">
+            <div class="font-semibold text-slate-900">Yape · Anghely</div>
+            <div class="text-[9px] text-slate-500 mono">9XX-XXX-877 · casilla USA</div>
+          </div>
+        </div>
+
+        <!-- Footer con opciones extra -->
+        <div class="border-t border-slate-100 bg-slate-50 px-3 py-2 flex items-center justify-between text-[10px]">
+          <button class="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1">
+            <i data-lucide="plus" class="w-3 h-3"></i>Agregar nuevo dato bancario a un proveedor
+          </button>
+          <button class="text-slate-500 hover:text-slate-700">Otro · sin trackear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 3 · Selecciona Yape de GK del listado -->
+    <div class="border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-7 h-7 rounded-full bg-amber-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-[11px]">3</div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Selecciona "Yape · GK Xpress" del grupo de yapes pasivos</div>
+          <p class="text-[11px] text-slate-600">
+            El sistema sabe que es un dato bancario pasivo (de la ficha de GK en Red Logística) · NO una caja recaudadora trackeable todavía. Sugiere promover.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 ml-10 max-w-2xl flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5"></i>
+        <div class="text-[11px] text-slate-700 leading-relaxed">
+          <strong class="text-amber-900">Detección por origen del dato:</strong> el yape seleccionado viene de
+          <code class="bg-white px-1 py-0.5 rounded text-[10px]">datosBancarios[]</code> de GK Xpress · es pasivo · sugiere convertirlo en caja recaudadora.
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 4 · Banner promoción -->
+    <div class="border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-[11px]">4</div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Banner aparece dentro del form · sugiere promover</div>
+          <p class="text-[11px] text-slate-600">El banner se inserta en el form sin interrumpir el flujo · usuario decide en línea.</p>
+        </div>
+      </div>
+
+      <!-- Banner promoción -->
+      <div class="card-banking p-4 ml-10 max-w-2xl bg-gradient-to-br from-purple-50 via-amber-50 to-white border-2 border-purple-300 slide-in" style="border-style:solid;">
+        <div class="flex items-start gap-2.5">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="zap" class="w-4 h-4 text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <h4 class="text-[12px] font-bold text-slate-900">El yape <span class="mono">9XX-XXX-541</span> es de <strong>GK Xpress</strong></h4>
+            </div>
+            <p class="text-[11px] text-slate-700 leading-relaxed mb-2">
+              Es un dato bancario pasivo · al recibir cobros aquí, conviene <strong>convertirlo en Caja recaudadora</strong> para trackear saldo, descuentos y liquidaciones.
+            </p>
+            <div class="flex gap-2 mb-2">
+              <button class="bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-md flex items-center gap-1">
+                <i data-lucide="zap" class="w-3 h-3"></i>Promover · 1 click
+              </button>
+              <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-3 py-1.5 rounded-md">
+                Solo este cobro · sin trackear
+              </button>
+              <button class="text-slate-500 hover:text-slate-700 text-[11px] px-2 py-1.5">
+                Más tarde
+              </button>
+            </div>
+            <div class="text-[9px] text-slate-500">El cobro se registra igual · solo eliges si trackear el saldo recurrente.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 5 · Confirma · caja creada -->
+    <div class="border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-[11px]">5</div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Click "Promover" · sistema crea ProductoFinanciero automáticamente</div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            Un solo click ejecuta una <strong>transacción atómica</strong> que crea el producto financiero, vincula al proveedor, y lo prepara para recibir movimientos.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 text-white rounded-lg p-3 ml-10 max-w-2xl">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-300 font-bold mb-2">Transacción atómica · runTransaction</div>
+        <pre class="text-[10px] leading-relaxed mono text-slate-300">
+1. Crea ProductoFinanciero {
+     tipoProducto: 'caja_efectivo',
+     nombre: 'Yape · GK Xpress',
+     numeroIdentificacion: '9XX-XXX-541',
+     titularEntidadTipo: 'proveedor',
+     titularEntidadId: 'gk_xpress_id',
+     saldoInicial: 0,
+     activa: true
+   }
+
+2. Update DatoBancarioPasivo {
+     cuentaCajaAsociadaId: 'caja_yape_gk_id'  // referencia
+   }
+
+3. Continúa con el cobro de la venta normal:
+   - MovimientoFinanciero (ingreso a caja Yape GK)
+   - Update CC Cliente (saldó)</pre>
+      </div>
+    </div>
+
+    <!-- PASO 6 · Resultado final -->
+    <div class="px-6 py-4">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-[11px]">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+        </div>
+        <div class="flex-1">
+          <div class="text-[12px] font-bold text-slate-900 mb-0.5">Resultado · caja creada + cobro registrado en 1 transacción</div>
+          <p class="text-[11px] text-slate-600">El usuario ve confirmación toast · la caja queda lista para futuros cobros automáticamente.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 ml-10 max-w-2xl">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[10px]">
+          <div class="font-bold text-emerald-900 flex items-center gap-1 mb-1">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>Caja creada
+          </div>
+          <div class="text-slate-700 leading-relaxed">Yape GK Xpress · S/ 800 inicial · ya disponible en /tesoreria</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[10px]">
+          <div class="font-bold text-emerald-900 flex items-center gap-1 mb-1">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>Cobro registrado
+          </div>
+          <div class="text-slate-700 leading-relaxed">CC Sofía L. saldó · Yape GK Xpress: +S/ 800</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[10px]">
+          <div class="font-bold text-emerald-900 flex items-center gap-1 mb-1">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>Próx. cobros automático
+          </div>
+          <div class="text-slate-700 leading-relaxed">Si Sofía paga otra vez al mismo yape · va directo a la caja sin banner</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- ANOTACIONES                                                       -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Selección, no tipeo:</strong> el usuario NO tipea números · solo selecciona del dropdown jerárquico que ya tiene todo lo registrado en el sistema.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 3 grupos en el dropdown:</strong> Mis cuentas (productos financieros propios) · Cajas recaudadoras existentes · Yapes/cuentas pasivos de terceros (potenciales para promover).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ datosBancarios[] alimentan el dropdown:</strong> los yapes/cuentas registrados en fichas (Red Logística, Personas) aparecen automáticamente como opciones · sin duplicar registros.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Detección por origen del dato:</strong> el sistema sabe si lo seleccionado es <em>productoFinanciero</em> (caja existente) o <em>datoBancarioPasivo</em> (sugiere promover). Lógica simple basada en el tipo del registro.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ "Agregar nuevo dato bancario":</strong> opción al pie del dropdown · si quieres registrar un yape totalmente nuevo de un proveedor existente · abre mini-form para agregarlo a su ficha.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Transacción atómica:</strong> 1 click "Promover" ejecuta múltiples operaciones (crea caja + vincula + registra cobro + actualiza CC) en runTransaction. Sin estados intermedios inconsistentes.
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · WORKFLOW · 5 EVENTOS DEL CASO B (arquitectura-finanzas-s58)   -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · Workflow del Caso B · los 5 eventos típicos del agente recaudador</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Documentado en <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">arquitectura-finanzas-s58.md</code> sección 4 caso B. Cómo se ven los 5 eventos en tu sistema · cada uno con saldos antes/después.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Setup inicial -->
+    <div class="bg-slate-100 border-b border-slate-200 px-6 py-4">
+      <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wider mb-2">Setup inicial</h3>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="balance-card">
+          <div class="text-[10px] text-slate-500">CC Cliente Y</div>
+          <div class="text-[16px] font-bold text-rose-600 num-tab">−S/ 800</div>
+          <div class="text-[9px] text-slate-500">debe venta contraentrega</div>
+        </div>
+        <div class="balance-card">
+          <div class="text-[10px] text-slate-500">CC GK Xpress (proveedor)</div>
+          <div class="text-[16px] font-bold text-rose-600 num-tab">−S/ 250</div>
+          <div class="text-[9px] text-slate-500">debes 10 carreras × 25</div>
+        </div>
+        <div class="balance-card">
+          <div class="text-[10px] text-slate-500">Yape GK Xpress (caja recaud.)</div>
+          <div class="text-[16px] font-bold text-slate-900 num-tab">S/ 0</div>
+          <div class="text-[9px] text-slate-500">vacía</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline de eventos -->
+    <div class="p-6">
+
+      <!-- EVENTO 1 -->
+      <div class="event-step done">
+        <div class="step-circle">1</div>
+        <div class="card-base p-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">Cliente paga al yape de GK</span>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Cobro al agente</span>
+              </div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                Cliente Y paga sus <span class="num-tab font-semibold">S/ 800</span> al yape de GK Xpress (en lugar de transferir directo al BCP).
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 num-tab">8 abr · 10:30</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-100">
+            <div class="balance-card cero">
+              <div class="text-[10px] text-slate-500">CC Cliente Y</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">S/ 0</div>
+              <div class="text-[9px] text-emerald-600 font-semibold">+800 · saldó ✓</div>
+            </div>
+            <div class="balance-card">
+              <div class="text-[10px] text-slate-500">CC GK Xpress</div>
+              <div class="text-[14px] font-bold text-rose-600 num-tab">−S/ 250</div>
+              <div class="text-[9px] text-slate-500">sin cambios</div>
+            </div>
+            <div class="balance-card update">
+              <div class="text-[10px] text-slate-500">Yape GK Xpress</div>
+              <div class="text-[14px] font-bold text-amber-700 num-tab">S/ 800</div>
+              <div class="text-[9px] text-amber-700 font-semibold">+800 · acumulado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTO 2 -->
+      <div class="event-step done">
+        <div class="step-circle">2</div>
+        <div class="card-base p-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">GK descuenta 4 carreras (S/ 100)</span>
+                <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200">Descuento</span>
+              </div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                GK aplica <span class="num-tab font-semibold">S/ 100</span> de la recaudación a su deuda con nosotros (4 carreras × S/ 25).
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 num-tab">10 abr · 14:00</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-100">
+            <div class="balance-card">
+              <div class="text-[10px] text-slate-500">CC Cliente Y</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">S/ 0</div>
+              <div class="text-[9px] text-slate-500">sin cambios</div>
+            </div>
+            <div class="balance-card update">
+              <div class="text-[10px] text-slate-500">CC GK Xpress</div>
+              <div class="text-[14px] font-bold text-rose-600 num-tab">−S/ 150</div>
+              <div class="text-[9px] text-amber-700 font-semibold">+100 · deuda parcial</div>
+            </div>
+            <div class="balance-card update">
+              <div class="text-[10px] text-slate-500">Yape GK Xpress</div>
+              <div class="text-[14px] font-bold text-slate-900 num-tab">S/ 700</div>
+              <div class="text-[9px] text-rose-600">−100</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTO 3 -->
+      <div class="event-step done">
+        <div class="step-circle">3</div>
+        <div class="card-base p-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">GK transfiere S/ 600 al BCP</span>
+                <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Liquidación parcial</span>
+              </div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                GK transfiere <span class="num-tab font-semibold">S/ 600</span> de su yape al BCP Soles Empresa · queda <span class="num-tab font-semibold">S/ 100</span> en el yape para próximos descuentos.
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 num-tab">15 abr · 09:15</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-100">
+            <div class="balance-card update">
+              <div class="text-[10px] text-slate-500">BCP Soles Empresa</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 600</div>
+              <div class="text-[9px] text-emerald-600 font-semibold">ingreso</div>
+            </div>
+            <div class="balance-card">
+              <div class="text-[10px] text-slate-500">CC GK Xpress</div>
+              <div class="text-[14px] font-bold text-rose-600 num-tab">−S/ 150</div>
+              <div class="text-[9px] text-slate-500">sin cambios</div>
+            </div>
+            <div class="balance-card update">
+              <div class="text-[10px] text-slate-500">Yape GK Xpress</div>
+              <div class="text-[14px] font-bold text-slate-900 num-tab">S/ 100</div>
+              <div class="text-[9px] text-rose-600">−600</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTO 4 -->
+      <div class="event-step done">
+        <div class="step-circle">4</div>
+        <div class="card-base p-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">GK descuenta 6 carreras más (S/ 150)</span>
+                <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200">Descuento</span>
+                <span class="chip-pill chip-sm bg-amber-100 text-amber-800 border border-amber-300">⚠ Yape se queda corta</span>
+              </div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                GK quiere descontar <span class="num-tab font-semibold">S/ 150</span> pero el yape solo tiene <span class="num-tab font-semibold">S/ 100</span>. Se aplican los 100 disponibles + queda <span class="num-tab font-semibold">S/ 50</span> de saldo a favor de GK en su CC (le debes).
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 num-tab">22 abr · 16:30</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-100">
+            <div class="balance-card">
+              <div class="text-[10px] text-slate-500">BCP Soles Empresa</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">+S/ 600</div>
+              <div class="text-[9px] text-slate-500">sin cambios</div>
+            </div>
+            <div class="balance-card update">
+              <div class="text-[10px] text-slate-500">CC GK Xpress</div>
+              <div class="text-[14px] font-bold text-rose-600 num-tab">−S/ 50</div>
+              <div class="text-[9px] text-amber-700 font-semibold">⚠ aún debes</div>
+            </div>
+            <div class="balance-card cero">
+              <div class="text-[10px] text-slate-500">Yape GK Xpress</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">S/ 0</div>
+              <div class="text-[9px] text-emerald-600">vacía</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTO 5 -->
+      <div class="event-step done">
+        <div class="step-circle">5</div>
+        <div class="card-base p-4 ring-2 ring-emerald-300 gradient-emerald-soft">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[13px] font-bold text-slate-900">Pago directo de S/ 50 a GK · cierre</span>
+                <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Cierre</span>
+                <span class="chip-pill chip-sm bg-emerald-100 text-emerald-800">✓ Conciliado</span>
+              </div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                Saldas el saldo restante de GK directamente con un pago desde BCP Soles Empresa. <strong class="text-emerald-900">Todo conciliado · cero deuda con el agente.</strong>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 num-tab">29 abr · 11:00</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-emerald-200">
+            <div class="balance-card update">
+              <div class="text-[10px] text-slate-500">BCP Soles Empresa</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">S/ 550</div>
+              <div class="text-[9px] text-rose-600">−50 · pagaste a GK</div>
+            </div>
+            <div class="balance-card cero">
+              <div class="text-[10px] text-slate-500">CC GK Xpress</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">S/ 0</div>
+              <div class="text-[9px] text-emerald-600 font-semibold">+50 · saldó ✓</div>
+            </div>
+            <div class="balance-card cero">
+              <div class="text-[10px] text-slate-500">Yape GK Xpress</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">S/ 0</div>
+              <div class="text-[9px] text-slate-500">cerrado el ciclo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Resumen final -->
+    <div class="bg-gradient-to-br from-emerald-50 to-white border-t border-emerald-200 px-6 py-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center">
+          <i data-lucide="check-check" class="w-5 h-5 text-white"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-[13px] font-bold text-emerald-900">Cierre del ciclo · todo conciliado</h3>
+          <p class="text-[11px] text-slate-700 leading-relaxed">
+            5 eventos automáticos · cada peso trazado · CC Cliente saldó · CC GK saldó · Yape GK queda en 0 · BCP recibió S/ 600 + pagaste S/ 50 directo. <strong>Cero ambigüedad.</strong>
+          </p>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Tiempo total</div>
+          <div class="text-[16px] font-bold text-emerald-700 num-tab">21 días</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Cada evento muestra impacto en 3 saldos:</strong> CC del cliente · CC del agente · Caja recaudadora. El usuario ve exactamente qué cambia y qué no en cada paso.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Estados con color:</strong> verde (cero/saldó) · amber (cambió) · rosa (deuda). De un vistazo identificas qué saldo se modificó y cómo.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Caso de "yape se queda corta":</strong> evento 4 muestra que cuando el yape no alcanza, el sistema crea automáticamente saldo a favor de GK en su CC. No se rompe la conciliación.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Cada evento nace donde corresponde:</strong> Evento 1 desde /ventas (PagoUnificadoForm cobro) · Evento 2 y 4 desde /envios (PagoUnificadoForm pago colaborador) · Evento 3 y 5 desde /tesoreria (Liquidar / Pago directo). La caja solo refleja.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 4 · MÚLTIPLES MÉTODOS DEL MISMO AGENTE · pagos divididos          -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 4 · Múltiples métodos del mismo agente · resolviendo discusiones operativas</h2>
+  <p class="text-sm text-slate-600 mb-1">
+    Tu caso real: <em>"Oye eso te lo pagaron en efectivo · eso te lo yapearon · te pagaron parcialmente tal monto"</em>.
+    Un agente recaudador (GK) puede tener <strong>varias cajas</strong> (yape, plin, efectivo, BCP) cada una con su saldo independiente.
+  </p>
+  <p class="text-[12px] text-emerald-700 mb-4 font-medium">
+    ⚡ Las discusiones se resuelven viendo saldos por método separados · cero ambigüedad.
+  </p>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- MODELO · 1 agente = N cajas                                       -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <div class="card-banking p-5 bg-gradient-to-br from-purple-50 via-white to-amber-50 border border-purple-200 mb-5">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="git-fork" class="w-5 h-5 text-white"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-[11px] uppercase tracking-wider text-purple-700 font-bold mb-1">Modelo de datos</div>
+        <h3 class="text-sm font-bold text-slate-900 mb-2">1 agente recaudador → N cajas (productos financieros independientes)</h3>
+        <pre class="text-[10px] text-slate-700 leading-relaxed overflow-x-auto bg-white border border-slate-200 rounded p-3 mb-3" style="font-family: ui-monospace, monospace;">
+GK Xpress (proveedor en Red Logística)
+   │
+   ├─ datosBancarios[] (datos pasivos · ficha)
+   │    ├─ Yape · 9XX-XXX-541
+   │    ├─ Plin · 9XX-XXX-541 (mismo número que yape · es común)
+   │    ├─ BCP · 1234-5678 · CCI 002-1234-5678
+   │    └─ (efectivo no necesita registro pasivo)
+   │
+   └─ ProductosFinancieros (cajas con saldo trackeable)  ⭐ N cajas
+        ├─ Yape · GK Xpress         saldo: S/ 1,800
+        ├─ Plin · GK Xpress         saldo: S/   400
+        ├─ Cuenta BCP · GK Xpress   saldo: S/     0
+        └─ Efectivo · GK Xpress     saldo: S/   640
+                                    ─────────────────
+                                    TOTAL: S/ 2,840 (suma agregada)</pre>
+        <p class="text-[11px] text-slate-700 leading-relaxed">
+          <strong>Cada caja tiene su saldo independiente.</strong> Cuando GK descuenta carreras o transfiere, sabes exactamente de qué método sacar.
+          Cuando hay discusión <em>"eso fue por yape vs efectivo"</em>, miras el saldo del método específico.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- VISTA AGRUPADA · GK con sus 4 cajas                               -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <h3 class="text-base font-bold text-slate-900 mb-3">Vista del agente · sus 4 cajas con saldo agregado</h3>
+
+  <div class="card-banking overflow-hidden mb-5">
+    <!-- Header agente -->
+    <div class="bg-gradient-to-br from-purple-50 to-white border-b border-purple-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-white font-bold text-base ring-2 ring-purple-200">GK</div>
+          <div>
+            <div class="flex items-center gap-2 mb-0.5">
+              <h2 class="text-lg font-bold tracking-tight text-slate-900">GK Xpress</h2>
+              <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Agente recaudador</span>
+              <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200 pulse-soft">⭐ 90% envíos</span>
+            </div>
+            <p class="text-[11px] text-slate-500">Proveedor con <strong class="text-slate-700">4 cajas activas</strong> · saldo agregado <strong class="text-purple-700 num-tab">S/ 2,840</strong> pendiente liquidar</p>
+          </div>
+        </div>
+        <button class="bg-purple-600 hover:bg-purple-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+          <i data-lucide="arrow-right-left" class="w-3.5 h-3.5"></i>Liquidar saldo total
+        </button>
+      </div>
+    </div>
+
+    <!-- Strip de cajas · 4 columnas -->
+    <div class="grid grid-cols-4 divide-x divide-slate-200">
+
+      <!-- Caja 1: Yape -->
+      <div class="p-4 cursor-pointer hover:bg-slate-50">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="bank-logo bank-yape" style="width:28px;height:28px;font-size:10px">Y</div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">Yape</div>
+            <div class="text-[9px] text-slate-500 mono">9XX-XXX-541</div>
+          </div>
+        </div>
+        <div class="text-[20px] font-bold text-slate-900 num-tab tracking-tight">S/ 1,800</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">28 cobros este mes</div>
+        <div class="text-[10px] text-emerald-600 num-tab mt-0.5">+S/ 1,800 disp.</div>
+      </div>
+
+      <!-- Caja 2: Plin -->
+      <div class="p-4 cursor-pointer hover:bg-slate-50">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="bank-logo" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#0ea5e9 0%,#06b6d4 100%);">P</div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">Plin</div>
+            <div class="text-[9px] text-slate-500 mono">9XX-XXX-541</div>
+          </div>
+        </div>
+        <div class="text-[20px] font-bold text-slate-900 num-tab tracking-tight">S/ 400</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">6 cobros este mes</div>
+        <div class="text-[10px] text-emerald-600 num-tab mt-0.5">+S/ 400 disp.</div>
+      </div>
+
+      <!-- Caja 3: BCP -->
+      <div class="p-4 cursor-pointer hover:bg-slate-50">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="bank-logo bank-bcp" style="width:28px;height:28px;font-size:9px">BCP</div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">Cuenta BCP</div>
+            <div class="text-[9px] text-slate-500 mono">····5678</div>
+          </div>
+        </div>
+        <div class="text-[20px] font-bold text-emerald-700 num-tab tracking-tight">S/ 0</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">2 cobros · ya liquidados</div>
+        <div class="text-[10px] text-emerald-600 num-tab mt-0.5">conciliado ✓</div>
+      </div>
+
+      <!-- Caja 4: Efectivo -->
+      <div class="p-4 cursor-pointer hover:bg-slate-50">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="bank-logo bank-cash" style="width:28px;height:28px;font-size:14px">$</div>
+          <div>
+            <div class="text-[12px] font-bold text-slate-900">Efectivo</div>
+            <div class="text-[9px] text-slate-500">contraentrega</div>
+          </div>
+        </div>
+        <div class="text-[20px] font-bold text-slate-900 num-tab tracking-tight">S/ 640</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">12 entregas este mes</div>
+        <div class="text-[10px] text-amber-600 num-tab mt-0.5 font-medium">+S/ 640 disp.</div>
+      </div>
+
+    </div>
+
+    <!-- Resumen agregado -->
+    <div class="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between">
+      <div class="text-[11px] text-slate-700">
+        <strong>Saldo agregado pendiente de liquidar:</strong> Yape S/ 1,800 + Plin S/ 400 + Efectivo S/ 640 = <span class="text-purple-700 font-bold num-tab">S/ 2,840</span>
+      </div>
+      <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium">Ver movimientos por método →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- PAGO DIVIDIDO · split en PagoUnificadoForm                        -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <h3 class="text-base font-bold text-slate-900 mb-3">Caso 2 · Cliente paga parcial entre 2 métodos · split inline</h3>
+
+  <div class="card-banking overflow-hidden mb-5">
+    <div class="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center gap-2">
+      <i data-lucide="info" class="w-4 h-4 text-amber-700"></i>
+      <span class="text-[12px] font-semibold text-amber-900">Cliente Sofía L. paga sus S/ 800 en 2 partes · S/ 500 al yape y S/ 300 en efectivo al driver</span>
+    </div>
+
+    <div class="p-5">
+      <div class="bg-white border border-slate-200 rounded-lg p-4 max-w-2xl">
+        <div class="text-[12px] font-bold text-slate-900 mb-3 flex items-center justify-between">
+          <span>PagoUnificadoForm · modo "Cobro distribuido"</span>
+          <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Split habilitado</span>
+        </div>
+
+        <!-- Cliente y monto -->
+        <div class="grid grid-cols-2 gap-3 mb-3 text-[11px]">
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Cliente</label>
+            <div class="bg-slate-50 border border-slate-200 rounded px-2 py-1 mt-0.5">Sofía López · VT-091</div>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Monto total</label>
+            <div class="bg-slate-50 border border-slate-200 rounded px-2 py-1 mt-0.5 num-tab font-bold">S/ 800.00</div>
+          </div>
+        </div>
+
+        <!-- Líneas de distribución -->
+        <div class="border-t border-slate-100 pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Distribución del cobro · 2 líneas</label>
+            <button class="text-[10px] text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1">
+              <i data-lucide="plus" class="w-2.5 h-2.5"></i>Agregar línea
+            </button>
+          </div>
+
+          <!-- Línea 1: Yape -->
+          <div class="flex items-center gap-2 mb-2 p-2 bg-purple-50/30 rounded border border-purple-200">
+            <span class="text-[9px] text-slate-400 font-bold w-3">1</span>
+            <div class="flex-1 grid grid-cols-2 gap-2 text-[11px]">
+              <div>
+                <div class="text-[9px] text-slate-500 mb-0.5">Destino</div>
+                <div class="bg-white border border-slate-200 rounded px-2 py-1 flex items-center gap-1.5">
+                  <div class="bank-logo bank-yape" style="width:18px;height:18px;font-size:7px">Y</div>
+                  <span class="font-medium text-slate-900">Yape · GK Xpress</span>
+                </div>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-500 mb-0.5">Monto</div>
+                <div class="bg-white border border-slate-200 rounded px-2 py-1 num-tab font-bold text-emerald-700">S/ 500.00</div>
+              </div>
+            </div>
+            <button class="text-slate-400 hover:text-rose-600">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+          </div>
+
+          <!-- Línea 2: Efectivo -->
+          <div class="flex items-center gap-2 mb-2 p-2 bg-amber-50/30 rounded border border-amber-200">
+            <span class="text-[9px] text-slate-400 font-bold w-3">2</span>
+            <div class="flex-1 grid grid-cols-2 gap-2 text-[11px]">
+              <div>
+                <div class="text-[9px] text-slate-500 mb-0.5">Destino</div>
+                <div class="bg-white border border-slate-200 rounded px-2 py-1 flex items-center gap-1.5">
+                  <div class="bank-logo bank-cash" style="width:18px;height:18px;font-size:10px">$</div>
+                  <span class="font-medium text-slate-900">Efectivo · GK Xpress</span>
+                </div>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-500 mb-0.5">Monto</div>
+                <div class="bg-white border border-slate-200 rounded px-2 py-1 num-tab font-bold text-emerald-700">S/ 300.00</div>
+              </div>
+            </div>
+            <button class="text-slate-400 hover:text-rose-600">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+          </div>
+
+          <!-- Total / Validación -->
+          <div class="flex items-center justify-between pt-2 mt-2 border-t border-slate-200 text-[11px]">
+            <span class="text-slate-500">Total distribuido</span>
+            <div class="flex items-center gap-2">
+              <span class="num-tab font-bold text-emerald-700">S/ 800.00</span>
+              <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <i data-lucide="check" class="w-2.5 h-2.5"></i>Cuadra
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón submit -->
+        <button class="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[12px] px-4 py-2 rounded-md flex items-center justify-center gap-1.5 shadow-sm">
+          <i data-lucide="check-check" class="w-3.5 h-3.5"></i>Confirmar cobro distribuido
+        </button>
+      </div>
+    </div>
+
+    <!-- Resultado -->
+    <div class="bg-slate-50 border-t border-slate-200 px-6 py-3">
+      <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">Resultado · 3 movimientos atómicos</div>
+      <div class="grid grid-cols-3 gap-2 text-[11px]">
+        <div class="bg-white border border-slate-200 rounded p-2">
+          <div class="text-[9px] text-slate-500 uppercase">CC Sofía L.</div>
+          <div class="font-bold text-emerald-700 num-tab">S/ 0 ✓</div>
+          <div class="text-[9px] text-slate-500">+S/ 800 · saldó</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded p-2">
+          <div class="text-[9px] text-slate-500 uppercase">Yape · GK</div>
+          <div class="font-bold text-purple-700 num-tab">S/ 2,300</div>
+          <div class="text-[9px] text-slate-500">+S/ 500</div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded p-2">
+          <div class="text-[9px] text-slate-500 uppercase">Efectivo · GK</div>
+          <div class="font-bold text-purple-700 num-tab">S/ 940</div>
+          <div class="text-[9px] text-slate-500">+S/ 300</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- AUDITORÍA POR MÉTODO · resolviendo discusiones operativas         -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <h3 class="text-base font-bold text-slate-900 mb-3">Caso 3 · Auditoría por método · resolviendo "qué te pagaron por dónde"</h3>
+
+  <div class="card-banking overflow-hidden">
+    <div class="bg-rose-50 border-b border-rose-200 px-6 py-3 flex items-center gap-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-700"></i>
+      <span class="text-[12px] font-semibold text-rose-900">Discusión operativa: <em>"GK dice que no recibió tal monto en yape · pero sí en efectivo"</em></span>
+    </div>
+
+    <div class="p-5 grid grid-cols-2 gap-4">
+
+      <!-- Detalle por método: Yape -->
+      <div class="card-base p-4">
+        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100">
+          <div class="bank-logo bank-yape" style="width:28px;height:28px;font-size:10px">Y</div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Yape · GK Xpress</div>
+            <div class="text-[10px] text-slate-500">28 cobros · saldo actual S/ 2,300</div>
+          </div>
+          <button class="text-[10px] text-teal-600 font-medium">Exportar →</button>
+        </div>
+        <div class="space-y-1.5 text-[10px]">
+          <div class="flex items-center justify-between py-1 border-b border-slate-50">
+            <div>
+              <div class="font-semibold text-slate-700">28 abr · Sofía L.</div>
+              <div class="text-slate-500 mono">YAP-2026-0420 · VT-091</div>
+            </div>
+            <span class="num-tab font-bold text-emerald-700">+S/ 500</span>
+          </div>
+          <div class="flex items-center justify-between py-1 border-b border-slate-50">
+            <div>
+              <div class="font-semibold text-slate-700">26 abr · Ramón M.</div>
+              <div class="text-slate-500 mono">YAP-2026-0418 · VT-088</div>
+            </div>
+            <span class="num-tab font-bold text-emerald-700">+S/ 520</span>
+          </div>
+          <div class="flex items-center justify-between py-1 border-b border-slate-50">
+            <div>
+              <div class="font-semibold text-slate-700">22 abr · 26 cobros más</div>
+              <div class="text-slate-500">de S/ 25 a S/ 480 c/u</div>
+            </div>
+            <span class="num-tab font-bold text-emerald-700">+S/ 5,820</span>
+          </div>
+          <div class="flex items-center justify-between py-1.5 mt-2 border-t border-slate-200 bg-slate-50 -mx-2 px-2 rounded">
+            <span class="font-bold text-slate-900">Total cobrado por yape (mes)</span>
+            <span class="num-tab font-bold text-purple-700">S/ 6,840</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detalle por método: Efectivo -->
+      <div class="card-base p-4">
+        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100">
+          <div class="bank-logo bank-cash" style="width:28px;height:28px;font-size:14px">$</div>
+          <div class="flex-1">
+            <div class="text-[12px] font-bold text-slate-900">Efectivo · GK Xpress</div>
+            <div class="text-[10px] text-slate-500">12 entregas · saldo actual S/ 940</div>
+          </div>
+          <button class="text-[10px] text-teal-600 font-medium">Exportar →</button>
+        </div>
+        <div class="space-y-1.5 text-[10px]">
+          <div class="flex items-center justify-between py-1 border-b border-slate-50">
+            <div>
+              <div class="font-semibold text-slate-700">28 abr · Sofía L. · parcial</div>
+              <div class="text-slate-500 mono">EFE-2026-088 · VT-091</div>
+            </div>
+            <span class="num-tab font-bold text-emerald-700">+S/ 300</span>
+          </div>
+          <div class="flex items-center justify-between py-1 border-b border-slate-50">
+            <div>
+              <div class="font-semibold text-slate-700">25 abr · Carolina A.</div>
+              <div class="text-slate-500 mono">EFE-2026-087 · VT-085</div>
+            </div>
+            <span class="num-tab font-bold text-emerald-700">+S/ 850</span>
+          </div>
+          <div class="flex items-center justify-between py-1 border-b border-slate-50">
+            <div>
+              <div class="font-semibold text-slate-700">22 abr · 10 cobros más</div>
+              <div class="text-slate-500">contraentrega del driver</div>
+            </div>
+            <span class="num-tab font-bold text-emerald-700">+S/ 1,890</span>
+          </div>
+          <div class="flex items-center justify-between py-1.5 mt-2 border-t border-slate-200 bg-slate-50 -mx-2 px-2 rounded">
+            <span class="font-bold text-slate-900">Total cobrado en efectivo (mes)</span>
+            <span class="num-tab font-bold text-purple-700">S/ 3,040</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resolución de la discusión -->
+    <div class="bg-emerald-50 border-t border-emerald-200 px-6 py-4">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="check-check" class="w-5 h-5 text-white"></i>
+        </div>
+        <div class="flex-1">
+          <h4 class="text-[12px] font-bold text-emerald-900 mb-1">Cero ambigüedad en la conciliación con GK</h4>
+          <p class="text-[11px] text-slate-700 leading-relaxed">
+            <strong>"GK dice no le yapearon S/ 500":</strong> abres caja Yape · ves el cobro de Sofía L. con número de yape de GK · fecha y hora · captura del comprobante adjunta.
+            <strong>"GK dice no le pagaron en efectivo":</strong> abres caja Efectivo · ves la entrega del driver · captura de la firma o recibo.
+          </p>
+          <div class="grid grid-cols-2 gap-2 mt-3 text-[10px]">
+            <div class="bg-white border border-slate-200 rounded p-2">
+              <strong class="text-slate-900">Por método:</strong> Yape S/ 6,840 · Plin S/ 400 · BCP S/ 0 · Efectivo S/ 3,040
+            </div>
+            <div class="bg-white border border-slate-200 rounded p-2">
+              <strong class="text-slate-900">Liquidaciones:</strong> Yape −S/ 4,540 · BCP −S/ 5,000 (transferido) · Efectivo S/ 0 (queda en mano)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anotaciones -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 1 agente = N cajas:</strong> GK Xpress tiene 4 cajas (yape, plin, BCP, efectivo) · cada una con saldo independiente · auditable individualmente.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Pago dividido (split inline):</strong> el PagoUnificadoForm soporta múltiples líneas de destino para distribuir un cobro entre métodos · suma total debe cuadrar con el monto a cobrar.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Resuelve "te yapearon vs te pagaron en efectivo":</strong> al ver detalle por método, sabes exactamente qué entró por dónde · cero discusiones · auditoría de cada cobro con fecha, monto, cliente, comprobante.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Liquidaciones por método independientes:</strong> GK puede transferir S/X del yape al BCP de la empresa, descontar otros del efectivo (entregas mano), y dejar saldo en plin · cada caja se concilia por separado.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 5 · ANTES / DESPUÉS                                              -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 5 · Antes / Después · resolviendo el caso GK Xpress (90%)</h2>
+  <p class="text-sm text-slate-600 mb-4">El flujo recaudador es <strong>el 90% de tu logística</strong>. Esto resuelve los problemas concretos:</p>
+
+  <div class="grid grid-cols-2 gap-4">
+
+    <!-- ANTES -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-rose-100 text-rose-700 uppercase tracking-wider font-bold text-[10px]">Antes</span>
+        <h3 class="text-sm font-bold text-slate-900">Sin caja recaudadora dedicada</h3>
+      </div>
+      <div class="card-banking p-5 bg-rose-50/30 border border-rose-200 space-y-2 text-[12px]">
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Datos bancarios pasivos en ficha del proveedor · sin trackeo de saldo</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Cobros al yape de GK se registraban como movimientos sueltos · no se sabía cuánto debía liquidar</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Descuentos de carreras no se cruzaban automáticamente con la CC del proveedor</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Conciliación manual al final del mes · errores frecuentes</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="x-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Sin auditoría matemática verificable</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESPUÉS -->
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="chip-pill bg-emerald-100 text-emerald-700 uppercase tracking-wider font-bold text-[10px]">Después</span>
+        <h3 class="text-sm font-bold text-slate-900">Con caja recaudadora · M-CAJA-AGENTE</h3>
+      </div>
+      <div class="card-banking p-5 bg-emerald-50/30 border border-emerald-200 space-y-2 text-[12px]">
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Banner promueve datos bancarios a Caja recaudadora con 1 click cuando se detecta el primer movimiento</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Saldo trackeado en tiempo real · sabes exactamente cuánto te debe liquidar GK</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Descuentos automáticamente cruzados con CC del proveedor (D-S58-22 · sin TX-3)</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Conciliación continua · cada peso trazado en sus 3 cuentas (cliente · agente · caja)</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5"></i>
+          <span class="text-slate-700">Ecuación visual <strong>Cobros − Descuentos − Liquidado = Saldo</strong> verificable en cualquier momento</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- DECISIONES APLICADAS                                                    -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900 text-white rounded-2xl p-8">
+    <div class="text-[11px] uppercase tracking-wider text-purple-300 font-semibold mb-2">M-CAJA-AGENTE-S58f cerrado · Lote 3 completo ✓</div>
+    <h2 class="text-2xl font-bold mb-3 tracking-tight">Caja recaudadora GK Xpress · banner promoción + 5 eventos del Caso B + balance en ecuación</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">D-S58-20 ✅</div>
+        <div class="text-[12px]">Titularidad extendida · proveedor como titular de caja</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">D-S58-21 ✅</div>
+        <div class="text-[12px]">datosBancarios[] en ficha + UI promoción a CuentaCaja</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">D-S58-22 ✅</div>
+        <div class="text-[12px]">Sin TX-3 · usa Cobros + Pagos a CC + Transferencias existentes</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">Color morado</div>
+        <div class="text-[12px]">Toda la caja recaudadora en purple · diferencia visual de cuentas propias</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">Balance en ecuación</div>
+        <div class="text-[12px]">Cobros − Descuentos − Liquidado = Saldo · auditable matemáticamente</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">⭐ PagoUnificadoForm · hub</div>
+        <div class="text-[12px]">Caja read-only · operaciones nacen en Ventas/Envíos · PagoUnificadoForm detecta caja automático</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">5 eventos del Caso B</div>
+        <div class="text-[12px]">Cada uno nace en su módulo · la caja solo refleja conciliación de 3 saldos</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">⭐ 1 agente = N cajas</div>
+        <div class="text-[12px]">GK con yape · plin · BCP · efectivo · cada uno con saldo independiente · resuelve "te yapearon vs te pagaron"</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-purple-300 font-semibold mb-1">⭐ Pago dividido (split)</div>
+        <div class="text-[12px]">Un cobro distribuido entre múltiples métodos · cada línea va a su caja correspondiente · valida que cuadre el total</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10">
+      <div class="text-[14px] font-bold text-white mb-2">🎉 Lote 3 · TESORERÍA INTEGRADA · cerrado al 100%</div>
+      <div class="grid grid-cols-2 gap-3 text-[12px] text-slate-300">
+        <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>M-TES-LAYOUT-S58f · Shell de Tesorería (4 vistas · 7 sub-rutas)</div>
+        <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>M-CAJA-AGENTE-S58f · Caja recaudadora GK (4 vistas · 5 eventos)</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10 text-[12px] text-slate-300 leading-relaxed">
+      <strong class="text-white">Próximo lote:</strong>
+      <code class="bg-white/10 px-1.5 py-0.5 rounded ml-1">Lote 4 · Integraciones módulo↔Tesorería</code> · 5 mockups · panel "Pagos y Tesorería" embebido en detalles de OC, Venta, Gasto, Envío, y Movimiento mostrando docs origen.
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>

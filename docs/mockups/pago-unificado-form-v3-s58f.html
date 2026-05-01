@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>M-PAGOFORM-V3-S58f · PagoUnificadoForm v3 · Spec definitivo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .pill { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 500; }
+  .pill-sky { background: #e0f2fe; color: #0369a1; }
+  .pill-amber { background: #fef3c7; color: #92400e; }
+  .pill-emerald { background: #d1fae5; color: #065f46; }
+  .pill-rose { background: #ffe4e6; color: #be123c; }
+  .pill-slate { background: #f1f5f9; color: #475569; }
+  .pill-violet { background: #ede9fe; color: #5b21b6; }
+  .pill-indigo { background: #e0e7ff; color: #3730a3; }
+  .pill-fuchsia { background: #fae8ff; color: #86198f; }
+  .pill-orange { background: #ffedd5; color: #9a3412; }
+  .pill-teal { background: #ccfbf1; color: #115e59; }
+  .pill-zinc { background: #f4f4f5; color: #3f3f46; }
+  .pill-gray { background: #e5e7eb; color: #1f2937; }
+  .section-divider { height: 1px; background: linear-gradient(to right, transparent, #e2e8f0, transparent); margin: 2rem 0; }
+  pre { font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace; }
+  .code-block { background: #0f172a; color: #e2e8f0; border-radius: 0.5rem; padding: 1rem; font-size: 0.75rem; line-height: 1.6; overflow-x: auto; }
+  .code-comment { color: #64748b; }
+  .code-keyword { color: #f472b6; }
+  .code-string { color: #86efac; }
+  .code-prop { color: #fcd34d; }
+  .code-type { color: #93c5fd; }
+</style>
+</head>
+<body class="text-slate-900">
+
+<!-- Header del documento -->
+<div class="max-w-6xl mx-auto px-6 pt-8 pb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <span class="pill pill-gray">M-PAGOFORM-V3</span>
+    <span class="pill pill-slate">S58f · Lote 5 · 1 de 2</span>
+    <span class="pill pill-emerald">Consolida Lote 4 entero</span>
+    <span class="pill pill-amber">Spec definitivo · pre-implementación</span>
+  </div>
+  <h1 class="text-2xl font-bold tracking-tight">PagoUnificadoForm v3 · Spec definitivo</h1>
+  <p class="text-sm text-slate-600 mt-1">Consolida todas las features del componente vistas en los 5 mockups del Lote 4 (M-INT-OC, VENTA, GASTO, ENVIO, MOV). <strong>1 componente · 4 modos · 0 breaking changes</strong>. Este documento sirve como spec de implementación de DEUDA-PAGOFORM-001 (3 fases).</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA 1 · Anatomía del form en sus 4 modos -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-sm font-bold">1</div>
+    <h2 class="text-lg font-semibold">Los 4 modos del componente · matriz comparativa</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El form se adapta al contexto vía 4 props clave. Mismo backbone visual · selectores y bloques aparecen/desaparecen según modo.</p>
+
+  <!-- Tabla matriz -->
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm mb-6">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold">
+          <tr>
+            <th class="px-4 py-3 text-left">Modo</th>
+            <th class="px-4 py-3 text-left">Origen del flujo</th>
+            <th class="px-4 py-3 text-left">Tercero pre-cargado</th>
+            <th class="px-4 py-3 text-left">Selector ORIGEN</th>
+            <th class="px-4 py-3 text-left">Selector DESTINO</th>
+            <th class="px-4 py-3 text-left">Split</th>
+            <th class="px-4 py-3 text-left">Adjuntos</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr>
+            <td class="px-4 py-3">
+              <span class="pill pill-fuchsia">Cobro</span>
+              <div class="text-[11px] text-slate-500 mt-1">desde Venta</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded">modo='cobro'</code><br>
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">clienteId={'{id}'}</code>
+            </td>
+            <td class="px-4 py-3 text-xs">Cliente · auto desde venta</td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-emerald">Mis cuentas</span><br>
+              <span class="pill pill-violet">Cajas recaudadoras</span><br>
+              <span class="pill pill-zinc">Yapes pasivos</span>
+            </td>
+            <td class="px-4 py-3 text-xs text-slate-500 italic">Implícito</td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+          </tr>
+          <tr class="bg-slate-50/50">
+            <td class="px-4 py-3">
+              <span class="pill pill-orange">Pago simple</span>
+              <div class="text-[11px] text-slate-500 mt-1">desde Gasto</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded">modo='pago'</code><br>
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">permiteDestinoTercero=false</code>
+            </td>
+            <td class="px-4 py-3 text-xs text-slate-400 italic">N/A · Movistar implícito</td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-emerald">Mis cuentas</span>
+            </td>
+            <td class="px-4 py-3 text-xs text-slate-400 italic">No aplica</td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3">
+              <span class="pill pill-sky">Pago a proveedor</span>
+              <div class="text-[11px] text-slate-500 mt-1">desde OC</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded">modo='pago'</code><br>
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">proveedorId={'{id}'}</code>
+            </td>
+            <td class="px-4 py-3 text-xs">Proveedor · auto desde OC</td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-emerald">Mis cuentas</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-violet">Datos del proveedor</span><br>
+              <span class="pill pill-zinc">Sin destino digital</span>
+            </td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+          </tr>
+          <tr class="bg-slate-50/50">
+            <td class="px-4 py-3">
+              <span class="pill pill-indigo">Pago a colaborador</span>
+              <div class="text-[11px] text-slate-500 mt-1">desde Envío</div>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded">modo='pago'</code><br>
+              <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">colaboradorId={'{id}'}</code>
+            </td>
+            <td class="px-4 py-3 text-xs">Colaborador · auto desde envío</td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-emerald">Mis cuentas</span>
+            </td>
+            <td class="px-4 py-3 text-xs">
+              <span class="pill pill-violet">Datos del colaborador</span><br>
+              <span class="pill pill-zinc">Sin destino digital</span>
+            </td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+            <td class="px-4 py-3"><span class="pill pill-emerald">Sí</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Insight clave -->
+  <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-start gap-3">
+    <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">💡</div>
+    <div class="flex-1 text-sm">
+      <div class="font-semibold text-emerald-900 mb-1">Lo que se aprende del Lote 4</div>
+      <p class="text-emerald-800">El <strong>split aplica en los 4 modos</strong>. Lo que cambia es: (1) qué grupos se ven en el selector de origen, (2) si hay selector de destino o no, (3) qué tercero está pre-cargado. Ese es el "scope contextual" del componente.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 2 · Anatomía completa del form · 9 bloques desglosados -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-sm font-bold">2</div>
+    <h2 class="text-lg font-semibold">Anatomía completa · 9 bloques del componente</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">Cada bloque tiene una responsabilidad única · aparece/desaparece según las props. Cuando todos se ven (modo más complejo: pago a colaborador con split), el form mide ~750 px de alto en desktop.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+
+    <!-- Header del modal genérico -->
+    <div class="bg-gradient-to-r from-slate-50 to-zinc-50 border-b-2 border-slate-300 px-5 py-4 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="pill pill-gray">Bloque 0</span>
+          <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Header del modal</div>
+        </div>
+        <h3 class="text-lg font-bold mt-1">{accionVerbo} · {docOrigenLabel}</h3>
+        <p class="text-xs text-slate-600 mt-0.5">Saldo pendiente: <span class="tabular-nums font-semibold">S/ XXX.XX</span></p>
+      </div>
+      <button class="w-8 h-8 rounded-full bg-white text-slate-500 flex items-center justify-center">✕</button>
+    </div>
+
+    <div class="p-5 space-y-6">
+
+      <!-- BLOQUE 1 · Destinatario (condicional) -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-violet">Bloque 1 · condicional</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Destinatario fijo</span>
+          <span class="text-[11px] text-slate-500">cuando hay <code class="bg-slate-100 px-1 rounded">proveedorId / clienteId / colaboradorId</code></span>
+        </div>
+        <div class="bg-violet-50 border-2 border-violet-200 rounded-lg px-3 py-2.5 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-bold text-xs">{}</div>
+          <div class="flex-1">
+            <div class="text-sm font-semibold">{tercero.nombre}</div>
+            <div class="text-[11px] text-slate-500">{tercero.tipo} · pre-cargado del doc origen</div>
+          </div>
+          <span class="pill pill-violet">Tercero · contexto fijo</span>
+        </div>
+      </div>
+
+      <!-- BLOQUE 2 · Toggle Completo/Parcial/Split -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-sky">Bloque 2 · siempre</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Toggle tipo de operación</span>
+          <span class="text-[11px] text-slate-500">3 opciones si <code class="bg-slate-100 px-1 rounded">permiteSplit=true</code> · 2 si no</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200">
+            <div class="font-semibold">Completo</div>
+            <div class="text-[11px] text-slate-500">S/ XXX en 1 método</div>
+          </button>
+          <button class="bg-slate-100 text-slate-700 text-sm py-2.5 rounded-lg font-medium border border-slate-200">
+            <div class="font-semibold">Parcial</div>
+            <div class="text-[11px] text-slate-500">Abono &lt; saldo</div>
+          </button>
+          <button class="bg-slate-50 text-slate-700 text-sm py-2.5 rounded-lg font-medium border-2 border-dashed border-slate-300">
+            <div class="font-semibold">Split</div>
+            <div class="text-[11px] text-slate-500">Varios métodos · opt-in</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- BLOQUE 3 · Líneas de pago -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-amber">Bloque 3 · siempre</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Líneas de pago</span>
+          <span class="text-[11px] text-slate-500">1 línea si Completo/Parcial · N líneas si Split</span>
+        </div>
+        <div class="border border-amber-200 rounded-lg overflow-hidden">
+          <div class="bg-amber-50 px-4 py-2.5 border-b border-amber-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold">N</div>
+              <span class="text-sm font-semibold text-amber-900">Línea N · {método}</span>
+            </div>
+            <button class="text-xs text-rose-600">✕ Quitar</button>
+          </div>
+          <div class="p-4 grid grid-cols-3 gap-4 text-xs">
+
+            <!-- BLOQUE 3.1 · Selector ORIGEN -->
+            <div>
+              <div class="flex items-center gap-1 mb-1">
+                <span class="pill pill-emerald">3.1</span>
+                <label class="uppercase tracking-wider text-slate-500 font-semibold">Origen</label>
+              </div>
+              <div class="bg-white border-2 border-slate-200 rounded-lg px-3 py-2 flex items-center justify-between">
+                <span class="text-sm">{cuentaOrigen}</span>
+                <span class="text-slate-400">▼</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-1 italic">Grupos según <code class="bg-slate-100 px-1 rounded">scopeOrigen</code></div>
+            </div>
+
+            <!-- BLOQUE 3.2 · Selector DESTINO (condicional) -->
+            <div>
+              <div class="flex items-center gap-1 mb-1">
+                <span class="pill pill-violet">3.2</span>
+                <label class="uppercase tracking-wider text-slate-500 font-semibold">Destino · opt-in</label>
+              </div>
+              <div class="bg-white border-2 border-dashed border-slate-200 rounded-lg px-3 py-2 flex items-center justify-between">
+                <span class="text-sm text-slate-400 italic">{datosTercero}</span>
+                <span class="text-slate-400">▼</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-1 italic">Solo si <code class="bg-slate-100 px-1 rounded">permiteDestinoTercero=true</code></div>
+            </div>
+
+            <!-- BLOQUE 3.3 · Monto -->
+            <div>
+              <div class="flex items-center gap-1 mb-1">
+                <span class="pill pill-emerald">3.3</span>
+                <label class="uppercase tracking-wider text-slate-500 font-semibold">Monto</label>
+              </div>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-semibold">S/</span>
+                <input type="text" placeholder="0.00" class="w-full pl-10 pr-3 py-2 border-2 border-slate-200 rounded-lg text-sm font-semibold tabular-nums">
+              </div>
+              <div class="text-[10px] text-slate-500 mt-1 italic">Validación inline</div>
+            </div>
+          </div>
+        </div>
+        <button class="mt-2 w-full text-sm text-slate-600 hover:text-slate-900 font-medium py-2 border-2 border-dashed border-slate-200 rounded-lg">
+          + Añadir otra línea
+        </button>
+      </div>
+
+      <!-- BLOQUE 4 · Validación de totales -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-emerald">Bloque 4 · siempre</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Validación inline</span>
+          <span class="text-[11px] text-slate-500">3 estados visuales: cuadra (verde) · falta (rojo) · parcial (ámbar)</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+            <span class="font-medium text-emerald-900">Cuadran S/X = saldo</span>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold">!</span>
+            <span class="font-medium text-amber-900">Parcial · queda S/Y</span>
+          </div>
+          <div class="bg-rose-50 border border-rose-200 rounded-lg p-2.5 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-bold">✕</span>
+            <span class="font-medium text-rose-900">Falta S/Z para cuadrar</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 5 · Fecha + Referencia -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-zinc">Bloque 5 · siempre</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Fecha + Referencia</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Fecha</label>
+            <input type="date" class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Referencia (opcional)</label>
+            <input type="text" placeholder="N° operación, voucher, etc." class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm">
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 6 · Adjuntos -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-teal">Bloque 6 · opt-in</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Comprobantes</span>
+          <span class="text-[11px] text-slate-500">cuando <code class="bg-slate-100 px-1 rounded">permiteAdjuntos=true</code> · múltiples archivos en split</span>
+        </div>
+        <div class="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center">
+          <div class="text-2xl mb-1">📎</div>
+          <div class="text-sm font-medium text-slate-700">Arrastra vouchers · 1 por línea de split</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">PDF · PNG · JPG · máx 5 MB c/u</div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 7 · Preview de impacto -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-indigo">Bloque 7 · siempre</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Preview de impacto</span>
+          <span class="text-[11px] text-slate-500">antes/después de cada cuenta afectada · banking-grade transparency</span>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <div class="text-xs uppercase tracking-wider text-slate-600 font-semibold mb-3">Impacto en cuentas y CTRU (si aplica)</div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between bg-white rounded p-2">
+              <div class="flex items-center gap-2">
+                <span>{icono}</span>
+                <span>{cuenta}</span>
+                <span class="pill pill-slate">{tipo}</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-slate-500 tabular-nums">S/ XXXX</span>
+                <span class="text-slate-400">→</span>
+                <span class="font-semibold tabular-nums">S/ YYYY</span>
+                <span class="pill pill-emerald tabular-nums">±ZZZ</span>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 italic">+ N filas según líneas del split · si modo='pago colaborador' agrega línea de impacto en CTRU</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 8 · Notas -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="pill pill-zinc">Bloque 8 · opcional</span>
+          <span class="text-xs uppercase tracking-wider text-slate-600 font-semibold">Notas internas</span>
+        </div>
+        <textarea placeholder="Detalles adicionales · contexto del pago · etc." class="w-full px-3 py-2 border-2 border-slate-200 rounded-lg text-sm" rows="2"></textarea>
+      </div>
+
+    </div>
+
+    <!-- BLOQUE 9 · Footer del modal -->
+    <div class="bg-slate-50 border-t-2 border-slate-300 px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="pill pill-gray">Bloque 9 · footer</span>
+        <span class="text-xs text-slate-500">Esta operación creará <strong>{N} movimiento(s)</strong> tipo <span class="pill pill-emerald">{tipo}</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="text-sm text-slate-700 font-medium px-4 py-2 rounded-lg hover:bg-slate-100">Cancelar</button>
+        <button class="bg-slate-900 text-white text-sm font-semibold px-5 py-2 rounded-lg shadow-sm">
+          Confirmar (S/ XXX)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen de bloques -->
+  <div class="mt-4 grid grid-cols-2 gap-4">
+    <div class="bg-white border border-slate-200 rounded-lg p-4 text-sm">
+      <div class="font-semibold text-slate-900 mb-2">Bloques siempre presentes (5)</div>
+      <ul class="space-y-1 text-xs text-slate-600">
+        <li>• Bloque 0 · Header del modal</li>
+        <li>• Bloque 2 · Toggle tipo (Completo/Parcial)</li>
+        <li>• Bloque 3 · Líneas de pago (al menos 1)</li>
+        <li>• Bloque 5 · Fecha + Referencia</li>
+        <li>• Bloque 7 · Preview de impacto</li>
+        <li>• Bloque 9 · Footer del modal</li>
+      </ul>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-lg p-4 text-sm">
+      <div class="font-semibold text-slate-900 mb-2">Bloques condicionales (4)</div>
+      <ul class="space-y-1 text-xs text-slate-600">
+        <li>• Bloque 1 · Destinatario fijo (cuando hay tercero pre-cargado)</li>
+        <li>• Bloque 2.3 · Opción Split (si <code class="bg-slate-100 px-1 rounded">permiteSplit=true</code>)</li>
+        <li>• Bloque 3.2 · Selector destino (si <code class="bg-slate-100 px-1 rounded">permiteDestinoTercero=true</code>)</li>
+        <li>• Bloque 4 · Validación de totales (solo si Split activo)</li>
+        <li>• Bloque 6 · Adjuntos (si <code class="bg-slate-100 px-1 rounded">permiteAdjuntos=true</code>)</li>
+        <li>• Bloque 8 · Notas (siempre opcional para el usuario)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 3 · Selector inteligente · grupos según scope -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-sm font-bold">3</div>
+    <h2 class="text-lg font-semibold">Selector inteligente · 3 grupos jerárquicos para origen + 2 para destino</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El selector es el corazón del componente. Cambia de comportamiento según las props · cada modo pinta diferentes grupos. Esto resuelve el limbo de "¿dónde clasifico esto?" que existe hoy.</p>
+
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- Selector ORIGEN -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-emerald-50 border-b border-emerald-200 px-4 py-3">
+        <div class="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Selector ORIGEN</div>
+        <div class="text-sm font-semibold text-emerald-900 mt-1">3 grupos máximo · combinaciones según modo</div>
+      </div>
+      <div class="p-4 space-y-3">
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-700">📊 Mis cuentas (Vita Skin Peru)</span>
+            <span class="pill pill-emerald">Siempre presente</span>
+          </div>
+          <div class="p-3 text-xs text-slate-600 space-y-1">
+            <div class="flex justify-between"><span>🏦 BCP cuenta soles</span><span class="tabular-nums">S/ 28,450</span></div>
+            <div class="flex justify-between"><span>🏦 BBVA cuenta soles</span><span class="tabular-nums">S/ 8,200</span></div>
+            <div class="flex justify-between"><span>📱 Yape Vita</span><span class="tabular-nums">S/ 1,240</span></div>
+            <div class="flex justify-between"><span>💳 TC Visa BCP</span><span class="tabular-nums">S/ 6,420</span></div>
+            <div class="flex justify-between"><span>💵 Caja oficina</span><span class="tabular-nums">S/ 580</span></div>
+          </div>
+          <div class="bg-emerald-50 px-3 py-2 border-t border-slate-200 text-[10px] text-emerald-700 italic">
+            Cuentas tipo <code class="bg-white px-1 rounded">ProductoFinanciero</code> propias · son fuente de fondos para PAGO o destino para COBRO.
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-violet-50 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-semibold text-violet-700">🤝 Cajas recaudadoras · cobranzas en tránsito</span>
+            <span class="pill pill-violet">Solo modo COBRO</span>
+          </div>
+          <div class="p-3 text-xs text-slate-600 space-y-1">
+            <div class="flex justify-between"><span>📱 Yape GK Xpress</span><span class="tabular-nums text-amber-700">S/ 3,420</span></div>
+            <div class="flex justify-between"><span>💵 Efectivo GK Xpress</span><span class="tabular-nums text-amber-700">S/ 880</span></div>
+            <div class="flex justify-between"><span>🏦 Plin GK Xpress</span><span class="tabular-nums text-amber-700">S/ 220</span></div>
+            <div class="flex justify-between"><span>📱 Yape Olva (alterno)</span><span class="tabular-nums">S/ 0</span></div>
+          </div>
+          <div class="bg-violet-50 px-3 py-2 border-t border-slate-200 text-[10px] text-violet-700 italic">
+            Cuentas <code class="bg-white px-1 rounded">ProductoFinanciero</code> con flag <code class="bg-white px-1 rounded">esCajaRecaudadora=true</code> · pertenecen a un agente externo · liquidan periódicamente.
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-zinc-50 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-semibold text-zinc-700">💤 Yapes pasivos · solo referencia</span>
+            <span class="pill pill-zinc">Solo modo COBRO · raro</span>
+          </div>
+          <div class="p-3 text-xs text-slate-500 italic space-y-1">
+            <div>Datos bancarios de 3eros sin caja · usado para registrar cobros que se hicieron a un yape personal de un colaborador antes de promoverlo a caja recaudadora.</div>
+          </div>
+          <div class="bg-zinc-50 px-3 py-2 border-t border-slate-200 text-[10px] text-zinc-700 italic">
+            Lectura de <code class="bg-white px-1 rounded">datosBancarios[]</code> de fichas Red Logística · NO mueven saldo en tu sistema.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector DESTINO -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-violet-50 border-b border-violet-200 px-4 py-3">
+        <div class="text-xs uppercase tracking-wider text-violet-700 font-semibold">Selector DESTINO</div>
+        <div class="text-sm font-semibold text-violet-900 mt-1">2 grupos · solo cuando hay tercero pre-cargado</div>
+      </div>
+      <div class="p-4 space-y-3">
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-violet-50 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-semibold text-violet-700">💤 Datos del tercero · referencia</span>
+            <span class="pill pill-violet">Pago a tercero</span>
+          </div>
+          <div class="p-3 text-xs text-slate-600 space-y-1">
+            <div class="flex justify-between"><span>📱 Yape {tercero}</span><span class="text-[10px] text-slate-400">datosBancarios</span></div>
+            <div class="flex justify-between"><span>🏦 BCP soles {tercero}</span><span class="text-[10px] text-slate-400">datosBancarios</span></div>
+            <div class="flex justify-between"><span>🏦 Interbank {tercero}</span><span class="text-[10px] text-slate-400">datosBancarios</span></div>
+          </div>
+          <div class="bg-violet-50 px-3 py-2 border-t border-slate-200 text-[10px] text-violet-700 italic">
+            Lectura del <code class="bg-white px-1 rounded">datosBancarios[]</code> del tercero específico (proveedor/colaborador). Sirve como evidencia de "a qué cuenta de él le envié el pago" · NO mueve saldo.
+          </div>
+        </div>
+
+        <div class="border border-slate-200 rounded-lg overflow-hidden">
+          <div class="bg-zinc-50 px-3 py-2 border-b border-slate-200 flex items-center justify-between">
+            <span class="text-xs font-semibold text-zinc-700">🤝 Sin destino digital</span>
+            <span class="pill pill-zinc">Siempre disponible</span>
+          </div>
+          <div class="p-3 text-xs text-slate-600 space-y-1">
+            <div class="flex justify-between"><span>🤝 Entregado en mano</span><span class="text-[10px] text-slate-400">opción literal</span></div>
+            <div class="flex justify-between"><span>➕ Agregar otro dato bancario al tercero</span><span class="text-[10px] text-slate-400 italic">acción inline</span></div>
+          </div>
+          <div class="bg-zinc-50 px-3 py-2 border-t border-slate-200 text-[10px] text-zinc-700 italic">
+            "Sin destino digital" registra que hubo entrega en efectivo / mano. "Agregar dato" abre mini-modal sin cerrar el form principal · D-INT-MOV pattern.
+          </div>
+        </div>
+
+        <!-- Cuando NO se muestra -->
+        <div class="bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg p-4 text-center text-xs text-slate-600">
+          <div class="font-semibold mb-1">⛔ El selector destino NO se muestra cuando:</div>
+          <ul class="space-y-0.5 text-left ml-4 list-disc">
+            <li><code class="bg-white px-1 rounded">modo='cobro'</code> (destino implícito = mi cuenta seleccionada en origen)</li>
+            <li><code class="bg-white px-1 rounded">permiteDestinoTercero=false</code> (caso gasto sin proveedor formal)</li>
+            <li>No hay tercero pre-cargado (no hay <code class="bg-white px-1 rounded">proveedorId/colaboradorId</code>)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- VISTA 4 · API completa + Migración -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="flex items-center gap-2 mb-4">
+    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-sm font-bold">4</div>
+    <h2 class="text-lg font-semibold">API completa · Props + Result + Migración backwards-compatible</h2>
+  </div>
+
+  <p class="text-sm text-slate-600 mb-4">El componente actual (v2 · 663 líneas · 25+ usos en el sistema) sigue funcionando sin tocar nada después del refactor. Las features nuevas se activan via props opt-in. <strong>Cero breaking changes.</strong></p>
+
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- API Props -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-900 text-white px-4 py-3">
+        <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold">PagoUnificadoFormProps</div>
+        <div class="text-sm font-semibold text-white mt-1">Interfaz de entrada del componente</div>
+      </div>
+      <div class="p-0">
+        <pre class="code-block rounded-none m-0">
+<span class="code-comment">// Props existentes en v2 · NO cambian</span>
+<span class="code-keyword">interface</span> <span class="code-type">PagoUnificadoFormProps</span> {
+  <span class="code-prop">isOpen</span>: <span class="code-type">boolean</span>;
+  <span class="code-prop">onClose</span>: () =&gt; <span class="code-type">void</span>;
+  <span class="code-prop">onConfirm</span>: (result: <span class="code-type">PagoUnificadoResult</span>) =&gt; <span class="code-type">Promise</span>&lt;<span class="code-type">void</span>&gt;;
+
+  <span class="code-prop">modo</span>: <span class="code-string">'cobro'</span> | <span class="code-string">'pago'</span>;
+  <span class="code-prop">saldoMaximo</span>: <span class="code-type">number</span>;
+  <span class="code-prop">monedaSaldo</span>: <span class="code-string">'PEN'</span> | <span class="code-string">'USD'</span>;
+  <span class="code-prop">docOrigenId</span>?: <span class="code-type">string</span>;
+  <span class="code-prop">docOrigenLabel</span>?: <span class="code-type">string</span>;
+
+  <span class="code-comment">// Props NUEVAS v3 · todas opt-in (default false)</span>
+  <span class="code-prop">permiteSplit</span>?: <span class="code-type">boolean</span>;             <span class="code-comment">// FASE 3</span>
+  <span class="code-prop">permiteDestinoTercero</span>?: <span class="code-type">boolean</span>;   <span class="code-comment">// FASE 2</span>
+  <span class="code-prop">permiteAdjuntos</span>?: <span class="code-type">boolean</span>;         <span class="code-comment">// FASE 3</span>
+
+  <span class="code-prop">proveedorId</span>?: <span class="code-type">string</span>;             <span class="code-comment">// FASE 2 · pre-carga tercero</span>
+  <span class="code-prop">clienteId</span>?: <span class="code-type">string</span>;
+  <span class="code-prop">colaboradorId</span>?: <span class="code-type">string</span>;
+
+  <span class="code-comment">// Scope contextual del selector</span>
+  <span class="code-prop">scopeOrigen</span>?: <span class="code-type">Array</span>&lt;
+    <span class="code-string">'mis-cuentas'</span> |
+    <span class="code-string">'cajas-recaudadoras'</span> |
+    <span class="code-string">'yapes-pasivos'</span>
+  &gt;;
+  <span class="code-prop">scopeDestino</span>?: <span class="code-type">Array</span>&lt;
+    <span class="code-string">'datos-tercero'</span> |
+    <span class="code-string">'sin-destino-digital'</span>
+  &gt;;
+}
+</pre>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-900 text-white px-4 py-3">
+        <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold">PagoUnificadoResult</div>
+        <div class="text-sm font-semibold text-white mt-1">Resultado entregado a onConfirm()</div>
+      </div>
+      <div class="p-0">
+        <pre class="code-block rounded-none m-0">
+<span class="code-keyword">interface</span> <span class="code-type">PagoUnificadoResult</span> {
+  <span class="code-comment">// Campos legacy v2 · NO cambian (1-a-1 sigue OK)</span>
+  <span class="code-prop">cuentaOrigenId</span>: <span class="code-type">string</span>;
+  <span class="code-prop">metodoPago</span>: <span class="code-type">string</span>;
+  <span class="code-prop">montoOriginal</span>: <span class="code-type">number</span>;
+  <span class="code-prop">monedaOrigen</span>: <span class="code-string">'PEN'</span> | <span class="code-string">'USD'</span>;
+  <span class="code-prop">tipoCambio</span>?: <span class="code-type">number</span>;
+  <span class="code-prop">fecha</span>: <span class="code-type">Date</span>;
+  <span class="code-prop">referencia</span>?: <span class="code-type">string</span>;
+  <span class="code-prop">notas</span>?: <span class="code-type">string</span>;
+
+  <span class="code-comment">// Campos NUEVOS v3 · opcionales</span>
+  <span class="code-prop">cuentaDestinoId</span>?: <span class="code-type">string</span>;       <span class="code-comment">// FASE 2</span>
+
+  <span class="code-comment">// Si hay split: array de líneas</span>
+  <span class="code-comment">// Si presente, los campos de arriba son del primer item</span>
+  <span class="code-prop">lineas</span>?: <span class="code-type">Array</span>&lt;{          <span class="code-comment">// FASE 3</span>
+    <span class="code-prop">cuentaOrigenId</span>: <span class="code-type">string</span>;
+    <span class="code-prop">cuentaDestinoId</span>?: <span class="code-type">string</span>;
+    <span class="code-prop">metodoPago</span>: <span class="code-type">string</span>;
+    <span class="code-prop">monto</span>: <span class="code-type">number</span>;
+    <span class="code-prop">moneda</span>: <span class="code-string">'PEN'</span> | <span class="code-string">'USD'</span>;
+    <span class="code-prop">comprobanteId</span>?: <span class="code-type">string</span>;
+  }&gt;;
+
+  <span class="code-prop">comprobantes</span>?: <span class="code-type">Array</span>&lt;{        <span class="code-comment">// FASE 3</span>
+    <span class="code-prop">id</span>: <span class="code-type">string</span>;
+    <span class="code-prop">nombreArchivo</span>: <span class="code-type">string</span>;
+    <span class="code-prop">url</span>: <span class="code-type">string</span>;
+    <span class="code-prop">tamañoBytes</span>: <span class="code-type">number</span>;
+  }&gt;;
+}
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plan de migración 3 fases -->
+  <h3 class="text-lg font-semibold mt-8 mb-3">Plan de migración · 3 fases backwards-compatible</h3>
+
+  <div class="space-y-4">
+
+    <!-- FASE 1 -->
+    <div class="bg-white rounded-xl border-2 border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-50 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-sm font-bold">1</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-slate-500 font-semibold">FASE 1 · Visual S58f</div>
+            <div class="font-bold">Aplicar manifesto visual sin cambios funcionales</div>
+          </div>
+        </div>
+        <span class="pill pill-zinc">~3-4 horas</span>
+      </div>
+      <div class="p-5 grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Qué cambia</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>• Tipografía + spacing alineados a S58f</li>
+            <li>• Pills + labels uppercase tracking-wider</li>
+            <li>• tabular-nums en montos</li>
+            <li>• Colores semánticos (rose=falta, emerald=cuadra, amber=parcial)</li>
+            <li>• Header del modal con gradient sutil</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Qué NO cambia</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>• Funcionalidad existente</li>
+            <li>• Props · Result · API</li>
+            <li>• Validaciones</li>
+            <li>• Flujo de los 25+ usos actuales</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Criterio de éxito</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>✓ tsc -b 0 errores</li>
+            <li>✓ vite build OK</li>
+            <li>✓ 25+ usos siguen renderizando idéntico funcionalmente</li>
+            <li>✓ Side-by-side test con v2: lo único distinto es CSS</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 2 -->
+    <div class="bg-white rounded-xl border-2 border-violet-200 overflow-hidden shadow-sm">
+      <div class="bg-violet-50 border-b border-violet-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-violet-700 text-white flex items-center justify-center text-sm font-bold">2</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-violet-700 font-semibold">FASE 2 · Cajas + Lookup tercero</div>
+            <div class="font-bold">Selector multi-grupo + destino tercero opt-in</div>
+          </div>
+        </div>
+        <span class="pill pill-violet">~1 sesión</span>
+      </div>
+      <div class="p-5 grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Qué se agrega</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>• Props <code class="text-[10px] bg-slate-100 px-1 rounded">scopeOrigen</code></li>
+            <li>• Props <code class="text-[10px] bg-slate-100 px-1 rounded">permiteDestinoTercero</code></li>
+            <li>• Props <code class="text-[10px] bg-slate-100 px-1 rounded">proveedorId/clienteId/colaboradorId</code></li>
+            <li>• Selector con grupos jerárquicos · color por grupo</li>
+            <li>• Bloque destinatario fijo (Bloque 1)</li>
+            <li>• Selector destino con datosBancarios[]</li>
+            <li>• Acción inline "agregar dato bancario"</li>
+            <li>• Resolución de "te yapearon vs te pagaron en efectivo" en cobros</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Qué NO se rompe</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>• Si <code class="text-[10px] bg-slate-100 px-1 rounded">permiteDestinoTercero=undefined</code> el form se ve igual a v2</li>
+            <li>• Selector default = "Mis cuentas" plano si no hay scope</li>
+            <li>• <code class="text-[10px] bg-slate-100 px-1 rounded">cuentaDestinoId</code> en Result solo se llena si se eligió</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Habilita</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>✓ M-INT-VENTA con caja recaudadora GK</li>
+            <li>✓ M-INT-OC con datos del proveedor</li>
+            <li>✓ M-INT-ENVIO con datos del colaborador</li>
+            <li>✓ Promoción "yape pasivo → caja recaudadora" inline</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 3 -->
+    <div class="bg-white rounded-xl border-2 border-amber-200 overflow-hidden shadow-sm">
+      <div class="bg-amber-50 border-b border-amber-200 px-5 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-amber-700 text-white flex items-center justify-center text-sm font-bold">3</div>
+          <div>
+            <div class="text-xs uppercase tracking-wider text-amber-700 font-semibold">FASE 3 · Split + Adjuntos</div>
+            <div class="font-bold">Múltiples líneas + comprobantes</div>
+          </div>
+        </div>
+        <span class="pill pill-amber">~1.5 sesiones</span>
+      </div>
+      <div class="p-5 grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Qué se agrega</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>• Props <code class="text-[10px] bg-slate-100 px-1 rounded">permiteSplit</code></li>
+            <li>• Props <code class="text-[10px] bg-slate-100 px-1 rounded">permiteAdjuntos</code></li>
+            <li>• Toggle 3 opciones (Completo/Parcial/Split)</li>
+            <li>• Bloque líneas dinámico (1 a N)</li>
+            <li>• Bloque validación de totales</li>
+            <li>• Bloque adjuntos múltiples</li>
+            <li>• Resultado con array <code class="text-[10px] bg-slate-100 px-1 rounded">lineas[]</code></li>
+            <li>• Cada línea = 1 movimiento independiente con mismo doc origen</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Qué NO se rompe</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>• Si <code class="text-[10px] bg-slate-100 px-1 rounded">permiteSplit=undefined</code> Toggle solo muestra Completo/Parcial · funciona como v2</li>
+            <li>• <code class="text-[10px] bg-slate-100 px-1 rounded">lineas[]</code> solo se llena si hubo split · si no, se devuelven los campos legacy únicos</li>
+            <li>• Adjuntos opcionales por línea</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900 mb-2">Habilita</div>
+          <ul class="space-y-1 text-xs text-slate-600">
+            <li>✓ Caso "te yapearon S/500 + te pagaron S/435 efectivo"</li>
+            <li>✓ Pago a Movistar S/100 yape + S/119 BCP</li>
+            <li>✓ Liquidación de flete con anticipo + saldo</li>
+            <li>✓ Vouchers como evidencia para auditoría</li>
+            <li>✓ Hermanos del split en M-INT-MOV</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagrama de migración -->
+  <div class="mt-6 bg-emerald-50 border border-emerald-200 rounded-xl p-5">
+    <div class="text-sm font-bold text-emerald-900 mb-3">Estrategia de rollout · feature flag por fase</div>
+    <div class="text-xs text-emerald-800 space-y-2">
+      <div class="flex gap-2">
+        <span class="pill pill-emerald flex-shrink-0">Fase 1</span>
+        <span>Deploy directo · sin flag · solo CSS · si hay regresión visual reportada → revert simple</span>
+      </div>
+      <div class="flex gap-2">
+        <span class="pill pill-violet flex-shrink-0">Fase 2</span>
+        <span>Flag <code class="text-[10px] bg-white px-1 rounded">PAGOFORM_V3_DESTINO=true</code> · activar primero en M-INT-OC y M-INT-VENTA · si OK 1 semana → activar en M-INT-ENVIO · si OK → eliminar flag</span>
+      </div>
+      <div class="flex gap-2">
+        <span class="pill pill-amber flex-shrink-0">Fase 3</span>
+        <span>Flag <code class="text-[10px] bg-white px-1 rounded">PAGOFORM_V3_SPLIT=true</code> · activar en flujos donde más urgente (caso GK Xpress en cobros de venta) · UAT con datos reales · luego rollout gradual al resto</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider max-w-6xl mx-auto"></div>
+
+<!-- ============================================================ -->
+<!-- DECISIONES Y CIERRE -->
+<!-- ============================================================ -->
+
+<div class="max-w-6xl mx-auto px-6 py-6">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-slate-50 border-b border-slate-200 px-5 py-3">
+      <h3 class="font-semibold text-slate-900">Decisiones declaradas en este mockup</h3>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-1</span>
+        <div>
+          <strong>1 componente · 4 modos · 0 breaking changes</strong>. v3 mantiene 100% de compatibilidad con v2 · todas las features nuevas son opt-in via props. Los 25+ usos actuales siguen renderizando igual.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-2</span>
+        <div>
+          <strong>9 bloques · 5 siempre presentes · 4 condicionales</strong>. La complejidad visual escala según el contexto · gastos simples ven 5 bloques · pago a colaborador con split puede ver los 9. UI no se siente sobrecargada nunca.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-3</span>
+        <div>
+          <strong>Selector ORIGEN con hasta 3 grupos jerárquicos</strong>: Mis cuentas (siempre) · Cajas recaudadoras (solo cobro) · Yapes pasivos (raro · solo cobro). Color violet para cajas · zinc para pasivos · resuelve la confusión actual de "¿dónde clasifico esto?".
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-4</span>
+        <div>
+          <strong>Selector DESTINO opt-in con 2 grupos</strong>: datos del tercero (referencia · NO mueve saldo) + sin destino digital (mano · agregar nuevo). Solo se muestra cuando <code class="text-xs bg-slate-100 px-1 rounded">permiteDestinoTercero=true</code> Y hay tercero pre-cargado.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-5</span>
+        <div>
+          <strong>Toggle Completo/Parcial/Split</strong>. Split es opt-in. Cuando está activo: 1 a N líneas con su propio origen + destino + monto · validación inline de totales · cada línea = 1 <code class="text-xs bg-slate-100 px-1 rounded">MovimientoFinanciero</code> independiente vinculado al mismo doc origen.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-6</span>
+        <div>
+          <strong>Preview de impacto antes de confirmar</strong>. Banking-grade: muestra antes/después de cada cuenta afectada + impacto en CTRU si modo='pago colaborador'. Reduce errores destructivos. Coordinado con D-INT-MOV-5 (impacto si elimino).
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-7</span>
+        <div>
+          <strong>Adjuntos múltiples opt-in · 1 voucher por línea de split</strong>. El voucher se asocia visualmente a su línea · queda como evidencia de auditoría · aporta valor especialmente en cobros split donde "le yapeé / pagué efectivo" puede generar discusiones.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-8</span>
+        <div>
+          <strong>Rollout con feature flag por fase</strong>. Fase 1 sin flag (solo CSS) · Fase 2 con flag <code class="text-xs bg-slate-100 px-1 rounded">PAGOFORM_V3_DESTINO</code> · Fase 3 con flag <code class="text-xs bg-slate-100 px-1 rounded">PAGOFORM_V3_SPLIT</code>. Permite revertir a granular sin perder lo de antes.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <span class="pill pill-gray flex-shrink-0">D-PAGOFORM-V3-9</span>
+        <div>
+          <strong>Esfuerzo total: ~3 sesiones de implementación</strong>. Fase 1 (3-4h) + Fase 2 (1 ses) + Fase 3 (1.5 ses). Cada fase autocontenida · si solo se completa Fase 1+2, sistema gana 70% del valor sin implementar split todavía.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Próximo del lote -->
+  <div class="mt-4 bg-slate-100 border border-slate-300 rounded-xl p-4 flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-700 font-semibold">Próximo del Lote 5</div>
+      <div class="text-sm font-semibold text-slate-900 mt-1">M-PROVEEDORFORM-INLINE-S58f · Form de proveedor inline</div>
+      <p class="text-xs text-slate-700 mt-1">Mini-form que aparece dentro del PagoUnificadoForm cuando el usuario clickea "Agregar nuevo dato bancario" o "Crear proveedor" sin cerrar el flujo principal. Patrón "Stripe-style modal-in-modal".</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="pill pill-emerald">1/2</span>
+      <span class="text-slate-400">→</span>
+      <span class="pill pill-slate">2/2</span>
+    </div>
+  </div>
+</div>
+
+<div class="h-12"></div>
+
+</body>
+</html>

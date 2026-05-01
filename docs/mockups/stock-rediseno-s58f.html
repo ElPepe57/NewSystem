@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock · Rediseño S58f · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .num-tab { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Monaco, monospace; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Card canónico (manifesto) */
+  .card-base {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-hover:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+  }
+  .card-banking {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  /* Pill chip canónico */
+  .chip-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .chip-sm {
+    padding: 2px 7px;
+    font-size: 10px;
+  }
+
+  /* Gradients */
+  .gradient-teal-soft { background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 60%); }
+  .gradient-emerald-soft { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 60%); }
+  .gradient-amber-soft { background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%); }
+  .gradient-rose-soft { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 60%); }
+  .gradient-sky-soft { background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 60%); }
+  .gradient-indigo-soft { background: linear-gradient(135deg, #eef2ff 0%, #ffffff 60%); }
+
+  /* Anotación */
+  .annotation {
+    padding: 8px 12px;
+    background: #fef3c7;
+    border: 1px dashed #fbbf24;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #78350f;
+    line-height: 1.5;
+  }
+
+  /* Stock row layout */
+  .stock-row {
+    display: grid;
+    grid-template-columns: 56px minmax(280px, 1fr) 240px 200px 100px;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s ease;
+  }
+  .stock-row:hover { background: #fafbfc; }
+  .stock-row.header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    font-weight: 600;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .stock-row.expanded {
+    background: #f8fafc;
+    border-bottom: none;
+  }
+
+  /* Stock status bar (segmented) */
+  .stock-bar {
+    display: flex;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f1f5f9;
+  }
+  .stock-bar-segment {
+    height: 100%;
+    transition: opacity 0.15s;
+  }
+  .stock-bar-segment:hover { opacity: 0.85; }
+
+  /* Avatares de ubicación */
+  .loc-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    border: 2px solid white;
+    margin-left: -6px;
+    flex-shrink: 0;
+  }
+
+  /* Unit row (drill-down) */
+  .unit-row {
+    display: grid;
+    grid-template-columns: 32px 110px 1.2fr 1fr 1fr 100px 90px 80px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    font-size: 11px;
+    border-bottom: 1px solid #f8fafc;
+    transition: background 0.1s;
+  }
+  .unit-row:hover { background: white; }
+  .unit-row.header {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+
+  /* Animations */
+  @keyframes pulse-soft { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .slide-up { animation: slide-up 0.3s ease-out; }
+
+  /* Vencimiento alert */
+  .expiry-alert {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: ui-monospace, monospace;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header del documento -->
+<div class="bg-slate-900 text-white px-6 py-3 sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div>
+      <div class="text-xs uppercase tracking-wider text-slate-400">Mockup S58f · Lote 2 · Inventario reimaginado</div>
+      <div class="text-base font-bold">M-STOCK-S58f · Stock rediseñado · "Qué tengo, dónde, en qué estado" · drill-down a Unidades</div>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="bg-teal-600 px-2 py-1 rounded">Manifesto S58f aplicado</span>
+      <span class="bg-slate-700 px-2 py-1 rounded">2026-04-30</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 1 · STOCK · PÁGINA PRINCIPAL                                      -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 1 · Página principal de Stock</h2>
+  <p class="text-sm text-slate-600 mb-4">Header descriptivo · KPI strip operativo · filtros canónicos · listado con barra de status visual + ubicaciones + alertas vencimientos · drill-down opcional</p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Top bar -->
+    <div class="border-b border-slate-200 px-6 py-2.5 flex items-center gap-3 bg-slate-50">
+      <div class="flex items-center text-[12px] flex-1">
+        <a class="text-slate-500 hover:text-teal-700">Inicio</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <a class="text-slate-500 hover:text-teal-700">Operación Logística</a>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300 mx-1.5"></i>
+        <span class="text-slate-900 font-semibold">Stock</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="hover:bg-slate-100 text-slate-600 text-[11px] px-2 py-1 rounded inline-flex items-center gap-1">
+          <i data-lucide="keyboard" class="w-3 h-3"></i>
+          <span class="text-[10px] mono">⌘K</span>
+        </button>
+        <button class="hover:bg-slate-100 p-1.5 rounded">
+          <i data-lucide="bell" class="w-3.5 h-3.5 text-slate-500"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- HEADER (P6) -->
+    <div class="px-6 py-5 border-b border-slate-100">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1.5">
+            <i data-lucide="warehouse" class="w-6 h-6 text-teal-600"></i>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Stock</h1>
+          </div>
+          <p class="text-[13px] text-slate-500 leading-relaxed max-w-2xl">
+            Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas).
+          </p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>Recepción manual
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+            <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>Transferencia
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
+            <i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i>Conteo
+          </button>
+          <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors shadow-sm">
+            <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>Ajustar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="px-6 py-5 bg-slate-50 border-b border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-5 divide-x divide-slate-200">
+        <div class="px-4 first:pl-0">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1.5">Unidades totales</div>
+          <div class="text-2xl font-bold text-slate-900 num-tab tracking-tight">2,847</div>
+          <div class="text-[11px] text-slate-500 num-tab mt-1.5">142 productos · 387 SKUs</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-semibold mb-1.5">Disponibles</div>
+          <div class="text-2xl font-bold text-emerald-600 num-tab tracking-tight">1,892</div>
+          <div class="text-[11px] text-emerald-600 num-tab mt-1.5 flex items-center gap-1">
+            <i data-lucide="check" class="w-3 h-3"></i>66% libres
+          </div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-sky-700 font-semibold mb-1.5">Reservadas</div>
+          <div class="text-2xl font-bold text-sky-700 num-tab tracking-tight">418</div>
+          <div class="text-[11px] text-sky-700 num-tab mt-1.5">USA: 247 · PE: 171</div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold mb-1.5">En tránsito</div>
+          <div class="text-2xl font-bold text-amber-700 num-tab tracking-tight">512</div>
+          <div class="text-[11px] text-amber-700 num-tab mt-1.5 flex items-center gap-1">
+            <i data-lucide="truck" class="w-3 h-3"></i>3 OCs en camino
+          </div>
+        </div>
+        <div class="px-4">
+          <div class="text-[10px] uppercase tracking-wider text-rose-700 font-semibold mb-1.5">Vencen &lt;30d</div>
+          <div class="text-2xl font-bold text-rose-700 num-tab tracking-tight">25</div>
+          <div class="text-[11px] text-rose-700 num-tab mt-1.5 flex items-center gap-1 pulse-soft">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i>Atención · 4 SKUs
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTROS CANÓNICOS -->
+    <div class="px-6 py-3 border-b border-slate-200 bg-white">
+      <div class="space-y-2.5">
+        <!-- Fila 1: chips toggle -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Estado:</span>
+          <button class="chip-pill bg-slate-900 text-white shadow-sm">
+            <i data-lucide="grid-3x3" class="w-3 h-3"></i>Todos <span class="text-white/70 num-tab">2,847</span>
+          </button>
+          <button class="chip-pill bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
+            <i data-lucide="check" class="w-3 h-3"></i>Disponible <span class="opacity-60 num-tab">1,892</span>
+          </button>
+          <button class="chip-pill bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100">
+            <i data-lucide="bookmark" class="w-3 h-3"></i>Reservado <span class="opacity-60 num-tab">418</span>
+          </button>
+          <button class="chip-pill bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100">
+            <i data-lucide="truck" class="w-3 h-3"></i>En tránsito <span class="opacity-60 num-tab">512</span>
+          </button>
+          <button class="chip-pill bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i>Vence pronto <span class="opacity-60 num-tab">25</span>
+          </button>
+
+          <div class="w-px h-5 bg-slate-200 mx-1"></div>
+
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Ubicación:</span>
+          <button class="chip-pill bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100">
+            <i data-lucide="building" class="w-3 h-3"></i>Almacén PE <span class="opacity-60 num-tab">1,742</span>
+          </button>
+          <button class="chip-pill bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100">
+            <i data-lucide="globe" class="w-3 h-3"></i>Casillas USA <span class="opacity-60 num-tab">593</span>
+          </button>
+          <button class="chip-pill bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100">
+            <i data-lucide="truck" class="w-3 h-3"></i>Con driver <span class="opacity-60 num-tab">82</span>
+          </button>
+          <button class="chip-pill bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100">
+            <i data-lucide="package-x" class="w-3 h-3"></i>Aduana <span class="opacity-60 num-tab">430</span>
+          </button>
+        </div>
+
+        <div class="border-t border-slate-100"></div>
+
+        <!-- Fila 2: búsqueda + orden -->
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1 min-w-[260px]">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+            <input type="text" placeholder="Buscar por producto, SKU, lote, OC origen…" class="w-full pl-9 pr-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder:text-slate-400">
+          </div>
+          <button class="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-slate-100 transition-colors">
+            <span class="text-slate-400 font-normal text-[11px]">Ordenar:</span>
+            <span>Vencen primero</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTADO PRINCIPAL · vista jerárquica -->
+    <div class="bg-white" style="overflow-x: auto;">
+
+      <!-- Header de tabla -->
+      <div class="stock-row header" style="min-width: 980px;">
+        <div></div>
+        <div>Producto · SKU · Línea</div>
+        <div>Estado del stock</div>
+        <div>Ubicaciones</div>
+        <div class="text-right">Vencimientos</div>
+      </div>
+
+      <!-- Producto 1 · Vitamin C · normal con barra de status -->
+      <div class="stock-row" style="min-width: 980px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PROD-0042</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">SkinCeuticals</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+          </div>
+        </div>
+        <!-- Barra de estado segmentada -->
+        <div>
+          <div class="text-[14px] font-bold text-slate-900 num-tab mb-1">87 <span class="text-[11px] text-slate-400 font-normal">uds totales</span></div>
+          <div class="stock-bar mb-1">
+            <div class="stock-bar-segment bg-emerald-500" style="width: 65%" title="Disponible: 56"></div>
+            <div class="stock-bar-segment bg-sky-500" style="width: 24%" title="Reservado: 21"></div>
+            <div class="stock-bar-segment bg-amber-500" style="width: 11%" title="En tránsito: 10"></div>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] num-tab">
+            <span class="text-emerald-600 font-semibold">56 libre</span>
+            <span class="text-slate-300">·</span>
+            <span class="text-sky-600 font-semibold">21 reserv.</span>
+            <span class="text-slate-300">·</span>
+            <span class="text-amber-600 font-semibold">10 tránsito</span>
+          </div>
+        </div>
+        <!-- Ubicaciones (avatares apilados) -->
+        <div>
+          <div class="flex items-center mb-1">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0" title="Almacén Principal PE">PE</div>
+            <div class="loc-avatar" style="background:#3b82f6" title="Casilla Miami">MI</div>
+            <div class="loc-avatar" style="background:#f59e0b" title="En aduana">AD</div>
+          </div>
+          <div class="text-[10px] text-slate-500 num-tab">3 ubicaciones</div>
+        </div>
+        <!-- Vencimientos -->
+        <div class="text-right">
+          <span class="expiry-alert bg-emerald-50 text-emerald-700">
+            <i data-lucide="check" class="w-2.5 h-2.5"></i>OK
+          </span>
+          <div class="text-[10px] text-slate-500 mt-1">próx: 14m</div>
+        </div>
+      </div>
+
+      <!-- Producto 2 · Collagen · stock bajo + ALERTA -->
+      <div class="stock-row" style="min-width: 980px; background: #fff1f230;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center ring-1 ring-indigo-200/50">
+            <i data-lucide="pill" class="w-5 h-5 text-indigo-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Collagen Peptides 90 caps</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PROD-0028</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">NeoCell</span>
+            <span class="chip-pill chip-sm bg-indigo-50 text-indigo-700 border border-indigo-200">Suplementos</span>
+            <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200 pulse-soft">Stock bajo</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[14px] font-bold text-rose-700 num-tab mb-1">12 <span class="text-[11px] text-slate-400 font-normal">uds totales</span></div>
+          <div class="stock-bar mb-1">
+            <div class="stock-bar-segment bg-emerald-500" style="width: 25%"></div>
+            <div class="stock-bar-segment bg-sky-500" style="width: 75%"></div>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] num-tab">
+            <span class="text-emerald-600 font-semibold">3 libre</span>
+            <span class="text-slate-300">·</span>
+            <span class="text-sky-600 font-semibold">9 reserv.</span>
+            <span class="text-slate-300">·</span>
+            <span class="text-rose-600 font-bold flex items-center gap-0.5"><i data-lucide="alert-circle" class="w-2.5 h-2.5"></i>repos. urgente</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center mb-1">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0">PE</div>
+          </div>
+          <div class="text-[10px] text-slate-500">Solo Almacén PE</div>
+        </div>
+        <div class="text-right">
+          <span class="expiry-alert bg-emerald-50 text-emerald-700">
+            <i data-lucide="check" class="w-2.5 h-2.5"></i>OK
+          </span>
+          <div class="text-[10px] text-slate-500 mt-1">próx: 8m</div>
+        </div>
+      </div>
+
+      <!-- Producto 3 · Anti-Aging Kit · pack -->
+      <div class="stock-row" style="min-width: 980px;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50 relative">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center shadow-sm">
+              <i data-lucide="package-2" class="w-2.5 h-2.5 text-white"></i>
+            </div>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Anti-Aging Routine Kit</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PACK-0007</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">SkinCeuticals + NeoCell</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+            <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Pack · 3 SKCs</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[14px] font-bold text-slate-900 num-tab mb-1">22 <span class="text-[11px] text-slate-400 font-normal">packs · = 66 uds</span></div>
+          <div class="stock-bar mb-1">
+            <div class="stock-bar-segment bg-emerald-500" style="width: 82%"></div>
+            <div class="stock-bar-segment bg-sky-500" style="width: 18%"></div>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] num-tab">
+            <span class="text-emerald-600 font-semibold">18 libre</span>
+            <span class="text-slate-300">·</span>
+            <span class="text-sky-600 font-semibold">4 reserv.</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center mb-1">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0">PE</div>
+          </div>
+          <div class="text-[10px] text-slate-500">Almacén PE</div>
+        </div>
+        <div class="text-right">
+          <span class="expiry-alert bg-emerald-50 text-emerald-700">
+            <i data-lucide="check" class="w-2.5 h-2.5"></i>OK
+          </span>
+          <div class="text-[10px] text-slate-500 mt-1">próx: 11m</div>
+        </div>
+      </div>
+
+      <!-- Producto 4 · Hyaluronic · VENCE PRONTO ⚠️ -->
+      <div class="stock-row" style="min-width: 980px; background: #fff1f230;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-rose-300">
+            <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Hyaluronic Acid Hydrating Toner</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PROD-0019</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">CeraVe</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+            <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-300 pulse-soft">⚠ 8 vencen &lt;30d</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[14px] font-bold text-slate-900 num-tab mb-1">45 <span class="text-[11px] text-slate-400 font-normal">uds totales</span></div>
+          <div class="stock-bar mb-1">
+            <div class="stock-bar-segment bg-emerald-500" style="width: 73%"></div>
+            <div class="stock-bar-segment bg-rose-500" style="width: 18%" title="Vencen pronto"></div>
+            <div class="stock-bar-segment bg-sky-500" style="width: 9%"></div>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] num-tab">
+            <span class="text-emerald-600 font-semibold">33 libre</span>
+            <span class="text-slate-300">·</span>
+            <span class="text-rose-600 font-bold">8 vencen ⚠</span>
+            <span class="text-slate-300">·</span>
+            <span class="text-sky-600 font-semibold">4 reserv.</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center mb-1">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0">PE</div>
+          </div>
+          <div class="text-[10px] text-slate-500">Almacén PE</div>
+        </div>
+        <div class="text-right">
+          <span class="expiry-alert bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+            <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>27 días
+          </span>
+          <div class="text-[10px] text-rose-600 mt-1 font-semibold">LOTE-2025-238</div>
+        </div>
+      </div>
+
+      <!-- Producto 5 · Retinol · EN TRÁNSITO -->
+      <div class="stock-row" style="min-width: 980px; background: #fffbeb40;">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-300">
+            <i data-lucide="truck" class="w-5 h-5 text-amber-700"></i>
+          </div>
+        </div>
+        <div style="min-width: 0;">
+          <div class="text-[14px] font-semibold text-slate-900 truncate">Retinol 1% Night Treatment</div>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+            <span class="mono text-slate-400">SKU-PROD-NEW-003</span>
+            <span class="text-slate-300">·</span>
+            <span class="font-medium text-slate-600">The Ordinary</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+            <span class="chip-pill chip-sm bg-amber-100 text-amber-800 border border-amber-300">En tránsito · OC-088</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[14px] font-bold text-slate-900 num-tab mb-1">100 <span class="text-[11px] text-slate-400 font-normal">uds llegando</span></div>
+          <div class="stock-bar mb-1">
+            <div class="stock-bar-segment bg-amber-500" style="width: 100%"></div>
+          </div>
+          <div class="flex items-center gap-2 text-[10px] num-tab">
+            <span class="text-amber-700 font-bold flex items-center gap-1"><i data-lucide="truck" class="w-2.5 h-2.5"></i>Aún no recibido</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center mb-1">
+            <div class="loc-avatar" style="background:#3b82f6;margin-left:0">MI</div>
+            <div class="loc-avatar" style="background:#f59e0b">AD</div>
+          </div>
+          <div class="text-[10px] text-slate-500">Casilla → Aduana</div>
+        </div>
+        <div class="text-right">
+          <span class="expiry-alert bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+            <i data-lucide="clock" class="w-2.5 h-2.5"></i>llega 8 may
+          </span>
+          <div class="text-[10px] text-slate-500 mt-1">8 días</div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center py-4 text-[11px] text-slate-400 border-t border-slate-100">
+        <i data-lucide="more-horizontal" class="w-4 h-4 inline-block text-slate-300"></i>
+        <span class="ml-2">137 productos más</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Anotaciones Vista 1 -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation">
+      <strong>D-INV-2:</strong> Inventario renombrado a <strong>Stock</strong>. Subtítulo descriptivo declara propósito.
+    </div>
+    <div class="annotation">
+      <strong>D-INV-3 + D-INV-4:</strong> "Qué tengo, dónde, en qué estado". Sin analytics financiero (eso vive en Productos Intel).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Barra de status segmentada:</strong> en una sola visualización ves <em>libre / reservado / tránsito / vence pronto</em>. Resuelve el "podía contabilizar 20 productos pero no su status".
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Avatares de ubicación apilados:</strong> en 1 vista ves dónde está cada producto (PE, Miami, Aduana, etc.) sin hacer click. Patrón Linear-style.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Alertas de vencimiento inline:</strong> chip rosa con días restantes + lote específico que vence. Ya no necesitas entrar al detalle para ver "¿qué se vence?".
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Filas con fondo coloreado contextual:</strong> stock bajo (rosa suave), en tránsito (ámbar suave), vencimientos (rosa). El usuario detecta lo importante en menos de 2 segundos.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 2 · DRILL-DOWN A UNIDADES (al expandir un producto)               -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 2 · Drill-down a Unidades · al expandir un producto</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Click en un producto del listado → se expande inline mostrando <strong>cada unidad física individual</strong> con su lote, vencimiento, OC origen, ubicación, estado.
+    Así absorbemos el módulo "Unidades" como sub-vista (D-INV-5 · drill-down · no ítem separado).
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Fila del producto expandido -->
+    <div class="stock-row expanded" style="min-width: 980px;">
+      <div>
+        <button class="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center ring-1 ring-amber-300 relative">
+          <i data-lucide="chevron-down" class="w-4 h-4 text-amber-700"></i>
+        </button>
+      </div>
+      <div style="min-width: 0;">
+        <div class="text-[14px] font-bold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap text-[11px]">
+          <span class="mono text-slate-400">SKU-PROD-0042</span>
+          <span class="text-slate-300">·</span>
+          <span class="font-medium text-slate-600">SkinCeuticals</span>
+          <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Skincare</span>
+          <span class="chip-pill chip-sm bg-teal-50 text-teal-700 border border-teal-200 font-semibold">Expandido · 87 unidades</span>
+        </div>
+      </div>
+      <div>
+        <div class="stock-bar mb-1">
+          <div class="stock-bar-segment bg-emerald-500" style="width: 65%"></div>
+          <div class="stock-bar-segment bg-sky-500" style="width: 24%"></div>
+          <div class="stock-bar-segment bg-amber-500" style="width: 11%"></div>
+        </div>
+      </div>
+      <div></div>
+      <div class="text-right">
+        <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1 ml-auto">
+          <i data-lucide="external-link" class="w-3 h-3"></i>Ver producto
+        </button>
+      </div>
+    </div>
+
+    <!-- Sub-vista de unidades · tabla densa -->
+    <div class="bg-slate-50/50 px-4 pb-4 pt-2 border-t border-slate-100">
+
+      <!-- Sub-tabs por presentación / variante -->
+      <div class="flex items-center gap-1 mb-3 px-2 pt-2">
+        <button class="px-3 py-1.5 text-[11px] font-semibold text-teal-700 bg-white shadow-sm rounded-md border border-slate-200 flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-3 h-3"></i>Todas las variantes (87)
+        </button>
+        <button class="px-3 py-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-700 rounded-md flex items-center gap-1.5">
+          30ml <span class="text-[10px] text-slate-400 num-tab">(45)</span>
+        </button>
+        <button class="px-3 py-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-700 rounded-md flex items-center gap-1.5">
+          15ml <span class="text-[10px] text-slate-400 num-tab">(30)</span>
+        </button>
+        <button class="px-3 py-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-700 rounded-md flex items-center gap-1.5">
+          50ml <span class="text-[10px] text-slate-400 num-tab">(8)</span>
+        </button>
+        <button class="px-3 py-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-700 rounded-md flex items-center gap-1.5">
+          Set viaje <span class="text-[10px] text-slate-400 num-tab">(4)</span>
+        </button>
+
+        <div class="ml-auto flex items-center gap-2">
+          <span class="text-[10px] text-slate-400">Agrupar por:</span>
+          <button class="text-[10px] bg-white border border-slate-200 rounded px-2 py-1 font-medium text-slate-700">
+            Lote
+            <i data-lucide="chevron-down" class="w-2.5 h-2.5 inline ml-1"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de unidades -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden" style="overflow-x: auto;">
+
+        <!-- Header -->
+        <div class="unit-row header" style="min-width: 920px;">
+          <div></div>
+          <div>ID Unidad</div>
+          <div>Lote · Procedencia</div>
+          <div>OC Origen</div>
+          <div>Ubicación</div>
+          <div>Vencimiento</div>
+          <div>Estado</div>
+          <div class="text-right">Acción</div>
+        </div>
+
+        <!-- Grupo · Lote LOTE-2026-088 (de OC-088) · 30 unidades -->
+        <div class="bg-amber-50/30 px-4 py-1.5 text-[10px] font-semibold text-amber-800 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100">
+          <i data-lucide="package" class="w-3 h-3"></i>
+          LOTE-2026-088 · OC-088 · SkinTech Korea · llegado 25 abr · 30 uds
+          <span class="ml-auto text-[10px] text-slate-500 normal-case font-normal">F. venc. 15 mar 2028</span>
+        </div>
+
+        <div class="unit-row" style="min-width: 920px;">
+          <div><i data-lucide="circle-dot" class="w-3 h-3 text-emerald-500"></i></div>
+          <div class="mono text-slate-700">U-088-001</div>
+          <div>
+            <div class="font-semibold text-slate-700">LOTE-2026-088</div>
+            <div class="text-slate-400 text-[10px]">Korea · 30ml</div>
+          </div>
+          <div><a class="text-teal-600 hover:text-teal-700 font-medium mono text-[10px]">OC-2026-088</a></div>
+          <div class="flex items-center gap-1.5">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0;width:20px;height:20px;font-size:8px;border-width:1px">PE</div>
+            <span class="text-slate-600">Almacén Principal</span>
+          </div>
+          <div>
+            <span class="expiry-alert bg-emerald-50 text-emerald-700 chip-sm">22m</span>
+          </div>
+          <div><span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Disponible</span></div>
+          <div class="text-right">
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="more-horizontal" class="w-3 h-3"></i></button>
+          </div>
+        </div>
+        <div class="unit-row" style="min-width: 920px;">
+          <div><i data-lucide="circle-dot" class="w-3 h-3 text-emerald-500"></i></div>
+          <div class="mono text-slate-700">U-088-002</div>
+          <div>
+            <div class="font-semibold text-slate-700">LOTE-2026-088</div>
+            <div class="text-slate-400 text-[10px]">Korea · 30ml</div>
+          </div>
+          <div><a class="text-teal-600 hover:text-teal-700 font-medium mono text-[10px]">OC-2026-088</a></div>
+          <div class="flex items-center gap-1.5">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0;width:20px;height:20px;font-size:8px;border-width:1px">PE</div>
+            <span class="text-slate-600">Almacén Principal</span>
+          </div>
+          <div>
+            <span class="expiry-alert bg-emerald-50 text-emerald-700 chip-sm">22m</span>
+          </div>
+          <div><span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Disponible</span></div>
+          <div class="text-right">
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="more-horizontal" class="w-3 h-3"></i></button>
+          </div>
+        </div>
+        <div class="unit-row" style="min-width: 920px;">
+          <div><i data-lucide="circle-dot" class="w-3 h-3 text-sky-500"></i></div>
+          <div class="mono text-slate-700">U-088-003</div>
+          <div>
+            <div class="font-semibold text-slate-700">LOTE-2026-088</div>
+            <div class="text-slate-400 text-[10px]">Korea · 30ml</div>
+          </div>
+          <div><a class="text-teal-600 hover:text-teal-700 font-medium mono text-[10px]">OC-2026-088</a></div>
+          <div class="flex items-center gap-1.5">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0;width:20px;height:20px;font-size:8px;border-width:1px">PE</div>
+            <span class="text-slate-600">Almacén Principal</span>
+          </div>
+          <div>
+            <span class="expiry-alert bg-emerald-50 text-emerald-700 chip-sm">22m</span>
+          </div>
+          <div><span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">Reservado · VT-091</span></div>
+          <div class="text-right">
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="more-horizontal" class="w-3 h-3"></i></button>
+          </div>
+        </div>
+        <!-- ... más unidades del lote -->
+        <div class="unit-row" style="min-width: 920px; opacity: 0.7;">
+          <div></div>
+          <div class="text-slate-400 italic text-[10px]" colspan="7">· · · 27 unidades más del lote · · ·</div>
+        </div>
+
+        <!-- Grupo · Lote LOTE-2026-042 (OC-042) · 15 uds · vencen pronto -->
+        <div class="bg-rose-50/40 px-4 py-1.5 text-[10px] font-semibold text-rose-800 uppercase tracking-wider flex items-center gap-2 border-y border-slate-100">
+          <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+          LOTE-2025-238 · OC-2025-217 · CeraVe USA · 8 uds vencen en 27 días
+          <span class="ml-auto text-[10px] text-rose-700 normal-case font-bold">F. venc. 27 may 2026</span>
+        </div>
+
+        <div class="unit-row" style="min-width: 920px;">
+          <div><i data-lucide="circle-dot" class="w-3 h-3 text-rose-500"></i></div>
+          <div class="mono text-slate-700">U-238-001</div>
+          <div>
+            <div class="font-semibold text-rose-700">LOTE-2025-238</div>
+            <div class="text-slate-400 text-[10px]">USA · 15ml</div>
+          </div>
+          <div><a class="text-teal-600 hover:text-teal-700 font-medium mono text-[10px]">OC-2025-217</a></div>
+          <div class="flex items-center gap-1.5">
+            <div class="loc-avatar" style="background:#0d9488;margin-left:0;width:20px;height:20px;font-size:8px;border-width:1px">PE</div>
+            <span class="text-slate-600">Almacén Principal</span>
+          </div>
+          <div>
+            <span class="expiry-alert bg-rose-50 text-rose-700 ring-1 ring-rose-200 chip-sm pulse-soft">
+              <i data-lucide="alert-triangle" class="w-2 h-2"></i>27d
+            </span>
+          </div>
+          <div><span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200">Vence pronto</span></div>
+          <div class="text-right">
+            <button class="text-[10px] bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded font-medium">
+              Liquidar
+            </button>
+          </div>
+        </div>
+        <div class="unit-row" style="min-width: 920px; opacity: 0.7;">
+          <div></div>
+          <div class="text-slate-400 italic text-[10px]" colspan="7">· · · 7 unidades más del mismo lote (todas vencen 27d) · · ·</div>
+        </div>
+
+        <!-- Grupo · Lote LOTE-2026-088 EN ADUANA · 10 uds en tránsito -->
+        <div class="bg-amber-50/40 px-4 py-1.5 text-[10px] font-semibold text-amber-800 uppercase tracking-wider flex items-center gap-2 border-y border-slate-100">
+          <i data-lucide="truck" class="w-3 h-3"></i>
+          LOTE-2026-099 · OC-088 (parcial) · 10 uds en aduana
+          <span class="ml-auto text-[10px] text-amber-700 normal-case font-normal">Liberación est. 8 may</span>
+        </div>
+
+        <div class="unit-row" style="min-width: 920px;">
+          <div><i data-lucide="circle-dot" class="w-3 h-3 text-amber-500"></i></div>
+          <div class="mono text-slate-700">U-099-001</div>
+          <div>
+            <div class="font-semibold text-slate-700">LOTE-2026-099</div>
+            <div class="text-slate-400 text-[10px]">Korea · 30ml</div>
+          </div>
+          <div><a class="text-teal-600 hover:text-teal-700 font-medium mono text-[10px]">OC-2026-088</a></div>
+          <div class="flex items-center gap-1.5">
+            <div class="loc-avatar" style="background:#f59e0b;margin-left:0;width:20px;height:20px;font-size:8px;border-width:1px">AD</div>
+            <span class="text-slate-600">Aduana Callao</span>
+          </div>
+          <div>
+            <span class="expiry-alert bg-emerald-50 text-emerald-700 chip-sm">22m</span>
+          </div>
+          <div><span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">En aduana</span></div>
+          <div class="text-right">
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="more-horizontal" class="w-3 h-3"></i></button>
+          </div>
+        </div>
+        <div class="unit-row" style="min-width: 920px; opacity: 0.7;">
+          <div></div>
+          <div class="text-slate-400 italic text-[10px]" colspan="7">· · · 9 unidades más en aduana · · ·</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anotaciones Vista 2 -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Drill-down a unidades inline (D-INV-5):</strong> en lugar de ir a un módulo separado /unidades, click en el producto lo expande mostrando cada unidad física. Sin perder contexto.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Agrupado por lote:</strong> headers de grupo separan unidades por lote · cada grupo muestra: lote · OC origen · proveedor · fecha llegada · cantidad · vencimiento. Toda la trazabilidad pedida.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Filtros por variante:</strong> sub-tabs muestran cantidades por presentación (30ml, 15ml, 50ml, set). Click filtra solo esa variante.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Acciones contextuales:</strong> unidades vencen pronto → botón "Liquidar". Unidades en aduana → tracking. La acción aparece según el estado real.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 3 · DETALLE DE PRODUCTO EN STOCK · modal con vista profunda       -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 3 · Detalle de producto en Stock · vista profunda</h2>
+  <p class="text-sm text-slate-600 mb-4">Modal que se abre con click derecho o "Ver detalle". Información agregada del producto en términos de stock — distinta del detalle de Productos (que es catálogo).</p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header del modal -->
+    <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="warehouse" class="w-6 h-6 text-amber-700"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-0.5">
+              <span class="mono">SKU-PROD-0042</span>
+              <span>·</span>
+              <span>Stock detallado</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-slate-900">Vitamin C Brightening Serum</h2>
+            <p class="text-[12px] text-slate-500 mt-0.5">SkinCeuticals · Skincare · 4 variantes activas</p>
+          </div>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>Ver en Productos
+          </button>
+          <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>Ajustar stock
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs grandes -->
+      <div class="grid grid-cols-5 divide-x divide-slate-200 mt-5 pt-4 border-t border-slate-100">
+        <div class="px-3 first:pl-0">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Total uds</div>
+          <div class="text-lg font-bold text-slate-900 num-tab">87</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-semibold">Disponibles</div>
+          <div class="text-lg font-bold text-emerald-600 num-tab">56</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-sky-700 font-semibold">Reservadas</div>
+          <div class="text-lg font-bold text-sky-700 num-tab">21</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-amber-700 font-semibold">En tránsito</div>
+          <div class="text-lg font-bold text-amber-700 num-tab">10</div>
+        </div>
+        <div class="px-3">
+          <div class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Próx. venc.</div>
+          <div class="text-lg font-bold text-slate-900 num-tab">14m</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout 2 cols: ubicaciones + reservas -->
+    <div class="grid grid-cols-2 divide-x divide-slate-200">
+
+      <!-- Mapa visual de ubicaciones -->
+      <div class="p-5">
+        <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
+          <i data-lucide="map-pin" class="w-4 h-4 text-slate-700"></i>
+          Distribución física
+        </h3>
+        <div class="space-y-2">
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="building" class="w-4 h-4 text-teal-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Almacén Principal PE</div>
+              <div class="text-[10px] text-slate-500">Lima · Pasaje XYZ 123</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-bold text-slate-900 num-tab">62 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+              <div class="text-[10px] text-emerald-600 num-tab font-medium">71% del stock</div>
+            </div>
+          </div>
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="globe" class="w-4 h-4 text-sky-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Casilla Miami</div>
+              <div class="text-[10px] text-slate-500">USA · GK Xpress</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-bold text-slate-900 num-tab">15 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+              <div class="text-[10px] text-sky-600 num-tab font-medium">17% · pendiente envío</div>
+            </div>
+          </div>
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="package-x" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">Aduana Callao</div>
+              <div class="text-[10px] text-slate-500">PE · liberación est. 8 may</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-bold text-slate-900 num-tab">10 <span class="text-[10px] text-slate-400 font-normal">uds</span></div>
+              <div class="text-[10px] text-amber-600 num-tab font-medium">12% · 8d</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservas activas -->
+      <div class="p-5">
+        <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
+          <i data-lucide="bookmark" class="w-4 h-4 text-slate-700"></i>
+          Reservas activas (21)
+        </h3>
+        <div class="space-y-2">
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">VT-2026-091 · Sofía López</div>
+              <div class="text-[10px] text-slate-500">Despacho 2 may · 5 uds 30ml</div>
+            </div>
+            <div class="text-right">
+              <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">PE</span>
+            </div>
+          </div>
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">VT-2026-088 · María Castellanos</div>
+              <div class="text-[10px] text-slate-500">Despacho 5 may · 8 uds 30ml + 3 uds 50ml</div>
+            </div>
+            <div class="text-right">
+              <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">PE</span>
+            </div>
+          </div>
+          <div class="card-base p-3 flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900">VT-2026-094 · Carlos Méndez</div>
+              <div class="text-[10px] text-slate-500">Reservado en USA · pre-vendido · 5 uds 15ml</div>
+            </div>
+            <div class="text-right">
+              <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">USA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Movimientos recientes -->
+    <div class="p-5 border-t border-slate-200 bg-slate-50/50">
+      <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
+        <i data-lucide="activity" class="w-4 h-4 text-slate-700"></i>
+        Movimientos recientes (últimos 7 días)
+      </h3>
+      <div class="space-y-1.5 text-[11px]">
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-100">
+          <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
+          <span class="text-slate-500 num-tab w-20">28 abr · 14:32</span>
+          <span class="text-slate-700">Recepción 30 uds del lote LOTE-2026-088 · OC-088</span>
+          <a class="ml-auto text-teal-600 font-medium">Ver →</a>
+        </div>
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-100">
+          <div class="w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0"></div>
+          <span class="text-slate-500 num-tab w-20">27 abr · 09:15</span>
+          <span class="text-slate-700">Salida 8 uds para despacho VT-088 · María Castellanos</span>
+          <a class="ml-auto text-teal-600 font-medium">Ver →</a>
+        </div>
+        <div class="flex items-center gap-2 py-1.5 border-b border-slate-100">
+          <div class="w-1.5 h-1.5 rounded-full bg-sky-500 flex-shrink-0"></div>
+          <span class="text-slate-500 num-tab w-20">25 abr · 11:00</span>
+          <span class="text-slate-700">Reservadas 5 uds para VT-091 · Sofía López</span>
+          <a class="ml-auto text-teal-600 font-medium">Ver →</a>
+        </div>
+        <div class="flex items-center gap-2 py-1.5">
+          <div class="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0"></div>
+          <span class="text-slate-500 num-tab w-20">23 abr · 16:40</span>
+          <span class="text-slate-700">10 uds en aduana (LOTE-2026-099 · liberación est. 8 may)</span>
+          <a class="ml-auto text-teal-600 font-medium">Ver →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Mapa de distribución física:</strong> visualizas dónde está el stock con cantidades + porcentajes por ubicación · click en una ubicación filtra las unidades a esa zona.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Reservas con contexto:</strong> cada reserva muestra venta + cliente + fecha despacho + variantes específicas. Sabes <em>quién</em> espera el producto, no solo cuántas uds están reservadas.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Movimientos recientes:</strong> timeline de últimos 7 días por producto. Auditoría rápida sin abrir reportes.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Botón "Ver en Productos":</strong> link directo al detalle de catálogo (M-PROD). Cierra el ciclo Stock ↔ Productos.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 4 · ANTES vs DESPUÉS · resuelve "pésima gestión en lectura"       -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 4 · Antes / Después · cómo resolvemos lo que reportaste</h2>
+  <p class="text-sm text-slate-600 mb-4">Tu cita: <em>"hay pésima gestión en lectura de inventario, necesitamos hacerle un upgrade importante"</em>. Estos son los 5 problemas concretos y cómo los resolvemos.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- 1 -->
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 1</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Contaba 20 productos en X casilla, pero no su status"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">No sabías si esos 20 estaban libres, reservados, en tránsito, etc.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN
+        </div>
+        <span class="text-slate-700">Barra de status segmentada en cada fila · 4 colores (libre/reservado/tránsito/vence). Estado claro <strong>sin hacer click</strong>.</span>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 2</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Tenía que hacer muchos clicks para visualizar"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">Información dispersa en pestañas y modales.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN
+        </div>
+        <span class="text-slate-700">Listado denso con TODA la info clave visible en cada fila + drill-down inline (no abre modal aparte). <strong>0-1 clicks máximo.</strong></span>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 3</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Analytics era info financiera que no correspondía con el entorno"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">Stock mezclaba datos operativos con cálculos financieros confusos.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN
+        </div>
+        <span class="text-slate-700">D-INV-4 · <strong>Sin analytics financiero en Stock</strong>. Eso vive en Productos Intel. Stock = solo "qué tengo, dónde, en qué estado".</span>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="card-banking p-5">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 4</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Reservas USA/PE no se veían certeras"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">Las reservas mezcladas con disponible confundían el conteo real.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN
+        </div>
+        <span class="text-slate-700">Reservas como <strong>segmento independiente</strong> en la barra de status · separadas USA y PE en KPI strip · cada reserva con detalle de venta + cliente.</span>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="card-banking p-5 col-span-2">
+      <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">PROBLEMA 5 + Unidades absorbida</div>
+      <h3 class="text-sm font-bold text-slate-900 mb-1">"Unidades como módulo separado era confuso · necesitaba ver lotes, vencimientos, procedencia, OC origen"</h3>
+      <p class="text-[11px] text-slate-600 leading-relaxed mb-2">El módulo /unidades duplicaba info de stock pero con vista de unidad individual. Tener 2 lugares para lo mismo confundía.</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-[11px]">
+        <div class="font-semibold text-emerald-900 mb-1 flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i>SOLUCIÓN
+        </div>
+        <span class="text-slate-700">D-INV-5 · <strong>/unidades absorbido como drill-down de Stock</strong>. Click en producto → expande con tabla de unidades agrupadas por lote · cada unidad muestra ID, lote, procedencia, OC, ubicación, vencimiento, estado · acciones contextuales (Liquidar para los que vencen, etc.).</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 5 · TOGGLE "POR UBICACIÓN" · vista alternativa enriquecida        -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 5 · Toggle "Por ubicación" · ubicaciones reales con capacidad</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Toggle entre <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Por producto</code> (vista original) y
+    <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Por ubicación</code> (esta vista). Agrupa por ubicación real
+    mostrando capacidad usada · responsable · productos almacenados.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Toggle bar -->
+    <div class="bg-slate-50 border-b border-slate-200 px-6 py-2.5 flex items-center justify-between">
+      <div class="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-0.5">
+        <button class="px-3 py-1 text-[12px] font-medium text-slate-500 rounded-md hover:bg-slate-50">
+          <i data-lucide="package" class="w-3 h-3 inline mr-1"></i>Por producto
+        </button>
+        <button class="px-3 py-1 text-[12px] font-semibold text-teal-700 bg-teal-50 rounded-md flex items-center gap-1">
+          <i data-lucide="map-pin" class="w-3 h-3"></i>Por ubicación
+        </button>
+      </div>
+      <div class="text-[11px] text-slate-500">
+        <span class="font-semibold text-slate-700 num-tab">12</span> ubicaciones activas · <span class="font-semibold text-slate-700 num-tab">2,847</span> uds totales
+      </div>
+    </div>
+
+    <!-- Sección · Almacenes Propios PE -->
+    <div class="px-6 py-3 bg-teal-50/40 border-b border-teal-100">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="text-[12px] font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="building" class="w-3.5 h-3.5"></i>Almacenes Propios PE
+          <span class="text-[10px] text-teal-700 font-normal normal-case">2 ubicaciones · 1,742 uds</span>
+        </h3>
+      </div>
+    </div>
+
+    <!-- Almacén Lima SMP -->
+    <div class="px-6 py-4 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-100 to-teal-200 flex items-center justify-center flex-shrink-0 ring-1 ring-teal-300">
+          <i data-lucide="warehouse" class="w-5 h-5 text-teal-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <h4 class="text-[14px] font-semibold text-slate-900">Almacén Lima · SMP</h4>
+            <span class="chip-pill chip-sm bg-teal-50 text-teal-700 border border-teal-200">Principal</span>
+            <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <i data-lucide="check" class="w-2.5 h-2.5"></i>Operativa
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-2">
+            <i data-lucide="map-pin" class="w-3 h-3"></i>San Martín de Porres, Lima
+            <span class="text-slate-300">·</span>
+            <span>Encargado: <span class="font-medium text-slate-700">Carlos M. (almacenero)</span></span>
+          </div>
+          <!-- KPIs de la ubicación -->
+          <div class="grid grid-cols-4 gap-3 mt-3">
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Unidades</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">1,247</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Productos distintos</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">87</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Capacidad</div>
+              <div class="text-[16px] font-bold text-emerald-700 num-tab">62%</div>
+              <div class="text-[10px] text-slate-500">1,247 / 2,000</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Última act.</div>
+              <div class="text-[12px] font-semibold text-slate-700">hace 2h</div>
+              <div class="text-[10px] text-slate-500">recepción OC-088</div>
+            </div>
+          </div>
+          <!-- Barra capacidad -->
+          <div class="mt-3">
+            <div class="flex items-center justify-between text-[10px] mb-1">
+              <span class="text-slate-500">Capacidad utilizada</span>
+              <span class="font-semibold text-emerald-700 num-tab">1,247 / 2,000 uds</span>
+            </div>
+            <div class="stock-bar">
+              <div class="stock-bar-segment bg-emerald-500" style="width: 62%"></div>
+            </div>
+          </div>
+        </div>
+        <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1 flex-shrink-0">
+          Ver detalle <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Almacén Lima La Victoria -->
+    <div class="px-6 py-4 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-100 to-teal-200 flex items-center justify-center flex-shrink-0 ring-1 ring-teal-300">
+          <i data-lucide="warehouse" class="w-5 h-5 text-teal-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <h4 class="text-[14px] font-semibold text-slate-900">Almacén Lima · La Victoria</h4>
+            <span class="chip-pill chip-sm bg-slate-50 text-slate-700 border border-slate-200">Secundario</span>
+            <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <i data-lucide="check" class="w-2.5 h-2.5"></i>Operativa
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-2">
+            <i data-lucide="map-pin" class="w-3 h-3"></i>La Victoria, Lima
+            <span class="text-slate-300">·</span>
+            <span>Encargado: <span class="font-medium text-slate-700">Lucía R.</span></span>
+          </div>
+          <div class="grid grid-cols-4 gap-3 mt-3">
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Unidades</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">495</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Productos distintos</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">42</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Capacidad</div>
+              <div class="text-[16px] font-bold text-emerald-700 num-tab">49%</div>
+              <div class="text-[10px] text-slate-500">495 / 1,000</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Última act.</div>
+              <div class="text-[12px] font-semibold text-slate-700">hace 1d</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="flex items-center justify-between text-[10px] mb-1">
+              <span class="text-slate-500">Capacidad utilizada</span>
+              <span class="font-semibold text-emerald-700 num-tab">495 / 1,000 uds</span>
+            </div>
+            <div class="stock-bar">
+              <div class="stock-bar-segment bg-emerald-500" style="width: 49%"></div>
+            </div>
+          </div>
+        </div>
+        <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1 flex-shrink-0">
+          Ver detalle <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sección · Casillas USA -->
+    <div class="px-6 py-3 bg-sky-50/40 border-b border-sky-100">
+      <h3 class="text-[12px] font-bold text-sky-900 uppercase tracking-wider flex items-center gap-1.5">
+        <i data-lucide="globe" class="w-3.5 h-3.5"></i>Casillas USA · responsabilidad de terceros
+        <span class="text-[10px] text-sky-700 font-normal normal-case">7 casillas · 593 uds · capacidad por periodicidad</span>
+      </h3>
+    </div>
+
+    <!-- Casilla Anghely · capacidad mensual 80 -->
+    <div class="px-6 py-4 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-200">
+          <span class="text-[13px] font-bold text-sky-700">A</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <h4 class="text-[14px] font-semibold text-slate-900">Casilla · Anghely</h4>
+            <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">USA</span>
+            <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200 pulse-soft">
+              <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i>87% capacidad mes
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-2">
+            <i data-lucide="user" class="w-3 h-3"></i>Responsable tercero: <span class="font-medium text-slate-700">Anghely Pérez</span>
+            <span class="text-slate-300">·</span>
+            <span>Última recepción: <span class="font-medium text-slate-700">25 abr</span></span>
+          </div>
+          <div class="grid grid-cols-4 gap-3 mt-3">
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Unidades</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">128</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Capacidad</div>
+              <div class="text-[16px] font-bold text-amber-700 num-tab">80<span class="text-[11px] text-slate-400 font-normal">/mes</span></div>
+              <div class="text-[10px] text-amber-600 font-medium num-tab">70 enviadas este mes</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Productos</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">12</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Próx. envío</div>
+              <div class="text-[12px] font-semibold text-emerald-700">2 may</div>
+              <div class="text-[10px] text-slate-500">en 2 días</div>
+            </div>
+          </div>
+          <!-- Barra de capacidad MENSUAL -->
+          <div class="mt-3">
+            <div class="flex items-center justify-between text-[10px] mb-1">
+              <span class="text-slate-500">Capacidad mensual (abril) · ⚠ cerca del tope</span>
+              <span class="font-semibold text-amber-700 num-tab">70 / 80 uds (87%)</span>
+            </div>
+            <div class="stock-bar">
+              <div class="stock-bar-segment bg-amber-500" style="width: 87%"></div>
+            </div>
+          </div>
+        </div>
+        <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1 flex-shrink-0">
+          Ver detalle <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Casilla Angie Price · 40 cada 45 días -->
+    <div class="px-6 py-4 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-200">
+          <span class="text-[13px] font-bold text-sky-700">A</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <h4 class="text-[14px] font-semibold text-slate-900">Casilla · Angie Price</h4>
+            <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">USA</span>
+            <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <i data-lucide="check" class="w-2.5 h-2.5"></i>40% capacidad ciclo
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-2">
+            <i data-lucide="user" class="w-3 h-3"></i>Responsable tercero: <span class="font-medium text-slate-700">Angie Price</span>
+            <span class="text-slate-300">·</span>
+            <span>Última recepción: <span class="font-medium text-slate-700">12 abr</span></span>
+          </div>
+          <div class="grid grid-cols-4 gap-3 mt-3">
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Unidades</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">85</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Capacidad</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">40<span class="text-[11px] text-slate-400 font-normal">/45d</span></div>
+              <div class="text-[10px] text-emerald-600 font-medium num-tab">16 enviadas (ciclo actual)</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Productos</div>
+              <div class="text-[16px] font-bold text-slate-900 num-tab">7</div>
+            </div>
+            <div>
+              <div class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Próx. ciclo</div>
+              <div class="text-[12px] font-semibold text-slate-700">27 may</div>
+              <div class="text-[10px] text-slate-500">faltan 27d</div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="flex items-center justify-between text-[10px] mb-1">
+              <span class="text-slate-500">Capacidad por ciclo de 45 días · uso saludable</span>
+              <span class="font-semibold text-emerald-700 num-tab">16 / 40 uds (40%)</span>
+            </div>
+            <div class="stock-bar">
+              <div class="stock-bar-segment bg-emerald-500" style="width: 40%"></div>
+            </div>
+          </div>
+        </div>
+        <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1 flex-shrink-0">
+          Ver detalle <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Resto de casillas (compactas) -->
+    <div class="px-6 py-2 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-200"><span class="text-[11px] font-bold text-sky-700">E</span></div>
+      <div class="flex-1 min-w-0 grid grid-cols-5 gap-3 items-center">
+        <div>
+          <div class="text-[12px] font-semibold text-slate-900">Casilla · Edgardo</div>
+          <div class="text-[10px] text-slate-500">Resp: Edgardo R.</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">62</div>
+          <div class="text-[9px] text-slate-500 uppercase">uds</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[12px] font-bold text-slate-700 num-tab">50<span class="text-[10px] font-normal">/mes</span></div>
+          <div class="text-[9px] text-slate-500">capacidad</div>
+        </div>
+        <div class="col-span-1">
+          <div class="text-[10px] text-slate-500 mb-0.5 num-tab">38 / 50 (76%)</div>
+          <div class="stock-bar"><div class="stock-bar-segment bg-emerald-500" style="width: 76%"></div></div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Saludable</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-2 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-200"><span class="text-[11px] font-bold text-sky-700">F</span></div>
+      <div class="flex-1 min-w-0 grid grid-cols-5 gap-3 items-center">
+        <div>
+          <div class="text-[12px] font-semibold text-slate-900">Casilla · Felicitas</div>
+          <div class="text-[10px] text-slate-500">Resp: Felicitas G.</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">94</div>
+          <div class="text-[9px] text-slate-500 uppercase">uds</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[12px] font-bold text-slate-700 num-tab">100<span class="text-[10px] font-normal">/mes</span></div>
+          <div class="text-[9px] text-slate-500">capacidad</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-500 mb-0.5 num-tab">94 / 100 (94%)</div>
+          <div class="stock-bar"><div class="stock-bar-segment bg-rose-500" style="width: 94%"></div></div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200 pulse-soft">⚠ Saturada</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-2 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-200"><span class="text-[11px] font-bold text-sky-700">S</span></div>
+      <div class="flex-1 min-w-0 grid grid-cols-5 gap-3 items-center">
+        <div>
+          <div class="text-[12px] font-semibold text-slate-900">Casilla · Sara Mortensen</div>
+          <div class="text-[10px] text-slate-500">Resp: Sara M.</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">112</div>
+          <div class="text-[9px] text-slate-500 uppercase">uds</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[12px] font-bold text-slate-700 num-tab">120<span class="text-[10px] font-normal">/mes</span></div>
+          <div class="text-[9px] text-slate-500">capacidad</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-500 mb-0.5 num-tab">112 / 120 (93%)</div>
+          <div class="stock-bar"><div class="stock-bar-segment bg-rose-500" style="width: 93%"></div></div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-rose-50 text-rose-700 border border-rose-200 pulse-soft">⚠ Saturada</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-2 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-200"><span class="text-[11px] font-bold text-sky-700">El</span></div>
+      <div class="flex-1 min-w-0 grid grid-cols-5 gap-3 items-center">
+        <div>
+          <div class="text-[12px] font-semibold text-slate-900">Casilla · Elsa</div>
+          <div class="text-[10px] text-slate-500">Resp: Elsa V.</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">52</div>
+          <div class="text-[9px] text-slate-500 uppercase">uds</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[12px] font-bold text-slate-700 num-tab">60<span class="text-[10px] font-normal">/30d</span></div>
+          <div class="text-[9px] text-slate-500">capacidad</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-500 mb-0.5 num-tab">52 / 60 (87%)</div>
+          <div class="stock-bar"><div class="stock-bar-segment bg-amber-500" style="width: 87%"></div></div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Cerca del tope</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-2 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0 ring-1 ring-sky-200"><span class="text-[11px] font-bold text-sky-700">R</span></div>
+      <div class="flex-1 min-w-0 grid grid-cols-5 gap-3 items-center">
+        <div>
+          <div class="text-[12px] font-semibold text-slate-900">Casilla · Rubi</div>
+          <div class="text-[10px] text-slate-500">Resp: Rubi A.</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[14px] font-bold text-slate-900 num-tab">60</div>
+          <div class="text-[9px] text-slate-500 uppercase">uds</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[12px] font-bold text-slate-700 num-tab">90<span class="text-[10px] font-normal">/mes</span></div>
+          <div class="text-[9px] text-slate-500">capacidad</div>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-500 mb-0.5 num-tab">60 / 90 (67%)</div>
+          <div class="stock-bar"><div class="stock-bar-segment bg-emerald-500" style="width: 67%"></div></div>
+        </div>
+        <div class="text-right">
+          <span class="chip-pill chip-sm bg-emerald-50 text-emerald-700 border border-emerald-200">Saludable</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección · Aduanas PE -->
+    <div class="px-6 py-3 bg-amber-50/40 border-b border-amber-100">
+      <h3 class="text-[12px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+        <i data-lucide="package-x" class="w-3.5 h-3.5"></i>Aduanas Perú · ubicaciones de tránsito
+        <span class="text-[10px] text-amber-700 font-normal normal-case">2 ubicaciones · 430 uds</span>
+      </h3>
+    </div>
+
+    <div class="px-6 py-3 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0 ring-1 ring-amber-200">
+        <i data-lucide="anchor" class="w-4 h-4 text-amber-700"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-[13px] font-semibold text-slate-900">Aduana Callao</span>
+          <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Marítima</span>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Tiempo promedio liberación: 5-8 días · 3 OCs en proceso</div>
+      </div>
+      <div class="text-right">
+        <div class="text-[16px] font-bold text-slate-900 num-tab">312</div>
+        <div class="text-[10px] text-slate-500">uds en proceso</div>
+      </div>
+    </div>
+    <div class="px-6 py-3 border-b border-slate-100 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0 ring-1 ring-amber-200">
+        <i data-lucide="plane" class="w-4 h-4 text-amber-700"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-[13px] font-semibold text-slate-900">Aduana Aeropuerto</span>
+          <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200">Aérea</span>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Tiempo promedio liberación: 2-4 días · más rápido pero más caro</div>
+      </div>
+      <div class="text-right">
+        <div class="text-[16px] font-bold text-slate-900 num-tab">118</div>
+        <div class="text-[10px] text-slate-500">uds en proceso</div>
+      </div>
+    </div>
+
+    <!-- Sección · Almacenes Aliados -->
+    <div class="px-6 py-3 bg-purple-50/40 border-b border-purple-100">
+      <h3 class="text-[12px] font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
+        <i data-lucide="heart-handshake" class="w-3.5 h-3.5"></i>Almacenes Aliados · relaciones especiales
+        <span class="text-[10px] text-purple-700 font-normal normal-case">1 ubicación · 82 uds</span>
+      </h3>
+    </div>
+
+    <div class="px-6 py-3 hover:bg-slate-50/50 cursor-pointer flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0 ring-1 ring-purple-200">
+        <i data-lucide="megaphone" class="w-4 h-4 text-purple-700"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-[13px] font-semibold text-slate-900">Nutricionista · Mayra</span>
+          <span class="chip-pill chip-sm bg-purple-50 text-purple-700 border border-purple-200">Aliada · Reviews</span>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Crea contenido para redes · le enviamos productos para reviews · sin retorno esperado</div>
+      </div>
+      <div class="text-right">
+        <div class="text-[16px] font-bold text-slate-900 num-tab">82</div>
+        <div class="text-[10px] text-slate-500">uds enviadas</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Anotaciones -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Toggle Por producto / Por ubicación:</strong> mismo data, dos perspectivas. Útil para preguntas como <em>"¿qué tengo en Casilla Anghely?"</em> sin filtrar manualmente.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 4 grupos semánticos:</strong> Almacenes Propios PE (teal · principal) · Casillas USA (sky · 3ros) · Aduanas (amber · tránsito) · Almacenes Aliados (purple · relación especial).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Capacidad con periodicidad variable:</strong> Anghely 80/mes · Angie 40/45d · Edgardo 50/mes · etc. Cada casilla con su propia configuración. Barra muestra uso del ciclo actual + chip de status (Saludable/Cerca del tope/Saturada).
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Responsable visible:</strong> en cada casilla se indica el responsable tercero (Anghely Pérez, Felicitas G., etc.) recordando que la casilla es <em>responsabilidad del tercero, no nuestra</em>.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 6 · MAPA VISUAL EXTENDIDO · cadena logística completa             -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 6 · Mapa visual extendido · cadena logística completa</h2>
+  <p class="text-sm text-slate-600 mb-4">
+    Mapa con TODOS los flujos reales de tu negocio · Inbound (vía casilla USA + directo Asia) · Outbound (ventas + aliada) · Internos (entre almacenes) ·
+    Filtros toggle para activar/ocultar tipos de flujo · pensado para presentaciones a gerencia.
+  </p>
+
+  <div class="card-banking overflow-hidden">
+
+    <!-- Header con filtros TOGGLE -->
+    <div class="bg-slate-50 border-b border-slate-200 px-6 py-3">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="map" class="w-4 h-4 text-slate-700"></i>
+          <span class="text-[13px] font-semibold text-slate-900">Cadena logística completa</span>
+          <span class="text-[11px] text-slate-500">· vista presentación · 30 abr 2026</span>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="image" class="w-3 h-3"></i>Exportar PNG
+          </button>
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[11px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3 h-3"></i>PDF para gerencia
+          </button>
+        </div>
+      </div>
+      <!-- Filtros toggle por tipo de flujo -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Mostrar flujos:</span>
+        <button class="chip-pill text-white shadow-sm" style="background:#0284c7;">
+          <span class="w-2 h-2 rounded-full bg-white inline-block"></span>Inbound vía casilla USA
+        </button>
+        <button class="chip-pill text-white shadow-sm" style="background:#10b981;">
+          <span class="w-2 h-2 rounded-full bg-white inline-block"></span>Inbound directo Asia
+        </button>
+        <button class="chip-pill text-white shadow-sm" style="background:#f59e0b;">
+          <span class="w-2 h-2 rounded-full bg-white inline-block"></span>Outbound ventas
+        </button>
+        <button class="chip-pill text-white shadow-sm" style="background:#9333ea;">
+          <span class="w-2 h-2 rounded-full bg-white inline-block"></span>Aliada (Mayra)
+        </button>
+        <button class="chip-pill text-white shadow-sm" style="background:#475569;">
+          <span class="w-2 h-2 rounded-full bg-white inline-block"></span>Internos
+        </button>
+      </div>
+    </div>
+
+    <!-- Mapa visual extendido (más alto y ancho) -->
+    <div class="relative bg-gradient-to-br from-sky-50/50 via-white to-emerald-50/50" style="height: 720px; padding: 30px 20px;">
+
+      <!-- ═══ COLUMNA 1 (FAR LEFT) · Proveedores ═══ -->
+      <div class="absolute" style="top: 20px; left: 15px; width: 175px;">
+        <!-- Proveedores Asia (envío directo) -->
+        <div class="bg-white/90 backdrop-blur border-2 border-emerald-300 rounded-xl p-3 mb-3 shadow-md" style="border-style: dashed;">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm">🌏</span>
+              <span class="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">Proveedores Asia</span>
+            </div>
+          </div>
+          <div class="text-[9px] text-emerald-700 mb-2 italic">Skincare China/Corea · transporte propio del proveedor</div>
+          <div class="space-y-1">
+            <div class="bg-emerald-50 rounded-md px-2 py-1 flex items-center justify-between">
+              <span class="text-[10px] font-semibold text-emerald-900">SkinTech Korea</span>
+              <span class="text-[9px] text-emerald-700 num-tab">3 OCs</span>
+            </div>
+            <div class="bg-emerald-50 rounded-md px-2 py-1 flex items-center justify-between">
+              <span class="text-[10px] font-semibold text-emerald-900">CeraVe China</span>
+              <span class="text-[9px] text-emerald-700 num-tab">2 OCs</span>
+            </div>
+            <div class="bg-emerald-50 rounded-md px-2 py-1 flex items-center justify-between">
+              <span class="text-[10px] font-semibold text-emerald-900">NeoCell Asia</span>
+              <span class="text-[9px] text-emerald-700 num-tab">1 OC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proveedores USA (vía casilla) -->
+        <div class="bg-white/90 backdrop-blur border-2 border-sky-300 rounded-xl p-3 shadow-md" style="border-style: dashed;">
+          <div class="flex items-center gap-1.5 mb-2">
+            <span class="text-sm">🇺🇸</span>
+            <span class="text-[10px] font-bold text-sky-900 uppercase tracking-wider">Proveedores USA</span>
+          </div>
+          <div class="text-[9px] text-sky-700 mb-2 italic">Compras via casillas (Amazon, eBay, retailers)</div>
+          <div class="space-y-1">
+            <div class="bg-sky-50 rounded-md px-2 py-1 flex items-center justify-between">
+              <span class="text-[10px] font-semibold text-sky-900">SkinCeuticals</span>
+              <span class="text-[9px] text-sky-700 num-tab">5 OCs</span>
+            </div>
+            <div class="bg-sky-50 rounded-md px-2 py-1 flex items-center justify-between">
+              <span class="text-[10px] font-semibold text-sky-900">The Ordinary</span>
+              <span class="text-[9px] text-sky-700 num-tab">2 OCs</span>
+            </div>
+            <div class="bg-sky-50 rounded-md px-2 py-1 flex items-center justify-between">
+              <span class="text-[10px] font-semibold text-sky-900">Beauty WS USA</span>
+              <span class="text-[9px] text-sky-700 num-tab">1 OC</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ COLUMNA 2 (MID-LEFT) · Casillas USA ═══ -->
+      <div class="absolute" style="top: 20px; left: 215px; width: 250px;">
+        <div class="bg-white/90 backdrop-blur border-2 border-sky-300 rounded-xl p-3 shadow-md">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-sky-900 uppercase tracking-wider">Casillas USA · 7</span>
+            <span class="text-[11px] font-bold text-sky-700 num-tab">593 uds</span>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <div class="bg-sky-100 rounded-md px-2 py-1.5">
+              <div class="text-[10px] font-bold text-sky-900">Anghely</div>
+              <div class="text-[8px] text-amber-600 num-tab font-semibold">128 / 80⚠</div>
+            </div>
+            <div class="bg-sky-100 rounded-md px-2 py-1.5">
+              <div class="text-[10px] font-bold text-sky-900">Felicitas</div>
+              <div class="text-[8px] text-rose-600 num-tab font-bold">94 / 100⚠</div>
+            </div>
+            <div class="bg-sky-100 rounded-md px-2 py-1.5">
+              <div class="text-[10px] font-bold text-sky-900">Sara M.</div>
+              <div class="text-[8px] text-rose-600 num-tab font-bold">112 / 120⚠</div>
+            </div>
+            <div class="bg-sky-100 rounded-md px-2 py-1.5">
+              <div class="text-[10px] font-bold text-sky-900">Angie P.</div>
+              <div class="text-[8px] text-emerald-600 num-tab">85 / 40</div>
+            </div>
+            <div class="bg-sky-100 rounded-md px-2 py-1.5">
+              <div class="text-[10px] font-bold text-sky-900">Edgardo</div>
+              <div class="text-[8px] text-emerald-600 num-tab">62 / 50</div>
+            </div>
+            <div class="bg-sky-100 rounded-md px-2 py-1.5">
+              <div class="text-[10px] font-bold text-sky-900">Elsa</div>
+              <div class="text-[8px] text-amber-600 num-tab">52 / 60</div>
+            </div>
+            <div class="bg-sky-100 rounded-md px-2 py-1.5">
+              <div class="text-[10px] font-bold text-sky-900">Rubi</div>
+              <div class="text-[8px] text-emerald-600 num-tab">60 / 90</div>
+            </div>
+            <div class="bg-slate-50 rounded-md px-2 py-1.5 opacity-50">
+              <div class="text-[9px] font-medium text-slate-500">+ casilla</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ COLUMNA 3 (MIDDLE) · Aduanas PE ═══ -->
+      <div class="absolute" style="top: 100px; left: 495px; width: 145px;">
+        <div class="bg-white/95 border-2 border-amber-400 rounded-xl p-2.5 shadow-md text-center mb-2">
+          <div class="flex items-center justify-center gap-1 mb-0.5">
+            <i data-lucide="anchor" class="w-3 h-3 text-amber-700"></i>
+            <span class="text-[10px] font-bold text-amber-900">Aduana Callao</span>
+          </div>
+          <div class="text-[16px] font-bold text-amber-700 num-tab">312</div>
+          <div class="text-[8px] text-slate-500 uppercase">marítima</div>
+          <div class="text-[8px] text-amber-600 mt-0.5">5-8d liberación</div>
+        </div>
+        <div class="bg-white/95 border-2 border-amber-400 rounded-xl p-2.5 shadow-md text-center">
+          <div class="flex items-center justify-center gap-1 mb-0.5">
+            <i data-lucide="plane" class="w-3 h-3 text-amber-700"></i>
+            <span class="text-[10px] font-bold text-amber-900">Aduana Aérea</span>
+          </div>
+          <div class="text-[16px] font-bold text-amber-700 num-tab">118</div>
+          <div class="text-[8px] text-slate-500 uppercase">aérea</div>
+          <div class="text-[8px] text-amber-600 mt-0.5">2-4d liberación</div>
+        </div>
+      </div>
+
+      <!-- ═══ COLUMNA 4 (RIGHT) · Almacenes PE + Aliada ═══ -->
+      <div class="absolute" style="top: 50px; left: 670px; width: 220px;">
+        <!-- Almacén SMP -->
+        <div class="bg-white/95 border-2 border-teal-400 rounded-xl p-3 shadow-md mb-2">
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-1">
+              <i data-lucide="warehouse" class="w-3.5 h-3.5 text-teal-700"></i>
+              <span class="text-[11px] font-bold text-teal-900">Almacén SMP</span>
+            </div>
+            <span class="chip-pill chip-sm bg-teal-100 text-teal-800">Principal</span>
+          </div>
+          <div class="text-[18px] font-bold text-teal-700 num-tab">1,247</div>
+          <div class="text-[9px] text-slate-600">62% cap · 87 SKUs</div>
+          <div class="stock-bar mt-1.5"><div class="stock-bar-segment bg-emerald-500" style="width: 62%"></div></div>
+        </div>
+        <!-- Almacén La Victoria -->
+        <div class="bg-white/95 border-2 border-teal-400 rounded-xl p-3 shadow-md mb-2">
+          <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-1">
+              <i data-lucide="warehouse" class="w-3.5 h-3.5 text-teal-700"></i>
+              <span class="text-[11px] font-bold text-teal-900">La Victoria</span>
+            </div>
+            <span class="chip-pill chip-sm bg-slate-100 text-slate-700">Secund.</span>
+          </div>
+          <div class="text-[18px] font-bold text-teal-700 num-tab">495</div>
+          <div class="text-[9px] text-slate-600">49% cap · 42 SKUs</div>
+          <div class="stock-bar mt-1.5"><div class="stock-bar-segment bg-emerald-500" style="width: 49%"></div></div>
+        </div>
+        <!-- Aliada Mayra -->
+        <div class="bg-white/95 border-2 border-purple-400 rounded-xl p-3 shadow-md" style="border-style: dashed;">
+          <div class="flex items-center gap-1 mb-1">
+            <i data-lucide="megaphone" class="w-3.5 h-3.5 text-purple-700"></i>
+            <span class="text-[11px] font-bold text-purple-900">Mayra · Aliada</span>
+          </div>
+          <div class="text-[18px] font-bold text-purple-700 num-tab">82</div>
+          <div class="text-[9px] text-slate-600">Reviews · sin retorno</div>
+        </div>
+      </div>
+
+      <!-- ═══ COLUMNA 5 (FAR RIGHT) · Drivers + Clientes ═══ -->
+      <div class="absolute" style="top: 130px; left: 920px; width: 130px;">
+        <!-- Drivers Red Logística -->
+        <div class="bg-white/90 border-2 border-amber-300 rounded-xl p-2.5 shadow-md text-center mb-2" style="border-style: dashed;">
+          <div class="flex items-center justify-center gap-1 mb-1">
+            <i data-lucide="truck" class="w-3 h-3 text-amber-700"></i>
+            <span class="text-[10px] font-bold text-amber-900">Drivers</span>
+          </div>
+          <div class="text-[8px] text-amber-700 mb-1">Red Logística</div>
+          <div class="text-[14px] font-bold text-amber-700 num-tab">82</div>
+          <div class="text-[8px] text-slate-500 uppercase">en entrega</div>
+          <div class="text-[8px] text-slate-500 mt-0.5">GK Xpress + 4 más</div>
+        </div>
+        <!-- Clientes -->
+        <div class="bg-white/95 border-2 border-emerald-400 rounded-xl p-2.5 shadow-md text-center" style="border-style: dashed;">
+          <div class="flex items-center justify-center gap-1 mb-1">
+            <i data-lucide="users" class="w-3 h-3 text-emerald-700"></i>
+            <span class="text-[10px] font-bold text-emerald-900">Clientes</span>
+          </div>
+          <div class="text-[14px] font-bold text-emerald-700 num-tab">42</div>
+          <div class="text-[8px] text-slate-500 uppercase">vendidas (mes)</div>
+          <div class="text-[8px] text-emerald-700 mt-0.5 font-medium">+133% vs feb</div>
+        </div>
+      </div>
+
+      <!-- ═══ LÍNEAS DE FLUJO SVG ═══ -->
+      <svg class="absolute inset-0 pointer-events-none" style="width: 100%; height: 100%;">
+        <defs>
+          <!-- Markers para flechas por color -->
+          <marker id="arrow-sky" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#0284c7"></path>
+          </marker>
+          <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#10b981"></path>
+          </marker>
+          <marker id="arrow-amber2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#f59e0b"></path>
+          </marker>
+          <marker id="arrow-purple2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#9333ea"></path>
+          </marker>
+          <marker id="arrow-slate" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#475569"></path>
+          </marker>
+        </defs>
+
+        <!-- 🔵 INBOUND VÍA CASILLA: Proveedores USA → Casillas USA -->
+        <line x1="190" y1="280" x2="215" y2="120" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-sky)" opacity="0.7"></line>
+
+        <!-- 🔵 INBOUND VÍA CASILLA: Casillas → Aduana Marítima -->
+        <line x1="465" y1="120" x2="495" y2="160" stroke="#0284c7" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-sky)" opacity="0.7"></line>
+        <text x="470" y="148" fill="#0369a1" font-size="9" font-weight="700">312 uds</text>
+
+        <!-- 🔵 INBOUND VÍA CASILLA: Casillas → Aduana Aérea -->
+        <line x1="465" y1="170" x2="495" y2="220" stroke="#0284c7" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-sky)" opacity="0.7"></line>
+        <text x="465" y="208" fill="#0369a1" font-size="9" font-weight="700">118 uds</text>
+
+        <!-- 🟢 INBOUND DIRECTO ASIA: Proveedores Asia → Aduana directa -->
+        <path d="M 190 130 Q 350 130 495 175" stroke="#10b981" stroke-width="2.5" fill="none" stroke-dasharray="3,3" marker-end="url(#arrow-green)" opacity="0.8"></path>
+        <text x="280" y="115" fill="#047857" font-size="10" font-weight="700">→ DIRECTO Asia (sin casillas)</text>
+
+        <!-- 🔵 ADUANA → Almacén SMP -->
+        <line x1="640" y1="170" x2="670" y2="120" stroke="#0d9488" stroke-width="2" marker-end="url(#arrow-amber2)" opacity="0.6"></line>
+        <!-- 🔵 ADUANA → Almacén La Victoria -->
+        <line x1="640" y1="240" x2="670" y2="265" stroke="#0d9488" stroke-width="2" marker-end="url(#arrow-amber2)" opacity="0.6"></line>
+
+        <!-- 🟠 OUTBOUND VENTAS: Almacén SMP → Drivers -->
+        <line x1="890" y1="120" x2="920" y2="170" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber2)" opacity="0.8"></line>
+        <text x="850" y="155" fill="#b45309" font-size="9" font-weight="700">82 uds</text>
+
+        <!-- 🟠 DRIVERS → CLIENTES -->
+        <line x1="985" y1="195" x2="985" y2="245" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber2)" opacity="0.8"></line>
+
+        <!-- ⚫ INTERNO: SMP ↔ La Victoria (bidireccional) -->
+        <line x1="775" y1="180" x2="775" y2="265" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,3" marker-end="url(#arrow-slate)" opacity="0.5"></line>
+        <line x1="785" y1="265" x2="785" y2="180" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,3" marker-end="url(#arrow-slate)" opacity="0.5"></line>
+        <text x="745" y="225" fill="#334155" font-size="8" font-weight="600" transform="rotate(-90 745 225)">interno</text>
+
+        <!-- 🟣 ALIADA: SMP → Mayra -->
+        <line x1="780" y1="155" x2="780" y2="385" stroke="#9333ea" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-purple2)" opacity="0.6"></line>
+      </svg>
+
+      <!-- ═══ Banda de leyenda inferior con totales ═══ -->
+      <div class="absolute" style="bottom: 20px; left: 20px; right: 20px;">
+        <div class="bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-md p-3">
+          <div class="grid grid-cols-5 gap-3 text-[11px]">
+            <div class="text-center">
+              <div class="text-[9px] uppercase text-sky-700 font-bold mb-0.5">🔵 Inbound vía casilla</div>
+              <div class="text-[14px] font-bold text-sky-700 num-tab">593 + 430</div>
+              <div class="text-[9px] text-slate-500">en USA + aduana</div>
+            </div>
+            <div class="text-center">
+              <div class="text-[9px] uppercase text-emerald-700 font-bold mb-0.5">🟢 Inbound directo Asia</div>
+              <div class="text-[14px] font-bold text-emerald-700 num-tab">240</div>
+              <div class="text-[9px] text-slate-500">en aduana aérea (3 OCs)</div>
+            </div>
+            <div class="text-center">
+              <div class="text-[9px] uppercase text-amber-700 font-bold mb-0.5">🟠 Outbound ventas</div>
+              <div class="text-[14px] font-bold text-amber-700 num-tab">82</div>
+              <div class="text-[9px] text-slate-500">con drivers (vendiendo)</div>
+            </div>
+            <div class="text-center">
+              <div class="text-[9px] uppercase text-purple-700 font-bold mb-0.5">🟣 A Mayra</div>
+              <div class="text-[14px] font-bold text-purple-700 num-tab">82</div>
+              <div class="text-[9px] text-slate-500">para reviews (mes)</div>
+            </div>
+            <div class="text-center">
+              <div class="text-[9px] uppercase text-slate-700 font-bold mb-0.5">⚫ Internos</div>
+              <div class="text-[14px] font-bold text-slate-700 num-tab">38</div>
+              <div class="text-[9px] text-slate-500">SMP ↔ La Victoria</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Insights bajo el mapa -->
+    <div class="bg-slate-50 border-t border-slate-200 px-6 py-3">
+      <div class="grid grid-cols-3 gap-3 text-[11px]">
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+          <span class="text-slate-700"><strong class="text-emerald-700">Path "directo Asia" más rápido</strong> · ahorra 2 semanas vs casilla USA</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+          <span class="text-slate-700"><strong class="text-amber-700">82 uds en drivers</strong> · velocidad de salida vs 42 vendidas mes</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+          <span class="text-slate-700"><strong class="text-rose-700">2 casillas saturadas</strong> (Felicitas 94%, Sara 93%)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ 5 tipos de flujo modelados:</strong> 🔵 Inbound vía casilla USA · 🟢 Inbound directo Asia · 🟠 Outbound ventas (drivers Red Logística) · 🟣 A aliada Mayra · ⚫ Traslados internos SMP↔La Victoria.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Filtros toggle por flujo:</strong> click en cualquier chip (Inbound vía casilla / Asia / Outbound / Aliada / Internos) muestra solo ese tipo de flujo. Útil para reportes específicos.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Path "Directo Asia" diferenciado:</strong> Skincare China/Corea con su propio transportista salta las casillas USA · línea verde curva · más rápido + más barato cuando aplica.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Drivers como Red Logística:</strong> los drivers/couriers outbound son colaboradores · GK Xpress + 4 más · no son nodos separados sino "puente" entre Almacén PE y Cliente.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Devoluciones NO en mapa:</strong> tu decisión · viven solo como evento en timeline del producto. Mantiene el mapa limpio para presentaciones.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Banda de totales por flujo:</strong> debajo del mapa · 5 columnas con cantidad de unidades por tipo de flujo · vista resumida ideal para resaltar en reuniones de gerencia.
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- VISTA 7 · DETALLE DE UNA UBICACIÓN                                      -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-2">
+  <h2 class="text-lg font-bold text-slate-900 mb-1">Vista 7 · Detalle de una ubicación · ejemplo Casilla Anghely</h2>
+  <p class="text-sm text-slate-600 mb-4">Click en una ubicación → modal con info completa: capacidad histórica, productos almacenados, movimientos, responsable.</p>
+
+  <div class="card-banking overflow-hidden">
+    <!-- Header del modal -->
+    <div class="bg-gradient-to-br from-sky-50 to-white border-b border-sky-200 px-6 py-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center ring-1 ring-sky-300">
+            <span class="text-base font-bold text-sky-700">A</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-0.5">
+              <h2 class="text-xl font-bold tracking-tight text-slate-900">Casilla · Anghely</h2>
+              <span class="chip-pill chip-sm bg-sky-50 text-sky-700 border border-sky-200">USA</span>
+              <span class="chip-pill chip-sm bg-amber-50 text-amber-700 border border-amber-200 pulse-soft">⚠ 87% capacidad mes</span>
+            </div>
+            <p class="text-[12px] text-slate-500">
+              Casilla de tercero · Responsable: <strong>Anghely Pérez</strong> ·
+              <a class="text-teal-600 hover:text-teal-700 font-medium">ver ficha en Red Logística →</a>
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5">
+            <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>Editar capacidad
+          </button>
+          <button class="bg-teal-600 hover:bg-teal-700 text-white font-medium text-[12px] px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="truck" class="w-3.5 h-3.5"></i>Programar envío
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout 2 cols: capacidad + productos -->
+    <div class="grid grid-cols-3 divide-x divide-slate-200">
+
+      <!-- Capacidad histórica + KPIs -->
+      <div class="p-5 bg-slate-50/50">
+        <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
+          <i data-lucide="gauge" class="w-4 h-4 text-slate-700"></i>Capacidad
+        </h3>
+        <div class="card-banking gradient-amber-soft p-3 mb-3">
+          <div class="text-[10px] uppercase tracking-wider text-amber-700 font-semibold mb-1">Mes actual · abril</div>
+          <div class="text-[28px] font-bold text-slate-900 num-tab tracking-tight leading-none">70 <span class="text-base text-slate-400 font-normal">/ 80</span></div>
+          <div class="text-[11px] text-amber-700 font-semibold num-tab mt-1">87% · solo 10 uds disponibles antes del tope</div>
+          <div class="stock-bar mt-2">
+            <div class="stock-bar-segment bg-amber-500" style="width: 87%"></div>
+          </div>
+        </div>
+
+        <h4 class="text-[11px] font-bold text-slate-900 uppercase tracking-wider mb-2">Histórico · últimos 6 meses</h4>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex items-center gap-2">
+            <span class="w-12 text-slate-500">Nov 25</span>
+            <div class="flex-1"><div class="h-2 bg-emerald-300 rounded" style="width: 45%"></div></div>
+            <span class="num-tab font-semibold w-12 text-right">36 / 80</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-12 text-slate-500">Dic 25</span>
+            <div class="flex-1"><div class="h-2 bg-emerald-300 rounded" style="width: 60%"></div></div>
+            <span class="num-tab font-semibold w-12 text-right">48 / 80</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-12 text-slate-500">Ene 26</span>
+            <div class="flex-1"><div class="h-2 bg-amber-300 rounded" style="width: 75%"></div></div>
+            <span class="num-tab font-semibold w-12 text-right">60 / 80</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-12 text-slate-500">Feb 26</span>
+            <div class="flex-1"><div class="h-2 bg-amber-300 rounded" style="width: 70%"></div></div>
+            <span class="num-tab font-semibold w-12 text-right">56 / 80</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-12 text-slate-500">Mar 26</span>
+            <div class="flex-1"><div class="h-2 bg-amber-300 rounded" style="width: 80%"></div></div>
+            <span class="num-tab font-semibold w-12 text-right">64 / 80</span>
+          </div>
+          <div class="flex items-center gap-2 font-bold">
+            <span class="w-12 text-amber-700">Abr 26</span>
+            <div class="flex-1"><div class="h-2 bg-amber-500 rounded" style="width: 87%"></div></div>
+            <span class="num-tab w-12 text-right text-amber-700">70 / 80</span>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-200 text-[10px] text-slate-500 leading-relaxed">
+          <div class="flex items-center gap-1 text-amber-700 font-semibold mb-1">
+            <i data-lucide="lightbulb" class="w-3 h-3"></i>Insight
+          </div>
+          Tendencia ascendente · si seguimos así, mayo podría saturar. Considera distribuir carga a Casilla Edgardo (38/50 actual).
+        </div>
+      </div>
+
+      <!-- Productos en la casilla -->
+      <div class="col-span-2 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="package" class="w-4 h-4 text-slate-700"></i>Productos en esta casilla (12 SKUs · 128 uds)
+          </h3>
+          <button class="text-[11px] text-teal-600 hover:text-teal-700 font-medium">Ver todos →</button>
+        </div>
+
+        <div class="space-y-2">
+          <div class="card-base p-3 flex items-center gap-3 card-hover cursor-pointer">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+              <div class="text-[10px] text-slate-500"><span class="mono">SKU-PROD-0042</span> · 30ml · LOTE-2026-088</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[14px] font-bold text-slate-900 num-tab">15</div>
+              <div class="text-[10px] text-slate-500">uds</div>
+            </div>
+          </div>
+          <div class="card-base p-3 flex items-center gap-3 card-hover cursor-pointer">
+            <div class="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Collagen Peptides 90 caps</div>
+              <div class="text-[10px] text-slate-500"><span class="mono">SKU-PROD-0028</span> · 90 caps · LOTE-2026-072</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[14px] font-bold text-slate-900 num-tab">22</div>
+              <div class="text-[10px] text-slate-500">uds</div>
+            </div>
+          </div>
+          <div class="card-base p-3 flex items-center gap-3 card-hover cursor-pointer">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-slate-900 truncate">Hyaluronic Acid Hydrating Toner</div>
+              <div class="text-[10px] text-slate-500"><span class="mono">SKU-PROD-0019</span> · 200ml · LOTE-2026-105</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[14px] font-bold text-slate-900 num-tab">18</div>
+              <div class="text-[10px] text-slate-500">uds</div>
+            </div>
+          </div>
+          <div class="text-center text-[11px] text-slate-400 py-1">· · · 9 productos más · · ·</div>
+        </div>
+
+        <!-- Movimientos recientes -->
+        <h3 class="text-sm font-bold text-slate-900 mb-2 mt-5 flex items-center gap-1.5">
+          <i data-lucide="activity" class="w-4 h-4 text-slate-700"></i>Movimientos recientes
+        </h3>
+        <div class="space-y-1 text-[11px]">
+          <div class="flex items-center gap-2 py-1.5 border-b border-slate-100">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
+            <span class="text-slate-500 num-tab w-20">25 abr</span>
+            <span class="text-slate-700">+30 uds Vitamin C · LOTE-2026-088 (proveedor SkinTech)</span>
+          </div>
+          <div class="flex items-center gap-2 py-1.5 border-b border-slate-100">
+            <div class="w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0"></div>
+            <span class="text-slate-500 num-tab w-20">22 abr</span>
+            <span class="text-slate-700">−45 uds (envío T2 a Aduana Callao · OC-085)</span>
+          </div>
+          <div class="flex items-center gap-2 py-1.5 border-b border-slate-100">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
+            <span class="text-slate-500 num-tab w-20">15 abr</span>
+            <span class="text-slate-700">+22 uds Collagen Peptides · LOTE-2026-072</span>
+          </div>
+          <div class="flex items-center gap-2 py-1.5">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
+            <span class="text-slate-500 num-tab w-20">8 abr</span>
+            <span class="text-slate-700">+18 uds Hyaluronic Toner · LOTE-2026-105</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Capacidad histórica visual:</strong> 6 meses con barras + chip de tendencia. Detectas patrones · si Anghely viene subiendo del 45% al 87%, sabes que hay que reaccionar antes de saturar.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Insight automático:</strong> "considera distribuir carga a Casilla Edgardo" · sugerencia accionable basada en datos de otras casillas.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Productos en la casilla:</strong> lista de SKUs con cantidades + lotes + variantes. Saber exactamente qué tiene cada casilla en cada momento.
+    </div>
+    <div class="annotation" style="background:#dcfce7;border-color:#22c55e;color:#14532d;">
+      <strong>⭐ Acciones contextuales:</strong> "Editar capacidad" (ajustar 80/mes a 100/mes si la casilla cambia) · "Programar envío" (próxima salida a aduana).
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- DECISIONES APLICADAS                                                    -->
+<!-- ====================================================================== -->
+
+<div class="max-w-7xl mx-auto p-6 mt-4 mb-12">
+  <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 text-white rounded-2xl p-8">
+    <div class="text-[11px] uppercase tracking-wider text-teal-300 font-semibold mb-2">M-STOCK-S58f cerrado · 7 vistas</div>
+    <h2 class="text-2xl font-bold mb-3 tracking-tight">Stock rediseñado · listado + drill-down + detalle + ubicaciones (3 vistas) · Manifesto S58f aplicado</h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-2 ✅</div>
+        <div class="text-[12px]">Renombrado de Inventario a Stock</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-3 ✅</div>
+        <div class="text-[12px]">Stock = "qué tengo, dónde, en qué estado"</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-4 ✅</div>
+        <div class="text-[12px]">Sin analytics financiero (va a Productos Intel)</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-5 ✅</div>
+        <div class="text-[12px]">Unidades absorbida como drill-down inline</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-11 ⭐ NEW</div>
+        <div class="text-[12px]">Toggle Por producto / Por ubicación · 4 grupos semánticos</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-12 ⭐ NEW</div>
+        <div class="text-[12px]">Capacidad por casilla con periodicidad variable (mes / 45d / etc.)</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-13 ⭐ EXTENDIDA</div>
+        <div class="text-[12px]">Mapa con 5 tipos de flujo · Inbound vía casilla + Inbound directo Asia + Outbound ventas + Aliada + Internos · filtros toggle · exportable</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">D-INV-14 ⭐ NEW</div>
+        <div class="text-[12px]">Detalle por ubicación con histórico de capacidad + insights</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-[10px] uppercase tracking-wider text-teal-300 font-semibold mb-1">Ubicaciones reales</div>
+        <div class="text-[12px]">2 alm. PE · 7 casillas USA · 2 aduanas · 1 aliada (Mayra)</div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-white/10 text-[12px] text-slate-300 leading-relaxed">
+      <strong class="text-white">Próximo del Lote 2:</strong>
+      <code class="bg-white/10 px-1.5 py-0.5 rounded ml-1">M-INTEL-S58f</code> ·
+      Productos Intel rediseñado con valorización por punto (cuánto vale tu stock en cada ubicación: aduana, casilla, almacén, aliada) — la pieza analítica financiera que separamos de Stock.
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+</script>
+
+</body>
+</html>
