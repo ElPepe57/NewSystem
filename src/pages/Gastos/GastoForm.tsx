@@ -16,6 +16,9 @@ import type { Venta } from '../../types/venta.types';
 import { useLineaNegocioStore } from '../../store/lineaNegocioStore';
 import { Combobox } from '../../design-system/components/forms';
 import { useEntidadesPorTipo } from '../../hooks/useEntidadesPorTipo';
+import { useProveedorStore } from '../../store/proveedorStore';
+import { ProveedorForm } from '../../components/modules/ordenCompra/ProveedorForm';
+import type { ProveedorFormData } from '../../types/ordenCompra.types';
 
 interface GastoFormProps {
   onClose: () => void;
@@ -330,6 +333,39 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
   const proveedoresEnt = useEntidadesPorTipo('proveedor');
   const colaboradoresEnt = useEntidadesPorTipo('colaborador');
   const empleadosEnt = useEntidadesPorTipo('empleado');
+
+  // ── TAREA-PROVEEDOR-GASTOS F2 · Inline form modal-in-modal (D-INLINE-8) ──
+  // Permite crear un proveedor sin abandonar el form de gasto · al guardar,
+  // refresca la lista del Combobox y auto-selecciona el nuevo proveedor.
+  const createProveedorStore = useProveedorStore((s) => s.createProveedor);
+  const [showProveedorInline, setShowProveedorInline] = useState(false);
+  const [loadingProveedorInline, setLoadingProveedorInline] = useState(false);
+
+  const handleCrearProveedorInline = async (data: ProveedorFormData) => {
+    if (!user?.uid) {
+      toast.error('No se pudo identificar al usuario');
+      return;
+    }
+    try {
+      setLoadingProveedorInline(true);
+      const newId = await createProveedorStore(data, user.uid);
+      // El store ya refresca proveedoresActivos · auto-seleccionamos el nuevo
+      setFormData((prev) => ({
+        ...prev,
+        proveedorId: newId,
+        proveedorTipo: 'proveedor',
+        proveedorNombre: data.nombre,
+        proveedor: prev.proveedor || data.nombre,
+      }));
+      toast.success(`Proveedor "${data.nombre}" creado y vinculado`);
+      setShowProveedorInline(false);
+    } catch (e) {
+      console.error('Error creando proveedor inline', e);
+      toast.error('No se pudo crear el proveedor');
+    } finally {
+      setLoadingProveedorInline(false);
+    }
+  };
   const entidadesLoading =
     proveedoresEnt.loading || colaboradoresEnt.loading || empleadosEnt.loading;
   const totalEntidades =
@@ -940,15 +976,25 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
                 emptyMessage="No hay entidades activas"
               />
 
-              {formData.proveedorId && (
+              <div className="flex items-center gap-3">
+                {formData.proveedorId && (
+                  <button
+                    type="button"
+                    onClick={() => handleSeleccionarEntidad('')}
+                    className="text-[11px] text-slate-500 hover:text-slate-700 underline"
+                  >
+                    Quitar vínculo
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={() => handleSeleccionarEntidad('')}
-                  className="text-[11px] text-slate-500 hover:text-slate-700 underline"
+                  onClick={() => setShowProveedorInline(true)}
+                  className="text-[11px] text-pink-600 hover:text-pink-800 font-semibold inline-flex items-center gap-1"
+                  title="Crear un proveedor nuevo sin abandonar este gasto · TAREA-PROVEEDOR-GASTOS"
                 >
-                  Quitar vínculo
+                  + Nuevo proveedor
                 </button>
-              )}
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Input
@@ -1002,6 +1048,29 @@ export const GastoForm: React.FC<GastoFormProps> = ({ onClose, gastoEditar }) =>
             </Button>
           </div>
         </form>
+
+        {/* TAREA-PROVEEDOR-GASTOS F2 · Modal inline · D-INLINE-8 */}
+        {showProveedorInline && (
+          <Modal
+            isOpen={true}
+            onClose={() => setShowProveedorInline(false)}
+            title="Nuevo proveedor"
+            size="lg"
+          >
+            <div className="space-y-3">
+              <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 text-xs text-pink-900">
+                <strong>💡 Crear proveedor sin abandonar el gasto.</strong>{' '}
+                Al guardar, el proveedor se vincula automáticamente al gasto en
+                curso · queda disponible para todos los gastos futuros.
+              </div>
+              <ProveedorForm
+                onSubmit={handleCrearProveedorInline}
+                onCancel={() => setShowProveedorInline(false)}
+                loading={loadingProveedorInline}
+              />
+            </div>
+          </Modal>
+        )}
     </Modal>
   );
 };
