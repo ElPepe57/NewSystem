@@ -2,7 +2,7 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-01 (**Sesion S58f ✅ CERRADA FORMALMENTE** · DISEÑO INTEGRAL — 7 de 7 lotes cerrados · 17 mockups producidos · ~155 decisiones declaradas · 4 tareas/deudas formales: TAREA-PROVEEDOR-GASTOS (~3.5h · alta prioridad operativa) · DEUDA-PAGOFORM-001 (3 fases · ~3 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL (~6-8 ses replicacion canonico). Roadmap de implementacion definido en M-JOURNEY: F1 Quick wins · F2 PagoForm v3 · F3 Mapas + canonico · F4 Flete · F5 Migracion global. Total estimado: ~12.5 ses core + 6-8 ses migracion. Sin commits de codigo en S58f · trabajo 100% en mockups HTML. Listo para empezar implementacion cuando se decida.)
+**Ultima actualizacion:** 2026-05-01 (Implementacion arrancada post-S58f · 6 commits ya en main · TAREA-GASTOFORM-V2 ✅ CERRADA en ~75min vs 2h estimadas · 5 fases F1-F5 (cascada 3 niveles + inline create + breadcrumb cards + backfill script). TAREA-PROVEEDOR-GASTOS F1+F2 cerradas (commit a254a0f) · F3-F4-F5 desbloqueadas. 2 mockups extra producidos: M-GASTOFORM-V2 y M-GASTOS-PAGE-V2. Quedan: TAREA-GASTOS-PAGE-V2 (~5 ses) · TAREA-PROVEEDOR-GASTOS F4+F5 (~1.5h) · DEUDA-PAGOFORM-001 (~3 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL (~6-8 ses).)
 **Branch activo:** main
 
 ---
@@ -290,7 +290,22 @@ PagoUnificadoResult {
 - TAREA-PROVEEDOR-GASTOS F3-F4-F5 PAUSADAS hasta cerrar GASTOFORM-V2 · porque los reportes BI dependen del modelo correcto
 - Orden recomendado de ejecucion: GASTOFORM-V2 (~2h) → continuar PROVEEDOR-GASTOS F3+F4+F5 (~2h)
 
-**Estado:** declarada · pendiente ejecucion · alta prioridad operativa · bloqueante de reportes correctos.
+**Estado:** ✅ **CERRADA** · 1 may 2026 · ~75 min efectivos (vs ~2h estimadas). 5 commits con todas las fases F1-F5.
+
+**Commits implementados:**
+- F1 (verificación · 5 min) · sin cambios necesarios · S58b-F5 ya extendio el modelo
+- F2 (cascada · 30 min) · `bea1eb2` · 3 cards con gradient direccional + categorias padre filtradas + subcategorias opcionales + banner contextual de impacto contable
+- F3 (inline create · 20 min) · `b96a7aa` · botones "+ Nueva categoria" y "+ Nueva sub" + modal D-INLINE-8 con autoFocus
+- F4 (breadcrumb cards · 15 min) · `f18f49d` · helper `renderCategoriaBreadcrumb()` reemplaza pill legacy en 2 ocurrencias de Gastos.tsx (tabla desktop + cards mobile)
+- F5 (backfill script · 5 min) · `5c1932a` · `scripts/reingenieria/04-backfill-gastos-categoriaCostoId.mjs` idempotente con DRY-RUN + --execute
+
+**Resultado funcional:**
+- Antes: Selector unico 4 botones GV/GD/GA/GO sin estructura
+- Despues: 3 cards visuales bloque (Importacion blue · Venta purple · Periodo amber) → categorias padre filtradas → subcategorias opcionales · breadcrumb visible en header del form · pills breadcrumb en cards del listado · auto-derivacion del campo legacy `categoria` para backwards-compat
+- Inline create habilitado · sin abandonar el flujo del gasto
+- Script backfill listo para vincular gastos legacy
+
+**Verificaciones tecnicas:** tsc -b 0 errores · vite build OK · sin breaking · gastos legacy sin `categoriaCostoId` siguen mostrando pill GA/GD/GV/GO original.
 
 **Documentacion:** `docs/mockups/gastoform-v2-3-niveles-s58f.html` · 6 vistas · style canonico Vista 8 · cite ACUERDOS_REINGENIERIA_2026-04-10 seccion 5 (3 cajas) y seccion 6 (categorias pre-pobladas).
 
