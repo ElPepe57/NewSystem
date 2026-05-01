@@ -138,7 +138,20 @@ PagoUnificadoResult {
 
 **Prioridad:** ALTA · bloquea operativamente la caja recaudadora pero NO bloquea el diseño · ejecutar despues de cerrar todos los lotes de mockups S58f.
 
-**Estado:** Fase 1 ✅ CERRADA (1 may 2026 · commit `91aa459`) · Fases 2+3 pendientes (~3 ses)
+**Estado:** Fase 1 ✅ CERRADA (1 may 2026 · commit `91aa459`) · Fase 2 ✅ CERRADA (1 may 2026 · commit `58ddeb0`) · Fase 3 pendiente (~1.5 ses)
+
+**Fase 2 ejecutada (destino tercero + caja recaudadora · todo opt-in):**
+- Hook nuevo `src/hooks/useDatosBancariosTercero.ts` (~165 lineas) · resolver unificado por proveedorId / clienteId / colaboradorId · cache-first · prioridad proveedor → cliente → colaborador
+- `PagoUnificadoForm.tsx` extendido (+515/-1 lineas):
+  * Props nuevas opt-in: `permiteDestinoTercero?` · `proveedorId?` · `clienteId?` · `colaboradorId?` · `onPromoverACajaRecaudadora?`
+  * Result extendido (campos opcionales · NO breaking): `destinoTerceroDatoBancarioId?` · `destinoTerceroEtiqueta?` · `destinoTerceroTipo?` · `destinoEntregadoEnMano?`
+  * Selector visual con 2 grupos: "Datos del tercero" (referencia · NO mueve saldo) + "Sin destino digital" (entregado en mano)
+  * Auto-selecciona el dato `esPrincipal` o el primero · vista bonita con banco/etiqueta/numeroCuenta/identificador
+  * Badges visuales: "Principal" (amber) · "✓ Caja" (emerald · si ya promovida)
+  * Estado vacio guiado: "agrega cuenta en la ficha del tercero"
+  * Banner CTA "Promover a Caja Recaudadora" cuando hay callback Y dato sin promover (gradient emerald-teal)
+  * Solo aparece para `!esIngreso + permiteDestinoTercero=true + tercero pre-cargado` · invisible en los 25+ usos legacy
+- Verificado: tsc -b 0 errores · vite build 20.45s · deployed a https://vitaskinperu.web.app
 
 **Fase 1 ejecutada (manifesto S58f visual):**
 - Header `PagoUnificadoForm.tsx`: bg-sky-50 → gradient `from-purple-50 to-fuchsia-50` con monto en tabular-nums + label uppercase tracking-wider
@@ -151,7 +164,9 @@ PagoUnificadoResult {
 
 **Enfoque post-mockups:** Lote 4 (Integraciones) mostrara la vision IDEAL del PagoUnificadoForm v3 operando en cada contexto · esos mockups sirven como spec visual completo para la implementacion. Cuando se ejecuten Fases 2 y 3, todas las decisiones visuales y semanticas estaran pre-validadas.
 
-**Pendiente (Fases 2+3):** cajas recaudadoras + lookup datosBancarios + split por metodo + comprobantes adjuntos · ~3 sesiones · prioridad ALTA (resuelve queja operativa fuerte de caja recaudadora).
+**Pendiente (Fase 3):** split por metodo + comprobantes adjuntos · ~1.5 sesiones · prioridad MEDIA (lo critico operativamente ya quedó cubierto en Fase 2 · split es nice-to-have para casos S/500 yape + S/300 efectivo).
+
+**Estrategia de adopcion Fase 2 en consumidores:** se sumaran progresivamente activando las props en cada caso de uso (gasto a proveedor formal · pago de OC · pago de flete a colaborador · cobro de venta a cliente). Cada activacion es minima — solo agregar `permiteDestinoTercero` + el id del tercero y opcional `onPromoverACajaRecaudadora`. NO requiere cambios de servicios.
 
 ### DEUDA-FLETE-001/002/003 · Brechas en modelado de flete a colaborador ⭐ DECLARADAS
 
