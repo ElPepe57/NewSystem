@@ -22,6 +22,9 @@ import { FiltrosGastosBar, type OrdenGasto } from './components/FiltrosGastosBar
 import { GastoCardCanonico } from './components/GastoCardCanonico';
 import { DrawerUrgentes } from './components/DrawerUrgentes';
 import { ReportesGastosBI } from './components/ReportesGastosBI';
+import { VistaPorBloque } from './components/VistaPorBloque';
+import { VistaCalendario } from './components/VistaCalendario';
+import { VistaPorProveedor } from './components/VistaPorProveedor';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -64,8 +67,8 @@ export const Gastos: React.FC = () => {
   // F4.a · Bulk actions
   const [bulkMode, setBulkMode] = useState(false);
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
-  // PROVEEDOR-GASTOS F4 · toggle de vista (listado vs reportes BI)
-  const [vistaActiva, setVistaActiva] = useState<'listado' | 'reportes'>('listado');
+  // PROVEEDOR-GASTOS F4 + GASTOS-PAGE-V2 F3.b · toggle de 5 vistas
+  const [vistaActiva, setVistaActiva] = useState<'listado' | 'bloque' | 'calendario' | 'proveedor' | 'reportes'>('listado');
 
   // Filtrar gastos por línea de negocio (sin lineaNegocioId = compartidos, siempre visibles)
   const gastosPorLinea = useLineaFilter(gastos, g => g.lineaNegocioId, { allowUndefined: true });
@@ -785,37 +788,65 @@ export const Gastos: React.FC = () => {
         }
       />
 
-      {/* TAREA-PROVEEDOR-GASTOS F4 · Toggle de vista · Listado / Reportes BI */}
-      <div className="bg-white rounded-xl border border-slate-200 p-1 inline-flex gap-1 shadow-sm">
-        <button
-          type="button"
-          onClick={() => setVistaActiva('listado')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-            vistaActiva === 'listado'
-              ? 'bg-amber-100 text-amber-800 ring-2 ring-amber-300'
-              : 'text-slate-600 hover:bg-slate-50'
-          }`}
-        >
-          📋 Listado
-        </button>
-        <button
-          type="button"
-          onClick={() => setVistaActiva('reportes')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-            vistaActiva === 'reportes'
-              ? 'bg-purple-100 text-purple-800 ring-2 ring-purple-300'
-              : 'text-slate-600 hover:bg-slate-50'
-          }`}
-        >
-          📊 Reportes BI
-        </button>
+      {/* TAREA-GASTOS-PAGE-V2 F3.b · Toggle de 5 vistas */}
+      <div className="bg-white rounded-xl border border-slate-200 p-1 inline-flex flex-wrap gap-1 shadow-sm">
+        {([
+          { key: 'listado', label: '📋 Listado', activeClass: 'bg-amber-100 text-amber-800 ring-2 ring-amber-300' },
+          { key: 'bloque', label: '📦 Por Bloque', activeClass: 'bg-blue-100 text-blue-800 ring-2 ring-blue-300' },
+          { key: 'calendario', label: '📅 Calendario', activeClass: 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300' },
+          { key: 'proveedor', label: '🏭 Por Proveedor', activeClass: 'bg-sky-100 text-sky-800 ring-2 ring-sky-300' },
+          { key: 'reportes', label: '📊 Reportes BI', activeClass: 'bg-purple-100 text-purple-800 ring-2 ring-purple-300' },
+        ] as const).map((opt) => (
+          <button
+            key={opt.key}
+            type="button"
+            onClick={() => setVistaActiva(opt.key)}
+            className={`px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
+              vistaActiva === opt.key ? opt.activeClass : 'text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
-      {/* Si vista = reportes · render el componente y oculta TODO el flujo de listado */}
+      {/* Render condicional · cada vista maneja su propio layout */}
       {vistaActiva === 'reportes' && (
         <ReportesGastosBI
           gastos={gastosPorLinea}
           arbolCategorias={arbolCategorias}
+        />
+      )}
+
+      {vistaActiva === 'bloque' && (
+        <VistaPorBloque
+          gastos={gastosPorLinea}
+          arbolCategorias={arbolCategorias}
+          onEditar={handleEditarGasto}
+          onPagar={(g) => setGastoParaPago(g)}
+        />
+      )}
+
+      {vistaActiva === 'calendario' && (
+        <VistaCalendario
+          gastos={gastosPorLinea}
+          arbolCategorias={arbolCategorias}
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          onChangeMes={(year, month) => {
+            setSelectedYear(year);
+            setSelectedMonth(month);
+          }}
+          onEditar={handleEditarGasto}
+          onPagar={(g) => setGastoParaPago(g)}
+        />
+      )}
+
+      {vistaActiva === 'proveedor' && (
+        <VistaPorProveedor
+          gastos={gastosPorLinea}
+          onEditar={handleEditarGasto}
+          onPagar={(g) => setGastoParaPago(g)}
         />
       )}
 
