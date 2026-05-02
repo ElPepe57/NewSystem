@@ -24,7 +24,7 @@
  */
 
 import React, { useMemo, useEffect, useState } from 'react';
-import { Filter as FilterIcon, Droplets, Pill, Box, Package2, Check, Search as SearchIcon, Package } from 'lucide-react';
+import { Filter as FilterIcon, Droplets, Pill, Box, Package2, Check, Search as SearchIcon } from 'lucide-react';
 import { useToastStore } from '../../../../store/toastStore';
 import { useProductoStore } from '../../../../store/productoStore';
 import { useAuthStore } from '../../../../store/authStore';
@@ -45,6 +45,7 @@ import {
   type ChipColor,
   type SortOption,
 } from '../filters';
+import { ProductosListV2 } from '../cards';
 
 // ─── Configuración de filtros ────────────────────────────────────────────────
 
@@ -500,22 +501,19 @@ export const ProductosPageV2: React.FC = () => {
           onCrearProducto={handleNuevo}
         />
       ) : (
-        // PLACEHOLDER · Fase 3 traerá tabla de cards
-        <div className="bg-white border-2 border-dashed border-indigo-300 rounded-2xl p-12 text-center">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-100 flex items-center justify-center mb-4">
-            <Package className="w-8 h-8 text-indigo-700" />
-          </div>
-          <h3 className="text-base font-bold text-slate-900 mb-2">Productos V2 · shell + filtros desplegados</h3>
-          <p className="text-sm text-slate-500 max-w-md mx-auto mb-1">
-            <strong>{productosFiltered.length}</strong> de <strong>{lista.length}</strong> productos coinciden con los filtros aplicados.
-          </p>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
-            La tabla pixel-perfect llega en <strong>Fase 3</strong> (Card de producto · 6 estados).
-          </p>
-          <div className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider mt-4">
-            ✓ Fase 0+1+2 completas · ✓ Filtros funcionales · ✓ Bulk + Drawer mobile + Chips activos
-          </div>
-        </div>
+        // Fase 3 · Lista real de productos con cards polimórficas
+        <ProductosListV2
+          productos={productosFiltered}
+          selectedIds={filtros.selectedIds}
+          onToggleSelected={filtros.toggleSelected}
+          onSelectAll={filtros.setManyselected}
+          onClearSelection={filtros.clearSelection}
+          onClickProducto={p => toast.info(`Modal detalle de ${p.nombreComercial} · disponible en Fase 4`)}
+          onView={p => toast.info(`Ver detalle de ${p.nombreComercial} · disponible en Fase 4`)}
+          onActions={p => toast.info(`Menú de acciones · disponible en Fase 4`)}
+          onCrearOC={p => toast.info(`Crear OC para ${p.nombreComercial} · pendiente`)}
+          onReInvestigar={p => toast.info(`Re-investigar ${p.nombreComercial} · disponible en Fase 5`)}
+        />
       )}
     </div>
   );
