@@ -24,7 +24,7 @@
  */
 
 import React, { useMemo, useEffect, useState } from 'react';
-import { Filter as FilterIcon, Droplets, Pill, Box, Package2, Check, Search as SearchIcon } from 'lucide-react';
+import { Filter as FilterIcon, Droplets, Pill, Box, Package2, Check, Search as SearchIcon, Construction } from 'lucide-react';
 import { useToastStore } from '../../../../store/toastStore';
 import { useProductoStore } from '../../../../store/productoStore';
 import { useAuthStore } from '../../../../store/authStore';
@@ -47,7 +47,9 @@ import {
 } from '../filters';
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
-import type { Producto } from '../../../../types/producto.types';
+import { WizardSelector, WizardSimple, type TipoCreacion } from '../wizards';
+import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
+import type { Producto, ProductoFormData } from '../../../../types/producto.types';
 
 // ─── Configuración de filtros ────────────────────────────────────────────────
 
@@ -94,16 +96,21 @@ export const ProductosPageV2: React.FC = () => {
   const toast = useToastStore();
   const { productos, archivados, loading, fetchProductos, fetchArchivados } = useProductoStore();
   const filtros = useProductosFilters();
+  const { lineasActivas, fetchLineasActivas } = useLineaNegocioStore();
+  const { createProducto } = useProductoStore();
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
   const [detailProducto, setDetailProducto] = useState<Producto | null>(null);
+  const [showSelector, setShowSelector] = useState(false);
+  const [wizardActivo, setWizardActivo] = useState<TipoCreacion | null>(null);
 
   // Cargar productos al montar
   useEffect(() => {
     if (user) {
       fetchProductos();
       fetchArchivados();
+      fetchLineasActivas();
     }
-  }, [user, fetchProductos, fetchArchivados]);
+  }, [user, fetchProductos, fetchArchivados, fetchLineasActivas]);
 
   const lista = useMemo(() => (Array.isArray(productos) ? productos : []), [productos]);
 
@@ -357,8 +364,34 @@ export const ProductosPageV2: React.FC = () => {
   const hayProductos = lista.length > 0;
   const selectedCount = filtros.selectedIds.size;
 
-  // ─── Handlers · placeholders hasta Fases 4-9 ───────────────────────────────
-  const handleNuevo = () => toast.info('Wizard de creación · disponible en Fase 7');
+  // ─── Handlers ─────────────────────────────────────────────────────────────
+  // Fase 7a · CTA "Nuevo producto" abre el selector
+  const handleNuevo = () => setShowSelector(true);
+
+  // Selector · usuario eligió tipo de creación
+  const handleSelectorChoice = (tipo: TipoCreacion) => {
+    setShowSelector(false);
+    setWizardActivo(tipo);
+  };
+
+  // Wizard simple · submit (crear producto)
+  const handleCrearSimple = async (data: Partial<ProductoFormData>) => {
+    if (!user) {
+      toast.error('Sesión expirada · vuelve a iniciar sesión');
+      return;
+    }
+    try {
+      await createProducto(data, user.uid);
+      toast.success(`Producto "${data.nombreComercial}" creado correctamente`);
+      setWizardActivo(null);
+      // Refrescar lista
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al crear producto: ${err?.message ?? 'desconocido'}`);
+      throw err; // re-throw para que el wizard pueda volver a habilitar el botón
+    }
+  };
+
   const handleArchivo = () => toast.info('Modal Papelera · disponible en Fase 8');
   const handleCalculadora = () => toast.info('Productos Intel · disponible en Fase 9');
   const handleSugerencias = () => toast.info('Sugerencias del día · disponible en Fase 9');
@@ -519,6 +552,40 @@ export const ProductosPageV2: React.FC = () => {
         />
       )}
 
+      {/* Wizard Selector · Fase 7a · trigger desde "+ Nuevo producto" */}
+      <WizardSelector
+        open={showSelector}
+        onClose={() => setShowSelector(false)}
+        onSelect={handleSelectorChoice}
+      />
+
+      {/* Wizard Simple · Fase 7a · 1 paso · 4 secciones colapsables */}
+      <WizardSimple
+        open={wizardActivo === 'simple'}
+        onClose={() => setWizardActivo(null)}
+        onSubmit={handleCrearSimple}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
+      />
+
+      {/* Wizards complejos · Fase 7b/7c (placeholders) */}
+      {wizardActivo === 'con_variantes' && (
+        <PlaceholderWizard
+          tipo="con_variantes"
+          onClose={() => setWizardActivo(null)}
+          fase="7b"
+        />
+      )}
+      {wizardActivo === 'variante_existente' && (
+        <PlaceholderWizard
+          tipo="variante_existente"
+          onClose={() => setWizardActivo(null)}
+          fase="7c"
+        />
+      )}
+      {wizardActivo === 'pack' && (
+        <PlaceholderWizard tipo="pack" onClose={() => setWizardActivo(null)} fase="7b" />
+      )}
+
       {/* Modal detalle producto · Fase 4 · F6(A) desktop / bottom sheet mobile */}
       <ProductoDetailModal
         open={!!detailProducto}
@@ -547,3 +614,43 @@ function calcMargen(p: any): number {
   if (!inv?.ctruEstimado || !p.precioVenta) return -1;
   return ((p.precioVenta - inv.ctruEstimado) / p.precioVenta) * 100;
 }
+
+// ─── Placeholder para wizards Fase 7b/7c (no bloquea selector) ─────────────
+const PlaceholderWizard: React.FC<{ tipo: TipoCreacion; onClose: () => void; fase: string }> = ({
+  tipo,
+  onClose,
+  fase,
+}) => {
+  const labels: Record<TipoCreacion, string> = {
+    simple: 'Producto único',
+    con_variantes: 'Producto con variantes',
+    variante_existente: 'Variante de producto existente',
+    pack: 'Pack / Kit',
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/55 backdrop-blur-sm"
+        aria-label="Cerrar"
+      />
+      <div className="relative max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-6 text-center">
+        <div className="w-12 h-12 mx-auto rounded-2xl bg-indigo-100 flex items-center justify-center mb-4">
+          <Construction className="w-6 h-6 text-indigo-600" />
+        </div>
+        <h3 className="text-base font-bold text-slate-900 mb-2">Wizard "{labels[tipo]}"</h3>
+        <p className="text-xs text-slate-500 mb-4">
+          Disponible en <strong>Fase {fase}</strong> · próxima sub-sesión.
+        </p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
+        >
+          Volver al selector
+        </button>
+      </div>
+    </div>
+  );
+};
