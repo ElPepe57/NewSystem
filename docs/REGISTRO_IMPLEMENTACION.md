@@ -2,8 +2,58 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-01 (33 commits en main post-S58f · 6 BLOQUES MAYORES CERRADOS: (1) GASTOFORM-V2 + GASTOS-PAGE-V2 + PROVEEDOR-GASTOS · 5/5 · ~4.5h · (2) PAGOFORM-001 Fase 1 visual + Fase 2 destino tercero opt-in · (3) MIGRACION VISUAL TESORERIA pixel-perfect S58e: 9 tabs con headers banking-grade unificados + TabMovimientos completo. (4) MIGRACION VISUAL PRODUCTOS + INVENTARIO pixel-perfect S58f. (5) MIGRACION VISUAL VENTAS pixel-perfect S58f. (6) Hook useDatosBancariosTercero. Quedan: PAGOFORM-001 Fase 3 split (~1.5 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · Diferidos pragmaticos (Productos-Intel + Mapa-calor + Mapa-ventas-geo · 1 ses c/u) · TAREA-DESIGN-SYSTEM-GLOBAL bloques restantes (Finanzas extendido · Nav shell · Reclamos · ~3-4 ses).)
+**Ultima actualizacion:** 2026-05-01 (35 commits en main post-S58f · 7 BLOQUES MAYORES CERRADOS: (1) GASTOFORM-V2 + GASTOS-PAGE-V2 + PROVEEDOR-GASTOS · 5/5 · ~4.5h · (2) PAGOFORM-001 Fase 1 visual + Fase 2 destino tercero opt-in · (3) MIGRACION VISUAL TESORERIA pixel-perfect S58e: 9 tabs con headers banking-grade unificados + TabMovimientos completo. (4) MIGRACION VISUAL PRODUCTOS + INVENTARIO pixel-perfect S58f. (5) MIGRACION VISUAL VENTAS pixel-perfect S58f. (6) MIGRACION VISUAL RECLAMOS + FINANZAS LAYOUT pixel-perfect + decision Nav Shell preservar. (7) Hook useDatosBancariosTercero. Quedan: PAGOFORM-001 Fase 3 split (~1.5 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · Diferidos pragmaticos (Productos-Intel + Mapa-calor + Mapa-ventas-geo · 1 ses c/u) · Finanzas sub-paginas (Cash-flow + Overview + Unificadas + Modales · ~1 ses si se requieren).)
 **Branch activo:** main
+
+---
+
+## SESION POST-S58f · BLOQUE RECLAMOS + FINANZAS LAYOUT + DECISION NAV SHELL
+
+### Fecha y alcance
+
+**Fecha:** 2026-05-01 (continuacion sesion mismo dia)
+**Mockups del bloque:**
+- `reclamos-procedural-s54.html` ✅ header + KPI strip 5 KPIs pixel-perfect
+- `nav-shell-global-s58f.html` ✅ DECISION DOCUMENTADA: preservar sidebar actual
+- Finanzas Layout ✅ header banking-grade canonico (alineado al patron Tesoreria/Productos/Ventas)
+
+### Commits ejecutados
+
+- `0bfac75` · TabReclamos header banking-grade + KPI strip 5 KPIs (Total / Reclamado / Cobrado / Perdido / Tasa recuperacion) + FinanzasLayout header banking-grade canonico con breadcrumb dinamico segun ruta
+
+### Cambios visuales clave
+
+**Reclamos:**
+- Header banking-grade con breadcrumb "Logística > Reclamos · Recuperación de incidencias"
+- h1 con icon ShieldAlert teal · subtitulo del manifesto S54
+- Stats inline en lado derecho (X pendientes en ámbar)
+- KPI strip 5 KPIs reescritos con dividers verticales (reemplaza StatCards genéricos)
+
+**Finanzas Layout:**
+- Reemplaza PageHeader legacy por header banking-grade canónico inline
+- Breadcrumb dinámico según ruta: "Finanzas y Contabilidad > [Overview/Saldos/Cash flow]"
+- h1 con icon dinámico segun vista (ChartPie / Handshake / ArrowRightLeft)
+- Tabs sticky preservadas debajo · intro line + KPIBar siguen funcionando
+
+### Decisión: Nav Shell preservar el actual
+
+**Decisión:** NO migrar el `Sidebar.tsx` actual al patrón plano del mockup `nav-shell-global-s58f.html`.
+
+**Razones:**
+1. El sidebar actual con grupos colapsables es **mejor UX para sistemas grandes** que el sidebar plano del mockup. Con 30+ items de menú agrupados, los grupos colapsables permiten densidad informativa controlable.
+2. El cambio sería **invasivo y riesgoso** (379 líneas) sin justificación operativa clara.
+3. El mockup propone w-60 fijo y todos los items planos, lo cual aumenta scroll y reduce densidad.
+
+**Conclusión:** el mockup `nav-shell-global-s58f` queda como **referencia futura para versión desktop simplificada o variante power-user**, no como prescripción a implementar ahora. El sidebar actual ya cumple los principios del manifesto S58f (banking-grade, tabular-nums, semantica de color, badges).
+
+### Resultado funcional
+
+El usuario puede entrar a `/envios` (tab Reclamos) y `/finanzas` (Overview/Saldos/Cash flow) y ver:
+- Headers banking-grade IDÉNTICOS al patrón aplicado en Tesorería/Productos/Inventario/Ventas
+- KPI strips con dividers verticales · números tabular-nums · iconos semánticos
+- Breadcrumbs canónicos con ChevronRight
+
+**Tiempo invertido:** ~30 min (componentes ya existían · solo header + KPI strip refactor).
 
 ---
 
