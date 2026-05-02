@@ -7,6 +7,10 @@ import {
   RefreshCw,
   Rotate3d,
   Check,
+  ArrowRightLeft,
+  ChevronRight,
+  TrendingUp,
+  History,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
 import {
@@ -111,19 +115,57 @@ export const TabConversiones: React.FC<TabConversionesPros> = ({
     },
   ];
 
+  // Mini-stats para mostrar en el header (pixel-perfect S58e)
+  const stats = React.useMemo(() => {
+    if (conversiones.length === 0) return null;
+    const totalUSD = conversiones
+      .filter((c) => c.monedaOrigen === 'USD')
+      .reduce((acc, c) => acc + c.montoOrigen, 0);
+    const spreadPromedio =
+      conversiones.reduce((acc, c) => acc + (c.spreadCambiario || 0), 0) / conversiones.length;
+    return { totalUSD, spreadPromedio };
+  }, [conversiones]);
+
   return (
     <>
-      <Card padding="none">
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-            Conversiones ({conversiones.length})
-          </h3>
-          <Button variant="primary" onClick={() => setIsConversionModalOpen(true)} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            <span className="sm:hidden">Nueva</span>
-            <span className="hidden sm:inline">Nueva Conversion</span>
+      {/* Header banking-grade S58e · breadcrumb + h1 + stats + acciones */}
+      <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Tesorería</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Conversiones cambiarias</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <ArrowRightLeft className="w-6 h-6 text-teal-600" />
+            Conversiones · USD ↔ PEN
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            {conversiones.length.toLocaleString('es-PE')} {conversiones.length === 1 ? 'conversión registrada' : 'conversiones registradas'}
+            {stats && (
+              <>
+                {' · '}
+                <span className="tabular-nums">US$ {stats.totalUSD.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</span>
+                {' movidos · spread promedio '}
+                <span
+                  className={`tabular-nums font-semibold ${stats.spreadPromedio >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
+                >
+                  {stats.spreadPromedio >= 0 ? '+' : ''}
+                  {stats.spreadPromedio.toFixed(2)}%
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="primary-soft" onClick={() => setIsConversionModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            Nueva Conversión
           </Button>
         </div>
+      </div>
+
+      <Card padding="none">
 
         {/* Mobile card layout */}
         <div className="md:hidden divide-y divide-slate-200">

@@ -11,6 +11,8 @@ import {
   AlertTriangle,
   Shuffle,
   Check,
+  ChevronRight,
+  MoveRight,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
 import {
@@ -158,22 +160,63 @@ export const TabTransferencias: React.FC<TabTransferenciasProps> = ({
     },
   ];
 
+  // Mini-stats para el header pixel-perfect S58e
+  const stats = React.useMemo(() => {
+    if (transferencias.length === 0) return null;
+    const totalPEN = transferencias
+      .filter((t) => t.moneda === 'PEN')
+      .reduce((acc, t) => acc + t.monto, 0);
+    const totalUSD = transferencias
+      .filter((t) => t.moneda === 'USD')
+      .reduce((acc, t) => acc + t.monto, 0);
+    return { totalPEN, totalUSD };
+  }, [transferencias]);
+
   return (
     <>
-      <Card padding="none">
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900">Transferencias entre Cuentas</h3>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 hidden sm:block">
-              Mueve fondos entre tus propias cuentas sin afectar el patrimonio
-            </p>
+      {/* Header banking-grade S58e · breadcrumb + h1 + stats + acciones */}
+      <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Tesorería</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Transferencias internas</span>
           </div>
-          <Button variant="primary" onClick={() => setIsTransferenciaModalOpen(true)} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            <span className="sm:hidden">Nueva</span>
-            <span className="hidden sm:inline">Nueva Transferencia</span>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <MoveRight className="w-6 h-6 text-teal-600" />
+            Transferencias entre Cuentas
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Mueve fondos entre tus propias cuentas sin afectar el patrimonio ·{' '}
+            {transferencias.length.toLocaleString('es-PE')}{' '}
+            {transferencias.length === 1 ? 'transferencia' : 'transferencias'}
+            {stats && (
+              <>
+                {stats.totalPEN > 0 && (
+                  <>
+                    {' · '}
+                    <span className="tabular-nums">S/ {stats.totalPEN.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</span>
+                  </>
+                )}
+                {stats.totalUSD > 0 && (
+                  <>
+                    {' · '}
+                    <span className="tabular-nums">US$ {stats.totalUSD.toLocaleString('es-PE', { maximumFractionDigits: 0 })}</span>
+                  </>
+                )}
+              </>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="primary-soft" onClick={() => setIsTransferenciaModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            Nueva Transferencia
           </Button>
         </div>
+      </div>
+
+      <Card padding="none">
 
         {/* Mobile card layout */}
         <div className="md:hidden divide-y divide-slate-200">
