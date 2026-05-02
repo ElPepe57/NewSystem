@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>14 · Modal detalle · Tab Componentes pack · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: rgba(15, 23, 42, 0.5); font-variant-numeric: tabular-nums; padding: 60px 20px 40px; min-height: 100vh; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #d8b4fe; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #faf5ff; color: #581c87; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #581c87; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">🪟</div>
+  <div class="context-info">
+    <div class="context-type">Modal centrado · Tab CONDICIONAL</div>
+    <div class="context-title">Modal Detalle Producto · TAB COMPONENTES (SOLO si producto.esPack === true)</div>
+    <div class="context-meta">D-PROD-2 cerrado: tabs dinámicos · este tab solo aparece para packs · Header gradient PURPLE-PINK (no violet) para diferenciar packs</div>
+  </div>
+  <div class="context-id">14-modal-componentes-pack</div>
+</div>
+
+<div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden mt-6">
+  <!-- HEADER HERO · gradient purple-pink para PACKS -->
+  <div class="bg-gradient-to-br from-purple-600 to-pink-600 text-white p-6">
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <!-- Avatar Gift con badge contador -->
+        <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0 relative">
+          <i data-lucide="gift" class="w-8 h-8 text-white"></i>
+          <span class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-white text-purple-700 text-xs font-bold rounded-full flex items-center justify-center ring-2 ring-purple-600">5</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-100">SKU-PROD-0041</span>
+            <span class="px-2 py-0.5 rounded-full bg-white text-purple-700 text-[10px] font-bold uppercase tracking-wider">PACK</span>
+            <span class="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold">Activo</span>
+          </div>
+          <h2 class="text-2xl font-bold leading-tight">Skincare Routine Travel Kit</h2>
+          <div class="flex items-center gap-3 mt-1.5 text-sm text-purple-100">
+            <span class="flex items-center gap-1"><i data-lucide="package" class="w-3.5 h-3.5"></i>5 productos · 1 caja</span>
+            <span class="text-purple-300">·</span>
+            <span class="flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i>15% ahorro vs sueltos</span>
+          </div>
+        </div>
+      </div>
+      <button class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI ROW · adaptado a packs -->
+  <div class="grid grid-cols-4 border-b border-slate-200 divide-x divide-slate-200">
+    <div class="p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Precio pack</div>
+      <div class="text-xl font-bold text-slate-900 tabular tracking-tight">S/ 480<span class="text-base text-slate-400 font-normal">.00</span></div>
+      <div class="text-[11px] text-emerald-600 tabular mt-0.5">vs S/ 565 sueltos</div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Margen pack</div>
+      <div class="text-xl font-bold text-emerald-600 tabular tracking-tight">61<span class="text-base text-emerald-300 font-normal">%</span></div>
+      <div class="text-[11px] text-emerald-600 tabular mt-0.5">vs 48% prom componentes</div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Stock cajas armadas</div>
+      <div class="text-xl font-bold text-slate-900 tabular tracking-tight">25 cajas</div>
+      <div class="text-[11px] text-slate-500 mt-0.5">capacidad: hasta 35</div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Vendido mes</div>
+      <div class="text-xl font-bold text-slate-900 tabular tracking-tight">12 cajas</div>
+      <div class="text-[11px] text-emerald-600 tabular mt-0.5">+33% vs mes anterior</div>
+    </div>
+  </div>
+
+  <!-- TABS · 5 tabs (todos visibles porque es pack) -->
+  <div class="border-b border-slate-200 bg-slate-50/50">
+    <div class="flex items-center gap-0 px-4">
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i>Info</button>
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 flex items-center gap-2 cursor-not-allowed" title="Los packs no tienen variantes propias">
+        <i data-lucide="git-branch" class="w-4 h-4"></i>Variantes <span class="text-[10px] tabular">N/A</span>
+      </button>
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i>Investigación</button>
+      <!-- Tab COMPONENTES activo (solo aparece para packs) -->
+      <button class="px-4 py-3 text-sm font-bold border-b-2 border-purple-600 text-purple-700 flex items-center gap-2">
+        <i data-lucide="package" class="w-4 h-4"></i>Componentes <span class="text-[10px] tabular bg-purple-200 px-1.5 py-0.5 rounded-full">5</span>
+      </button>
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4"></i>Stock e historial</button>
+    </div>
+  </div>
+
+  <!-- CONTENIDO TAB COMPONENTES -->
+  <div class="p-5 max-h-[480px] overflow-y-auto space-y-4">
+    <!-- Header tab -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">Componentes del pack</h3>
+        <p class="text-xs text-slate-500 mt-0.5">5 productos que vienen dentro de la caja · 4 vinculados al catálogo · 1 exclusivo</p>
+      </div>
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>Agregar componente
+      </button>
+    </div>
+
+    <!-- Tabla line-items estilo Stripe -->
+    <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div class="grid grid-cols-12 gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+        <div class="col-span-1">Tipo</div>
+        <div class="col-span-5">Componente</div>
+        <div class="col-span-1 text-center">Cant.</div>
+        <div class="col-span-2 text-right">Costo unit.</div>
+        <div class="col-span-2 text-right">Subtotal</div>
+        <div class="col-span-1 text-right"></div>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <!-- Componente vinculado 1 -->
+        <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 hover:bg-slate-50">
+          <div class="col-span-1 text-center">
+            <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold">VINC</span>
+          </div>
+          <div class="col-span-5 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Soothing Toner 50 ml (Travel)</div>
+              <div class="text-[10px] text-slate-500"><span class="font-mono">SKU-VAR-0037-50</span> · Cosrx</div>
+            </div>
+          </div>
+          <div class="col-span-1 text-center text-sm font-semibold tabular">1</div>
+          <div class="col-span-2 text-right text-sm tabular text-slate-700">S/ 38<span class="text-slate-400">.00</span></div>
+          <div class="col-span-2 text-right text-sm font-semibold tabular text-slate-900">S/ 38<span class="text-slate-400">.00</span></div>
+          <div class="col-span-1 text-right">
+            <button class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+
+        <!-- Componente vinculado 2 -->
+        <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 hover:bg-slate-50">
+          <div class="col-span-1 text-center"><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold">VINC</span></div>
+          <div class="col-span-5 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Vitamin C Serum 30 ml</div>
+              <div class="text-[10px] text-slate-500"><span class="font-mono">SKU-VAR-0042-30</span> · SkinCeuticals</div>
+            </div>
+          </div>
+          <div class="col-span-1 text-center text-sm font-semibold tabular">1</div>
+          <div class="col-span-2 text-right text-sm tabular text-slate-700">S/ 137<span class="text-slate-400">.00</span></div>
+          <div class="col-span-2 text-right text-sm font-semibold tabular text-slate-900">S/ 137<span class="text-slate-400">.00</span></div>
+          <div class="col-span-1 text-right">
+            <button class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+
+        <!-- Componente vinculado 3 -->
+        <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 hover:bg-slate-50">
+          <div class="col-span-1 text-center"><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold">VINC</span></div>
+          <div class="col-span-5 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">Hydrating Moisturizer 20 ml</div>
+              <div class="text-[10px] text-slate-500"><span class="font-mono">SKU-VAR-0019-20</span> · La Roche</div>
+            </div>
+          </div>
+          <div class="col-span-1 text-center text-sm font-semibold tabular">1</div>
+          <div class="col-span-2 text-right text-sm tabular text-slate-700">S/ 52<span class="text-slate-400">.00</span></div>
+          <div class="col-span-2 text-right text-sm font-semibold tabular text-slate-900">S/ 52<span class="text-slate-400">.00</span></div>
+          <div class="col-span-1 text-right">
+            <button class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+
+        <!-- Componente vinculado 4 -->
+        <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 hover:bg-slate-50">
+          <div class="col-span-1 text-center"><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold">VINC</span></div>
+          <div class="col-span-5 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="sun" class="w-4 h-4 text-amber-700"></i></div>
+            <div>
+              <div class="text-sm font-semibold text-slate-900">SPF 50 Mineral 15 ml</div>
+              <div class="text-[10px] text-slate-500"><span class="font-mono">SKU-VAR-0033-15</span> · EltaMD</div>
+            </div>
+          </div>
+          <div class="col-span-1 text-center text-sm font-semibold tabular">1</div>
+          <div class="col-span-2 text-right text-sm tabular text-slate-700">S/ 48<span class="text-slate-400">.00</span></div>
+          <div class="col-span-2 text-right text-sm font-semibold tabular text-slate-900">S/ 48<span class="text-slate-400">.00</span></div>
+          <div class="col-span-1 text-right">
+            <button class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+
+        <!-- Componente exclusivo (texto libre) -->
+        <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 hover:bg-slate-50">
+          <div class="col-span-1 text-center"><span class="px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 text-[9px] font-bold">EXC</span></div>
+          <div class="col-span-5 flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center"><i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i></div>
+            <div>
+              <div class="text-sm font-medium text-slate-700 italic">Tarjeta de bienvenida personalizada</div>
+              <div class="text-[10px] text-slate-400 italic">Texto libre · no vinculado al catálogo</div>
+            </div>
+          </div>
+          <div class="col-span-1 text-center text-sm font-semibold tabular">1</div>
+          <div class="col-span-2 text-right text-sm tabular text-slate-700">S/ 5<span class="text-slate-400">.00</span></div>
+          <div class="col-span-2 text-right text-sm font-semibold tabular text-slate-900">S/ 5<span class="text-slate-400">.00</span></div>
+          <div class="col-span-1 text-right">
+            <button class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"><i data-lucide="more-horizontal" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer · totales con valorización -->
+      <div class="grid grid-cols-12 gap-2 items-center px-3 py-2.5 bg-slate-50 border-t border-slate-200 text-[11px] font-bold">
+        <div class="col-span-9 text-slate-700">Costo total componentes</div>
+        <div class="col-span-2 text-right text-slate-900 tabular">S/ 280<span class="text-slate-400">.00</span></div>
+        <div class="col-span-1"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-2 items-center px-3 py-1.5 bg-slate-50 border-t border-slate-100 text-[11px]">
+        <div class="col-span-9 text-slate-600">Valor venta sueltos (suma)</div>
+        <div class="col-span-2 text-right text-slate-700 tabular">S/ 565<span class="text-slate-400">.00</span></div>
+        <div class="col-span-1"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-2 items-center px-3 py-1.5 bg-purple-50 border-t border-purple-200 text-xs font-bold">
+        <div class="col-span-9 text-purple-900">Precio del pack (con descuento)</div>
+        <div class="col-span-2 text-right text-purple-900 tabular">S/ 480<span class="text-purple-400">.00</span></div>
+        <div class="col-span-1"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-2 items-center px-3 py-1.5 bg-emerald-50 border-t border-emerald-200 text-xs font-bold">
+        <div class="col-span-9 text-emerald-900">→ Ahorro para el cliente</div>
+        <div class="col-span-2 text-right text-emerald-700 tabular">S/ 85<span class="text-emerald-400">.00</span> (15%)</div>
+        <div class="col-span-1"></div>
+      </div>
+    </div>
+
+    <!-- Banner alerta · cambio de precio en componente -->
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2.5">
+      <div class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+      </div>
+      <div class="flex-1 text-xs text-amber-900">
+        <div class="font-bold mb-0.5">Re-evaluar precio del pack</div>
+        <div>El componente <strong>"Vitamin C Serum 30 ml"</strong> subió 12% en el último análisis · esto reduce tu margen del pack de 61% → 56%.</div>
+      </div>
+      <button class="text-[10px] font-bold text-amber-800 px-2 py-1 hover:bg-amber-100 rounded">Recalcular</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
+        <i data-lucide="archive" class="w-3.5 h-3.5"></i>Archivar pack
+      </button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
+      <button class="px-3 py-1.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>Editar componentes
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

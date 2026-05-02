@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>10 · Card row normal · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; padding: 32px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.sku-avatar { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 9px; font-weight: 700; box-shadow: 0 0 0 2px white; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">📍</div>
+  <div class="context-info">
+    <div class="context-type">Sección embebida · Estado VISUAL</div>
+    <div class="context-title">Card row · Estado NORMAL (default · sin interacción)</div>
+    <div class="context-meta">Vive dentro de: 01-page-listado · Click en row abre modal detalle (#11) · Acciones visibles en hover (#10b)</div>
+  </div>
+  <div class="context-id">10-card-row-normal</div>
+</div>
+
+<div style="height: 70px"></div>
+
+<div class="max-w-7xl mx-auto">
+  <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3">Card row · 6 columnas (header + 1 fila ejemplo)</h2>
+
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <!-- Header tabla (referencia) -->
+    <div class="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+      <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></div>
+      <div class="col-span-4">Producto</div>
+      <div class="col-span-2 text-right">Variantes · Stock</div>
+      <div class="col-span-2 text-right">Precio venta</div>
+      <div class="col-span-2 text-right">Margen</div>
+      <div class="col-span-1 text-right">Acciones</div>
+    </div>
+
+    <!-- ROW NORMAL · sin hover · acciones ocultas -->
+    <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 border-b-2 border-amber-300 bg-amber-50/30 cursor-pointer">
+      <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></div>
+      <div class="col-span-4 flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center ring-1 ring-amber-200/50 flex-shrink-0">
+          <i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="text-sm font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-500">
+            <span class="font-mono">SKU-PROD-0042</span>
+            <span>·</span>
+            <span class="text-slate-600 font-medium">SkinCeuticals</span>
+            <span>·</span>
+            <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-bold">Skincare</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Activo</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-2 text-right">
+        <div class="flex items-center justify-end -space-x-1">
+          <div class="sku-avatar" style="background:#0d9488">30</div>
+          <div class="sku-avatar" style="background:#f59e0b">15</div>
+          <div class="sku-avatar" style="background:#8b5cf6">+2</div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-1 tabular">4 variantes · 87 uds</div>
+      </div>
+      <div class="col-span-2 text-right">
+        <div class="text-sm font-semibold text-slate-900 tabular">S/ 285<span class="text-slate-400">.00</span></div>
+        <div class="text-[10px] text-slate-500 tabular">desde S/ 95</div>
+      </div>
+      <div class="col-span-2 text-right">
+        <div class="flex items-center justify-end gap-1">
+          <span class="text-sm font-semibold text-emerald-600 tabular">52%</span>
+          <svg viewBox="0 0 30 14" class="w-8 h-4">
+            <polyline points="0,10 5,8 10,9 15,5 20,7 25,3 30,2" fill="none" stroke="#10b981" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <!-- ACCIONES · ocultas en estado normal (opacity 0) -->
+      <div class="col-span-1 flex items-center justify-end gap-1 opacity-0">
+        <button class="p-1.5 rounded text-slate-500"><i data-lucide="eye" class="w-4 h-4"></i></button>
+        <button class="p-1.5 rounded text-slate-500"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anatomía -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 mt-6">
+    <h3 class="text-base font-bold text-slate-900 mb-3">📐 Anatomía del card row · estado NORMAL</h3>
+    <div class="grid grid-cols-2 gap-4 text-xs">
+      <div>
+        <div class="font-bold text-slate-700 mb-2">Layout (12 columnas):</div>
+        <ul class="text-slate-600 list-disc list-inside space-y-1">
+          <li><strong>col-1</strong>: checkbox bulk select</li>
+          <li><strong>col-4</strong>: avatar producto + nombre + meta (SKU·Marca·chips línea/estado)</li>
+          <li><strong>col-2</strong>: avatares apilados de variantes + count uds</li>
+          <li><strong>col-2</strong>: precio venta + "desde" si tiene variantes</li>
+          <li><strong>col-2</strong>: margen % + sparkline 6m</li>
+          <li><strong>col-1</strong>: acciones (eye + more) · ocultas en NORMAL</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-bold text-slate-700 mb-2">Reglas visuales:</div>
+        <ul class="text-slate-600 list-disc list-inside space-y-1">
+          <li>Padding row: <code>px-4 py-3</code></li>
+          <li>Avatar producto: <code>w-11 h-11 rounded-xl</code> + gradient por línea</li>
+          <li>Texto principal: <code>text-sm font-semibold text-slate-900</code></li>
+          <li>Meta: <code>text-[10px] text-slate-500</code> · separador "·"</li>
+          <li>Hover: row se highlight (ver #10b)</li>
+          <li>Click en row → abre modal detalle (#11)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

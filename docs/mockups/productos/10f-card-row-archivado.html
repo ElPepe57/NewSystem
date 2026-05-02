@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>10f · Card row archivado · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; padding: 32px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.sku-avatar { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 9px; font-weight: 700; box-shadow: 0 0 0 2px white; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">📍</div>
+  <div class="context-info">
+    <div class="context-type">Sección embebida · Estado ARCHIVADO</div>
+    <div class="context-title">Card row · ARCHIVADO (visible SOLO en Modal Papelera #23)</div>
+    <div class="context-meta">D-PROD-5 cerrado: archivados NO aparecen en listado normal · Acción primaria: "Restaurar" · Cierre: tras click "Restaurar"</div>
+  </div>
+  <div class="context-id">10f-card-archivado</div>
+</div>
+
+<div style="height: 70px"></div>
+
+<div class="max-w-7xl mx-auto">
+  <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3">Estado ARCHIVADO · solo dentro del modal Papelera</h2>
+
+  <!-- Simulación del wrapper "Papelera" -->
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <!-- Header simulado del modal Papelera -->
+    <div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i data-lucide="archive" class="w-4 h-4 text-slate-600"></i>
+        <span class="text-sm font-bold text-slate-900">Papelera de productos archivados</span>
+        <span class="text-xs text-slate-500 tabular">3 productos archivados</span>
+      </div>
+    </div>
+
+    <!-- Header tabla -->
+    <div class="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+      <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 w-3.5 h-3.5"></div>
+      <div class="col-span-4">Producto</div>
+      <div class="col-span-2 text-right">Variantes · Stock</div>
+      <div class="col-span-2">Archivado</div>
+      <div class="col-span-2 text-right">Acciones</div>
+      <div class="col-span-1"></div>
+    </div>
+
+    <!-- ROW ARCHIVADO · opacity reducida + acción restaurar visible -->
+    <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 opacity-60 hover:opacity-100 hover:bg-slate-50 cursor-pointer transition-opacity border-b border-slate-100">
+      <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></div>
+      <div class="col-span-4 flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 grayscale">
+          <i data-lucide="droplets" class="w-5 h-5 text-slate-500"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="text-sm font-medium text-slate-700 truncate line-through">Niacinamide 5% Discontinuado</div>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-400">
+            <span class="font-mono">SKU-PROD-0011</span>
+            <span>·</span>
+            <span>The Ordinary</span>
+            <span>·</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 font-bold">Skincare</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-300 text-slate-700 font-bold flex items-center gap-1">
+              <i data-lucide="archive" class="w-2.5 h-2.5"></i>Archivado
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-2 text-right">
+        <div class="flex items-center justify-end -space-x-1">
+          <div class="sku-avatar grayscale opacity-50" style="background:#94a3b8">30</div>
+          <div class="sku-avatar grayscale opacity-50" style="background:#94a3b8">15</div>
+        </div>
+        <div class="text-[10px] text-slate-400 mt-1 tabular">2 variantes · 0 uds</div>
+      </div>
+      <!-- Fecha y motivo de archivo -->
+      <div class="col-span-2">
+        <div class="text-[10px] text-slate-500 tabular">15 abr 2026</div>
+        <div class="text-[10px] text-slate-400 italic">por: José LP</div>
+      </div>
+      <!-- Acciones visibles SIEMPRE en archivados -->
+      <div class="col-span-2 flex items-center justify-end gap-1">
+        <button class="px-2 py-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded flex items-center gap-1 transition-colors">
+          <i data-lucide="rotate-ccw" class="w-3 h-3"></i>Restaurar
+        </button>
+        <button class="p-1.5 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Eliminar definitivo">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+      <div class="col-span-1"></div>
+    </div>
+
+    <!-- Otra row archivada · pack archivado -->
+    <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 opacity-60 hover:opacity-100 hover:bg-slate-50 cursor-pointer transition-opacity border-b border-slate-100">
+      <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></div>
+      <div class="col-span-4 flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 grayscale relative">
+          <i data-lucide="gift" class="w-5 h-5 text-slate-500"></i>
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-slate-400 text-white text-[8px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">3</span>
+        </div>
+        <div class="min-w-0">
+          <div class="text-sm font-medium text-slate-700 truncate line-through">Verano 2025 Pack</div>
+          <div class="flex items-center gap-1.5 text-[10px] text-slate-400">
+            <span class="font-mono">SKU-PROD-0028</span>
+            <span>·</span>
+            <span>3 productos</span>
+            <span>·</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 font-bold">PACK</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-300 text-slate-700 font-bold flex items-center gap-1">
+              <i data-lucide="archive" class="w-2.5 h-2.5"></i>Archivado
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-span-2 text-right">
+        <div class="text-[10px] text-slate-400 tabular">3 componentes · 0 cajas</div>
+      </div>
+      <div class="col-span-2">
+        <div class="text-[10px] text-slate-500 tabular">02 mar 2026</div>
+        <div class="text-[10px] text-slate-400 italic">por: María Q.</div>
+      </div>
+      <div class="col-span-2 flex items-center justify-end gap-1">
+        <button class="px-2 py-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded flex items-center gap-1 transition-colors">
+          <i data-lucide="rotate-ccw" class="w-3 h-3"></i>Restaurar
+        </button>
+        <button class="p-1.5 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+      <div class="col-span-1"></div>
+    </div>
+
+    <!-- Footer del modal -->
+    <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+      <div class="text-xs text-slate-500">
+        Los productos archivados no aparecen en el listado principal · se conservan 90 días antes de eliminación automática.
+      </div>
+      <button class="px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded flex items-center gap-1.5">
+        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>Vaciar papelera
+      </button>
+    </div>
+  </div>
+
+  <!-- Anatomía -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 mt-6">
+    <h3 class="text-base font-bold text-slate-900 mb-3">📐 Diferencias estado ARCHIVADO</h3>
+    <div class="grid grid-cols-2 gap-4 text-xs">
+      <div>
+        <div class="font-bold text-slate-700 mb-2">Indicadores visuales:</div>
+        <ul class="text-slate-600 list-disc list-inside space-y-1">
+          <li><strong>Opacity 60%</strong> · al hacer hover sube a 100% (legibilidad)</li>
+          <li><strong>Avatar grayscale</strong> · sin colores</li>
+          <li><strong>Texto principal con line-through</strong> (tachado)</li>
+          <li><strong>Badge "Archivado"</strong> en gris (slate-300)</li>
+          <li><strong>Stock en 0 uds</strong> · variantes inactivas</li>
+          <li><strong>Sin acciones de venta/edición</strong> · solo Restaurar/Eliminar</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-bold text-slate-700 mb-2">Datos contextuales nuevos:</div>
+        <ul class="text-slate-600 list-disc list-inside space-y-1">
+          <li><strong>Fecha de archivo</strong> · cuándo se mandó a papelera</li>
+          <li><strong>Usuario que archivó</strong> · responsabilidad</li>
+          <li><strong>Botón "Restaurar"</strong> · primary verde · siempre visible</li>
+          <li><strong>Botón "Trash"</strong> · destructivo · eliminación definitiva (con confirmación)</li>
+          <li><strong>Footer del modal</strong> · explicación + "Vaciar papelera"</li>
+          <li><strong>D-PROD-5:</strong> ARCHIVADOS NO aparecen en listado normal · solo en modal Papelera (#23)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>
