@@ -47,7 +47,8 @@ import {
 } from '../filters';
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
-import { WizardSelector, WizardSimple, type TipoCreacion } from '../wizards';
+import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
+import { ProductoService } from '../../../../services/producto.service';
 import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
 import type { Producto, ProductoFormData } from '../../../../types/producto.types';
 
@@ -384,11 +385,63 @@ export const ProductosPageV2: React.FC = () => {
       await createProducto(data, user.uid);
       toast.success(`Producto "${data.nombreComercial}" creado correctamente`);
       setWizardActivo(null);
-      // Refrescar lista
       await fetchProductos();
     } catch (err: any) {
       toast.error(`Error al crear producto: ${err?.message ?? 'desconocido'}`);
-      throw err; // re-throw para que el wizard pueda volver a habilitar el botón
+      throw err;
+    }
+  };
+
+  // Wizard con variantes · submit (createConVariantes)
+  const handleCrearConVariantes = async (datosComunes: DatosComunes, variantes: VarianteEntry[]) => {
+    if (!user) {
+      toast.error('Sesión expirada · vuelve a iniciar sesión');
+      return;
+    }
+    try {
+      const variantesPayload = variantes.map(v => ({
+        contenido: v.contenido,
+        varianteLabel: v.varianteLabel,
+        ...(v.unidad === 'caps' || v.unidad === 'tabs' ? { dosaje: v.cantidad } : {}),
+        ...(v.unidad === 'ml' ? { volumen: `${v.cantidad} ml` } : {}),
+      }));
+      await ProductoService.createConVariantes(
+        {
+          marca: datosComunes.marca,
+          nombreComercial: datosComunes.nombreComercial,
+          presentacion: datosComunes.presentacion,
+          paisOrigen: datosComunes.paisOrigen,
+          lineaNegocioId: datosComunes.lineaNegocioId,
+          stockMinimo: datosComunes.stockMinimo,
+          stockMaximo: datosComunes.stockMaximo,
+          pesoLibras: datosComunes.pesoLibras,
+        },
+        variantesPayload,
+        user.uid
+      );
+      toast.success(`Producto "${datosComunes.nombreComercial}" creado con ${variantes.length} variantes`);
+      setWizardActivo(null);
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al crear variantes: ${err?.message ?? 'desconocido'}`);
+      throw err;
+    }
+  };
+
+  // Wizard pack · submit (createProducto con esPack=true)
+  const handleCrearPack = async (data: Partial<ProductoFormData>) => {
+    if (!user) {
+      toast.error('Sesión expirada · vuelve a iniciar sesión');
+      return;
+    }
+    try {
+      await createProducto(data, user.uid);
+      toast.success(`Pack "${data.nombreComercial}" creado correctamente`);
+      setWizardActivo(null);
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al crear pack: ${err?.message ?? 'desconocido'}`);
+      throw err;
     }
   };
 
@@ -567,23 +620,30 @@ export const ProductosPageV2: React.FC = () => {
         lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
       />
 
-      {/* Wizards complejos · Fase 7b/7c (placeholders) */}
-      {wizardActivo === 'con_variantes' && (
-        <PlaceholderWizard
-          tipo="con_variantes"
-          onClose={() => setWizardActivo(null)}
-          fase="7b"
-        />
-      )}
+      {/* Wizard Con Variantes · Fase 7b · F5(A) sidebar 4 pasos */}
+      <WizardConVariantes
+        open={wizardActivo === 'con_variantes'}
+        onClose={() => setWizardActivo(null)}
+        onSubmit={handleCrearConVariantes}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
+      />
+
+      {/* Wizard Pack · Fase 7b · F5(D) modal con secciones */}
+      <WizardPack
+        open={wizardActivo === 'pack'}
+        onClose={() => setWizardActivo(null)}
+        onSubmit={handleCrearPack}
+        productosDisponibles={lista}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
+      />
+
+      {/* Wizard Variante Existente · Fase 7c (pendiente · placeholder) */}
       {wizardActivo === 'variante_existente' && (
         <PlaceholderWizard
           tipo="variante_existente"
           onClose={() => setWizardActivo(null)}
           fase="7c"
         />
-      )}
-      {wizardActivo === 'pack' && (
-        <PlaceholderWizard tipo="pack" onClose={() => setWizardActivo(null)} fase="7b" />
       )}
 
       {/* Modal detalle producto · Fase 4 · F6(A) desktop / bottom sheet mobile */}
