@@ -18,9 +18,10 @@ import {
   ChartPie,
   Handshake,
   ArrowRightLeft,
+  ChevronRight,
   type LucideIcon,
 } from 'lucide-react';
-import { PageShell, PageHeader } from '../../design-system';
+import { PageShell } from '../../design-system';
 import { cn } from '../../design-system';
 import { FinanzasKPIBar } from './FinanzasKPIBar';
 
@@ -91,13 +92,27 @@ const FinanzasLayout: React.FC = () => {
   const location = useLocation();
   const vista = VISTAS[location.pathname] ?? VISTA_FALLBACK;
 
+  // Pixel-perfect: extraer crumb final del title (post "·")
+  const crumb = vista.title.includes('·') ? vista.title.split('·')[1].trim() : vista.title;
+  const VistaIcon = vista.icon;
+
   return (
     <PageShell>
-      <PageHeader
-        title={vista.title}
-        subtitle={vista.subtitle}
-        icon={vista.icon}
-      />
+      {/* Header banking-grade S58f · pixel-perfect canonico Finanzas */}
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Finanzas y Contabilidad</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">{crumb}</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <VistaIcon className="w-6 h-6 text-teal-600" />
+            {vista.title}
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">{vista.subtitle}</p>
+        </div>
+      </div>
 
       {/* Tabs sticky — debajo del header global */}
       <div className="sticky top-0 z-10 bg-white -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
