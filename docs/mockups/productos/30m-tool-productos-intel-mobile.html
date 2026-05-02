@@ -20,9 +20,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; height: 90%; display: flex; flex-direction: column; box-shadow: 0 -4px 30px rgba(0,0,0,0.15); }
 .liquidez-bar { display: flex; gap: 1.5px; }
 .bar-seg { height: 5px; flex: 1; border-radius: 1px; }
-/* F12 · Ocultar scrollbars en mobile */
+/* F12 · Ocultar scrollbars + Edge fade affordance */
 .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+.fade-x-edges {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+          mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}
 </style>
 </head>
 <body>
@@ -65,8 +69,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </button>
     </div>
 
-    <!-- KPIs scroll horizontal · 5 KPIs ejecutivos -->
-    <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex-shrink-0 overflow-x-auto scrollbar-hide">
+    <!-- KPIs scroll horizontal · 5 KPIs ejecutivos · Edge fade + Peek (5to KPI parcialmente cortado) -->
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex-shrink-0 overflow-x-auto scrollbar-hide fade-x-edges">
       <div class="flex items-stretch gap-2 min-w-max">
         <div class="bg-white border border-slate-200 rounded-lg p-2.5 min-w-[110px]">
           <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Valor stock</div>
@@ -96,8 +100,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </div>
     </div>
 
-    <!-- Filtros pills · scroll horizontal -->
-    <div class="border-b border-slate-200 px-4 py-2.5 flex-shrink-0 overflow-x-auto scrollbar-hide">
+    <!-- Filtros pills · scroll horizontal · Edge fade -->
+    <div class="border-b border-slate-200 px-4 py-2.5 flex-shrink-0 overflow-x-auto scrollbar-hide fade-x-edges">
       <div class="flex items-center gap-1.5 min-w-max">
         <span class="text-[9px] uppercase tracking-wider text-slate-400 font-bold flex-shrink-0">Score:</span>
         <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-slate-900 text-white">

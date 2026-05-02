@@ -18,9 +18,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
 .mobile-frame { width: 375px; height: 812px; margin: 80px auto 40px; position: relative; background: rgba(15, 23, 42, 0.7); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
 .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; height: 90%; display: flex; flex-direction: column; box-shadow: 0 -4px 30px rgba(0,0,0,0.15); }
-/* F12 · Ocultar scrollbars en mobile */
+/* F12 · Ocultar scrollbars + Edge fade affordance */
 .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+.fade-x-edges {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+          mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}
 </style>
 </head>
 <body>
@@ -72,9 +76,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <button class="text-[10px] font-bold text-amber-800">Ver →</button>
     </div>
 
-    <!-- Tabs scroll horizontal -->
-    <div class="border-b border-slate-200 bg-slate-50/30 flex-shrink-0 overflow-x-auto scrollbar-hide">
-      <div class="flex items-center gap-0 px-2 min-w-max">
+    <!-- Tabs scroll horizontal · Subrayado activa + Chevron derecho + Peek -->
+    <div class="border-b border-slate-200 bg-slate-50/30 flex-shrink-0 relative">
+      <div class="overflow-x-auto scrollbar-hide fade-x-edges">
+        <div class="flex items-center gap-0 px-2 min-w-max">
         <button class="px-4 py-2.5 text-xs font-bold border-b-2 border-amber-600 text-amber-700 flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i>Proveedores
           <span class="text-[9px] tabular bg-amber-100 px-1 py-0.5 rounded-full">3</span>
@@ -86,6 +91,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <button class="px-4 py-2.5 text-xs font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="target" class="w-3.5 h-3.5"></i>Decisión
         </button>
+        </div>
+      </div>
+      <!-- Chevron derecho · affordance -->
+      <div class="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-6 h-6 bg-gradient-to-l from-white via-white to-transparent">
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
       </div>
     </div>
 

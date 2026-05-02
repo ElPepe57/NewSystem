@@ -1179,6 +1179,58 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         </div>
       </div>
 
+      <!-- Affordances de scroll · cómo se sabe que hay más -->
+      <div class="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-5 mb-6">
+        <div class="flex items-start gap-3 mb-4">
+          <i data-lucide="move-horizontal" class="w-6 h-6 text-indigo-700 flex-shrink-0 mt-0.5"></i>
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-indigo-900 uppercase tracking-wider mb-2">📐 Affordances de scroll · cómo el usuario sabe que se puede deslizar</h3>
+            <p class="text-xs text-indigo-800 mb-3">
+              Sin scrollbars visibles, el usuario necesita <strong>pistas visuales</strong>. Patrón canónico de Stripe + Apple + Linear + Mercury combinado.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tabla affordances por componente -->
+        <div class="bg-white border border-indigo-200 rounded-lg overflow-hidden mb-4">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-50">
+                <th class="text-left py-2 px-3 font-bold text-slate-700">Componente</th>
+                <th class="text-left py-2 px-3 font-bold text-indigo-700">Affordance canónico</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Pills scroll (filtros · score)</td><td class="py-2 px-3 text-indigo-700">Edge fade + Peek (gradient bordes + último pill cortado)</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">KPIs scroll (5+ ejecutivos)</td><td class="py-2 px-3 text-indigo-700">Edge fade + Peek</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Tabs de modal</td><td class="py-2 px-3 text-indigo-700">Subrayado activa + chevron <code>›</code> derecho + Peek</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Chips de atributos</td><td class="py-2 px-3 text-indigo-700">Edge fade simple</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Acciones header</td><td class="py-2 px-3 text-indigo-700">Dropdown "Más" explícito (NO scroll)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Edge fade utility -->
+        <div class="mb-4">
+          <div class="text-xs font-bold text-slate-700 mb-1">CSS · Edge fade utility</div>
+          <pre class="text-[11px] bg-slate-900 text-slate-100 p-3 rounded overflow-x-auto"><code>.fade-x-edges {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+          mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}</code></pre>
+        </div>
+
+        <!-- Mecanismos de scroll -->
+        <div class="bg-white border border-indigo-200 rounded-lg p-3">
+          <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold mb-2">Mecanismos de scroll (nativos · sin código adicional)</div>
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600">
+            <div><strong class="text-slate-900">📱 Touch (mobile/tablet):</strong> swipe horizontal con dedo</div>
+            <div><strong class="text-slate-900">💻 Trackpad (Mac/Win):</strong> 2 dedos horizontal</div>
+            <div><strong class="text-slate-900">🖱️ Mouse:</strong> Shift + scroll wheel</div>
+            <div><strong class="text-slate-900">⌨️ Teclado:</strong> Tab + flechas (accesibilidad)</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Anti-pattern · NO progressive disclosure -->
       <div class="bg-rose-50 border-2 border-rose-300 rounded-xl p-5 mb-6">
         <div class="flex items-start gap-3">

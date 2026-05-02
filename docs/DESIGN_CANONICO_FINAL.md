@@ -430,6 +430,36 @@ Los scrollbars nativos del navegador rompen el look banking-grade. En cualquier 
 
 Aplicar a: pills rápidos · tabs scroll · KPI strip horizontal en mobile · sub-tabs · cualquier `overflow-x-auto`. La funcionalidad de scroll se mantiene · solo se oculta el chrome visual.
 
+**Affordances de scroll (regla obligatoria) · cómo el usuario sabe que se puede deslizar:**
+Sin scrollbar visible, el usuario necesita pistas visuales para saber que hay más contenido. Patrón de Stripe + Apple + Linear + Mercury combinado:
+
+| Componente | Affordance canónico |
+|-----------|---------------------|
+| Pills scroll (filtros · score) | **Edge fade + Peek** (gradient en bordes + último pill cortado) |
+| KPIs scroll (5+ ejecutivos) | **Edge fade + Peek** |
+| Tabs de modal | **Subrayado tab activa + chevron `›` derecho + Peek** |
+| Chips de atributos | **Edge fade** simple |
+| Acciones header secundarias | **Dropdown "Más" explícito** (no scroll) |
+
+**Edge fade utility (CSS):**
+
+```css
+.fade-x-edges {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+          mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}
+```
+
+**Chevron tabs (visual):** ícono `chevron-right` w-3 h-3 en `text-slate-400` posicionado absolute al borde derecho del contenedor de tabs, con `pointer-events-none` para no interferir con clicks.
+
+**Peek:** asegurarse de que el contenedor de scroll tenga ancho que NO acomode todos los elementos · siempre debe haber al menos un elemento parcialmente cortado en el borde derecho. Esto fuerza la pista visual.
+
+**Mecanismos de scroll (nativos · sin código):**
+- Touch: swipe horizontal (mobile/tablet)
+- Trackpad: 2 dedos horizontal (Mac/Windows)
+- Mouse: `Shift + scroll wheel` (estándar web)
+- Teclado: Tab + flechas (accesibilidad)
+
 **Implementación técnica:**
 - Usar Tailwind responsive prefixes nativos (`hidden lg:block` · `lg:hidden` · `lg:grid-cols-4` · etc.)
 - NO usar JavaScript para detectar viewport · todo via CSS responsive

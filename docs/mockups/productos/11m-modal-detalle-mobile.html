@@ -19,9 +19,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 /* Mobile bottom sheet · simula iPhone 13 mini · 375x812 · drawer ocupa 90vh */
 .mobile-frame { width: 375px; height: 812px; margin: 80px auto 40px; position: relative; background: rgba(15, 23, 42, 0.7); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
 .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; height: 90%; display: flex; flex-direction: column; box-shadow: 0 -4px 30px rgba(0,0,0,0.15); }
-/* F12 · Ocultar scrollbars en mobile */
+/* F12 · Ocultar scrollbars + Edge fade affordance */
 .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+.fade-x-edges {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+          mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}
 </style>
 </head>
 <body>
@@ -79,9 +83,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </div>
     </div>
 
-    <!-- Tabs sticky · scroll horizontal -->
-    <div class="border-b border-slate-200 bg-slate-50/30 flex-shrink-0 overflow-x-auto scrollbar-hide">
-      <div class="flex items-center gap-0 px-2 min-w-max">
+    <!-- Tabs sticky · scroll horizontal · Subrayado activa + Chevron derecho + Peek -->
+    <div class="border-b border-slate-200 bg-slate-50/30 flex-shrink-0 relative">
+      <div class="overflow-x-auto scrollbar-hide fade-x-edges">
+        <div class="flex items-center gap-0 px-2 min-w-max">
         <button class="px-3 py-2.5 text-xs font-bold border-b-2 border-amber-600 text-amber-700 flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Resumen
         </button>
@@ -102,6 +107,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <button class="px-3 py-2.5 text-xs font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
           <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>Pipeline ⭐
         </button>
+        </div>
+      </div>
+      <!-- Chevron derecho · affordance · pointer-events-none para no bloquear clicks -->
+      <div class="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-6 h-6 bg-gradient-to-l from-white via-white to-transparent">
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
       </div>
     </div>
 
@@ -176,15 +186,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           <div class="text-[10px] uppercase tracking-wider text-slate-700 font-bold">Atributos · Skincare</div>
         </div>
         <div class="p-3 space-y-2">
-          <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+          <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide fade-x-edges pb-1">
             <span class="text-[10px] text-slate-500 flex-shrink-0">Paso:</span>
             <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold flex-shrink-0">Sérum</span>
           </div>
-          <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+          <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide fade-x-edges pb-1">
             <span class="text-[10px] text-slate-500 flex-shrink-0">Textura:</span>
             <span class="px-2 py-0.5 rounded bg-sky-50 text-sky-700 text-[10px] font-bold flex-shrink-0">Líquido</span>
           </div>
-          <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+          <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide fade-x-edges pb-1">
             <span class="text-[10px] text-slate-500 flex-shrink-0">Tipo piel:</span>
             <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold flex-shrink-0">Mixta</span>
             <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold flex-shrink-0">Grasa</span>
