@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Comparativa Gaps S3 · Mockups 16-32 vs Histórico (intel + pack)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; }
+.tabular { font-variant-numeric: tabular-nums; }
+.gap-section { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.gap-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; font-size: 14px; }
+.gap-num-critical { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+.gap-num-medium { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.gap-num-low { background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%); }
+.demo-box { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 16px; min-height: 200px; position: relative; }
+.demo-label { position: absolute; top: -12px; left: 16px; padding: 4px 12px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; }
+.demo-actual { background: #fee2e2; color: #991b1b; }
+.demo-propuesta { background: #dcfce7; color: #166534; }
+.demo-historico { background: #dbeafe; color: #1e3a8a; }
+.decision-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 16px; margin-top: 16px; }
+.decision-options { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.decision-btn { flex: 1; min-width: 120px; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 2px solid; cursor: pointer; transition: all 0.15s; text-align: center; background: white; }
+.decision-btn-yes { border-color: #10b981; color: #166534; }
+.decision-btn-yes:hover { background: #f0fdf4; }
+.decision-btn-no { border-color: #dc2626; color: #991b1b; }
+.decision-btn-no:hover { background: #fef2f2; }
+.decision-btn-mod { border-color: #f59e0b; color: #78350f; }
+.decision-btn-mod:hover { background: #fffbeb; }
+.priority-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.priority-critical { background: #fee2e2; color: #991b1b; }
+.priority-medium { background: #fef3c7; color: #78350f; }
+.priority-low { background: #ccfbf1; color: #115e59; }
+.bar-seg { height: 6px; border-radius: 1px; flex: 1; }
+.liquidez-bar { display: flex; gap: 1.5px; align-items: center; }
+.pipeline-mini { background: white; border-radius: 6px; padding: 6px 8px; font-size: 9px; min-width: 0; flex: 1; }
+.cite-box { background: #faf5ff; border-left: 4px solid #a855f7; padding: 12px 16px; border-radius: 6px; font-style: italic; color: #581c87; font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- HEADER -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="bg-gradient-to-br from-slate-900 via-rose-900 to-amber-900 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <div class="text-xs uppercase tracking-wider text-amber-200 mb-2">📐 Auditoría honesta · Sesión 3 vs históricos</div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">6 Gaps detectados · Decisiones one-by-one</h1>
+    <p class="text-amber-100 text-sm max-w-3xl mb-4">
+      Antes de producir los 17 mockups (16-32) NO revisé <code class="bg-white/20 px-1.5 py-0.5 rounded text-[11px]">productos-intel-s58f.html</code> ni <code class="bg-white/20 px-1.5 py-0.5 rounded text-[11px]">producto-pack-skincare.html</code>.
+      Cuando me preguntaste, hice la auditoría. Por cada gap: VERSIÓN ACTUAL (lo que produje) vs HISTÓRICO (lo que existía) vs PROPUESTA. Vos decidís uno por uno.
+    </p>
+    <div class="grid grid-cols-3 gap-3 text-xs">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="font-bold text-rose-200 mb-1">2 Gaps CRÍTICOS</div>
+        <div class="text-amber-100">Score Liquidez · Pipeline valorización por ubicación</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="font-bold text-amber-200 mb-1">3 Gaps MEDIOS</div>
+        <div class="text-amber-100">Sugerencias del día · Pack regla stock · Pack stock suelto</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="font-bold text-teal-200 mb-1">1 Gap BAJO</div>
+        <div class="text-amber-100">Pack badge en búsqueda Ventas (cross-módulo)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-6 py-8">
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 1 · SCORE LIQUIDEZ AUSENTE -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-critical">1</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Score Liquidez + Acciones de inventario</h2>
+          <span class="priority-badge priority-critical">🔴 Crítico</span>
+        </div>
+        <p class="text-sm text-slate-600">Mi mockup #30 "Dashboard catálogo" usa KPIs genéricos (margen prom, top 5, donut). El histórico tiene un sistema de inteligencia con <strong>Score Liquidez (Líquido/Medio/Lento)</strong> + <strong>Acciones (Reponer/Vigilar/Liquidar)</strong> + 5 KPIs ejecutivos del negocio real.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- ACTUAL · #30 mío -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #30 (mía)</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">KPIs genéricos · 4 cards</div>
+          <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+            <div class="bg-slate-50 rounded p-2"><div class="text-slate-500">Productos activos</div><div class="font-bold text-base tabular">87</div></div>
+            <div class="bg-emerald-50 rounded p-2"><div class="text-emerald-700">Margen promedio</div><div class="font-bold text-base text-emerald-700 tabular">47.3%</div></div>
+            <div class="bg-amber-50 rounded p-2"><div class="text-amber-700">Valor inventario</div><div class="font-bold text-base text-amber-700 tabular">S/ 142K</div></div>
+            <div class="bg-rose-50 rounded p-2"><div class="text-rose-700">Sin movimiento</div><div class="font-bold text-base text-rose-700 tabular">12</div></div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-100">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Top 5 vendidos · donut por línea · matriz Boston</div>
+            <div class="text-[11px] text-slate-600">Vista panorama del catálogo · sin ranking inteligente por SKU · sin acción recomendada</div>
+          </div>
+          <div class="mt-3 text-[11px] text-rose-600 italic">⚠ No conecta con la lógica de negocio real (pipeline + sugerencias accionables)</div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-historico">HISTÓRICO · productos-intel-s58f</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <!-- KPI strip ejecutivo -->
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">5 KPIs del negocio real (en strip)</div>
+          <div class="grid grid-cols-5 gap-1 text-[9px]">
+            <div class="bg-slate-50 rounded p-1.5 text-center"><div class="text-slate-500 leading-tight">Valor stock</div><div class="font-bold tabular">S/ 428K</div></div>
+            <div class="bg-slate-50 rounded p-1.5 text-center"><div class="text-slate-500 leading-tight">Capital invertido</div><div class="font-bold tabular">S/ 198K</div></div>
+            <div class="bg-emerald-50 rounded p-1.5 text-center"><div class="text-emerald-700 leading-tight">Margen potencial</div><div class="font-bold text-emerald-700 tabular">+S/ 230K</div></div>
+            <div class="bg-amber-50 rounded p-1.5 text-center"><div class="text-amber-700 leading-tight">Capital atrapado</div><div class="font-bold text-amber-700 tabular">S/ 62K</div></div>
+            <div class="bg-rose-50 rounded p-1.5 text-center"><div class="text-rose-700 leading-tight">Stock lento</div><div class="font-bold text-rose-700 tabular">8</div></div>
+          </div>
+
+          <!-- Score liquidez por SKU -->
+          <div class="mt-3 pt-3 border-t border-slate-100">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Score Liquidez por SKU + Acción</div>
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2 text-[10px]">
+                <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="droplets" class="w-3 h-3 text-amber-700"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[10px] font-semibold truncate">Vit. C Brightening</div>
+                  <div class="liquidez-bar mt-0.5">
+                    <div class="bar-seg bg-emerald-500"></div><div class="bar-seg bg-emerald-500"></div><div class="bar-seg bg-emerald-500"></div><div class="bar-seg bg-emerald-500"></div><div class="bar-seg bg-emerald-200"></div>
+                  </div>
+                  <div class="text-[8px] font-bold text-emerald-700 tabular">85 · LÍQUIDO</div>
+                </div>
+                <span class="text-[8px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Reponer</span>
+              </div>
+              <div class="flex items-center gap-2 text-[10px]">
+                <div class="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center"><i data-lucide="pill" class="w-3 h-3 text-indigo-700"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[10px] font-semibold truncate">Collagen Peptides</div>
+                  <div class="liquidez-bar mt-0.5">
+                    <div class="bar-seg bg-amber-500"></div><div class="bar-seg bg-amber-500"></div><div class="bar-seg bg-amber-500"></div><div class="bar-seg bg-amber-200"></div><div class="bar-seg bg-amber-200"></div>
+                  </div>
+                  <div class="text-[8px] font-bold text-amber-700 tabular">52 · MEDIO</div>
+                </div>
+                <span class="text-[8px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Vigilar</span>
+              </div>
+              <div class="flex items-center gap-2 text-[10px]">
+                <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center"><i data-lucide="snail" class="w-3 h-3 text-rose-700"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[10px] font-semibold truncate">Hyaluronic Toner</div>
+                  <div class="liquidez-bar mt-0.5">
+                    <div class="bar-seg bg-rose-500"></div><div class="bar-seg bg-rose-200"></div><div class="bar-seg bg-rose-200"></div><div class="bar-seg bg-rose-200"></div><div class="bar-seg bg-rose-200"></div>
+                  </div>
+                  <div class="text-[8px] font-bold text-rose-700 tabular">22 · LENTO</div>
+                </div>
+                <span class="text-[8px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">Liquidar</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 text-[11px] text-emerald-700 italic font-medium">✓ Decisión accionable por SKU · KPIs alineados al negocio real</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cite-box">
+      <strong>Cita del usuario en histórico:</strong> "me interesaba mucho la ciencia de inteligencia de productos para entender el valor de los productos y saber el valor de los mismos en cada punto en el que se encontrara para poder valorizar mi stock en todo momento."
+    </div>
+
+    <!-- DECISIÓN -->
+    <div class="decision-box">
+      <div class="font-bold text-amber-900 text-sm mb-2">🤔 Decisión Gap 1</div>
+      <p class="text-amber-900 text-[13px] mb-1">¿Reemplazo mi mockup <code>#30 Dashboard catálogo</code> por una versión que adopte: <strong>5 KPIs ejecutivos</strong> (Valor stock · Capital invertido · Margen potencial · Capital atrapado · Stock lento) + <strong>Score Liquidez por SKU</strong> con barra segmentada de 5 puntos + <strong>Acciones (Reponer/Vigilar/Liquidar)</strong>?</p>
+      <div class="text-[11px] text-amber-700 mt-1">Mi recomendación: <strong>SÍ</strong> · es la columna vertebral del concepto "intel" del usuario.</div>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Sí · reemplazar #30</button>
+        <button class="decision-btn decision-btn-mod">⚠️ Modificar (especificar)</button>
+        <button class="decision-btn decision-btn-no">❌ No · mantener #30 actual</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 2 · PIPELINE VALORIZACIÓN POR UBICACIÓN -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-critical">2</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Pipeline de valorización por ubicación · "la pieza estrella"</h2>
+          <span class="priority-badge priority-critical">🔴 Crítico</span>
+        </div>
+        <p class="text-sm text-slate-600">Para cada producto, su <strong>pipeline de 6 etapas</strong> con valor unitario que va creciendo + valor total acumulado por etapa. NO existe en mis 17 mockups. El histórico lo declara como "la pieza que pediste específicamente".</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- ACTUAL · #15 mío -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #15 Stock (mía)</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Tab Stock · Distribución por almacén</div>
+          <div class="space-y-1.5 text-[10px]">
+            <div class="flex items-center justify-between bg-slate-50 rounded p-2">
+              <span class="font-medium">📦 Almacén Lima SMP</span>
+              <span class="font-bold tabular">87 uds</span>
+            </div>
+            <div class="flex items-center justify-between bg-slate-50 rounded p-2">
+              <span class="font-medium">📦 Almacén Surco</span>
+              <span class="font-bold tabular">12 uds</span>
+            </div>
+            <div class="flex items-center justify-between bg-slate-50 rounded p-2">
+              <span class="font-medium">📦 Almacén Callao</span>
+              <span class="font-bold tabular">5 uds</span>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-100">
+            <div class="text-[10px] text-slate-600">+ Distribución por variante + banner reorden</div>
+          </div>
+          <div class="mt-3 text-[11px] text-rose-600 italic">⚠ Solo cuenta unidades en almacenes locales · NO captura el viaje del producto · NO valoriza por etapa</div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-historico">HISTÓRICO · productos-intel-s58f Vista 2 ⭐</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Pipeline 6 etapas · costo crece en cada paso</div>
+          <div class="flex items-stretch gap-1 mb-3">
+            <div class="pipeline-mini border border-slate-200">
+              <div class="text-[8px] font-bold text-slate-500 uppercase">1.Prov</div>
+              <div class="text-[10px] font-bold tabular">0u</div>
+              <div class="text-[8px] text-slate-500">$ 38.50</div>
+            </div>
+            <div class="pipeline-mini border border-sky-200 bg-sky-50/40">
+              <div class="text-[8px] font-bold text-sky-700 uppercase">2.Casilla</div>
+              <div class="text-[10px] font-bold tabular">35u</div>
+              <div class="text-[8px] text-sky-700">S/ 4.7K</div>
+            </div>
+            <div class="pipeline-mini border border-amber-200 bg-amber-50/40">
+              <div class="text-[8px] font-bold text-amber-700 uppercase">3.Aduana</div>
+              <div class="text-[10px] font-bold tabular">10u</div>
+              <div class="text-[8px] text-amber-700">$ 43</div>
+            </div>
+            <div class="pipeline-mini border border-teal-300 bg-teal-50/40">
+              <div class="text-[8px] font-bold text-teal-700 uppercase">4.Almacén</div>
+              <div class="text-[10px] font-bold tabular">87u</div>
+              <div class="text-[8px] text-teal-700">S/ 13K</div>
+            </div>
+            <div class="pipeline-mini border border-purple-200 bg-purple-50/40">
+              <div class="text-[8px] font-bold text-purple-700 uppercase">5.Driver</div>
+              <div class="text-[10px] font-bold tabular">21u</div>
+              <div class="text-[8px] text-purple-700">S/ 3.2K</div>
+            </div>
+            <div class="pipeline-mini border border-emerald-300 bg-emerald-50/40">
+              <div class="text-[8px] font-bold text-emerald-700 uppercase">6.Vendido</div>
+              <div class="text-[10px] font-bold tabular">42u</div>
+              <div class="text-[8px] text-emerald-700">S/ 12K</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5 text-[9px]">
+            <div class="bg-slate-50 rounded p-1.5"><div class="text-slate-500">Capital invertido</div><div class="font-bold tabular">S/ 22,539</div></div>
+            <div class="bg-amber-50 rounded p-1.5"><div class="text-amber-700">Capital atrapado</div><div class="font-bold tabular text-amber-700">S/ 6,238</div></div>
+            <div class="bg-emerald-50 rounded p-1.5"><div class="text-emerald-700">Si vendieras todo</div><div class="font-bold tabular text-emerald-700">+S/ 24,591</div></div>
+            <div class="bg-indigo-50 rounded p-1.5"><div class="text-indigo-700">Ingresos abr.</div><div class="font-bold tabular text-indigo-700">S/ 11,970</div></div>
+          </div>
+
+          <div class="mt-3 text-[11px] text-emerald-700 italic font-medium">✓ Foto financiera completa por SKU · refleja "valor en cada punto donde se encontrara"</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DECISIÓN -->
+    <div class="decision-box">
+      <div class="font-bold text-amber-900 text-sm mb-2">🤔 Decisión Gap 2</div>
+      <p class="text-amber-900 text-[13px] mb-1">¿Agrego un nuevo mockup <code>#15c Pipeline Valorización</code> (sub-vista del modal detalle producto, junto a #15 Stock e #15b Histórico)? Mostraría: pipeline horizontal de 6 etapas con costo unitario que crece + 4 KPIs (Capital invertido / atrapado / si vendieras todo / ingresos del mes) + insights accionables debajo.</p>
+      <div class="text-[11px] text-amber-700 mt-1">Mi recomendación: <strong>SÍ + extender #15 Stock para enlazar al pipeline</strong>. Es lo que el usuario pidió textualmente en el histórico.</div>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Sí · agregar #15c Pipeline</button>
+        <button class="decision-btn decision-btn-mod">⚠️ Modificar (especificar dónde y cómo)</button>
+        <button class="decision-btn decision-btn-no">❌ No · #15 Stock actual basta</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 3 · SUGERENCIAS DEL DÍA -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-medium">3</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">"Sugerencias del día" · centro de decisiones</h2>
+          <span class="priority-badge priority-medium">🟡 Medio</span>
+        </div>
+        <p class="text-sm text-slate-600">El histórico tiene un <strong>centro de decisiones global</strong> con 3 columnas (Urgente · Vigilar · Oportunidades) que reduce análisis manual a "30 segundos al día". Mi #32 es solo banner de variantes (alcance limitado).</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- ACTUAL · #32 mío -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #32 (mía)</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Banner sugerencia · solo VARIANTES</div>
+          <div class="rounded-lg border-2 border-purple-300 bg-purple-50/40 p-2">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded bg-purple-500 text-white flex items-center justify-center flex-shrink-0">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[10px] font-bold text-slate-900">Detectamos productos similares</div>
+                <div class="text-[9px] text-slate-700">3 grupos podrían agruparse como variantes</div>
+              </div>
+              <span class="px-1.5 py-0.5 bg-purple-600 text-white text-[8px] font-bold rounded">3</span>
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] text-rose-600 italic">⚠ Solo cubre 1 caso (variantes) · NO es centro de decisiones global · NO clasifica por urgencia</div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-historico">HISTÓRICO · Vista 3 productos-intel-s58f</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="bg-gradient-to-br from-indigo-50 to-white border-b border-indigo-200 -mx-3 -mt-3 px-3 py-2 mb-2">
+            <div class="text-[10px] font-bold text-slate-900 flex items-center gap-1"><i data-lucide="lightbulb" class="w-3 h-3 text-indigo-700"></i>Sugerencias del día · 30 abr</div>
+            <div class="text-[8px] text-slate-500">15 acciones · revisión 30s</div>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <!-- Urgente -->
+            <div class="bg-rose-50/40 rounded p-1.5">
+              <div class="text-[8px] font-bold text-rose-900 uppercase flex items-center gap-1 mb-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Urgente · 4
+              </div>
+              <div class="bg-white rounded p-1 mb-1 border border-slate-200">
+                <div class="text-[8px] font-bold leading-tight">Liquidar Hyaluronic</div>
+                <div class="text-[7px] text-rose-600 font-bold tabular">−S/ 360</div>
+              </div>
+              <div class="bg-white rounded p-1 border border-slate-200">
+                <div class="text-[8px] font-bold leading-tight">Reponer Collagen</div>
+                <div class="text-[7px] text-rose-600 font-bold tabular">11d</div>
+              </div>
+            </div>
+            <!-- Vigilar -->
+            <div class="bg-amber-50/40 rounded p-1.5">
+              <div class="text-[8px] font-bold text-amber-900 uppercase flex items-center gap-1 mb-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Vigilar · 6
+              </div>
+              <div class="bg-white rounded p-1 mb-1 border border-slate-200">
+                <div class="text-[8px] font-bold leading-tight">Vit. C en alza</div>
+                <div class="text-[7px] text-amber-600 tabular">100 uds may</div>
+              </div>
+              <div class="bg-white rounded p-1 border border-slate-200">
+                <div class="text-[8px] font-bold leading-tight">Aduana &gt;7d</div>
+                <div class="text-[7px] text-amber-600 tabular">10 uds</div>
+              </div>
+            </div>
+            <!-- Oportunidades -->
+            <div class="bg-emerald-50/40 rounded p-1.5">
+              <div class="text-[8px] font-bold text-emerald-900 uppercase flex items-center gap-1 mb-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Oport · 5
+              </div>
+              <div class="bg-white rounded p-1 mb-1 border border-slate-200">
+                <div class="text-[8px] font-bold leading-tight">Retinol +58%</div>
+                <div class="text-[7px] text-emerald-600 tabular">~3 meses ROI</div>
+              </div>
+              <div class="bg-white rounded p-1 border border-slate-200">
+                <div class="text-[8px] font-bold leading-tight">Pack +93%</div>
+                <div class="text-[7px] text-emerald-600 tabular">promo</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] text-emerald-700 italic font-medium">✓ 3 columnas semánticas · cards clickables al producto · acción inmediata</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DECISIÓN -->
+    <div class="decision-box">
+      <div class="font-bold text-amber-900 text-sm mb-2">🤔 Decisión Gap 3</div>
+      <p class="text-amber-900 text-[13px] mb-1">¿Agrego nuevo mockup <code>#36 Sugerencias del día</code> (modal/drawer separado) trigger desde botón "💡 Sugerencias del día" en header del listado? Mantengo #32 como "banner sugerencia variantes" (un caso particular).</p>
+      <div class="text-[11px] text-amber-700 mt-1">Mi recomendación: <strong>SÍ</strong> · 1 mockup nuevo + #32 sigue vivo · son alcances distintos.</div>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Sí · agregar #36 Sugerencias</button>
+        <button class="decision-btn decision-btn-mod">⚠️ Modificar (otro lugar / otro alcance)</button>
+        <button class="decision-btn decision-btn-no">❌ No · #32 actual basta</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 4 · PACK · REGLA NO DESCUENTA STOCK -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-medium">4</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Pack · Regla "no descuenta stock vinculado" no enfatizada</h2>
+          <span class="priority-badge priority-medium">🟡 Medio</span>
+        </div>
+        <p class="text-sm text-slate-600">Mis mockups #14 (detalle componentes) y #20 (wizard pack) mencionan "vinculado/exclusivo" pero NO marcan la regla de negocio crítica que el histórico explicita en banner: <strong>vender un pack NO descuenta stock de los componentes vinculados</strong>.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- ACTUAL · #14 / #20 -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #14 + #20 (mías)</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Lista de componentes (sin regla)</div>
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded text-[10px]">
+              <div class="w-6 h-6 rounded bg-blue-100 flex items-center justify-center"><i data-lucide="link" class="w-3 h-3 text-blue-700"></i></div>
+              <div class="flex-1">
+                <div class="font-bold">Niacinamide 10%</div>
+                <div class="text-[9px] text-slate-500">SKU-NIAC-30</div>
+              </div>
+              <span class="text-[8px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">VINCULADO</span>
+              <span class="text-[10px] tabular">×1</span>
+            </div>
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded text-[10px]">
+              <div class="w-6 h-6 rounded bg-amber-100 flex items-center justify-center"><i data-lucide="sparkle" class="w-3 h-3 text-amber-700"></i></div>
+              <div class="flex-1">
+                <div class="font-bold">Retinol 0.2%</div>
+                <div class="text-[9px] text-slate-500">edición especial</div>
+              </div>
+              <span class="text-[8px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">EXCLUSIVO</span>
+              <span class="text-[10px] tabular">×1</span>
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] text-rose-600 italic">⚠ El usuario no técnico puede pensar que vender el pack descuenta de cada SKU vinculado · regla crítica de negocio queda implícita</div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-historico">HISTÓRICO · producto-pack-skincare</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Lista + banner regla explícita</div>
+          <div class="space-y-1.5 mb-3">
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded text-[10px]">
+              <div class="w-6 h-6 rounded bg-blue-100 flex items-center justify-center"><i data-lucide="link" class="w-3 h-3 text-blue-700"></i></div>
+              <div class="flex-1">
+                <a class="font-bold text-blue-700 underline">Niacinamide 10%</a>
+                <div class="text-[9px] text-slate-500">SKU-NIAC-30 · <span class="text-emerald-600 font-bold">Stock suelto: 48</span></div>
+              </div>
+              <span class="text-[8px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">VINCULADO</span>
+              <span class="text-[10px] tabular">×1</span>
+            </div>
+          </div>
+          <!-- Banner regla -->
+          <div class="bg-amber-50 border border-amber-200 rounded p-2 flex items-start gap-1.5">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5"></i>
+            <div class="text-[10px] text-amber-900 leading-snug">
+              Vender este pack <strong>no descuenta</strong> stock de los componentes vinculados (son unidades físicas distintas). El reporting cruzado se calcula aparte.
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] text-emerald-700 italic font-medium">✓ Regla de negocio en pantalla · cero ambigüedad para el operador</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DECISIÓN -->
+    <div class="decision-box">
+      <div class="font-bold text-amber-900 text-sm mb-2">🤔 Decisión Gap 4</div>
+      <p class="text-amber-900 text-[13px] mb-1">¿Refino #14 (detalle pack) y #20 (wizard pack) para incluir el <strong>banner ámbar con la regla de negocio</strong> "vender pack NO descuenta stock vinculado · reporting cruzado aparte"?</p>
+      <div class="text-[11px] text-amber-700 mt-1">Mi recomendación: <strong>SÍ</strong> · es decisión funcional clave que evita errores operativos.</div>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Sí · agregar banner en #14 + #20</button>
+        <button class="decision-btn decision-btn-mod">⚠️ Modificar (otra ubicación o copy)</button>
+        <button class="decision-btn decision-btn-no">❌ No · queda implícito</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 5 · PACK · STOCK SUELTO POR COMPONENTE -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-medium">5</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Pack · "Stock suelto" por componente vinculado</h2>
+          <span class="priority-badge priority-medium">🟡 Medio</span>
+        </div>
+        <p class="text-sm text-slate-600">El histórico muestra junto a cada componente vinculado la cantidad <strong>"Stock suelto: 48"</strong> del SKU base. Mi #14/#20 no lo muestran. Esa info es vital para decisiones de reposición/promoción.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- ACTUAL -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #14/#20 (mías)</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 p-2 border border-slate-200 rounded text-[11px]">
+              <div class="w-7 h-7 rounded bg-blue-100 flex items-center justify-center"><i data-lucide="link" class="w-3.5 h-3.5 text-blue-700"></i></div>
+              <div class="flex-1">
+                <div class="font-bold">Niacinamide 10% + Zinc 1%</div>
+                <div class="text-[10px] text-slate-500">SKU-NIAC-30 · The Ordinary · 30ml</div>
+              </div>
+              <span class="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">Vinculado</span>
+              <span class="text-[10px] tabular">×1</span>
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] text-rose-600 italic">⚠ No muestra cuánto del SKU vinculado tengo libre · obliga a abrir otra pantalla</div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-historico">HISTÓRICO · producto-pack-skincare</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 p-2 border border-blue-200 rounded text-[11px]">
+              <div class="w-7 h-7 rounded bg-blue-100 flex items-center justify-center"><i data-lucide="link" class="w-3.5 h-3.5 text-blue-700"></i></div>
+              <div class="flex-1">
+                <a class="font-bold text-blue-700 underline">Niacinamide 10% + Zinc 1%</a>
+                <div class="text-[10px] text-slate-500">The Ordinary · 30ml · <span class="text-emerald-600 font-bold">Stock suelto: 48</span></div>
+              </div>
+              <span class="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">Vinculado</span>
+              <span class="text-[10px] tabular">×1</span>
+            </div>
+          </div>
+          <div class="mt-3 text-[11px] text-emerald-700 italic font-medium">✓ Stock suelto visible inline · decisión informada sin abrir otra pantalla</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DECISIÓN -->
+    <div class="decision-box">
+      <div class="font-bold text-amber-900 text-sm mb-2">🤔 Decisión Gap 5</div>
+      <p class="text-amber-900 text-[13px] mb-1">¿Agrego "Stock suelto: X uds" inline (verde) junto a cada componente vinculado en #14 (detalle pack) y #20 (wizard pack)? El SKU también pasa a ser link clickable que abre el detalle del componente base.</p>
+      <div class="text-[11px] text-amber-700 mt-1">Mi recomendación: <strong>SÍ</strong> · costo cero · valor operativo alto.</div>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Sí · agregar Stock suelto + link</button>
+        <button class="decision-btn decision-btn-mod">⚠️ Solo Stock suelto (sin link)</button>
+        <button class="decision-btn decision-btn-no">❌ No · queda fuera del pack</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 6 · BADGE PACK + TOOLTIP EN VENTAS -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-low">6</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Badge Pack + tooltip en búsqueda Ventas</h2>
+          <span class="priority-badge priority-low">🟢 Bajo · cross-módulo</span>
+        </div>
+        <p class="text-sm text-slate-600">El histórico muestra cómo el modelo Pack se proyecta a <strong>módulo Ventas</strong>: en `ProductoSearchVentas` cada pack lleva badge "Pack" + tooltip on-hover con sus componentes. Excede mi inventario actual (es módulo Ventas) pero la decisión NACE en Productos.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- ACTUAL -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · módulo Ventas</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">No documentado · queda al criterio de quien implemente Ventas</div>
+          <div class="text-[11px] text-rose-600 italic">⚠ Riesgo: que el módulo Ventas no muestre claramente qué SKUs son packs · vendedor podría no saber qué responde si cliente pregunta "¿qué trae?"</div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-historico">HISTÓRICO · producto-pack-skincare Flujo 5</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resultado búsqueda en modal Nueva Venta</div>
+          <div class="border border-slate-200 rounded p-2 flex items-center gap-2 text-[10px] relative hover:border-purple-300">
+            <div class="w-7 h-7 rounded bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-base">🎁</div>
+            <div class="flex-1">
+              <div class="flex items-center gap-1">
+                <span class="font-bold">Starter Kit Skincare</span>
+                <span class="bg-purple-100 text-purple-700 text-[8px] font-bold px-1 py-0.5 rounded flex items-center gap-0.5"><i data-lucide="package-2" class="w-2 h-2"></i>Pack</span>
+              </div>
+              <div class="text-[9px] text-slate-500">SKU-PACK-TO-STRT-01</div>
+            </div>
+            <button class="bg-purple-600 text-white text-[9px] font-bold px-2 py-1 rounded">+ Agregar</button>
+          </div>
+          <!-- Tooltip simulado -->
+          <div class="bg-slate-900 text-white text-[10px] rounded p-2 mt-1 ml-8">
+            <div class="font-bold mb-0.5">Contiene:</div>
+            <div class="text-slate-300">• Niacinamide 10% (30ml)</div>
+            <div class="text-slate-300">• Hyaluronic Acid (30ml)</div>
+            <div class="text-amber-300">• Retinol 0.2% · exclusivo</div>
+          </div>
+          <div class="mt-3 text-[11px] text-emerald-700 italic font-medium">✓ Vendedor responde a cliente sin salir del modal de venta</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DECISIÓN -->
+    <div class="decision-box">
+      <div class="font-bold text-amber-900 text-sm mb-2">🤔 Decisión Gap 6</div>
+      <p class="text-amber-900 text-[13px] mb-1">¿Cómo registramos esta deuda cross-módulo?</p>
+      <ul class="text-[12px] text-amber-900 mt-2 ml-4 space-y-1 list-disc">
+        <li><strong>Opción A:</strong> Solo declarar deuda <code>DEUDA-PACK-VENTAS-01</code> · se aborda cuando llegue Ventas</li>
+        <li><strong>Opción B:</strong> Producir mockup ahora dentro de Productos como "anexo" (#37 · pattern card cross-módulo)</li>
+        <li><strong>Opción C:</strong> Reservarlo y producirlo en la sesión de mockups Ventas</li>
+      </ul>
+      <div class="text-[11px] text-amber-700 mt-2">Mi recomendación: <strong>Opción A o C</strong> · evita scope creep en Productos.</div>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">A · Solo deuda</button>
+        <button class="decision-btn decision-btn-mod">B · Mockup #37 ahora</button>
+        <button class="decision-btn decision-btn-no">C · Reservar para Ventas</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- RESUMEN PARA TU DECISIÓN -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6">
+    <h2 class="text-lg font-bold mb-3 flex items-center gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>Resumen para tu decisión</h2>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-rose-300 font-bold text-xs mb-2">🔴 CRÍTICOS · 2</div>
+        <ul class="text-[12px] text-slate-200 space-y-1">
+          <li>1. Score Liquidez (#30 reemplazo)</li>
+          <li>2. Pipeline Valorización (#15c nuevo)</li>
+        </ul>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-amber-300 font-bold text-xs mb-2">🟡 MEDIOS · 3</div>
+        <ul class="text-[12px] text-slate-200 space-y-1">
+          <li>3. Sugerencias del día (#36 nuevo)</li>
+          <li>4. Pack regla stock (#14 + #20 refino)</li>
+          <li>5. Pack stock suelto (#14 + #20 refino)</li>
+        </ul>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="text-teal-300 font-bold text-xs mb-2">🟢 BAJO · 1</div>
+        <ul class="text-[12px] text-slate-200 space-y-1">
+          <li>6. Pack badge Ventas (deuda o anexo)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-300">
+      <strong>Si aceptás todo lo recomendado:</strong> 1 mockup nuevo (#36) + 1 sub-vista nueva (#15c) + 1 reemplazo (#30) + 2 refinados (#14, #20) + 1 deuda declarada (Pack-Ventas).
+      <span class="text-emerald-300 font-bold">Total: 40 → 41 mockups</span> + 1 deuda · 1 sesión adicional para producir/refinar.
+    </div>
+  </div>
+
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>
