@@ -30,7 +30,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="bg-gradient-to-br from-slate-900 via-purple-900 to-fuchsia-900 text-white">
   <div class="max-w-7xl mx-auto px-6 py-8">
     <div class="text-xs uppercase tracking-wider text-purple-200 mb-2">📐 Mapa de navegación · Módulo Productos</div>
-    <h1 class="text-3xl font-bold tracking-tight mb-2">Flujo entre los 40 mockups</h1>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Flujo entre los 42 mockups</h1>
     <p class="text-purple-100 text-sm max-w-3xl">
       Diagrama completo de cómo se conectan los mockups del módulo Productos.
       Cada nodo es un mockup · las flechas muestran qué trigger abre cuál.
@@ -412,8 +412,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <span class="arrow"><i data-lucide="eye" class="arrow-icon"></i>click row</span>
       </div>
       <div class="col-span-9 bg-white border border-slate-200 rounded-xl p-4">
-        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🪟 Modal detalle (5-6 tabs · dinámicos según tipo · Gap #6 separó Stock e Histórico)</div>
-        <div class="grid grid-cols-6 gap-2">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🪟 Modal detalle (7 tabs · dinámicos según tipo · Stock + Histórico + Pipeline son sub-vistas hermanas)</div>
+        <div class="grid grid-cols-7 gap-2">
           <a href="11-modal-detalle-info.html" target="_blank">
             <div class="node node-modal text-center">
               <div class="text-xs font-bold">Resumen</div>
@@ -438,7 +438,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           <a href="14-modal-detalle-componentes-pack.html" target="_blank">
             <div class="node node-modal text-center" style="border-style: dashed;">
               <div class="text-xs font-bold">Componentes</div>
-              <div class="text-[9px] mt-1 opacity-70">SOLO si pack</div>
+              <div class="text-[9px] mt-1 opacity-70">SOLO si pack · banner regla</div>
               <div class="node-id mt-1">14</div>
             </div>
           </a>
@@ -454,6 +454,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               <div class="text-xs font-bold">Histórico</div>
               <div class="text-[9px] mt-1 opacity-70">Chart + movs</div>
               <div class="node-id mt-1">15b</div>
+            </div>
+          </a>
+          <a href="15c-modal-detalle-pipeline-valorizacion.html" target="_blank">
+            <div class="node node-modal text-center" style="border-color: #6366f1; background: #eef2ff;">
+              <div class="text-xs font-bold">Pipeline ⭐</div>
+              <div class="text-[9px] mt-1 opacity-70">6 etapas valorización · NUEVO post-S3.1</div>
+              <div class="node-id mt-1">15c</div>
             </div>
           </a>
         </div>
@@ -541,10 +548,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             </div>
           </a>
           <a href="30-tool-dashboard-catalogo.html" target="_blank">
-            <div class="node node-modal text-center">
+            <div class="node node-modal text-center" style="border-color: #6366f1; background: #eef2ff;">
               <div class="text-base">🪟</div>
-              <div class="text-xs font-bold mt-1">Dashboard catálogo</div>
-              <div class="text-[9px] mt-1 opacity-70">Click "Inteligencia" en header</div>
+              <div class="text-xs font-bold mt-1">Productos Intel</div>
+              <div class="text-[9px] mt-1 opacity-70">Score Liquidez · v2 post-S3.1</div>
               <div class="node-id mt-1">30</div>
             </div>
           </a>
@@ -589,6 +596,41 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           </a>
         </div>
       </div>
+
+      <!-- Centro de decisiones · post-S3.1 -->
+      <div class="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold mb-3">💡 Centro de decisiones global · NUEVO post-S3.1 (Gap S3-G3)</div>
+        <div class="grid grid-cols-12 gap-3 items-center">
+          <a href="01-page-listado.html" target="_blank" class="col-span-2">
+            <div class="node node-page text-center">
+              <div class="text-base">📄</div>
+              <div class="text-xs font-bold mt-1">Listado</div>
+              <div class="node-id mt-1">01</div>
+            </div>
+          </a>
+          <div class="col-span-1 text-center"><span class="arrow"><i data-lucide="lightbulb" class="arrow-icon"></i>Sugerencias</span></div>
+          <a href="36-tool-sugerencias-del-dia.html" target="_blank" class="col-span-3">
+            <div class="node node-modal text-center" style="border-color: #6366f1; background: #eef2ff;">
+              <div class="text-base">🪟</div>
+              <div class="text-xs font-bold mt-1">Sugerencias del día</div>
+              <div class="text-[9px] mt-1 opacity-70">3 cols · Urgente/Vigilar/Oport · 30s revisión</div>
+              <div class="node-id mt-1">36</div>
+            </div>
+          </a>
+          <div class="col-span-1 text-center"><span class="arrow" style="background: #7c3aed;"><i data-lucide="link-2" class="arrow-icon"></i>linkado</span></div>
+          <a href="32-tool-sugerencia-variantes-banner.html" target="_blank" class="col-span-3">
+            <div class="node node-section text-center">
+              <div class="text-base">📍</div>
+              <div class="text-xs font-bold mt-1">Banner #32 (variantes)</div>
+              <div class="text-[9px] mt-1 opacity-70">Aparece como card en columna Oportunidades</div>
+              <div class="node-id mt-1">32</div>
+            </div>
+          </a>
+          <div class="col-span-2 text-[10px] text-indigo-700 italic">
+            #32 sigue vivo como banner contextual en cabecera del listado · #36 lo absorbe en Oportunidades
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -603,16 +645,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <p class="text-xs text-slate-300">1 página principal + 4 estados (vacío BD · vacío búsqueda · loading · mobile)</p>
       </div>
       <div>
-        <div class="font-bold text-purple-300 mb-2">🪟 Modales (10)</div>
-        <p class="text-xs text-slate-300">5 wizards de creación + 4 modales secundarios + 1 modal detalle (con 5 tabs internos)</p>
+        <div class="font-bold text-purple-300 mb-2">🪟 Modales (12)</div>
+        <p class="text-xs text-slate-300">5 wizards + 5 secundarios + modal detalle 7 tabs + #36 Sugerencias del día (post-S3.1)</p>
       </div>
       <div>
         <div class="font-bold text-blue-300 mb-2">📋 Drawers (1)</div>
         <p class="text-xs text-slate-300">Filtros mobile (slide-up)</p>
       </div>
       <div>
-        <div class="font-bold text-amber-300 mb-2">📍 Secciones (12)</div>
-        <p class="text-xs text-slate-300">Componentes embebidos: filtros, pills, chips, bulk toolbar, card states, sub-vistas investigación, herramientas</p>
+        <div class="font-bold text-amber-300 mb-2">📍 Secciones (13)</div>
+        <p class="text-xs text-slate-300">Componentes embebidos: filtros, pills, chips, bulk toolbar, card states, sub-vistas investigación, pipeline ⭐ (post-S3.1)</p>
       </div>
       <div>
         <div class="font-bold text-rose-300 mb-2">🌑 Overlays (1)</div>
@@ -624,7 +666,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </div>
     </div>
     <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-emerald-300 font-bold">
-      ✅ Total · 40 / 40 mockups producidos · listos para Sub-fase C (validación holística por el usuario)
+      ✅ Total · 42 / 42 mockups producidos (post-S3.1 con 6 gaps aplicados) · listos para Sub-fase C (validación holística por el usuario)
     </div>
   </div>
 </div>

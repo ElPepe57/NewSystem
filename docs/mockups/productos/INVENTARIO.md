@@ -1,25 +1,36 @@
 # INVENTARIO MÓDULO PRODUCTOS · Sub-fase B · Pixel-perfect milimétrico
 
-> **Fecha:** 2026-05-02 (act. 2026-05-01 cierre Sesión 3)
+> **Fecha:** 2026-05-02 (act. cierre Sesión 3.1 post-gaps S3)
 > **Módulo:** Productos (catálogo maestro)
-> **Estado:** ✅ **40/40 mockups producidos** · ⏳ Sub-fase C validación holística pendiente del usuario
+> **Estado:** ✅ **42/42 mockups producidos** · ⏳ Sub-fase C validación holística pendiente del usuario
 > **Documentos referencia:** `docs/DESIGN_CANONICO_FINAL.md` + `docs/mockups/CANONICO_MASTER.html`
 
 ---
 
-## ✅ COMPLETADO · Sub-fase B (3 sesiones)
+## ✅ COMPLETADO · Sub-fase B (4 sesiones)
 
 | Sesión | Grupos | Mockups producidos |
 |--------|--------|---------------------|
 | **Sesión 1** | A · B · I | 12 mockups (01-09 + 33-35) |
 | **Sesión 2** | C · D | 11 mockups (10-15 + 15b · post-gaps aplicados) |
 | **Sesión 3** | E · F · G · H | 17 mockups (16-32) |
-| **TOTAL** | 9 grupos | **40 mockups pixel-perfect** ✅ |
+| **Sesión 3.1** | post-gaps S3 | 2 nuevos (15c · 36) + 1 reemplazo (#30) + 2 refinados (#14 · #20) + 1 deuda declarada |
+| **TOTAL** | 9 grupos + post-gaps | **42 mockups pixel-perfect** ✅ |
 
 **Documentos auxiliares producidos:**
-- `FLUJO_NAVEGACION.html` — grafo visual con los 40 nodos clickables
-- `COMPARATIVA_GAPS.html` — decision board de 7 gaps detectados (todos resueltos)
-- `GAPS_DETECTADOS.md` — auditoría honesta vs mockups históricos
+- `FLUJO_NAVEGACION.html` — grafo visual con los 42 nodos clickables
+- `COMPARATIVA_GAPS.html` — decision board Sesión 2 (7 gaps · todos resueltos)
+- `COMPARATIVA_GAPS_S3.html` — decision board Sesión 3 (6 gaps · todos resueltos en S3.1)
+- `GAPS_DETECTADOS.md` — auditoría honesta Sesión 2 vs mockups históricos
+- `GAPS_DETECTADOS_S3.md` — auditoría honesta Sesión 3 vs mockups históricos
+
+**Cambios Sesión 3.1 (post-gaps S3):**
+- 🔄 **#30** Tool Dashboard catálogo → reemplazado por **Productos Intel** con Score Liquidez + 5 KPIs ejecutivos + Acciones (Reponer/Vigilar/Liquidar)
+- ➕ **#15c** NUEVO · Pipeline Valorización por ubicación (sub-vista del modal detalle, junto a #15 Stock e #15b Histórico) · 6 etapas con costo unitario que crece + 4 KPIs financieros + insights
+- ➕ **#36** NUEVO · Sugerencias del día (modal grande · 3 columnas Urgente/Vigilar/Oportunidades · linkado con #32 vía card en Oportunidades)
+- ✏️ **#14** Refinado · Banner ámbar regla "no descuenta stock vinculado" + Stock suelto inline + nombre como link
+- ✏️ **#20** Refinado · Mismo refinamiento + corrección de bug (footer decía exactamente lo contrario de la regla)
+- 📋 **DEUDA-PACK-VENTAS-01** declarada en `MEMORY.md` (cross-módulo Ventas)
 
 **Próxima fase:** Sub-fase C · Revisión holística por el usuario antes de Etapa 4 (implementación pixel-perfect en código).
 
@@ -107,6 +118,7 @@
 | **D04** | `14-modal-detalle-componentes-pack.html` | Tab "Componentes" (solo packs · D-PROD-2 condicional) | F6(A) | Header SUTIL · avatar purple semántico · tabla line-items + valorización |
 | **D05** | `15-modal-detalle-stock.html` | Tab "Stock" (separado de Histórico · Gap #6) | F6(A) | Solo distribución por almacén + por variante + banner reorden |
 | **D06** | `15b-modal-detalle-historico.html` | Tab "Histórico" (separado · Gap #6) | F6(A) | Chart 6 meses ventas+stock + lista movimientos + KPIs ejecutivos 12m |
+| **D07** | `15c-modal-detalle-pipeline-valorizacion.html` | Tab "Pipeline" (NUEVO · Gap S3-G2) | F6(A) | ⭐ Pipeline 6 etapas Proveedor→Vendido + 4 KPIs (capital invertido/atrapado/si vendieras todo/ingresos) + insights · refleja cita usuario "valor en cada punto" |
 
 **Header canónico aplicado a TODOS:** `from-slate-50 to-white` border sutil · color semántico vive en avatar (amber=skincare, indigo=suplemento, purple=pack) · acciones `[Editar] [...] [X]`
 
@@ -151,13 +163,14 @@
 
 ---
 
-### 🟥 GRUPO H · Herramientas embebidas (3 mockups)
+### 🟥 GRUPO H · Herramientas embebidas (4 mockups · post-S3.1)
 
 | # | Archivo | Trigger | Familia | Notas |
 |---|---------|---------|---------|-------|
-| **H01** | `30-tool-dashboard-catalogo.html` | Click "Calculadora" en header | F6(A) Modal grande | Dashboard intel: top productos · análisis por línea · matriz precio/margen · etc. |
+| **H01** | `30-tool-dashboard-catalogo.html` | Click "💡 Inteligencia" en header listado | F6(A) Modal grande | **Productos Intel · v2 post-gap S3-G1** · 5 KPIs ejecutivos + Score Liquidez por SKU + Acciones (Reponer/Vigilar/Liquidar) |
 | **H02** | `31-tool-punto-equilibrio.html` | Embedded en modal detalle | Card herramienta | Calculadora punto de equilibrio (PEC) con sliders interactivos |
-| **H03** | `32-tool-sugerencia-variantes-banner.html` | En ProductoForm cuando detecta similar | Banner sugerencia | "Detectamos 3 productos similares · ¿quieres agruparlos como variantes?" + CTAs |
+| **H03** | `32-tool-sugerencia-variantes-banner.html` | En cabecera del listado cuando IA detecta agrupables | Banner contextual | "Detectamos 3 productos similares · ¿quieres agruparlos como variantes?" + CTAs · alcance específico (variantes) |
+| **H04** | `36-tool-sugerencias-del-dia.html` | Botón "💡 Sugerencias del día" en header listado o footer #30 | F6(A) Modal grande | **NUEVO post-gap S3-G3** · Centro de decisiones · 3 columnas (Urgente · Vigilar · Oportunidades) · 15 acciones · linkado con #32 vía card en Oportunidades |
 
 ---
 
@@ -178,13 +191,13 @@
 | A · Página principal y estados | 5 | Pantalla base + estados (vacío, loading, mobile) |
 | B · Filtros y bulk actions | 4 | FiltrosBar + drawer mobile + bulk toolbar |
 | C · Card de producto granular | 6 | 6 estados visuales del row |
-| D · Modal detalle producto | 5 | 5 tabs del modal F6(A) |
+| D · Modal detalle producto | **7** | 7 tabs del modal F6(A) · incluye #15c Pipeline (post-S3.1) |
 | E · Wizards de creación | 5 | Selector + 4 tipos de wizard |
 | F · Modales secundarios | 4 | Buscador, variante reducida, papelera, investigación |
 | G · Sub-componentes Investigación | 5 | Tabs internos + sub-vistas + banners |
-| H · Herramientas embebidas | 3 | Dashboard intel, punto equilibrio, banner sugerencia |
+| H · Herramientas embebidas | **4** | Productos Intel, punto equilibrio, banner sugerencia, **#36 Sugerencias del día (post-S3.1)** |
 | I · Filtros rápidos y micro-componentes | 3 | Pills + chips activos + tooltips |
-| **TOTAL** | **40 mockups** | |
+| **TOTAL** | **42 mockups** | post-S3.1 con gaps aplicados |
 
 **Nota:** estimaba ~20 mockups iniciales · la inspección milimétrica reveló **40 mockups reales**. Esto es lo que significa "pixel-perfect milimétrico por sección".
 
