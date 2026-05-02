@@ -366,7 +366,7 @@ export const ProductosPageV2: React.FC = () => {
   // ─── Render: prioridad de estados ──────────────────────────────────────────
   if (loading && !hayProductos) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6">
         <LoadingState />
       </div>
     );
@@ -374,7 +374,7 @@ export const ProductosPageV2: React.FC = () => {
 
   if (!hayProductos) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6">
         <HeaderV2
           archivadosCount={archivadosCount}
           onClickNuevo={handleNuevo}
@@ -390,7 +390,7 @@ export const ProductosPageV2: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6">
       <HeaderV2
         archivadosCount={archivadosCount}
         onClickCalculadora={handleCalculadora}

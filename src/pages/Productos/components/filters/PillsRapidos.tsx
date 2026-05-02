@@ -56,7 +56,9 @@ const DISABLED_CLASSES = 'bg-slate-100 text-slate-400 border border-slate-200 cu
 
 export const PillsRapidos: React.FC<PillsRapidosProps> = ({ counts, active, onChange }) => {
   return (
-    <div className="flex items-center gap-2 flex-wrap mb-3">
+    // Desktop ≥lg: flex-wrap normal · Mobile <lg: scroll horizontal con scrollbar-hide + fade-x-edges (F12)
+    <div className="overflow-x-auto scrollbar-hide fade-x-edges lg:overflow-visible mb-3">
+      <div className="flex items-center gap-2 lg:flex-wrap min-w-max lg:min-w-0">
       {PILLS.map(pill => {
         const count = counts[pill.key];
         const isActive = active === pill.key;
@@ -74,7 +76,7 @@ export const PillsRapidos: React.FC<PillsRapidosProps> = ({ counts, active, onCh
             onClick={() => !isDisabled && onChange(pill.key)}
             disabled={isDisabled}
             type="button"
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${baseClasses}`}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${baseClasses}`}
           >
             <pill.icon className="w-3 h-3" />
             <span>{pill.label}</span>
@@ -82,6 +84,7 @@ export const PillsRapidos: React.FC<PillsRapidosProps> = ({ counts, active, onCh
           </button>
         );
       })}
+      </div>
     </div>
   );
 };

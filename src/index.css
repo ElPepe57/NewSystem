@@ -47,6 +47,14 @@
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
+/* F12 · Edge fade affordance · gradient mask en bordes laterales (16px)
+   para insinuar "hay más contenido" cuando scrollbar-hide está activo.
+   Aplicar a contenedores con overflow-x-auto en mobile (pills · KPIs · tabs · chips). */
+.fade-x-edges {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+          mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}
 .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }

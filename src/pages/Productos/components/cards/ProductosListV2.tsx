@@ -14,6 +14,7 @@
 import React, { useMemo } from 'react';
 import type { Producto } from '../../../../types/producto.types';
 import { ProductoRowCard } from './ProductoRowCard';
+import { ProductoRowCardMobile } from './ProductoRowCardMobile';
 
 interface ProductosListV2Props {
   productos: Producto[];
@@ -91,32 +92,96 @@ export const ProductosListV2: React.FC<ProductosListV2Props> = ({
   const colVariantesLabel = tienePacks ? 'Componentes · Stock' : 'Variantes · Stock';
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-      {/* Header tabla */}
-      <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
-        <div className="col-span-1">
-          <input
-            type="checkbox"
-            checked={allSelected}
-            ref={el => {
-              if (el) el.indeterminate = someSelected;
-            }}
-            onChange={handleSelectAll}
-            className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"
-            aria-label="Seleccionar todos"
-          />
+    <>
+      {/* ═══════ DESKTOP (≥lg) · Tabla grid-cols-12 ═══════ */}
+      <div className="hidden lg:block bg-white border border-slate-200 rounded-xl overflow-hidden">
+        {/* Header tabla */}
+        <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+          <div className="col-span-1">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={el => {
+                if (el) el.indeterminate = someSelected;
+              }}
+              onChange={handleSelectAll}
+              className="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"
+              aria-label="Seleccionar todos"
+            />
+          </div>
+          <div className="col-span-4">Producto</div>
+          <div className="col-span-2 text-right">{colVariantesLabel}</div>
+          <div className="col-span-2 text-right">Precio venta</div>
+          <div className="col-span-2 text-right">Margen</div>
+          <div className="col-span-1 text-right">Acciones</div>
         </div>
-        <div className="col-span-4">Producto</div>
-        <div className="col-span-2 text-right">{colVariantesLabel}</div>
-        <div className="col-span-2 text-right">Precio venta</div>
-        <div className="col-span-2 text-right">Margen</div>
-        <div className="col-span-1 text-right">Acciones</div>
+
+        {/* Filas desktop */}
+        <div className="divide-y divide-slate-100">
+          {displayables.map(producto => (
+            <ProductoRowCard
+              key={producto.id}
+              producto={producto}
+              hermanasGrupo={hermanasMap.get(producto.id) ?? []}
+              selected={selectedIds.has(producto.id)}
+              onSelectChange={(_id, _sel) => onToggleSelected(producto.id)}
+              onClick={onClickProducto}
+              onView={onView}
+              onActions={onActions}
+              onCrearOC={onCrearOC}
+              onReInvestigar={onReInvestigar}
+              onRestaurar={onRestaurar}
+              onEliminarDefinitivo={onEliminarDefinitivo}
+            />
+          ))}
+        </div>
+
+        {/* Footer tabla */}
+        <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-500 tabular-nums flex items-center justify-between">
+          <span>
+            Mostrando <strong className="text-slate-700">{totalDisplayable}</strong> producto{totalDisplayable === 1 ? '' : 's'}
+          </span>
+          {selectedIds.size > 0 && (
+            <span className="text-teal-700 font-bold">
+              {selectedIds.size} seleccionado{selectedIds.size === 1 ? '' : 's'}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Filas */}
-      <div className="divide-y divide-slate-100">
+      {/* ═══════ MOBILE+TABLET (<lg) · Cards apiladas verticales (F12) ═══════ */}
+      <div className="lg:hidden space-y-3">
+        {/* Mini-header con select-all + contador (compacto) */}
+        <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 flex items-center justify-between text-xs">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={el => {
+                if (el) el.indeterminate = someSelected;
+              }}
+              onChange={handleSelectAll}
+              className="rounded border-slate-300 text-teal-600 w-4 h-4"
+              aria-label="Seleccionar todos"
+            />
+            <span className="text-slate-600 font-medium">
+              {selectedIds.size > 0 ? (
+                <span className="text-teal-700 font-bold">
+                  {selectedIds.size} seleccionado{selectedIds.size === 1 ? '' : 's'}
+                </span>
+              ) : (
+                'Seleccionar todos'
+              )}
+            </span>
+          </label>
+          <span className="text-[10px] text-slate-500 tabular-nums">
+            {totalDisplayable} producto{totalDisplayable === 1 ? '' : 's'}
+          </span>
+        </div>
+
+        {/* Cards apiladas */}
         {displayables.map(producto => (
-          <ProductoRowCard
+          <ProductoRowCardMobile
             key={producto.id}
             producto={producto}
             hermanasGrupo={hermanasMap.get(producto.id) ?? []}
@@ -124,7 +189,6 @@ export const ProductosListV2: React.FC<ProductosListV2Props> = ({
             onSelectChange={(_id, _sel) => onToggleSelected(producto.id)}
             onClick={onClickProducto}
             onView={onView}
-            onActions={onActions}
             onCrearOC={onCrearOC}
             onReInvestigar={onReInvestigar}
             onRestaurar={onRestaurar}
@@ -132,16 +196,6 @@ export const ProductosListV2: React.FC<ProductosListV2Props> = ({
           />
         ))}
       </div>
-
-      {/* Footer tabla · contador */}
-      <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-500 tabular-nums flex items-center justify-between">
-        <span>
-          Mostrando <strong className="text-slate-700">{totalDisplayable}</strong> producto{totalDisplayable === 1 ? '' : 's'}
-        </span>
-        {selectedIds.size > 0 && (
-          <span className="text-teal-700 font-bold">{selectedIds.size} seleccionado{selectedIds.size === 1 ? '' : 's'}</span>
-        )}
-      </div>
-    </div>
+    </>
   );
 };

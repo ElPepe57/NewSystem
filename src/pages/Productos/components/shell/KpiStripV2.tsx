@@ -46,25 +46,25 @@ export const KpiStripV2: React.FC<KpiStripV2Props> = ({
   return (
     <div className="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5">
       {/* KPI 1 · Productos activos */}
-      <div className="p-4">
+      <div className="p-3 lg:p-4">
         <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Productos activos</div>
-        <div className="text-2xl font-bold text-slate-900 tracking-tight tabular-nums">{productosActivos}</div>
+        <div className="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight tabular-nums">{productosActivos}</div>
         <div className="text-[11px] text-slate-500 mt-1.5 tabular-nums">
           {productosTotales} en total {productosNuevosMes > 0 && `· +${productosNuevosMes} este mes`}
         </div>
       </div>
 
       {/* KPI 2 · Variantes (SKUs) */}
-      <div className="p-4">
+      <div className="p-3 lg:p-4">
         <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variantes (SKUs)</div>
-        <div className="text-2xl font-bold text-slate-900 tracking-tight tabular-nums">{variantesSkusTotal}</div>
+        <div className="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight tabular-nums">{variantesSkusTotal}</div>
         <div className="text-[11px] text-slate-500 mt-1.5 tabular-nums">de {productosConVariantes} productos</div>
       </div>
 
       {/* KPI 3 · Stock crítico */}
-      <div className="p-4">
+      <div className="p-3 lg:p-4">
         <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Stock crítico</div>
-        <div className={`text-2xl font-bold tracking-tight tabular-nums ${stockCritico > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+        <div className={`text-xl lg:text-2xl font-bold tracking-tight tabular-nums ${stockCritico > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
           {stockCritico}
         </div>
         <div className={`text-[11px] mt-1.5 tabular-nums ${stockCritico > 0 ? 'text-rose-600' : 'text-slate-500'}`}>
@@ -73,10 +73,10 @@ export const KpiStripV2: React.FC<KpiStripV2Props> = ({
       </div>
 
       {/* KPI 4 · Margen promedio + sparkline */}
-      <div className="p-4">
+      <div className="p-3 lg:p-4">
         <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Margen promedio</div>
         <div className="flex items-end justify-between">
-          <div className="text-2xl font-bold text-emerald-600 tracking-tight tabular-nums">
+          <div className="text-xl lg:text-2xl font-bold text-emerald-600 tracking-tight tabular-nums">
             {margenPromedio}
             <span className="text-base text-emerald-300 font-normal">%</span>
           </div>
