@@ -6,7 +6,7 @@
  * lotes anteriores.
  */
 import React, { useState } from 'react';
-import { Layers, History } from 'lucide-react';
+import { Layers, History, ChevronRight } from 'lucide-react';
 import { HistorialLotes } from '../PagosMasivos/components/HistorialLotes';
 import { LoteDetalleModal } from '../PagosMasivos/components/LoteDetalleModal';
 import { PagosMasivosWizard } from './PagosMasivosWizard';
@@ -19,15 +19,20 @@ export const TabPagosMasivos: React.FC = () => {
 
   return (
     <div className="space-y-4 mt-2">
-      {/* Header con sub-tabs */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Header banking-grade S58e · breadcrumb + h1 + sub-tabs a la derecha */}
+      <div className="flex items-start justify-between flex-wrap gap-3 mb-5">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-teal-600" />
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Tesorería</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Pagos masivos · Lotes</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <Layers className="w-6 h-6 text-teal-600" />
             Pagos Masivos
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Procesa múltiples pagos o cobros en un solo lote
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Procesa múltiples pagos o cobros en un solo lote · {subTab === 'nuevo' ? 'Configurando nuevo lote' : 'Consultando historial'}
           </p>
         </div>
 

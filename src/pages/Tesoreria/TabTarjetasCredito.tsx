@@ -14,7 +14,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { CreditCard, Plus, Receipt, HandCoins } from 'lucide-react';
+import { CreditCard, Plus, Receipt, HandCoins, ChevronRight } from 'lucide-react';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -122,19 +122,25 @@ export const TabTarjetasCredito: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Header banking-grade S58e · breadcrumb + h1 + stats + acciones */}
+      <div className="flex items-start justify-between flex-wrap gap-3 mb-2">
         <div>
-          <h3 className="text-base font-bold text-slate-900">
-            Tarjetas de crédito
-          </h3>
-          <p className="text-[11px] text-slate-500 mt-0.5">
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Tesorería</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Tarjetas de crédito</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <CreditCard className="w-6 h-6 text-teal-600" />
+            Tarjetas de Crédito
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
             {tarjetasActivas.length}{' '}
-            {tarjetasActivas.length === 1 ? 'tarjeta' : 'tarjetas'}
+            {tarjetasActivas.length === 1 ? 'tarjeta activa' : 'tarjetas activas'}
             {totalDeudaPersonalUSD > 0 &&
-              ` · Total deuda con titulares: US$ ${totalDeudaPersonalUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+              ` · Deuda con titulares: US$ ${totalDeudaPersonalUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             {totalDeudaEmpresaUSD > 0 &&
-              ` · Total deuda con banco: US$ ${totalDeudaEmpresaUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+              ` · Deuda con banco: US$ ${totalDeudaEmpresaUSD.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">

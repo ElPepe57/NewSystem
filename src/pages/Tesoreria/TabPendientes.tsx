@@ -12,7 +12,9 @@ import {
   ExternalLink,
   ShoppingCart,
   Receipt,
-  Truck
+  Truck,
+  ChevronRight,
+  ListTodo,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
 import type {
@@ -55,6 +57,41 @@ export const TabPendientes: React.FC<TabPendientesProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Header banking-grade S58e · breadcrumb + h1 + acciones */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Tesorería</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Cuentas pendientes · CxC + CxP</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <ListTodo className="w-6 h-6 text-teal-600" />
+            Pendientes · Por cobrar y por pagar
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Vista consolidada de documentos pendientes con su flujo neto al día
+            {dashboardPendientes && (
+              <>
+                {' · TC '}
+                <span className="tabular-nums">{dashboardPendientes.tipoCambioUsado.toFixed(3)}</span>
+              </>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={loadPendientes}
+            disabled={loadingPendientes}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingPendientes ? 'animate-spin' : ''}`} />
+            Actualizar
+          </button>
+        </div>
+      </div>
+
       {/* KPIs de Balance */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card padding="md" className="border-l-4 border-l-emerald-500">

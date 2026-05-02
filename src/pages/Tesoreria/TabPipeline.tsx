@@ -26,6 +26,7 @@ import {
   AlarmClockOff,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   TrendingUp,
 } from 'lucide-react';
 import type { CuentaCaja } from '../../types/tesoreria.types';
@@ -355,9 +356,9 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ onVolverListado }) => 
       <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-            <span>Tesorería</span>
-            <span>·</span>
-            <span className="text-slate-600 font-medium">Pipeline</span>
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Tesorería</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Pipeline · Salud financiera</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
             <GitBranch className="w-6 h-6 text-teal-600" />
