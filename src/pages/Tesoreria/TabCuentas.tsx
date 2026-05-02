@@ -37,6 +37,7 @@ import { useToastStore } from '../../store/toastStore';
 import type { GrupoTitular } from './VistaPorTitular/helpers';
 import { useTarjetaCreditoStore } from '../../store/tarjetaCreditoStore';
 import { useTesoreriaStore } from '../../store/tesoreriaStore';
+import { useTipoCambio } from '../../hooks/useTipoCambio';
 import { TarjetaDetailModal } from './TarjetasCreditoV2';
 import type {
   MovimientoTesoreria,
@@ -94,6 +95,13 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
 
   // S58c parte 2 — Toggle vista (por tipo / por titular)
   const [vista, setVista] = useState<'tipo' | 'titular'>('titular');
+
+  // Migración pixel-perfect S58e — Selector de orden (display only por ahora · futuro: ordenar grupos)
+  const [orden, setOrden] = useState<'saldo_desc' | 'nombre' | 'banco' | 'fecha_creacion'>('saldo_desc');
+
+  // TC del día para "≈ S/ X" en KPI USD (pixel-perfect mockup S58e)
+  const { tc: tcResuelto } = useTipoCambio();
+  const tcDelDia = tcResuelto?.venta ?? 3.85;
   const tarjetas = useTarjetaCreditoStore((s) => s.tarjetas);
   // F3c · refresh tras crear con wizard nuevo (camino self-contained)
   const fetchCuentasUnificadas = useTesoreriaStore((s) => s.fetchCuentas);
@@ -335,6 +343,16 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
     [cuentas, tarjetas],
   );
 
+  // Breakdown de alertas para enriquecer el KPI "En alerta" (mockup S58e)
+  const breakdownAlerta = useMemo(() => {
+    return {
+      criticos: bloquesPipeline.critico?.count ?? 0,
+      atencion: bloquesPipeline.atencion?.count ?? 0,
+      tcCorteProximo: bloquesPipeline.corte_proximo?.count ?? 0,
+      tcVencida: bloquesPipeline.tc_vencida?.count ?? 0,
+    };
+  }, [bloquesPipeline]);
+
   const [estadoFiltro, setEstadoFiltro] = useState<EstadoPipeline | null>(null);
 
   // Imp-L5 · cuando hay drill-down, mostrar la vista dedicada en lugar
@@ -427,7 +445,7 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
         </div>
       </div>
 
-      {/* ─── Toggle vista titular/tipo ─────────────────────────────── */}
+      {/* ─── Toggle vista + Selector de orden (pixel-perfect S58e) ──────────────── */}
       <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
         <div className="flex items-center bg-slate-100 rounded-lg p-1 gap-1">
           <button
@@ -452,6 +470,19 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           >
             Por tipo
           </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-400">Ordenar por:</span>
+          <select
+            value={orden}
+            onChange={(e) => setOrden(e.target.value as typeof orden)}
+            className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
+          >
+            <option value="saldo_desc">Saldo (mayor a menor)</option>
+            <option value="nombre">Nombre</option>
+            <option value="banco">Banco</option>
+            <option value="fecha_creacion">Fecha creación</option>
+          </select>
         </div>
       </div>
 
@@ -480,6 +511,11 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
             US$ {Math.floor(kpis.saldoUSD).toLocaleString('es-PE')}
             <span className="text-slate-400 text-base">.{((kpis.saldoUSD * 100) % 100).toFixed(0).padStart(2, '0')}</span>
           </div>
+          {kpis.saldoUSD > 0 && tcDelDia > 0 && (
+            <div className="text-xs text-sky-600 mt-1 tabular-nums">
+              ≈ S/ {Math.round(kpis.saldoUSD * tcDelDia).toLocaleString('es-PE')} al TC {tcDelDia.toFixed(2)}
+            </div>
+          )}
         </div>
         <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-sm transition-all">
           <div className="flex items-center justify-between mb-2">
@@ -503,8 +539,17 @@ export const TabCuentas: React.FC<TabCuentasProps> = ({
           <div className={`text-2xl font-bold tabular-nums ${kpis.alertaCount > 0 ? 'text-amber-600' : 'text-slate-900'}`}>
             {kpis.alertaCount}
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            {kpis.alertaCount === 0 ? 'Todo en orden' : 'Productos requieren atención'}
+          <div className="text-xs text-amber-600 mt-1">
+            {kpis.alertaCount === 0
+              ? 'Todo en orden'
+              : [
+                  breakdownAlerta.criticos > 0 ? `${breakdownAlerta.criticos} crítico${breakdownAlerta.criticos > 1 ? 's' : ''}` : null,
+                  breakdownAlerta.atencion > 0 ? `${breakdownAlerta.atencion} atención` : null,
+                  breakdownAlerta.tcCorteProximo > 0 ? `${breakdownAlerta.tcCorteProximo} TC próx. corte` : null,
+                  breakdownAlerta.tcVencida > 0 ? `${breakdownAlerta.tcVencida} TC vencida` : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ') || 'Productos requieren atención'}
           </div>
         </div>
       </div>
