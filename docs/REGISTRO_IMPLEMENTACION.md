@@ -2,8 +2,41 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-01 (31 commits en main post-S58f · 5 BLOQUES MAYORES CERRADOS: (1) GASTOFORM-V2 + GASTOS-PAGE-V2 + PROVEEDOR-GASTOS · 5/5 · ~4.5h · (2) PAGOFORM-001 Fase 1 visual + Fase 2 destino tercero opt-in · (3) MIGRACION VISUAL TESORERIA pixel-perfect S58e: 9 tabs con headers banking-grade unificados + TabMovimientos completo (4 fases A/B/C/D). (4) MIGRACION VISUAL PRODUCTOS + INVENTARIO pixel-perfect S58f: headers banking-grade + KPI strips. (5) Hook useDatosBancariosTercero. Quedan: PAGOFORM-001 Fase 3 split (~1.5 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · Productos-Intel + Mapa-calor diferidos (~1 ses c/u) · TAREA-DESIGN-SYSTEM-GLOBAL bloques restantes (Ventas · Finanzas extendido · Nav shell · Reclamos · ~4-5 ses).)
+**Ultima actualizacion:** 2026-05-01 (33 commits en main post-S58f · 6 BLOQUES MAYORES CERRADOS: (1) GASTOFORM-V2 + GASTOS-PAGE-V2 + PROVEEDOR-GASTOS · 5/5 · ~4.5h · (2) PAGOFORM-001 Fase 1 visual + Fase 2 destino tercero opt-in · (3) MIGRACION VISUAL TESORERIA pixel-perfect S58e: 9 tabs con headers banking-grade unificados + TabMovimientos completo. (4) MIGRACION VISUAL PRODUCTOS + INVENTARIO pixel-perfect S58f. (5) MIGRACION VISUAL VENTAS pixel-perfect S58f. (6) Hook useDatosBancariosTercero. Quedan: PAGOFORM-001 Fase 3 split (~1.5 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · Diferidos pragmaticos (Productos-Intel + Mapa-calor + Mapa-ventas-geo · 1 ses c/u) · TAREA-DESIGN-SYSTEM-GLOBAL bloques restantes (Finanzas extendido · Nav shell · Reclamos · ~3-4 ses).)
 **Branch activo:** main
+
+---
+
+## SESION POST-S58f · BLOQUE VENTAS · MIGRACION VISUAL PIXEL-PERFECT S58f
+
+### Fecha y alcance
+
+**Fecha:** 2026-05-01 (continuacion sesion mismo dia)
+**Mockups del bloque:**
+- `ventas-design-canonico-s58f.html` ✅ header + KPI strip pixel-perfect (mockup era manifesto, se aplico al listado)
+- `mapa-ventas-geografico-s58f.html` ⏳ diferido (vista visual separable · mapa de Lima/Peru con ventas geo-localizadas · necesita componente dedicado)
+
+### Commits ejecutados
+
+- `67fe168` · Reemplaza PageHeader legacy en `Ventas.tsx` por header banking-grade canonico inline + KPI strip horizontal con 4 KPIs
+
+### Cambios visuales clave
+
+- Breadcrumb dinamico segun tab activo: "Comercial > Ventas · Pipeline operativo" o "Comercial > Devoluciones · Reembolsos"
+- h1 con icon ShoppingCart teal · subtitulo "Cómo entra el dinero · cotizaciones, ventas confirmadas..."
+- 2 acciones header: Exportar (placeholder) + Nueva Venta (primary-soft)
+- KPI strip 4 KPIs:
+  * Ventas del periodo (PEN total con decimales atenuados + count)
+  * Utilidad (verde con TrendingUp + margen promedio %)
+  * En proceso (sky · suma confirmadas + enProceso · breakdown inline)
+  * Cotizaciones (amber · pendientes de confirmar)
+- VentasDashboard original (con socios/rentabilidad/cobros/leadTime) preservado debajo · ahora hay 2 capas: KPI strip principal canonico + dashboard detallado
+
+### Diferido justificado
+
+`mapa-ventas-geografico-s58f` es una vista visual separada (mapa Perú/Lima con ventas geo-localizadas). Se invocaria desde un futuro toggle "Lista / Pipeline / Mapa" en el header. Diferido porque es separable y no critico para operacion del listado actual.
+
+**Tiempo invertido:** ~30 min (estructura ya existia · solo header + KPIs).
 
 ---
 
