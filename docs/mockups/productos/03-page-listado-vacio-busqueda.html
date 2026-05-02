@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>03 · Productos · Búsqueda sin resultados · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; }
+.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+</style>
+</head>
+<body>
+<div class="mockup-context">📐 03 · Empty state · BÚSQUEDA SIN RESULTADOS</div>
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <!-- HEADER F1 (mismo que 01) -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+        <span class="hover:text-teal-600 transition-colors cursor-pointer">Catálogo</span>
+        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+        <span class="text-slate-600 font-medium">Productos · Maestro de SKUs</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+        <i data-lucide="package" class="w-6 h-6 text-teal-600"></i>
+        Productos
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5 max-w-2xl">
+        Catálogo maestro · qué vendemos, cómo se configura, qué cuesta traerlo y cuánto se gana.
+      </p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-teal-600 rounded-lg hover:bg-teal-700 shadow-sm">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo producto
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI strip (igual que normal) -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5">
+    <div class="p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Productos activos</div>
+      <div class="text-2xl font-bold text-slate-900 tracking-tight">128</div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Variantes (SKUs)</div>
+      <div class="text-2xl font-bold text-slate-900 tracking-tight">387</div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Stock crítico</div>
+      <div class="text-2xl font-bold text-rose-600 tracking-tight">12</div>
+    </div>
+    <div class="p-4">
+      <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Margen promedio</div>
+      <div class="text-2xl font-bold text-emerald-600 tracking-tight">42<span class="text-base text-emerald-300 font-normal">%</span></div>
+    </div>
+  </div>
+
+  <!-- Pills rápidos · todos visibles -->
+  <div class="flex items-center gap-2 flex-wrap mb-3">
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-sm">
+      <i data-lucide="grid-3x3" class="w-3 h-3"></i>Todos<span class="text-white/70 tabular-nums">142</span>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+      <i data-lucide="check" class="w-3 h-3"></i>Activos<span class="opacity-60 tabular-nums">128</span>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+      <i data-lucide="alert-triangle" class="w-3 h-3"></i>Stock crítico<span class="opacity-60 tabular-nums">12</span>
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+      <i data-lucide="search" class="w-3 h-3"></i>Sin investigar<span class="opacity-60 tabular-nums">3</span>
+    </button>
+  </div>
+
+  <!-- FILTROS BAR · con búsqueda activa -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4">
+    <div class="space-y-2.5">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span class="text-xs font-medium text-slate-700">Todo el período</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+        <div class="h-5 w-px bg-slate-200"></div>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Línea:</span>
+        <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 ring-2 ring-amber-300">
+          <i data-lucide="droplets" class="w-2.5 h-2.5"></i>Skincare<span class="opacity-60 tabular-nums">100</span>
+        </button>
+      </div>
+      <div class="border-t border-slate-100"></div>
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+          <input type="text" value="xyz123abc" class="w-full pl-9 pr-9 py-2 text-sm border border-teal-300 rounded-lg ring-2 ring-teal-100 focus:outline-none">
+          <button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <button class="bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs px-3 py-2 rounded-lg flex items-center gap-1.5">
+          <span class="text-slate-400 font-normal">Ordenar:</span><span>Más vendidos</span>
+          <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+        </button>
+        <button class="text-[10px] font-medium text-teal-600 hover:text-teal-700 flex items-center gap-1">
+          <i data-lucide="x" class="w-3 h-3"></i>Limpiar filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE · Búsqueda sin resultados -->
+  <div class="bg-white border border-slate-200 rounded-xl p-12 text-center">
+    <div class="text-5xl mb-4">🔍</div>
+    <h2 class="text-base font-bold text-slate-900 mb-1">No encontramos productos</h2>
+    <p class="text-sm text-slate-500 max-w-md mx-auto mb-1">
+      No hay resultados para <strong class="text-slate-700">"xyz123abc"</strong> con los filtros aplicados.
+    </p>
+    <p class="text-xs text-slate-400 mb-5">
+      Filtros activos: Línea: Skincare
+    </p>
+    <div class="flex items-center justify-center gap-2 text-xs">
+      <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg flex items-center gap-1.5">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>Limpiar búsqueda
+      </button>
+      <button class="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 font-medium rounded-lg flex items-center gap-1.5">
+        <i data-lucide="filter-x" class="w-3.5 h-3.5"></i>Limpiar todos los filtros
+      </button>
+      <span class="text-slate-300">·</span>
+      <button class="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>Crear producto "xyz123abc"
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

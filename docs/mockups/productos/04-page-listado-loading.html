@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>04 · Productos · Loading skeleton · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; }
+.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+<div class="mockup-context">📐 04 · Loading state · SKELETON</div>
+
+<div class="max-w-7xl mx-auto px-6 py-6">
+  <!-- HEADER · skeleton -->
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-5">
+    <div class="space-y-2">
+      <div class="skeleton h-3 w-48"></div>
+      <div class="skeleton h-7 w-32"></div>
+      <div class="skeleton h-3 w-96"></div>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="skeleton h-8 w-24 rounded-lg"></div>
+      <div class="skeleton h-8 w-20 rounded-lg"></div>
+      <div class="skeleton h-8 w-32 rounded-lg" style="background: linear-gradient(90deg, #ccfbf1 0%, #99f6e4 50%, #ccfbf1 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
+    </div>
+  </div>
+
+  <!-- KPI strip · skeleton -->
+  <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-200 mb-5">
+    <div class="p-4 space-y-2">
+      <div class="skeleton h-2.5 w-20"></div>
+      <div class="skeleton h-7 w-16"></div>
+      <div class="skeleton h-2 w-32"></div>
+    </div>
+    <div class="p-4 space-y-2">
+      <div class="skeleton h-2.5 w-20"></div>
+      <div class="skeleton h-7 w-16"></div>
+      <div class="skeleton h-2 w-32"></div>
+    </div>
+    <div class="p-4 space-y-2">
+      <div class="skeleton h-2.5 w-20"></div>
+      <div class="skeleton h-7 w-16"></div>
+      <div class="skeleton h-2 w-32"></div>
+    </div>
+    <div class="p-4 space-y-2">
+      <div class="skeleton h-2.5 w-20"></div>
+      <div class="skeleton h-7 w-16"></div>
+      <div class="skeleton h-2 w-32"></div>
+    </div>
+  </div>
+
+  <!-- Pills rápidos · skeleton -->
+  <div class="flex items-center gap-2 mb-3">
+    <div class="skeleton h-7 w-24 rounded-full"></div>
+    <div class="skeleton h-7 w-28 rounded-full"></div>
+    <div class="skeleton h-7 w-32 rounded-full"></div>
+    <div class="skeleton h-7 w-28 rounded-full"></div>
+    <div class="skeleton h-7 w-20 rounded-full"></div>
+  </div>
+
+  <!-- Filtros bar · skeleton -->
+  <div class="bg-white border border-slate-200 rounded-xl p-3 mb-4 space-y-2.5">
+    <div class="flex items-center gap-2">
+      <div class="skeleton h-7 w-32 rounded-lg"></div>
+      <div class="h-5 w-px bg-slate-200"></div>
+      <div class="skeleton h-2.5 w-12"></div>
+      <div class="skeleton h-6 w-24 rounded-full"></div>
+      <div class="skeleton h-6 w-28 rounded-full"></div>
+    </div>
+    <div class="border-t border-slate-100"></div>
+    <div class="flex items-center gap-2">
+      <div class="skeleton h-9 flex-1 rounded-lg"></div>
+      <div class="skeleton h-9 w-32 rounded-lg"></div>
+    </div>
+  </div>
+
+  <!-- Tabla · 5 filas skeleton -->
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div class="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200">
+      <div class="col-span-1"><div class="skeleton h-3.5 w-3.5"></div></div>
+      <div class="col-span-4"><div class="skeleton h-2.5 w-16"></div></div>
+      <div class="col-span-2 text-right"><div class="skeleton h-2.5 w-24 ml-auto"></div></div>
+      <div class="col-span-2 text-right"><div class="skeleton h-2.5 w-20 ml-auto"></div></div>
+      <div class="col-span-2 text-right"><div class="skeleton h-2.5 w-16 ml-auto"></div></div>
+      <div class="col-span-1 text-right"><div class="skeleton h-2.5 w-12 ml-auto"></div></div>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      <!-- 5 filas skeleton -->
+      <template id="row-template">
+        <div class="grid grid-cols-12 gap-3 items-center px-4 py-3">
+          <div class="col-span-1"><div class="skeleton h-3.5 w-3.5"></div></div>
+          <div class="col-span-4 flex items-center gap-3">
+            <div class="skeleton w-11 h-11 rounded-xl"></div>
+            <div class="space-y-1.5 flex-1">
+              <div class="skeleton h-3.5 w-48"></div>
+              <div class="skeleton h-2 w-32"></div>
+            </div>
+          </div>
+          <div class="col-span-2 flex justify-end items-center -space-x-1">
+            <div class="skeleton w-6 h-6 rounded-full"></div>
+            <div class="skeleton w-6 h-6 rounded-full"></div>
+            <div class="skeleton w-6 h-6 rounded-full"></div>
+          </div>
+          <div class="col-span-2 text-right space-y-1"><div class="skeleton h-3.5 w-16 ml-auto"></div><div class="skeleton h-2 w-12 ml-auto"></div></div>
+          <div class="col-span-2 text-right space-y-1"><div class="skeleton h-3.5 w-12 ml-auto"></div><div class="skeleton h-2 w-8 ml-auto"></div></div>
+          <div class="col-span-1"></div>
+        </div>
+      </template>
+
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3">
+        <div class="col-span-1"><div class="skeleton h-3.5 w-3.5"></div></div>
+        <div class="col-span-4 flex items-center gap-3">
+          <div class="skeleton w-11 h-11 rounded-xl"></div>
+          <div class="space-y-1.5 flex-1"><div class="skeleton h-3.5 w-48"></div><div class="skeleton h-2 w-32"></div></div>
+        </div>
+        <div class="col-span-2 flex justify-end items-center -space-x-1">
+          <div class="skeleton w-6 h-6 rounded-full"></div><div class="skeleton w-6 h-6 rounded-full"></div><div class="skeleton w-6 h-6 rounded-full"></div>
+        </div>
+        <div class="col-span-2 text-right space-y-1"><div class="skeleton h-3.5 w-16 ml-auto"></div><div class="skeleton h-2 w-12 ml-auto"></div></div>
+        <div class="col-span-2 text-right space-y-1"><div class="skeleton h-3.5 w-12 ml-auto"></div><div class="skeleton h-2 w-8 ml-auto"></div></div>
+        <div class="col-span-1"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3">
+        <div class="col-span-1"><div class="skeleton h-3.5 w-3.5"></div></div>
+        <div class="col-span-4 flex items-center gap-3">
+          <div class="skeleton w-11 h-11 rounded-xl"></div>
+          <div class="space-y-1.5 flex-1"><div class="skeleton h-3.5 w-56"></div><div class="skeleton h-2 w-40"></div></div>
+        </div>
+        <div class="col-span-2 flex justify-end items-center"><div class="skeleton w-6 h-6 rounded-full"></div></div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-16 ml-auto"></div></div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-12 ml-auto"></div></div>
+        <div class="col-span-1"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3">
+        <div class="col-span-1"><div class="skeleton h-3.5 w-3.5"></div></div>
+        <div class="col-span-4 flex items-center gap-3">
+          <div class="skeleton w-11 h-11 rounded-xl"></div>
+          <div class="space-y-1.5 flex-1"><div class="skeleton h-3.5 w-44"></div><div class="skeleton h-2 w-36"></div></div>
+        </div>
+        <div class="col-span-2 flex justify-end items-center -space-x-1">
+          <div class="skeleton w-6 h-6 rounded-full"></div><div class="skeleton w-6 h-6 rounded-full"></div>
+        </div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-16 ml-auto"></div></div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-12 ml-auto"></div></div>
+        <div class="col-span-1"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3">
+        <div class="col-span-1"><div class="skeleton h-3.5 w-3.5"></div></div>
+        <div class="col-span-4 flex items-center gap-3">
+          <div class="skeleton w-11 h-11 rounded-xl"></div>
+          <div class="space-y-1.5 flex-1"><div class="skeleton h-3.5 w-52"></div><div class="skeleton h-2 w-32"></div></div>
+        </div>
+        <div class="col-span-2 flex justify-end items-center -space-x-1">
+          <div class="skeleton w-6 h-6 rounded-full"></div><div class="skeleton w-6 h-6 rounded-full"></div><div class="skeleton w-6 h-6 rounded-full"></div>
+        </div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-16 ml-auto"></div></div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-12 ml-auto"></div></div>
+        <div class="col-span-1"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3">
+        <div class="col-span-1"><div class="skeleton h-3.5 w-3.5"></div></div>
+        <div class="col-span-4 flex items-center gap-3">
+          <div class="skeleton w-11 h-11 rounded-xl"></div>
+          <div class="space-y-1.5 flex-1"><div class="skeleton h-3.5 w-40"></div><div class="skeleton h-2 w-32"></div></div>
+        </div>
+        <div class="col-span-2 flex justify-end items-center"><div class="skeleton w-6 h-6 rounded-full"></div></div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-16 ml-auto"></div></div>
+        <div class="col-span-2 text-right"><div class="skeleton h-3.5 w-12 ml-auto"></div></div>
+        <div class="col-span-1"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

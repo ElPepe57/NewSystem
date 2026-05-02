@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>08 · Filtros drawer mobile · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #e2e8f0; font-variant-numeric: tabular-nums; padding: 16px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+.mobile-frame { max-width: 400px; margin: 0 auto; background: rgba(15, 23, 42, 0.5); border-radius: 32px; padding: 16px 12px; box-shadow: 0 0 0 8px #1e293b, 0 20px 60px rgba(0,0,0,0.25); position: relative; min-height: 700px; overflow: hidden; }
+.mobile-frame::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 80px; height: 5px; background: #1e293b; border-radius: 999px; z-index: 10; }
+</style>
+</head>
+<body>
+
+<div class="mockup-context">📐 08 · Drawer Mobile · Filtros expandidos (overlay)</div>
+
+<div class="mobile-frame mt-4">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/30 backdrop-blur-sm rounded-3xl"></div>
+
+  <!-- Drawer slide-up · ocupa 85% inferior -->
+  <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl overflow-hidden" style="max-height: 85%;">
+    <!-- Drag handle -->
+    <div class="flex justify-center pt-3 pb-1">
+      <div class="w-10 h-1 bg-slate-300 rounded-full"></div>
+    </div>
+
+    <!-- Header drawer -->
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white">
+      <div>
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="sliders-horizontal" class="w-4 h-4 text-teal-600"></i>
+          Filtros
+        </h2>
+        <p class="text-[10px] text-slate-500">23 productos coinciden con tu selección</p>
+      </div>
+      <button class="p-2 hover:bg-slate-100 rounded-lg">
+        <i data-lucide="x" class="w-4 h-4 text-slate-600"></i>
+      </button>
+    </div>
+
+    <!-- Body scrolleable -->
+    <div class="overflow-y-auto px-5 py-4 space-y-5" style="max-height: calc(85vh - 200px);">
+
+      <!-- Sección: Período -->
+      <div>
+        <div class="flex items-center gap-1.5 mb-2">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-600"></i>
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Período</span>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5">
+          <button class="px-2 py-1.5 text-[11px] font-bold rounded-lg border bg-white border-slate-200 text-slate-700">Todo</button>
+          <button class="px-2 py-1.5 text-[11px] font-bold rounded-lg border bg-white border-slate-200 text-slate-700">7 días</button>
+          <button class="px-2 py-1.5 text-[11px] font-bold rounded-lg border bg-teal-100 border-teal-400 text-teal-700 ring-2 ring-teal-200">30 días</button>
+          <button class="px-2 py-1.5 text-[11px] font-bold rounded-lg border bg-white border-slate-200 text-slate-700">90 días</button>
+          <button class="px-2 py-1.5 text-[11px] font-bold rounded-lg border bg-white border-slate-200 text-slate-700">6 meses</button>
+          <button class="px-2 py-1.5 text-[11px] font-bold rounded-lg border bg-white border-slate-200 text-slate-700">Este año</button>
+        </div>
+      </div>
+
+      <!-- Sección: Línea -->
+      <div>
+        <div class="flex items-center gap-1.5 mb-2">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Línea de negocio</span>
+        </div>
+        <div class="space-y-1.5">
+          <label class="flex items-center justify-between p-2.5 rounded-lg border-2 border-amber-300 bg-amber-50 cursor-pointer">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" checked class="rounded border-amber-300 text-amber-600 w-4 h-4">
+              <i data-lucide="droplets" class="w-3.5 h-3.5 text-amber-700"></i>
+              <span class="text-sm font-bold text-amber-700">Skincare</span>
+            </div>
+            <span class="text-[11px] text-amber-600 font-bold tabular">100</span>
+          </label>
+          <label class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-indigo-300">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" class="rounded border-slate-300 text-indigo-600 w-4 h-4">
+              <i data-lucide="pill" class="w-3.5 h-3.5 text-indigo-700"></i>
+              <span class="text-sm font-medium text-slate-700">Suplementos</span>
+            </div>
+            <span class="text-[11px] text-slate-500 tabular">42</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sección: Tipo -->
+      <div>
+        <div class="flex items-center gap-1.5 mb-2">
+          <i data-lucide="box" class="w-3.5 h-3.5 text-purple-600"></i>
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Tipo de producto</span>
+        </div>
+        <div class="space-y-1.5">
+          <label class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" class="rounded border-slate-300 text-slate-600 w-4 h-4">
+              <i data-lucide="box" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span class="text-sm font-medium text-slate-700">Simple</span>
+            </div>
+            <span class="text-[11px] text-slate-500 tabular">129</span>
+          </label>
+          <label class="flex items-center justify-between p-2.5 rounded-lg border-2 border-purple-300 bg-purple-50 cursor-pointer">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" checked class="rounded border-purple-300 text-purple-600 w-4 h-4">
+              <i data-lucide="package-2" class="w-3.5 h-3.5 text-purple-700"></i>
+              <span class="text-sm font-bold text-purple-700">Pack / Kit</span>
+            </div>
+            <span class="text-[11px] text-purple-600 font-bold tabular">13</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sección: Estado -->
+      <div>
+        <div class="flex items-center gap-1.5 mb-2">
+          <i data-lucide="circle-dot" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Estado</span>
+        </div>
+        <div class="space-y-1.5">
+          <label class="flex items-center justify-between p-2.5 rounded-lg border-2 border-emerald-300 bg-emerald-50 cursor-pointer">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" checked class="rounded border-emerald-300 text-emerald-600 w-4 h-4">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-700"></i>
+              <span class="text-sm font-bold text-emerald-700">Activos</span>
+            </div>
+            <span class="text-[11px] text-emerald-600 font-bold tabular">128</span>
+          </label>
+          <label class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" class="rounded border-slate-300 text-amber-600 w-4 h-4">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-amber-600"></i>
+              <span class="text-sm font-medium text-slate-700">En investigación</span>
+            </div>
+            <span class="text-[11px] text-slate-500 tabular">12</span>
+          </label>
+          <label class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" class="rounded border-slate-300 text-slate-600 w-4 h-4">
+              <i data-lucide="archive" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span class="text-sm font-medium text-slate-700">Archivados</span>
+            </div>
+            <span class="text-[11px] text-slate-500 tabular">2</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Sección: Búsqueda -->
+      <div>
+        <div class="flex items-center gap-1.5 mb-2">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-600"></i>
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Búsqueda</span>
+        </div>
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+          <input type="text" placeholder="Nombre, marca, SKU..." class="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+        </div>
+      </div>
+
+      <!-- Sección: Orden -->
+      <div>
+        <div class="flex items-center gap-1.5 mb-2">
+          <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-600"></i>
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Ordenar por</span>
+        </div>
+        <select class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white">
+          <option>Más vendidos</option>
+          <option>Nombre A-Z</option>
+          <option>Margen ↓</option>
+          <option>Stock ↓</option>
+          <option>Más recientes</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Footer drawer -->
+    <div class="border-t border-slate-200 px-5 py-3 flex items-center gap-2 sticky bottom-0 bg-white">
+      <button class="flex-1 py-2.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+        Limpiar (3)
+      </button>
+      <button class="flex-1 py-2.5 text-xs font-bold text-white bg-teal-600 rounded-lg hover:bg-teal-700 shadow-sm">
+        Aplicar · Ver 23 productos
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

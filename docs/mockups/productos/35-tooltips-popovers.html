@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>35 · Tooltips y popovers · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; padding: 32px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+.tooltip { position: relative; display: inline-block; }
+.tooltip-content { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #0f172a; color: white; padding: 6px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.15); z-index: 10; }
+.tooltip-content::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 4px solid transparent; border-top-color: #0f172a; }
+.popover { position: relative; display: inline-block; }
+.popover-content { position: absolute; top: calc(100% + 8px); left: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 12px; min-width: 240px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); z-index: 10; }
+</style>
+</head>
+<body>
+<div class="mockup-context">📐 35 · Tooltips y popovers · micro-interacciones</div>
+
+<div class="max-w-7xl mx-auto space-y-8">
+  <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Catálogo de tooltips y popovers del módulo Productos</h2>
+
+  <!-- TOOLTIPS SIMPLES -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-4">1️⃣ Tooltips simples (1 línea · informativos)</h3>
+    <div class="grid grid-cols-3 gap-6">
+      <!-- Tooltip 1 · Margen -->
+      <div class="text-center">
+        <div class="tooltip" style="display:inline-block;">
+          <span class="tooltip-content">Margen sobre precio venta</span>
+          <div class="text-2xl font-bold text-emerald-600 tabular cursor-help">52%</div>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2">Hover en métrica de margen</p>
+      </div>
+
+      <!-- Tooltip 2 · Sparkline -->
+      <div class="text-center">
+        <div class="tooltip" style="display:inline-block;">
+          <span class="tooltip-content">Margen últimos 6 meses · +3.2%</span>
+          <svg viewBox="0 0 60 24" class="w-16 h-6 cursor-help">
+            <polyline points="0,18 10,15 20,12 30,14 40,10 50,8 60,6" fill="none" stroke="#10b981" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2">Hover en sparkline</p>
+      </div>
+
+      <!-- Tooltip 3 · Stock crítico -->
+      <div class="text-center">
+        <div class="tooltip" style="display:inline-block;">
+          <span class="tooltip-content">12 uds disponibles · mínimo: 25</span>
+          <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold cursor-help">⚠ Stock crítico</span>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2">Hover en chip "Stock crítico"</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPOVERS -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-4">2️⃣ Popovers contextuales (más información)</h3>
+    <div class="grid grid-cols-2 gap-6">
+      <!-- Popover 1 · SKU avatares -->
+      <div>
+        <div class="popover" style="display:inline-block;">
+          <div class="flex items-center -space-x-1 cursor-pointer">
+            <div class="w-6 h-6 rounded-full bg-teal-600 ring-2 ring-white text-white text-[8px] font-bold flex items-center justify-center">30</div>
+            <div class="w-6 h-6 rounded-full bg-amber-500 ring-2 ring-white text-white text-[8px] font-bold flex items-center justify-center">15</div>
+            <div class="w-6 h-6 rounded-full bg-violet-500 ring-2 ring-white text-white text-[8px] font-bold flex items-center justify-center">+2</div>
+          </div>
+          <div class="popover-content">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">4 variantes activas</div>
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-teal-600 text-white text-[8px] font-bold flex items-center justify-center">30</div>
+                  <span class="text-xs text-slate-700">30 ml · Original</span>
+                </div>
+                <span class="text-xs font-bold text-slate-900 tabular">42 uds</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-amber-500 text-white text-[8px] font-bold flex items-center justify-center">15</div>
+                  <span class="text-xs text-slate-700">15 ml · Travel</span>
+                </div>
+                <span class="text-xs font-bold text-slate-900 tabular">15 uds</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-violet-500 text-white text-[8px] font-bold flex items-center justify-center">10</div>
+                  <span class="text-xs text-slate-700">10 ml · Sample</span>
+                </div>
+                <span class="text-xs font-bold text-slate-900 tabular">20 uds</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-purple-500 text-white text-[8px] font-bold flex items-center justify-center">5</div>
+                  <span class="text-xs text-slate-700">5 ml · Mini</span>
+                </div>
+                <span class="text-xs font-bold text-slate-900 tabular">10 uds</span>
+              </div>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-500">Total stock</span>
+              <span class="font-bold text-slate-900 tabular">87 uds</span>
+            </div>
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2">Hover en avatares apilados de SKU</p>
+      </div>
+
+      <!-- Popover 2 · Investigación vencida -->
+      <div>
+        <div class="popover" style="display:inline-block;">
+          <span class="px-2 py-1 rounded bg-amber-100 text-amber-800 text-[10px] font-bold cursor-help flex items-center gap-1">
+            <i data-lucide="search" class="w-2.5 h-2.5"></i>Re-investigar
+          </span>
+          <div class="popover-content">
+            <div class="flex items-center gap-2 mb-2">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i>
+              <span class="text-xs font-bold text-amber-900">Investigación desactualizada</span>
+            </div>
+            <p class="text-[11px] text-slate-600 mb-3">
+              Última actualización: <strong class="text-slate-900">hace 4 meses</strong>.
+              Se recomienda re-investigar precios de proveedores y competencia.
+            </p>
+            <div class="flex items-center gap-2 text-[11px]">
+              <button class="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded">
+                Re-investigar ahora
+              </button>
+              <button class="text-slate-500 hover:text-slate-700">Recordar mañana</button>
+            </div>
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-2">Hover en chip "Re-investigar"</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLTIPS DE SISTEMA -->
+  <div class="bg-white border border-slate-200 rounded-xl p-6">
+    <h3 class="text-base font-bold text-slate-900 mb-4">3️⃣ Tooltips de iconos de acción</h3>
+    <div class="flex items-center gap-6 justify-center">
+      <div class="text-center">
+        <div class="tooltip">
+          <span class="tooltip-content">Ver detalle del producto</span>
+          <button class="p-2 rounded hover:bg-teal-50 text-slate-500 hover:text-teal-600">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">Eye · ver detalle</p>
+      </div>
+      <div class="text-center">
+        <div class="tooltip">
+          <span class="tooltip-content">Investigar precios y competencia</span>
+          <button class="p-2 rounded hover:bg-amber-50 text-slate-500 hover:text-amber-600">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">Search · investigar</p>
+      </div>
+      <div class="text-center">
+        <div class="tooltip">
+          <span class="tooltip-content">Editar producto</span>
+          <button class="p-2 rounded hover:bg-slate-100 text-slate-500">
+            <i data-lucide="pencil" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">Pencil · editar</p>
+      </div>
+      <div class="text-center">
+        <div class="tooltip">
+          <span class="tooltip-content">Crear variante de este producto</span>
+          <button class="p-2 rounded hover:bg-sky-50 text-slate-500 hover:text-sky-600">
+            <i data-lucide="git-branch" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">GitBranch · variante</p>
+      </div>
+      <div class="text-center">
+        <div class="tooltip">
+          <span class="tooltip-content">Archivar producto · papelera</span>
+          <button class="p-2 rounded hover:bg-rose-50 text-slate-500 hover:text-rose-600">
+            <i data-lucide="archive" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 mt-1">Archive · archivar</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANATOMÍA -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <h3 class="text-base font-bold text-slate-900 mb-3">📐 Reglas de tooltips/popovers</h3>
+    <div class="grid grid-cols-2 gap-4 text-xs">
+      <div>
+        <div class="font-bold text-slate-700 mb-2">Tooltip simple:</div>
+        <ul class="text-slate-600 list-disc list-inside space-y-1">
+          <li>Background slate-900 + texto blanco</li>
+          <li>11px · padding 6px 10px · rounded-md</li>
+          <li>Aparece arriba del elemento (bottom by default)</li>
+          <li>Flecha apuntando al elemento</li>
+          <li>Delay de hover: 300ms · fade-in 150ms</li>
+          <li>Solo 1 línea · si necesita más → popover</li>
+        </ul>
+      </div>
+      <div>
+        <div class="font-bold text-slate-700 mb-2">Popover (información rica):</div>
+        <ul class="text-slate-600 list-disc list-inside space-y-1">
+          <li>Background blanco + border slate-200</li>
+          <li>min-width 240px · padding 12px · rounded-xl</li>
+          <li>shadow-lg para destacar del contexto</li>
+          <li>Acciones internas permitidas (botones, links)</li>
+          <li>Click outside para cerrar</li>
+          <li>Aparece debajo del elemento (top by default)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>34 · Chips filtros activos · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; padding: 32px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+</style>
+</head>
+<body>
+<div class="mockup-context">📐 34 · Chips de filtros activos · banner debajo de FiltrosBar</div>
+
+<div class="max-w-7xl mx-auto">
+  <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3">Chips removibles · count + filtros activos en línea</h2>
+
+  <!-- Estado A: 1 filtro activo -->
+  <div class="mb-6">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · 1 filtro activo</div>
+    <div class="bg-white border border-slate-200 rounded-xl p-3">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs text-slate-500">
+          <strong class="text-slate-900 tabular">100</strong> de <strong class="text-slate-900 tabular">142</strong> productos
+        </span>
+        <span class="text-slate-300">·</span>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Filtros activos:</span>
+        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-[10px] font-medium text-amber-700">
+          Línea: Skincare
+          <button class="hover:bg-amber-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado B: 5 filtros activos -->
+  <div class="mb-6">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · 5 filtros activos (caso real)</div>
+    <div class="bg-white border border-slate-200 rounded-xl p-3">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs text-slate-500">
+          <strong class="text-slate-900 tabular">23</strong> de <strong class="text-slate-900 tabular">142</strong> productos
+        </span>
+        <span class="text-slate-300">·</span>
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Filtros activos:</span>
+        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-teal-50 border border-teal-200 text-[10px] font-medium text-teal-700">
+          <i data-lucide="calendar" class="w-2.5 h-2.5"></i>Últ. 30 días
+          <button class="hover:bg-teal-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-[10px] font-medium text-amber-700">
+          Línea: Skincare
+          <button class="hover:bg-amber-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-50 border border-purple-200 text-[10px] font-medium text-purple-700">
+          Tipo: Pack
+          <button class="hover:bg-purple-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-[10px] font-medium text-emerald-700">
+          Estado: Activos
+          <button class="hover:bg-emerald-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-medium text-slate-700">
+          Buscar: "vitamin"
+          <button class="hover:bg-slate-200 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+        </span>
+        <button class="ml-auto text-[10px] font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1 px-2 py-1 hover:bg-teal-50 rounded">
+          <i data-lucide="x" class="w-3 h-3"></i>Limpiar todos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado C: muchos filtros (overflow horizontal) -->
+  <div class="mb-6">
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Muchos filtros (overflow scroll horizontal)</div>
+    <div class="bg-white border border-slate-200 rounded-xl p-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-500 flex-shrink-0">
+          <strong class="text-slate-900 tabular">5</strong> de <strong class="text-slate-900 tabular">142</strong>
+        </span>
+        <span class="text-slate-300 flex-shrink-0">·</span>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1" style="scrollbar-width: thin;">
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-teal-50 border border-teal-200 text-[10px] font-medium text-teal-700">
+            <i data-lucide="calendar" class="w-2.5 h-2.5"></i>Últ. 7 días
+            <button class="hover:bg-teal-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+          </span>
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-[10px] font-medium text-amber-700">Línea: Skincare<button class="hover:bg-amber-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-[10px] font-medium text-amber-700">Línea: Suplementos<button class="hover:bg-amber-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-purple-50 border border-purple-200 text-[10px] font-medium text-purple-700">Tipo: Pack<button class="hover:bg-purple-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-purple-50 border border-purple-200 text-[10px] font-medium text-purple-700">Tipo: Simple<button class="hover:bg-purple-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-[10px] font-medium text-emerald-700">Estado: Activo<button class="hover:bg-emerald-100 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-medium text-slate-700">Marca: SkinCeuticals<button class="hover:bg-slate-200 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+          <span class="inline-flex flex-shrink-0 items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-medium text-slate-700">Buscar: "serum"<button class="hover:bg-slate-200 rounded p-0.5"><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+        </div>
+        <button class="flex-shrink-0 text-[10px] font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1 px-2 py-1 hover:bg-teal-50 rounded">
+          <i data-lucide="x" class="w-3 h-3"></i>Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANATOMÍA -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5">
+    <h3 class="text-base font-bold text-slate-900 mb-3">📐 Paleta semántica por dominio del filtro</h3>
+    <div class="grid grid-cols-2 gap-4 text-xs">
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-teal-50 border border-teal-200 text-[10px] font-medium text-teal-700">
+            <i data-lucide="calendar" class="w-2.5 h-2.5"></i>Date range
+          </span>
+          <code class="text-slate-500">teal · período</code>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-[10px] font-medium text-amber-700">Línea: X</span>
+          <code class="text-slate-500">amber · línea de negocio</code>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-50 border border-purple-200 text-[10px] font-medium text-purple-700">Tipo: X</span>
+          <code class="text-slate-500">purple · tipo de producto</code>
+        </div>
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-[10px] font-medium text-emerald-700">Estado: X</span>
+          <code class="text-slate-500">emerald · estado positivo</code>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-50 border border-rose-200 text-[10px] font-medium text-rose-700">Stock: crítico</span>
+          <code class="text-slate-500">rose · estado de alerta</code>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-medium text-slate-700">Buscar: X</span>
+          <code class="text-slate-500">slate · texto / búsqueda / marca</code>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3 text-xs text-slate-600">
+      <strong>Reglas:</strong> chip = bg-{color}-50 + border + text-{color}-700 · X icon hover bg-{color}-100 · separador "·" cuando hay count + chips · "Limpiar todos" cuando hay ≥3 chips activos.
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>
