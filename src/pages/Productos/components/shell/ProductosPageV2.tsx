@@ -46,6 +46,8 @@ import {
   type SortOption,
 } from '../filters';
 import { ProductosListV2 } from '../cards';
+import { ProductoDetailModal } from '../detail';
+import type { Producto } from '../../../../types/producto.types';
 
 // ─── Configuración de filtros ────────────────────────────────────────────────
 
@@ -93,6 +95,7 @@ export const ProductosPageV2: React.FC = () => {
   const { productos, archivados, loading, fetchProductos, fetchArchivados } = useProductoStore();
   const filtros = useProductosFilters();
   const [showMobileDrawer, setShowMobileDrawer] = useState(false);
+  const [detailProducto, setDetailProducto] = useState<Producto | null>(null);
 
   // Cargar productos al montar
   useEffect(() => {
@@ -501,20 +504,38 @@ export const ProductosPageV2: React.FC = () => {
           onCrearProducto={handleNuevo}
         />
       ) : (
-        // Fase 3 · Lista real de productos con cards polimórficas
+        // Fase 3 · Lista real de productos · Fase 4 · click abre modal detalle
         <ProductosListV2
           productos={productosFiltered}
           selectedIds={filtros.selectedIds}
           onToggleSelected={filtros.toggleSelected}
           onSelectAll={filtros.setManyselected}
           onClearSelection={filtros.clearSelection}
-          onClickProducto={p => toast.info(`Modal detalle de ${p.nombreComercial} · disponible en Fase 4`)}
-          onView={p => toast.info(`Ver detalle de ${p.nombreComercial} · disponible en Fase 4`)}
-          onActions={p => toast.info(`Menú de acciones · disponible en Fase 4`)}
+          onClickProducto={setDetailProducto}
+          onView={setDetailProducto}
+          onActions={p => toast.info(`Menú de acciones · disponible en Fase 4+`)}
           onCrearOC={p => toast.info(`Crear OC para ${p.nombreComercial} · pendiente`)}
           onReInvestigar={p => toast.info(`Re-investigar ${p.nombreComercial} · disponible en Fase 5`)}
         />
       )}
+
+      {/* Modal detalle producto · Fase 4 · F6(A) desktop / bottom sheet mobile */}
+      <ProductoDetailModal
+        open={!!detailProducto}
+        producto={detailProducto}
+        hermanasGrupo={
+          detailProducto?.grupoVarianteId
+            ? lista.filter((p: any) => p.grupoVarianteId === detailProducto.grupoVarianteId)
+            : detailProducto
+            ? [detailProducto]
+            : []
+        }
+        onClose={() => setDetailProducto(null)}
+        onEdit={p => toast.info(`Editar ${p.nombreComercial} · disponible en Fase 7 (wizards)`)}
+        onArchivar={p => toast.info(`Archivar ${p.nombreComercial} · pendiente`)}
+        onDuplicar={p => toast.info(`Duplicar ${p.nombreComercial} · pendiente`)}
+        onAgregarVariante={p => toast.info(`Agregar variante a ${p.nombreComercial} · disponible en Fase 7`)}
+      />
     </div>
   );
 };
