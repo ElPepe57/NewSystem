@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>29 · Investigación · Banner alertas (variantes) · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.swatch-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">📍</div>
+  <div class="context-info">
+    <div class="context-type">Sub-componente · Banner de alerta (4 variantes de severidad)</div>
+    <div class="context-title">Banner Alertas Investigación · Aparece arriba del modal #24 o en cards de productos</div>
+    <div class="context-meta">Severidades: info (sky) · warning (amber) · critical (rose) · success (emerald) · cada uno con CTAs diferentes según contexto</div>
+  </div>
+  <div class="context-id">28-investigacion-banner-alertas</div>
+</div>
+
+<div class="max-w-5xl mx-auto bg-white rounded-xl border border-slate-200 p-5 mt-6 space-y-5">
+  <div>
+    <h3 class="text-base font-bold text-slate-900">Sistema de alertas de investigación</h3>
+    <p class="text-xs text-slate-500 mt-0.5">4 severidades · banners reusables en modales, cards y dashboards</p>
+  </div>
+
+  <!-- INFO · sky -->
+  <div>
+    <div class="swatch-label">1. INFO · sky-50 / sky-200 / sky-700</div>
+    <div class="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 flex items-start gap-3">
+      <div class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="info" class="w-4 h-4 text-sky-700"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-sky-900">Investigación actualizada hace 20 días</div>
+        <p class="text-[11px] text-sky-800 mt-0.5">Los datos pueden estar desactualizados · te recomendamos volver a investigar para precios y proveedores frescos.</p>
+      </div>
+      <button class="px-2.5 py-1 text-[10px] font-bold text-white bg-sky-600 hover:bg-sky-700 rounded">Re-investigar</button>
+      <button class="p-1 text-sky-600 hover:bg-sky-100 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+    </div>
+  </div>
+
+  <!-- WARNING · amber -->
+  <div>
+    <div class="swatch-label">2. WARNING · amber-50 / amber-200 / amber-700</div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
+      <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-amber-900">Precio competencia subió 8%</div>
+        <p class="text-[11px] text-amber-800 mt-0.5">DermoAvanzada y Beauty Plus subieron precio en los últimos 7 días · podrías subir tu precio S/ 12-18 manteniendo competitividad.</p>
+      </div>
+      <button class="px-2.5 py-1 text-[10px] font-bold text-amber-800 hover:bg-amber-100 border border-amber-300 rounded">Ver análisis</button>
+      <button class="p-1 text-amber-600 hover:bg-amber-100 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+    </div>
+  </div>
+
+  <!-- CRITICAL · rose -->
+  <div>
+    <div class="swatch-label">3. CRITICAL · rose-50 / rose-200 / rose-700</div>
+    <div class="rounded-xl border-2 border-rose-300 bg-rose-50 px-4 py-3 flex items-start gap-3">
+      <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-700"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-rose-900">⚠ Markup peligrosamente bajo · 12%</div>
+        <p class="text-[11px] text-rose-800 mt-0.5">Tu margen real es 12% (objetivo: 35% mínimo) · costo CTRU subió por aranceles + flete · acción urgente: subir precio o cambiar proveedor.</p>
+      </div>
+      <button class="px-2.5 py-1 text-[10px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded shadow-sm">Resolver ahora</button>
+      <button class="p-1 text-rose-600 hover:bg-rose-100 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+    </div>
+  </div>
+
+  <!-- SUCCESS · emerald -->
+  <div>
+    <div class="swatch-label">4. SUCCESS · emerald-50 / emerald-200 / emerald-700</div>
+    <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-start gap-3">
+      <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-700"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-xs font-bold text-emerald-900">Margen excelente · 52%</div>
+        <p class="text-[11px] text-emerald-800 mt-0.5">Estás 5pp por encima del objetivo (47%) · proveedor SkinTech Korea está cumpliendo · momento ideal para promocionar este producto.</p>
+      </div>
+      <button class="px-2.5 py-1 text-[10px] font-bold text-emerald-800 hover:bg-emerald-100 border border-emerald-300 rounded">Crear promo</button>
+      <button class="p-1 text-emerald-600 hover:bg-emerald-100 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+    </div>
+  </div>
+
+  <!-- COMPACTO INLINE -->
+  <div class="pt-3 border-t border-slate-100">
+    <div class="swatch-label">5. COMPACTO INLINE · una línea (para tabs y headers)</div>
+    <div class="space-y-2">
+      <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600 flex-shrink-0"></i>
+        <span class="text-[11px] text-amber-900 flex-1"><strong>3 alertas activas:</strong> precio competencia subió 8% · 1 proveedor sin stock · margen real menor al estimado</span>
+        <button class="text-[10px] font-bold text-amber-800 hover:text-amber-900">Ver todas →</button>
+      </div>
+      <div class="bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 flex items-center gap-2">
+        <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0"></i>
+        <span class="text-[11px] text-rose-900 flex-1"><strong>1 crítica:</strong> Markup negativo en variante 50ml · revisar urgente</span>
+        <button class="text-[10px] font-bold text-rose-700 hover:text-rose-900">Resolver →</button>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 flex items-center gap-2">
+        <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
+        <span class="text-[11px] text-emerald-900 flex-1"><strong>Oportunidad:</strong> margen +5pp sobre objetivo · momento ideal para escalar volumen</span>
+        <button class="text-[10px] font-bold text-emerald-700 hover:text-emerald-900">Crear OC →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BADGE INDICADOR -->
+  <div class="pt-3 border-t border-slate-100">
+    <div class="swatch-label">6. BADGE indicador en card · número + color por severidad</div>
+    <div class="flex items-center gap-3">
+      <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-2 relative">
+        <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+        <div>
+          <div class="text-xs font-bold text-slate-900">Vit. C Brightening</div>
+          <div class="text-[10px] text-slate-500">SKU-PROD-0042</div>
+        </div>
+        <span class="absolute -top-1.5 -right-1.5 px-1 py-0.5 bg-rose-500 text-white text-[9px] font-bold rounded-full ring-2 ring-white">3</span>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-2 relative">
+        <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center"><i data-lucide="leaf" class="w-4 h-4 text-emerald-700"></i></div>
+        <div>
+          <div class="text-xs font-bold text-slate-900">Aloe Vera Gel</div>
+          <div class="text-[10px] text-slate-500">SKU-PROD-0019</div>
+        </div>
+        <span class="absolute -top-1.5 -right-1.5 px-1 py-0.5 bg-amber-500 text-white text-[9px] font-bold rounded-full ring-2 ring-white">1</span>
+      </div>
+      <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center"><i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i></div>
+        <div>
+          <div class="text-xs font-bold text-slate-900">Vit. D3 5000 IU</div>
+          <div class="text-[10px] text-slate-500">SKU-PROD-0007</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

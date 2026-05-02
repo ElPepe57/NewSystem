@@ -1,9 +1,27 @@
-# INVENTARIO MÓDULO PRODUCTOS · Sub-fase A · Pixel-perfect milimétrico
+# INVENTARIO MÓDULO PRODUCTOS · Sub-fase B · Pixel-perfect milimétrico
 
-> **Fecha:** 2026-05-02
+> **Fecha:** 2026-05-02 (act. 2026-05-01 cierre Sesión 3)
 > **Módulo:** Productos (catálogo maestro)
-> **Estado:** ⏳ Esperando validación del usuario antes de Sub-fase B (producción de mockups)
+> **Estado:** ✅ **40/40 mockups producidos** · ⏳ Sub-fase C validación holística pendiente del usuario
 > **Documentos referencia:** `docs/DESIGN_CANONICO_FINAL.md` + `docs/mockups/CANONICO_MASTER.html`
+
+---
+
+## ✅ COMPLETADO · Sub-fase B (3 sesiones)
+
+| Sesión | Grupos | Mockups producidos |
+|--------|--------|---------------------|
+| **Sesión 1** | A · B · I | 12 mockups (01-09 + 33-35) |
+| **Sesión 2** | C · D | 11 mockups (10-15 + 15b · post-gaps aplicados) |
+| **Sesión 3** | E · F · G · H | 17 mockups (16-32) |
+| **TOTAL** | 9 grupos | **40 mockups pixel-perfect** ✅ |
+
+**Documentos auxiliares producidos:**
+- `FLUJO_NAVEGACION.html` — grafo visual con los 40 nodos clickables
+- `COMPARATIVA_GAPS.html` — decision board de 7 gaps detectados (todos resueltos)
+- `GAPS_DETECTADOS.md` — auditoría honesta vs mockups históricos
+
+**Próxima fase:** Sub-fase C · Revisión holística por el usuario antes de Etapa 4 (implementación pixel-perfect en código).
 
 ---
 

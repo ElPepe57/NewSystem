@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>23 · Modal Papelera/Archivo · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: rgba(15, 23, 42, 0.5); font-variant-numeric: tabular-nums; padding: 60px 20px 40px; min-height: 100vh; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #d8b4fe; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #faf5ff; color: #581c87; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #581c87; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.sku-avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 700; box-shadow: 0 0 0 1.5px white; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">🪟</div>
+  <div class="context-info">
+    <div class="context-type">Modal centrado · Papelera (D-PROD-5)</div>
+    <div class="context-title">Modal Archivo / Papelera · Productos archivados</div>
+    <div class="context-meta">Trigger: click "Archivo" en header del listado #01 · Lista de archivados con Restaurar/Eliminar · 90 días antes de eliminación automática</div>
+  </div>
+  <div class="context-id">23-modal-papelera</div>
+</div>
+
+<div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden mt-6">
+  <!-- HEADER -->
+  <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+    <div class="flex items-start justify-between">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 relative">
+          <i data-lucide="archive" class="w-5 h-5 text-slate-600"></i>
+          <span class="absolute -top-1 -right-1 px-1 py-0.5 bg-amber-500 text-white text-[8px] font-bold rounded-full">3</span>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Papelera de productos</h2>
+          <p class="text-xs text-slate-500 mt-0.5">3 productos archivados · se eliminarán automáticamente después de 90 días</p>
+        </div>
+      </div>
+      <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+  </div>
+
+  <!-- BÚSQUEDA -->
+  <div class="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
+    <div class="relative flex-1">
+      <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+      <input type="text" placeholder="Buscar en papelera..." class="w-full pl-9 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+    </div>
+    <select class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-slate-600">
+      <option>Más recientes</option>
+      <option>Más antiguos</option>
+      <option>Por marca</option>
+    </select>
+  </div>
+
+  <!-- LISTA -->
+  <div class="max-h-[400px] overflow-y-auto">
+    <div class="grid grid-cols-12 gap-3 px-4 py-2 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+      <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 w-3.5 h-3.5"></div>
+      <div class="col-span-5">Producto</div>
+      <div class="col-span-2">Variantes · Stock</div>
+      <div class="col-span-2">Archivado</div>
+      <div class="col-span-2 text-right">Acciones</div>
+    </div>
+
+    <div class="divide-y divide-slate-100">
+      <!-- Item 1 -->
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 opacity-60 hover:opacity-100 hover:bg-slate-50 transition-opacity">
+        <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></div>
+        <div class="col-span-5 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center grayscale flex-shrink-0">
+            <i data-lucide="droplets" class="w-4 h-4 text-slate-500"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-sm font-medium text-slate-700 line-through truncate">Niacinamide 5% Discontinuado</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">SKU-PROD-0011 · The Ordinary</div>
+          </div>
+        </div>
+        <div class="col-span-2 text-[10px] text-slate-400 tabular">2 var · 0 uds</div>
+        <div class="col-span-2">
+          <div class="text-[10px] text-slate-500 tabular">15 abr 2026</div>
+          <div class="text-[10px] text-slate-400 italic">por: José LP</div>
+        </div>
+        <div class="col-span-2 flex items-center justify-end gap-1.5">
+          <button class="px-2 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i>Restaurar
+          </button>
+          <button class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded" title="Eliminar definitivo">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Item 2 · Pack archivado -->
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 opacity-60 hover:opacity-100 hover:bg-slate-50 transition-opacity">
+        <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></div>
+        <div class="col-span-5 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center grayscale flex-shrink-0 relative">
+            <i data-lucide="gift" class="w-4 h-4 text-slate-500"></i>
+            <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-slate-400 text-white text-[7px] font-bold rounded-full flex items-center justify-center ring-1 ring-white">3</span>
+          </div>
+          <div class="min-w-0">
+            <div class="text-sm font-medium text-slate-700 line-through truncate">Verano 2025 Pack</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">SKU-PROD-0028 · 3 productos</div>
+          </div>
+        </div>
+        <div class="col-span-2 text-[10px] text-slate-400 tabular">3 comp · 0 cajas</div>
+        <div class="col-span-2">
+          <div class="text-[10px] text-slate-500 tabular">02 mar 2026</div>
+          <div class="text-[10px] text-slate-400 italic">por: María Q.</div>
+        </div>
+        <div class="col-span-2 flex items-center justify-end gap-1.5">
+          <button class="px-2 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i>Restaurar
+          </button>
+          <button class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-3 opacity-60 hover:opacity-100 hover:bg-slate-50 transition-opacity">
+        <div class="col-span-1"><input type="checkbox" class="rounded border-slate-300 text-teal-600 w-3.5 h-3.5"></div>
+        <div class="col-span-5 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center grayscale flex-shrink-0">
+            <i data-lucide="pill" class="w-4 h-4 text-slate-500"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-sm font-medium text-slate-700 line-through truncate">Collagen Powder Old Formula</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">SKU-PROD-0058 · Vital Proteins</div>
+          </div>
+        </div>
+        <div class="col-span-2 text-[10px] text-slate-400 tabular">1 var · 0 uds</div>
+        <div class="col-span-2">
+          <div class="text-[10px] text-rose-500 tabular font-bold">15 ene 2026</div>
+          <div class="text-[10px] text-rose-400">⚠ se elimina en 5 días</div>
+        </div>
+        <div class="col-span-2 flex items-center justify-end gap-1.5">
+          <button class="px-2 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i>Restaurar
+          </button>
+          <button class="p-1 text-rose-500 hover:bg-rose-50 rounded">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+    <div class="text-[10px] text-slate-500">
+      Los productos archivados se conservan 90 días antes de eliminación automática.
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
+      <button class="px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-1.5">
+        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>Vaciar papelera
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

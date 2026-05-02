@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>19 · Wizard variante existente · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: rgba(15, 23, 42, 0.5); font-variant-numeric: tabular-nums; padding: 60px 20px 40px; min-height: 100vh; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #d8b4fe; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #faf5ff; color: #581c87; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #581c87; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.sku-avatar { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">🪟</div>
+  <div class="context-info">
+    <div class="context-type">Modal centrado · Wizard F5 variante D · 1 paso (con buscador)</div>
+    <div class="context-title">Wizard Crear VARIANTE DE PRODUCTO EXISTENTE</div>
+    <div class="context-meta">Trigger: selector #16 → "Variante existente" · 2 zonas: BUSCADOR (#21) en sección sup + FORM REDUCIDO (#22) inline al seleccionar</div>
+  </div>
+  <div class="context-id">19-wizard-variante-existente</div>
+</div>
+
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden mt-6">
+  <!-- HEADER -->
+  <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+    <div class="flex items-start justify-between">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="search" class="w-5 h-5 text-emerald-700"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Variante de producto existente</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Buscar producto base y agregar nueva presentación</p>
+        </div>
+      </div>
+      <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+  </div>
+
+  <!-- CONTENIDO · 2 zonas -->
+  <div class="p-5 space-y-4 max-h-[500px] overflow-y-auto">
+    <!-- ZONA 1 · Producto seleccionado (después de buscar) -->
+    <div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-600 font-bold mb-2">1 · Producto base seleccionado</label>
+      <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-3 flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="droplets" class="w-6 h-6 text-amber-700"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm font-bold text-slate-900">Vitamin C Brightening Serum</span>
+            <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold">Skincare</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-0.5">SkinCeuticals · 4 variantes ya existentes (30ml · 15ml · 10ml · 5ml)</div>
+        </div>
+        <button class="px-2 py-1 text-[10px] font-bold text-emerald-700 hover:bg-emerald-100 rounded">Cambiar</button>
+      </div>
+    </div>
+
+    <!-- ZONA 2 · Form variante reducida -->
+    <div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-600 font-bold mb-2">2 · Nueva variante</label>
+      <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+        <div class="grid grid-cols-3 gap-3 text-xs">
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Cantidad *</label>
+            <input type="text" value="50" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular focus:outline-none focus:ring-2 focus:ring-teal-500">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Unidad *</label>
+            <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+              <option>ml</option><option>caps</option><option>g</option><option>oz</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Etiqueta (opcional)</label>
+            <input type="text" placeholder="ej: Tamaño grande" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">SKU automático (preview)</label>
+          <input type="text" value="SKU-VAR-0042-50" disabled class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 text-slate-500 font-mono">
+        </div>
+
+        <!-- Comparación con otras variantes -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div class="text-[11px] font-bold text-amber-900 mb-2 flex items-center gap-1.5">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i>Otras variantes del mismo producto
+          </div>
+          <div class="flex items-center gap-2 flex-wrap text-xs">
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200">30 ml · S/ 285</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200">15 ml · S/ 165</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200">10 ml · S/ 120</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200">5 ml · S/ 95</span>
+            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300">50 ml · ¿precio?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONA 3 · Stock inicial (opcional) -->
+    <div>
+      <label class="block text-[11px] uppercase tracking-wider text-slate-600 font-bold mb-2">3 · Stock inicial (opcional)</label>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Cantidad inicial</label>
+          <input type="text" value="0" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular">
+        </div>
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Almacén</label>
+          <select class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm">
+            <option>Lima Central</option><option>Lima Norte</option><option>Casilla USA</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+    <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Atrás (cambiar producto)
+    </button>
+    <div class="flex items-center gap-2">
+      <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+      <button class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+        <i data-lucide="check" class="w-3.5 h-3.5"></i>Crear variante
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

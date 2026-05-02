@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>25 · Investigación · Tab Proveedores · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">📍</div>
+  <div class="context-info">
+    <div class="context-type">Sección embebida · Sub-vista del Modal Investigación (#24)</div>
+    <div class="context-title">Tab PROVEEDORES · Lista expandible con costos + lead time + score</div>
+    <div class="context-meta">Vive dentro de: 24-modal-investigacion-completo · Tab interno · Cards expandibles con histórico de OCs por proveedor</div>
+  </div>
+  <div class="context-id">25-investigacion-proveedores</div>
+</div>
+
+<div class="max-w-5xl mx-auto bg-white rounded-xl border border-slate-200 p-5 mt-6 space-y-4">
+  <!-- Header tab -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="text-base font-bold text-slate-900">3 proveedores analizados</h3>
+      <p class="text-xs text-slate-500 mt-0.5">Ranking por costo + lead time + score histórico</p>
+    </div>
+    <button class="px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg flex items-center gap-1.5">
+      <i data-lucide="plus" class="w-3.5 h-3.5"></i>Agregar proveedor
+    </button>
+  </div>
+
+  <!-- Lista de proveedores · cards expandibles -->
+  <div class="space-y-3">
+    <!-- Proveedor #1 · TOP elección · expandido -->
+    <div class="bg-emerald-50 border-2 border-emerald-300 rounded-xl overflow-hidden">
+      <div class="px-4 py-3 flex items-center gap-3 cursor-pointer">
+        <span class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm font-bold">1</span>
+        <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center"><i data-lucide="award" class="w-5 h-5 text-emerald-700"></i></div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-bold text-slate-900">SkinTech Korea</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">TOP ELECCIÓN</span>
+            <div class="flex items-center gap-0.5">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+              <span class="text-[11px] font-bold text-slate-700 ml-1">4.8</span>
+            </div>
+          </div>
+          <div class="text-[11px] text-slate-600 mt-0.5">12 OCs históricas · Última: 15 abril 2026 · Calidad consistente</div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <div class="text-base font-bold text-slate-900 tabular">$ 38.50<span class="text-slate-400 text-xs">/u</span></div>
+          <div class="text-[11px] text-emerald-700 font-bold">Lead 22 días</div>
+        </div>
+        <i data-lucide="chevron-up" class="w-4 h-4 text-slate-500"></i>
+      </div>
+
+      <!-- Detalle expandido -->
+      <div class="border-t border-emerald-200 bg-white px-4 py-3 grid grid-cols-4 gap-3 text-xs">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Min. orden</div>
+          <div class="text-sm font-bold tabular">$ 1,000</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Forma pago</div>
+          <div class="text-sm font-medium">PayPal · 30/70</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">CTRU estimado</div>
+          <div class="text-sm font-bold text-emerald-700 tabular">S/ 137</div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Margen proyectado</div>
+          <div class="text-sm font-bold text-emerald-700 tabular">52%</div>
+        </div>
+        <div class="col-span-4 pt-2 border-t border-slate-100">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Notas</div>
+          <div class="text-[11px] text-slate-700">Proveedor confiable · responde rápido · packaging premium · acepta muestras gratis con orden &gt; $2,000.</div>
+        </div>
+        <div class="col-span-4 flex items-center gap-2">
+          <button class="px-3 py-1.5 text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="external-link" class="w-3 h-3"></i>Crear OC con este proveedor
+          </button>
+          <button class="px-3 py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Ver histórico OCs</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proveedor #2 · colapsado -->
+    <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer">
+      <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold">2</span>
+      <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center"><i data-lucide="building" class="w-5 h-5 text-slate-600"></i></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold text-slate-900">Beauty Wholesale USA</span>
+          <span class="text-[11px] text-slate-500">★ 4.5</span>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-0.5">7 OCs históricas · Última: 20 marzo 2026</div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-base font-bold text-slate-900 tabular">$ 42.00<span class="text-slate-400 text-xs">/u</span></div>
+        <div class="text-[11px] text-slate-500">Lead 14 días</div>
+      </div>
+      <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+    </div>
+
+    <!-- Proveedor #3 · colapsado -->
+    <div class="bg-white border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-slate-50 cursor-pointer">
+      <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold">3</span>
+      <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center"><i data-lucide="building" class="w-5 h-5 text-slate-600"></i></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold text-slate-900">Amazon US</span>
+          <span class="text-[11px] text-slate-500">★ 4.6</span>
+          <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">⚠ Sin stock</span>
+        </div>
+        <div class="text-[11px] text-slate-500 mt-0.5">8 OCs históricas · sin stock desde hace 2 semanas</div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-base font-bold text-slate-900 tabular">$ 35.00<span class="text-slate-400 text-xs">/u</span></div>
+        <div class="text-[11px] text-slate-500">Lead 35 días</div>
+      </div>
+      <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

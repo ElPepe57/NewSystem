@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>16 · Wizard creacion · Selector tipo · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: rgba(15, 23, 42, 0.5); font-variant-numeric: tabular-nums; padding: 60px 20px 40px; min-height: 100vh; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #d8b4fe; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #faf5ff; color: #581c87; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #581c87; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">🪟</div>
+  <div class="context-info">
+    <div class="context-type">Modal centrado · Pre-wizard · Selector de intención</div>
+    <div class="context-title">Wizard Creación · SELECTOR DE TIPO (paso 0 · elegir camino)</div>
+    <div class="context-meta">Trigger: click "+ Nuevo producto" en header del listado · Contenido: 4 cards de creación (mismas que empty state #02 pero en modal · D-PROD-2)</div>
+  </div>
+  <div class="context-id">16-wizard-selector</div>
+</div>
+
+<!-- Modal compacto -->
+<div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden mt-6">
+  <!-- HEADER · gradient sutil F6.1 -->
+  <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+    <div class="flex items-start justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">¿Qué tipo de producto vas a crear?</h2>
+        <p class="text-xs text-slate-500 mt-1">Selecciona el camino que mejor describe tu producto</p>
+      </div>
+      <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+  </div>
+
+  <!-- CONTENIDO · 4 cards de tipo -->
+  <div class="p-6 space-y-3">
+    <!-- Opción 1 · Producto único -->
+    <button type="button" class="w-full text-left bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-teal-400 hover:bg-teal-50/30 hover:shadow-sm transition-all group">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-teal-100 flex items-center justify-center flex-shrink-0 transition-colors">
+          <i data-lucide="package" class="w-6 h-6 text-slate-600 group-hover:text-teal-600"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-bold text-slate-900">Producto único</div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-teal-600"></i>
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">Sin variantes · solo 1 SKU. Ej: una crema que se vende en una sola presentación.</div>
+        </div>
+      </div>
+    </button>
+
+    <!-- Opción 2 · Con variantes -->
+    <button type="button" class="w-full text-left bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-sky-400 hover:bg-sky-50/30 hover:shadow-sm transition-all group">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-sky-100 flex items-center justify-center flex-shrink-0 transition-colors">
+          <i data-lucide="git-branch" class="w-6 h-6 text-slate-600 group-hover:text-sky-600"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-bold text-slate-900">Producto con variantes</div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-sky-600"></i>
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">Diferentes tamaños, sabores o presentaciones. Ej: Sérum disponible en 30ml, 15ml y 5ml.</div>
+        </div>
+      </div>
+    </button>
+
+    <!-- Opción 3 · Variante de existente -->
+    <button type="button" class="w-full text-left bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-emerald-400 hover:bg-emerald-50/30 hover:shadow-sm transition-all group">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center flex-shrink-0 transition-colors">
+          <i data-lucide="search" class="w-6 h-6 text-slate-600 group-hover:text-emerald-600"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-bold text-slate-900">Variante de producto existente</div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-emerald-600"></i>
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">Agregar nueva presentación a un producto que ya tienes en el catálogo.</div>
+        </div>
+      </div>
+    </button>
+
+    <!-- Opción 4 · Pack/Kit -->
+    <button type="button" class="w-full text-left bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-purple-400 hover:bg-purple-50/30 hover:shadow-sm transition-all group">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-purple-100 flex items-center justify-center flex-shrink-0 transition-colors relative">
+          <i data-lucide="gift" class="w-6 h-6 text-slate-600 group-hover:text-purple-600"></i>
+          <span class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-purple-600 text-white text-[8px] font-bold rounded-full uppercase tracking-wider">New</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-bold text-slate-900">Pack / Kit</div>
+            <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-purple-600"></i>
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">Cajita armada de fábrica con varios productos adentro · no desarmable.</div>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2 text-[10px] text-slate-500">
+      <i data-lucide="info" class="w-3 h-3"></i>
+      <span>¿No estás seguro? Empezá con "Producto único" · siempre podés convertirlo después.</span>
+    </div>
+    <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

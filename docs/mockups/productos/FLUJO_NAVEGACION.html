@@ -224,34 +224,46 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         </div>
       </div>
 
-      <!-- Card row + estados (Sesión 2) -->
-      <div class="bg-amber-50 border-2 border-dashed border-amber-300 rounded-xl p-4">
-        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-3">🎨 Card row · 6 estados visuales (Sesión 2 PRÓXIMA)</div>
+      <!-- Card row + estados -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🎨 Card row · 6 estados visuales</div>
         <div class="grid grid-cols-6 gap-2">
-          <div class="node node-state text-center opacity-60">
-            <div class="text-xs font-bold">Normal</div>
-            <div class="node-id mt-1">10</div>
-          </div>
-          <div class="node node-state text-center opacity-60">
-            <div class="text-xs font-bold">Hover</div>
-            <div class="node-id mt-1">10b</div>
-          </div>
-          <div class="node node-state text-center opacity-60">
-            <div class="text-xs font-bold">Stock crítico</div>
-            <div class="node-id mt-1">10c</div>
-          </div>
-          <div class="node node-state text-center opacity-60">
-            <div class="text-xs font-bold">Investigación</div>
-            <div class="node-id mt-1">10d</div>
-          </div>
-          <div class="node node-state text-center opacity-60">
-            <div class="text-xs font-bold">Pack</div>
-            <div class="node-id mt-1">10e</div>
-          </div>
-          <div class="node node-state text-center opacity-60">
-            <div class="text-xs font-bold">Archivado</div>
-            <div class="node-id mt-1">10f</div>
-          </div>
+          <a href="10-card-row-normal.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-xs font-bold">Normal</div>
+              <div class="node-id mt-1">10</div>
+            </div>
+          </a>
+          <a href="10b-card-row-hover.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-xs font-bold">Hover</div>
+              <div class="node-id mt-1">10b</div>
+            </div>
+          </a>
+          <a href="10c-card-row-stock-critico.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-xs font-bold">Stock crítico</div>
+              <div class="node-id mt-1">10c</div>
+            </div>
+          </a>
+          <a href="10d-card-row-investigacion-vencida.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-xs font-bold">Investigación</div>
+              <div class="node-id mt-1">10d</div>
+            </div>
+          </a>
+          <a href="10e-card-row-pack.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-xs font-bold">Pack</div>
+              <div class="node-id mt-1">10e</div>
+            </div>
+          </a>
+          <a href="10f-card-row-archivado.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-xs font-bold">Archivado</div>
+              <div class="node-id mt-1">10f</div>
+            </div>
+          </a>
         </div>
       </div>
 
@@ -286,12 +298,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════ -->
-  <!-- NIVEL 3 · WIZARDS Y MODALES (Sesión 3) -->
+  <!-- NIVEL 3 · WIZARDS Y MODALES -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <div class="mb-10">
     <div class="section-title">
       <div class="section-num">3</div>
-      <h2 class="text-xl font-bold text-slate-900">Nivel 3 · Wizards de creación (PRÓXIMA Sesión 3)</h2>
+      <h2 class="text-xl font-bold text-slate-900">Nivel 3 · Wizards de creación</h2>
     </div>
     <p class="text-xs text-slate-500 mb-4">Trigger: click "Nuevo producto" en header</p>
 
@@ -306,47 +318,85 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="col-span-1 text-center">
         <span class="arrow"><i data-lucide="plus" class="arrow-icon"></i>+ Nuevo</span>
       </div>
-      <div class="col-span-3 opacity-60">
+      <a href="16-wizard-creacion-selector.html" target="_blank" class="col-span-3">
         <div class="node node-modal text-center">
           <div class="text-base">🪟</div>
           <div class="text-xs font-bold mt-1">Selector tipo</div>
           <div class="text-[9px] mt-1 opacity-70">4 opciones</div>
           <div class="node-id mt-1">16</div>
         </div>
-      </div>
+      </a>
       <div class="col-span-1 text-center">
         <span class="arrow"><i data-lucide="arrow-right" class="arrow-icon"></i>elige tipo</span>
       </div>
       <div class="col-span-5">
-        <div class="grid grid-cols-2 gap-2 opacity-60">
+        <div class="grid grid-cols-2 gap-2">
+          <a href="17-wizard-crear-simple.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-xs font-bold">Modal · Simple (1 paso)</div>
+              <div class="node-id mt-1">17</div>
+            </div>
+          </a>
+          <a href="18-wizard-crear-con-variantes.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-xs font-bold">Sidebar · Variantes (4 pasos)</div>
+              <div class="node-id mt-1">18</div>
+            </div>
+          </a>
+          <a href="19-wizard-crear-variante-existente.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-xs font-bold">Modal · Variante exist.</div>
+              <div class="node-id mt-1">19</div>
+            </div>
+          </a>
+          <a href="20-wizard-crear-pack.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-xs font-bold">Modal · Pack/Kit</div>
+              <div class="node-id mt-1">20</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-flujo Variante existente: 19 → 21 → 22 -->
+    <div class="mt-4 bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">↳ Sub-flujo · "Crear variante de producto existente"</div>
+      <div class="grid grid-cols-12 gap-3 items-center">
+        <a href="19-wizard-crear-variante-existente.html" target="_blank" class="col-span-3">
           <div class="node node-modal text-center">
-            <div class="text-xs font-bold">Modal · Simple (1 paso)</div>
-            <div class="node-id mt-1">17</div>
-          </div>
-          <div class="node node-modal text-center">
-            <div class="text-xs font-bold">Sidebar · Variantes (4 pasos)</div>
-            <div class="node-id mt-1">18</div>
-          </div>
-          <div class="node node-modal text-center">
-            <div class="text-xs font-bold">Modal · Variante exist.</div>
+            <div class="text-xs font-bold">Wizard 19</div>
+            <div class="text-[9px] mt-1 opacity-70">Selector enviar</div>
             <div class="node-id mt-1">19</div>
           </div>
+        </a>
+        <div class="col-span-1 text-center"><span class="arrow"><i data-lucide="search" class="arrow-icon"></i>buscar</span></div>
+        <a href="21-modal-buscador-grupo.html" target="_blank" class="col-span-3">
           <div class="node node-modal text-center">
-            <div class="text-xs font-bold">Modal · Pack/Kit</div>
-            <div class="node-id mt-1">20</div>
+            <div class="text-xs font-bold">Buscador grupo</div>
+            <div class="text-[9px] mt-1 opacity-70">Autocomplete</div>
+            <div class="node-id mt-1">21</div>
           </div>
-        </div>
+        </a>
+        <div class="col-span-1 text-center"><span class="arrow"><i data-lucide="arrow-right" class="arrow-icon"></i>seleccionar</span></div>
+        <a href="22-modal-form-variante-reducida.html" target="_blank" class="col-span-4">
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Form variante reducida</div>
+            <div class="text-[9px] mt-1 opacity-70">Solo campos variante (cantidad/unidad/etiqueta)</div>
+            <div class="node-id mt-1">22</div>
+          </div>
+        </a>
       </div>
     </div>
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════ -->
-  <!-- NIVEL 4 · MODAL DETALLE (Sesión 2) -->
+  <!-- NIVEL 4 · MODAL DETALLE -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <div class="mb-10">
     <div class="section-title">
       <div class="section-num">4</div>
-      <h2 class="text-xl font-bold text-slate-900">Nivel 4 · Modal detalle producto (Sesión 2 PRÓXIMA)</h2>
+      <h2 class="text-xl font-bold text-slate-900">Nivel 4 · Modal detalle producto</h2>
     </div>
     <p class="text-xs text-slate-500 mb-4">Trigger: click en cualquier fila del listado · click en ícono "ojo"</p>
 
@@ -412,15 +462,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════ -->
-  <!-- NIVEL 5 · MODALES SECUNDARIOS Y SUB-COMPONENTES (Sesión 3) -->
+  <!-- NIVEL 5 · MODALES SECUNDARIOS Y SUB-COMPONENTES -->
   <!-- ════════════════════════════════════════════════════════════════════ -->
   <div class="mb-10">
     <div class="section-title">
       <div class="section-num">5</div>
-      <h2 class="text-xl font-bold text-slate-900">Nivel 5 · Modales secundarios + sub-vistas (Sesión 3 PRÓXIMA)</h2>
+      <h2 class="text-xl font-bold text-slate-900">Nivel 5 · Modales secundarios + sub-vistas</h2>
     </div>
 
-    <div class="space-y-4 opacity-60">
+    <div class="space-y-4">
       <!-- Investigación + sub-vistas -->
       <div class="bg-white border border-slate-200 rounded-xl p-4">
         <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🔍 Modal investigación + 5 sub-vistas internas</div>
@@ -428,41 +478,51 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           <div class="col-span-1 text-center">
             <span class="arrow"><i data-lucide="search" class="arrow-icon"></i>Investigar</span>
           </div>
-          <div class="col-span-2">
+          <a href="24-modal-investigacion-completo.html" target="_blank" class="col-span-2">
             <div class="node node-modal text-center">
               <div class="text-base">🪟</div>
               <div class="text-xs font-bold mt-1">Modal Investigación</div>
               <div class="text-[9px] mt-1 opacity-70">Modal grande · 3 tabs</div>
               <div class="node-id mt-1">24</div>
             </div>
-          </div>
+          </a>
           <div class="col-span-1 text-center">
             <span class="arrow"><i data-lucide="arrow-right" class="arrow-icon"></i>tabs</span>
           </div>
           <div class="col-span-3">
             <div class="grid grid-cols-3 gap-1.5">
-              <div class="node node-section text-center">
-                <div class="text-[10px] font-bold">Proveedores</div>
-                <div class="node-id mt-1">25</div>
-              </div>
-              <div class="node node-section text-center">
-                <div class="text-[10px] font-bold">Competencia</div>
-                <div class="node-id mt-1">26</div>
-              </div>
-              <div class="node node-section text-center">
-                <div class="text-[10px] font-bold">Decisión</div>
-                <div class="node-id mt-1">27</div>
-              </div>
+              <a href="25-investigacion-tab-proveedores.html" target="_blank">
+                <div class="node node-section text-center">
+                  <div class="text-[10px] font-bold">Proveedores</div>
+                  <div class="node-id mt-1">25</div>
+                </div>
+              </a>
+              <a href="26-investigacion-tab-competencia.html" target="_blank">
+                <div class="node node-section text-center">
+                  <div class="text-[10px] font-bold">Competencia</div>
+                  <div class="node-id mt-1">26</div>
+                </div>
+              </a>
+              <a href="27-investigacion-tab-decision.html" target="_blank">
+                <div class="node node-section text-center">
+                  <div class="text-[10px] font-bold">Decisión</div>
+                  <div class="node-id mt-1">27</div>
+                </div>
+              </a>
             </div>
             <div class="grid grid-cols-2 gap-1.5 mt-2">
-              <div class="node node-section text-center">
-                <div class="text-[10px] font-bold">Histórico precios</div>
-                <div class="node-id mt-1">28</div>
-              </div>
-              <div class="node node-section text-center">
-                <div class="text-[10px] font-bold">Banner alertas</div>
-                <div class="node-id mt-1">29</div>
-              </div>
+              <a href="28-investigacion-historial-precios.html" target="_blank">
+                <div class="node node-section text-center">
+                  <div class="text-[10px] font-bold">Histórico precios</div>
+                  <div class="node-id mt-1">28</div>
+                </div>
+              </a>
+              <a href="29-investigacion-alertas-banner.html" target="_blank">
+                <div class="node node-section text-center">
+                  <div class="text-[10px] font-bold">Banner alertas</div>
+                  <div class="node-id mt-1">29</div>
+                </div>
+              </a>
             </div>
           </div>
         </div>
@@ -470,51 +530,63 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
       <!-- Otros modales secundarios -->
       <div class="bg-white border border-slate-200 rounded-xl p-4">
-        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">📂 Otros modales secundarios</div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">📂 Otros modales y herramientas grandes</div>
         <div class="grid grid-cols-4 gap-3">
-          <div class="node node-modal text-center">
-            <div class="text-base">🪟</div>
-            <div class="text-xs font-bold mt-1">Buscador grupo</div>
-            <div class="text-[9px] mt-1 opacity-70">Para crear variante existente</div>
-            <div class="node-id mt-1">21</div>
-          </div>
-          <div class="node node-modal text-center">
-            <div class="text-base">🪟</div>
-            <div class="text-xs font-bold mt-1">Form variante reducida</div>
-            <div class="text-[9px] mt-1 opacity-70">Tras seleccionar grupo</div>
-            <div class="node-id mt-1">22</div>
-          </div>
-          <div class="node node-modal text-center">
-            <div class="text-base">🪟</div>
-            <div class="text-xs font-bold mt-1">Papelera/Archivo</div>
-            <div class="text-[9px] mt-1 opacity-70">Click "Archivo" en header</div>
-            <div class="node-id mt-1">23</div>
-          </div>
-          <div class="node node-modal text-center">
-            <div class="text-base">🪟</div>
-            <div class="text-xs font-bold mt-1">Dashboard catálogo</div>
-            <div class="text-[9px] mt-1 opacity-70">Click "Calculadora" en header</div>
-            <div class="node-id mt-1">30</div>
-          </div>
+          <a href="23-modal-archivo-papelera.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-base">🪟</div>
+              <div class="text-xs font-bold mt-1">Papelera/Archivo</div>
+              <div class="text-[9px] mt-1 opacity-70">Click "Archivo" en header</div>
+              <div class="node-id mt-1">23</div>
+            </div>
+          </a>
+          <a href="30-tool-dashboard-catalogo.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-base">🪟</div>
+              <div class="text-xs font-bold mt-1">Dashboard catálogo</div>
+              <div class="text-[9px] mt-1 opacity-70">Click "Inteligencia" en header</div>
+              <div class="node-id mt-1">30</div>
+            </div>
+          </a>
+          <a href="31-tool-punto-equilibrio.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-base">🪟</div>
+              <div class="text-xs font-bold mt-1">Punto equilibrio</div>
+              <div class="text-[9px] mt-1 opacity-70">Calculadora con sliders</div>
+              <div class="node-id mt-1">31</div>
+            </div>
+          </a>
+          <a href="21-modal-buscador-grupo.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-base">🪟</div>
+              <div class="text-xs font-bold mt-1">Buscador grupo</div>
+              <div class="text-[9px] mt-1 opacity-70">Para variante existente</div>
+              <div class="node-id mt-1">21</div>
+            </div>
+          </a>
         </div>
       </div>
 
-      <!-- Tools embebidas -->
+      <!-- Banners y herramientas inline -->
       <div class="bg-white border border-slate-200 rounded-xl p-4">
-        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🛠️ Herramientas embebidas en otros mockups</div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🛠️ Banners inline y atajos visuales</div>
         <div class="grid grid-cols-2 gap-3">
-          <div class="node node-section text-center">
-            <div class="text-base">📍</div>
-            <div class="text-xs font-bold mt-1">Calculadora punto equilibrio</div>
-            <div class="text-[9px] mt-1 opacity-70">Embedded en modal detalle (#11)</div>
-            <div class="node-id mt-1">31</div>
-          </div>
-          <div class="node node-section text-center">
-            <div class="text-base">📍</div>
-            <div class="text-xs font-bold mt-1">Banner sugerencia variantes</div>
-            <div class="text-[9px] mt-1 opacity-70">En ProductoForm cuando detecta similar</div>
-            <div class="node-id mt-1">32</div>
-          </div>
+          <a href="32-tool-sugerencia-variantes-banner.html" target="_blank">
+            <div class="node node-section text-center">
+              <div class="text-base">📍</div>
+              <div class="text-xs font-bold mt-1">Banner sugerencia variantes</div>
+              <div class="text-[9px] mt-1 opacity-70">IA detecta similares · ofrece agrupar</div>
+              <div class="node-id mt-1">32</div>
+            </div>
+          </a>
+          <a href="22-modal-form-variante-reducida.html" target="_blank">
+            <div class="node node-modal text-center">
+              <div class="text-base">🪟</div>
+              <div class="text-xs font-bold mt-1">Form variante reducida</div>
+              <div class="text-[9px] mt-1 opacity-70">Reusable también desde tab Variantes (#12)</div>
+              <div class="node-id mt-1">22</div>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -551,8 +623,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <p class="text-xs text-slate-300">Variantes visuales del card row (normal · hover · crítico · investigación · pack · archivado)</p>
       </div>
     </div>
-    <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400">
-      Total · 40 mockups (12 producidos · 28 pendientes en Sesiones 2 y 3)
+    <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-emerald-300 font-bold">
+      ✅ Total · 40 / 40 mockups producidos · listos para Sub-fase C (validación holística por el usuario)
     </div>
   </div>
 </div>

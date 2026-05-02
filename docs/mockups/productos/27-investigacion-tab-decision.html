@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>27 · Investigación · Tab Decisión · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">📍</div>
+  <div class="context-info">
+    <div class="context-type">Sección embebida · Sub-vista del Modal Investigación (#24)</div>
+    <div class="context-title">Tab DECISIÓN · Recomendación inteligente + acciones (Importar al catálogo / Descartar)</div>
+    <div class="context-meta">Vive dentro de: 24-modal-investigacion-completo · Tab final · Resumen ejecutivo + decisión binaria + alertas activas</div>
+  </div>
+  <div class="context-id">26-investigacion-decision</div>
+</div>
+
+<div class="max-w-5xl mx-auto bg-white rounded-xl border border-slate-200 p-5 mt-6 space-y-4">
+  <!-- Header tab -->
+  <div>
+    <h3 class="text-base font-bold text-slate-900">Recomendación final</h3>
+    <p class="text-xs text-slate-500 mt-0.5">Síntesis de proveedores + competencia + márgenes proyectados</p>
+  </div>
+
+  <!-- HERO RECOMENDACIÓN -->
+  <div class="rounded-xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-white p-5">
+    <div class="flex items-start gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-emerald-200">
+        <i data-lucide="check-circle-2" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Recomendación IA</span>
+          <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">RECOMENDADO</span>
+        </div>
+        <h2 class="text-lg font-bold text-slate-900">Importar al catálogo · Precio sugerido S/ 295</h2>
+        <p class="text-xs text-slate-700 mt-1">Margen proyectado <strong>52%</strong> con SkinTech Korea como proveedor principal · CTRU estimado <strong>S/ 137</strong> · 3% por debajo del promedio del mercado · stock inicial sugerido <strong>50 unidades</strong>.</p>
+      </div>
+    </div>
+
+    <!-- KPIs proyección -->
+    <div class="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-emerald-200">
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Costo unitario</div>
+        <div class="text-base font-bold text-slate-900 tabular">S/ 137</div>
+        <div class="text-[10px] text-slate-500">CTRU · landed</div>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Precio venta</div>
+        <div class="text-base font-bold text-slate-900 tabular">S/ 295</div>
+        <div class="text-[10px] text-emerald-700">Sugerido</div>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Margen bruto</div>
+        <div class="text-base font-bold text-emerald-700 tabular">52%</div>
+        <div class="text-[10px] text-slate-500">S/ 158/u</div>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Break-even</div>
+        <div class="text-base font-bold text-slate-900 tabular">12 uds</div>
+        <div class="text-[10px] text-slate-500">para recuperar OC</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRITERIOS PUNTUADOS -->
+  <div class="border border-slate-200 rounded-xl overflow-hidden">
+    <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200">
+      <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Análisis multifactorial</div>
+    </div>
+    <div class="divide-y divide-slate-100">
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-2.5">
+        <div class="col-span-4 flex items-center gap-2 text-xs">
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span class="font-medium text-slate-700">Margen proyectado</span>
+        </div>
+        <div class="col-span-6 flex items-center gap-2">
+          <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:90%"></div></div>
+          <span class="text-[11px] font-bold text-emerald-700 tabular">9/10</span>
+        </div>
+        <div class="col-span-2 text-[11px] text-slate-500 text-right">Excelente</div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-2.5">
+        <div class="col-span-4 flex items-center gap-2 text-xs">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span class="font-medium text-slate-700">Demanda en el mercado</span>
+        </div>
+        <div class="col-span-6 flex items-center gap-2">
+          <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500" style="width:75%"></div></div>
+          <span class="text-[11px] font-bold text-amber-700 tabular">7.5/10</span>
+        </div>
+        <div class="col-span-2 text-[11px] text-slate-500 text-right">Alta</div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-2.5">
+        <div class="col-span-4 flex items-center gap-2 text-xs">
+          <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span class="font-medium text-slate-700">Confiabilidad proveedor</span>
+        </div>
+        <div class="col-span-6 flex items-center gap-2">
+          <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:96%"></div></div>
+          <span class="text-[11px] font-bold text-emerald-700 tabular">9.6/10</span>
+        </div>
+        <div class="col-span-2 text-[11px] text-slate-500 text-right">12 OCs OK</div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-2.5">
+        <div class="col-span-4 flex items-center gap-2 text-xs">
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span class="font-medium text-slate-700">Posición competitiva</span>
+        </div>
+        <div class="col-span-6 flex items-center gap-2">
+          <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500" style="width:80%"></div></div>
+          <span class="text-[11px] font-bold text-amber-700 tabular">8/10</span>
+        </div>
+        <div class="col-span-2 text-[11px] text-slate-500 text-right">2do más barato</div>
+      </div>
+      <div class="grid grid-cols-12 gap-3 items-center px-4 py-2.5">
+        <div class="col-span-4 flex items-center gap-2 text-xs">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i>
+          <span class="font-medium text-slate-700">Riesgo de obsolescencia</span>
+        </div>
+        <div class="col-span-6 flex items-center gap-2">
+          <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-rose-400" style="width:30%"></div></div>
+          <span class="text-[11px] font-bold text-rose-600 tabular">3/10</span>
+        </div>
+        <div class="col-span-2 text-[11px] text-slate-500 text-right">Bajo · 24m vida</div>
+      </div>
+    </div>
+    <div class="px-4 py-2.5 bg-emerald-50 border-t border-emerald-200 flex items-center justify-between">
+      <div class="text-[11px] font-bold text-emerald-900">Score global ponderado</div>
+      <div class="flex items-center gap-2">
+        <div class="text-base font-bold text-emerald-700 tabular">8.4 / 10</div>
+        <span class="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">RECOMENDADO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTAS ACTIVAS RELACIONADAS -->
+  <div class="border border-amber-200 rounded-xl bg-amber-50/40 p-3 space-y-2">
+    <div class="text-[11px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-2">
+      <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>3 consideraciones
+    </div>
+    <div class="text-[11px] text-slate-700 flex items-start gap-2">
+      <i data-lucide="dot" class="w-3 h-3 text-amber-600 mt-0.5"></i>
+      <span>Precio competidor "Just Essentials" bajó 3% hace 5 días · monitorear próxima semana</span>
+    </div>
+    <div class="text-[11px] text-slate-700 flex items-start gap-2">
+      <i data-lucide="dot" class="w-3 h-3 text-amber-600 mt-0.5"></i>
+      <span>Amazon US sin stock desde hace 14 días · evaluar SkinTech Korea como proveedor único temporal</span>
+    </div>
+    <div class="text-[11px] text-slate-700 flex items-start gap-2">
+      <i data-lucide="dot" class="w-3 h-3 text-amber-600 mt-0.5"></i>
+      <span>Margen real puede ser 5-8% menor por aranceles · simular escenario pesimista antes de OC</span>
+    </div>
+  </div>
+
+  <!-- DECISIÓN BINARIA -->
+  <div class="grid grid-cols-2 gap-3 pt-2">
+    <button class="rounded-xl border-2 border-emerald-500 bg-emerald-50 hover:bg-emerald-100 p-4 text-left flex items-center gap-3 transition-all">
+      <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+        <i data-lucide="check" class="w-5 h-5"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-sm font-bold text-emerald-900">Importar al catálogo</div>
+        <div class="text-[11px] text-emerald-700 mt-0.5">Crear producto + variantes + 1ra OC sugerida</div>
+      </div>
+      <i data-lucide="arrow-right" class="w-4 h-4 text-emerald-600"></i>
+    </button>
+    <button class="rounded-xl border border-slate-200 hover:border-rose-300 bg-white hover:bg-rose-50 p-4 text-left flex items-center gap-3 transition-all">
+      <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </div>
+      <div class="flex-1">
+        <div class="text-sm font-bold text-slate-700">Descartar oportunidad</div>
+        <div class="text-[11px] text-slate-500 mt-0.5">Archivar la investigación · pedirá motivo</div>
+      </div>
+    </button>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>
