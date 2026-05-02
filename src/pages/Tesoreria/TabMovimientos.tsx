@@ -56,6 +56,7 @@ import {
   MovimientosKpiRow,
   MovimientosBreakdown,
   FiltrosMovimientosBar,
+  BankLogo,
 } from './components';
 import type {
   RangoFechasMov,
@@ -366,36 +367,205 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
   const movsRender = movsFiltradosPorTitular;
   const totalesRender = totalesFiltrados;
 
+  // ─── Helpers de render para tabla pixel-perfect S58e ───
+  const formatFechaCompacta = (fecha: any): { fecha: string; hora: string } => {
+    const d = fecha instanceof Date ? fecha : new Date(fecha?.toDate?.() ?? fecha);
+    if (isNaN(d.getTime())) return { fecha: '-', hora: '' };
+    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return {
+      fecha: `${d.getDate()} ${meses[d.getMonth()]}`,
+      hora: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+    };
+  };
+
+  const renderCategoriaChip = (mov: MovimientoTesoreria) => {
+    const cat = clasificarCategoria(mov);
+    const config: Record<CategoriaMov, { label: string; classes: string }> = {
+      ingreso: { label: 'Ingreso', classes: 'bg-emerald-100 text-emerald-700' },
+      egreso: { label: 'Egreso', classes: 'bg-rose-100 text-rose-700' },
+      interno: { label: 'Interno', classes: 'bg-amber-100 text-amber-700' },
+      fx: { label: 'FX · Conversión', classes: 'bg-teal-100 text-teal-700' },
+      tc_cargo: { label: 'TC · Cargo', classes: 'bg-indigo-100 text-indigo-700' },
+      ajuste: { label: 'Ajuste', classes: 'bg-slate-200 text-slate-700' },
+    };
+    const c = config[cat];
+    return (
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${c.classes}`}>
+        {c.label}
+      </span>
+    );
+  };
+
+  const renderCanalChip = (mov: MovimientoTesoreria) => {
+    const canal = clasificarCanal(mov);
+    const config: Record<CanalMov, { label: string; classes: string }> = {
+      transferencia: { label: 'Transferencia', classes: 'bg-sky-100 text-sky-700' },
+      yape: { label: 'Yape', classes: 'bg-purple-100 text-purple-700' },
+      plin: { label: 'Plin', classes: 'bg-violet-100 text-violet-700' },
+      efectivo: { label: 'Efectivo', classes: 'bg-slate-200 text-slate-600' },
+      tc_cargo: { label: 'TC Cargo', classes: 'bg-indigo-100 text-indigo-700' },
+      sip: { label: 'SIP', classes: 'bg-teal-100 text-teal-700' },
+      otro: { label: 'Otro', classes: 'bg-slate-100 text-slate-500' },
+    };
+    const c = config[canal];
+    return (
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${c.classes}`}>
+        {c.label}
+      </span>
+    );
+  };
+
+  /** Renderiza un endpoint (banco con badge + número, o etiqueta de tercero). */
+  const renderEndpoint = (cuentaId: string | undefined, fallback: string) => {
+    const cuenta = cuentaId ? cuentas.find((c) => c.id === cuentaId) : null;
+    if (!cuenta) {
+      return <span className="text-[10px] text-slate-500">{fallback}</span>;
+    }
+    const banco = cuenta.banco || cuenta.titular || cuenta.nombre;
+    const last4 =
+      cuenta.numeroCuenta && cuenta.numeroCuenta.length > 4
+        ? `····${cuenta.numeroCuenta.slice(-4)}`
+        : cuenta.numeroCuenta || '';
+    return (
+      <div className="flex items-center gap-1">
+        {banco && <BankLogo banco={banco} size="sm" />}
+        <span className="text-[10px] text-slate-600 truncate max-w-[90px]">{last4 || cuenta.nombre}</span>
+      </div>
+    );
+  };
+
+  const renderOrigenDestino = (mov: MovimientoTesoreria) => {
+    const cat = clasificarCategoria(mov);
+    if (cat === 'ingreso') {
+      return (
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-slate-500">Cliente</span>
+          <ChevronRight className="w-3 h-3 text-slate-300 flex-shrink-0" />
+          {renderEndpoint(mov.cuentaDestino, 'Mi cuenta')}
+        </div>
+      );
+    }
+    if (cat === 'egreso' || cat === 'tc_cargo') {
+      return (
+        <div className="flex items-center gap-1.5">
+          {renderEndpoint(mov.cuentaOrigen, 'Mi cuenta')}
+          <ChevronRight className="w-3 h-3 text-slate-300 flex-shrink-0" />
+          <span className="text-[10px] text-slate-500">
+            {mov.ordenCompraNumero ? 'Proveedor' : mov.gastoNumero ? 'Servicio' : 'Tercero'}
+          </span>
+        </div>
+      );
+    }
+    if (cat === 'interno' || cat === 'fx') {
+      return (
+        <div className="flex items-center gap-1.5">
+          {renderEndpoint(mov.cuentaOrigen, 'Origen')}
+          {cat === 'fx' ? (
+            <ArrowLeftRight className="w-3 h-3 text-teal-400 flex-shrink-0" />
+          ) : (
+            <ChevronRight className="w-3 h-3 text-amber-400 flex-shrink-0" />
+          )}
+          {renderEndpoint(mov.cuentaDestino, 'Destino')}
+        </div>
+      );
+    }
+    return <span className="text-[10px] text-slate-400">—</span>;
+  };
+
+  const renderDocChip = (mov: MovimientoTesoreria) => {
+    const docMap: Array<{ num?: string; classes: string }> = [
+      { num: mov.ordenCompraNumero, classes: 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-700' },
+      { num: mov.ventaNumero, classes: 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-700' },
+      { num: mov.cotizacionNumero, classes: 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-700' },
+      { num: mov.transferenciaNumero, classes: 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-700' },
+      { num: mov.gastoNumero, classes: 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-700' },
+    ];
+    const found = docMap.find((d) => d.num);
+    if (!found) return <span className="text-slate-300 text-[10px]">—</span>;
+    return (
+      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${found.classes}`}>
+        {found.num}
+      </span>
+    );
+  };
+
+  const renderMonto = (mov: MovimientoTesoreria) => {
+    const cat = clasificarCategoria(mov);
+    const sim = mov.moneda === 'USD' ? '$' : 'S/';
+    if (cat === 'fx') {
+      // Conversión: muestra ambos lados
+      return (
+        <div className="text-[10px] tabular-nums font-semibold">
+          <div className="text-rose-500">−{sim} {mov.monto.toFixed(2)}</div>
+          {mov.tipoCambio > 0 && (
+            <div className="text-emerald-600">
+              +{mov.moneda === 'USD' ? 'S/' : '$'}{' '}
+              {(mov.monto * (mov.moneda === 'USD' ? mov.tipoCambio : 1 / mov.tipoCambio)).toFixed(2)}
+            </div>
+          )}
+        </div>
+      );
+    }
+    if (cat === 'interno') {
+      return (
+        <span className="text-xs font-semibold text-amber-700 tabular-nums">
+          {sim} {mov.monto.toFixed(2)}
+        </span>
+      );
+    }
+    const esIng = esIngresoMovimiento(mov);
+    return (
+      <span className={`text-xs font-semibold tabular-nums ${esIng ? 'text-emerald-700' : 'text-rose-600'}`}>
+        {esIng ? '+' : '-'}{sim} {mov.monto.toFixed(2)}
+      </span>
+    );
+  };
+
+  const renderSaldoCorrido = (mov: MovimientoTesoreria) => {
+    const saldos = saldosCorridos.get(mov.id);
+    if (!saldos) return <span className="text-slate-300 text-[10px]">—</span>;
+    const valor = mov.moneda === 'USD' ? saldos.usd : saldos.pen;
+    if (valor === 0) return <span className="text-slate-300 text-[10px]">—</span>;
+    const sim = mov.moneda === 'USD' ? '$' : 'S/';
+    return (
+      <span className="text-[10px] tabular-nums text-slate-500">
+        {sim} {valor.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+      </span>
+    );
+  };
+
+  const renderLote = (mov: MovimientoTesoreria) => {
+    const lote = (mov as any).loteNumero || (mov as any).pagoMasivoLoteId;
+    if (!lote) return <span className="text-slate-300 text-[10px]">—</span>;
+    return (
+      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 cursor-pointer transition-all">
+        {lote}
+      </span>
+    );
+  };
+
   const movimientoColumns: DataTableColumn<MovimientoTesoreria>[] = [
     {
       key: 'fecha',
       header: 'Fecha',
-      render: (mov) => (
-        <span className={`text-sm text-slate-500${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
-          {formatDate(mov.fecha)}
-        </span>
-      ),
+      render: (mov) => {
+        const f = formatFechaCompacta(mov.fecha);
+        return (
+          <div className={`text-slate-700 font-medium text-xs leading-tight${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+            <div>{f.fecha}</div>
+            {f.hora && <div className="text-[10px] text-slate-400 font-normal">{f.hora}</div>}
+          </div>
+        );
+      },
     },
     {
-      key: 'tipo',
-      header: 'Tipo',
+      key: 'categoria',
+      header: 'Categoría',
       render: (mov) => (
-        <div className={`flex flex-col gap-1${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-              mov.tipo === 'ingreso_anticipo'
-                ? 'bg-purple-100 text-purple-800'
-                : esIngresoMovimiento(mov)
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : 'bg-red-100 text-red-800'
-            }`}
-          >
-            {esIngresoMovimiento(mov) && <TrendingUp className="h-3 w-3 mr-1" />}
-            {!esIngresoMovimiento(mov) && <TrendingDown className="h-3 w-3 mr-1" />}
-            {getTipoLabel(mov.tipo)}
-          </span>
+        <div className={`flex flex-col gap-1 items-start${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+          {renderCategoriaChip(mov)}
           {mov.estado === 'anulado' && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-600">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-slate-200 text-slate-600">
               ANULADO
             </span>
           )}
@@ -403,68 +573,27 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
       ),
     },
     {
-      key: 'doc',
-      header: 'Doc.',
+      key: 'origen_destino',
+      header: 'Origen → Destino',
       render: (mov) => (
-        <span className={mov.estado === 'anulado' ? 'opacity-50' : ''}>
-          {mov.ordenCompraNumero ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-medium">{mov.ordenCompraNumero}</span>
-          ) : mov.ventaNumero ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-xs font-medium">{mov.ventaNumero}</span>
-          ) : mov.cotizacionNumero ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-cyan-100 text-cyan-800 text-xs font-medium">{mov.cotizacionNumero}</span>
-          ) : mov.transferenciaNumero ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-teal-100 text-teal-800 text-xs font-medium">{mov.transferenciaNumero}</span>
-          ) : mov.gastoNumero ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-orange-100 text-orange-800 text-xs font-medium">{mov.gastoNumero}</span>
-          ) : mov.conversionId ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 text-xs font-medium">Conversion</span>
-          ) : (
-            <span className="text-slate-400">-</span>
-          )}
-        </span>
+        <div className={mov.estado === 'anulado' ? 'opacity-50' : ''}>
+          {renderOrigenDestino(mov)}
+        </div>
       ),
     },
     {
-      key: 'cuenta',
-      header: 'Cuenta',
-      render: (mov) => {
-        const cuentaId = esIngresoMovimiento(mov) ? mov.cuentaDestino : mov.cuentaOrigen;
-        const cuenta = cuentaId ? cuentas.find(c => c.id === cuentaId) : null;
-        if (cuenta) {
-          const saldos = saldosCorridos.get(mov.id);
-          return (
-            <div className={`flex flex-col${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
-              <span className="font-medium text-slate-900 truncate max-w-[120px]" title={cuenta.nombre}>
-                {cuenta.nombre}
-              </span>
-              {saldos && saldos.pen !== 0 && saldos.usd !== 0 ? (
-                <div className="flex gap-2 text-xs text-slate-500">
-                  <span className={mov.moneda === 'PEN' ? 'font-semibold text-slate-700' : ''}>
-                    S/{saldos.pen.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                  </span>
-                  <span className="text-slate-300">|</span>
-                  <span className={mov.moneda === 'USD' ? 'font-semibold text-slate-700' : ''}>
-                    ${saldos.usd.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              ) : (
-                <span className="text-xs text-slate-500">
-                  Saldo: {mov.moneda === 'USD' ? '$' : 'S/'}{(saldos ? (mov.moneda === 'USD' ? saldos.usd : saldos.pen) : 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                </span>
-              )}
-            </div>
-          );
-        }
-        return <span className={`text-slate-400${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>-</span>;
-      },
+      key: 'doc',
+      header: 'Documento',
+      render: (mov) => (
+        <div className={mov.estado === 'anulado' ? 'opacity-50' : ''}>{renderDocChip(mov)}</div>
+      ),
     },
     {
       key: 'concepto',
       header: 'Concepto',
       render: (mov) => (
         <span
-          className={`text-sm text-slate-900 block max-w-xs truncate${mov.estado === 'anulado' ? ' opacity-50' : ''}`}
+          className={`text-xs text-slate-600 block max-w-[220px] truncate${mov.estado === 'anulado' ? ' opacity-50' : ''}`}
           title={mov.concepto}
         >
           {mov.concepto || '-'}
@@ -472,51 +601,39 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
       ),
     },
     {
-      key: 'soles',
-      header: 'Soles (S/)',
-      align: 'right',
-      render: (mov) => {
-        const esIngresoPEN = mov.moneda === 'PEN' && esIngresoMovimiento(mov);
-        return (
-          <span className={`text-sm font-medium${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
-            {mov.moneda === 'PEN' ? (
-              <span className={esIngresoPEN ? 'text-emerald-600' : 'text-red-600'}>
-                {esIngresoPEN ? '+' : '-'} S/ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-              </span>
-            ) : (
-              <span className="text-slate-300">-</span>
-            )}
-          </span>
-        );
-      },
+      key: 'canal',
+      header: 'Canal',
+      render: (mov) => (
+        <div className={mov.estado === 'anulado' ? 'opacity-50' : ''}>
+          {renderCanalChip(mov)}
+        </div>
+      ),
     },
     {
-      key: 'dolares',
-      header: 'Dolares ($)',
-      align: 'right',
-      render: (mov) => {
-        const esIngresoUSD = mov.moneda === 'USD' && esIngresoMovimiento(mov);
-        return (
-          <span className={`text-sm font-medium${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
-            {mov.moneda === 'USD' ? (
-              <span className={esIngresoUSD ? 'text-emerald-600' : 'text-red-600'}>
-                {esIngresoUSD ? '+' : '-'} $ {mov.monto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-              </span>
-            ) : (
-              <span className="text-slate-300">-</span>
-            )}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'tc',
-      header: 'TC',
+      key: 'monto',
+      header: 'Monto',
       align: 'right',
       render: (mov) => (
-        <span className={`text-sm text-slate-500${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
-          {mov.tipoCambio.toFixed(3)}
-        </span>
+        <div className={mov.estado === 'anulado' ? ' opacity-50 text-right' : 'text-right'}>
+          {renderMonto(mov)}
+        </div>
+      ),
+    },
+    {
+      key: 'saldo_corrido',
+      header: 'Saldo corrido',
+      align: 'right',
+      render: (mov) => (
+        <div className={`text-right${mov.estado === 'anulado' ? ' opacity-50' : ''}`}>
+          {renderSaldoCorrido(mov)}
+        </div>
+      ),
+    },
+    {
+      key: 'lote',
+      header: 'Lote',
+      render: (mov) => (
+        <div className={mov.estado === 'anulado' ? 'opacity-50' : ''}>{renderLote(mov)}</div>
       ),
     },
     {
@@ -524,52 +641,47 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
       header: 'CC',
       align: 'center',
       render: (mov) => {
-        // Solo movimientos con contraparte potencial en CC
-        // (los gastos sueltos, conversiones y transferencias no aplican)
         const tieneContraparte = !!(
           mov.ordenCompraId ||
           mov.ventaId ||
           mov.cotizacionId ||
           mov.transferenciaId
         );
-        if (!tieneContraparte) {
-          return <span className="text-slate-300 text-[10px]">—</span>;
-        }
+        if (!tieneContraparte) return <span className="text-slate-300 text-[10px]">—</span>;
         return (
           <button
             onClick={() => abrirCCDesdeMovimiento(mov.id)}
-            className="inline-flex items-center justify-center w-7 h-7 rounded text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition"
+            className="inline-flex items-center justify-center w-6 h-6 rounded text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition"
             title="Ver cuenta corriente vinculada"
           >
-            <Coins className="h-4 w-4" />
+            <Coins className="w-3.5 h-3.5" />
           </button>
         );
       },
     },
     {
       key: 'acciones',
-      header: 'Acciones',
+      header: '',
       align: 'center',
-      render: (mov) => (
+      render: (mov) =>
         mov.estado !== 'anulado' && isAdmin ? (
-          <div className="flex justify-center gap-1">
+          <div className="flex justify-center gap-0.5">
             <button
               onClick={() => handleEditarMovimiento(mov)}
-              className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-full transition-colors"
+              className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-teal-600 rounded hover:bg-teal-50 transition-all"
               title="Editar movimiento"
             >
-              <Edit2 className="h-4 w-4" />
+              <Edit2 className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => handleAnularMovimiento(mov)}
-              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+              className="w-6 h-6 flex items-center justify-center text-slate-400 hover:text-rose-500 rounded hover:bg-rose-50 transition-all"
               title="Anular movimiento"
             >
-              <Trash2 className="h-4 w-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
-        ) : null
-      ),
+        ) : null,
     },
   ];
 
