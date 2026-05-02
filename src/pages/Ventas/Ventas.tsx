@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw } from 'lucide-react';
+import { Plus, ShoppingCart, DollarSign, TrendingUp, Package, CheckCircle, CreditCard, Calculator, PieChart, FileText, Truck, XCircle, Clock, Timer, Zap, PackageCheck, AlertTriangle, ChevronDown, ChevronUp, Users, RotateCcw, ChevronRight, Download } from 'lucide-react';
 import { Button, Card, Modal, useConfirmDialog, ConfirmDialog, PipelineHeader, useActionModal, ActionModal, ErrorBoundary } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, DataTable } from '../../design-system';
 import type { DataTableColumn } from '../../design-system';
@@ -779,21 +779,97 @@ export const Ventas: React.FC = () => {
 
   return (
     <PageShell>
-      <PageHeader
-        title="Ventas"
-        subtitle="Gestión de ventas y cotizaciones con FEFO automático"
-        icon={ShoppingCart}
-        actions={
-          <Button
-            variant="primary"
-            onClick={() => setIsModalOpen(true)}
-            className="w-full sm:w-auto justify-center"
+      {/* Header banking-grade S58f · pixel-perfect mockup ventas-design-canonico */}
+      <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Comercial</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">
+              {tabActiva === 'devoluciones' ? 'Devoluciones · Reembolsos' : 'Ventas · Pipeline operativo'}
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <ShoppingCart className="w-6 h-6 text-teal-600" />
+            Ventas
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">
+            Cómo entra el dinero · cotizaciones, ventas confirmadas, entregas y cobros con FEFO automático.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => console.warn('[TODO] Exportar Ventas')}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all"
+            title="Exportar a Excel/CSV"
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Exportar</span>
+          </button>
+          <Button variant="primary-soft" onClick={() => setIsModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" />
             Nueva Venta
           </Button>
-        }
-      />
+        </div>
+      </div>
+
+      {/* KPI strip horizontal · 4 KPIs pixel-perfect mockup S58f */}
+      {stats && (
+        <div className="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 mb-5">
+          <div className="p-4">
+            <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+              Ventas del periodo
+            </div>
+            <div className="text-2xl font-bold text-slate-900 tabular-nums tracking-tight">
+              S/ {Math.floor(stats.ventasTotalPEN).toLocaleString('es-PE')}
+              <span className="text-base text-slate-400 font-normal">
+                .{(Math.round((stats.ventasTotalPEN % 1) * 100)).toString().padStart(2, '0')}
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1.5 tabular-nums">
+              {stats.totalVentas.toLocaleString('es-PE')} {stats.totalVentas === 1 ? 'venta' : 'ventas'} totales
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1.5">
+              Utilidad
+            </div>
+            <div className="text-2xl font-bold text-emerald-600 tabular-nums tracking-tight">
+              S/ {Math.floor(stats.utilidadTotalPEN).toLocaleString('es-PE')}
+              <span className="text-base text-emerald-300 font-normal">
+                .{(Math.round((stats.utilidadTotalPEN % 1) * 100)).toString().padStart(2, '0')}
+              </span>
+            </div>
+            <div className="text-[11px] text-emerald-600 mt-1.5 tabular-nums flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" />
+              {stats.margenPromedio.toFixed(1)}% margen promedio
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="text-[10px] font-semibold text-sky-700 uppercase tracking-wider mb-1.5">
+              En proceso
+            </div>
+            <div className="text-2xl font-bold text-sky-700 tabular-nums tracking-tight">
+              {(stats.confirmadas + stats.enProceso).toLocaleString('es-PE')}
+            </div>
+            <div className="text-[11px] text-sky-700 mt-1.5 tabular-nums">
+              {stats.confirmadas} confirmadas · {stats.enProceso} preparando
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">
+              Cotizaciones
+            </div>
+            <div className="text-2xl font-bold text-amber-700 tabular-nums tracking-tight">
+              {stats.cotizaciones.toLocaleString('es-PE')}
+            </div>
+            <div className="text-[11px] text-amber-700 mt-1.5 tabular-nums">
+              Pendientes de confirmar
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs: Ventas | Devoluciones */}
       <div className="border-b border-slate-200">
