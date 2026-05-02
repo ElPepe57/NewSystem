@@ -68,6 +68,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <a href="#iconos" class="nav-link">F8 · Iconografía</a>
         <a href="#breadcrumb" class="nav-link">F9 · Breadcrumb</a>
         <a href="#botones" class="nav-link">F10 · Botones</a>
+        <a href="#responsive" class="nav-link">F12 · Responsive</a>
         <a href="#chips" class="nav-link">+ Chips/Badges</a>
         <a href="#empty" class="nav-link">+ Empty states</a>
       </nav>
@@ -1035,6 +1036,159 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </div>
       <div class="mt-6 pt-6 border-t border-slate-700 text-xs text-slate-400">
         Documento ratificado · 2 mayo 2026 · Reemplaza referencias canónicas previas en CLAUDE.md y manifesto S58f
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F12 · RESPONSIVE HYBRID · TABLA → CARDS APILADAS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="responsive" class="mb-16 scroll-mt-8">
+      <div class="flex items-baseline gap-3 mb-4">
+        <h2 class="text-2xl font-bold text-slate-900">F12 · Responsive Hybrid</h2>
+        <span class="text-xs uppercase tracking-wider text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">NUEVO 2026-05-02</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-6 max-w-3xl">
+        <strong>Tabla → Cards apiladas verticales</strong> · el patrón de Stripe · Linear · Notion · Mercury · Shopify · Vercel · Airtable.
+        Los listados <strong>NO esconden columnas</strong> en mobile · <strong>repiensan la interfaz</strong>.
+      </p>
+
+      <!-- Regla canónica -->
+      <div class="bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-300 rounded-xl p-5 mb-6">
+        <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold mb-2">Regla canónica</div>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="bg-white border border-slate-200 rounded-lg p-4">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">≥ 1024px (lg)</div>
+            <div class="text-base font-bold text-slate-900">TABLA densa grid-cols-12</div>
+            <div class="text-xs text-slate-500 mt-1">Densidad máxima · mouse-friendly · todas las columnas visibles</div>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-lg p-4">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">&lt; 1024px (mobile + tablet)</div>
+            <div class="text-base font-bold text-indigo-700">CARDS apiladas verticales</div>
+            <div class="text-xs text-slate-500 mt-1">Touch-friendly · 1-handed scroll · 3 zonas verticales claras</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anatomía card apilada -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5 mb-6">
+        <h3 class="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider">Anatomía del card apilado mobile · 3 zonas</h3>
+        <div class="grid grid-cols-2 gap-5">
+          <!-- Visual del card -->
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+            <div class="bg-white border border-slate-200 rounded-lg overflow-hidden text-[11px]">
+              <!-- Zona 1: Identidad -->
+              <div class="px-3 py-2.5 flex items-start gap-2 border-l-4 border-rose-500">
+                <input type="checkbox" class="mt-0.5">
+                <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="droplets" class="w-4 h-4 text-amber-700"></i></div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-slate-900 truncate">Vitamin C Brightening</div>
+                  <div class="text-[9px] text-slate-500">SKU-PROD-0042 · SkinCeuticals</div>
+                  <div class="flex items-center gap-1 mt-1 flex-wrap">
+                    <span class="px-1 py-0.5 rounded bg-amber-50 text-amber-700 text-[8px] font-bold">Skincare</span>
+                    <span class="px-1 py-0.5 rounded bg-rose-100 text-rose-700 text-[8px] font-bold">⚠ Crítico</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Zona 2: Métricas -->
+              <div class="grid grid-cols-3 gap-1 px-3 py-2 bg-slate-50 border-t border-slate-100 text-[9px]">
+                <div><div class="text-slate-500 uppercase">Stock</div><div class="font-bold text-rose-700 tabular-nums">87 uds</div></div>
+                <div><div class="text-slate-500 uppercase">Precio</div><div class="font-bold text-slate-900 tabular-nums">S/ 285</div></div>
+                <div><div class="text-slate-500 uppercase">Margen</div><div class="font-bold text-emerald-600 tabular-nums">52%</div></div>
+              </div>
+              <!-- Banner contextual -->
+              <div class="px-3 py-1.5 bg-rose-50 border-l-4 border-rose-500 border-t border-rose-100 flex items-center justify-between text-[9px]">
+                <span class="text-rose-800">⚠ Reordenar ahora</span>
+                <button class="px-2 py-0.5 bg-rose-600 text-white rounded text-[9px] font-bold">+ Crear OC</button>
+              </div>
+              <!-- Zona 3: Acción -->
+              <div class="px-3 py-2 border-t border-slate-100">
+                <button class="w-full text-center text-[10px] font-bold text-teal-700 bg-teal-50 rounded py-2">Ver detalle ▶</button>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 italic text-center mt-2">Card apilada · viewport &lt;1024px</div>
+          </div>
+
+          <!-- Descripción de zonas -->
+          <div class="space-y-3 text-xs">
+            <div class="border-l-4 border-amber-400 pl-3">
+              <div class="font-bold text-slate-900">ZONA 1 · Identidad</div>
+              <div class="text-slate-600">Avatar (lg/40px) + nombre + sub-id (SKU·marca) + chips (línea/estado/alertas). Border-l-4 del color del estado (rose/amber/purple).</div>
+            </div>
+            <div class="border-l-4 border-emerald-400 pl-3">
+              <div class="font-bold text-slate-900">ZONA 2 · Métricas (3 cols)</div>
+              <div class="text-slate-600">Stock + Precio + Margen en grid-cols-3 compactas. Etiqueta uppercase + valor en tabular-nums. Sparkline opcional al lado de Margen.</div>
+            </div>
+            <div class="border-l-4 border-rose-400 pl-3">
+              <div class="font-bold text-slate-900">BANNER (condicional)</div>
+              <div class="text-slate-600">Stock crítico → "Reordenar ahora · + Crear OC". Investigación vencida → "Re-investigar". Pack → "Ahorro vs sueltos".</div>
+            </div>
+            <div class="border-l-4 border-teal-400 pl-3">
+              <div class="font-bold text-slate-900">ZONA 3 · Acción primaria</div>
+              <div class="text-slate-600">Botón "Ver detalle" full-width · altura ≥44px (touch target) · variante primary-soft.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de transformación canónica -->
+      <div class="bg-white border border-slate-200 rounded-xl p-5 mb-6">
+        <h3 class="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider">Transformación canónica · todos los componentes</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="border-b-2 border-slate-200">
+                <th class="text-left py-2 px-3 font-bold text-slate-700">Componente</th>
+                <th class="text-left py-2 px-3 font-bold text-slate-700">≥1024px (desktop)</th>
+                <th class="text-left py-2 px-3 font-bold text-indigo-700">&lt;1024px (mobile + tablet)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Listado de entidades ⭐</td><td class="py-2 px-3 text-slate-600">Tabla grid-cols-12</td><td class="py-2 px-3 text-indigo-700 font-medium">Cards apiladas verticales</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">KPI strip</td><td class="py-2 px-3 text-slate-600">4 cols horizontal</td><td class="py-2 px-3 text-indigo-700">2 cols (sm) o 1 stacked (xs)</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Filtros</td><td class="py-2 px-3 text-slate-600">Inline + chip groups</td><td class="py-2 px-3 text-indigo-700">Drawer slide-up + botón con badge</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Bulk actions toolbar</td><td class="py-2 px-3 text-slate-600">Inline acciones</td><td class="py-2 px-3 text-indigo-700">Primary visible + "Más" dropdown</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Modales</td><td class="py-2 px-3 text-slate-600">Modal centrado max-w</td><td class="py-2 px-3 text-indigo-700">Bottom sheet 90vh + drag handle</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Wizards</td><td class="py-2 px-3 text-slate-600">Sidebar vertical (4+ pasos)</td><td class="py-2 px-3 text-indigo-700">Stepper compacto top + content fullscreen</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Header acciones</td><td class="py-2 px-3 text-slate-600">Flex-wrap todas visibles</td><td class="py-2 px-3 text-indigo-700">Primary CTA + "Más" dropdown</td></tr>
+              <tr><td class="py-2 px-3 font-semibold text-slate-900">Sub-tabs (modal)</td><td class="py-2 px-3 text-slate-600">Inline horizontal</td><td class="py-2 px-3 text-indigo-700">Scroll horizontal o select dropdown</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Anti-pattern · NO progressive disclosure -->
+      <div class="bg-rose-50 border-2 border-rose-300 rounded-xl p-5 mb-6">
+        <div class="flex items-start gap-3">
+          <i data-lucide="alert-octagon" class="w-6 h-6 text-rose-600 flex-shrink-0 mt-0.5"></i>
+          <div>
+            <h3 class="text-sm font-bold text-rose-900 uppercase tracking-wider mb-2">⛔ Anti-pattern · NO usar progressive disclosure</h3>
+            <p class="text-xs text-rose-800 mb-2">
+              Esconder columnas con <code class="bg-rose-100 px-1 rounded">hidden md:block</code> en una tabla NO es la solución. Genera:
+            </p>
+            <ul class="text-xs text-rose-800 list-disc list-inside space-y-1">
+              <li>Pérdida de información crítica en mobile (un usuario en mobile NO debería ver MENOS, debería ver lo MISMO en otro formato)</li>
+              <li>Touch targets muy chicos · checkboxes y botones diminutos</li>
+              <li>Scroll horizontal mental para entender · no respeta el modo de uso real</li>
+              <li>Estética banking-grade rota · "tabla apretada" se ve mal</li>
+              <li>Ninguna gran empresa moderna lo hace</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referencias -->
+      <div class="bg-slate-900 text-white rounded-xl p-5">
+        <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-teal-300">Inspiración · Líderes que usan este patrón</h3>
+        <div class="grid grid-cols-4 gap-3 text-xs">
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">Stripe Dashboard</div>
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">Mercury Banking</div>
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">Linear Issues</div>
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">Notion Database</div>
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">Shopify Admin</div>
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">Vercel Dashboard</div>
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">Airtable Card View</div>
+          <div class="bg-white/10 backdrop-blur rounded p-2 text-center">+ todos los líderes SaaS</div>
+        </div>
       </div>
     </section>
 

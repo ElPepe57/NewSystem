@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=375">
+<title>11m · Modal detalle MOBILE · bottom sheet · F12 pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: rgba(15, 23, 42, 0.55); font-variant-numeric: tabular-nums; min-height: 100vh; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #d8b4fe; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #faf5ff; color: #581c87; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #581c87; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+/* Mobile bottom sheet · simula iPhone 13 mini · 375x812 · drawer ocupa 90vh */
+.mobile-frame { width: 375px; height: 812px; margin: 80px auto 40px; position: relative; background: rgba(15, 23, 42, 0.7); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+.bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-top-left-radius: 24px; border-top-right-radius: 24px; height: 90%; display: flex; flex-direction: column; box-shadow: 0 -4px 30px rgba(0,0,0,0.15); }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">📱</div>
+  <div class="context-info">
+    <div class="context-type">Bottom sheet · MOBILE viewport &lt;1024px · F12</div>
+    <div class="context-title">Modal Detalle Producto MOBILE · Bottom sheet 90vh con drag handle + tabs scroll horizontal</div>
+    <div class="context-meta">Gemelo de #11 · Trigger: tap en card row mobile · Cierre: drag down · X · backdrop · Tabs: Resumen/Variantes/Investigación/Stock/Histórico</div>
+  </div>
+  <div class="context-id">11m-modal-detalle-mobile</div>
+</div>
+
+<div class="mobile-frame">
+  <!-- Backdrop visible (parte superior 10vh) -->
+  <div class="absolute top-3 right-3 text-white/60 text-[10px]">Tap fuera para cerrar</div>
+
+  <!-- Bottom sheet -->
+  <div class="bottom-sheet">
+    <!-- Drag handle -->
+    <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
+      <div class="w-10 h-1.5 bg-slate-300 rounded-full"></div>
+    </div>
+
+    <!-- Header gradient sutil canónico (F6.1) -->
+    <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-4 py-3 flex-shrink-0">
+      <div class="flex items-start justify-between gap-2 mb-2">
+        <div class="flex items-start gap-2.5 flex-1 min-w-0">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="droplets" class="w-6 h-6 text-amber-700"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+              <span class="font-mono">SKU-PROD-0042</span>
+              <span>·</span>
+              <span>SkinCeuticals</span>
+            </div>
+            <h2 class="text-base font-bold text-slate-900 leading-tight">Vitamin C Brightening Serum</h2>
+          </div>
+        </div>
+        <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 flex-shrink-0">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <!-- Acciones header mobile: 2 botones primarios + más dropdown -->
+      <div class="flex items-center gap-1.5">
+        <button class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm">
+          <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+          Editar
+        </button>
+        <button class="px-3 py-2 text-slate-600 bg-white border border-slate-200 rounded-lg">
+          <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs sticky · scroll horizontal -->
+    <div class="border-b border-slate-200 bg-slate-50/30 flex-shrink-0 overflow-x-auto">
+      <div class="flex items-center gap-0 px-2 min-w-max">
+        <button class="px-3 py-2.5 text-xs font-bold border-b-2 border-amber-600 text-amber-700 flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Resumen
+        </button>
+        <button class="px-3 py-2.5 text-xs font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Variantes
+          <span class="text-[9px] tabular bg-slate-200 px-1 py-0.5 rounded-full">4</span>
+        </button>
+        <button class="px-3 py-2.5 text-xs font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="search" class="w-3.5 h-3.5"></i>Investigación
+          <span class="text-[9px] tabular bg-amber-100 text-amber-700 px-1 py-0.5 rounded-full">3</span>
+        </button>
+        <button class="px-3 py-2.5 text-xs font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="warehouse" class="w-3.5 h-3.5"></i>Stock
+        </button>
+        <button class="px-3 py-2.5 text-xs font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i>Histórico
+        </button>
+        <button class="px-3 py-2.5 text-xs font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="git-commit" class="w-3.5 h-3.5"></i>Pipeline ⭐
+        </button>
+      </div>
+    </div>
+
+    <!-- Body scrolleable · contenido tab Resumen apilado verticalmente -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <!-- Insights cards (en mobile se apilan vertical · NO sidebar de 1 col) -->
+      <div class="space-y-2.5">
+        <div class="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-lg p-3">
+          <div class="flex items-start gap-2">
+            <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Precio sugerido</div>
+              <div class="text-lg font-bold text-slate-900 tabular tracking-tight">S/ 285.00</div>
+              <div class="text-[10px] text-emerald-600 font-bold">52% margen sobre CTRU S/ 137</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-indigo-50 to-white border border-indigo-200 rounded-lg p-3">
+          <div class="flex items-start gap-2">
+            <i data-lucide="target" class="w-4 h-4 text-indigo-700 flex-shrink-0 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Punto de equilibrio</div>
+              <div class="text-lg font-bold text-slate-900 tabular tracking-tight">12 unidades</div>
+              <div class="text-[10px] text-indigo-600 font-bold flex items-center gap-1">
+                <i data-lucide="external-link" class="w-2.5 h-2.5"></i>Calculadora completa
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg p-3">
+          <div class="flex items-start gap-2">
+            <i data-lucide="trending-up" class="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5"></i>
+            <div class="flex-1">
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Posición vs competencia</div>
+              <div class="text-sm font-bold text-slate-900">2do más barato (Lima)</div>
+              <div class="text-[10px] text-slate-500">9% bajo promedio mercado · 6 competidores</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos básicos · grid 2 cols (en lugar de 3 desktop) -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div class="px-3 py-2 bg-slate-50 border-b border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-700 font-bold">Datos básicos</div>
+        </div>
+        <div class="p-3 grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Marca</div>
+            <div class="text-slate-900 font-medium">SkinCeuticals</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Línea</div>
+            <div class="text-slate-900 font-medium">Skincare</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Origen</div>
+            <div class="text-slate-900 font-medium">Korea (vía SkinTech)</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Lead time</div>
+            <div class="text-slate-900 font-medium tabular">22 días prom</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Atributos Skincare · scroll horizontal de chips -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div class="px-3 py-2 bg-slate-50 border-b border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-700 font-bold">Atributos · Skincare</div>
+        </div>
+        <div class="p-3 space-y-2">
+          <div class="flex items-center gap-2 overflow-x-auto pb-1">
+            <span class="text-[10px] text-slate-500 flex-shrink-0">Paso:</span>
+            <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold flex-shrink-0">Sérum</span>
+          </div>
+          <div class="flex items-center gap-2 overflow-x-auto pb-1">
+            <span class="text-[10px] text-slate-500 flex-shrink-0">Textura:</span>
+            <span class="px-2 py-0.5 rounded bg-sky-50 text-sky-700 text-[10px] font-bold flex-shrink-0">Líquido</span>
+          </div>
+          <div class="flex items-center gap-2 overflow-x-auto pb-1">
+            <span class="text-[10px] text-slate-500 flex-shrink-0">Tipo piel:</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold flex-shrink-0">Mixta</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold flex-shrink-0">Grasa</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proveedores recomendados (apilado vertical) -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div class="px-3 py-2 bg-emerald-50 border-b border-emerald-200">
+          <div class="text-[10px] uppercase tracking-wider text-emerald-900 font-bold flex items-center gap-1">
+            <i data-lucide="award" class="w-3 h-3"></i>Proveedor recomendado
+          </div>
+        </div>
+        <div class="p-3 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="award" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-bold text-slate-900">SkinTech Korea</div>
+              <div class="text-[10px] text-slate-500">Lead 22d · ★ 4.8 · 12 OCs OK</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-bold text-slate-900 tabular">$ 38.50</div>
+              <div class="text-[10px] text-emerald-700 font-bold">CTRU S/ 137</div>
+            </div>
+          </div>
+          <button class="w-full px-3 py-2 text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center justify-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>Crear OC con SkinTech
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer sticky · acciones secundarias -->
+    <div class="border-t border-slate-200 bg-slate-50 px-4 py-2.5 flex items-center justify-between gap-2 flex-shrink-0">
+      <button class="px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
+        <i data-lucide="archive" class="w-3.5 h-3.5"></i>Archivar
+      </button>
+      <button class="px-3 py-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg flex items-center gap-1.5">
+        <i data-lucide="search" class="w-3.5 h-3.5"></i>Re-investigar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

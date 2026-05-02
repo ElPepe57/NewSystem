@@ -22,7 +22,7 @@ Las empresas de referencia (Stripe, Linear, Mercury, Notion, Vercel) comparten 5
 
 ---
 
-## 1. Las 14 Decisiones Ratificadas
+## 1. Las 15 Decisiones Ratificadas (F1-F12 + IMPL-1/2/3)
 
 ### F1 · Header banking-grade
 
@@ -355,6 +355,80 @@ Sidebar derecho con 3 cards de **insights ejecutivos** (precio sugerido, punto e
 | `cuenta-bancaria-full-s58c` | 📦 MARCAR HISTÓRICO (ya implementado vía CuentaWizard) |
 | `finanzas-overview-s57` | 🔍 REVISAR (probablemente sigue válido como dashboard ejecutivo) |
 | `finanzas-listado-s58e` | 🔍 REVISAR (sospecho redundante con saldos) |
+
+---
+
+### F12 · Responsive Hybrid · Tabla → Cards apiladas (NUEVO 2026-05-02)
+
+**Filosofía:** "Mobile-first NO significa todo igual con texto chico. Significa REPENSAR la interfaz."
+Lo hacen Stripe · Linear · Notion · Mercury · Shopify · Vercel · Airtable · todos los líderes de UX moderna en SaaS/Banking.
+
+**Regla canónica:**
+
+```
+≥ 1024px (lg)  → TABLA densa grid-cols-12 (densidad máxima · mouse-friendly)
+< 1024px       → CARDS apiladas verticales (touch-friendly · 1-handed scroll)
+```
+
+**Por qué NO progressive disclosure (esconder columnas):**
+- Pierde información crítica en mobile (un usuario en mobile NO debería ver MENOS, debería ver lo MISMO en otro formato)
+- Touch targets muy chicos · checkboxes y acciones diminutas
+- No respeta el modo de uso real (scroll vertical 1 mano)
+- Genera "tabla apretada" que se ve mal · pierde estética banking-grade
+- Ninguna gran empresa lo hace
+
+**Anatomía del card apilado mobile (3 zonas claras):**
+
+```
+┌──────────────────────────────────────────────┐
+│  ☐  ┌──┐  Vitamin C Brightening Serum        │ ← ZONA 1 · IDENTIDAD
+│     │🧪│  SKU-PROD-0042 · SkinCeuticals      │   (avatar + nombre + sub-id + chips)
+│     └──┘  [Skincare] [Activo] [⚠ Crítico]    │
+├──────────────────────────────────────────────┤
+│   STOCK              PRECIO         MARGEN   │ ← ZONA 2 · MÉTRICAS (3 cols compactas)
+│   87 uds             S/ 285         52% ▲    │   (todas las métricas críticas en 1 línea)
+│   4 variantes        desde S/95     ▁▃▅▇     │
+├──────────────────────────────────────────────┤
+│   ⚠ Reordenar ahora · cubre ~5 días          │ ← BANNER CONTEXTUAL (si aplica)
+│                                  [+ Crear OC]│
+├──────────────────────────────────────────────┤
+│              [Ver detalle ▶]                  │ ← ZONA 3 · ACCIÓN PRIMARIA
+└──────────────────────────────────────────────┘   (touch target ~44px altura)
+```
+
+**Tabla de transformación canónica · aplicable a TODOS los listados del sistema:**
+
+| Componente | ≥1024px (desktop) | <1024px (tablet+mobile) |
+|-----------|-------------------|-------------------------|
+| **Listado de entidades** | Tabla grid-cols-12 | **Cards apiladas verticales** ⭐ |
+| KPI strip | 4 cols horizontal | 2 cols (sm) o 1 stacked (xs) |
+| Filtros | inline horizontal + chip groups | **Drawer slide-up** (botón "Filtros" con badge) |
+| Bulk actions toolbar | inline acciones | Acciones primarias visibles + "Más" dropdown |
+| Modales | Modal centrado max-w-2xl/4xl | **Bottom sheet** que ocupa 90vh con drag handle |
+| Wizards | Sidebar vertical (4+ pasos) | Stepper compacto top + content fullscreen |
+| Header acciones | flex-wrap horizontal todas visibles | Primary CTA visible + "Más acciones" dropdown |
+| Sub-tabs (modal) | inline horizontal | Tabs scroll horizontal o select dropdown |
+
+**Touch targets mínimos:**
+- Botones de acción: altura ≥44px en mobile (Apple HIG / Material 3)
+- Checkboxes: w-4 h-4 mínimo (16px)
+- Espacio entre interactivos: ≥8px
+
+**Implementación técnica:**
+- Usar Tailwind responsive prefixes nativos (`hidden lg:block` · `lg:hidden` · `lg:grid-cols-4` · etc.)
+- NO usar JavaScript para detectar viewport · todo via CSS responsive
+- Componente `RowAdaptive` que renderiza `<TableRow>` o `<StackedCard>` según breakpoint
+
+**Aplica a:** Productos · Stock · Compras · Ventas · Cotizaciones · Requerimientos · Mercado Libre · Envíos · Red Logística · Escáner · Tesorería · Finanzas · Contabilidad · Reclamos · Devoluciones · TODOS los futuros módulos.
+
+**Mockup gemelo obligatorio:** cada mockup de listado/modal/dashboard tiene un gemelo `-mobile.html` que muestra la versión <1024px. Ejemplos producidos para Productos:
+- `01m-page-listado-mobile.html`
+- `10m-card-row-mobile.html`
+- `11m-modal-detalle-mobile.html`
+- `24m-modal-investigacion-mobile.html`
+- `30m-tool-productos-intel-mobile.html`
+
+Los demás mockups (filtros · wizards · estados granulares) derivan su versión mobile de estos 5 patrones.
 
 ---
 
