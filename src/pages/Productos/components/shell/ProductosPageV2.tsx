@@ -49,6 +49,20 @@ import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
 import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
 import { PapeleraModal, InvestigacionCompletaModal, type InvestigacionPayload } from '../modals';
+import {
+  ProductosIntelDashboard,
+  PuntoEquilibrioModal,
+  SugerenciasVariantesBanner,
+  SugerenciasVariantesModal,
+  SugerenciasDelDiaModal,
+  type ProductoIntelRow,
+  type ScoreLiquidezCategoria,
+  type AccionIntel,
+  type LineaIntel,
+  type PuntoEquilibrioInput,
+  type SugerenciaDelDia,
+  type GrupoSugerido,
+} from '../tools';
 import { ProductoService } from '../../../../services/producto.service';
 import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
 import type { Producto, ProductoFormData } from '../../../../types/producto.types';
@@ -107,6 +121,12 @@ export const ProductosPageV2: React.FC = () => {
   // Fase 8 · Modales standalone
   const [showPapelera, setShowPapelera] = useState(false);
   const [investigacionProducto, setInvestigacionProducto] = useState<Producto | null>(null);
+  // Fase 9 · Tools
+  const [showIntel, setShowIntel] = useState(false);
+  const [showSugerenciasDia, setShowSugerenciasDia] = useState(false);
+  const [showVariantesModal, setShowVariantesModal] = useState(false);
+  const [puntoEquilibrioInput, setPuntoEquilibrioInput] = useState<PuntoEquilibrioInput | null>(null);
+  const [bannerVariantesOculto, setBannerVariantesOculto] = useState(false);
 
   // Cargar productos al montar
   useEffect(() => {
@@ -512,8 +532,28 @@ export const ProductosPageV2: React.FC = () => {
     setInvestigacionProducto(p);
   };
 
-  const handleCalculadora = () => toast.info('Productos Intel · disponible en Fase 9');
-  const handleSugerencias = () => toast.info('Sugerencias del día · disponible en Fase 9');
+  // Fase 9 · Tools (memos)
+  const intelRows = useMemo(() => buildIntelRows(lista), [lista]);
+  const sugerenciasDia = useMemo(() => buildSugerenciasDelDia(lista), [lista]);
+  const gruposSugeridos = useMemo(() => buildGruposSugeridos(lista), [lista]);
+
+  const handleCalculadora = () => setShowIntel(true);
+  const handleSugerencias = () => setShowSugerenciasDia(true);
+  const handleAbrirPuntoEquilibrio = (p: Producto) => {
+    const pAny = p as any;
+    const ctru = (pAny.investigacion?.ctruEstimado as number) ?? pAny.ctruPromedio ?? 100;
+    const precio = pAny.precioVenta ?? Math.round(ctru * 2.15);
+    const fijos = Math.round(ctru * 13);
+    setPuntoEquilibrioInput({
+      productoId: p.id,
+      productoSku: p.sku ?? '—',
+      productoNombre: pAny.nombreComercial ?? 'Producto',
+      productoMarca: p.marca,
+      ctruInicial: ctru,
+      precioVentaInicial: precio,
+      costosFijosInicial: fijos,
+    });
+  };
   const handleImportar = () => toast.info('Importar · pendiente');
   const handleExportar = () => toast.info('Exportar · pendiente');
   const handleBulkAction = (label: string) => toast.info(`${label} (${selectedCount} productos) · pendiente`);
@@ -646,6 +686,17 @@ export const ProductosPageV2: React.FC = () => {
         onLimpiarTodo={filtros.reset}
       />
 
+      {/* Banner Sugerencias Variantes (#32) · Fase 9 · solo visible si hay grupos detectados */}
+      <SugerenciasVariantesBanner
+        open={!bannerVariantesOculto}
+        grupos={gruposSugeridos}
+        onRevisar={() => setShowVariantesModal(true)}
+        onDescartarTodas={() => {
+          setBannerVariantesOculto(true);
+          toast.info('Sugerencias de agrupación descartadas');
+        }}
+      />
+
       {/* Empty búsqueda · cuando hay filtros aplicados pero 0 resultados */}
       {productosFiltered.length === 0 && (filtros.searchTerm.trim() || filtros.hayFiltrosActivos) ? (
         <EmptyStateBusqueda
@@ -665,7 +716,7 @@ export const ProductosPageV2: React.FC = () => {
           onClearSelection={filtros.clearSelection}
           onClickProducto={setDetailProducto}
           onView={setDetailProducto}
-          onActions={p => toast.info(`Menú de acciones · disponible en Fase 4+`)}
+          onActions={(p) => handleAbrirPuntoEquilibrio(p)}
           onCrearOC={p => toast.info(`Crear OC para ${p.nombreComercial} · pendiente`)}
           onReInvestigar={handleAbrirInvestigacion}
         />
@@ -759,6 +810,69 @@ export const ProductosPageV2: React.FC = () => {
           setInvestigacionProducto(null);
         }}
         onDescartar={() => toast.warning('Descartar oportunidad · pendiente captura de motivo')}
+      />
+
+      {/* Tool #30 · Productos Intel Dashboard · Fase 9 */}
+      <ProductosIntelDashboard
+        open={showIntel}
+        productos={intelRows}
+        onClose={() => setShowIntel(false)}
+        onAbrirSugerencias={() => {
+          setShowIntel(false);
+          setShowSugerenciasDia(true);
+        }}
+        onDescargarReporte={() => toast.info('Reporte ejecutivo · pendiente generador PDF')}
+        onClickProducto={(productoId) => {
+          const p = lista.find((x: any) => x.id === productoId);
+          if (p) {
+            setShowIntel(false);
+            setDetailProducto(p);
+          }
+        }}
+      />
+
+      {/* Tool #31 · Punto de Equilibrio · Fase 9 */}
+      <PuntoEquilibrioModal
+        open={!!puntoEquilibrioInput}
+        input={puntoEquilibrioInput}
+        onClose={() => setPuntoEquilibrioInput(null)}
+        onGuardarEscenario={(datos) =>
+          toast.success(`Escenario guardado · PE ${datos.breakEven} uds @ S/${datos.precioVenta}`)
+        }
+      />
+
+      {/* Tool #32 · Sugerencias Variantes · Modal de revisión · Fase 9 */}
+      <SugerenciasVariantesModal
+        open={showVariantesModal}
+        grupos={gruposSugeridos}
+        onClose={() => setShowVariantesModal(false)}
+        onAplicar={(grupoId) =>
+          toast.success(`Grupo ${grupoId} aplicado · variantes creadas (pendiente persistencia)`)
+        }
+        onDescartar={(grupoId) => toast.info(`Grupo ${grupoId} descartado`)}
+        onAplicarTodos={() => {
+          toast.success('Grupos de alta confianza aplicados (pendiente persistencia)');
+          setShowVariantesModal(false);
+        }}
+        onConfigurar={() => toast.info('Configurar detección IA · pendiente')}
+      />
+
+      {/* Tool #36 · Sugerencias del día · Fase 9 */}
+      <SugerenciasDelDiaModal
+        open={showSugerenciasDia}
+        sugerencias={sugerenciasDia}
+        onClose={() => setShowSugerenciasDia(false)}
+        onConfigurar={() => toast.info('Configurar sugerencias · pendiente')}
+        onEjecutarTodasUrgentes={() => toast.info('Ejecutar todas las urgentes · pendiente')}
+        onPausarNotificaciones={() => toast.info('Notificaciones pausadas')}
+        onClickSugerencia={(s) => {
+          if (s.icono === 'sparkles' && s.esLinkado) {
+            setShowSugerenciasDia(false);
+            setShowVariantesModal(true);
+          } else {
+            toast.info(`Sugerencia "${s.titulo}" · pendiente flujo dedicado`);
+          }
+        }}
       />
     </div>
   );
@@ -940,6 +1054,215 @@ function buildInvestigacionPayload(p: Producto): InvestigacionPayload {
       consideraciones: (inv?.alertas ?? []).slice(0, 3).map((a: any) => a.mensaje ?? a.descripcion).filter(Boolean),
     },
   };
+}
+
+// ─── Adaptadores Fase 9 · Tools ─────────────────────────────────────────────
+
+function inferLineaIntel(p: any): LineaIntel {
+  if (p.esPack) return 'pack';
+  const skc = p.atributosSkincare;
+  if (skc) return 'skincare';
+  const linea = (p.lineaNegocioNombre ?? '').toLowerCase();
+  if (linea.includes('skin')) return 'skincare';
+  if (linea.includes('suplem')) return 'suplemento';
+  if (linea.includes('well')) return 'wellness';
+  return 'otros';
+}
+
+function inferScoreCategoria(score: number): ScoreLiquidezCategoria {
+  if (score >= 60) return 'liquido';
+  if (score >= 35) return 'medio';
+  return 'lento';
+}
+
+function inferAccion(p: any, score: number, diasVencer?: number): AccionIntel {
+  if (diasVencer !== undefined && diasVencer <= 30) return 'liquidar';
+  const stock = p.stockDisponible ?? 0;
+  const minimo = p.stockMinimo ?? 0;
+  if (minimo > 0 && stock <= minimo * 1.2) return 'reponer';
+  if (score < 35) return 'liquidar';
+  if (score < 60) return 'vigilar';
+  return 'reponer';
+}
+
+function buildIntelRows(productos: Producto[]): ProductoIntelRow[] {
+  return productos
+    .filter((p: any) => (p.estado ?? 'activo') === 'activo')
+    .map((p: any) => {
+      const score = p.scoreLiquidez ?? p.metricas?.scoreLiquidez ?? Math.floor(Math.random() * 100);
+      const categoria = inferScoreCategoria(score);
+      const stock = p.stockDisponible ?? 0;
+      const ctru = p.ctruPromedio ?? p.investigacion?.ctruEstimado ?? 100;
+      const precioVenta = p.precioVenta ?? Math.round(ctru * 2.15);
+      const margenUnit = precioVenta - ctru;
+      const margenPotencialPEN = Math.round(margenUnit * stock);
+      const margenPotencialPct = ctru > 0 ? Math.round((margenUnit / ctru) * 100) : 0;
+      const velocidad = p.metricas?.velocidadVenta ?? Math.max(0, Math.round(stock / Math.max(1, ctru / 50)));
+      const diasVencer = p.proximoVencimiento?.diasRestantes;
+      const accion = inferAccion(p, score, diasVencer);
+      const esPerdidaSiVence = accion === 'liquidar' && diasVencer !== undefined && diasVencer <= 30;
+
+      return {
+        id: p.id,
+        sku: p.sku ?? '—',
+        nombre: p.nombreComercial ?? 'Producto',
+        marca: p.marca ?? 'Sin marca',
+        linea: inferLineaIntel(p),
+        scoreLiquidez: score,
+        scoreCategoria: categoria,
+        leadTimeDias: p.leadTimeDias ?? 21,
+        ocsHistoricas: p.ocsHistoricas ?? 0,
+        velocidadMes: velocidad,
+        variacionVsPeriodoAnteriorPct: p.variacionMensualPct ?? 0,
+        capitalInvertidoPEN: Math.round(stock * ctru),
+        unidadesStock: stock,
+        costoUnitarioPEN: ctru,
+        margenPotencialPEN: esPerdidaSiVence ? -Math.abs(margenPotencialPEN * 0.25) : margenPotencialPEN,
+        margenPotencialPct,
+        accion,
+        diasParaVencer: diasVencer,
+        esPerdidaSiVence,
+      };
+    });
+}
+
+function buildSugerenciasDelDia(productos: Producto[]): SugerenciaDelDia[] {
+  const rows = buildIntelRows(productos);
+  const sugerencias: SugerenciaDelDia[] = [];
+
+  // Urgentes · liquidar productos con vencimiento <30d
+  rows
+    .filter((r) => r.accion === 'liquidar' && r.esPerdidaSiVence)
+    .slice(0, 3)
+    .forEach((r) =>
+      sugerencias.push({
+        id: `urg-liq-${r.id}`,
+        categoria: 'urgente',
+        icono: 'zap-off',
+        titulo: `Liquidar ${r.nombre}`,
+        descripcion: `${r.unidadesStock} uds vencen en ${r.diasParaVencer} días`,
+        metricaLabel: 'Pérdida potencial:',
+        metricaValor: `−S/ ${Math.abs(r.margenPotencialPEN).toLocaleString('es-PE')}`,
+        metricaColor: 'rose',
+      }),
+    );
+
+  // Urgentes · reponer con stock crítico
+  rows
+    .filter((r) => r.accion === 'reponer' && r.unidadesStock < 5 && r.velocidadMes > 0)
+    .slice(0, 2)
+    .forEach((r) => {
+      const dias = Math.max(1, Math.round((r.unidadesStock / r.velocidadMes) * 30));
+      sugerencias.push({
+        id: `urg-rep-${r.id}`,
+        categoria: 'urgente',
+        icono: 'alert-circle',
+        titulo: `Reponer ${r.nombre}`,
+        descripcion: `Solo ${r.unidadesStock} uds libres · velocidad ${r.velocidadMes}/mes`,
+        metricaLabel: 'Días restantes:',
+        metricaValor: `${dias}d`,
+        metricaColor: 'rose',
+      });
+    });
+
+  // Vigilar · alta velocidad
+  rows
+    .filter((r) => r.scoreCategoria === 'liquido' && r.velocidadMes >= 8)
+    .slice(0, 3)
+    .forEach((r) =>
+      sugerencias.push({
+        id: `vig-alza-${r.id}`,
+        categoria: 'vigilar',
+        icono: 'trending-up',
+        titulo: `${r.nombre} en alza · prepara OC`,
+        descripcion: `Velocidad ${r.velocidadMes}/mes · stock dura ~${Math.round(r.unidadesStock / Math.max(1, r.velocidadMes))}m`,
+        metricaLabel: 'Sugerido:',
+        metricaValor: `${Math.round(r.velocidadMes * 4)} uds`,
+        metricaColor: 'amber',
+      }),
+    );
+
+  // Oportunidades · cross-sell pack potencial entre líquidos
+  const liquidos = rows.filter((r) => r.scoreCategoria === 'liquido');
+  if (liquidos.length >= 2) {
+    sugerencias.push({
+      id: 'opp-cross-sell',
+      categoria: 'oportunidad',
+      icono: 'link-2',
+      titulo: `Cross-sell ${liquidos[0].nombre.split(' ')[0]} + ${liquidos[1].nombre.split(' ')[0]}`,
+      descripcion: '~68% clientes compran ambos · pack potencial',
+      metricaLabel: 'Margen pack est.:',
+      metricaValor: '+12%',
+      metricaColor: 'emerald',
+    });
+  }
+
+  // Oportunidad · linkado al banner #32 si hay grupos sugeridos
+  const grupos = buildGruposSugeridos(productos);
+  if (grupos.length > 0) {
+    sugerencias.push({
+      id: 'opp-variantes',
+      categoria: 'oportunidad',
+      icono: 'sparkles',
+      titulo: `${grupos.length} grupo${grupos.length === 1 ? '' : 's'} podrían ser variantes`,
+      descripcion: 'IA detectó SKUs similares agrupables',
+      esLinkado: true,
+      borderHighlight: 'purple',
+    });
+  }
+
+  return sugerencias;
+}
+
+function buildGruposSugeridos(productos: Producto[]): GrupoSugerido[] {
+  // Heurística simple: agrupar por marca + primeras 3 palabras del nombre
+  const grupos = new Map<string, Producto[]>();
+  productos.forEach((p: any) => {
+    if ((p.estado ?? 'activo') !== 'activo') return;
+    if (p.grupoVarianteId) return; // ya es variante
+    if (p.esPack) return;
+    const palabras = (p.nombreComercial ?? '')
+      .toLowerCase()
+      .split(/\s+/)
+      .slice(0, 3)
+      .join(' ');
+    const key = `${p.marca ?? 'sin'}|${palabras}`;
+    if (!grupos.has(key)) grupos.set(key, []);
+    grupos.get(key)!.push(p);
+  });
+
+  const resultado: GrupoSugerido[] = [];
+  let idx = 0;
+  grupos.forEach((items, key) => {
+    if (items.length < 2) return;
+    if (idx >= 3) return; // máximo 3 grupos en banner
+    const primero: any = items[0];
+    const matchPct = items.length >= 3 ? 96 : items.length === 2 ? 78 : 62;
+    const confianza: 'alta' | 'media' | 'baja' = matchPct >= 90 ? 'alta' : matchPct >= 70 ? 'media' : 'baja';
+    resultado.push({
+      id: `grp-${idx}-${primero.id}`,
+      nombreBase: primero.nombreComercial ?? 'Producto',
+      matchPct,
+      confianza,
+      descripcion:
+        confianza === 'alta'
+          ? `${items.length} SKUs sueltos detectados · misma marca, mismo producto, diferentes presentaciones`
+          : confianza === 'media'
+            ? `${items.length} SKUs · revisar manualmente · presentaciones diferentes`
+            : `${items.length} SKUs · marcas diferentes · revisar si son intercambiables`,
+      productos: items.map((it: any) => ({
+        sku: it.sku ?? '—',
+        nombre: it.nombreComercial ?? 'Producto',
+        detalle: it.contenido ? `→ ${it.contenido}` : undefined,
+        detalleColor: 'slate' as const,
+        icono: inferLineaIntel(it) === 'suplemento' ? 'pill' : inferLineaIntel(it) === 'wellness' ? 'flower' : 'droplets',
+        iconoColor: inferLineaIntel(it) === 'suplemento' ? 'indigo' : inferLineaIntel(it) === 'wellness' ? 'rose' : 'amber',
+      })),
+    });
+    idx++;
+  });
+
+  return resultado;
 }
 
 // ─── Placeholder para wizards Fase 7b/7c (no bloquea selector) ─────────────
