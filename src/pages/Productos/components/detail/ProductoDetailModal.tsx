@@ -44,6 +44,9 @@ import { SparklineMini } from '../shared/SparklineMini';
 import { TabResumen } from './TabResumen';
 import { TabVariantes } from './TabVariantes';
 import { TabStock } from './TabStock';
+import { TabInvestigacion } from './TabInvestigacion';
+import { TabHistorico } from './TabHistorico';
+import { TabPipeline } from './TabPipeline';
 
 interface ProductoDetailModalProps {
   open: boolean;
@@ -83,12 +86,12 @@ function getTabsConfig(producto: Producto): TabConfig[] {
       key: 'investigacion',
       label: 'Investigación',
       icon: Search,
-      enabled: false, // Fase 5
+      enabled: true, // Fase 5
       badge: investigacionNuevos > 0 ? { text: `${investigacionNuevos}`, variant: 'amber' } : undefined,
     },
     { key: 'stock', label: 'Stock', icon: Warehouse, enabled: true },
-    { key: 'historico', label: 'Histórico', icon: GitCommit, enabled: false },
-    { key: 'pipeline', label: 'Pipeline', icon: TrendingUp, enabled: false },
+    { key: 'historico', label: 'Histórico', icon: GitCommit, enabled: true }, // Fase 5
+    { key: 'pipeline', label: 'Pipeline', icon: TrendingUp, enabled: true }, // Fase 5
     {
       key: 'componentes',
       label: 'Componentes',
@@ -426,7 +429,10 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
               onAgregarVariante={onAgregarVariante ? () => onAgregarVariante(producto) : undefined}
             />
           )}
+          {activeTab === 'investigacion' && <TabInvestigacion producto={producto} />}
           {activeTab === 'stock' && <TabStock producto={producto} hermanasGrupo={hermanasGrupo} />}
+          {activeTab === 'historico' && <TabHistorico producto={producto} />}
+          {activeTab === 'pipeline' && <TabPipeline producto={producto} />}
         </div>
 
         {/* ═══════ FOOTER ═══════ */}
