@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Comparativa Gaps · Mockups 11-15 vs Histórico S58f</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; }
+.tabular { font-variant-numeric: tabular-nums; }
+.gap-section { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.gap-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
+.gap-num-critical { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+.gap-num-medium { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.gap-num-low { background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%); }
+.demo-box { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 16px; min-height: 200px; position: relative; }
+.demo-label { position: absolute; top: -12px; left: 16px; padding: 4px 12px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; }
+.demo-actual { background: #fee2e2; color: #991b1b; }
+.demo-propuesta { background: #dcfce7; color: #166534; }
+.decision-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 16px; margin-top: 16px; }
+.decision-options { display: flex; gap: 8px; margin-top: 12px; }
+.decision-btn { flex: 1; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 2px solid; cursor: pointer; transition: all 0.15s; text-align: center; }
+.decision-btn-yes { border-color: #10b981; color: #166534; background: white; }
+.decision-btn-yes:hover { background: #f0fdf4; }
+.decision-btn-no { border-color: #dc2626; color: #991b1b; background: white; }
+.decision-btn-no:hover { background: #fef2f2; }
+.decision-btn-mod { border-color: #f59e0b; color: #78350f; background: white; }
+.decision-btn-mod:hover { background: #fffbeb; }
+.decision-textarea { background: white; border: 2px solid #fcd34d; border-radius: 8px; padding: 8px 12px; font-size: 13px; width: 100%; min-height: 50px; margin-top: 8px; }
+.priority-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.priority-critical { background: #fee2e2; color: #991b1b; }
+.priority-medium { background: #fef3c7; color: #78350f; }
+.priority-low { background: #ccfbf1; color: #115e59; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- HEADER -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="bg-gradient-to-br from-slate-900 via-purple-900 to-fuchsia-900 text-white">
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <div class="text-xs uppercase tracking-wider text-purple-200 mb-2">📐 Comparativa visual gap por gap</div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">7 Gaps detectados · Decisiones one-by-one</h1>
+    <p class="text-purple-100 text-sm max-w-3xl mb-4">
+      Por cada gap: VERSIÓN ACTUAL (mockups 11-15 que produje) vs VERSIÓN PROPUESTA (mockup histórico S58f).
+      Vos decidís uno por uno · aceptar / rechazar / modificar.
+    </p>
+    <div class="grid grid-cols-3 gap-3 text-xs">
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="font-bold text-rose-200 mb-1">3 Gaps CRÍTICOS</div>
+        <div class="text-purple-100">Sidebar insights · Proveedores · Header gradient</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="font-bold text-amber-200 mb-1">3 Gaps MEDIOS</div>
+        <div class="text-purple-100">Badge nuevos · Botón variante · Tab combinado</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-lg p-3">
+        <div class="font-bold text-teal-200 mb-1">1 Gap BAJO</div>
+        <div class="text-purple-100">Renombrar Resumen → Info</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-6 py-8">
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 1 · SIDEBAR DERECHO CON INSIGHTS -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-critical">1</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Sidebar derecho con 3 cards de insights</h2>
+          <span class="priority-badge priority-critical">🔴 Crítico</span>
+        </div>
+        <p class="text-sm text-slate-600">Tab "Resumen" del mockup histórico tiene un sidebar con cards ejecutivas que YO eliminé del modal #11.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- A · ACTUAL -->
+      <div class="demo-box demo-actual-bg" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #11 (mía)</span>
+        <div class="bg-white rounded-lg p-4 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Tab Info · 1 columna full-width</div>
+          <div class="space-y-2">
+            <div class="bg-slate-50 rounded p-2 text-xs"><strong>Datos básicos:</strong> nombre · marca · línea · tipo · descripción</div>
+            <div class="bg-slate-50 rounded p-2 text-xs"><strong>Atributos Skincare:</strong> paso · textura · tipo piel · preocupaciones</div>
+            <div class="bg-slate-50 rounded p-2 text-xs"><strong>Origen e importación:</strong> país · método · lead time</div>
+          </div>
+          <div class="mt-3 text-[11px] text-rose-600 italic">⚠ Solo info textual · sin insights ejecutivos visibles</div>
+        </div>
+      </div>
+
+      <!-- B · PROPUESTA -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-propuesta">PROPUESTA · S58f histórico</span>
+        <div class="bg-white rounded-lg p-3 border border-slate-200 grid grid-cols-3 gap-2">
+          <!-- 2 cols contenido -->
+          <div class="col-span-2 space-y-1.5">
+            <div class="bg-slate-50 rounded p-2 text-[10px]"><strong>Info producto</strong></div>
+            <div class="bg-slate-50 rounded p-2 text-[10px]"><strong>Proveedores recomendados</strong></div>
+          </div>
+          <!-- 1 col sidebar -->
+          <div class="space-y-1.5">
+            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-300 rounded p-2 text-[10px]">
+              <div class="text-emerald-800 font-bold uppercase tracking-wider text-[8px]">Precio sugerido</div>
+              <div class="text-sm font-bold text-slate-900 tabular">S/ 285</div>
+              <div class="text-[9px] text-emerald-700">52% margen</div>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-300 rounded p-2 text-[10px]">
+              <div class="text-indigo-800 font-bold uppercase tracking-wider text-[8px]">Punto equilibrio</div>
+              <div class="text-sm font-bold text-slate-900 tabular">18 uds</div>
+              <div class="text-[9px] text-indigo-700">→ Calculadora</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded p-2 text-[10px]">
+              <div class="text-slate-700 font-bold text-[9px]">Competencia PE</div>
+              <div class="text-[8px] text-slate-500">Mac S/ 320 · Sephora S/ 310</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 text-[11px] text-emerald-700 font-bold">✓ Insights ejecutivos visibles al abrir · decisión rápida</div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-1">📌 Mi recomendación</div>
+      <p class="text-sm text-amber-900 mb-2">
+        <strong>ACEPTAR</strong> · agregar el sidebar derecho con las 3 cards de insights al modal #11 (Tab Resumen).
+        Es la pieza más valiosa del mockup histórico · le da al usuario información ejecutiva sin tener que abrir submodales.
+      </p>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Aceptar</button>
+        <button class="decision-btn decision-btn-mod">💡 Modificar</button>
+        <button class="decision-btn decision-btn-no">❌ Rechazar</button>
+      </div>
+      <textarea class="decision-textarea" placeholder="Notas (opcional)..."></textarea>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 2 · PROVEEDORES RECOMENDADOS -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-critical">2</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Sección "Proveedores recomendados"</h2>
+          <span class="priority-badge priority-critical">🔴 Crítico</span>
+        </div>
+        <p class="text-sm text-slate-600">Tab Resumen tiene una card con los proveedores top del producto que YO no incluí.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- A · ACTUAL -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #11</span>
+        <div class="bg-white rounded-lg p-4 border border-slate-200">
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">Tab Info · sin sección proveedores</div>
+          <div class="text-center py-6 text-rose-600 italic text-xs">
+            No hay sección "Proveedores recomendados"<br>
+            <span class="text-[10px] text-rose-500">El usuario debe ir a Tab Investigación para verlos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- B · PROPUESTA -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-propuesta">PROPUESTA · S58f histórico</span>
+        <div class="bg-white rounded-lg p-4 border border-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold text-slate-900">Proveedores recomendados</h4>
+            <button class="text-[10px] text-teal-600 font-medium">Ver todos →</button>
+          </div>
+          <div class="space-y-2">
+            <div class="border border-slate-200 rounded-lg p-2.5 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-600"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-semibold text-slate-900">SkinTech Korea</span>
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[9px] font-bold">Top elección</span>
+                </div>
+                <div class="text-[10px] text-slate-500 tabular">$ 38.50 · 12 OCs · score 4.8</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[9px] text-slate-500">Lead</div>
+                <div class="text-xs font-semibold text-slate-900 tabular">22d</div>
+              </div>
+            </div>
+            <div class="border border-slate-200 rounded-lg p-2.5 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center"><i data-lucide="building" class="w-3.5 h-3.5 text-slate-600"></i></div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs font-semibold text-slate-900">Beauty Wholesale</span>
+                <div class="text-[10px] text-slate-500 tabular">$ 42.00 · 7 OCs · 4.5</div>
+              </div>
+              <div class="text-right text-xs font-semibold text-slate-900 tabular">14d</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3 text-[11px] text-emerald-700 font-bold">✓ Decisión rápida sin cambiar de tab</div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-1">📌 Mi recomendación</div>
+      <p class="text-sm text-amber-900 mb-2">
+        <strong>ACEPTAR</strong> · agregar sección "Proveedores recomendados" al tab Resumen del modal #11.
+        2-3 proveedores top con score y lead time · CTA "Ver todos" lleva al tab Investigación completo.
+      </p>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Aceptar</button>
+        <button class="decision-btn decision-btn-mod">💡 Modificar</button>
+        <button class="decision-btn decision-btn-no">❌ Rechazar</button>
+      </div>
+      <textarea class="decision-textarea" placeholder="Notas (opcional)..."></textarea>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 3 · HEADER GRADIENT -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-critical">3</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Header gradient · violet vs sutil</h2>
+          <span class="priority-badge priority-critical">🔴 Crítico</span>
+        </div>
+        <p class="text-sm text-slate-600">YO usé gradient agresivo violet/purple. El histórico usa gradient sutil slate-50 a white.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- A · ACTUAL -->
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #11-15</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center"><i data-lucide="droplets" class="w-6 h-6"></i></div>
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-purple-100 mb-0.5">SKU-PROD-0042 · Activo</div>
+                <h3 class="text-base font-bold leading-tight">Vitamin C Brightening Serum</h3>
+                <div class="text-[10px] text-purple-100 mt-0.5">SkinCeuticals · Skincare · 4 variantes</div>
+              </div>
+            </div>
+          </div>
+          <div class="p-3 text-[10px] text-slate-500">[KPIs y tabs continúan...]</div>
+        </div>
+        <div class="mt-2 text-[11px] text-rose-600 italic">⚠ Demasiado decorativo · compite con el contenido</div>
+      </div>
+
+      <!-- B · PROPUESTA -->
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-propuesta">PROPUESTA · S58f histórico</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
+                <i data-lucide="droplets" class="w-6 h-6 text-amber-700"></i>
+              </div>
+              <div>
+                <div class="text-[9px] text-slate-500 mb-0.5 flex items-center gap-1">
+                  <span class="font-mono">SKU-PROD-0042</span>
+                  <span>·</span>
+                  <span>SkinCeuticals</span>
+                  <span class="px-1 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Activo</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 leading-tight">Vitamin C Brightening Serum</h3>
+                <p class="text-[10px] text-slate-500 mt-0.5">Anti-edad · Skincare · Serum</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-3 text-[10px] text-slate-500">[KPIs y tabs continúan...]</div>
+        </div>
+        <div class="mt-2 text-[11px] text-emerald-700 font-bold">✓ Sutil · permite que el contenido sea protagonista (Mercury/Stripe pattern)</div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-1">📌 Mi recomendación</div>
+      <p class="text-sm text-amber-900 mb-2">
+        <strong>ACEPTAR</strong> · cambiar el gradient agresivo violet/purple por el gradient sutil slate-50 a white del histórico.
+        El avatar mantiene su color por línea (amber para skincare, indigo para suplemento, purple para pack).
+        Esto se aplica a TODOS los modales 11-15.
+      </p>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Aceptar</button>
+        <button class="decision-btn decision-btn-mod">💡 Modificar</button>
+        <button class="decision-btn decision-btn-no">❌ Rechazar</button>
+      </div>
+      <textarea class="decision-textarea" placeholder="Notas (opcional)..."></textarea>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 4 · BADGE "X NUEVOS" EN TAB INVESTIGACION -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-medium">4</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Badge "X nuevos" en tab Investigación</h2>
+          <span class="priority-badge priority-medium">🟡 Medio</span>
+        </div>
+        <p class="text-sm text-slate-600">Indicador visual en el tab cuando hay análisis recientes que el usuario no ha visto.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · #13</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="border-b border-slate-200 bg-slate-50/50 px-3 py-2 flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i>Info</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Variantes</button>
+            <button class="px-3 py-2 text-xs font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5">
+              <i data-lucide="search" class="w-3.5 h-3.5"></i>Investigación
+            </button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="warehouse" class="w-3.5 h-3.5"></i>Stock</button>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-rose-600 italic">⚠ Sin indicación de nuevos análisis disponibles</div>
+      </div>
+
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-propuesta">PROPUESTA · con badge</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="border-b border-slate-200 bg-slate-50/50 px-3 py-2 flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i>Info</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Variantes</button>
+            <button class="px-3 py-2 text-xs font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5">
+              <i data-lucide="search" class="w-3.5 h-3.5"></i>Investigación
+              <span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold">3 nuevos</span>
+            </button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="warehouse" class="w-3.5 h-3.5"></i>Stock</button>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-emerald-700 font-bold">✓ Llama la atención del usuario · acción contextual</div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-1">📌 Mi recomendación</div>
+      <p class="text-sm text-amber-900 mb-2">
+        <strong>ACEPTAR</strong> · agregar badge "X nuevos" al tab Investigación cuando hay análisis recientes
+        no vistos. Se calcula desde la última vez que el usuario abrió el tab.
+      </p>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Aceptar</button>
+        <button class="decision-btn decision-btn-mod">💡 Modificar</button>
+        <button class="decision-btn decision-btn-no">❌ Rechazar</button>
+      </div>
+      <textarea class="decision-textarea" placeholder="Notas (opcional)..."></textarea>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 5 · BOTON "NUEVA VARIANTE" EN HEADER -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-medium">5</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Botón "Nueva variante" en header del modal</h2>
+          <span class="priority-badge priority-medium">🟡 Medio</span>
+        </div>
+        <p class="text-sm text-slate-600">Acción rápida para crear variante sin tener que ir al tab y luego al botón "Agregar variante".</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · footer #11-15</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="border-t border-slate-200 bg-slate-50 p-3 flex items-center justify-between">
+            <button class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5"><i data-lucide="archive" class="w-3.5 h-3.5"></i>Archivar</button>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
+              <button class="px-3 py-1.5 text-xs font-bold text-white bg-violet-600 rounded-lg flex items-center gap-1.5"><i data-lucide="pencil" class="w-3.5 h-3.5"></i>Editar producto</button>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-rose-600 italic">⚠ Para crear variante hay que ir al tab Variantes y luego clickear "Agregar"</div>
+      </div>
+
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-propuesta">PROPUESTA · header con CTAs</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 p-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="text-[10px] text-slate-500">SKU-PROD-0042 · SkinCeuticals</div>
+                <h3 class="text-sm font-bold text-slate-900">Vitamin C Brightening Serum</h3>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="px-2 py-1 text-[11px] text-slate-700 bg-white border border-slate-200 rounded-md flex items-center gap-1"><i data-lucide="edit-2" class="w-3 h-3"></i>Editar</button>
+                <button class="px-2 py-1 text-[11px] font-bold text-white bg-teal-600 rounded-md flex items-center gap-1 shadow-sm"><i data-lucide="plus" class="w-3 h-3"></i>Nueva variante</button>
+                <button class="p-1 hover:bg-slate-100 rounded"><i data-lucide="x" class="w-3.5 h-3.5 text-slate-500"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-emerald-700 font-bold">✓ Acción frecuente accesible desde cualquier tab</div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-1">📌 Mi recomendación</div>
+      <p class="text-sm text-amber-900 mb-2">
+        <strong>ACEPTAR</strong> · mover acciones primarias al HEADER del modal: "Editar" + "Nueva variante" (siempre visibles en cualquier tab).
+        El footer queda solo con "Archivar" + "Cerrar".
+      </p>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Aceptar</button>
+        <button class="decision-btn decision-btn-mod">💡 Modificar</button>
+        <button class="decision-btn decision-btn-no">❌ Rechazar</button>
+      </div>
+      <textarea class="decision-textarea" placeholder="Notas (opcional)..."></textarea>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 6 · TAB STOCK + HISTORIAL -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-medium">6</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Tab "Stock e historial" combinado vs separado</h2>
+          <span class="priority-badge priority-medium">🟡 Medio</span>
+        </div>
+        <p class="text-sm text-slate-600">Yo combiné Stock por almacén + Movimientos en 1 tab. El histórico los tenía separados.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · 1 tab combinado</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="border-b border-slate-200 bg-slate-50/50 px-3 py-2 flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i>Info</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Variantes</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="search" class="w-3.5 h-3.5"></i>Investigación</button>
+            <button class="px-3 py-2 text-xs font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5"><i data-lucide="warehouse" class="w-3.5 h-3.5"></i>Stock e historial</button>
+          </div>
+          <div class="p-3 text-[10px] text-slate-600">
+            <div class="font-bold mb-1">Stock por almacén</div>
+            <div class="bg-slate-50 rounded p-2 mb-2">Lima Central 42 / Lima Norte 20 / Casilla USA 25</div>
+            <div class="font-bold mb-1">Chart histórico</div>
+            <div class="bg-slate-50 rounded p-2 mb-2">[Gráfico ventas + stock]</div>
+            <div class="font-bold mb-1">Movimientos recientes</div>
+            <div class="bg-slate-50 rounded p-2">[Lista 5 últimos]</div>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-amber-600 italic">⚠ 3 secciones en 1 tab · puede ser largo de scroll</div>
+      </div>
+
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-propuesta">PROPUESTA · separar en 2 tabs</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="border-b border-slate-200 bg-slate-50/50 px-3 py-2 flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i>Info</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Variantes</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="search" class="w-3.5 h-3.5"></i>Investigación</button>
+            <button class="px-3 py-2 text-xs font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5"><i data-lucide="warehouse" class="w-3.5 h-3.5"></i>Stock</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="git-commit" class="w-3.5 h-3.5"></i>Histórico</button>
+          </div>
+          <div class="p-3 text-[10px] text-slate-600">
+            <div class="font-bold mb-1">Tab Stock · solo distribución</div>
+            <div class="bg-slate-50 rounded p-2 mb-2">Lima Central 42 / Norte 20 / USA 25 + chart</div>
+            <div class="text-slate-400 italic">→ Tab Histórico (separado) tiene movimientos</div>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-emerald-700 font-bold">✓ 2 tabs separados · cada uno con propósito claro</div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-1">📌 Mi recomendación</div>
+      <p class="text-sm text-amber-900 mb-2">
+        <strong>MODIFICAR</strong> · prefiero MANTENER el tab combinado "Stock e historial" porque:
+        <br>1. Las 3 secciones se relacionan entre sí (stock actual + movimientos = historia del stock)
+        <br>2. Tener 6 tabs es mucho ruido visual
+        <br>3. El usuario que mira stock generalmente quiere ver también los últimos movimientos
+        <br>Pero acepto separarlos si vos prefieres. Es decisión funcional.
+      </p>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Mantener combinado</button>
+        <button class="decision-btn decision-btn-mod">💡 Separar en 2 tabs</button>
+        <button class="decision-btn decision-btn-no">❌ Otro</button>
+      </div>
+      <textarea class="decision-textarea" placeholder="Notas (opcional)..."></textarea>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- GAP 7 · NOMBRE TAB · RESUMEN VS INFO -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="gap-section">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="gap-num gap-num-low">7</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <h2 class="text-xl font-bold text-slate-900">Nombre del tab · "Resumen" vs "Info"</h2>
+          <span class="priority-badge priority-low">🟢 Bajo</span>
+        </div>
+        <p class="text-sm text-slate-600">Histórico decía "Resumen" · yo lo renombré a "Info" sin justificar.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div class="demo-box" style="background: #fef2f2;">
+        <span class="demo-label demo-actual">VERSIÓN ACTUAL · "Info"</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="border-b border-slate-200 bg-slate-50/50 px-3 py-2 flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5">
+              <i data-lucide="info" class="w-3.5 h-3.5"></i>Info
+            </button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Variantes</button>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-amber-600 italic">⚠ Genérico · no comunica que tiene insights ejecutivos</div>
+      </div>
+
+      <div class="demo-box" style="background: #f0fdf4;">
+        <span class="demo-label demo-propuesta">PROPUESTA · "Resumen"</span>
+        <div class="bg-white rounded-lg overflow-hidden border border-slate-200">
+          <div class="border-b border-slate-200 bg-slate-50/50 px-3 py-2 flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-bold border-b-2 border-violet-600 text-violet-700 flex items-center gap-1.5">
+              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Resumen
+            </button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-500 flex items-center gap-1.5"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Variantes</button>
+          </div>
+        </div>
+        <div class="mt-2 text-[11px] text-emerald-700 font-bold">✓ Comunica que es vista ejecutiva · ícono layout-grid es más rico</div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-1">📌 Mi recomendación</div>
+      <p class="text-sm text-amber-900 mb-2">
+        <strong>ACEPTAR</strong> · renombrar "Info" → "Resumen" y cambiar ícono de info → layout-grid (alineación con histórico).
+      </p>
+      <div class="decision-options">
+        <button class="decision-btn decision-btn-yes">✅ Aceptar (Resumen)</button>
+        <button class="decision-btn decision-btn-mod">💡 Modificar nombre</button>
+        <button class="decision-btn decision-btn-no">❌ Mantener Info</button>
+      </div>
+      <textarea class="decision-textarea" placeholder="Notas (opcional)..."></textarea>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- RESUMEN FINAL -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6">
+    <h2 class="text-xl font-bold mb-3">📊 Cómo me devolvés tus decisiones</h2>
+    <p class="text-slate-300 text-sm mb-4">
+      Recorré los 7 gaps · llenás los textareas con tus decisiones · me copiás+pegás todo o me decís en chat solo las que difieren de mi recomendación (acepto el resto por defecto).
+    </p>
+    <div class="bg-white/10 rounded-lg p-4 text-xs">
+      <strong class="text-amber-200">Formato sugerido:</strong>
+      <div class="mt-2 font-mono text-slate-300">
+        Gap 1 · Sidebar insights: ACEPTAR<br>
+        Gap 2 · Proveedores: ACEPTAR<br>
+        Gap 3 · Header gradient: ACEPTAR<br>
+        Gap 4 · Badge nuevos: ACEPTAR<br>
+        Gap 5 · Botón nueva variante: ACEPTAR<br>
+        Gap 6 · Stock+historial: MANTENER COMBINADO (mi recomendación) · o SEPARAR<br>
+        Gap 7 · Resumen vs Info: ACEPTAR (Resumen)
+      </div>
+    </div>
+    <p class="text-slate-400 text-xs mt-4">
+      Una vez decidido · arranco aplicación de cambios a los 5 mockups (11-15) en próximo turno · ~30-40 min.
+    </p>
+  </section>
+
+</div>
+
+<script>
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Hacer botones de decisión visualmente seleccionables (sin lógica real)
+  document.querySelectorAll('.decision-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Quitar selected de hermanos
+      this.parentElement.querySelectorAll('.decision-btn').forEach(b => {
+        b.style.background = 'white';
+        b.style.color = b.classList.contains('decision-btn-yes') ? '#166534' : b.classList.contains('decision-btn-no') ? '#991b1b' : '#78350f';
+      });
+      // Marcar este como seleccionado
+      if (this.classList.contains('decision-btn-yes')) {
+        this.style.background = '#10b981';
+        this.style.color = 'white';
+      } else if (this.classList.contains('decision-btn-no')) {
+        this.style.background = '#dc2626';
+        this.style.color = 'white';
+      } else {
+        this.style.background = '#f59e0b';
+        this.style.color = 'white';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
