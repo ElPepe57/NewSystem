@@ -22,7 +22,12 @@ import {
   List,
   Filter,
   BarChart3,
-  Bell
+  Bell,
+  ChevronRight,
+  Truck,
+  Bookmark,
+  Check,
+  Globe,
 } from 'lucide-react';
 import {
   Card,
@@ -595,58 +600,129 @@ export const Inventario: React.FC = () => {
     return <InventarioSkeleton />;
   }
 
+  // KPIs derivados pixel-perfect mockup stock-rediseno-s58f
+  const pctDisponiblesPeru = inventarioStats.total > 0
+    ? Math.round((inventarioStats.disponiblePeru / inventarioStats.total) * 100)
+    : 0;
+
   return (
     <div className="space-y-6">
-      {/* Header Profesional con Gradiente */}
-      <PageHeader
-        title="Inventario"
-        subtitle="Vista consolidada del stock calculada desde las unidades físicas"
-        icon={Boxes}
-       
-        actions={
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              onClick={handleSincronizarCompleto}
-              disabled={sincronizando}
-              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            >
-              <RefreshCw className={`h-5 w-5 ${sincronizando ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                const dataExport = unidades.map(u => ({
-                  SKU: u.productoSKU,
-                  Producto: u.productoNombre,
-                  Lote: u.lote,
-                  Estado: u.estado,
-                  Almacen: u.almacenNombre,
-                  Pais: u.pais,
-                  CostoUSD: u.costoUnitarioUSD,
-                  FechaVencimiento: u.fechaVencimiento?.toDate?.()?.toLocaleDateString() || '-',
-                  OrdenCompra: u.ordenCompraNumero
-                }));
-                exportService.downloadExcel(dataExport, 'Inventario_Unidades');
-              }}
-              disabled={unidades.length === 0}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Exportar
-            </Button>
+      {/* Header banking-grade S58f · pixel-perfect mockup stock-rediseno-s58f */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Logística</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Stock · Inventario operativo</span>
           </div>
-        }
-        stats={[
-          { label: 'Unidades', value: inventarioStats.total },
-          { label: 'Productos', value: productosConUnidades.length },
-          { label: 'En Origen', value: inventarioStats.enOrigen },
-          { label: 'Tránsito', value: inventarioStats.enTransito },
-          { label: 'Perú', value: inventarioStats.disponiblePeru },
-          { label: 'Reservadas', value: inventarioStats.reservada },
-          { label: 'Vendidas', value: inventarioStats.vendida }
-        ]}
-      />
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <Warehouse className="w-6 h-6 text-teal-600" />
+            Stock
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">
+            Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas).
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={handleSincronizarCompleto}
+            disabled={sincronizando}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all disabled:opacity-50"
+            title="Sincronizar desde origen"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${sincronizando ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Sincronizar</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const dataExport = unidades.map(u => ({
+                SKU: u.productoSKU,
+                Producto: u.productoNombre,
+                Lote: u.lote,
+                Estado: u.estado,
+                Almacen: u.almacenNombre,
+                Pais: u.pais,
+                CostoUSD: u.costoUnitarioUSD,
+                FechaVencimiento: u.fechaVencimiento?.toDate?.()?.toLocaleDateString() || '-',
+                OrdenCompra: u.ordenCompraNumero
+              }));
+              exportService.downloadExcel(dataExport, 'Inventario_Unidades');
+            }}
+            disabled={unidades.length === 0}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all disabled:opacity-50"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Exportar</span>
+          </button>
+        </div>
+      </div>
+
+      {/* KPI strip horizontal con dividers · 5 KPIs pixel-perfect mockup S58f */}
+      <div className="bg-white border border-slate-200 rounded-xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+        <div className="p-4">
+          <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+            Unidades totales
+          </div>
+          <div className="text-2xl font-bold text-slate-900 tabular-nums tracking-tight">
+            {inventarioStats.total.toLocaleString('es-PE')}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1.5 tabular-nums">
+            {productosConUnidades.length.toLocaleString('es-PE')} productos
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1.5">
+            Disponibles
+          </div>
+          <div className="text-2xl font-bold text-emerald-600 tabular-nums tracking-tight">
+            {inventarioStats.disponiblePeru.toLocaleString('es-PE')}
+          </div>
+          <div className="text-[11px] text-emerald-600 mt-1.5 tabular-nums flex items-center gap-1">
+            <Check className="w-3 h-3" />
+            {pctDisponiblesPeru}% libres en PE
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="text-[10px] font-semibold text-sky-700 uppercase tracking-wider mb-1.5">
+            Reservadas
+          </div>
+          <div className="text-2xl font-bold text-sky-700 tabular-nums tracking-tight">
+            {inventarioStats.reservada.toLocaleString('es-PE')}
+          </div>
+          <div className="text-[11px] text-sky-700 mt-1.5 tabular-nums">
+            {inventarioStats.reservadaOrigen > 0 && `Origen: ${inventarioStats.reservadaOrigen}`}
+            {inventarioStats.reservadaOrigen > 0 && inventarioStats.reservadaPeru > 0 && ' · '}
+            {inventarioStats.reservadaPeru > 0 && `PE: ${inventarioStats.reservadaPeru}`}
+            {inventarioStats.reservada === 0 && 'Sin reservas activas'}
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">
+            En tránsito
+          </div>
+          <div className="text-2xl font-bold text-amber-700 tabular-nums tracking-tight">
+            {inventarioStats.enTransito.toLocaleString('es-PE')}
+          </div>
+          <div className="text-[11px] text-amber-700 mt-1.5 tabular-nums flex items-center gap-1">
+            <Truck className="w-3 h-3" />
+            Origen + Perú
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="text-[10px] font-semibold text-rose-700 uppercase tracking-wider mb-1.5">
+            Vencen &lt; 30d
+          </div>
+          <div className={`text-2xl font-bold tabular-nums tracking-tight ${inventarioStats.proximasAVencer > 0 ? 'text-rose-700' : 'text-slate-900'}`}>
+            {inventarioStats.proximasAVencer.toLocaleString('es-PE')}
+          </div>
+          <div className={`text-[11px] mt-1.5 tabular-nums flex items-center gap-1 ${inventarioStats.proximasAVencer > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+            <AlertTriangle className="w-3 h-3" />
+            {inventarioStats.proximasAVencer > 0 ? 'Atención · revisar lotes' : 'Todo OK'}
+          </div>
+        </div>
+      </div>
 
       {/* s interactivos - Solo visible en tab Lista */}
       {tabActivo === 'lista' && (
