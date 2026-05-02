@@ -100,6 +100,50 @@ export const MovimientosBreakdown: React.FC<MovimientosBreakdownProps> = ({
 
   const total = segmentos.reduce((sum, s) => sum + s.monto, 0);
 
+  // Mini-métricas adicionales · pixel-perfect mockup S58e (Fase D)
+  const miniMetricas = useMemo(() => {
+    let lotesCount = 0;
+    let lotesMonto = 0;
+    let conversionesCount = 0;
+    let conversionesMontoUSD = 0;
+    let ajustesCount = 0;
+    let ajustesMonto = 0;
+
+    const lotesUnicos = new Set<string>();
+    for (const m of movimientos) {
+      if (m.estado === 'anulado') continue;
+      const lote = (m as any).loteNumero || (m as any).pagoMasivoLoteId;
+      if (lote && !lotesUnicos.has(lote)) {
+        lotesUnicos.add(lote);
+        lotesCount++;
+      }
+      if (lote) {
+        lotesMonto +=
+          m.montoEquivalentePEN ?? (m.moneda === 'PEN' ? m.monto : m.monto * tipoCambio);
+      }
+      if (m.conversionId) {
+        conversionesCount++;
+        if (m.moneda === 'USD') conversionesMontoUSD += m.monto;
+      }
+      if (m.tipo === 'ajuste_positivo' || m.tipo === 'ajuste_negativo') {
+        ajustesCount++;
+        ajustesMonto +=
+          m.montoEquivalentePEN ?? (m.moneda === 'PEN' ? m.monto : m.monto * tipoCambio);
+      }
+    }
+
+    return {
+      lotes: { count: lotesCount, monto: lotesMonto },
+      conversiones: { count: conversionesCount, montoUSD: conversionesMontoUSD },
+      ajustes: { count: ajustesCount, monto: ajustesMonto },
+    };
+  }, [movimientos, tipoCambio]);
+
+  const tieneMiniMetricas =
+    miniMetricas.lotes.count > 0 ||
+    miniMetricas.conversiones.count > 0 ||
+    miniMetricas.ajustes.count > 0;
+
   // SVG donut
   const cx = 50;
   const cy = 50;
@@ -217,6 +261,41 @@ export const MovimientosBreakdown: React.FC<MovimientosBreakdownProps> = ({
                   );
                 })}
               </div>
+
+              {/* Mini-métricas adicionales · Fase D pixel-perfect S58e */}
+              {tieneMiniMetricas && (
+                <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
+                  {miniMetricas.lotes.count > 0 && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Lotes masivos</span>
+                      <span className="font-semibold text-slate-700 tabular-nums">
+                        {miniMetricas.lotes.count}{' '}
+                        {miniMetricas.lotes.count === 1 ? 'lote' : 'lotes'} ·{' '}
+                        {fmtPEN(miniMetricas.lotes.monto)}
+                      </span>
+                    </div>
+                  )}
+                  {miniMetricas.conversiones.count > 0 && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Conversiones FX</span>
+                      <span className="font-semibold text-slate-700 tabular-nums">
+                        {miniMetricas.conversiones.count} · US${' '}
+                        {miniMetricas.conversiones.montoUSD.toLocaleString('es-PE', {
+                          maximumFractionDigits: 0,
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  {miniMetricas.ajustes.count > 0 && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">Ajustes sistema</span>
+                      <span className="font-semibold text-slate-700 tabular-nums">
+                        {miniMetricas.ajustes.count} · {fmtPEN(miniMetricas.ajustes.monto)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
