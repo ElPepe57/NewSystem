@@ -47,6 +47,7 @@ import { TabStock } from './TabStock';
 import { TabInvestigacion } from './TabInvestigacion';
 import { TabHistorico } from './TabHistorico';
 import { TabPipeline } from './TabPipeline';
+import { TabComponentes } from './TabComponentes';
 
 interface ProductoDetailModalProps {
   open: boolean;
@@ -96,7 +97,7 @@ function getTabsConfig(producto: Producto): TabConfig[] {
       key: 'componentes',
       label: 'Componentes',
       icon: Package2,
-      enabled: false,
+      enabled: true, // Fase 6
       visible: (p: Producto) => p.esPack === true,
     },
   ];
@@ -433,6 +434,7 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
           {activeTab === 'stock' && <TabStock producto={producto} hermanasGrupo={hermanasGrupo} />}
           {activeTab === 'historico' && <TabHistorico producto={producto} />}
           {activeTab === 'pipeline' && <TabPipeline producto={producto} />}
+          {activeTab === 'componentes' && <TabComponentes producto={producto} />}
         </div>
 
         {/* ═══════ FOOTER ═══════ */}

@@ -8,3 +8,4 @@ export { TabStock } from './TabStock';
 export { TabInvestigacion } from './TabInvestigacion';
 export { TabHistorico } from './TabHistorico';
 export { TabPipeline } from './TabPipeline';
+export { TabComponentes } from './TabComponentes';
