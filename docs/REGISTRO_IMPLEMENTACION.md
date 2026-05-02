@@ -2,8 +2,53 @@
 
 **Agente:** implementation-controller (Agente 23)
 **Proyecto:** ERP de importacion y venta de suplementos y skincare — Vitaskin Peru
-**Ultima actualizacion:** 2026-05-01 (29 commits en main post-S58f · 4 BLOQUES MAYORES CERRADOS: (1) GASTOFORM-V2 + GASTOS-PAGE-V2 + PROVEEDOR-GASTOS + F3.b · 5/5 · ~4.5h · (2) PAGOFORM-001 Fase 1 visual + Fase 2 destino tercero opt-in · (3) MIGRACION VISUAL TESORERIA pixel-perfect S58e: TabMovimientos completo (4 fases A/B/C/D) + TabCuentas KPIs enriquecidos + headers banking-grade unificados en TabConversiones / TabTransferencias / TabPagosMasivos / TabPipeline / TabPendientes / TabTarjetasCredito. ProductoDetalleModal y TitularDrilldownView ya estaban pixel-perfect de S58e original. (4) Hook useDatosBancariosTercero. Quedan: PAGOFORM-001 Fase 3 split (~1.5 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · TAREA-DESIGN-SYSTEM-GLOBAL bloques restantes (Inventario · Productos · Ventas · Finanzas extendido · Nav shell · Reclamos · ~6-8 ses).)
+**Ultima actualizacion:** 2026-05-01 (31 commits en main post-S58f · 5 BLOQUES MAYORES CERRADOS: (1) GASTOFORM-V2 + GASTOS-PAGE-V2 + PROVEEDOR-GASTOS · 5/5 · ~4.5h · (2) PAGOFORM-001 Fase 1 visual + Fase 2 destino tercero opt-in · (3) MIGRACION VISUAL TESORERIA pixel-perfect S58e: 9 tabs con headers banking-grade unificados + TabMovimientos completo (4 fases A/B/C/D). (4) MIGRACION VISUAL PRODUCTOS + INVENTARIO pixel-perfect S58f: headers banking-grade + KPI strips. (5) Hook useDatosBancariosTercero. Quedan: PAGOFORM-001 Fase 3 split (~1.5 ses) · DEUDA-FLETE-001/002/003 (~2.5 ses) · Productos-Intel + Mapa-calor diferidos (~1 ses c/u) · TAREA-DESIGN-SYSTEM-GLOBAL bloques restantes (Ventas · Finanzas extendido · Nav shell · Reclamos · ~4-5 ses).)
 **Branch activo:** main
+
+---
+
+## SESION POST-S58f · BLOQUE PRODUCTOS + INVENTARIO · MIGRACION VISUAL PIXEL-PERFECT S58f
+
+### Fecha y alcance
+
+**Fecha:** 2026-05-01 (continuacion sesion mismo dia)
+**Mockups del bloque:**
+- `productos-rediseno-s58f.html` ✅ header + KPI strip pixel-perfect (resto del listado/tabla preservado)
+- `stock-rediseno-s58f.html` ✅ header + KPI strip pixel-perfect (resto preservado)
+- `productos-intel-s58f.html` ⏳ diferido (vista Calculadora · invocada desde modal · separable)
+- `mapa-calor-inventario-s58f.html` ⏳ diferido (vista mapa visual · separable)
+
+### Commits ejecutados (1 commit consolidado)
+
+- `ad5c691` · Reemplaza PageHeader legacy por header banking-grade canonico inline en Productos.tsx + Inventario.tsx + KPI strip horizontal con dividers (~280 lineas modificadas)
+
+### Cambios visuales clave
+
+**Productos:**
+- Header con breadcrumb "Catalogo > Productos · Maestro de SKUs"
+- 5 acciones en header: Calculadora (indigo) · Archivo (con badge de count) · Importar · Exportar · Nuevo producto
+- KPI strip 4 KPIs: Productos activos · Variantes/SKUs · Stock critico · Margen promedio (verde con TrendingUp)
+- Margen promedio calculado desde precioVenta y ctruEstimado de cada producto
+
+**Inventario:**
+- Header con breadcrumb "Logistica > Stock · Inventario operativo"
+- 2 acciones: Sincronizar + Exportar
+- KPI strip 5 KPIs: Unidades totales · Disponibles (verde con % libres) · Reservadas (sky con breakdown) · En transito (amber con Truck) · Vencen <30d (rosa con AlertTriangle)
+- Usa `proximasAVencer` existente del useMemo
+
+### Diferidos justificados
+
+- `productos-intel-s58f` (Calculadora) — es una vista que se abre desde el boton "Calculadora" en el header. Necesita su propio componente con análisis financiero (rentabilidad por SKU, simulación de precios, etc.). Diferida porque es separable y no critica para uso operativo del listado.
+- `mapa-calor-inventario-s58f` — vista visual con heatmap de almacenes. Misma razón: separable, no afecta operación del listado. Se puede sumar como tab o vista alternativa en sesión futura.
+
+### Resultado funcional
+
+El usuario puede entrar a `/productos` y `/inventario` y ver:
+- Headers banking-grade IDÉNTICOS al patrón de Tesorería (consistencia visual completa)
+- KPI strips horizontales con dividers verticales · números tabular-nums · decimales atenuados · iconos semánticos
+- Estructura visual coherente con el manifesto S58f aplicada antes a Gastos y Tesorería
+
+**Tiempo invertido:** ~45 min para 2 mockups (estructura ya existía · solo header + KPIs).
 
 ---
 
