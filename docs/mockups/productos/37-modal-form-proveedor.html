@@ -137,24 +137,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               <span class="text-xs font-bold text-slate-700">Costos</span>
               <span class="text-[10px] text-slate-500 italic">se habilita al seleccionar proveedor</span>
             </div>
-            <div class="text-[10px] text-slate-500">Costo unitario · Tax % · Tax monto fijo $ (campos libres con default sugerido por país)</div>
+            <div class="text-[10px] text-slate-500">Costo unitario USD · Tax (toggle %/$) con default sugerido por país</div>
           </div>
 
-          <!-- SECCIÓN 3 · Logística (resumen, ver completo en estado C) -->
+          <!-- SECCIÓN 3 · Detalles (resumen) -->
           <div class="opacity-50">
             <div class="flex items-center gap-2 mb-2">
               <span class="section-num">3</span>
-              <span class="text-xs font-bold text-slate-700">Logística</span>
-              <span class="text-[10px] text-slate-400">Lead time · Min orden · Forma pago</span>
-            </div>
-          </div>
-
-          <!-- SECCIÓN 4 · Detalles (resumen) -->
-          <div class="opacity-50">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="section-num">4</span>
               <span class="text-xs font-bold text-slate-700">Detalles</span>
-              <span class="text-[10px] text-slate-400">URL · Disponibilidad · Notas</span>
+              <span class="text-[10px] text-slate-400">URL del producto · Notas</span>
             </div>
           </div>
 
@@ -327,84 +318,42 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               <span class="section-num">2</span>
               <span class="text-xs font-bold text-slate-700">Costos</span>
             </div>
-            <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
               <!-- Costo unitario -->
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Costo unitario <span class="text-rose-500">*</span></label>
-                  <div class="relative">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">$</span>
-                    <input type="number" value="38.50" step="0.01" class="w-full pl-7 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 tabular">
-                  </div>
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Costo unitario <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">$</span>
+                  <input type="number" value="38.50" step="0.01" class="w-full pl-7 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 tabular">
                 </div>
-                <div class="flex items-end">
-                  <div class="text-[10px] text-slate-500 italic pb-1.5">
-                    <i data-lucide="info" class="w-3 h-3 inline-block mr-0.5"></i>
-                    Costo unitario en USD del proveedor · sin tax ni envío
-                  </div>
-                </div>
+                <div class="text-[9px] text-slate-400 mt-0.5">USD · sin tax</div>
               </div>
 
-              <!-- Tax · 2 campos libres (% y monto fijo) -->
+              <!-- Tax · 1 input + toggle inline %/$ -->
               <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Impuesto / Tax</label>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <div class="relative">
-                      <input type="number" value="0" step="0.01" class="w-full pl-3 pr-9 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 tabular">
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-bold">%</span>
-                    </div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">% sobre el costo · default sugerido: Corea 0% · USA 8.25% · PE 18%</div>
-                  </div>
-                  <div>
-                    <div class="relative">
-                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">$</span>
-                      <input type="number" value="0" step="0.01" class="w-full pl-7 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 tabular">
-                    </div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">monto fijo USD · útil para aranceles o cargos puntuales</div>
+                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Impuesto / Tax</label>
+                <div class="flex items-stretch border border-slate-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-teal-500">
+                  <input type="number" value="8.25" step="0.01" class="flex-1 px-3 py-1.5 text-sm tabular focus:outline-none border-0">
+                  <!-- Toggle %/$ -->
+                  <div class="flex border-l border-slate-200">
+                    <button type="button" class="px-2.5 py-1 text-xs font-bold bg-teal-600 text-white">%</button>
+                    <button type="button" class="px-2.5 py-1 text-xs font-bold bg-white text-slate-500 hover:bg-slate-50 border-l border-slate-200">$</button>
                   </div>
                 </div>
-                <div class="text-[10px] text-teal-700 font-semibold mt-1.5 tabular flex items-center gap-1">
-                  <i data-lucide="calculator" class="w-3 h-3"></i>
-                  Costo total con tax: <span class="font-bold">$ 38.50</span>
-                  <span class="text-slate-400 font-normal">($38.50 + 0% + $0)</span>
-                </div>
+                <div class="text-[9px] text-slate-400 mt-0.5">default sugerido por país · USA 8.25% · PE 18% · Corea 0%</div>
               </div>
+            </div>
+            <div class="text-[10px] text-teal-700 font-semibold mt-2 tabular flex items-center gap-1">
+              <i data-lucide="calculator" class="w-3 h-3"></i>
+              Costo total con tax: <span class="font-bold">$ 41.68</span>
+              <span class="text-slate-400 font-normal">($38.50 + 8.25%)</span>
             </div>
           </div>
 
-          <!-- SECCIÓN 3 · Logística -->
+          <!-- SECCIÓN 3 · Detalles -->
           <div>
             <div class="flex items-center gap-2 mb-2">
               <span class="section-num">3</span>
-              <span class="text-xs font-bold text-slate-700">Logística</span>
-            </div>
-            <div class="grid grid-cols-3 gap-3">
-              <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Lead time <span class="text-slate-400 font-normal lowercase">prom.</span></label>
-                <div class="relative">
-                  <input type="number" value="22" class="w-full pl-3 pr-9 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 tabular">
-                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">días</span>
-                </div>
-              </div>
-              <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Min orden</label>
-                <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">$</span>
-                  <input type="number" value="1000" class="w-full pl-7 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 tabular">
-                </div>
-              </div>
-              <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Forma pago</label>
-                <input type="text" value="PayPal · 30/70" placeholder="ej: T/T · 50/50" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
-              </div>
-            </div>
-          </div>
-
-          <!-- SECCIÓN 4 · Detalles -->
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="section-num">4</span>
               <span class="text-xs font-bold text-slate-700">Detalles</span>
             </div>
             <div class="space-y-3">
@@ -413,24 +362,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
                 <div class="relative">
                   <i data-lucide="link" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
                   <input type="url" value="https://skintechkorea.com/vitC-serum" class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 font-mono text-xs">
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Disponibilidad</label>
-                <div class="grid grid-cols-4 gap-1.5">
-                  <button class="px-2 py-1.5 text-[10px] font-bold rounded border-2 border-emerald-400 bg-emerald-50 text-emerald-800 flex items-center justify-center gap-1">
-                    <i data-lucide="check-circle-2" class="w-3 h-3"></i>En stock
-                  </button>
-                  <button class="px-2 py-1.5 text-[10px] font-bold rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-1">
-                    <i data-lucide="alert-triangle" class="w-3 h-3"></i>Bajo stock
-                  </button>
-                  <button class="px-2 py-1.5 text-[10px] font-bold rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-1">
-                    <i data-lucide="x-circle" class="w-3 h-3"></i>Sin stock
-                  </button>
-                  <button class="px-2 py-1.5 text-[10px] font-bold rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-1">
-                    <i data-lucide="help-circle" class="w-3 h-3"></i>?
-                  </button>
                 </div>
               </div>
 
