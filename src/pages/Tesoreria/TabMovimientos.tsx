@@ -21,6 +21,9 @@ import {
   ArrowLeftRight,
   Check,
   Wallet,
+  Download,
+  List,
+  ChevronRight,
 } from 'lucide-react';
 import { Button, Card } from '../../components/common';
 import {
@@ -440,21 +443,60 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
   return (
     <>
-      {/* ─── Imp-L6 · Header banking-grade S58e M6 ─────────────────── */}
-      <div className="flex items-start justify-between gap-4 mb-5 flex-wrap">
+      {/* ─── Header banking-grade S58e M6 · Migración pixel-perfect mockup tesoreria-movimientos-s58e ─────────────────── */}
+      <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Wallet className="w-6 h-6 text-teal-600" />
-            Movimientos
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <span className="hover:text-teal-600 transition-colors cursor-pointer">Tesorería</span>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-slate-600 font-medium">Movimientos · Libro Mayor</span>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+            <List className="w-6 h-6 text-teal-600" />
+            Movimientos · Libro Mayor
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            Libro mayor unificado · {movsRender.length} {movsRender.length === 1 ? 'movimiento' : 'movimientos'}
+            Todos los movimientos unificados · {movsRender.length.toLocaleString('es-PE')} {movsRender.length === 1 ? 'movimiento' : 'movimientos'}
           </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => {
+              // Implementación futura: usar XLSX (ya está en deps)
+              console.warn('[TODO] Exportar Excel desde TabMovimientos');
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all"
+            title="Exportar a Excel"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Exportar Excel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              console.warn('[TODO] Exportar CSV desde TabMovimientos');
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all"
+            title="Exportar a CSV"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Exportar CSV
+          </button>
+          <Button variant="primary-soft" onClick={() => setIsMovimientoModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            Nuevo
+          </Button>
         </div>
       </div>
 
-      {/* KPI row del periodo · Imp-L6 */}
-      <MovimientosKpiRow movimientos={movsRender} tipoCambio={tcDefault} />
+      {/* KPI row del periodo · pixel-perfect S58e */}
+      <MovimientosKpiRow
+        movimientos={movsRender}
+        tipoCambio={tcDefault}
+        totalSinFiltros={movimientosFiltrados.length}
+      />
 
       {/* Layout principal: contenido + sidebar donut */}
       <div className="flex gap-4 items-start flex-col lg:flex-row mb-4">
@@ -489,11 +531,8 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
               </div>
             )}
           </div>
-          <Button variant="primary-soft" onClick={() => setIsMovimientoModalOpen(true)} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            <span className="sm:hidden">Nuevo</span>
-            <span className="hidden sm:inline">Nuevo Movimiento</span>
-          </Button>
+          {/* Nota: el botón "Nuevo movimiento" se movió arriba al header banking-grade.
+              Aquí se elimina para evitar duplicación · alineación a mockup S58e. */}
         </div>
 
         {/* Resumen del titular seleccionado */}
