@@ -41,8 +41,10 @@ interface InvestigacionCompletaModalProps {
   onReinvestigar?: () => void;
   onMarcarVista?: () => void;
   onAgregarProveedor?: () => void;
+  onEditarProveedor?: (proveedorId: string) => void;
   onCrearOC?: (proveedorId: string) => void;
   onAgregarCompetidor?: (nombre: string) => void;
+  onEditarCompetidor?: (competidorId: string) => void;
   onImportar?: () => void;
   onDescartar?: () => void;
 }
@@ -55,8 +57,10 @@ export function InvestigacionCompletaModal({
   onReinvestigar,
   onMarcarVista,
   onAgregarProveedor,
+  onEditarProveedor,
   onCrearOC,
   onAgregarCompetidor,
+  onEditarCompetidor,
   onImportar,
   onDescartar,
 }: InvestigacionCompletaModalProps) {
@@ -220,6 +224,7 @@ export function InvestigacionCompletaModal({
               proveedores={payload.proveedores}
               onAgregarProveedor={onAgregarProveedor}
               onCrearOC={onCrearOC}
+              onEditarProveedor={onEditarProveedor}
             />
           )}
           {tab === 'competencia' && (
@@ -227,6 +232,7 @@ export function InvestigacionCompletaModal({
               competidores={payload.competidores}
               tuPrecioPEN={precioReferencia}
               onAgregarCompetidor={onAgregarCompetidor}
+              onEditarCompetidor={onEditarCompetidor}
             />
           )}
           {tab === 'decision' && (

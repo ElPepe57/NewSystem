@@ -27,6 +27,8 @@ interface TabProveedoresProps {
   onAgregarProveedor?: () => void;
   onCrearOC?: (proveedorId: string) => void;
   onVerHistorico?: (proveedorId: string) => void;
+  /** Click en el card abre el modal de edición */
+  onEditarProveedor?: (proveedorId: string) => void;
 }
 
 function StarsRow({ rating }: { rating: number }) {
@@ -52,6 +54,7 @@ export function TabProveedores({
   onAgregarProveedor,
   onCrearOC,
   onVerHistorico,
+  onEditarProveedor,
 }: TabProveedoresProps) {
   const [expandidoId, setExpandidoId] = useState<string | null>(
     proveedores.find((p) => p.esTopEleccion)?.id ?? proveedores[0]?.id ?? null,
@@ -260,6 +263,17 @@ export function TabProveedores({
                     >
                       Ver histórico OCs
                     </button>
+                    {onEditarProveedor && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditarProveedor(prov.id);
+                        }}
+                        className="px-3 py-1.5 text-[11px] font-medium text-teal-700 hover:bg-teal-50 border border-teal-200 rounded-lg transition-colors ml-auto"
+                      >
+                        Editar
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

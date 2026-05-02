@@ -21,6 +21,8 @@ interface TabCompetenciaProps {
   competidores: CompetidorInvestigacion[];      // Incluye fila "TÚ"
   tuPrecioPEN: number;
   onAgregarCompetidor?: (nombre: string) => void;
+  /** Click en fila o botón Editar abre el modal de edición */
+  onEditarCompetidor?: (competidorId: string) => void;
 }
 
 const COLOR_BAR: Record<NonNullable<CompetidorInvestigacion['colorAvatar']>, string> = {
@@ -74,6 +76,7 @@ export function TabCompetencia({
   competidores,
   tuPrecioPEN,
   onAgregarCompetidor,
+  onEditarCompetidor,
 }: TabCompetenciaProps) {
   const [busqueda, setBusqueda] = useState('');
 
@@ -167,10 +170,13 @@ export function TabCompetencia({
           return (
             <div
               key={c.id}
+              onClick={() => {
+                if (!c.esTu && onEditarCompetidor) onEditarCompetidor(c.id);
+              }}
               className={`grid grid-cols-12 gap-3 items-center px-4 py-3 border-b last:border-b-0 transition-colors ${
                 c.esTu
                   ? 'bg-amber-50 border-amber-200'
-                  : 'border-slate-100 hover:bg-slate-50'
+                  : `border-slate-100 hover:bg-slate-50 ${onEditarCompetidor ? 'cursor-pointer' : ''}`
               }`}
             >
               <div className="col-span-4 flex items-center gap-2 min-w-0">
@@ -246,10 +252,13 @@ export function TabCompetencia({
           return (
             <div
               key={c.id}
+              onClick={() => {
+                if (!c.esTu && onEditarCompetidor) onEditarCompetidor(c.id);
+              }}
               className={`rounded-xl border p-3 ${
                 c.esTu
                   ? 'bg-amber-50 border-amber-200'
-                  : 'bg-white border-slate-200'
+                  : `bg-white border-slate-200 ${onEditarCompetidor ? 'cursor-pointer hover:border-amber-300' : ''}`
               }`}
             >
               <div className="flex items-center gap-2 mb-2">

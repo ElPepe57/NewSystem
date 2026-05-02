@@ -48,7 +48,15 @@ import {
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
 import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
-import { PapeleraModal, InvestigacionCompletaModal, type InvestigacionPayload } from '../modals';
+import {
+  PapeleraModal,
+  InvestigacionCompletaModal,
+  ProveedorFormModal,
+  CompetidorFormModal,
+  type InvestigacionPayload,
+  type ProveedorInvestigacionFormValue,
+  type CompetidorInvestigacionFormValue,
+} from '../modals';
 import {
   ProductosIntelDashboard,
   PuntoEquilibrioModal,
@@ -121,6 +129,15 @@ export const ProductosPageV2: React.FC = () => {
   // Fase 8 · Modales standalone
   const [showPapelera, setShowPapelera] = useState(false);
   const [investigacionProducto, setInvestigacionProducto] = useState<Producto | null>(null);
+  // Sub-modales de Proveedor/Competidor (Fase B-feedback v6.1)
+  // Estado: null = cerrado · 'nuevo' = crear · ProveedorInvestigacionFormValue = editar
+  const [proveedorEditing, setProveedorEditing] = useState<
+    ProveedorInvestigacionFormValue | 'nuevo' | null
+  >(null);
+  const [competidorEditing, setCompetidorEditing] = useState<
+    CompetidorInvestigacionFormValue | 'nuevo' | null
+  >(null);
+
   // Fase 9 · Tools
   const [showIntel, setShowIntel] = useState(false);
   const [showSugerenciasDia, setShowSugerenciasDia] = useState(false);
@@ -532,6 +549,166 @@ export const ProductosPageV2: React.FC = () => {
     setInvestigacionProducto(p);
   };
 
+  // Sub-modales Proveedor / Competidor (CRUD sobre producto.investigacion)
+  const handleAgregarProveedorInv = () => setProveedorEditing('nuevo');
+
+  const handleEditarProveedorInv = (proveedorId: string) => {
+    if (!investigacionProducto) return;
+    const inv: any = (investigacionProducto as any).investigacion;
+    const raw = (inv?.proveedoresUSA ?? []).find((p: any) => p.id === proveedorId);
+    if (!raw) return;
+    setProveedorEditing({
+      id: raw.id,
+      proveedorId: raw.proveedorId,
+      proveedorNombre: raw.nombre,
+      proveedorTipo: undefined,
+      proveedorPais: raw.pais,
+      proveedorMetricasOC: raw.ocsHistoricas,
+      costoUnitarioUSD: raw.precio ?? 0,
+      taxValor: raw.impuesto ?? 0,
+      taxModo: raw.impuestoModo === '$' ? '$' : '%',
+      url: raw.url,
+      notas: raw.notas,
+    });
+  };
+
+  const handleGuardarProveedorInv = async (val: ProveedorInvestigacionFormValue) => {
+    if (!investigacionProducto || !user) return;
+    const invActual: any = (investigacionProducto as any).investigacion ?? {};
+    const proveedoresActuales: any[] = invActual.proveedoresUSA ?? [];
+    const isNuevo = !proveedoresActuales.some((p) => p.id === val.id);
+    const provDoc = {
+      id: val.id,
+      proveedorId: val.proveedorId,
+      nombre: val.proveedorNombre ?? '',
+      precio: val.costoUnitarioUSD,
+      impuesto: val.taxValor,
+      impuestoModo: val.taxModo,
+      url: val.url,
+      notas: val.notas,
+      pais: val.proveedorPais,
+      disponibilidad: 'desconocido',
+      fechaConsulta: new Date(),
+    };
+    const nuevos = isNuevo
+      ? [...proveedoresActuales, provDoc]
+      : proveedoresActuales.map((p) => (p.id === val.id ? provDoc : p));
+    try {
+      await ProductoService.update(investigacionProducto.id, {
+        investigacion: { ...invActual, proveedoresUSA: nuevos },
+      } as any);
+      toast.success(isNuevo ? `Proveedor agregado a la investigación` : `Proveedor actualizado`);
+      setProveedorEditing(null);
+      // Refrescar el producto en estado local
+      await fetchProductos();
+      const refreshed = (useProductoStore.getState().productos ?? []).find(
+        (p: any) => p.id === investigacionProducto.id,
+      );
+      if (refreshed) setInvestigacionProducto(refreshed as Producto);
+    } catch (err: any) {
+      toast.error(`Error al guardar proveedor: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
+  const handleEliminarProveedorInv = async () => {
+    if (!investigacionProducto || !user || proveedorEditing === 'nuevo' || !proveedorEditing) return;
+    const idToRemove = proveedorEditing.id;
+    const invActual: any = (investigacionProducto as any).investigacion ?? {};
+    const nuevos = (invActual.proveedoresUSA ?? []).filter((p: any) => p.id !== idToRemove);
+    try {
+      await ProductoService.update(investigacionProducto.id, {
+        investigacion: { ...invActual, proveedoresUSA: nuevos },
+      } as any);
+      toast.success('Proveedor eliminado de la investigación');
+      setProveedorEditing(null);
+      await fetchProductos();
+      const refreshed = (useProductoStore.getState().productos ?? []).find(
+        (p: any) => p.id === investigacionProducto.id,
+      );
+      if (refreshed) setInvestigacionProducto(refreshed as Producto);
+    } catch (err: any) {
+      toast.error(`Error al eliminar proveedor: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
+  const handleAgregarCompetidorInv = (_nombre?: string) => setCompetidorEditing('nuevo');
+
+  const handleEditarCompetidorInv = (competidorId: string) => {
+    if (!investigacionProducto) return;
+    const inv: any = (investigacionProducto as any).investigacion;
+    const raw = (inv?.competidoresPeru ?? []).find((c: any) => c.id === competidorId);
+    if (!raw) return;
+    setCompetidorEditing({
+      id: raw.id,
+      competidorId: raw.competidorId,
+      competidorNombre: raw.nombre,
+      competidorPais: raw.pais,
+      competidorPlataformas: raw.plataformasDelMaestro,
+      plataformaSeleccionada: raw.plataforma,
+      precioPEN: raw.precio ?? 0,
+      url: raw.url,
+      notas: raw.notas,
+    });
+  };
+
+  const handleGuardarCompetidorInv = async (val: CompetidorInvestigacionFormValue) => {
+    if (!investigacionProducto || !user) return;
+    const invActual: any = (investigacionProducto as any).investigacion ?? {};
+    const competidoresActuales: any[] = invActual.competidoresPeru ?? [];
+    const isNuevo = !competidoresActuales.some((c) => c.id === val.id);
+    const compDoc = {
+      id: val.id,
+      competidorId: val.competidorId,
+      nombre: val.competidorNombre ?? '',
+      plataforma: val.plataformaSeleccionada,
+      plataformasDelMaestro: val.competidorPlataformas,
+      pais: val.competidorPais,
+      precio: val.precioPEN,
+      url: val.url,
+      notas: val.notas,
+      fechaConsulta: new Date(),
+    };
+    const nuevos = isNuevo
+      ? [...competidoresActuales, compDoc]
+      : competidoresActuales.map((c) => (c.id === val.id ? compDoc : c));
+    try {
+      await ProductoService.update(investigacionProducto.id, {
+        investigacion: { ...invActual, competidoresPeru: nuevos },
+      } as any);
+      toast.success(isNuevo ? `Competidor agregado a la investigación` : `Competidor actualizado`);
+      setCompetidorEditing(null);
+      await fetchProductos();
+      const refreshed = (useProductoStore.getState().productos ?? []).find(
+        (p: any) => p.id === investigacionProducto.id,
+      );
+      if (refreshed) setInvestigacionProducto(refreshed as Producto);
+    } catch (err: any) {
+      toast.error(`Error al guardar competidor: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
+  const handleEliminarCompetidorInv = async () => {
+    if (!investigacionProducto || !user || competidorEditing === 'nuevo' || !competidorEditing)
+      return;
+    const idToRemove = competidorEditing.id;
+    const invActual: any = (investigacionProducto as any).investigacion ?? {};
+    const nuevos = (invActual.competidoresPeru ?? []).filter((c: any) => c.id !== idToRemove);
+    try {
+      await ProductoService.update(investigacionProducto.id, {
+        investigacion: { ...invActual, competidoresPeru: nuevos },
+      } as any);
+      toast.success('Competidor eliminado de la investigación');
+      setCompetidorEditing(null);
+      await fetchProductos();
+      const refreshed = (useProductoStore.getState().productos ?? []).find(
+        (p: any) => p.id === investigacionProducto.id,
+      );
+      if (refreshed) setInvestigacionProducto(refreshed as Producto);
+    } catch (err: any) {
+      toast.error(`Error al eliminar competidor: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
   // Fase 9 · Tools (memos)
   const intelRows = useMemo(() => buildIntelRows(lista), [lista]);
   const sugerenciasDia = useMemo(() => buildSugerenciasDelDia(lista), [lista]);
@@ -802,9 +979,11 @@ export const ProductosPageV2: React.FC = () => {
           toast.success('Investigación marcada como vista');
           setInvestigacionProducto(null);
         }}
-        onAgregarProveedor={() => toast.info('Agregar proveedor · disponible en wizard de investigación')}
+        onAgregarProveedor={handleAgregarProveedorInv}
+        onEditarProveedor={handleEditarProveedorInv}
         onCrearOC={(provId) => toast.info(`Crear OC con proveedor ${provId} · pendiente`)}
-        onAgregarCompetidor={(nombre) => toast.info(`Agregar competidor "${nombre}" · pendiente`)}
+        onAgregarCompetidor={handleAgregarCompetidorInv}
+        onEditarCompetidor={handleEditarCompetidorInv}
         onImportar={() => {
           toast.success('Producto importado al catálogo · pendiente flujo de OC');
           setInvestigacionProducto(null);
@@ -873,6 +1052,36 @@ export const ProductosPageV2: React.FC = () => {
             toast.info(`Sugerencia "${s.titulo}" · pendiente flujo dedicado`);
           }
         }}
+      />
+
+      {/* Sub-modal #37 · Form Proveedor · sobre InvestigacionCompletaModal */}
+      <ProveedorFormModal
+        open={proveedorEditing !== null && !!investigacionProducto}
+        valor={proveedorEditing === 'nuevo' ? null : proveedorEditing}
+        modo={proveedorEditing === 'nuevo' ? 'crear' : 'editar'}
+        productoSku={investigacionProducto?.sku ?? '—'}
+        productoNombre={(investigacionProducto as any)?.nombreComercial ?? 'Producto'}
+        productoPaisOrigen={(investigacionProducto as any)?.paisOrigen}
+        productoLineaNegocioId={(investigacionProducto as any)?.lineaNegocioId}
+        productoLineaNegocioNombre={(investigacionProducto as any)?.lineaNegocioNombre}
+        onClose={() => setProveedorEditing(null)}
+        onGuardar={handleGuardarProveedorInv}
+        onEliminar={proveedorEditing !== 'nuevo' ? handleEliminarProveedorInv : undefined}
+      />
+
+      {/* Sub-modal #38 · Form Competidor · sobre InvestigacionCompletaModal */}
+      <CompetidorFormModal
+        open={competidorEditing !== null && !!investigacionProducto}
+        valor={competidorEditing === 'nuevo' ? null : competidorEditing}
+        modo={competidorEditing === 'nuevo' ? 'crear' : 'editar'}
+        productoSku={investigacionProducto?.sku ?? '—'}
+        productoNombre={(investigacionProducto as any)?.nombreComercial ?? 'Producto'}
+        productoLineaNegocioId={(investigacionProducto as any)?.lineaNegocioId}
+        productoLineaNegocioNombre={(investigacionProducto as any)?.lineaNegocioNombre}
+        tuPrecioPEN={(investigacionProducto as any)?.precioVenta}
+        onClose={() => setCompetidorEditing(null)}
+        onGuardar={handleGuardarCompetidorInv}
+        onEliminar={competidorEditing !== 'nuevo' ? handleEliminarCompetidorInv : undefined}
       />
     </div>
   );
