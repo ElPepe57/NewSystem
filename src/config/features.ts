@@ -124,6 +124,35 @@ export const FEATURES = {
    *   3. true global tras validación end-to-end
    */
   PRODUCTO_PACK: false,
+
+  /**
+   * Etapa 4 mockups · PRODUCTOS_V2
+   *
+   * Controla la migración pixel-perfect del módulo Productos a la versión nueva
+   * basada en los 42 mockups validados que viven en `docs/mockups/productos/`.
+   *
+   * Cuando está activo:
+   *   - La página `/productos` renderiza `ProductosPageV2` (nuevo árbol)
+   *   - Cuando está inactivo (default): renderiza `Productos` legacy
+   *
+   * Implementación gradual por fases (0-10):
+   *   - Fase 0+1 · Átomos compartidos + shell + estados vacíos/loading
+   *   - Fase 2  · Filtros y bulk actions
+   *   - Fase 3  · Card de producto (6 estados)
+   *   - Fase 4  · Modal detalle (Resumen + Variantes + Stock)
+   *   - Fase 5  · Modal detalle (Investigación + Histórico + Pipeline)
+   *   - Fase 6  · Tab Componentes Pack
+   *   - Fase 7  · Wizards de creación (cuidar consumidores externos)
+   *   - Fase 8  · Papelera + Investigación completa
+   *   - Fase 9  · Herramientas (Productos Intel · PEC · Sugerencias del día)
+   *   - Fase 10 · Cleanup + eliminar flag
+   *
+   * Flujo de rollout:
+   *   1. false (default) → código desplegado sin acceso del usuario
+   *   2. localStorage.setItem('FEATURE_PRODUCTOS_V2', 'true') para UAT
+   *   3. true global tras validación end-to-end de TODAS las fases
+   */
+  PRODUCTOS_V2: false,
 } as const;
 
 // S53 F5 · isWizardT2Enabled ELIMINADO — wizard unificado no tiene flag (D-4 reemplazo directo).
@@ -200,6 +229,21 @@ export function isProductoPackEnabled(): boolean {
   if (typeof window !== 'undefined') {
     try {
       return window.localStorage.getItem('FEATURE_PRODUCTO_PACK') === 'true';
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * Etapa 4 — Helper análogo para el flag PRODUCTOS_V2 (refactor pixel-perfect).
+ */
+export function isProductosV2Enabled(): boolean {
+  if (FEATURES.PRODUCTOS_V2) return true;
+  if (typeof window !== 'undefined') {
+    try {
+      return window.localStorage.getItem('FEATURE_PRODUCTOS_V2') === 'true';
     } catch {
       return false;
     }

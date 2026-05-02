@@ -14,6 +14,8 @@ import {
   Download,
   TrendingUp,
 } from 'lucide-react';
+import { isProductosV2Enabled } from '../../config/features';
+import { ProductosPageV2 } from './components/shell';
 import { useToastStore } from '../../store/toastStore';
 import { Button, Card, Modal } from '../../components/common';
 import { PageShell, PageHeader, Toolbar, FilterDrawer, FilterSection } from '../../design-system';
@@ -44,6 +46,15 @@ import type { Producto, ProductoFormData, EstadoProducto, InvestigacionFormData 
 import type { TipoCambio } from '../../types/tipoCambio.types';
 
 export const Productos: React.FC = () => {
+  // Etapa 4 · bifurcación con flag PRODUCTOS_V2 (Fase 1)
+  // Activar: localStorage.setItem('FEATURE_PRODUCTOS_V2', 'true') + reload
+  if (isProductosV2Enabled()) {
+    return <ProductosPageV2 />;
+  }
+  return <ProductosLegacy />;
+};
+
+const ProductosLegacy: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const toast = useToastStore();
   const { productos, archivados, loading, loadingArchivados, fetchProductos, fetchArchivados, createProducto, updateProducto, deleteProducto, reactivarProducto, getVariantes, vincularVariante, guardarInvestigacion, eliminarInvestigacion } = useProductoStore();
