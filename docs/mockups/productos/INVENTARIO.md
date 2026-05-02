@@ -77,17 +77,20 @@
 
 ---
 
-### 🟩 GRUPO D · Modal detalle producto (vista expandida · 5 mockups)
+### 🟩 GRUPO D · Modal detalle producto (vista expandida · 6 mockups · v2 con gaps aplicados)
 
-> **Patrón:** F6 variante A (HeaderHero + KpiRow + Tabs)
+> **Patrón:** F6 variante A · header gradient SUTIL canónico (F6.1) · layout 3 columnas en tab Resumen (F6.2)
 
 | # | Archivo | Trigger | Familia | Notas |
 |---|---------|---------|---------|-------|
-| **D01** | `11-modal-detalle-info.html` | Click "Ver detalle" en card | F6(A) | Hero gradient + KPIs (precio · margen · stock · ventas mes) + Tab "Info producto" (datos básicos · descripción · imágenes) |
-| **D02** | `12-modal-detalle-variantes.html` | Tab "Variantes" | F6(A) | Tabla VariantesTable embebida con SKUs hijos + acción "Agregar variante" |
-| **D03** | `13-modal-detalle-investigacion.html` | Tab "Investigación" | F6(A) | Resumen + breakdown proveedores + competidores + sparkline histórico precios |
-| **D04** | `14-modal-detalle-componentes-pack.html` | Tab "Componentes" (solo packs) | F6(A) | Tabla line-items con productos del pack + valorización pack vs suma sueltos |
-| **D05** | `15-modal-detalle-stock-historico.html` | Tab "Stock e historial" | F6(A) | Stock por almacén + movimientos recientes + chart histórico |
+| **D01** | `11-modal-detalle-info.html` | Click "Ver detalle" en card · ojo | F6(A) | Tab RESUMEN (renombrado de Info) · layout 3 col con sidebar derecho · 3 cards insights (Precio sugerido · Punto equilibrio · Competencia) · Sección "Proveedores recomendados" |
+| **D02** | `12-modal-detalle-variantes.html` | Tab "Variantes" | F6(A) | Tabla VariantesTable + sugerencias |
+| **D03** | `13-modal-detalle-investigacion.html` | Tab "Investigación" | F6(A) | Badge "X nuevos" en tab + resumen + chart + decisión |
+| **D04** | `14-modal-detalle-componentes-pack.html` | Tab "Componentes" (solo packs · D-PROD-2 condicional) | F6(A) | Header SUTIL · avatar purple semántico · tabla line-items + valorización |
+| **D05** | `15-modal-detalle-stock.html` | Tab "Stock" (separado de Histórico · Gap #6) | F6(A) | Solo distribución por almacén + por variante + banner reorden |
+| **D06** | `15b-modal-detalle-historico.html` | Tab "Histórico" (separado · Gap #6) | F6(A) | Chart 6 meses ventas+stock + lista movimientos + KPIs ejecutivos 12m |
+
+**Header canónico aplicado a TODOS:** `from-slate-50 to-white` border sutil · color semántico vive en avatar (amber=skincare, indigo=suplemento, purple=pack) · acciones `[Editar] [...] [X]`
 
 ---
 

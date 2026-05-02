@@ -732,7 +732,118 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </section>
 
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <!-- F6 a F10 + extras · COMPACTO -->
+    <!-- F6 · MODALES DE DETALLE · CON HEADER CANÓNICO ACTUALIZADO -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="modales" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="rule-badge">F6</span>
+        <h2 class="text-2xl font-bold text-slate-900">Modales de detalle · Header canónico</h2>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">
+        <strong>Variante A · Modal centrado.</strong> Header con gradient sutil neutro · color semántico vive en el AVATAR · acciones [primaria + menú "..." + cerrar].
+        <br><strong>Decisión canónica global 2026-05-02:</strong> aplica a TODOS los modales de detalle del sistema.
+      </p>
+
+      <!-- DEMO HEADER CANÓNICO -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ HEADER CANÓNICO · gradient sutil + color en avatar</span>
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <!-- Header gradient sutil -->
+          <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex items-start gap-3 min-w-0">
+                <!-- Avatar con color SEMÁNTICO -->
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="droplets" class="w-6 h-6 text-amber-700"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-0.5">
+                    <span class="font-mono">SKU-PROD-0042</span>
+                    <span>·</span>
+                    <span>SkinCeuticals</span>
+                    <span>·</span>
+                    <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">Activo</span>
+                  </div>
+                  <h2 class="text-xl font-bold text-slate-900 leading-tight">Vitamin C Brightening Serum</h2>
+                  <p class="text-xs text-slate-500 mt-0.5">Anti-edad · Skincare · Serum</p>
+                </div>
+              </div>
+              <!-- Acciones · jerarquía: primaria + menú + cerrar -->
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <button class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 flex items-center gap-1.5">
+                  <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>Editar
+                </button>
+                <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500" title="Más acciones">
+                  <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                </button>
+                <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="p-3 text-[10px] text-slate-400 italic text-center">[KPIs y tabs continúan...]</div>
+        </div>
+      </div>
+
+      <!-- ANTI-PATTERN -->
+      <div class="demo-box demo-anti relative mb-4">
+        <span class="demo-label demo-anti-label">❌ ANTI-PATTERN · gradient agresivo de color</span>
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div class="bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white px-6 py-4">
+            <div class="flex items-start gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center"><i data-lucide="droplets" class="w-6 h-6 text-white"></i></div>
+              <div>
+                <div class="text-[10px] text-purple-100">SKU-PROD-0042 · Activo</div>
+                <h3 class="text-xl font-bold leading-tight">Vitamin C Brightening Serum</h3>
+              </div>
+            </div>
+          </div>
+          <div class="p-3 text-xs text-rose-700 italic">⚠ PROHIBIDO: gradient agresivo compite con contenido · color semántico se pierde · cansa la vista</div>
+        </div>
+      </div>
+
+      <!-- TABLA TAXONOMÍA -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 text-xs mb-4">
+        <h3 class="font-bold text-slate-700 mb-3 uppercase tracking-wider">Variantes F6 · cuándo usar cada patrón</h3>
+        <table class="w-full">
+          <thead><tr class="border-b border-slate-100"><th class="text-left py-2 px-2">Variante</th><th class="text-left py-2 px-2">Cuándo</th><th class="text-left py-2 px-2">Ejemplos del sistema</th></tr></thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr><td class="py-2 px-2 font-bold text-emerald-700">A · HeaderHero + KpiRow + Tabs</td><td class="py-2 px-2">Modales operativos en MODAL centrado</td><td class="py-2 px-2 text-slate-600">Producto detalle, Cuenta PF, Cuenta corriente, Tarjeta crédito</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-sky-700">B · Hero full-page + acciones</td><td class="py-2 px-2">Drill-down completo full-page</td><td class="py-2 px-2 text-slate-600">Titular drill-down, Pipeline expandido</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-slate-700">C · Card detail simple (LEGACY)</td><td class="py-2 px-2">Solo OC · referencia canónica histórica</td><td class="py-2 px-2 text-slate-600">OrdenCompraCard (no aplicar a módulos nuevos)</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-violet-700">+E · Drawer lateral derecho</td><td class="py-2 px-2">Drill-down RÁPIDO desde listados</td><td class="py-2 px-2 text-slate-600">Entidad CC drawer, Movimiento detalle drawer</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- LAYOUT 3 COLUMNAS -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <h3 class="font-bold text-slate-700 mb-3 uppercase tracking-wider text-xs">F6.2 · Layout interno · 3 columnas para tab principal</h3>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2 bg-slate-50 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-2">COLUMNA IZQUIERDA (col-span-2)</div>
+            <div class="space-y-1 text-xs text-slate-700">
+              <div class="bg-white rounded p-2 border border-slate-200">• Datos básicos</div>
+              <div class="bg-white rounded p-2 border border-slate-200">• Atributos del dominio</div>
+              <div class="bg-white rounded p-2 border border-slate-200">• Origen / Procedencia</div>
+              <div class="bg-white rounded p-2 border border-slate-200">• Sub-secciones contextuales</div>
+            </div>
+          </div>
+          <div class="col-span-1 bg-slate-50 rounded-lg p-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-600 font-bold mb-2">SIDEBAR DERECHO (col-span-1)</div>
+            <div class="space-y-1 text-xs">
+              <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded p-2 text-emerald-800">💚 Card insight 1 (Precio sugerido)</div>
+              <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200 rounded p-2 text-indigo-800">💜 Card insight 2 (Punto equilibrio)</div>
+              <div class="bg-gradient-to-br from-violet-50 to-violet-100 border border-violet-200 rounded p-2 text-violet-800">💎 Card insight 3 (Métrica relevante)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F7 a F10 + extras · COMPACTO -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <section id="numeros" class="section-anchor">
       <div class="flex items-center gap-3 mb-3"><span class="rule-badge">F7</span><h2 class="text-2xl font-bold text-slate-900">Tabular-nums + decimales atenuados</h2></div>

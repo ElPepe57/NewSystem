@@ -188,6 +188,71 @@ Las empresas de referencia (Stripe, Linear, Mercury, Notion, Vercel) comparten 5
 
 **Razón:** cada patrón resuelve un caso UX distinto. Modal centrado para entidades operativas. Drawer lateral para drill-down sin perder contexto del listado.
 
+#### F6.1 · Header de modal de detalle · DECISIÓN CANÓNICA GLOBAL (2026-05-02)
+
+**REGLA OBLIGATORIA para variante A (modales centrados de detalle):**
+
+```jsx
+<div className="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
+  <div className="flex items-start justify-between gap-4">
+    <div className="flex items-start gap-3">
+      {/* Avatar con color SEMÁNTICO por dominio */}
+      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-{dominio}-100 to-{dominio}-200 flex items-center justify-center flex-shrink-0">
+        <{Icon} className="w-6 h-6 text-{dominio}-700" />
+      </div>
+      <div>
+        {/* Meta info inline */}
+        <div className="text-[11px] text-slate-500 flex items-center gap-2 mb-0.5">
+          <span className="font-mono">{ID}</span>
+          <span>·</span>
+          <span>{Marca/Empresa}</span>
+          <span>·</span>
+          <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+            {Estado}
+          </span>
+        </div>
+        <h2 className="text-xl font-bold text-slate-900">{Nombre}</h2>
+        <p className="text-xs text-slate-500 mt-0.5">{Categorías separadas por ·}</p>
+      </div>
+    </div>
+    {/* Acciones · jerarquía: secundaria → primaria → menu → cerrar */}
+    <div className="flex items-center gap-1.5">
+      <button className="...secondary">Editar</button>  {/* Acción primaria */}
+      <button className="...icon-btn"><MoreHorizontal /></button>  {/* Menú "..." con acciones secundarias */}
+      <button className="...close-btn"><X /></button>
+    </div>
+  </div>
+</div>
+```
+
+**Reglas duras:**
+1. **Background:** `bg-gradient-to-br from-slate-50 to-white` SIEMPRE (sutil neutro)
+2. **PROHIBIDO:** gradients agresivos de color saturado (`from-violet-600 to-fuchsia-600`, `from-purple-600 to-pink-600`, etc.) en el background del header
+3. **Color semántico vive en el AVATAR:** amber=skincare, indigo=suplemento, purple=pack, sky=cuenta bancaria, teal=cuenta corriente, rose=alerta, etc.
+4. **Border bottom:** `border-b border-slate-200`
+5. **Acciones del header:** patrón `[Acción primaria] [Menú "..."] [X cerrar]` · acción primaria es 1 sola (Editar/Confirmar/etc.) · resto van en menú "..."
+
+**Razón canónica:** Mercury · Linear · Stripe · Notion usan el mismo patrón. El **contenido es protagonista** · el header es chrome · no decoración. El gradient pesado cansa la vista en uso recurrente.
+
+**Aplica a:** TODOS los modales de detalle del sistema (productos, cuentas PF, cuentas corrientes, tarjetas crédito, OC detalle, gastos, etc.)
+
+#### F6.2 · Layout interno del modal · 3 columnas para tab principal (Resumen)
+
+**REGLA RECOMENDADA para tab "Resumen" del modal:**
+
+```
+┌──────────────────────────────────────────────────────┐
+│ COLUMNA IZQUIERDA (col-span-2)  │ SIDEBAR (col-span-1)│
+│                                  │                     │
+│ • Datos básicos                  │ • Card insight 1    │
+│ • Atributos del dominio          │ • Card insight 2    │
+│ • Origen / Procedencia           │ • Card insight 3    │
+│ • Sub-secciones contextuales     │                     │
+└──────────────────────────────────┴─────────────────────┘
+```
+
+Sidebar derecho con 3 cards de **insights ejecutivos** (precio sugerido, punto equilibrio, métrica relevante) usando gradients suaves de color (`from-emerald-50`, `from-indigo-50`, `from-violet-50`).
+
 ---
 
 ### F7 · Tabular-nums + decimales atenuados

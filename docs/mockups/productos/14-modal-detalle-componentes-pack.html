@@ -30,32 +30,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 
 <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden mt-6">
-  <!-- HEADER HERO · gradient purple-pink para PACKS -->
-  <div class="bg-gradient-to-br from-purple-600 to-pink-600 text-white p-6">
+  <!-- HEADER · GRADIENT SUTIL CANÓNICO F6.1 (color semántico vive en avatar PURPLE para pack) -->
+  <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-6 py-4">
     <div class="flex items-start justify-between gap-4">
-      <div class="flex items-start gap-4">
-        <!-- Avatar Gift con badge contador -->
-        <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0 relative">
-          <i data-lucide="gift" class="w-8 h-8 text-white"></i>
-          <span class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-white text-purple-700 text-xs font-bold rounded-full flex items-center justify-center ring-2 ring-purple-600">5</span>
+      <div class="flex items-start gap-3 min-w-0">
+        <!-- Avatar PURPLE para packs (color semántico) -->
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center flex-shrink-0 relative">
+          <i data-lucide="gift" class="w-6 h-6 text-purple-700"></i>
+          <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-purple-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">5</span>
         </div>
-        <div>
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-100">SKU-PROD-0041</span>
-            <span class="px-2 py-0.5 rounded-full bg-white text-purple-700 text-[10px] font-bold uppercase tracking-wider">PACK</span>
-            <span class="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold">Activo</span>
+        <div class="min-w-0">
+          <div class="text-[11px] text-slate-500 flex items-center gap-2 mb-0.5">
+            <span class="font-mono">SKU-PROD-0041</span>
+            <span>·</span>
+            <span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider">PACK</span>
+            <span>·</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">Activo</span>
           </div>
-          <h2 class="text-2xl font-bold leading-tight">Skincare Routine Travel Kit</h2>
-          <div class="flex items-center gap-3 mt-1.5 text-sm text-purple-100">
-            <span class="flex items-center gap-1"><i data-lucide="package" class="w-3.5 h-3.5"></i>5 productos · 1 caja</span>
-            <span class="text-purple-300">·</span>
-            <span class="flex items-center gap-1"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i>15% ahorro vs sueltos</span>
-          </div>
+          <h2 class="text-xl font-bold text-slate-900 leading-tight">Skincare Routine Travel Kit</h2>
+          <p class="text-xs text-slate-500 mt-0.5">5 productos · 1 caja · 15% ahorro vs sueltos</p>
         </div>
       </div>
-      <button class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white">
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 flex items-center gap-1.5">
+          <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>Editar
+        </button>
+        <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500" title="Más acciones">
+          <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+        </button>
+        <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -83,19 +89,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
-  <!-- TABS · 5 tabs (todos visibles porque es pack) -->
-  <div class="border-b border-slate-200 bg-slate-50/50">
+  <!-- TABS · pack tiene Componentes + 5 base (Variantes deshabilitada) -->
+  <div class="border-b border-slate-200 bg-slate-50/30">
     <div class="flex items-center gap-0 px-4">
-      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i>Info</button>
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4"></i>Resumen</button>
       <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-400 flex items-center gap-2 cursor-not-allowed" title="Los packs no tienen variantes propias">
         <i data-lucide="git-branch" class="w-4 h-4"></i>Variantes <span class="text-[10px] tabular">N/A</span>
       </button>
-      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i>Investigación</button>
-      <!-- Tab COMPONENTES activo (solo aparece para packs) -->
-      <button class="px-4 py-3 text-sm font-bold border-b-2 border-purple-600 text-purple-700 flex items-center gap-2">
-        <i data-lucide="package" class="w-4 h-4"></i>Componentes <span class="text-[10px] tabular bg-purple-200 px-1.5 py-0.5 rounded-full">5</span>
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2">
+        <i data-lucide="search" class="w-4 h-4"></i>Investigación
+        <span class="text-[9px] tabular bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">2 nuevos</span>
       </button>
-      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4"></i>Stock e historial</button>
+      <!-- Tab COMPONENTES activo (D-PROD-2: condicional · solo packs) -->
+      <button class="px-4 py-3 text-sm font-bold border-b-2 border-teal-600 text-teal-700 flex items-center gap-2">
+        <i data-lucide="package" class="w-4 h-4"></i>Componentes <span class="text-[10px] tabular bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded-full">5</span>
+      </button>
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4"></i>Stock</button>
+      <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 flex items-center gap-2"><i data-lucide="git-commit" class="w-4 h-4"></i>Histórico</button>
     </div>
   </div>
 
@@ -107,7 +117,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <h3 class="text-base font-bold text-slate-900">Componentes del pack</h3>
         <p class="text-xs text-slate-500 mt-0.5">5 productos que vienen dentro de la caja · 4 vinculados al catálogo · 1 exclusivo</p>
       </div>
-      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg">
+      <button class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg">
         <i data-lucide="plus" class="w-3.5 h-3.5"></i>Agregar componente
       </button>
     </div>
@@ -253,19 +263,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <div class="border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
-        <i data-lucide="archive" class="w-3.5 h-3.5"></i>Archivar pack
-      </button>
-    </div>
-    <div class="flex items-center gap-2">
-      <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
-      <button class="px-3 py-1.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-1.5 shadow-sm">
-        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>Editar componentes
-      </button>
-    </div>
+  <!-- FOOTER simplificado · solo Cerrar (acciones primarias en header F6.1) -->
+  <div class="border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
+    <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
   </div>
 </div>
 
