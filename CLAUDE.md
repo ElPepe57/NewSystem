@@ -421,7 +421,82 @@ CAPA DE NEGOCIO (10):
 
 ---
 
-## ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS DECLARADAS (S54.x)
+## ACTUALIZACIÓN v7.0 — DESIGN CANÓNICO FINAL · CONSTITUCIÓN VISUAL (2 may 2026)
+
+### Decisión tomada: 2026-05-02
+
+**El nuevo canónico final REEMPLAZA las 6 referencias canónicas previas (S54.x · v6.1).** La auditoría de los 54 mockups producidos a lo largo de 6 eras de evolución reveló inconsistencias significativas. Se cerró la constitución visual definitiva.
+
+**Documentos foundacionales:**
+- 📐 **`docs/DESIGN_CANONICO_FINAL.md`** · constitución textual con 14 decisiones cerradas (F1-F11 + IMPL-1/2/3) + 6 clarificaciones
+- 🎨 **`docs/mockups/CANONICO_MASTER.html`** · referencia visual única con todos los componentes en uso · ejemplos en vivo · anti-patterns
+- 📋 **`docs/MOCKUPS_AUDIT.md`** · auditoría de los 54 mockups por era con familias polimórficas
+- 🔧 **`docs/mockups/DECISIONES_VISUALES.html`** · decision board que originó las 14 decisiones
+
+### Política PIXEL-PERFECT obligatoria
+
+> **PIXEL-PERFECT no es negociable. Nada de parches. Validación visual previa OBLIGATORIA antes de implementar.**
+
+**Protocolo:**
+1. Antes de cualquier cambio grande/riesgoso → consultar al usuario con plan claro
+2. Mockup actualizado al canónico → vos validás → recién implemento
+3. Si descubro discrepancia técnica con el canónico → CONSULTO antes de tocar
+4. Cero parches unilaterales · cero atajos · cero "esto es suficiente"
+
+### Las 14 decisiones del canónico final (resumen)
+
+| Familia | Decisión |
+|---------|----------|
+| F1 · Header | Variante D (S58f) · breadcrumb ChevronRight + h1 con icon teal + subtítulo descriptivo + acciones primary-soft |
+| F2 · KPI strip | B default · C con sparklines cuando hay tendencia · D solo dashboards ejecutivos |
+| F3 · Filtros | UN componente compositional `<FiltrosBar>` con sub-componentes |
+| F4 · Tablas/Cards | Cards apiladas POR DEFAULT · tabla solo en 3 excepciones (ledgers, catálogos densos, dashboards canvas) |
+| F5 · Wizards | 1 paso = Modal · 3 pasos = Stepper horizontal · 4+ pasos = Sidebar vertical |
+| F6 · Modales | A modal · B drill full-page · C legacy OC · +E drawer lateral |
+| F7 · Números | tabular-nums OBLIGATORIO · decimales atenuados |
+| F8 · Iconografía | lucide-react ÚNICO · prohibido emojis en chrome de UI |
+| F9 · Breadcrumb sep | ChevronRight w-3 h-3 ÚNICO |
+| F10 · Botones header | Jerarquía: secundarias planas → destructivas → primary-soft |
+| F11 · Obsoletos | 2 mockups marcados obsoletos · 1 histórico · 2 a revisar |
+| IMPL-1 · Orden | 10 grupos por valor + dependencia |
+| IMPL-2 · Validación previa | OBLIGATORIA antes de cambios grandes/riesgosos |
+| IMPL-3 · Mockups viejos | TODOS se re-revisan contra canónico final |
+
+### Las 6 referencias canónicas previas (v6.1) · estado
+
+**SUPERSEDED** por el nuevo canónico final. Se actualizan al estándar nuevo:
+
+| # | Referencia previa | Estado |
+|---|-------------------|--------|
+| 1 | EnvioCardSimple | ✅ Pixel-perfect implementado · sigue vigente como ejemplo de "Cards apiladas" (F4 variante B) |
+| 2 | CompraCard | ✅ Pixel-perfect implementado · sigue vigente como "Cards apiladas con sub-entidades" |
+| 3 | OrdenCompraCard | ⚠️ Era 2 · queda como excepción declarada · NO se aplica a módulos nuevos |
+| 4 | EnvioDetailModal | ✅ Sigue vigente como ejemplo de F6 variante B (drill full-page) |
+| 5 | PipelineCompras | ⚠️ ELIMINADO del backlog general · solo excepción declarada para vistas de productos financieros con flujo de estados |
+| 6 | FiltrosFinanzasBar | 📦 Se MIGRA a `<FiltrosBar>` componible junto con FiltrosGastosBar y FiltrosMovimientosBar |
+
+### Plan de ejecución · 4 etapas
+
+1. **Etapa 1 ✅** · Constitución cerrada (DESIGN_CANONICO_FINAL.md + CANONICO_MASTER.html)
+2. **Etapa 2** · Mockups actualizados por módulo · ~5-6 sesiones · usuario valida cada módulo
+3. **Etapa 3** · Validación visual módulo por módulo
+4. **Etapa 4** · Implementación pixel-perfect contra mockups aprobados · ~6-8 sesiones
+
+**Total estimado:** ~12-15 sesiones para 100% pixel-perfect verificado.
+
+### Workflow validación: por módulo
+
+Después de producir mockups actualizados de un módulo completo (ej. Productos+Stock), el usuario los valida holísticamente antes de pasar al siguiente. Patrón Stripe design review.
+
+### Filosofía resumida en una frase
+
+> **"Mercury para Banking + Linear para listados + Stripe para tablas + Notion para headers + Vercel para empty states. Tabular-nums en todo. Lucide-icons únicos. Sin emojis en chrome de UI. Sin gradientes pesados. Wizards en 3 niveles según largo. Filtros como bloque LEGO componible."**
+
+---
+
+## ACTUALIZACIÓN v6.1 — REFERENCIAS DE DISEÑO CANÓNICAS DECLARADAS (S54.x) · SUPERSEDED por v7.0
+
+> ⚠️ **DEPRECATED 2026-05-02:** Esta sección queda como referencia histórica. La fuente de verdad visual es ahora `docs/DESIGN_CANONICO_FINAL.md` + `docs/mockups/CANONICO_MASTER.html`.
 
 ### Decisión tomada: 2026-04-25
 

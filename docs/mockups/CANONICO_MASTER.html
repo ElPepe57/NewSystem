@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Canónico Master · Constitución Visual · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; }
+.section-anchor { scroll-margin-top: 4rem; }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.demo-box { background: white; border: 2px dashed #cbd5e1; border-radius: 0.75rem; padding: 24px; }
+.demo-label { position: absolute; top: -12px; left: 16px; background: #14b8a6; color: white; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
+.demo-anti { background: #fef2f2; border: 2px dashed #fca5a5; }
+.demo-anti-label { background: #dc2626; }
+.code-block { background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 0.5rem; font-size: 12px; font-family: ui-monospace, SFMono-Regular, monospace; overflow-x: auto; line-height: 1.6; }
+.code-comment { color: #64748b; }
+.code-string { color: #86efac; }
+.code-keyword { color: #f0abfc; }
+.code-tag { color: #93c5fd; }
+.code-attr { color: #fcd34d; }
+.nav-link { padding: 6px 12px; border-radius: 6px; color: #475569; font-size: 12px; font-weight: 500; transition: all 0.15s; display: block; }
+.nav-link:hover { background: #f1f5f9; color: #0f172a; }
+.nav-link.active { background: #14b8a6; color: white; }
+.rule-badge { display: inline-block; background: #ddd6fe; color: #5b21b6; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
+.do-card { background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px 16px; border-radius: 0 8px 8px 0; }
+.dont-card { background: #fef2f2; border-left: 4px solid #dc2626; padding: 12px 16px; border-radius: 0 8px 8px 0; }
+.color-swatch { width: 100%; height: 60px; border-radius: 0.5rem; display: flex; align-items: end; padding: 8px; color: white; font-size: 10px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- HEADER -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+  <div class="max-w-7xl mx-auto px-6 py-10">
+    <div class="text-xs uppercase tracking-wider text-teal-300 mb-2">📐 Constitución Visual · BusinessMN v2</div>
+    <h1 class="text-4xl font-bold tracking-tight mb-3">Canónico Master</h1>
+    <p class="text-slate-300 text-base max-w-3xl mb-4">
+      Documento de referencia visual única. Todos los componentes canónicos en uso con ejemplos en vivo,
+      variantes con criterio de uso, snippets de código y anti-patterns explícitos.
+    </p>
+    <div class="flex gap-3 flex-wrap text-xs">
+      <span class="bg-white/10 backdrop-blur px-3 py-1.5 rounded-full font-semibold">10 familias canónicas</span>
+      <span class="bg-white/10 backdrop-blur px-3 py-1.5 rounded-full font-semibold">~15 componentes con ejemplos</span>
+      <span class="bg-white/10 backdrop-blur px-3 py-1.5 rounded-full font-semibold">Pixel-perfect obligatorio</span>
+      <span class="bg-amber-500/20 backdrop-blur text-amber-200 px-3 py-1.5 rounded-full font-semibold">Cero parches</span>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-12 gap-6">
+
+  <!-- Sidebar nav -->
+  <aside class="col-span-3 sticky top-6 self-start">
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Componentes</div>
+      <nav class="space-y-1">
+        <a href="#tokens" class="nav-link">🎨 Design tokens</a>
+        <a href="#header" class="nav-link">F1 · Header</a>
+        <a href="#kpi" class="nav-link">F2 · KPI strip</a>
+        <a href="#filtros" class="nav-link">F3 · Filtros</a>
+        <a href="#tablas" class="nav-link">F4 · Tablas/Cards</a>
+        <a href="#wizards" class="nav-link">F5 · Wizards</a>
+        <a href="#modales" class="nav-link">F6 · Modales</a>
+        <a href="#numeros" class="nav-link">F7 · Tabular-nums</a>
+        <a href="#iconos" class="nav-link">F8 · Iconografía</a>
+        <a href="#breadcrumb" class="nav-link">F9 · Breadcrumb</a>
+        <a href="#botones" class="nav-link">F10 · Botones</a>
+        <a href="#chips" class="nav-link">+ Chips/Badges</a>
+        <a href="#empty" class="nav-link">+ Empty states</a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="col-span-9 space-y-12">
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- DESIGN TOKENS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="tokens" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <h2 class="text-2xl font-bold text-slate-900">🎨 Design Tokens</h2>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">Paleta semántica de color · cada color tiene un significado fijo.</p>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4">
+        <h3 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">Color por contexto</h3>
+        <div class="grid grid-cols-4 gap-3">
+          <div>
+            <div class="color-swatch" style="background: #14b8a6">teal-500</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Brand · Headers</p>
+            <p class="text-[10px] text-slate-500">Iconos h1, breadcrumb hover, primary-soft</p>
+          </div>
+          <div>
+            <div class="color-swatch" style="background: #10b981">emerald-500</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Positivo</p>
+            <p class="text-[10px] text-slate-500">Ingresos, OK, completo, saludable</p>
+          </div>
+          <div>
+            <div class="color-swatch" style="background: #e11d48">rose-600</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Negativo / Crítico</p>
+            <p class="text-[10px] text-slate-500">Egresos, error, vencido, eliminar</p>
+          </div>
+          <div>
+            <div class="color-swatch" style="background: #f59e0b">amber-500</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Atención</p>
+            <p class="text-[10px] text-slate-500">Pendiente, parcial, internos, advertencia</p>
+          </div>
+          <div>
+            <div class="color-swatch" style="background: #0ea5e9">sky-500</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Informacional</p>
+            <p class="text-[10px] text-slate-500">Reservado, en proceso, transferencia</p>
+          </div>
+          <div>
+            <div class="color-swatch" style="background: #8b5cf6">violet-500</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Tercero / FX</p>
+            <p class="text-[10px] text-slate-500">Yape, Plin, conversión, banner especial</p>
+          </div>
+          <div>
+            <div class="color-swatch" style="background: #6366f1">indigo-500</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Tarjeta crédito</p>
+            <p class="text-[10px] text-slate-500">TC cargo, suplementos, calculadora</p>
+          </div>
+          <div>
+            <div class="color-swatch" style="background: #475569">slate-600</div>
+            <p class="text-xs text-slate-700 font-bold mt-2">Neutro</p>
+            <p class="text-[10px] text-slate-500">Texto, borders, ajustes, anulado</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-5">
+        <h3 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">Espaciado · Tamaños · Tipografía</h3>
+        <div class="grid grid-cols-3 gap-4 text-xs">
+          <div>
+            <p class="font-bold text-slate-700 mb-2">Tipografía jerarquía</p>
+            <div class="space-y-1">
+              <div class="text-2xl font-bold tracking-tight">h1 · text-2xl bold</div>
+              <div class="text-xl font-bold">h2 · text-xl bold</div>
+              <div class="text-base font-semibold">h3 · text-base semibold</div>
+              <div class="text-sm">body · text-sm</div>
+              <div class="text-xs text-slate-500">caption · text-xs slate-500</div>
+              <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">label · uppercase tracking-wider</div>
+            </div>
+          </div>
+          <div>
+            <p class="font-bold text-slate-700 mb-2">Border radius</p>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2"><div class="w-8 h-8 bg-slate-200 rounded-md"></div><code class="text-[10px]">rounded-md · 6px (botones, chips)</code></div>
+              <div class="flex items-center gap-2"><div class="w-8 h-8 bg-slate-200 rounded-lg"></div><code class="text-[10px]">rounded-lg · 8px (inputs, cards xs)</code></div>
+              <div class="flex items-center gap-2"><div class="w-8 h-8 bg-slate-200 rounded-xl"></div><code class="text-[10px]">rounded-xl · 12px (cards default)</code></div>
+              <div class="flex items-center gap-2"><div class="w-8 h-8 bg-slate-200 rounded-2xl"></div><code class="text-[10px]">rounded-2xl · 16px (modales, hero)</code></div>
+              <div class="flex items-center gap-2"><div class="w-8 h-8 bg-slate-200 rounded-full"></div><code class="text-[10px]">rounded-full · pills, badges</code></div>
+            </div>
+          </div>
+          <div>
+            <p class="font-bold text-slate-700 mb-2">Padding default</p>
+            <div class="space-y-2 text-[11px]">
+              <div><code>p-3 · 12px</code> → KPI item compact</div>
+              <div><code>p-4 · 16px</code> → KPI item default · cards</div>
+              <div><code>p-5 · 20px</code> → modal body · sections</div>
+              <div><code>p-6 · 24px</code> → page wrapper</div>
+              <div><code>gap-2 · 8px</code> → entre elementos relacionados</div>
+              <div><code>gap-3 · 12px</code> → entre cards</div>
+              <div><code>gap-4 · 16px</code> → entre secciones</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F1 · HEADER -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="header" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="rule-badge">F1</span>
+        <h2 class="text-2xl font-bold text-slate-900">Header banking-grade</h2>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">El header de cada página debe seguir EXACTAMENTE esta estructura. Sin gradientes pesados.</p>
+
+      <!-- DEMO LIVE -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ EJEMPLO CANÓNICO</span>
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div class="flex items-center gap-2 text-xs text-slate-400 mb-1">
+              <span class="hover:text-teal-600 transition-colors cursor-pointer">Logística</span>
+              <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              <span class="text-slate-600 font-medium">Stock · Inventario operativo</span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+              <i data-lucide="warehouse" class="w-6 h-6 text-teal-600"></i>
+              Stock
+            </h1>
+            <p class="text-sm text-slate-500 mt-0.5 max-w-2xl">
+              Qué tengo, dónde está, en qué estado · vista operativa de existencias en tiempo real (productos, lotes, vencimientos, reservas).
+            </p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              Sincronizar
+            </button>
+            <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              Exportar
+            </button>
+            <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-teal-600 rounded-lg hover:bg-teal-700 shadow-sm">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              Nuevo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANTI-PATTERN -->
+      <div class="demo-box demo-anti relative mb-4">
+        <span class="demo-label demo-anti-label">❌ ANTI-PATTERN</span>
+        <div class="bg-gradient-to-br from-teal-500 to-emerald-600 text-white p-6 rounded-xl">
+          <h1 class="text-3xl font-bold flex items-center gap-3">
+            <i data-lucide="warehouse" class="w-8 h-8"></i>
+            Gestión de Stock
+          </h1>
+          <p class="text-teal-50 mt-2">PageHeader legacy con gradient pesado · prohibido</p>
+        </div>
+      </div>
+
+      <!-- CODE -->
+      <div class="code-block">
+<span class="code-tag">&lt;div</span> <span class="code-attr">className</span>=<span class="code-string">"flex items-start justify-between gap-4 flex-wrap mb-5"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;div&gt;</span>
+    <span class="code-comment">{/* Breadcrumb */}</span>
+    <span class="code-tag">&lt;div</span> <span class="code-attr">className</span>=<span class="code-string">"flex items-center gap-2 text-xs text-slate-400 mb-1"</span><span class="code-tag">&gt;</span>
+      <span class="code-tag">&lt;span</span> <span class="code-attr">className</span>=<span class="code-string">"hover:text-teal-600 cursor-pointer"</span><span class="code-tag">&gt;</span>{Modulo}<span class="code-tag">&lt;/span&gt;</span>
+      <span class="code-tag">&lt;ChevronRight</span> <span class="code-attr">className</span>=<span class="code-string">"w-3 h-3"</span> <span class="code-tag">/&gt;</span>
+      <span class="code-tag">&lt;span</span> <span class="code-attr">className</span>=<span class="code-string">"text-slate-600 font-medium"</span><span class="code-tag">&gt;</span>{Pagina}<span class="code-tag">&lt;/span&gt;</span>
+    <span class="code-tag">&lt;/div&gt;</span>
+    <span class="code-comment">{/* h1 con icon teal */}</span>
+    <span class="code-tag">&lt;h1</span> <span class="code-attr">className</span>=<span class="code-string">"text-2xl font-bold text-slate-900 flex items-center gap-2.5"</span><span class="code-tag">&gt;</span>
+      <span class="code-tag">&lt;Icon</span> <span class="code-attr">className</span>=<span class="code-string">"w-6 h-6 text-teal-600"</span> <span class="code-tag">/&gt;</span>
+      {Titulo}
+    <span class="code-tag">&lt;/h1&gt;</span>
+    <span class="code-comment">{/* Subtítulo descriptivo · max-w-2xl */}</span>
+    <span class="code-tag">&lt;p</span> <span class="code-attr">className</span>=<span class="code-string">"text-sm text-slate-500 mt-0.5 max-w-2xl"</span><span class="code-tag">&gt;</span>{Subtitulo}<span class="code-tag">&lt;/p&gt;</span>
+  <span class="code-tag">&lt;/div&gt;</span>
+  <span class="code-tag">&lt;div</span> <span class="code-attr">className</span>=<span class="code-string">"flex items-center gap-2 flex-wrap"</span><span class="code-tag">&gt;</span>
+    {AccionesSecundarias}
+    <span class="code-tag">&lt;Button</span> <span class="code-attr">variant</span>=<span class="code-string">"primary-soft"</span><span class="code-tag">&gt;</span>{AccionPrimaria}<span class="code-tag">&lt;/Button&gt;</span>
+  <span class="code-tag">&lt;/div&gt;</span>
+<span class="code-tag">&lt;/div&gt;</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="do-card">
+          <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1">✅ DO</div>
+          <ul class="text-xs text-slate-700 space-y-0.5 ml-4 list-disc">
+            <li>Subtítulo SIEMPRE presente · 1 línea descriptiva</li>
+            <li>h1 con icon teal-600 · gap-2.5 fijo</li>
+            <li>1 acción primaria · resto secundarias planas</li>
+            <li>flex-wrap para responsive sin romper</li>
+          </ul>
+        </div>
+        <div class="dont-card">
+          <div class="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">❌ DON'T</div>
+          <ul class="text-xs text-slate-700 space-y-0.5 ml-4 list-disc">
+            <li>Gradientes pesados de fondo</li>
+            <li>2+ acciones primarias compitiendo</li>
+            <li>Subtítulo de más de 1 línea (max-w-2xl lo controla)</li>
+            <li>PageHeader legacy del design-system</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F2 · KPI STRIP -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="kpi" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="rule-badge">F2</span>
+        <h2 class="text-2xl font-bold text-slate-900">KPI strip horizontal</h2>
+      </div>
+      <p class="text-sm text-slate-600 mb-4"><strong>Variante B (default obligatorio).</strong> 1 contenedor blanco con dividers verticales.</p>
+
+      <!-- DEMO LIVE B -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE B · DEFAULT (95% pantallas)</span>
+        <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Saldo total</div>
+            <div class="text-2xl font-bold text-slate-900 tabular-nums tracking-tight">
+              S/ 47,820<span class="text-base text-slate-400 font-normal">.50</span>
+            </div>
+            <div class="text-[11px] text-emerald-600 mt-1.5 tabular-nums flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3 h-3"></i>+S/ 3,200 vs. semana
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1.5">Disponibles</div>
+            <div class="text-2xl font-bold text-emerald-600 tabular-nums tracking-tight">1,892</div>
+            <div class="text-[11px] text-emerald-600 mt-1.5 tabular-nums">66% libres</div>
+          </div>
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">Pendientes</div>
+            <div class="text-2xl font-bold text-amber-700 tabular-nums tracking-tight">418</div>
+            <div class="text-[11px] text-amber-700 mt-1.5 tabular-nums">3 OCs en camino</div>
+          </div>
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-rose-700 uppercase tracking-wider mb-1.5">Críticos</div>
+            <div class="text-2xl font-bold text-rose-700 tabular-nums tracking-tight">25</div>
+            <div class="text-[11px] text-rose-700 mt-1.5 tabular-nums flex items-center gap-1">
+              <i data-lucide="alert-triangle" class="w-3 h-3"></i>Atención
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEMO C con sparklines -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE C · CON SPARKLINES (cuando hay tendencia)</span>
+        <div class="bg-white border border-slate-200 rounded-xl grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Productos activos</div>
+            <div class="text-2xl font-bold text-slate-900 tabular-nums tracking-tight">142</div>
+            <div class="text-[11px] text-slate-500 mt-1.5">+ 8 este mes</div>
+          </div>
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Margen promedio</div>
+            <div class="flex items-end justify-between">
+              <div class="text-2xl font-bold text-emerald-600 tabular-nums tracking-tight">42<span class="text-base text-emerald-300 font-normal">%</span></div>
+              <svg viewBox="0 0 60 24" class="w-16 h-6">
+                <polyline points="0,18 10,15 20,12 30,14 40,10 50,8 60,6" fill="none" stroke="#10b981" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="text-[11px] text-emerald-600 mt-1.5 tabular-nums">+3.2 vs trim. anterior</div>
+          </div>
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Ventas del mes</div>
+            <div class="flex items-end justify-between">
+              <div class="text-2xl font-bold text-slate-900 tabular-nums tracking-tight">S/ 62k</div>
+              <svg viewBox="0 0 60 24" class="w-16 h-6">
+                <polyline points="0,20 10,12 20,18 30,8 40,14 50,10 60,4" fill="none" stroke="#0ea5e9" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="text-[11px] text-sky-600 mt-1.5 tabular-nums">+18% vs marzo</div>
+          </div>
+          <div class="p-4">
+            <div class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Stock crítico</div>
+            <div class="text-2xl font-bold text-rose-600 tabular-nums tracking-tight">12</div>
+            <div class="text-[11px] text-rose-600 mt-1.5 tabular-nums">Reorden inmediato</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA CRITERIOS -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 text-xs">
+        <h3 class="font-bold text-slate-700 mb-3 uppercase tracking-wider">Cuándo usar cada variante</h3>
+        <table class="w-full">
+          <thead><tr class="border-b border-slate-100">
+            <th class="text-left py-2 px-2">Variante</th><th class="text-left py-2 px-2">Cuándo</th><th class="text-left py-2 px-2">Ejemplos</th>
+          </tr></thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr><td class="py-2 px-2 font-bold text-emerald-700">B (default)</td><td class="py-2 px-2">95% de pantallas operativas</td><td class="py-2 px-2 text-slate-600">Tesorería, Gastos, Finanzas, Reclamos, Ventas</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-amber-700">C (sparklines)</td><td class="py-2 px-2">Cuando hay tendencia temporal real</td><td class="py-2 px-2 text-slate-600">Productos margen, Ventas utilidad</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-violet-700">D (cards anchored)</td><td class="py-2 px-2">SOLO Dashboard ejecutivo y mapas</td><td class="py-2 px-2 text-slate-600">Dashboard principal, Mapa Ventas</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F3 · FILTROS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="filtros" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="rule-badge">F3</span>
+        <h2 class="text-2xl font-bold text-slate-900">FiltrosBar componible</h2>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">UN solo componente <code class="bg-slate-100 px-1 rounded text-xs">&lt;FiltrosBar&gt;</code> con sub-componentes que cada dominio combina.</p>
+
+      <!-- DEMO LIVE -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ EJEMPLO CANÓNICO</span>
+        <div class="bg-white border border-slate-200 rounded-xl p-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Date range -->
+            <button class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-100">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-600"></i>
+              <span class="text-xs font-medium text-slate-700">Últ. 30 días</span>
+              <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+            </button>
+            <div class="h-5 w-px bg-slate-200"></div>
+            <!-- Chips Estado -->
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Estado:</span>
+            <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300">
+              <i data-lucide="check" class="w-2.5 h-2.5"></i>Activo <span class="opacity-60 tabular-nums">128</span>
+            </button>
+            <button class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-amber-50">
+              <i data-lucide="clock" class="w-2.5 h-2.5"></i>Pendiente <span class="opacity-60 tabular-nums">12</span>
+            </button>
+            <div class="h-5 w-px bg-slate-200"></div>
+            <!-- Search -->
+            <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+              <input type="text" placeholder="Buscar…" class="text-xs outline-none border-0 bg-transparent w-32 placeholder:text-slate-400">
+            </div>
+            <!-- Sort -->
+            <button class="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
+              <span class="text-[11px] text-slate-400">Ordenar:</span>
+              <span class="text-xs font-medium text-slate-700">Más recientes</span>
+              <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+            </button>
+            <!-- Clear -->
+            <button class="ml-auto text-[10px] font-medium text-teal-600 hover:text-teal-700 flex items-center gap-1">
+              <i data-lucide="x" class="w-3 h-3"></i>Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CODE -->
+      <div class="code-block">
+<span class="code-tag">&lt;FiltrosBar&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.DateRange</span> <span class="code-attr">presets</span>=<span class="code-string">{['7d','30d','90d','6m','año','todo']}</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.Divider</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.ChipGroup</span> <span class="code-attr">label</span>=<span class="code-string">"Estado"</span> <span class="code-attr">options</span>=<span class="code-string">{ESTADOS}</span> <span class="code-attr">multi</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.ChipGroup</span> <span class="code-attr">label</span>=<span class="code-string">"Canal"</span> <span class="code-attr">options</span>=<span class="code-string">{CANALES}</span> <span class="code-attr">multi</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.Divider</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.Search</span> <span class="code-attr">placeholder</span>=<span class="code-string">"Buscar..."</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.Sort</span> <span class="code-attr">options</span>=<span class="code-string">{ORDEN}</span> <span class="code-tag">/&gt;</span>
+  <span class="code-tag">&lt;FiltrosBar.ClearAll</span> <span class="code-attr">visible</span>=<span class="code-string">{hayFiltros}</span> <span class="code-tag">/&gt;</span>
+<span class="code-tag">&lt;/FiltrosBar&gt;</span>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4 text-xs text-amber-900">
+        <strong>📝 Migración obligatoria:</strong> los 3 componentes actuales (FiltrosFinanzasBar + FiltrosGastosBar + FiltrosMovimientosBar) se reemplazan por <code class="bg-white px-1 rounded">&lt;FiltrosBar&gt;</code> componible · ubicación: <code class="bg-white px-1 rounded">src/components/common/filters/</code>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F4 · TABLAS / CARDS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="tablas" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="rule-badge">F4</span>
+        <h2 class="text-2xl font-bold text-slate-900">Tablas vs Cards · CARDS POR DEFAULT</h2>
+      </div>
+      <p class="text-sm text-slate-600 mb-4"><strong>~70% pantallas usan B (cards apiladas).</strong> Tabla solo en 3 casos justificados.</p>
+
+      <!-- B · CARDS APILADAS · DEFAULT -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE B · CARDS APILADAS (DEFAULT · 70% pantallas)</span>
+        <p class="text-xs text-slate-500 mb-3">Para listados de entidades navegables: Gastos, Envíos, Saldos, Compras OC, Reclamos, Devoluciones, etc.</p>
+        <div class="space-y-2">
+          <!-- Card 1 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-3 hover:shadow-sm transition-all flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="receipt" class="w-5 h-5 text-emerald-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-900">Servicio internet · Movistar</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Pagado</span>
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">GST-2026-014 · 28 abr · Servicios</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-bold tabular-nums text-slate-900">S/ 350<span class="text-slate-400 text-xs">.00</span></div>
+              <div class="text-[10px] text-slate-500">Mensual</div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="bg-white border border-rose-200 rounded-xl p-3 hover:shadow-sm transition-all flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-semibold text-slate-900">Mantenimiento almacén</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 animate-pulse">Vencido</span>
+              </div>
+              <div class="text-xs text-slate-500 mt-0.5">GST-2026-018 · vence 25 abr · 7 días vencido</div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-bold tabular-nums text-rose-700">S/ 450<span class="text-rose-300 text-xs">.00</span></div>
+              <button class="text-[10px] bg-rose-600 text-white font-bold px-2 py-1 rounded mt-1">Pagar HOY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A · DATATABLE SIMPLE -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE A · DATATABLE SIMPLE (Excepción 1: Ledgers contables)</span>
+        <p class="text-xs text-slate-500 mb-3">Para libros mayores: Movimientos, Conversiones, Transferencias, Pagos masivos.</p>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <table class="w-full text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr><th class="text-left p-2 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">Fecha</th>
+              <th class="text-left p-2 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">Categoría</th>
+              <th class="text-left p-2 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">Concepto</th>
+              <th class="text-right p-2 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">Monto</th>
+              <th class="text-right p-2 font-semibold text-slate-600 uppercase tracking-wider text-[10px]">Saldo</th></tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-slate-100"><td class="p-2 tabular-nums">28 abr</td><td class="p-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Ingreso</span></td><td class="p-2 text-slate-600">Cobro venta ML</td><td class="p-2 text-right tabular-nums font-semibold text-emerald-700">+S/ 3,450.00</td><td class="p-2 text-right tabular-nums text-slate-500">S/ 14,250.80</td></tr>
+              <tr class="bg-slate-50/50 border-b border-slate-100"><td class="p-2 tabular-nums">28 abr</td><td class="p-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">Egreso</span></td><td class="p-2 text-slate-600">Pago proveedor Shenzhen</td><td class="p-2 text-right tabular-nums font-semibold text-rose-600">-S/ 8,200.00</td><td class="p-2 text-right tabular-nums text-slate-500">S/ 12,800.50</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- C · ROBUST GRID -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE C · ROBUST GRID (Excepción 2: Catálogos densos)</span>
+        <p class="text-xs text-slate-500 mb-3">Para Productos, Stock · grid con avatares apilados + sparklines.</p>
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
+          <!-- Row 1 -->
+          <div class="p-3 grid grid-cols-12 gap-3 items-center hover:bg-slate-50 cursor-pointer">
+            <div class="col-span-1"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center"><i data-lucide="droplets" class="w-5 h-5 text-amber-700"></i></div></div>
+            <div class="col-span-4 min-w-0">
+              <div class="text-sm font-semibold text-slate-900 truncate">Vitamin C Brightening Serum</div>
+              <div class="flex items-center gap-1 text-[10px] text-slate-500">
+                <span class="font-mono">SKU-PROD-0042</span><span>·</span>
+                <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">Skincare</span>
+              </div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="flex items-center justify-end -space-x-1">
+                <div class="w-6 h-6 rounded-full bg-teal-600 ring-2 ring-white text-white text-[8px] font-bold flex items-center justify-center">30</div>
+                <div class="w-6 h-6 rounded-full bg-amber-500 ring-2 ring-white text-white text-[8px] font-bold flex items-center justify-center">15</div>
+                <div class="w-6 h-6 rounded-full bg-violet-500 ring-2 ring-white text-white text-[8px] font-bold flex items-center justify-center">+2</div>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-1 tabular-nums">4 variantes · 87 uds</div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="text-sm font-semibold tabular-nums text-slate-900">S/ 285<span class="text-slate-400">.00</span></div>
+              <div class="text-[10px] text-slate-500">desde S/ 95</div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <span class="text-sm font-semibold tabular-nums text-emerald-600">52%</span>
+                <svg viewBox="0 0 30 14" class="w-8 h-4"><polyline points="0,10 5,8 10,9 15,5 20,7 25,3 30,2" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+              </div>
+            </div>
+            <div class="col-span-1 text-right">
+              <button class="p-1.5 rounded hover:bg-teal-50 text-slate-500 hover:text-teal-600"><i data-lucide="eye" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          <div class="p-3 grid grid-cols-12 gap-3 items-center hover:bg-slate-50 cursor-pointer">
+            <div class="col-span-1"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center"><i data-lucide="pill" class="w-5 h-5 text-indigo-700"></i></div></div>
+            <div class="col-span-4 min-w-0">
+              <div class="text-sm font-semibold text-slate-900 truncate">Vitamin D3 5000 IU 240 caps</div>
+              <div class="flex items-center gap-1 text-[10px] text-slate-500">
+                <span class="font-mono">SKU-PROD-0078</span><span>·</span>
+                <span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700">Suplemento</span>
+              </div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="text-[10px] text-slate-500 tabular-nums">1 variante · 12 uds</div>
+              <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold inline-block mt-1">Stock crítico</span>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="text-sm font-semibold tabular-nums text-slate-900">S/ 145<span class="text-slate-400">.00</span></div>
+            </div>
+            <div class="col-span-2 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <span class="text-sm font-semibold tabular-nums text-amber-600">38%</span>
+                <svg viewBox="0 0 30 14" class="w-8 h-4"><polyline points="0,4 5,6 10,5 15,8 20,7 25,9 30,10" fill="none" stroke="#f59e0b" stroke-width="1.5"/></svg>
+              </div>
+            </div>
+            <div class="col-span-1 text-right">
+              <button class="p-1.5 rounded hover:bg-teal-50 text-slate-500 hover:text-teal-600"><i data-lucide="eye" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA CRITERIOS -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 text-xs">
+        <h3 class="font-bold text-slate-700 mb-3 uppercase tracking-wider">Cuándo usar cada variante</h3>
+        <table class="w-full">
+          <thead><tr class="border-b border-slate-100">
+            <th class="text-left py-2 px-2 font-semibold">Variante</th><th class="text-left py-2 px-2 font-semibold">Cuándo</th><th class="text-left py-2 px-2 font-semibold">Ejemplos</th>
+          </tr></thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr><td class="py-2 px-2 font-bold text-emerald-700">B (default)</td><td class="py-2 px-2">Listados navegables de entidades</td><td class="py-2 px-2 text-slate-600">Gastos, Envíos, Saldos, OC, Reclamos, Devoluciones, Cotizaciones, Clientes, Proveedores</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-sky-700">A (excepción)</td><td class="py-2 px-2">Ledgers contables · scroll vertical largo</td><td class="py-2 px-2 text-slate-600">Movimientos, Conversiones, Transferencias, Pagos masivos</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-violet-700">C (excepción)</td><td class="py-2 px-2">Catálogos densos comparativos</td><td class="py-2 px-2 text-slate-600">Productos, Stock por SKU</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-amber-700">D (excepción)</td><td class="py-2 px-2">Dashboards visuales con coordenadas</td><td class="py-2 px-2 text-slate-600">Mapa Ventas, Heatmap Stock, Dashboard ejecutivo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F5 · WIZARDS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="wizards" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="rule-badge">F5</span>
+        <h2 class="text-2xl font-bold text-slate-900">Wizards · El número de pasos decide el patrón</h2>
+      </div>
+      <p class="text-sm text-slate-600 mb-4"><strong>1 paso = Modal simple. 3 pasos = Stepper horizontal. 4+ pasos = Sidebar vertical.</strong> Sin excepciones.</p>
+
+      <!-- D · MODAL SIMPLE -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE D · MODAL SIMPLE (1 paso)</span>
+        <p class="text-xs text-slate-500 mb-3">Forms rápidos sin pasos: Nuevo proveedor, Nuevo gasto, Nueva categoría</p>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm max-w-md mx-auto">
+          <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="building-2" class="w-4 h-4 text-teal-600"></i>Nuevo Proveedor</h3>
+            <button class="text-slate-400"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+          <div class="p-5 space-y-3">
+            <div class="border border-slate-200 rounded-lg p-3">
+              <button class="flex items-center justify-between w-full text-left">
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">▾ Datos básicos</span>
+                <i data-lucide="chevron-up" class="w-4 h-4 text-slate-400"></i>
+              </button>
+              <div class="mt-2 space-y-2">
+                <input type="text" placeholder="Nombre" class="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-md">
+                <input type="text" placeholder="RUC" class="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-md">
+              </div>
+            </div>
+            <div class="border border-slate-200 rounded-lg p-3">
+              <button class="flex items-center justify-between w-full text-left">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">▸ Datos bancarios</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+              </button>
+            </div>
+            <div class="border border-slate-200 rounded-lg p-3">
+              <button class="flex items-center justify-between w-full text-left">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">▸ Notas</span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+              </button>
+            </div>
+          </div>
+          <div class="px-5 py-3 border-t border-slate-100 flex justify-end gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+            <button class="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 rounded-md hover:bg-teal-700">Guardar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- B · STEPPER HORIZONTAL 3 PASOS -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE B · STEPPER HORIZONTAL (3 pasos exactos)</span>
+        <p class="text-xs text-slate-500 mb-3">Conversión USD↔PEN · Transferencia · Cobro distribuido · Pagar TC</p>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div class="px-5 py-3 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i data-lucide="arrow-right-left" class="w-4 h-4 text-teal-600"></i>Nueva Conversión USD ↔ PEN</h3>
+          </div>
+          <div class="px-5 py-4 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-4 h-4"></i></div>
+                <div><div class="text-xs font-bold text-emerald-700">Origen y destino</div><div class="text-[10px] text-emerald-500">BCP USD → BCP PEN</div></div>
+              </div>
+              <div class="flex-1 h-0.5 bg-emerald-300"></div>
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold">2</div>
+                <div><div class="text-xs font-bold text-teal-700">Monto y TC</div><div class="text-[10px] text-slate-400">En progreso</div></div>
+              </div>
+              <div class="flex-1 h-0.5 bg-slate-200"></div>
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold">3</div>
+                <div><div class="text-xs font-bold text-slate-400">Confirmar</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="p-5">
+            <div class="text-center text-slate-400 italic text-xs">[Contenido del paso 2 aquí]</div>
+          </div>
+          <div class="px-5 py-3 border-t border-slate-100 flex justify-between">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600">← Atrás</button>
+            <button class="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 rounded-md hover:bg-teal-700">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- A · SIDEBAR VERTICAL 4+ -->
+      <div class="demo-box relative mb-4">
+        <span class="demo-label">✅ VARIANTE A · SIDEBAR VERTICAL (4+ pasos)</span>
+        <p class="text-xs text-slate-500 mb-3">Crear envío unificado · Pagos masivos · Crear OC · Crear cuenta bancaria · Crear pack</p>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex" style="min-height: 300px;">
+          <aside class="w-52 bg-slate-50 border-r border-slate-200 p-4 flex flex-col">
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center"><i data-lucide="truck" class="w-3.5 h-3.5 text-white"></i></div>
+              <div><div class="text-xs font-bold text-teal-700">Envío Unificado</div><div class="text-[10px] text-slate-400">Casilla → Perú</div></div>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center"><i data-lucide="check" class="w-3 h-3"></i></div><div class="text-xs font-medium text-emerald-700">Origen+Destino</div></div>
+              <div class="ml-3 w-px h-3 bg-emerald-300"></div>
+              <div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold">2</div><div class="text-xs font-bold text-teal-700">Detalles</div></div>
+              <div class="ml-3 w-px h-3 bg-slate-200"></div>
+              <div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs">3</div><div class="text-xs text-slate-400">Logística</div></div>
+              <div class="ml-3 w-px h-3 bg-slate-200"></div>
+              <div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs">4</div><div class="text-xs text-slate-400">Confirmar</div></div>
+            </div>
+            <div class="mt-auto pt-4">
+              <div class="text-[10px] text-slate-400 uppercase">Total estimado</div>
+              <div class="text-base font-bold text-slate-900 tabular-nums">$ 285.50</div>
+            </div>
+          </aside>
+          <div class="flex-1 p-5">
+            <div class="text-center text-slate-400 italic text-xs">[Contenido del paso 2 con secciones internas]</div>
+            <div class="mt-8 flex justify-between">
+              <button class="px-3 py-1.5 text-xs font-medium text-slate-600">← Atrás</button>
+              <button class="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 rounded-md">Siguiente →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA CRITERIOS -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 text-xs">
+        <h3 class="font-bold text-slate-700 mb-3 uppercase tracking-wider">Decisión por número de pasos</h3>
+        <table class="w-full">
+          <thead><tr class="border-b border-slate-100"><th class="text-left py-2 px-2">Pasos</th><th class="text-left py-2 px-2">Variante</th><th class="text-left py-2 px-2">Ejemplos del sistema</th></tr></thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr><td class="py-2 px-2 font-bold text-emerald-700">1 paso</td><td class="py-2 px-2">D · Modal simple</td><td class="py-2 px-2 text-slate-600">Nuevo proveedor, gasto, categoría, cliente, editar perfil</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-amber-700">3 pasos</td><td class="py-2 px-2">B · Stepper horizontal</td><td class="py-2 px-2 text-slate-600">Conversión USD↔PEN, Transferencia, Cobro distribuido, Pagar TC</td></tr>
+            <tr><td class="py-2 px-2 font-bold text-violet-700">4+ pasos</td><td class="py-2 px-2">A · Sidebar vertical</td><td class="py-2 px-2 text-slate-600">Envío unificado, Pagos masivos, OC, Cuenta bancaria, Pack producto</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F6 a F10 + extras · COMPACTO -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="numeros" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3"><span class="rule-badge">F7</span><h2 class="text-2xl font-bold text-slate-900">Tabular-nums + decimales atenuados</h2></div>
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Monto</div>
+            <div class="text-3xl font-bold text-slate-900 tabular-nums">S/ 14,250<span class="text-lg text-slate-400 font-normal">.80</span></div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Conteo</div>
+            <div class="text-3xl font-bold text-slate-900 tabular-nums">2,847</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Porcentaje</div>
+            <div class="text-3xl font-bold text-emerald-600 tabular-nums">+38<span class="text-lg text-emerald-300 font-normal">%</span></div>
+          </div>
+        </div>
+        <div class="mt-4 bg-slate-50 rounded-lg p-3 text-xs text-slate-600">
+          <strong>Regla:</strong> <code class="bg-white px-1 rounded">font-variant-numeric: tabular-nums</code> obligatorio en todo monto, métrica, fecha, ID, porcentaje, conteo. Decimales en clase <code class="bg-white px-1 rounded">text-slate-400 text-sm font-normal</code>.
+        </div>
+      </div>
+    </section>
+
+    <section id="iconos" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3"><span class="rule-badge">F8</span><h2 class="text-2xl font-bold text-slate-900">Iconografía · lucide-react ÚNICO</h2></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="do-card">
+          <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">✅ DO · lucide-react</div>
+          <div class="flex flex-wrap gap-3 mb-2">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i>
+            <i data-lucide="x-circle" class="w-5 h-5 text-rose-600"></i>
+            <i data-lucide="package" class="w-5 h-5 text-indigo-600"></i>
+            <i data-lucide="warehouse" class="w-5 h-5 text-teal-600"></i>
+            <i data-lucide="shopping-cart" class="w-5 h-5 text-sky-600"></i>
+          </div>
+          <p class="text-[11px] text-slate-600">~1500 iconos · cobertura total · semánticos por color</p>
+        </div>
+        <div class="dont-card">
+          <div class="text-xs font-bold text-rose-700 uppercase tracking-wider mb-2">❌ DON'T · Emojis en chrome</div>
+          <div class="text-2xl mb-2">📦 💰 ⚠️ 📊 ❌</div>
+          <p class="text-[11px] text-slate-600">Prohibido en chips de estado, badges, columnas de tabla, headers. Solo permitido en empty states y tooltips.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="breadcrumb" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3"><span class="rule-badge">F9</span><h2 class="text-2xl font-bold text-slate-900">Breadcrumb separator · ChevronRight w-3 h-3</h2></div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="do-card">
+          <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">✅ DO</div>
+          <div class="flex items-center gap-2 text-xs text-slate-400">
+            <span>Tesorería</span>
+            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span class="text-slate-600 font-medium">Movimientos</span>
+          </div>
+        </div>
+        <div class="dont-card">
+          <div class="text-xs font-bold text-rose-700 uppercase tracking-wider mb-2">❌ DON'T · ·</div>
+          <div class="flex items-center gap-2 text-xs text-slate-400"><span>Tesorería</span><span>·</span><span>Movimientos</span></div>
+        </div>
+        <div class="dont-card">
+          <div class="text-xs font-bold text-rose-700 uppercase tracking-wider mb-2">❌ DON'T · &gt;</div>
+          <div class="flex items-center gap-2 text-xs text-slate-400"><span>Tesorería</span><span>&gt;</span><span>Movimientos</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="botones" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3"><span class="rule-badge">F10</span><h2 class="text-2xl font-bold text-slate-900">Botones del header · jerarquía estricta</h2></div>
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <div class="flex items-center gap-3 flex-wrap">
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>Exportar
+          </button>
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i>Importar
+          </button>
+          <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-rose-600 bg-white border border-rose-200 rounded-lg hover:bg-rose-50">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>Eliminar
+          </button>
+          <button class="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-teal-600 rounded-lg hover:bg-teal-700 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>Nuevo
+          </button>
+        </div>
+        <div class="mt-3 text-xs text-slate-500">
+          <strong>Orden:</strong> secundarias planas → destructivas → <strong>primary-soft (teal)</strong> al final. <strong>UNA acción primaria por contexto.</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHIPS -->
+    <section id="chips" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3"><h2 class="text-2xl font-bold text-slate-900">+ Chips y Badges · paleta semántica</h2></div>
+      <div class="bg-white border border-slate-200 rounded-xl p-5 space-y-3">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Estados positivos · emerald</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Activo</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Pagado</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Saludable</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">Completo</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Estados de atención · amber</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Pendiente</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Parcial</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Atención</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Lote masivo</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Estados negativos · rose</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">Vencido</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">Crítico</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">Cancelado</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">Egreso</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Informacionales · sky</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700">Reservado</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700">En proceso</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700">Transferencia</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Tercero / FX · violet/purple</div>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">Yape</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-100 text-violet-700">Plin</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700">FX · Conversión</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EMPTY STATES -->
+    <section id="empty" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3"><h2 class="text-2xl font-bold text-slate-900">+ Empty states · únicos donde se permiten emojis</h2></div>
+      <div class="bg-white border border-slate-200 rounded-xl p-12 text-center">
+        <div class="text-5xl mb-4">📭</div>
+        <h3 class="text-base font-bold text-slate-900 mb-1">Aún no hay gastos registrados</h3>
+        <p class="text-sm text-slate-500 mb-4">Empieza registrando el primer gasto del mes. Después podrás categorizarlo y vincularlo a un proveedor.</p>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-teal-600 rounded-lg hover:bg-teal-700">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>Registrar primer gasto
+        </button>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- FOOTER -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-8 mt-8">
+      <h2 class="text-2xl font-bold mb-3">📐 Cómo usar este documento</h2>
+      <div class="grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <div class="font-bold text-teal-300 mb-2">Para diseñar mockup nuevo</div>
+          <ol class="list-decimal list-inside text-slate-300 space-y-1 text-xs">
+            <li>Identificar familias aplicables (F1-F10)</li>
+            <li>Aplicar reglas pixel-perfect</li>
+            <li>Comparar contra este master</li>
+            <li>Validar antes de implementar</li>
+          </ol>
+        </div>
+        <div>
+          <div class="font-bold text-teal-300 mb-2">Para implementar pixel-perfect</div>
+          <ol class="list-decimal list-inside text-slate-300 space-y-1 text-xs">
+            <li>Tener mockup aprobado</li>
+            <li>Verificar contra F1-F10</li>
+            <li>Discrepancia → CONSULTAR</li>
+            <li>Cero parches · pixel-perfect siempre</li>
+          </ol>
+        </div>
+        <div>
+          <div class="font-bold text-teal-300 mb-2">Para auditar pantalla</div>
+          <ol class="list-decimal list-inside text-slate-300 space-y-1 text-xs">
+            <li>Recorrer F1-F10</li>
+            <li>Documentar discrepancias</li>
+            <li>Plan de migración previo</li>
+            <li>Validación visual antes</li>
+          </ol>
+        </div>
+      </div>
+      <div class="mt-6 pt-6 border-t border-slate-700 text-xs text-slate-400">
+        Documento ratificado · 2 mayo 2026 · Reemplaza referencias canónicas previas en CLAUDE.md y manifesto S58f
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => { if (window.scrollY >= section.offsetTop - 100) current = section.getAttribute('id'); });
+    navLinks.forEach(link => { link.classList.remove('active'); if (link.getAttribute('href') === '#' + current) link.classList.add('active'); });
+  });
+</script>
+
+</body>
+</html>
