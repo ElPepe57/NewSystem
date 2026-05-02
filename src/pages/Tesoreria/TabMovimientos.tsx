@@ -52,7 +52,17 @@ import type { CuentaCorriente } from '../../types/cuentaCorriente.types';
 import { EntidadCCDrawer } from '../Finanzas/components/EntidadCCDrawer';
 import { EntidadCCDetailModal } from '../Finanzas/components/EntidadCCDetailModal';
 import { PagoAbonoWizard } from '../Finanzas/components/PagoAbonoWizard';
-import { MovimientosKpiRow, MovimientosBreakdown } from './components';
+import {
+  MovimientosKpiRow,
+  MovimientosBreakdown,
+  FiltrosMovimientosBar,
+} from './components';
+import type {
+  RangoFechasMov,
+  CategoriaMov,
+  CanalMov,
+  DocumentoMov,
+} from './components';
 
 interface TabMovimientosProps {
   movimientosFiltrados: MovimientoTesoreria[];
@@ -124,6 +134,128 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
   handleCerrarModalMovimiento,
 }) => {
   const [filtroTitular, setFiltroTitular] = useState<string>('');
+
+  // ─── Filtros canónicos S58e (Fase B migración visual) ───
+  const [rangoFechas, setRangoFechas] = useState<RangoFechasMov>('todo');
+  const [categoriasActivas, setCategoriasActivas] = useState<Set<CategoriaMov>>(new Set());
+  const [canalesActivos, setCanalesActivos] = useState<Set<CanalMov>>(new Set());
+  const [documentosActivos, setDocumentosActivos] = useState<Set<DocumentoMov>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const toggleSet = <T,>(set: Set<T>, value: T): Set<T> => {
+    const next = new Set(set);
+    if (next.has(value)) next.delete(value);
+    else next.add(value);
+    return next;
+  };
+
+  // Helpers de clasificación de movimiento
+  const clasificarCategoria = (m: MovimientoTesoreria): CategoriaMov => {
+    if (m.conversionId) return 'fx';
+    if (m.transferenciaNumero) return 'interno';
+    const tipo = m.tipo as string;
+    if (tipo.startsWith('ingreso_') || tipo === 'aporte_capital') return 'ingreso';
+    if (tipo === 'ajuste_positivo' || tipo === 'ajuste_negativo') return 'ajuste';
+    // tc_cargo no tiene tipo dedicado en el modelo actual; se infiere por método/canal
+    if (((m.metodo as any) || '').toString().toLowerCase().includes('tc')) return 'tc_cargo';
+    return 'egreso';
+  };
+
+  const clasificarCanal = (m: MovimientoTesoreria): CanalMov => {
+    const metodo = ((m.metodo as any) || '').toString().toLowerCase();
+    if (metodo.includes('transfer')) return 'transferencia';
+    if (metodo.includes('yape')) return 'yape';
+    if (metodo.includes('plin')) return 'plin';
+    if (metodo.includes('efectivo')) return 'efectivo';
+    if (metodo.includes('tc') || metodo.includes('tarjeta')) return 'tc_cargo';
+    if (metodo.includes('sip') || m.conversionId) return 'sip';
+    return 'otro';
+  };
+
+  const clasificarDocumento = (m: MovimientoTesoreria): DocumentoMov | null => {
+    if (m.ordenCompraNumero) return 'oc';
+    if (m.ventaNumero) return 'venta';
+    if (m.gastoNumero) return 'gasto';
+    if ((m as any).envioNumero) return 'envio';
+    if ((m as any).loteNumero || (m as any).pagoMasivoLoteId) return 'lote';
+    return null;
+  };
+
+  const inicioRango = useMemo<Date | null>(() => {
+    if (rangoFechas === 'todo') return null;
+    const ahora = new Date();
+    const d = new Date(ahora);
+    switch (rangoFechas) {
+      case '7d': d.setDate(ahora.getDate() - 7); return d;
+      case '30d': d.setDate(ahora.getDate() - 30); return d;
+      case '90d': d.setDate(ahora.getDate() - 90); return d;
+      case '6m': d.setMonth(ahora.getMonth() - 6); return d;
+      case 'año': return new Date(ahora.getFullYear(), 0, 1);
+      default: return null;
+    }
+  }, [rangoFechas]);
+
+  const movsFiltradosCanonicos = useMemo(() => {
+    return movimientosFiltrados.filter((m) => {
+      // Fechas
+      if (inicioRango) {
+        const f = m.fecha instanceof Date ? m.fecha : new Date((m.fecha as any)?.toDate?.() ?? m.fecha);
+        if (f < inicioRango) return false;
+      }
+      // Categoría
+      if (categoriasActivas.size > 0) {
+        if (!categoriasActivas.has(clasificarCategoria(m))) return false;
+      }
+      // Canal
+      if (canalesActivos.size > 0) {
+        if (!canalesActivos.has(clasificarCanal(m))) return false;
+      }
+      // Documento
+      if (documentosActivos.size > 0) {
+        const doc = clasificarDocumento(m);
+        if (!doc || !documentosActivos.has(doc)) return false;
+      }
+      // Búsqueda
+      if (searchTerm.trim()) {
+        const term = searchTerm.toLowerCase().trim();
+        const haystack = [
+          m.concepto,
+          m.numeroMovimiento,
+          m.ordenCompraNumero,
+          m.ventaNumero,
+          m.gastoNumero,
+          m.transferenciaNumero,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        if (!haystack.includes(term)) return false;
+      }
+      return true;
+    });
+  }, [
+    movimientosFiltrados,
+    inicioRango,
+    categoriasActivas,
+    canalesActivos,
+    documentosActivos,
+    searchTerm,
+  ]);
+
+  const hayFiltrosCanonicos =
+    rangoFechas !== 'todo' ||
+    categoriasActivas.size > 0 ||
+    canalesActivos.size > 0 ||
+    documentosActivos.size > 0 ||
+    searchTerm.trim().length > 0;
+
+  const limpiarFiltrosCanonicos = () => {
+    setRangoFechas('todo');
+    setCategoriasActivas(new Set());
+    setCanalesActivos(new Set());
+    setDocumentosActivos(new Set());
+    setSearchTerm('');
+  };
 
   // Cross-link CC ↔ Tesorería (S57 Fase B)
   const [ccDrawer, setCCDrawer] = useState<{
@@ -200,16 +332,16 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
 
   const titulares = useMemo(() => [...titularesConCuentas.keys()].sort(), [titularesConCuentas]);
 
-  // Movimientos filtrados por titular
+  // Movimientos filtrados por titular (sobre los que ya pasaron filtros canónicos)
   const movsFiltradosPorTitular = useMemo(() => {
-    if (!filtroTitular) return movimientosFiltrados;
+    if (!filtroTitular) return movsFiltradosCanonicos;
     const cuentaIds = titularesConCuentas.get(filtroTitular) || [];
     const idSet = new Set(cuentaIds);
-    return movimientosFiltrados.filter(m =>
+    return movsFiltradosCanonicos.filter(m =>
       (m.cuentaOrigen && idSet.has(m.cuentaOrigen)) ||
       (m.cuentaDestino && idSet.has(m.cuentaDestino))
     );
-  }, [movimientosFiltrados, filtroTitular, titularesConCuentas]);
+  }, [movsFiltradosCanonicos, filtroTitular, titularesConCuentas]);
 
   // Totales recalculados con el filtro de titular
   const totalesFiltrados = useMemo(() => {
@@ -490,6 +622,22 @@ export const TabMovimientos: React.FC<TabMovimientosProps> = ({
           </Button>
         </div>
       </div>
+
+      {/* Barra de filtros canónica S58e · Fase B migración visual */}
+      <FiltrosMovimientosBar
+        rangoFechas={rangoFechas}
+        categoriasActivas={categoriasActivas}
+        canalesActivos={canalesActivos}
+        documentosActivos={documentosActivos}
+        searchTerm={searchTerm}
+        hayFiltrosActivos={hayFiltrosCanonicos}
+        onCambiarRango={setRangoFechas}
+        onToggleCategoria={(c) => setCategoriasActivas((prev) => toggleSet(prev, c))}
+        onToggleCanal={(c) => setCanalesActivos((prev) => toggleSet(prev, c))}
+        onToggleDocumento={(d) => setDocumentosActivos((prev) => toggleSet(prev, d))}
+        onCambiarSearchTerm={setSearchTerm}
+        onLimpiarTodo={limpiarFiltrosCanonicos}
+      />
 
       {/* KPI row del periodo · pixel-perfect S58e */}
       <MovimientosKpiRow

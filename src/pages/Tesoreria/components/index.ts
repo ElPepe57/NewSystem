@@ -41,3 +41,11 @@ export type { MovimientosKpiRowProps } from './MovimientosKpiRow';
 
 export { MovimientosBreakdown } from './MovimientosBreakdown';
 export type { MovimientosBreakdownProps } from './MovimientosBreakdown';
+
+export { FiltrosMovimientosBar } from './FiltrosMovimientosBar';
+export type {
+  RangoFechasMov,
+  CategoriaMov,
+  CanalMov,
+  DocumentoMov,
+} from './FiltrosMovimientosBar';
