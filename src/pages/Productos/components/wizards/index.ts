@@ -11,6 +11,8 @@ export type { DatosComunes, VarianteEntry } from './WizardConVariantes';
 
 export { WizardPack } from './WizardPack';
 
+export { WizardVarianteExistente } from './WizardVarianteExistente';
+
 export { SeccionColapsable } from './SeccionColapsable';
 export { StepperVerticalWizard } from './StepperVerticalWizard';
 export type { StepConfig, ResumenItem } from './StepperVerticalWizard';

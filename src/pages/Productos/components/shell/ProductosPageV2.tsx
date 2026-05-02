@@ -47,7 +47,7 @@ import {
 } from '../filters';
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
-import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
+import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
 import { ProductoService } from '../../../../services/producto.service';
 import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
 import type { Producto, ProductoFormData } from '../../../../types/producto.types';
@@ -445,6 +445,23 @@ export const ProductosPageV2: React.FC = () => {
     }
   };
 
+  // Wizard variante existente · submit (createProducto con grupoVarianteId del padre)
+  const handleCrearVarianteExistente = async (data: Partial<ProductoFormData>) => {
+    if (!user) {
+      toast.error('Sesión expirada · vuelve a iniciar sesión');
+      return;
+    }
+    try {
+      await createProducto(data, user.uid);
+      toast.success(`Variante "${data.varianteLabel}" creada correctamente`);
+      setWizardActivo(null);
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al crear variante: ${err?.message ?? 'desconocido'}`);
+      throw err;
+    }
+  };
+
   const handleArchivo = () => toast.info('Modal Papelera · disponible en Fase 8');
   const handleCalculadora = () => toast.info('Productos Intel · disponible en Fase 9');
   const handleSugerencias = () => toast.info('Sugerencias del día · disponible en Fase 9');
@@ -637,14 +654,14 @@ export const ProductosPageV2: React.FC = () => {
         lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
       />
 
-      {/* Wizard Variante Existente · Fase 7c (pendiente · placeholder) */}
-      {wizardActivo === 'variante_existente' && (
-        <PlaceholderWizard
-          tipo="variante_existente"
-          onClose={() => setWizardActivo(null)}
-          fase="7c"
-        />
-      )}
+      {/* Wizard Variante Existente · Fase 7c · buscador + form reducido */}
+      <WizardVarianteExistente
+        open={wizardActivo === 'variante_existente'}
+        onClose={() => setWizardActivo(null)}
+        productosDisponibles={lista}
+        todosLosProductos={lista}
+        onSubmit={handleCrearVarianteExistente}
+      />
 
       {/* Modal detalle producto · Fase 4 · F6(A) desktop / bottom sheet mobile */}
       <ProductoDetailModal
