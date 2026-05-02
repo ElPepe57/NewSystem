@@ -1156,6 +1156,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         </div>
       </div>
 
+      <!-- Regla scrollbars · OCULTAR -->
+      <div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-5 mb-6">
+        <div class="flex items-start gap-3">
+          <i data-lucide="eye-off" class="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5"></i>
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-amber-900 uppercase tracking-wider mb-2">⚠ Scrollbars · OCULTAR en mobile</h3>
+            <p class="text-xs text-amber-800 mb-2">
+              Los scrollbars nativos del navegador <strong>rompen el look banking-grade</strong>. En cualquier elemento con <code class="bg-amber-100 px-1 rounded">overflow-x-auto</code> en mobile (pills · tabs · KPIs scroll · sub-tabs) aplicar la utility:
+            </p>
+            <pre class="text-[11px] bg-slate-900 text-slate-100 p-3 rounded mb-2 overflow-x-auto"><code>.scrollbar-hide {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;                /* Chrome/Safari/Opera */
+}</code></pre>
+            <p class="text-xs text-amber-800">
+              La funcionalidad de scroll se <strong>mantiene</strong> · solo se oculta el chrome visual. Aplicar también via plugin Tailwind o en <code class="bg-amber-100 px-1 rounded">globals.css</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Anti-pattern · NO progressive disclosure -->
       <div class="bg-rose-50 border-2 border-rose-300 rounded-xl p-5 mb-6">
         <div class="flex items-start gap-3">

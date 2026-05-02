@@ -414,6 +414,22 @@ Lo hacen Stripe · Linear · Notion · Mercury · Shopify · Vercel · Airtable 
 - Checkboxes: w-4 h-4 mínimo (16px)
 - Espacio entre interactivos: ≥8px
 
+**Scrollbars · OCULTAR en mobile (regla obligatoria):**
+Los scrollbars nativos del navegador rompen el look banking-grade. En cualquier elemento con `overflow-x-auto` (pills rápidos, tabs scroll, KPIs en strip horizontal, etc.) aplicar la utility `scrollbar-hide`:
+
+```css
+/* Definir en globals.css o tailwind plugin */
+.scrollbar-hide {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;      /* IE/Edge */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;                 /* Chrome/Safari/Opera */
+}
+```
+
+Aplicar a: pills rápidos · tabs scroll · KPI strip horizontal en mobile · sub-tabs · cualquier `overflow-x-auto`. La funcionalidad de scroll se mantiene · solo se oculta el chrome visual.
+
 **Implementación técnica:**
 - Usar Tailwind responsive prefixes nativos (`hidden lg:block` · `lg:hidden` · `lg:grid-cols-4` · etc.)
 - NO usar JavaScript para detectar viewport · todo via CSS responsive
