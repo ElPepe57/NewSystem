@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Flujo Navegación · Módulo Productos</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; }
+.node { position: relative; padding: 12px 14px; border-radius: 10px; border: 2px solid; transition: all 0.2s; }
+.node:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.08); }
+.node-page { background: #f0fdf4; border-color: #86efac; color: #14532d; }
+.node-modal { background: #faf5ff; border-color: #d8b4fe; color: #581c87; }
+.node-drawer { background: #eff6ff; border-color: #93c5fd; color: #1e3a8a; }
+.node-section { background: #fffbeb; border-color: #fcd34d; color: #78350f; }
+.node-overlay { background: #fef2f2; border-color: #fca5a5; color: #7f1d1d; }
+.node-state { background: #f8fafc; border-color: #cbd5e1; color: #334155; border-style: dashed; }
+.node-id { font-family: ui-monospace, monospace; font-size: 9px; opacity: 0.6; }
+.arrow { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #1e293b; color: white; font-size: 10px; font-weight: 600; border-radius: 999px; }
+.arrow-icon { width: 10px; height: 10px; }
+.section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+.section-num { width: 28px; height: 28px; border-radius: 50%; background: #14b8a6; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- HEADER -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="bg-gradient-to-br from-slate-900 via-purple-900 to-fuchsia-900 text-white">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="text-xs uppercase tracking-wider text-purple-200 mb-2">📐 Mapa de navegación · Módulo Productos</div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Flujo entre los 40 mockups</h1>
+    <p class="text-purple-100 text-sm max-w-3xl">
+      Diagrama completo de cómo se conectan los mockups del módulo Productos.
+      Cada nodo es un mockup · las flechas muestran qué trigger abre cuál.
+      Color por tipo de contenedor.
+    </p>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-6 py-8">
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- LEYENDA -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white border border-slate-200 rounded-xl p-5 mb-8">
+    <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3">Leyenda · Tipos de contenedor</h2>
+    <div class="grid grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="node node-page text-center">
+        <div class="text-lg mb-1">📄</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold">Página completa</div>
+        <div class="text-[9px] mt-1 opacity-70">Toda la ventana</div>
+      </div>
+      <div class="node node-modal text-center">
+        <div class="text-lg mb-1">🪟</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold">Modal centrado</div>
+        <div class="text-[9px] mt-1 opacity-70">Backdrop · centrado</div>
+      </div>
+      <div class="node node-drawer text-center">
+        <div class="text-lg mb-1">📋</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold">Drawer lateral</div>
+        <div class="text-[9px] mt-1 opacity-70">Slide-in lateral</div>
+      </div>
+      <div class="node node-section text-center">
+        <div class="text-lg mb-1">📍</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold">Sección embebida</div>
+        <div class="text-[9px] mt-1 opacity-70">Parte de página padre</div>
+      </div>
+      <div class="node node-overlay text-center">
+        <div class="text-lg mb-1">🌑</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold">Overlay flotante</div>
+        <div class="text-[9px] mt-1 opacity-70">Popover · tooltip</div>
+      </div>
+      <div class="node node-state text-center">
+        <div class="text-lg mb-1">🎨</div>
+        <div class="text-[10px] uppercase tracking-wider font-bold">Estado visual</div>
+        <div class="text-[9px] mt-1 opacity-70">Variante de un mockup</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- NIVEL 1 · PÁGINA RAÍZ -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-10">
+    <div class="section-title">
+      <div class="section-num">1</div>
+      <h2 class="text-xl font-bold text-slate-900">Nivel raíz · Página principal /productos</h2>
+    </div>
+
+    <div class="grid grid-cols-12 gap-4 items-start">
+      <!-- Mockup raíz -->
+      <div class="col-span-4">
+        <a href="01-page-listado.html" target="_blank" class="block">
+          <div class="node node-page">
+            <div class="text-2xl mb-1">📄</div>
+            <div class="font-bold text-sm">Listado de productos</div>
+            <div class="text-xs opacity-70 mt-1">Vista DEFAULT con datos</div>
+            <div class="node-id mt-2">01-page-listado</div>
+          </div>
+        </a>
+        <div class="text-[10px] text-slate-500 mt-1 italic text-center">↑ Origen · accesible desde sidebar Catálogo > Productos</div>
+      </div>
+
+      <!-- Estados alternativos -->
+      <div class="col-span-8">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estados alternativos de la misma página</div>
+        <div class="grid grid-cols-4 gap-3">
+          <a href="02-page-listado-vacio-bd.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-base mb-1">📄</div>
+              <div class="text-xs font-bold">Vacío · BD</div>
+              <div class="text-[9px] mt-1 opacity-70">0 productos</div>
+              <div class="node-id mt-1">02</div>
+            </div>
+          </a>
+          <a href="03-page-listado-vacio-busqueda.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-base mb-1">📄</div>
+              <div class="text-xs font-bold">Vacío · búsqueda</div>
+              <div class="text-[9px] mt-1 opacity-70">0 resultados</div>
+              <div class="node-id mt-1">03</div>
+            </div>
+          </a>
+          <a href="04-page-listado-loading.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-base mb-1">📄</div>
+              <div class="text-xs font-bold">Loading</div>
+              <div class="text-[9px] mt-1 opacity-70">Skeleton</div>
+              <div class="node-id mt-1">04</div>
+            </div>
+          </a>
+          <a href="05-page-listado-mobile.html" target="_blank">
+            <div class="node node-state text-center">
+              <div class="text-base mb-1">📱</div>
+              <div class="text-xs font-bold">Mobile</div>
+              <div class="text-[9px] mt-1 opacity-70">Cards apiladas</div>
+              <div class="node-id mt-1">05</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- NIVEL 2 · COMPONENTES DENTRO DE LA PÁGINA -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-10">
+    <div class="section-title">
+      <div class="section-num">2</div>
+      <h2 class="text-xl font-bold text-slate-900">Nivel 2 · Componentes dentro de la página principal</h2>
+    </div>
+    <p class="text-xs text-slate-500 mb-4">Componentes que VIVEN dentro del listado · no abren ventanas nuevas</p>
+
+    <div class="space-y-4">
+
+      <!-- FILA: Filtros -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🔧 Sistema de filtros (3 mockups documentan el componente)</div>
+        <div class="grid grid-cols-7 gap-3 items-center">
+          <a href="06-filtros-bar-default.html" target="_blank" class="col-span-2">
+            <div class="node node-section text-center">
+              <div class="text-base">📍</div>
+              <div class="text-xs font-bold mt-1">FiltrosBar · default</div>
+              <div class="text-[9px] mt-1 opacity-70">Sin filtros activos</div>
+              <div class="node-id mt-1">06</div>
+            </div>
+          </a>
+          <div class="col-span-1 text-center">
+            <span class="arrow"><i data-lucide="arrow-right" class="arrow-icon"></i>aplica filtro</span>
+          </div>
+          <a href="07-filtros-bar-activos.html" target="_blank" class="col-span-2">
+            <div class="node node-section text-center">
+              <div class="text-base">📍</div>
+              <div class="text-xs font-bold mt-1">FiltrosBar · activos</div>
+              <div class="text-[9px] mt-1 opacity-70">Con chips de filtros</div>
+              <div class="node-id mt-1">07</div>
+            </div>
+          </a>
+          <div class="col-span-1 text-center">
+            <span class="arrow"><i data-lucide="arrow-right" class="arrow-icon"></i>en mobile</span>
+          </div>
+          <a href="08-filtros-drawer-mobile.html" target="_blank" class="col-span-1">
+            <div class="node node-drawer text-center">
+              <div class="text-base">📋</div>
+              <div class="text-xs font-bold mt-1">Drawer mobile</div>
+              <div class="text-[9px] mt-1 opacity-70">Slide-up</div>
+              <div class="node-id mt-1">08</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Pills + chips -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🎯 Atajos visuales y micro-componentes</div>
+        <div class="grid grid-cols-3 gap-3">
+          <a href="33-filtros-rapidos-pills.html" target="_blank">
+            <div class="node node-section text-center">
+              <div class="text-base">📍</div>
+              <div class="text-xs font-bold mt-1">Pills rápidos</div>
+              <div class="text-[9px] mt-1 opacity-70">Atajos a filtros frecuentes</div>
+              <div class="node-id mt-1">33</div>
+            </div>
+          </a>
+          <a href="34-chips-filtros-activos.html" target="_blank">
+            <div class="node node-section text-center">
+              <div class="text-base">📍</div>
+              <div class="text-xs font-bold mt-1">Chips activos</div>
+              <div class="text-[9px] mt-1 opacity-70">Banner de filtros aplicados</div>
+              <div class="node-id mt-1">34</div>
+            </div>
+          </a>
+          <a href="35-tooltips-popovers.html" target="_blank">
+            <div class="node node-overlay text-center">
+              <div class="text-base">🌑</div>
+              <div class="text-xs font-bold mt-1">Tooltips/popovers</div>
+              <div class="text-[9px] mt-1 opacity-70">Hover en métricas/chips</div>
+              <div class="node-id mt-1">35</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card row + estados (Sesión 2) -->
+      <div class="bg-amber-50 border-2 border-dashed border-amber-300 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-3">🎨 Card row · 6 estados visuales (Sesión 2 PRÓXIMA)</div>
+        <div class="grid grid-cols-6 gap-2">
+          <div class="node node-state text-center opacity-60">
+            <div class="text-xs font-bold">Normal</div>
+            <div class="node-id mt-1">10</div>
+          </div>
+          <div class="node node-state text-center opacity-60">
+            <div class="text-xs font-bold">Hover</div>
+            <div class="node-id mt-1">10b</div>
+          </div>
+          <div class="node node-state text-center opacity-60">
+            <div class="text-xs font-bold">Stock crítico</div>
+            <div class="node-id mt-1">10c</div>
+          </div>
+          <div class="node node-state text-center opacity-60">
+            <div class="text-xs font-bold">Investigación</div>
+            <div class="node-id mt-1">10d</div>
+          </div>
+          <div class="node node-state text-center opacity-60">
+            <div class="text-xs font-bold">Pack</div>
+            <div class="node-id mt-1">10e</div>
+          </div>
+          <div class="node node-state text-center opacity-60">
+            <div class="text-xs font-bold">Archivado</div>
+            <div class="node-id mt-1">10f</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk actions -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">⚡ Acciones masivas (cuando hay selección)</div>
+        <div class="grid grid-cols-7 gap-3 items-center">
+          <a href="01-page-listado.html" target="_blank" class="col-span-2">
+            <div class="node node-page text-center">
+              <div class="text-base">📄</div>
+              <div class="text-xs font-bold mt-1">Listado normal</div>
+              <div class="node-id mt-1">01</div>
+            </div>
+          </a>
+          <div class="col-span-1 text-center">
+            <span class="arrow"><i data-lucide="check" class="arrow-icon"></i>seleccionar ≥1</span>
+          </div>
+          <a href="09-bulk-actions-toolbar.html" target="_blank" class="col-span-3">
+            <div class="node node-section text-center">
+              <div class="text-base">📍</div>
+              <div class="text-xs font-bold mt-1">Toolbar STICKY TOP · bulk actions</div>
+              <div class="text-[9px] mt-1 opacity-70">5 acciones masivas (Estado/Etiqueta/Línea/Exportar/Archivar)</div>
+              <div class="node-id mt-1">09</div>
+            </div>
+          </a>
+          <div class="col-span-1 text-center">
+            <span class="arrow"><i data-lucide="x" class="arrow-icon"></i>limpiar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- NIVEL 3 · WIZARDS Y MODALES (Sesión 3) -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-10">
+    <div class="section-title">
+      <div class="section-num">3</div>
+      <h2 class="text-xl font-bold text-slate-900">Nivel 3 · Wizards de creación (PRÓXIMA Sesión 3)</h2>
+    </div>
+    <p class="text-xs text-slate-500 mb-4">Trigger: click "Nuevo producto" en header</p>
+
+    <div class="grid grid-cols-12 gap-4 items-center">
+      <a href="01-page-listado.html" target="_blank" class="col-span-2">
+        <div class="node node-page text-center">
+          <div class="text-base">📄</div>
+          <div class="text-xs font-bold mt-1">Listado</div>
+          <div class="node-id mt-1">01</div>
+        </div>
+      </a>
+      <div class="col-span-1 text-center">
+        <span class="arrow"><i data-lucide="plus" class="arrow-icon"></i>+ Nuevo</span>
+      </div>
+      <div class="col-span-3 opacity-60">
+        <div class="node node-modal text-center">
+          <div class="text-base">🪟</div>
+          <div class="text-xs font-bold mt-1">Selector tipo</div>
+          <div class="text-[9px] mt-1 opacity-70">4 opciones</div>
+          <div class="node-id mt-1">16</div>
+        </div>
+      </div>
+      <div class="col-span-1 text-center">
+        <span class="arrow"><i data-lucide="arrow-right" class="arrow-icon"></i>elige tipo</span>
+      </div>
+      <div class="col-span-5">
+        <div class="grid grid-cols-2 gap-2 opacity-60">
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Modal · Simple (1 paso)</div>
+            <div class="node-id mt-1">17</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Sidebar · Variantes (4 pasos)</div>
+            <div class="node-id mt-1">18</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Modal · Variante exist.</div>
+            <div class="node-id mt-1">19</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Modal · Pack/Kit</div>
+            <div class="node-id mt-1">20</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- NIVEL 4 · MODAL DETALLE (Sesión 2) -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-10">
+    <div class="section-title">
+      <div class="section-num">4</div>
+      <h2 class="text-xl font-bold text-slate-900">Nivel 4 · Modal detalle producto (Sesión 2 PRÓXIMA)</h2>
+    </div>
+    <p class="text-xs text-slate-500 mb-4">Trigger: click en cualquier fila del listado · click en ícono "ojo"</p>
+
+    <div class="grid grid-cols-12 gap-4 items-start">
+      <a href="01-page-listado.html" target="_blank" class="col-span-2">
+        <div class="node node-page text-center">
+          <div class="text-base">📄</div>
+          <div class="text-xs font-bold mt-1">Listado</div>
+          <div class="node-id mt-1">01</div>
+        </div>
+      </a>
+      <div class="col-span-1 text-center pt-4">
+        <span class="arrow"><i data-lucide="eye" class="arrow-icon"></i>click row</span>
+      </div>
+      <div class="col-span-9 bg-white border border-slate-200 rounded-xl p-4 opacity-60">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🪟 Modal detalle (5 tabs · dinámicos según tipo de producto)</div>
+        <div class="grid grid-cols-5 gap-2">
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Info</div>
+            <div class="text-[9px] mt-1 opacity-70">Datos básicos</div>
+            <div class="node-id mt-1">11</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Variantes</div>
+            <div class="text-[9px] mt-1 opacity-70">SKUs hijos</div>
+            <div class="node-id mt-1">12</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Investigación</div>
+            <div class="text-[9px] mt-1 opacity-70">Resumen</div>
+            <div class="node-id mt-1">13</div>
+          </div>
+          <div class="node node-modal text-center" style="border-style: dashed;">
+            <div class="text-xs font-bold">Componentes</div>
+            <div class="text-[9px] mt-1 opacity-70">SOLO si pack</div>
+            <div class="node-id mt-1">14</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-xs font-bold">Stock</div>
+            <div class="text-[9px] mt-1 opacity-70">Histórico</div>
+            <div class="node-id mt-1">15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- NIVEL 5 · MODALES SECUNDARIOS Y SUB-COMPONENTES (Sesión 3) -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="mb-10">
+    <div class="section-title">
+      <div class="section-num">5</div>
+      <h2 class="text-xl font-bold text-slate-900">Nivel 5 · Modales secundarios + sub-vistas (Sesión 3 PRÓXIMA)</h2>
+    </div>
+
+    <div class="space-y-4 opacity-60">
+      <!-- Investigación + sub-vistas -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🔍 Modal investigación + 5 sub-vistas internas</div>
+        <div class="grid grid-cols-7 gap-3 items-center">
+          <div class="col-span-1 text-center">
+            <span class="arrow"><i data-lucide="search" class="arrow-icon"></i>Investigar</span>
+          </div>
+          <div class="col-span-2">
+            <div class="node node-modal text-center">
+              <div class="text-base">🪟</div>
+              <div class="text-xs font-bold mt-1">Modal Investigación</div>
+              <div class="text-[9px] mt-1 opacity-70">Modal grande · 3 tabs</div>
+              <div class="node-id mt-1">24</div>
+            </div>
+          </div>
+          <div class="col-span-1 text-center">
+            <span class="arrow"><i data-lucide="arrow-right" class="arrow-icon"></i>tabs</span>
+          </div>
+          <div class="col-span-3">
+            <div class="grid grid-cols-3 gap-1.5">
+              <div class="node node-section text-center">
+                <div class="text-[10px] font-bold">Proveedores</div>
+                <div class="node-id mt-1">25</div>
+              </div>
+              <div class="node node-section text-center">
+                <div class="text-[10px] font-bold">Competencia</div>
+                <div class="node-id mt-1">26</div>
+              </div>
+              <div class="node node-section text-center">
+                <div class="text-[10px] font-bold">Decisión</div>
+                <div class="node-id mt-1">27</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 mt-2">
+              <div class="node node-section text-center">
+                <div class="text-[10px] font-bold">Histórico precios</div>
+                <div class="node-id mt-1">28</div>
+              </div>
+              <div class="node node-section text-center">
+                <div class="text-[10px] font-bold">Banner alertas</div>
+                <div class="node-id mt-1">29</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Otros modales secundarios -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">📂 Otros modales secundarios</div>
+        <div class="grid grid-cols-4 gap-3">
+          <div class="node node-modal text-center">
+            <div class="text-base">🪟</div>
+            <div class="text-xs font-bold mt-1">Buscador grupo</div>
+            <div class="text-[9px] mt-1 opacity-70">Para crear variante existente</div>
+            <div class="node-id mt-1">21</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-base">🪟</div>
+            <div class="text-xs font-bold mt-1">Form variante reducida</div>
+            <div class="text-[9px] mt-1 opacity-70">Tras seleccionar grupo</div>
+            <div class="node-id mt-1">22</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-base">🪟</div>
+            <div class="text-xs font-bold mt-1">Papelera/Archivo</div>
+            <div class="text-[9px] mt-1 opacity-70">Click "Archivo" en header</div>
+            <div class="node-id mt-1">23</div>
+          </div>
+          <div class="node node-modal text-center">
+            <div class="text-base">🪟</div>
+            <div class="text-xs font-bold mt-1">Dashboard catálogo</div>
+            <div class="text-[9px] mt-1 opacity-70">Click "Calculadora" en header</div>
+            <div class="node-id mt-1">30</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tools embebidas -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-3">🛠️ Herramientas embebidas en otros mockups</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="node node-section text-center">
+            <div class="text-base">📍</div>
+            <div class="text-xs font-bold mt-1">Calculadora punto equilibrio</div>
+            <div class="text-[9px] mt-1 opacity-70">Embedded en modal detalle (#11)</div>
+            <div class="node-id mt-1">31</div>
+          </div>
+          <div class="node node-section text-center">
+            <div class="text-base">📍</div>
+            <div class="text-xs font-bold mt-1">Banner sugerencia variantes</div>
+            <div class="text-[9px] mt-1 opacity-70">En ProductoForm cuando detecta similar</div>
+            <div class="node-id mt-1">32</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- RESUMEN DE FLUJO -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6">
+    <h2 class="text-lg font-bold mb-3">📊 Resumen de flujo · Productos</h2>
+    <div class="grid grid-cols-3 gap-4 text-sm">
+      <div>
+        <div class="font-bold text-teal-300 mb-2">📄 Páginas (5)</div>
+        <p class="text-xs text-slate-300">1 página principal + 4 estados (vacío BD · vacío búsqueda · loading · mobile)</p>
+      </div>
+      <div>
+        <div class="font-bold text-purple-300 mb-2">🪟 Modales (10)</div>
+        <p class="text-xs text-slate-300">5 wizards de creación + 4 modales secundarios + 1 modal detalle (con 5 tabs internos)</p>
+      </div>
+      <div>
+        <div class="font-bold text-blue-300 mb-2">📋 Drawers (1)</div>
+        <p class="text-xs text-slate-300">Filtros mobile (slide-up)</p>
+      </div>
+      <div>
+        <div class="font-bold text-amber-300 mb-2">📍 Secciones (12)</div>
+        <p class="text-xs text-slate-300">Componentes embebidos: filtros, pills, chips, bulk toolbar, card states, sub-vistas investigación, herramientas</p>
+      </div>
+      <div>
+        <div class="font-bold text-rose-300 mb-2">🌑 Overlays (1)</div>
+        <p class="text-xs text-slate-300">Tooltips/popovers (hover micro-interacciones)</p>
+      </div>
+      <div>
+        <div class="font-bold text-slate-300 mb-2">🎨 Estados (6)</div>
+        <p class="text-xs text-slate-300">Variantes visuales del card row (normal · hover · crítico · investigación · pack · archivado)</p>
+      </div>
+    </div>
+    <div class="mt-4 pt-4 border-t border-slate-700 text-xs text-slate-400">
+      Total · 40 mockups (12 producidos · 28 pendientes en Sesiones 2 y 3)
+    </div>
+  </div>
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

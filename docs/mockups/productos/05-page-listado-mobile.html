@@ -8,7 +8,13 @@
 <style>
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #e2e8f0; font-variant-numeric: tabular-nums; padding: 16px; }
 .tabular { font-variant-numeric: tabular-nums; }
-.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #86efac; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #f0fdf4; color: #14532d; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #14532d; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
 .mobile-frame { max-width: 400px; margin: 0 auto; background: #f8fafc; border-radius: 32px; padding: 16px 12px; box-shadow: 0 0 0 8px #1e293b, 0 20px 60px rgba(0,0,0,0.25); position: relative; }
 .mobile-frame::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 80px; height: 5px; background: #1e293b; border-radius: 999px; }
 .sku-avatar { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 8px; font-weight: 700; box-shadow: 0 0 0 1.5px white; }
@@ -16,7 +22,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </head>
 <body>
 
-<div class="mockup-context">📐 05 · Vista MOBILE · Cards apiladas (responsive)</div>
+<div class="context-frame">
+  <div class="context-icon">📱</div>
+  <div class="context-info">
+    <div class="context-type">Página completa · Vista MOBILE responsive</div>
+    <div class="context-title">Listado mobile · Cards apiladas (no tabla)</div>
+    <div class="context-meta">Trigger: viewport &lt; 768px · Reemplaza tabla por cards F4(B) · Filtros se acceden vía drawer (#08)</div>
+  </div>
+  <div class="context-id">05-page-mobile</div>
+</div>
 
 <div class="mobile-frame mt-4">
   <!-- HEADER mobile -->

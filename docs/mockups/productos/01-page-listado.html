@@ -9,12 +9,28 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; }
 .tabular { font-variant-numeric: tabular-nums; }
 .sku-avatar { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 9px; font-weight: 700; box-shadow: 0 0 0 2px white; }
-.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #86efac; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #f0fdf4; color: #14532d; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #14532d; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
 </style>
 </head>
 <body>
 
-<div class="mockup-context">📐 01 · Page Listado · /productos · DEFAULT</div>
+<div class="context-frame">
+  <div class="context-icon">📄</div>
+  <div class="context-info">
+    <div class="context-type">Página completa · Standalone</div>
+    <div class="context-title">Listado de Productos · Vista DEFAULT con datos</div>
+    <div class="context-meta">Trigger: navegación desde Sidebar &gt; Catálogo &gt; Productos · Sin padre (es la raíz)</div>
+  </div>
+  <div class="context-id">01-page-listado</div>
+</div>
+
+<div style="height: 70px"></div>
 
 <div class="max-w-7xl mx-auto px-6 py-6">
 

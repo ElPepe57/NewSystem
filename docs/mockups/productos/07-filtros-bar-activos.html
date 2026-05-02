@@ -8,11 +8,26 @@
 <style>
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; font-variant-numeric: tabular-nums; padding: 32px; }
 .tabular { font-variant-numeric: tabular-nums; }
-.mockup-context { position: fixed; top: 8px; right: 8px; background: #1e293b; color: white; padding: 6px 12px; border-radius: 6px; font-size: 10px; z-index: 100; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
 </style>
 </head>
 <body>
-<div class="mockup-context">📐 07 · FiltrosBar · con FILTROS ACTIVOS + count + limpiar</div>
+<div class="context-frame">
+  <div class="context-icon">📍</div>
+  <div class="context-info">
+    <div class="context-type">Sección embebida · Estado ACTIVO</div>
+    <div class="context-title">FiltrosBar con 5 filtros aplicados · Banner chips removibles</div>
+    <div class="context-meta">Vive dentro de: 01-page-listado · Trigger: usuario aplicó ≥1 filtro · Banner debajo se hace visible</div>
+  </div>
+  <div class="context-id">07-filtros-activos</div>
+</div>
+<div style="height: 70px"></div>
 
 <div class="max-w-7xl mx-auto">
   <!-- FiltrosBar con activos -->
