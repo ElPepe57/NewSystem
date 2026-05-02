@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Decisiones Visuales · Etapa 2 · BusinessMN v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; }
+.section-anchor { scroll-margin-top: 4rem; }
+.variant-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.variant-card:hover { border-color: #14b8a6; box-shadow: 0 10px 30px -5px rgba(20,184,166,0.15); }
+.variant-card.recommended { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+.variant-card.recommended::before {
+  content: '⭐ MI RECOMENDACIÓN';
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: #10b981;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+iframe { border: none; border-radius: 0.5rem; background: white; width: 100%; }
+.iframe-container {
+  position: relative;
+  background: linear-gradient(135deg, #f1f5f9 25%, transparent 25%), linear-gradient(225deg, #f1f5f9 25%, transparent 25%), linear-gradient(45deg, #f1f5f9 25%, transparent 25%), linear-gradient(315deg, #f1f5f9 25%, #fff 25%);
+  background-position: 10px 0, 10px 0, 0 0, 0 0;
+  background-size: 20px 20px;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 0.5rem;
+}
+.tag-era { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.tag-era-1 { background: #fee2e2; color: #991b1b; }
+.tag-era-2 { background: #fef3c7; color: #92400e; }
+.tag-era-3 { background: #fce7f3; color: #9f1239; }
+.tag-era-4 { background: #ccfbf1; color: #115e59; }
+.tag-era-5 { background: #ddd6fe; color: #5b21b6; }
+.decision-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 0.75rem; padding: 16px; margin-top: 16px; }
+.decision-input { background: white; border: 2px solid #fcd34d; border-radius: 0.5rem; padding: 8px 12px; font-size: 13px; width: 100%; min-height: 60px; }
+.nav-link { padding: 6px 12px; border-radius: 6px; color: #475569; font-size: 12px; font-weight: 500; transition: all 0.15s; display: block; }
+.nav-link:hover { background: #f1f5f9; color: #0f172a; }
+.nav-link.active { background: #14b8a6; color: white; }
+.btn-open { background: #14b8a6; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+.btn-open:hover { background: #0f766e; }
+.conflict-high { background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+.conflict-med { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+.conflict-low { background: #f0fdf4; border-left: 4px solid #10b981; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="bg-gradient-to-br from-purple-600 via-violet-600 to-fuchsia-600 text-white">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="text-xs uppercase tracking-wider opacity-80 mb-2">Etapa 2 · BusinessMN v2</div>
+    <h1 class="text-3xl font-bold tracking-tight mb-2">Decisiones Visuales · Sistema de Diseño</h1>
+    <p class="text-violet-100 text-sm max-w-3xl">
+      Producir el estándar canónico final. Para cada familia polimórfica, ver las variantes lado a lado
+      y decidir cuál es la versión definitiva. Las opciones están renderizadas con el mockup original
+      (link "Ver completo" abre en nueva pestaña).
+    </p>
+    <div class="mt-4 flex gap-3 flex-wrap">
+      <span class="bg-white/20 backdrop-blur px-3 py-1.5 rounded-full text-xs font-semibold">10 familias</span>
+      <span class="bg-white/20 backdrop-blur px-3 py-1.5 rounded-full text-xs font-semibold">29 variantes a comparar</span>
+      <span class="bg-white/20 backdrop-blur px-3 py-1.5 rounded-full text-xs font-semibold">Output → docs/DESIGN_CANONICO_FINAL.md</span>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-6 py-6 grid grid-cols-12 gap-6">
+
+  <!-- Sidebar nav -->
+  <aside class="col-span-3 sticky top-6 self-start">
+    <div class="bg-white rounded-xl border border-slate-200 p-4">
+      <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Familias polimórficas</div>
+      <nav class="space-y-1">
+        <a href="#f1" class="nav-link">F1 · Header banking-grade</a>
+        <a href="#f2" class="nav-link">F2 · KPI strip</a>
+        <a href="#f3" class="nav-link">F3 · Filtros 🔥</a>
+        <a href="#f4" class="nav-link">F4 · Tablas/Listados 🔥</a>
+        <a href="#f5" class="nav-link">F5 · Wizards 🔥</a>
+        <a href="#f6" class="nav-link">F6 · Modales detalle</a>
+        <a href="#f7" class="nav-link">F7 · Tabular-nums</a>
+        <a href="#f8" class="nav-link">F8 · Iconografía</a>
+        <a href="#f9" class="nav-link">F9 · Breadcrumb sep</a>
+        <a href="#f10" class="nav-link">F10 · Botones header</a>
+        <a href="#obsoletos" class="nav-link">Mockups obsoletos</a>
+      </nav>
+      <div class="mt-4 pt-4 border-t border-slate-100">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Leyenda eras</div>
+        <div class="space-y-1 text-[10px]">
+          <div><span class="tag-era tag-era-1">Era 1</span> <span class="text-slate-500 ml-1">Pre-canónica (S40-S43)</span></div>
+          <div><span class="tag-era tag-era-2">Era 2</span> <span class="text-slate-500 ml-1">6 referencias (S44-S54)</span></div>
+          <div><span class="tag-era tag-era-3">Era 3</span> <span class="text-slate-500 ml-1">PF + Finanzas (S56-S58d)</span></div>
+          <div><span class="tag-era tag-era-4">Era 4</span> <span class="text-slate-500 ml-1">Banking-grade (S58e)</span></div>
+          <div><span class="tag-era tag-era-5">Era 5</span> <span class="text-slate-500 ml-1">Manifesto + cards (S58f)</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="col-span-9 space-y-12">
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F1 · HEADER BANKING-GRADE -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="f1" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center font-bold">F1</div>
+        <h2 class="text-2xl font-bold text-slate-900">Header de página (banking-grade)</h2>
+        <span class="conflict-med px-2 py-1 text-xs font-semibold rounded">Conflicto medio</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">El header de cada página varía según la era. Hay que ratificar la <strong>variante D (S58f)</strong> como canónica final.</p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Variante A -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante A · h1 simple</div>
+                <div class="text-xs text-slate-500 mt-0.5">Sin breadcrumb · acciones inline</div>
+              </div>
+              <span class="tag-era tag-era-1">Era 1</span>
+            </div>
+            <a href="rework-maestro-s40.html" target="_blank" class="btn-open mt-2 inline-flex">
+              Ver mockup completo →
+            </a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="rework-maestro-s40.html" style="height: 280px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- Variante B -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante B · breadcrumb con ·</div>
+                <div class="text-xs text-slate-500 mt-0.5">Separator puntomedio · h1 con icon</div>
+              </div>
+              <span class="tag-era tag-era-2">Era 2</span>
+            </div>
+            <a href="oc-detail-pipeline-s54.html" target="_blank" class="btn-open mt-2 inline-flex">
+              Ver mockup completo →
+            </a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="oc-detail-pipeline-s54.html" style="height: 280px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- Variante C -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante C · ChevronRight</div>
+                <div class="text-xs text-slate-500 mt-0.5">Banking-grade base · acciones a la derecha</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-movimientos-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">
+              Ver mockup completo →
+            </a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-movimientos-s58e.html" style="height: 280px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- Variante D · RECOMENDADA -->
+        <div class="variant-card recommended relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-emerald-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante D · Subtítulo extendido</div>
+                <div class="text-xs text-slate-500 mt-0.5">C + subtítulo descriptivo + primary-soft</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="gastos-page-completa-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">
+              Ver mockup completo →
+            </a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="gastos-page-completa-s58f.html" style="height: 280px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-2">📌 Decisión D-F1</div>
+        <p class="text-sm text-amber-900 mb-3">
+          <strong>Mi recomendación:</strong> Variante D (S58f) como canónica final para todos los módulos.
+          Razón: subtítulo extendido aterriza el propósito de la página al usuario (no técnico) y los botones
+          primary-soft se integran mejor con el resto del sistema visual.
+        </p>
+        <label class="text-xs font-semibold text-amber-900 block mb-1">Tu decisión:</label>
+        <textarea class="decision-input" placeholder="Ej: Acepto D · O: Prefiero C porque... · O: Modificación: usar D pero con X cambio"></textarea>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F2 · KPI STRIP -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="f2" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center font-bold">F2</div>
+        <h2 class="text-2xl font-bold text-slate-900">KPI strip</h2>
+        <span class="conflict-med px-2 py-1 text-xs font-semibold rounded">Conflicto medio</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">4 patrones distintos para mostrar KPIs en el header de la página. Probable taxonomía: B default · C cuando aplique sparkline · D excepción declarada para dashboards ejecutivos.</p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- A · Cards individuales -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante A · Cards individuales</div>
+                <div class="text-xs text-slate-500 mt-0.5">Grid 4 col · cada KPI con shadow + hover</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-productos-listado-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-productos-listado-s58e.html" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- B · Strip horizontal con dividers · RECOMENDADA -->
+        <div class="variant-card recommended relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-emerald-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante B · Strip con dividers</div>
+                <div class="text-xs text-slate-500 mt-0.5">1 contenedor blanco · dividers verticales</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-movimientos-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-movimientos-s58e.html#kpi-strip" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- C · Strip con sparklines -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante C · Strip con sparklines</div>
+                <div class="text-xs text-slate-500 mt-0.5">B + decimales atenuados + sparklines en algunos</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="productos-rediseno-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="productos-rediseno-s58f.html" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- D · Cards anchored con sparkline -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante D · Cards anchored Stripe</div>
+                <div class="text-xs text-slate-500 mt-0.5">Cards individuales con tendencias internas</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="ventas-design-canonico-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="ventas-design-canonico-s58f.html" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-2">📌 Decisión D-F2</div>
+        <p class="text-sm text-amber-900 mb-3">
+          <strong>Mi recomendación:</strong> taxonomía con 3 variantes:
+          <br>• <strong>B (default)</strong> · operativo: tesorería, gastos, finanzas
+          <br>• <strong>C (cuando hay tendencia temporal)</strong> · catálogos: productos, stock
+          <br>• <strong>D (excepción declarada)</strong> · dashboards ejecutivos: dashboard principal, mapa ventas
+        </p>
+        <label class="text-xs font-semibold text-amber-900 block mb-1">Tu decisión:</label>
+        <textarea class="decision-input" placeholder="Acepto la taxonomía B/C/D · O modificación..."></textarea>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F3 · FILTROS (LA MÁS CONFLICTIVA) -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="f3" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center font-bold">F3</div>
+        <h2 class="text-2xl font-bold text-slate-900">Filtros</h2>
+        <span class="conflict-high px-2 py-1 text-xs font-semibold rounded">🔥 Conflicto ALTO</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">5 patrones de filtros distintos en el sistema. Esta es <strong>la familia más conflictiva</strong> porque ya tenemos código vivo de múltiples variantes.</p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- B · Pipeline horizontal -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante B · PipelineHeader</div>
+                <div class="text-xs text-slate-500 mt-0.5">Pipeline-style horizontal</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-productos-listado-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-productos-listado-s58e.html" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- C · 6ª referencia FiltrosFinanzasBar · RECOMENDADA -->
+        <div class="variant-card recommended relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-emerald-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante C · FiltrosFinanzasBar (6ª ref)</div>
+                <div class="text-xs text-slate-500 mt-0.5">Date range + chips + búsqueda + orden + limpiar (2 filas)</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="finanzas-saldos-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="finanzas-saldos-s58e.html" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- D · Chips multi 2 filas -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante D · Chips por dimensión</div>
+                <div class="text-xs text-slate-500 mt-0.5">Línea/Tipo/Estado con counts inline</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="productos-rediseno-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="productos-rediseno-s58f.html" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- E · Filtros por dominio (FiltrosMovimientosBar) -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante E · Filtros por dominio</div>
+                <div class="text-xs text-slate-500 mt-0.5">FiltrosMovimientosBar: categoría + canal + doc</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-movimientos-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-movimientos-s58e.html" style="height: 320px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-2">📌 Decisión D-F3 (CRÍTICA)</div>
+        <p class="text-sm text-amber-900 mb-3">
+          <strong>Mi recomendación:</strong> declarar que <strong>C/D/E son una sola familia "FiltrosCanónicosBar"</strong>
+          con instancias por dominio (ya existen FiltrosFinanzasBar, FiltrosGastosBar, FiltrosMovimientosBar como
+          siblings). Crear UN componente compositional `FiltrosBar` con sub-componentes (DateRange, ChipGroup, Search, Sort, ClearAll)
+          y que cada dominio combine los suyos.
+          <br><br>
+          <strong>Variante B (Pipeline)</strong> queda como excepción declarada para vistas de productos financieros donde
+          el "estado" tiene flujo (Saludable→Atención→Crítico→Vencida).
+        </p>
+        <label class="text-xs font-semibold text-amber-900 block mb-1">Tu decisión:</label>
+        <textarea class="decision-input" placeholder="¿Componente compositional FiltrosBar? ¿O mantener siblings independientes? ¿Qué hacer con Pipeline?"></textarea>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F4 · TABLAS / LISTADOS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="f4" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center font-bold">F4</div>
+        <h2 class="text-2xl font-bold text-slate-900">Tablas y Listados</h2>
+        <span class="conflict-high px-2 py-1 text-xs font-semibold rounded">🔥 Conflicto ALTO</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">4 patrones de listado. La decisión es definir <strong>cuándo usar cada uno</strong>, no eliminar variantes (cada una sirve a un caso de uso distinto).</p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- A · DataTable simple -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante A · DataTable simple</div>
+                <div class="text-xs text-slate-500 mt-0.5">Filas alternadas · chips · acciones inline</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-movimientos-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-movimientos-s58e.html" style="height: 360px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- B · Cards apiladas -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante B · Cards apiladas</div>
+                <div class="text-xs text-slate-500 mt-0.5">Cards con altura propia · drill-down</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="gastos-page-completa-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="gastos-page-completa-s58f.html" style="height: 360px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- C · Linear/Stripe robust grid -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante C · Robust grid</div>
+                <div class="text-xs text-slate-500 mt-0.5">Avatares apilados · sparkline · sku-overlap</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="productos-rediseno-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="productos-rediseno-s58f.html" style="height: 360px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- D · Cards anchored al canvas -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante D · Cards anchored</div>
+                <div class="text-xs text-slate-500 mt-0.5">Cards flotantes ancladas a canvas/mapa</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="mapa-ventas-geografico-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="mapa-ventas-geografico-s58f.html" style="height: 360px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-2">📌 Decisión D-F4 (TAXONOMÍA)</div>
+        <p class="text-sm text-amber-900 mb-3">
+          <strong>Mi recomendación · taxonomía:</strong>
+          <br>• <strong>A · DataTable simple</strong> → ledgers / libros mayores (Movimientos, Conversiones, Transferencias, Pagos masivos)
+          <br>• <strong>B · Cards apiladas</strong> → entidades con sub-info (Gastos, Envíos, Saldos por entidad, Compras OC)
+          <br>• <strong>C · Robust grid</strong> → catálogos densos con métricas comparativas (Productos, Stock por SKU)
+          <br>• <strong>D · Cards anchored</strong> → dashboards visuales con coordenadas/canvas (Ventas geo, Stock heatmap)
+        </p>
+        <label class="text-xs font-semibold text-amber-900 block mb-1">Tu decisión:</label>
+        <textarea class="decision-input" placeholder="¿Acepto la taxonomía A/B/C/D? ¿Cambios al criterio?"></textarea>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F5 · WIZARDS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="f5" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center font-bold">F5</div>
+        <h2 class="text-2xl font-bold text-slate-900">Wizards (multi-step forms)</h2>
+        <span class="conflict-high px-2 py-1 text-xs font-semibold rounded">🔥 Conflicto ALTO</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">5 patrones de wizard. Decidir cuándo usar cada uno.</p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- A · Sidebar vertical -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante A · Sidebar vertical pasos</div>
+                <div class="text-xs text-slate-500 mt-0.5">Sidebar izq numerado + contenido + sidebar der</div>
+              </div>
+              <span class="tag-era tag-era-2">Era 2</span>
+            </div>
+            <a href="wizard-envio-unificado-s52.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="wizard-envio-unificado-s52.html" style="height: 380px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- B · Stepper horizontal -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante B · Stepper horizontal</div>
+                <div class="text-xs text-slate-500 mt-0.5">Pasos arriba con check + contenido + footer</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-conversion-transferencia-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-conversion-transferencia-s58e.html" style="height: 380px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- C · Steps secuenciales -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante C · Steps secuenciales</div>
+                <div class="text-xs text-slate-500 mt-0.5">Pagos masivos · sub-tabs internas</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-pagos-masivos-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-pagos-masivos-s58e.html" style="height: 380px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <!-- D · Modal-in-modal inline -->
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante D · Modal inline</div>
+                <div class="text-xs text-slate-500 mt-0.5">FormModalV2 con secciones colapsables</div>
+              </div>
+              <span class="tag-era tag-era-5">Era 5</span>
+            </div>
+            <a href="proveedor-form-inline-s58f.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="proveedor-form-inline-s58f.html" style="height: 380px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-2">📌 Decisión D-F5 (TAXONOMÍA)</div>
+        <p class="text-sm text-amber-900 mb-3">
+          <strong>Mi recomendación · taxonomía por complejidad:</strong>
+          <br>• <strong>A · Sidebar vertical</strong> → wizards de proceso multi-step LARGO (4+ pasos · envíos, pagos masivos)
+          <br>• <strong>B · Stepper horizontal</strong> → wizards de 3 pasos cortos (conversión, transferencia, cobro distribuido)
+          <br>• <strong>D · Modal inline</strong> → forms rápidos (creación de entidades pequeñas: proveedor, gasto, etc.)
+          <br>• <strong>C</strong> queda absorbido en A (es una variante menor)
+        </p>
+        <label class="text-xs font-semibold text-amber-900 block mb-1">Tu decisión:</label>
+        <textarea class="decision-input" placeholder="¿Acepto A/B/D? ¿Mantener C separada?"></textarea>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F6 · MODALES DE DETALLE -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="f6" class="section-anchor">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white flex items-center justify-center font-bold">F6</div>
+        <h2 class="text-2xl font-bold text-slate-900">Modales de detalle</h2>
+        <span class="conflict-med px-2 py-1 text-xs font-semibold rounded">Conflicto medio</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">3 patrones de detalle de entidad. Definir taxonomía por tipo de entidad.</p>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante A · HeaderHero + KpiRow + Tabs</div>
+                <div class="text-xs text-slate-500 mt-0.5">Hero gradient + 4 KPIs + tabs internas</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-producto-detalle-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-producto-detalle-s58e.html" style="height: 360px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante B · Hero + acciones inline</div>
+                <div class="text-xs text-slate-500 mt-0.5">Drill-down full-page con back + edit + nuevo</div>
+              </div>
+              <span class="tag-era tag-era-4">Era 4</span>
+            </div>
+            <a href="tesoreria-titular-drill-down-s58e.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="tesoreria-titular-drill-down-s58e.html" style="height: 360px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+
+        <div class="variant-card relative">
+          <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900">Variante C · Card detail simple (OC)</div>
+                <div class="text-xs text-slate-500 mt-0.5">Header sin gradient + tabs (legacy compras)</div>
+              </div>
+              <span class="tag-era tag-era-2">Era 2</span>
+            </div>
+            <a href="oc-detail-pipeline-s54.html" target="_blank" class="btn-open mt-2 inline-flex">Ver mockup →</a>
+          </div>
+          <div class="iframe-container">
+            <iframe src="oc-detail-pipeline-s54.html" style="height: 360px; transform: scale(0.55); transform-origin: top left; width: 182%;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-2">📌 Decisión D-F6</div>
+        <p class="text-sm text-amber-900 mb-3">
+          <strong>Mi recomendación · taxonomía:</strong>
+          <br>• <strong>A</strong> → detalles de entidades operativas en MODAL (productos PF, cuentas, cuentas corrientes)
+          <br>• <strong>B</strong> → drill-down completo full-page (titular drill-down, entidad CC drill, vista expandida pipeline)
+          <br>• <strong>C</strong> → legacy de OC: queda como excepción declarada (es referencia canónica #3 en CLAUDE.md, no se cambia)
+        </p>
+        <label class="text-xs font-semibold text-amber-900 block mb-1">Tu decisión:</label>
+        <textarea class="decision-input" placeholder="¿Acepto A/B/C como taxonomía cerrada?"></textarea>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- F7 a F10 · DECISIONES RÁPIDAS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="f7" class="section-anchor">
+      <h2 class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">⚡ F7 a F10 · Decisiones rápidas (consenso casi obvio)</h2>
+      <div class="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
+
+        <div class="border-b border-slate-100 pb-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-slate-900">F7 · Tabular-nums + decimales atenuados</h3>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">⭐ MI RECOMENDACIÓN</span>
+          </div>
+          <p class="text-sm text-slate-600 mb-2">
+            Ratificar como obligatorio: <code class="text-xs bg-slate-100 px-1 rounded">tabular-nums</code> en todo monto/métrica/fecha/ID.
+            Decimales atenuados con <code class="text-xs bg-slate-100 px-1 rounded">.XX</code> en clase <code class="text-xs bg-slate-100 px-1 rounded">text-slate-400</code>.
+          </p>
+          <div class="bg-slate-50 rounded p-3 text-sm flex items-center gap-4">
+            <div>S/ <strong class="tabular-nums">14,250</strong><span class="text-slate-400">.80</span></div>
+            <div>US$ <strong class="tabular-nums">2,100</strong><span class="text-slate-400">.00</span></div>
+            <div>+<strong class="tabular-nums">38</strong>%</div>
+          </div>
+          <textarea class="decision-input mt-2" placeholder="Tu decisión D-F7..."></textarea>
+        </div>
+
+        <div class="border-b border-slate-100 pb-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-slate-900">F8 · Iconografía (lucide-react obligatorio)</h3>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">⭐ MI RECOMENDACIÓN</span>
+          </div>
+          <p class="text-sm text-slate-600 mb-2">
+            Declarar <strong>lucide-react</strong> como única fuente de iconografía. <strong>Prohibir emojis</strong>
+            (📦 💰 ⚠️) en UI productiva. Permitidos solo en mockups históricos no canónicos.
+          </p>
+          <textarea class="decision-input mt-2" placeholder="Tu decisión D-F8..."></textarea>
+        </div>
+
+        <div class="border-b border-slate-100 pb-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-slate-900">F9 · Breadcrumb separator</h3>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">⭐ MI RECOMENDACIÓN</span>
+          </div>
+          <p class="text-sm text-slate-600 mb-2">
+            Ratificar <code class="text-xs bg-slate-100 px-1 rounded">&lt;ChevronRight w-3 h-3&gt;</code> como único separador.
+            Eliminar <code class="text-xs bg-slate-100 px-1 rounded">·</code> y <code class="text-xs bg-slate-100 px-1 rounded">&gt;</code>.
+          </p>
+          <div class="bg-slate-50 rounded p-3 text-sm flex items-center gap-2 text-slate-500">
+            <span>Tesorería</span>
+            <span>›</span>
+            <span class="font-medium text-slate-700">Movimientos · Libro Mayor</span>
+          </div>
+          <textarea class="decision-input mt-2" placeholder="Tu decisión D-F9..."></textarea>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-slate-900">F10 · Botones de acción en header</h3>
+            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">⭐ MI RECOMENDACIÓN</span>
+          </div>
+          <p class="text-sm text-slate-600 mb-2">
+            Botones del header: <strong>Button variant="primary-soft"</strong> para acción principal · <strong>botones blancos con border-slate</strong> para acciones secundarias (Exportar, Importar, etc.).
+          </p>
+          <div class="bg-slate-50 rounded p-3 text-sm flex items-center gap-2">
+            <button class="px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg">Exportar</button>
+            <button class="px-3 py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg">Importar</button>
+            <button class="px-3 py-2 text-xs font-bold text-white bg-teal-600 rounded-lg">+ Nuevo</button>
+          </div>
+          <textarea class="decision-input mt-2" placeholder="Tu decisión D-F10..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- MOCKUPS OBSOLETOS -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="obsoletos" class="section-anchor">
+      <h2 class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">🗑️ Mockups con propósitos solapados (probablemente obsoletos)</h2>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-5">
+        <p class="text-sm text-slate-600 mb-4">
+          Estos mockups parecen redundantes con otros más recientes o ya implementados. Confirmar si los marcamos
+          como obsoletos para sacarlos del backlog activo.
+        </p>
+
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-2 px-3 font-semibold text-slate-700">Mockup viejo</th>
+              <th class="text-left py-2 px-3 font-semibold text-slate-700">Probablemente reemplazado por</th>
+              <th class="text-left py-2 px-3 font-semibold text-slate-700">Mi recomendación</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="py-3 px-3"><a href="finanzas-unificadas-s56.html" target="_blank" class="text-teal-600 hover:underline">finanzas-unificadas-s56</a></td>
+              <td class="py-3 px-3 text-slate-600">finanzas-saldos-s58e + finanzas-cash-flow-s58e (la unificación se hizo via tabs)</td>
+              <td class="py-3 px-3"><span class="text-rose-700 font-semibold text-xs">MARCAR OBSOLETO</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-3"><a href="envio-card-v2-propuestas.html" target="_blank" class="text-teal-600 hover:underline">envio-card-v2-propuestas</a></td>
+              <td class="py-3 px-3 text-slate-600">envio-card-narrow-s54 (eran 3 propuestas alternativas históricas)</td>
+              <td class="py-3 px-3"><span class="text-rose-700 font-semibold text-xs">MARCAR OBSOLETO</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-3"><a href="cuenta-bancaria-full-s58c.html" target="_blank" class="text-teal-600 hover:underline">cuenta-bancaria-full-s58c</a></td>
+              <td class="py-3 px-3 text-slate-600">CuentaWizard actual (S58c-PF · ya implementado)</td>
+              <td class="py-3 px-3"><span class="text-amber-700 font-semibold text-xs">MARCAR HISTÓRICO</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-3"><a href="finanzas-overview-s57.html" target="_blank" class="text-teal-600 hover:underline">finanzas-overview-s57</a></td>
+              <td class="py-3 px-3 text-slate-600">¿Se mantiene como pantalla específica de overview? · Revisar contenido</td>
+              <td class="py-3 px-3"><span class="text-amber-700 font-semibold text-xs">REVISAR JUNTOS</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-3"><a href="finanzas-listado-s58e.html" target="_blank" class="text-teal-600 hover:underline">finanzas-listado-s58e</a></td>
+              <td class="py-3 px-3 text-slate-600">¿Es lo mismo que finanzas-saldos-s58e? · Revisar contenido</td>
+              <td class="py-3 px-3"><span class="text-amber-700 font-semibold text-xs">REVISAR JUNTOS</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="decision-box">
+          <div class="text-xs uppercase tracking-wider font-bold text-amber-900 mb-2">📌 Decisión D-F11</div>
+          <textarea class="decision-input" placeholder="¿Marcamos los 2 primeros como OBSOLETOS y revisamos los 3 últimos juntos?"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- DECISIONES DE IMPLEMENTACIÓN -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section id="impl" class="section-anchor">
+      <h2 class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">⚙️ Decisiones de implementación</h2>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
+        <div>
+          <h3 class="font-bold text-slate-900 mb-2">D-IMPL-1 · Orden de implementación</h3>
+          <p class="text-sm text-slate-600 mb-2">
+            Mi propuesta de orden por valor operativo + dependencias visuales:
+          </p>
+          <ol class="list-decimal list-inside text-sm text-slate-700 space-y-1 ml-4">
+            <li><strong>Productos · tabla canónica</strong> (variante C robust grid) → uso diario, alta visibilidad</li>
+            <li><strong>Stock · listado canónico</strong> (variante C robust grid) → uso diario, mismo patrón que Productos</li>
+            <li><strong>Ventas · cards anchored</strong> (variante D + B híbrido) → entrada de ingresos del negocio</li>
+            <li><strong>Reclamos · timeline procedural</strong> → cierra workflow de incidencias</li>
+            <li><strong>Conversion + Transferencia wizards 3 pasos</strong> (variante B stepper)</li>
+            <li><strong>Pagos masivos wizard pixel-perfect</strong> (variante A sidebar vertical)</li>
+            <li><strong>Tarjeta crédito detalle</strong> + Caja recaudadora wizard</li>
+            <li><strong>Finanzas overview/cash-flow/modales</strong> (paquete completo)</li>
+            <li><strong>Tesorería layout shell + visualizaciones</strong> (separable)</li>
+          </ol>
+          <textarea class="decision-input mt-2" placeholder="¿Acepto el orden? ¿Cambios?"></textarea>
+        </div>
+
+        <div>
+          <h3 class="font-bold text-slate-900 mb-2">D-IMPL-2 · Protocolo de validación previa</h3>
+          <p class="text-sm text-slate-600 mb-2">
+            Para cualquier cambio grande/riesgoso (tabla compleja, wizard multi-paso, refactor estructural):
+            <strong>te consulto antes</strong> con estimación de tiempo y opciones claras. Nunca decisión unilateral
+            de "parchar".
+          </p>
+          <textarea class="decision-input mt-2" placeholder="Confirmo el protocolo · ¿Cambios?"></textarea>
+        </div>
+
+        <div>
+          <h3 class="font-bold text-slate-900 mb-2">D-IMPL-3 · Mockups viejos: ¿actualizar?</h3>
+          <p class="text-sm text-slate-600 mb-2">
+            Los mockups Era 1-3 (rework-maestro · oc-detail-* · etc.) NO usan el lenguaje canónico final.
+            Opciones:
+            <br>(a) <strong>Actualizar mockups viejos</strong> al estándar nuevo antes de implementar
+            <br>(b) <strong>Implementar al estándar nuevo</strong> aunque difiera del mockup viejo (mockup viejo queda como referencia histórica)
+            <br>(c) <strong>Implementar tal cual el mockup viejo</strong> (acepta inconsistencia · no recomendado)
+          </p>
+          <textarea class="decision-input mt-2" placeholder="¿Cuál de las 3 opciones?"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- RESUMEN FINAL -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6">
+      <h2 class="text-xl font-bold mb-3">🎯 Próximo paso · Etapa 3 + 4</h2>
+      <p class="text-slate-300 text-sm mb-4">
+        Una vez que cierres tus respuestas en este documento, voy a producir <code class="bg-white/10 px-2 py-1 rounded text-xs">docs/DESIGN_CANONICO_FINAL.md</code>
+        con las decisiones ratificadas. Después arrancamos Etapa 4 (implementación pixel-perfect en el orden definido)
+        validando previamente cada caso grande/riesgoso.
+      </p>
+      <div class="bg-white/10 rounded-lg p-4 text-xs">
+        <strong class="text-amber-200">Cómo me devolvés tus decisiones:</strong>
+        <ol class="list-decimal list-inside mt-2 space-y-1 text-slate-300">
+          <li>Llenás los textareas con tus respuestas</li>
+          <li>Me copiás+pegás todo el contenido (ej. "F1: acepto D · F2: acepto taxonomía pero D es solo para mapas · F3: ...")</li>
+          <li>O me decís en chat las que difieren de mi recomendación · acepto el resto por defecto</li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Inicializar lucide icons
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Highlight nav link al hacer scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      if (window.scrollY >= sectionTop - 100) current = section.getAttribute('id');
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
