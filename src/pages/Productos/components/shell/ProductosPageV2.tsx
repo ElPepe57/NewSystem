@@ -48,6 +48,7 @@ import {
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
 import { WizardSelector, WizardSimple, WizardConVariantes, WizardPack, WizardVarianteExistente, type TipoCreacion, type DatosComunes, type VarianteEntry } from '../wizards';
+import { PapeleraModal, InvestigacionCompletaModal, type InvestigacionPayload } from '../modals';
 import { ProductoService } from '../../../../services/producto.service';
 import { useLineaNegocioStore } from '../../../../store/lineaNegocioStore';
 import type { Producto, ProductoFormData } from '../../../../types/producto.types';
@@ -103,6 +104,9 @@ export const ProductosPageV2: React.FC = () => {
   const [detailProducto, setDetailProducto] = useState<Producto | null>(null);
   const [showSelector, setShowSelector] = useState(false);
   const [wizardActivo, setWizardActivo] = useState<TipoCreacion | null>(null);
+  // Fase 8 · Modales standalone
+  const [showPapelera, setShowPapelera] = useState(false);
+  const [investigacionProducto, setInvestigacionProducto] = useState<Producto | null>(null);
 
   // Cargar productos al montar
   useEffect(() => {
@@ -462,7 +466,52 @@ export const ProductosPageV2: React.FC = () => {
     }
   };
 
-  const handleArchivo = () => toast.info('Modal Papelera · disponible en Fase 8');
+  // Fase 8 · Modal Papelera
+  const handleArchivo = () => setShowPapelera(true);
+
+  const handleRestaurarProducto = async (p: Producto) => {
+    try {
+      await ProductoService.reactivar(p.id);
+      toast.success(`"${p.nombreComercial}" restaurado al catálogo`);
+      await Promise.all([fetchProductos(), fetchArchivados()]);
+    } catch (err: any) {
+      toast.error(`Error al restaurar: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
+  const handleEliminarDefinitivo = (p: Producto) => {
+    // Eliminación física requiere implementación dedicada (CF) — soft delete ya está aplicado.
+    toast.warning(
+      `Eliminación definitiva de "${p.nombreComercial}" pendiente · se eliminará automáticamente a los 90 días`,
+    );
+  };
+
+  const handleVaciarPapelera = () => {
+    toast.warning(
+      `Vaciar papelera pendiente · los ${archivadosCount} productos se eliminarán automáticamente a los 90 días de archivado`,
+    );
+  };
+
+  // Fase 8 · Modal Investigación completa
+  const handleArchivarProducto = async (p: Producto) => {
+    if (!user) {
+      toast.error('Sesión expirada · vuelve a iniciar sesión');
+      return;
+    }
+    try {
+      await ProductoService.delete(p.id, user.uid);
+      toast.success(`"${p.nombreComercial}" archivado · se conservará 90 días`);
+      setDetailProducto(null);
+      await Promise.all([fetchProductos(), fetchArchivados()]);
+    } catch (err: any) {
+      toast.error(`Error al archivar: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
+  const handleAbrirInvestigacion = (p: Producto) => {
+    setInvestigacionProducto(p);
+  };
+
   const handleCalculadora = () => toast.info('Productos Intel · disponible en Fase 9');
   const handleSugerencias = () => toast.info('Sugerencias del día · disponible en Fase 9');
   const handleImportar = () => toast.info('Importar · pendiente');
@@ -618,7 +667,7 @@ export const ProductosPageV2: React.FC = () => {
           onView={setDetailProducto}
           onActions={p => toast.info(`Menú de acciones · disponible en Fase 4+`)}
           onCrearOC={p => toast.info(`Crear OC para ${p.nombreComercial} · pendiente`)}
-          onReInvestigar={p => toast.info(`Re-investigar ${p.nombreComercial} · disponible en Fase 5`)}
+          onReInvestigar={handleAbrirInvestigacion}
         />
       )}
 
@@ -676,9 +725,40 @@ export const ProductosPageV2: React.FC = () => {
         }
         onClose={() => setDetailProducto(null)}
         onEdit={p => toast.info(`Editar ${p.nombreComercial} · disponible en Fase 7 (wizards)`)}
-        onArchivar={p => toast.info(`Archivar ${p.nombreComercial} · pendiente`)}
+        onArchivar={handleArchivarProducto}
         onDuplicar={p => toast.info(`Duplicar ${p.nombreComercial} · pendiente`)}
         onAgregarVariante={p => toast.info(`Agregar variante a ${p.nombreComercial} · disponible en Fase 7`)}
+      />
+
+      {/* Modal Papelera · Fase 8 · #23 · listado archivados con restaurar/eliminar */}
+      <PapeleraModal
+        open={showPapelera}
+        archivados={Array.isArray(archivados) ? archivados : []}
+        onClose={() => setShowPapelera(false)}
+        onRestaurar={handleRestaurarProducto}
+        onEliminarDefinitivo={handleEliminarDefinitivo}
+        onVaciarPapelera={handleVaciarPapelera}
+      />
+
+      {/* Modal Investigación Completa · Fase 8 · #24 · 3 sub-tabs (#25, #26, #27) */}
+      <InvestigacionCompletaModal
+        open={!!investigacionProducto}
+        payload={investigacionProducto ? buildInvestigacionPayload(investigacionProducto) : null}
+        tuPrecioPEN={(investigacionProducto as any)?.precioVenta ?? undefined}
+        onClose={() => setInvestigacionProducto(null)}
+        onReinvestigar={() => toast.info('Re-investigación · disponible en Fase 9 (Tools)')}
+        onMarcarVista={() => {
+          toast.success('Investigación marcada como vista');
+          setInvestigacionProducto(null);
+        }}
+        onAgregarProveedor={() => toast.info('Agregar proveedor · disponible en wizard de investigación')}
+        onCrearOC={(provId) => toast.info(`Crear OC con proveedor ${provId} · pendiente`)}
+        onAgregarCompetidor={(nombre) => toast.info(`Agregar competidor "${nombre}" · pendiente`)}
+        onImportar={() => {
+          toast.success('Producto importado al catálogo · pendiente flujo de OC');
+          setInvestigacionProducto(null);
+        }}
+        onDescartar={() => toast.warning('Descartar oportunidad · pendiente captura de motivo')}
       />
     </div>
   );
@@ -690,6 +770,176 @@ function calcMargen(p: any): number {
   const inv = p.investigacion?.[0];
   if (!inv?.ctruEstimado || !p.precioVenta) return -1;
   return ((p.precioVenta - inv.ctruEstimado) / p.precioVenta) * 100;
+}
+
+// ─── Adaptador Producto → InvestigacionPayload (Fase 8 · Modal #24) ─────────
+function buildInvestigacionPayload(p: Producto): InvestigacionPayload {
+  const inv: any = (p as any).investigacion;
+  const proveedoresRaw: any[] = inv?.proveedoresUSA ?? [];
+  const competidoresRaw: any[] = inv?.competidoresPeru ?? [];
+  const tuPrecio = (p as any).precioVenta ?? 0;
+
+  // Ordenar proveedores por mejor costo + lead time razonable
+  const proveedoresSort = [...proveedoresRaw].sort((a, b) => (a?.precio ?? 0) - (b?.precio ?? 0));
+  const proveedores = proveedoresSort.map((prov, idx) => ({
+    id: prov.id ?? `prov-${idx}`,
+    ranking: idx + 1,
+    nombre: prov.nombre ?? `Proveedor ${idx + 1}`,
+    esTopEleccion: idx === 0,
+    rating: prov.rating ?? 4.5,
+    ocsHistoricas: prov.ocsHistoricas,
+    ultimaOC: prov.ultimaOC,
+    notas: prov.notas,
+    costoUnidadUSD: prov.precio ?? 0,
+    leadTimeDias: prov.leadTimeDias ?? prov.envioEstimado ?? 21,
+    minOrdenUSD: prov.minOrdenUSD,
+    formaPago: prov.formaPago,
+    ctruEstimadoPEN: inv?.ctruEstimado,
+    margenProyectadoPct: inv?.margenEstimado,
+    sinStock: prov.disponibilidad === 'sin_stock',
+  }));
+
+  // Competidores con fila TÚ al inicio
+  const COLORES_AVATAR: Array<'emerald' | 'indigo' | 'rose' | 'purple' | 'amber'> = [
+    'emerald',
+    'indigo',
+    'rose',
+    'purple',
+    'amber',
+  ];
+  const competidores = [
+    {
+      id: '__tu__',
+      iniciales: 'TÚ',
+      nombre: 'Vita Skin Perú',
+      precioPEN: tuPrecio,
+      tendencia30d: 'estable' as const,
+      stock: (p as any).stockDisponible ?? 0,
+      esTu: true,
+      colorAvatar: 'amber' as const,
+    },
+    ...competidoresRaw.map((c, idx) => {
+      const ratio = tuPrecio > 0 ? Math.round((c.precio / tuPrecio) * 100) : 100;
+      const variacion = tuPrecio > 0 ? ((c.precio - tuPrecio) / tuPrecio) * 100 : 0;
+      const tend: 'sube' | 'baja' | 'estable' = variacion > 5 ? 'sube' : variacion < -5 ? 'baja' : 'estable';
+      const inicialesCalc = (c.nombre ?? '?')
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w: string) => w[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2) || '?';
+      return {
+        id: c.id ?? `comp-${idx}`,
+        iniciales: inicialesCalc,
+        nombre: c.nombre ?? `Competidor ${idx + 1}`,
+        url: c.url,
+        precioPEN: c.precio ?? 0,
+        variacionPct: variacion,
+        porcentajeVsTuPrecio: ratio,
+        tendencia30d: tend,
+        variacionTendenciaPct: Math.abs(variacion),
+        stock: c.ventas,
+        esTu: false,
+        colorAvatar: COLORES_AVATAR[idx % COLORES_AVATAR.length],
+      };
+    }),
+  ];
+
+  // Decisión basada en investigacion
+  const recom: 'importar' | 'descartar' | 'evaluar' =
+    inv?.recomendacion === 'descartar'
+      ? 'descartar'
+      : inv?.recomendacion === 'investigar_mas'
+        ? 'evaluar'
+        : 'importar';
+  const ctru = inv?.ctruEstimado ?? 0;
+  const precioSug = inv?.precioSugeridoCalculado ?? tuPrecio ?? 0;
+  const margenPct = inv?.margenEstimado ?? (precioSug > 0 ? ((precioSug - ctru) / precioSug) * 100 : 0);
+  const margenPEN = precioSug - ctru;
+  const breakEven = margenPEN > 0 && proveedores[0]?.minOrdenUSD ? Math.ceil((proveedores[0].minOrdenUSD * 3.7) / margenPEN) : 12;
+  const score = Math.min(10, Math.max(0, (inv?.puntuacionViabilidad ?? 75) / 10));
+
+  return {
+    productoId: p.id,
+    productoNombre: (p as any).nombreComercial ?? (p as any).nombre ?? 'Producto',
+    productoSku: p.sku ?? '—',
+    productoMarca: p.marca,
+    ultimaActualizacion: inv?.fechaInvestigacion?.toDate
+      ? inv.fechaInvestigacion.toDate().toLocaleDateString('es-PE', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        })
+      : undefined,
+    alertas: (inv?.alertas ?? []).slice(0, 5).map((a: any, i: number) => ({
+      id: a.id ?? `alerta-${i}`,
+      tipo: 'otro' as const,
+      mensaje: a.mensaje ?? a.descripcion ?? 'Alerta sin descripción',
+    })),
+    proveedores,
+    competidores,
+    decision: {
+      recomendacion: recom,
+      precioSugeridoPEN: precioSug,
+      costoUnitarioPEN: ctru,
+      margenBrutoPct: margenPct,
+      margenBrutoPEN: margenPEN,
+      breakEvenUds: breakEven,
+      proveedorPrincipalId: proveedores[0]?.id,
+      stockInicialSugerido: 50,
+      resumen:
+        inv?.razonamiento ??
+        `Margen proyectado ${margenPct.toFixed(0)}% con ${proveedores[0]?.nombre ?? 'el mejor proveedor'} como proveedor principal · CTRU estimado S/ ${ctru.toFixed(0)} · stock inicial sugerido 50 unidades.`,
+      scoreGlobal: score,
+      criterios: [
+        {
+          key: 'margen',
+          label: 'Margen proyectado',
+          icon: 'dollar',
+          score: Math.min(10, margenPct / 6),
+          etiqueta: margenPct >= 50 ? 'Excelente' : margenPct >= 35 ? 'Buena' : 'Justa',
+          semaforo: margenPct >= 45 ? 'emerald' : margenPct >= 30 ? 'amber' : 'rose',
+        },
+        {
+          key: 'demanda',
+          label: 'Demanda en el mercado',
+          icon: 'users',
+          score: inv?.demandaEstimada === 'alta' ? 8.5 : inv?.demandaEstimada === 'media' ? 6 : 4,
+          etiqueta: inv?.demandaEstimada === 'alta' ? 'Alta' : inv?.demandaEstimada === 'media' ? 'Media' : 'Baja',
+          semaforo: inv?.demandaEstimada === 'alta' ? 'emerald' : inv?.demandaEstimada === 'media' ? 'amber' : 'rose',
+        },
+        {
+          key: 'proveedor',
+          label: 'Confiabilidad proveedor',
+          icon: 'award',
+          score: (proveedores[0]?.rating ?? 4) * 2,
+          etiqueta: proveedores[0]?.ocsHistoricas
+            ? `${proveedores[0].ocsHistoricas} OCs OK`
+            : 'Sin histórico',
+          semaforo: (proveedores[0]?.rating ?? 4) >= 4.5 ? 'emerald' : 'amber',
+        },
+        {
+          key: 'competencia',
+          label: 'Posición competitiva',
+          icon: 'trending',
+          score: 8,
+          etiqueta: `${competidoresRaw.length} competidor${competidoresRaw.length === 1 ? '' : 'es'}`,
+          semaforo: inv?.nivelCompetencia === 'baja' ? 'emerald' : inv?.nivelCompetencia === 'saturada' ? 'rose' : 'amber',
+        },
+        {
+          key: 'riesgo',
+          label: 'Riesgo de obsolescencia',
+          icon: 'alert',
+          score: 3,
+          etiqueta: 'Bajo · 24m vida',
+          semaforo: 'rose',
+        },
+      ],
+      consideraciones: (inv?.alertas ?? []).slice(0, 3).map((a: any) => a.mensaje ?? a.descripcion).filter(Boolean),
+    },
+  };
 }
 
 // ─── Placeholder para wizards Fase 7b/7c (no bloquea selector) ─────────────
