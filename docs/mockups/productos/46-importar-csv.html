@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>46 · Modal Importar productos CSV/Excel · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; opacity: 0.92; }
+.step-num { width: 24px; height: 24px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.step-num.active { background: #f59e0b; color: white; }
+.step-num.complete { background: #10b981; color: white; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">📥</div>
+  <div class="context-info">
+    <div class="context-type">Importar CSV/Excel · GAP-009 · wizard 4 pasos</div>
+    <div class="context-title">Mockup #46 · Importar productos masivamente · Subir → Mapear → Preview → Confirmar</div>
+    <div class="context-meta">GAP-009: actualmente "importar/exportar" lanza toast.info("pendiente") · este mockup propone wizard de 4 pasos</div>
+  </div>
+  <div class="context-id">46-importar-csv</div>
+</div>
+
+<div class="max-w-3xl mx-auto space-y-8 mt-6">
+
+  <!-- ESTADO A · Paso 1 · Subir archivo -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Paso 1 · Subir archivo CSV o Excel · descargar template</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <!-- HEADER con stepper -->
+        <div class="bg-gradient-to-br from-amber-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex items-start gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center"><i data-lucide="upload" class="w-4 h-4 text-amber-700"></i></div>
+              <div>
+                <h2 class="text-base font-bold text-slate-900">Importar productos</h2>
+                <p class="text-[10px] text-slate-500">Cargá masivamente desde CSV o Excel · 4 pasos · ~5 min</p>
+              </div>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+
+          <!-- Stepper horizontal -->
+          <div class="flex items-center justify-between text-[10px]">
+            <div class="flex items-center gap-2">
+              <span class="step-num active">1</span><span class="font-bold text-amber-700">Subir archivo</span>
+            </div>
+            <div class="flex-1 h-px bg-slate-200 mx-2"></div>
+            <div class="flex items-center gap-2 opacity-50">
+              <span class="step-num">2</span><span class="text-slate-500">Mapear columnas</span>
+            </div>
+            <div class="flex-1 h-px bg-slate-200 mx-2"></div>
+            <div class="flex items-center gap-2 opacity-50">
+              <span class="step-num">3</span><span class="text-slate-500">Preview + errores</span>
+            </div>
+            <div class="flex-1 h-px bg-slate-200 mx-2"></div>
+            <div class="flex items-center gap-2 opacity-50">
+              <span class="step-num">4</span><span class="text-slate-500">Confirmar</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-4">
+
+          <!-- Drop zone grande -->
+          <div class="rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/40 px-6 py-8 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="upload-cloud" class="w-8 h-8 text-amber-700"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Arrastrá tu archivo o hacé click para seleccionar</h3>
+            <p class="text-[11px] text-slate-500 mb-4">Formatos: CSV (UTF-8), XLSX, XLS · Máximo 5 MB · 1000 productos</p>
+            <button class="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm">
+              Seleccionar archivo
+            </button>
+          </div>
+
+          <!-- Template -->
+          <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-3 flex items-start gap-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-700"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[11px] font-bold text-emerald-900">¿Primera vez? Descargá el template</div>
+              <div class="text-[10px] text-emerald-800 mt-0.5">CSV con todas las columnas posibles + ejemplos · adaptado a Skincare y Suplementos</div>
+            </div>
+            <button class="px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-white hover:bg-emerald-50 border border-emerald-300 rounded flex items-center gap-1">
+              <i data-lucide="download" class="w-3 h-3"></i>Template.csv
+            </button>
+          </div>
+
+          <!-- Tips -->
+          <div class="text-[10px] text-slate-600 space-y-1 px-1">
+            <div class="font-bold text-slate-700 uppercase tracking-wider text-[9px]">Recomendaciones:</div>
+            <div>✓ Una fila por producto · headers en la primera fila</div>
+            <div>✓ Encoding UTF-8 (para acentos y eñes)</div>
+            <div>✓ Fechas en formato ISO (YYYY-MM-DD)</div>
+            <div>✓ Decimales con punto (no coma)</div>
+            <div>✓ Marca · Categoría · Etiquetas se crean automáticamente si no existen</div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-end gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+          <button disabled class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 rounded-lg disabled:opacity-50 cursor-not-allowed">Siguiente · mapear columnas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADO B · Paso 2 · Mapear columnas -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · Paso 2 · Mapear columnas del CSV a campos del sistema</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <div class="bg-amber-50 border-b border-slate-200 px-5 py-3">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-sm font-bold text-slate-900">Mapear columnas · 142 filas detectadas</h2>
+            <span class="text-[10px] text-emerald-700 font-bold">✓ productos.csv · 38 KB</span>
+          </div>
+          <div class="flex items-center gap-1 text-[10px]">
+            <span class="step-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
+            <span class="text-emerald-700">Subir</span>
+            <span class="text-slate-300 mx-1">→</span>
+            <span class="step-num active">2</span>
+            <span class="font-bold text-amber-700">Mapear (8 / 12 mapeadas)</span>
+          </div>
+        </div>
+
+        <div class="p-5">
+          <div class="rounded-lg border border-slate-200 overflow-hidden">
+            <div class="grid grid-cols-3 gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+              <div>Columna del CSV</div>
+              <div class="text-center">→</div>
+              <div>Campo del sistema</div>
+            </div>
+            <div class="divide-y divide-slate-100 max-h-72 overflow-y-auto">
+              <div class="grid grid-cols-3 gap-2 px-3 py-2 items-center text-[11px] hover:bg-slate-50">
+                <div class="font-mono text-slate-700">codigo_sku</div>
+                <div class="text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></div>
+                <select class="px-2 py-1 text-[11px] border border-emerald-300 rounded bg-emerald-50 font-bold text-emerald-800">
+                  <option>SKU (auto-detectado)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-3 gap-2 px-3 py-2 items-center text-[11px] hover:bg-slate-50">
+                <div class="font-mono text-slate-700">nombre_producto</div>
+                <div class="text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></div>
+                <select class="px-2 py-1 text-[11px] border border-emerald-300 rounded bg-emerald-50 font-bold text-emerald-800">
+                  <option>Nombre comercial (auto-detectado)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-3 gap-2 px-3 py-2 items-center text-[11px] hover:bg-slate-50">
+                <div class="font-mono text-slate-700">marca</div>
+                <div class="text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></div>
+                <select class="px-2 py-1 text-[11px] border border-emerald-300 rounded bg-emerald-50 font-bold text-emerald-800">
+                  <option>Marca</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-3 gap-2 px-3 py-2 items-center text-[11px] hover:bg-slate-50 bg-amber-50/30">
+                <div class="font-mono text-slate-700">tipo_producto_id</div>
+                <div class="text-center text-amber-600"><i data-lucide="alert-circle" class="w-4 h-4 inline"></i></div>
+                <select class="px-2 py-1 text-[11px] border border-amber-300 rounded bg-amber-50 text-amber-800">
+                  <option>Tipo de producto (sugerido)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-3 gap-2 px-3 py-2 items-center text-[11px] hover:bg-slate-50">
+                <div class="font-mono text-slate-700">linea_negocio</div>
+                <div class="text-center text-emerald-600"><i data-lucide="check" class="w-4 h-4 inline"></i></div>
+                <select class="px-2 py-1 text-[11px] border border-emerald-300 rounded bg-emerald-50 font-bold text-emerald-800">
+                  <option>Línea de negocio</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-3 gap-2 px-3 py-2 items-center text-[11px] hover:bg-slate-50 bg-rose-50/30">
+                <div class="font-mono text-slate-700">columna_x</div>
+                <div class="text-center text-rose-500"><i data-lucide="x-circle" class="w-4 h-4 inline"></i></div>
+                <select class="px-2 py-1 text-[11px] border border-slate-300 rounded bg-white text-slate-500">
+                  <option>-- ignorar --</option>
+                  <option>(no mapear)</option>
+                </select>
+              </div>
+              <div class="px-3 py-1.5 text-[10px] text-slate-400 italic text-center bg-slate-50">+ 6 columnas más detectadas</div>
+            </div>
+          </div>
+
+          <div class="mt-3 grid grid-cols-3 gap-2 text-[10px]">
+            <div class="rounded bg-emerald-50 border border-emerald-200 p-2">
+              <div class="font-bold text-emerald-700">✓ 8 mapeadas</div>
+              <div class="text-emerald-600 italic">auto-detectadas</div>
+            </div>
+            <div class="rounded bg-amber-50 border border-amber-200 p-2">
+              <div class="font-bold text-amber-700">⚠ 1 sugerida</div>
+              <div class="text-amber-600 italic">requiere confirmación</div>
+            </div>
+            <div class="rounded bg-rose-50 border border-rose-200 p-2">
+              <div class="font-bold text-rose-700">✗ 3 sin mapear</div>
+              <div class="text-rose-600 italic">se ignorarán</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Atrás
+          </button>
+          <button class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg flex items-center gap-1.5">
+            Siguiente · preview <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADO C · Paso 3 · Preview con detección errores -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Paso 3 · Preview · 138 listos para importar · 4 con errores</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <div class="bg-amber-50 border-b border-slate-200 px-5 py-3">
+          <h2 class="text-sm font-bold text-slate-900 mb-2">Preview · revisá antes de importar</h2>
+          <div class="flex items-center gap-1 text-[10px]">
+            <span class="step-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
+            <span class="text-emerald-700">Subir</span>
+            <span class="text-slate-300 mx-1">→</span>
+            <span class="step-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
+            <span class="text-emerald-700">Mapear</span>
+            <span class="text-slate-300 mx-1">→</span>
+            <span class="step-num active">3</span>
+            <span class="font-bold text-amber-700">Preview</span>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-3">
+
+          <!-- Resumen -->
+          <div class="grid grid-cols-3 gap-2">
+            <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-center">
+              <div class="text-2xl font-bold text-emerald-700 tabular">138</div>
+              <div class="text-[10px] text-emerald-700 uppercase tracking-wider font-bold">Listos</div>
+            </div>
+            <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 text-center">
+              <div class="text-2xl font-bold text-amber-700 tabular">7</div>
+              <div class="text-[10px] text-amber-700 uppercase tracking-wider font-bold">Duplicados</div>
+              <div class="text-[9px] text-amber-600 italic">SKU ya existe · se actualizarán</div>
+            </div>
+            <div class="rounded-lg bg-rose-50 border border-rose-200 p-3 text-center">
+              <div class="text-2xl font-bold text-rose-700 tabular">4</div>
+              <div class="text-[10px] text-rose-700 uppercase tracking-wider font-bold">Con errores</div>
+              <div class="text-[9px] text-rose-600 italic">se omiten · revisalos</div>
+            </div>
+          </div>
+
+          <!-- Errores detectados -->
+          <div class="rounded-lg border border-rose-200 overflow-hidden">
+            <div class="px-3 py-2 bg-rose-50 border-b border-rose-200 text-[10px] uppercase tracking-wider text-rose-700 font-bold">4 errores detectados · estos productos no se importarán</div>
+            <div class="divide-y divide-rose-100 text-[11px]">
+              <div class="px-3 py-2 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0"></i>
+                <span class="font-mono text-slate-500 text-[10px]">fila 23</span>
+                <span class="text-slate-700">Marca obligatoria · está vacía</span>
+                <button class="ml-auto text-[10px] text-rose-700 font-bold hover:underline">Ver fila →</button>
+              </div>
+              <div class="px-3 py-2 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0"></i>
+                <span class="font-mono text-slate-500 text-[10px]">fila 47</span>
+                <span class="text-slate-700">Línea negocio "skincares" no existe (¿quisiste decir "skincare"?)</span>
+                <button class="ml-auto text-[10px] text-rose-700 font-bold hover:underline">Ver fila →</button>
+              </div>
+              <div class="px-3 py-2 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0"></i>
+                <span class="font-mono text-slate-500 text-[10px]">fila 89</span>
+                <span class="text-slate-700">SKU duplicado dentro del archivo (también en fila 102)</span>
+                <button class="ml-auto text-[10px] text-rose-700 font-bold hover:underline">Ver fila →</button>
+              </div>
+              <div class="px-3 py-2 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-600 flex-shrink-0"></i>
+                <span class="font-mono text-slate-500 text-[10px]">fila 134</span>
+                <span class="text-slate-700">Tipo SKC "agua_micelar_2" no es válido (cerrado · ver lista)</span>
+                <button class="ml-auto text-[10px] text-rose-700 font-bold hover:underline">Ver fila →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla preview de los primeros listos -->
+          <div class="rounded-lg border border-slate-200 overflow-hidden">
+            <div class="px-3 py-2 bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-bold">Preview · primeros 5 productos OK</div>
+            <table class="w-full text-[10px]">
+              <thead class="bg-slate-50 text-slate-500 uppercase">
+                <tr><th class="px-2 py-1 text-left">SKU</th><th class="px-2 py-1 text-left">Nombre</th><th class="px-2 py-1 text-left">Marca</th><th class="px-2 py-1 text-left">Línea</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="px-2 py-1 font-mono">SKC-0143</td><td class="px-2 py-1">Vit C Serum 30ml</td><td class="px-2 py-1">SkinCeuticals</td><td class="px-2 py-1">Skincare</td></tr>
+                <tr><td class="px-2 py-1 font-mono">SUP-0144</td><td class="px-2 py-1">Vit D3 5000 IU</td><td class="px-2 py-1">Sports Research</td><td class="px-2 py-1">Suplementos</td></tr>
+                <tr><td class="px-2 py-1 font-mono">SKC-0145</td><td class="px-2 py-1">Hyaluronic Toner</td><td class="px-2 py-1">Cosrx</td><td class="px-2 py-1">Skincare</td></tr>
+                <tr><td class="px-2 py-1 text-slate-400 italic" colspan="4">+ 135 productos más OK</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Atrás · re-mapear
+          </button>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 border border-slate-300 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>Descargar errores.csv
+            </button>
+            <button class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg flex items-center gap-1.5">
+              Confirmar · importar 138 + actualizar 7 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADO D · Paso 4 · Resultado final -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado D · Paso 4 · Importación completada · resumen final</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-md mx-auto p-5 space-y-4 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto">
+          <i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-700"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-slate-900">¡Importación exitosa!</h2>
+          <p class="text-[11px] text-slate-500 mt-1">145 productos procesados en 12 segundos</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-left">
+          <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-2">
+            <div class="text-base font-bold text-emerald-700 tabular">138</div>
+            <div class="text-[9px] text-emerald-700 uppercase font-bold">Creados</div>
+          </div>
+          <div class="rounded-lg bg-amber-50 border border-amber-200 p-2">
+            <div class="text-base font-bold text-amber-700 tabular">7</div>
+            <div class="text-[9px] text-amber-700 uppercase font-bold">Actualizados</div>
+          </div>
+          <div class="rounded-lg bg-rose-50 border border-rose-200 p-2">
+            <div class="text-base font-bold text-rose-700 tabular">4</div>
+            <div class="text-[9px] text-rose-700 uppercase font-bold">Omitidos</div>
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-blue-50 border border-blue-200 p-3 text-left">
+          <div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold mb-1">Acciones automáticas ejecutadas</div>
+          <div class="text-[10px] text-slate-700 space-y-0.5">
+            <div>✓ 12 marcas nuevas creadas en Gestor Maestro</div>
+            <div>✓ 5 categorías nuevas creadas</div>
+            <div>✓ 8 etiquetas nuevas creadas</div>
+            <div>✓ Histórico registra esta importación masiva</div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-2 pt-2 border-t border-slate-200">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
+          <button class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="package-2" class="w-3.5 h-3.5"></i>Ver productos importados
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

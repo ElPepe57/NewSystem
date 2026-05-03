@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>45 · Banner detección duplicados al crear · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; opacity: 0.92; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">⚠️</div>
+  <div class="context-info">
+    <div class="context-type">Banner duplicados al crear · GAP-043</div>
+    <div class="context-title">Mockup #45 · Detección inteligente de productos similares al crear · evita duplicación accidental</div>
+    <div class="context-meta">GAP-043: wizard sin detección · ahora compara marca + nombre + atributos al escribir · 3 niveles de coincidencia</div>
+  </div>
+  <div class="context-id">45-banner-duplicados</div>
+</div>
+
+<div class="max-w-3xl mx-auto space-y-8 mt-6">
+
+  <!-- ESTADO A · Banner amber dentro del wizard -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Banner amber dentro del WizardSimple · aparece al detectar similitud >70%</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <!-- Header del wizard -->
+        <div class="bg-gradient-to-br from-indigo-50 to-white border-b border-slate-200 px-5 py-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center"><i data-lucide="package-2" class="w-4 h-4 text-indigo-700"></i></div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Crear producto · Suplemento</h2>
+              <div class="text-[10px] text-slate-500">SKU: <span class="font-mono text-emerald-700 font-bold">SUP-0143</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BANNER DE DUPLICADOS · aparece arriba cuando se detecta -->
+        <div class="bg-amber-50 border-b border-amber-300 px-5 py-3">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700"></i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
+                <span class="text-[11px] font-bold text-amber-900">¿Es este producto similar a uno que ya tenés?</span>
+                <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">2 candidatos</span>
+              </div>
+              <div class="text-[10px] text-amber-800">Detectamos productos parecidos a "<strong>Vitamin D3 5000 IU · Sports Research · 90 caps</strong>" en tu catálogo. Revisá antes de crear · puede ser una variante o un duplicado.</div>
+            </div>
+          </div>
+
+          <!-- Lista de candidatos similares -->
+          <div class="mt-3 space-y-2">
+            <!-- Candidato 1 · alta coincidencia -->
+            <div class="rounded-lg bg-white border-2 border-amber-300 p-2.5 flex items-center gap-3">
+              <div class="w-1 h-12 rounded-full bg-amber-500"></div>
+              <div class="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0"><i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs font-bold text-slate-900 truncate">Vitamin D3 + K2 5000 IU</span>
+                  <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">96% match</span>
+                </div>
+                <div class="text-[10px] text-slate-600 mt-0.5">SUP-0008 · Sports Research · 90 cápsulas · misma marca + dosaje + formato</div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="px-2.5 py-1 text-[10px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-300 rounded">
+                  Es variante de este →
+                </button>
+                <button class="px-2.5 py-1 text-[10px] font-medium text-slate-600 hover:bg-slate-100 border border-slate-200 rounded">
+                  Ver detalle
+                </button>
+              </div>
+            </div>
+
+            <!-- Candidato 2 · coincidencia media -->
+            <div class="rounded-lg bg-white border border-slate-200 p-2.5 flex items-center gap-3">
+              <div class="w-1 h-12 rounded-full bg-slate-300"></div>
+              <div class="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0"><i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-xs font-bold text-slate-900 truncate">Vitamin D3 4000 IU</span>
+                  <span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[9px] font-bold">72% match</span>
+                </div>
+                <div class="text-[10px] text-slate-600 mt-0.5">SUP-0021 · Sports Research · 60 cápsulas · misma marca + tipo · dosaje diferente</div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="px-2.5 py-1 text-[10px] font-medium text-slate-600 hover:bg-slate-100 border border-slate-200 rounded">
+                  Ver detalle
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer del banner · acciones -->
+          <div class="mt-3 pt-2 border-t border-amber-200 flex items-center justify-between">
+            <div class="text-[10px] text-amber-800 italic">
+              <i data-lucide="info" class="w-3 h-3 inline"></i>
+              Si el producto que querés crear es realmente distinto, ignorá este aviso y continuá.
+            </div>
+            <button class="text-[10px] text-amber-700 hover:text-amber-900 font-bold underline">Ignorar y continuar →</button>
+          </div>
+        </div>
+
+        <!-- Form sigue debajo · resumen visual -->
+        <div class="p-5">
+          <div class="text-[11px] text-slate-500 italic text-center py-4 border border-dashed border-slate-200 rounded-lg">
+            [contenido normal del WizardSimple sigue acá · 4 secciones: Origen · Básico · Atributos · Clasificación]
+          </div>
+        </div>
+
+        <!-- Footer del wizard -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+          <div class="text-[10px] text-amber-700 italic flex items-center gap-1">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i>2 productos similares detectados · revisá antes de crear
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+            <button class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg">Crear producto igual</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADO B · Modal "Es variante de" · cuando el usuario confirma -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · Al click "Es variante de este" · confirmación + redirección al WizardVarianteExistente</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-md mx-auto p-5 space-y-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center"><i data-lucide="git-branch" class="w-5 h-5 text-purple-700"></i></div>
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-slate-900">Convertir a variante</h3>
+            <p class="text-[10px] text-slate-500">Vamos a crear "Vitamin D3 5000 IU" como una variante del producto base existente.</p>
+          </div>
+        </div>
+
+        <!-- Producto base destacado -->
+        <div class="rounded-lg border-2 border-purple-300 bg-purple-50 p-3">
+          <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-1">Producto base</div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="pill" class="w-4 h-4 text-indigo-700"></i>
+            <div>
+              <div class="text-sm font-bold text-slate-900">Vitamin D3 + K2 5000 IU</div>
+              <div class="text-[10px] text-slate-600">SUP-0008 · Sports Research · 1 variante existente</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
+          <div class="text-[10px] text-emerald-900">
+            <strong>Beneficios:</strong> el nuevo producto compartirá marca, tipo, atributos SKC, categorías y etiquetas · solo cambiará el contenido (cápsulas/dosaje/etc) · evita duplicar info repetida.
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar · seguir creando producto nuevo</button>
+          <button class="px-3 py-1.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-1.5">
+            <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>Sí · convertir a variante
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reglas de detección -->
+  <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+    <div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold mb-2">Reglas de detección de similitud</div>
+    <div class="grid grid-cols-3 gap-3 text-[11px]">
+      <div class="bg-white rounded p-2.5 border border-amber-200">
+        <div class="text-[10px] font-bold text-amber-700 mb-1">Match 90-100%</div>
+        <div class="text-[10px] text-slate-700">Misma marca + nombre normalizado idéntico + presentación + dosaje · alerta amber fuerte</div>
+      </div>
+      <div class="bg-white rounded p-2.5 border border-blue-200">
+        <div class="text-[10px] font-bold text-blue-700 mb-1">Match 70-89%</div>
+        <div class="text-[10px] text-slate-700">Misma marca + nombre similar + algunos atributos · alerta gris secundaria</div>
+      </div>
+      <div class="bg-white rounded p-2.5 border border-slate-200">
+        <div class="text-[10px] font-bold text-slate-500 mb-1">Match &lt;70%</div>
+        <div class="text-[10px] text-slate-500">No se muestra · evita ruido falso · solo coincidencias significativas</div>
+      </div>
+    </div>
+    <div class="text-[10px] text-blue-800 italic mt-2">
+      <strong>Cuándo se ejecuta:</strong> debounced después de escribir nombre + marca + presentación · ~500ms de pausa · query rápida al store local
+    </div>
+  </div>
+
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

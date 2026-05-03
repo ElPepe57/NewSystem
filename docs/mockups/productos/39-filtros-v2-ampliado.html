@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>39 · FiltrosBar V2 ampliado · GAP-004 + GAP-010 · pixel-perfect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; font-variant-numeric: tabular-nums; padding: 60px 20px 40px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.context-frame { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid #fcd34d; border-radius: 12px; padding: 8px 16px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 12px; min-width: 580px; }
+.context-icon { width: 32px; height: 32px; border-radius: 8px; background: #fffbeb; color: #78350f; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.context-info { flex: 1; min-width: 0; }
+.context-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: #78350f; font-weight: 700; }
+.context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+.context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
+.context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; opacity: 0.92; }
+</style>
+</head>
+<body>
+
+<div class="context-frame">
+  <div class="context-icon">🎛️</div>
+  <div class="context-info">
+    <div class="context-type">Filtros V2 ampliado · cubre GAP-004 + GAP-010</div>
+    <div class="context-title">Mockup #39 · FiltrosBar con 8 chip groups + Pills sincronizadas</div>
+    <div class="context-meta">GAP-004: faltan filtros marca/grupo/tipo/categoría/etiqueta/estado-investig · GAP-010: pill Packs duplica chip Tipo:Pack</div>
+  </div>
+  <div class="context-id">39-filtros-v2-ampliado</div>
+</div>
+
+<div class="max-w-5xl mx-auto space-y-8 mt-6">
+
+  <!-- ESTADO A · FiltrosBar Desktop completo -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · FiltrosBar V2 ampliado · 8 chip groups · Pills al lado sincronizados</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3">
+
+        <!-- PILLS RÁPIDOS · ahora sin "Packs" duplicado -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Atajos:</span>
+          <button class="px-2.5 py-1 text-[11px] font-bold rounded-full border bg-slate-900 text-white border-slate-900">
+            Todos · 142
+          </button>
+          <button class="px-2.5 py-1 text-[11px] font-medium rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
+            Activos · 138
+          </button>
+          <button class="px-2.5 py-1 text-[11px] font-medium rounded-full border bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100">
+            Stock crítico · 12
+          </button>
+          <button class="px-2.5 py-1 text-[11px] font-medium rounded-full border bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100">
+            Sin investigar · 23
+          </button>
+          <span class="text-[10px] text-rose-700 italic ml-2">
+            <i data-lucide="x-circle" class="w-3 h-3 inline"></i>
+            Pill "Packs" eliminado (era duplicado del chip Tipo:Pack)
+          </span>
+        </div>
+
+        <!-- BARRA DE BÚSQUEDA + BOTÓN FILTROS -->
+        <div class="flex items-center gap-2">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+            <input type="text" placeholder="Buscar por SKU, nombre, marca, categoría, etiqueta..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400">
+          </div>
+          <button class="px-3 py-2 text-xs font-medium border border-slate-300 rounded-lg flex items-center gap-1.5 hover:bg-slate-50 bg-amber-50 border-amber-300 text-amber-700">
+            <i data-lucide="filter" class="w-3.5 h-3.5"></i>Filtros · 5 activos
+          </button>
+          <select class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-400">
+            <option>Más recientes</option>
+            <option>Mayor margen</option>
+            <option>Mayor stock</option>
+          </select>
+        </div>
+
+        <!-- 8 CHIP GROUPS -->
+        <div class="border-t border-slate-200 pt-3 space-y-2">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Filtros aplicables · 8 categorías</div>
+
+          <!-- Línea de negocio -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Línea:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-amber-100 text-amber-800 border-amber-300 font-bold">✓ Skincare · 89</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Suplementos · 53</button>
+          </div>
+
+          <!-- Tipo · pack ahora único acá -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Tipo:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Producto único · 128</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Variante · 14</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-purple-100 text-purple-800 border-purple-300 font-bold">✓ Pack · 8</button>
+          </div>
+
+          <!-- Estado -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Estado:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-emerald-100 text-emerald-800 border-emerald-300 font-bold">✓ Activo · 138</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Inactivo · 4</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Descontinuado · 2</button>
+          </div>
+
+          <!-- NUEVO · Marca (dinámico desde maestros) -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Marca:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">SkinCeuticals · 24</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">The Ordinary · 18</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-blue-100 text-blue-800 border-blue-300 font-bold">✓ Cosrx · 12</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-blue-100 text-blue-800 border-blue-300 font-bold">✓ SkinTech · 8</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border border-dashed border-slate-300 text-slate-500 hover:bg-slate-50">+ 8 marcas más</button>
+          </div>
+
+          <!-- NUEVO · Tipo de producto (cargado desde Gestor Maestro) -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Tipo prod:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Sérum Vitamina C · 8</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Vitamina D3 + K2 · 5</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Hyaluronic · 4</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border border-dashed border-slate-300 text-slate-500 hover:bg-slate-50">+ 22 tipos más</button>
+          </div>
+
+          <!-- NUEVO · Categorías -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Categoría:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Anti-edad · 18</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Hidratación · 24</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-emerald-100 text-emerald-800 border-emerald-300 font-bold">✓ Brillo · 15</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border border-dashed border-slate-300 text-slate-500 hover:bg-slate-50">+ 12 cats más</button>
+          </div>
+
+          <!-- NUEVO · Etiquetas -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Etiquetas:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">vegano · 32</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">sin-gluten · 28</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">best-seller · 14</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border border-dashed border-slate-300 text-slate-500 hover:bg-slate-50">+ 18 etiq más</button>
+          </div>
+
+          <!-- NUEVO · Estado de investigación (clave!) -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold w-20 flex-shrink-0">Investig:</span>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-emerald-100 text-emerald-800 border-emerald-300 font-bold">✓ Vigente · 87</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Vencida · 32</button>
+            <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Sin investigar · 23</button>
+          </div>
+
+        </div>
+
+        <!-- CHIPS ACTIVOS · resumen de filtros aplicados -->
+        <div class="border-t border-slate-200 pt-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] text-slate-500 font-bold">5 activos:</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">Skincare <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">Pack <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">Activo <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">Marca: Cosrx + SkinTech <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">Cat: Brillo <button><i data-lucide="x" class="w-2.5 h-2.5"></i></button></span>
+            <button class="text-[10px] text-rose-600 hover:text-rose-800 font-bold underline ml-2">Limpiar todo</button>
+          </div>
+          <div class="text-[10px] text-slate-500 mt-1.5">Resultado: <strong>3 productos</strong> matching de 142 totales</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADO B · Drawer mobile -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · Drawer mobile · accordion para no saturar pantalla pequeña</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-sm mx-auto">
+        <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+          <h3 class="text-sm font-bold text-slate-900">Filtros · 5 activos</h3>
+          <button class="text-[10px] text-rose-600 font-bold underline">Limpiar todo</button>
+        </div>
+
+        <div class="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
+          <!-- Cada filtro como accordion colapsable -->
+          <details open class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Línea · 1 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-open:rotate-180"></i>
+            </summary>
+            <div class="px-4 pb-3 flex flex-wrap gap-1.5">
+              <button class="px-2 py-0.5 text-[10px] rounded-full border bg-amber-100 text-amber-800 border-amber-300 font-bold">✓ Skincare · 89</button>
+              <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200">Suplementos · 53</button>
+            </div>
+          </details>
+
+          <details open class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Tipo · 1 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-open:rotate-180"></i>
+            </summary>
+            <div class="px-4 pb-3 flex flex-wrap gap-1.5">
+              <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200">Producto único · 128</button>
+              <button class="px-2 py-0.5 text-[10px] rounded-full border bg-white text-slate-600 border-slate-200">Variante · 14</button>
+              <button class="px-2 py-0.5 text-[10px] rounded-full border bg-purple-100 text-purple-800 border-purple-300 font-bold">✓ Pack · 8</button>
+            </div>
+          </details>
+
+          <details class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Marca · 2 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 group-open:rotate-180"></i>
+            </summary>
+          </details>
+
+          <details class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Tipo de producto · 0 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </summary>
+          </details>
+
+          <details class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Categoría · 1 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </summary>
+          </details>
+
+          <details class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Etiquetas · 0 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </summary>
+          </details>
+
+          <details class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Estado · 1 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </summary>
+          </details>
+
+          <details class="group">
+            <summary class="px-4 py-2.5 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+              <div class="text-[11px] font-bold text-slate-700">Estado investigación · 1 sel</div>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </summary>
+          </details>
+        </div>
+
+        <div class="border-t border-slate-200 bg-slate-50 px-4 py-3 flex items-center justify-between gap-2">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
+          <button class="flex-1 px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg">Aplicar · 3 productos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>
