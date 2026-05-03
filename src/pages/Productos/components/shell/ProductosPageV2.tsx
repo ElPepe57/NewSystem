@@ -40,10 +40,14 @@ import {
   FiltrosDrawerMobile,
   BulkActionsToolbar,
   useProductosFilters,
+  PaginacionFooter,
+  OrdenamientoSelect,
   type PillKey,
   type ChipGroupConfig,
   type ChipColor,
   type SortOption,
+  type SortKey,
+  type PageSize,
 } from '../filters';
 import { ProductosListV2 } from '../cards';
 import { ProductoDetailModal } from '../detail';
@@ -58,6 +62,13 @@ import {
   type ProveedorInvestigacionFormValue,
   type CompetidorInvestigacionFormValue,
 } from '../modals';
+import {
+  CambiarEstadoBulkModal,
+  EtiquetarBulkModal,
+  ExportarCSVBulkModal,
+  ArchivarBulkModal,
+  type EtiquetadoModo,
+} from '../modals/bulk';
 import {
   ProductosIntelDashboard,
   PuntoEquilibrioModal,
@@ -149,6 +160,18 @@ export const ProductosPageV2: React.FC = () => {
   const [showVariantesModal, setShowVariantesModal] = useState(false);
   const [puntoEquilibrioInput, setPuntoEquilibrioInput] = useState<PuntoEquilibrioInput | null>(null);
   const [bannerVariantesOculto, setBannerVariantesOculto] = useState(false);
+
+  // ─── Fase G · Paginación + Sort ampliado ────────────────────────────────────
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [pageSize, setPageSize] = useState<PageSize>(20);
+  const [sortKeyExt, setSortKeyExt] = useState<SortKey>('margen_desc');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  // ─── Fase G · BulkActions sub-modales ───────────────────────────────────────
+  const [bulkEstadoOpen, setBulkEstadoOpen] = useState(false);
+  const [bulkEtiquetarOpen, setBulkEtiquetarOpen] = useState(false);
+  const [bulkExportarOpen, setBulkExportarOpen] = useState(false);
+  const [bulkArchivarOpen, setBulkArchivarOpen] = useState(false);
 
   // Cargar productos al montar
   useEffect(() => {
@@ -242,37 +265,36 @@ export const ProductosPageV2: React.FC = () => {
       });
     });
 
-    // 4. Sort
-    switch (filtros.sortValue) {
-      case 'nombre_asc':
-        // GAP-003 fix · campo correcto es nombreComercial
-        result.sort((a: any, b: any) => (a.nombreComercial ?? '').localeCompare(b.nombreComercial ?? ''));
-        break;
-      case 'margen_desc':
-        result.sort((a: any, b: any) => {
-          const margenA = calcMargen(a);
-          const margenB = calcMargen(b);
-          return margenB - margenA;
-        });
-        break;
-      case 'stock_desc':
-        result.sort((a: any, b: any) => (b.stockTotal ?? b.stock ?? 0) - (a.stockTotal ?? a.stock ?? 0));
-        break;
-      case 'recientes':
-        result.sort((a: any, b: any) => {
-          const ta = a.fechaCreacion?.toDate?.()?.getTime?.() ?? 0;
-          const tb = b.fechaCreacion?.toDate?.()?.getTime?.() ?? 0;
-          return tb - ta;
-        });
-        break;
-      case 'mas_vendidos':
-      default:
-        // sin orden específico · respeta el orden de Firestore
-        break;
+    // 4. Sort · Fase G · 12 opciones agrupadas + dirección invertible
+    const cmpFn = getSortComparator(sortKeyExt);
+    result.sort(cmpFn);
+    if (sortDirection === 'asc' && SORT_DEFAULT_DIR[sortKeyExt] === 'desc') {
+      result.reverse();
+    } else if (sortDirection === 'desc' && SORT_DEFAULT_DIR[sortKeyExt] === 'asc') {
+      result.reverse();
     }
 
     return result;
-  }, [lista, filtros.pillActivo, filtros.searchTerm, filtros.selecciones, filtros.sortValue]);
+  }, [lista, filtros.pillActivo, filtros.searchTerm, filtros.selecciones, sortKeyExt, sortDirection]);
+
+  // ─── Fase G · Aplicar paginación ────────────────────────────────────────────
+  const productosVisibles = useMemo(() => {
+    if (pageSize === 'all') return productosFiltered;
+    const start = (paginaActual - 1) * pageSize;
+    return productosFiltered.slice(start, start + pageSize);
+  }, [productosFiltered, paginaActual, pageSize]);
+
+  // Reset página cuando cambia filtro/búsqueda/sort/pageSize
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [
+    filtros.pillActivo,
+    filtros.searchTerm,
+    filtros.selecciones,
+    sortKeyExt,
+    sortDirection,
+    pageSize,
+  ]);
 
   // ─── Counts derivados para Pills + ChipGroups ──────────────────────────────
   const counts = useMemo(() => {
@@ -760,9 +782,69 @@ export const ProductosPageV2: React.FC = () => {
       costosFijosInicial: fijos,
     });
   };
-  const handleImportar = () => toast.info('Importar · pendiente');
-  const handleExportar = () => toast.info('Exportar · pendiente');
-  const handleBulkAction = (label: string) => toast.info(`${label} (${selectedCount} productos) · pendiente`);
+  const handleImportar = () => toast.info('Importar CSV · próxima fase H');
+  const handleExportar = () => setBulkExportarOpen(true); // exporta lo seleccionado o lo visible
+
+  // Productos seleccionados resueltos a objetos completos
+  const productosSeleccionados = useMemo(
+    () => productos.filter((p: any) => filtros.selectedIds.has(p.id)),
+    [productos, filtros.selectedIds],
+  );
+
+  // ─── Fase G · Bulk action handlers ────────────────────────────────────────
+  const handleBulkCambiarEstado = async (nuevoEstado: any) => {
+    if (!user || productosSeleccionados.length === 0) return;
+    try {
+      await Promise.all(
+        productosSeleccionados.map(p => ProductoService.update(p.id, { estado: nuevoEstado } as any))
+      );
+      toast.success(`Estado actualizado a "${nuevoEstado}" en ${productosSeleccionados.length} producto(s)`);
+      setBulkEstadoOpen(false);
+      filtros.clearSelection?.();
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al cambiar estado: ${err?.message ?? 'desconocido'}`);
+      throw err;
+    }
+  };
+
+  const handleBulkEtiquetar = async (etiquetaIds: string[], modo: EtiquetadoModo) => {
+    if (!user || productosSeleccionados.length === 0 || etiquetaIds.length === 0) return;
+    try {
+      await Promise.all(
+        productosSeleccionados.map(p => {
+          const actualesIds = (p as any).etiquetaIds ?? [];
+          const finalIds = modo === 'reemplazar'
+            ? Array.from(new Set(etiquetaIds))
+            : Array.from(new Set([...actualesIds, ...etiquetaIds]));
+          return ProductoService.update(p.id, { etiquetaIds: finalIds } as any);
+        })
+      );
+      toast.success(`${etiquetaIds.length} etiqueta(s) ${modo === 'sumar' ? 'agregada(s)' : 'reemplazada(s)'} en ${productosSeleccionados.length} producto(s)`);
+      setBulkEtiquetarOpen(false);
+      filtros.clearSelection?.();
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al etiquetar: ${err?.message ?? 'desconocido'}`);
+      throw err;
+    }
+  };
+
+  const handleBulkArchivar = async () => {
+    if (!user || productosSeleccionados.length === 0) return;
+    try {
+      await Promise.all(
+        productosSeleccionados.map(p => ProductoService.delete(p.id, user.uid))
+      );
+      toast.success(`${productosSeleccionados.length} producto(s) archivado(s) · van a la papelera`);
+      setBulkArchivarOpen(false);
+      filtros.clearSelection?.();
+      await Promise.all([fetchProductos(), fetchArchivados()]);
+    } catch (err: any) {
+      toast.error(`Error al archivar: ${err?.message ?? 'desconocido'}`);
+      throw err;
+    }
+  };
 
   // ─── Render: prioridad de estados ──────────────────────────────────────────
   if (loading && !hayProductos) {
@@ -867,11 +949,11 @@ export const ProductosPageV2: React.FC = () => {
         selectedCount={selectedCount}
         totalCount={lista.length}
         onClear={filtros.clearSelection}
-        onCambiarEstado={() => handleBulkAction('Cambiar estado')}
-        onEtiquetar={() => handleBulkAction('Etiquetar')}
-        onCambiarLinea={() => handleBulkAction('Cambiar línea')}
-        onExportar={() => handleBulkAction('Exportar')}
-        onArchivar={() => handleBulkAction('Archivar')}
+        onCambiarEstado={() => setBulkEstadoOpen(true)}
+        onEtiquetar={() => setBulkEtiquetarOpen(true)}
+        // Cambiar línea deshabilitado (mockup #44 nota: rompe SKU prefix · debe ser individual)
+        onExportar={() => setBulkExportarOpen(true)}
+        onArchivar={() => setBulkArchivarOpen(true)}
       />
 
       {/* Drawer mobile · slide-up */}
@@ -913,19 +995,49 @@ export const ProductosPageV2: React.FC = () => {
           onCrearProducto={handleNuevo}
         />
       ) : (
-        // Fase 3 · Lista real de productos · Fase 4 · click abre modal detalle
-        <ProductosListV2
-          productos={productosFiltered}
-          selectedIds={filtros.selectedIds}
-          onToggleSelected={filtros.toggleSelected}
-          onSelectAll={filtros.setManyselected}
-          onClearSelection={filtros.clearSelection}
-          onClickProducto={setDetailProducto}
-          onView={setDetailProducto}
-          onActions={(p) => handleAbrirPuntoEquilibrio(p)}
-          onCrearOC={p => toast.info(`Crear OC para ${p.nombreComercial} · pendiente`)}
-          onReInvestigar={handleAbrirInvestigacion}
-        />
+        // Fase G · Card-list con header (count + sort + pageSize) y footer (paginación)
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          {/* Header del listado · Fase G */}
+          <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+            <div className="text-[11px] text-slate-700">
+              <strong className="tabular-nums">{productosVisibles.length}</strong> de{' '}
+              <strong className="tabular-nums">{productosFiltered.length}</strong> productos
+              {pageSize !== 'all' && productosFiltered.length > pageSize && (
+                <span className="text-slate-400">
+                  {' · '}página {paginaActual} de {Math.max(1, Math.ceil(productosFiltered.length / pageSize))}
+                </span>
+              )}
+            </div>
+            <OrdenamientoSelect
+              sortKey={sortKeyExt}
+              sortDirection={sortDirection}
+              pageSize={pageSize}
+              onChangeSort={setSortKeyExt}
+              onChangeDirection={setSortDirection}
+              onChangePageSize={setPageSize}
+            />
+          </div>
+
+          <ProductosListV2
+            productos={productosVisibles}
+            selectedIds={filtros.selectedIds}
+            onToggleSelected={filtros.toggleSelected}
+            onSelectAll={filtros.setManyselected}
+            onClearSelection={filtros.clearSelection}
+            onClickProducto={setDetailProducto}
+            onView={setDetailProducto}
+            onActions={(p) => handleAbrirPuntoEquilibrio(p)}
+            onCrearOC={p => toast.info(`Crear OC para ${p.nombreComercial} · pendiente`)}
+            onReInvestigar={handleAbrirInvestigacion}
+          />
+
+          <PaginacionFooter
+            paginaActual={paginaActual}
+            totalItems={productosFiltered.length}
+            itemsPorPagina={pageSize === 'all' ? Math.max(1, productosFiltered.length) : pageSize}
+            onCambiarPagina={setPaginaActual}
+          />
+        </div>
       )}
 
       {/* Wizard Selector · Fase 7a · trigger desde "+ Nuevo producto" */}
@@ -1123,6 +1235,31 @@ export const ProductosPageV2: React.FC = () => {
         onGuardar={handleGuardarCompetidorInv}
         onEliminar={competidorEditing !== 'nuevo' ? handleEliminarCompetidorInv : undefined}
       />
+
+      {/* ═══════ Fase G · Mini-modales BulkActions ═══════ */}
+      <CambiarEstadoBulkModal
+        open={bulkEstadoOpen}
+        productos={productosSeleccionados}
+        onClose={() => setBulkEstadoOpen(false)}
+        onAplicar={handleBulkCambiarEstado}
+      />
+      <EtiquetarBulkModal
+        open={bulkEtiquetarOpen}
+        productos={productosSeleccionados}
+        onClose={() => setBulkEtiquetarOpen(false)}
+        onAplicar={handleBulkEtiquetar}
+      />
+      <ExportarCSVBulkModal
+        open={bulkExportarOpen}
+        productos={productosSeleccionados.length > 0 ? productosSeleccionados : productosFiltered}
+        onClose={() => setBulkExportarOpen(false)}
+      />
+      <ArchivarBulkModal
+        open={bulkArchivarOpen}
+        productos={productosSeleccionados}
+        onClose={() => setBulkArchivarOpen(false)}
+        onConfirmar={handleBulkArchivar}
+      />
     </div>
   );
 };
@@ -1134,6 +1271,74 @@ function calcMargen(p: any): number {
   const inv = p.investigacion;
   if (!inv?.ctruEstimado || !p.precioVenta) return -1;
   return ((p.precioVenta - inv.ctruEstimado) / p.precioVenta) * 100;
+}
+
+// ─── Fase G · Sort comparators (12 keys) ─────────────────────────────────────
+
+const SORT_DEFAULT_DIR: Record<SortKey, 'asc' | 'desc'> = {
+  margen_desc: 'desc',
+  roi_desc: 'desc',
+  multiplicador_desc: 'desc',
+  utilidad_desc: 'desc',
+  ventas_30d: 'desc',
+  ventas_90d: 'desc',
+  stock_desc: 'desc',
+  stock_critico: 'asc',
+  nombre_asc: 'asc',
+  marca_asc: 'asc',
+  sku_asc: 'asc',
+  recientes: 'desc',
+};
+
+function getSortComparator(key: SortKey): (a: any, b: any) => number {
+  switch (key) {
+    case 'margen_desc':
+      return (a, b) => calcMargen(b) - calcMargen(a);
+    case 'roi_desc':
+      return (a, b) => {
+        const roiA = (a.precioVenta && a.ctruPromedio) ? (a.precioVenta - a.ctruPromedio) / a.ctruPromedio : -1;
+        const roiB = (b.precioVenta && b.ctruPromedio) ? (b.precioVenta - b.ctruPromedio) / b.ctruPromedio : -1;
+        return roiB - roiA;
+      };
+    case 'multiplicador_desc':
+      return (a, b) => {
+        const mA = (a.precioVenta && a.ctruPromedio) ? a.precioVenta / a.ctruPromedio : 0;
+        const mB = (b.precioVenta && b.ctruPromedio) ? b.precioVenta / b.ctruPromedio : 0;
+        return mB - mA;
+      };
+    case 'utilidad_desc':
+      return (a, b) => {
+        const uA = (a.precioVenta ?? 0) - (a.ctruPromedio ?? 0);
+        const uB = (b.precioVenta ?? 0) - (b.ctruPromedio ?? 0);
+        return uB - uA;
+      };
+    case 'ventas_30d':
+      return (a, b) => (b.ventasUltimos30 ?? 0) - (a.ventasUltimos30 ?? 0);
+    case 'ventas_90d':
+      return (a, b) => (b.ventasUltimos90 ?? 0) - (a.ventasUltimos90 ?? 0);
+    case 'stock_desc':
+      return (a, b) => (b.stockDisponible ?? b.stockTotal ?? b.stock ?? 0) - (a.stockDisponible ?? a.stockTotal ?? a.stock ?? 0);
+    case 'stock_critico':
+      return (a, b) => {
+        const ratioA = (a.stockMinimo ?? 0) > 0 ? (a.stockDisponible ?? a.stock ?? 0) / a.stockMinimo : 999;
+        const ratioB = (b.stockMinimo ?? 0) > 0 ? (b.stockDisponible ?? b.stock ?? 0) / b.stockMinimo : 999;
+        return ratioA - ratioB;
+      };
+    case 'nombre_asc':
+      return (a, b) => (a.nombreComercial ?? '').localeCompare(b.nombreComercial ?? '');
+    case 'marca_asc':
+      return (a, b) => (a.marca ?? '').localeCompare(b.marca ?? '');
+    case 'sku_asc':
+      return (a, b) => (a.sku ?? '').localeCompare(b.sku ?? '');
+    case 'recientes':
+      return (a, b) => {
+        const ta = a.fechaCreacion?.toDate?.()?.getTime?.() ?? 0;
+        const tb = b.fechaCreacion?.toDate?.()?.getTime?.() ?? 0;
+        return tb - ta;
+      };
+    default:
+      return () => 0;
+  }
 }
 
 // ─── Adaptador Producto → InvestigacionPayload (Fase 8 · Modal #24) ─────────

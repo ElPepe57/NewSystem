@@ -15,3 +15,6 @@ export { FiltrosDrawerMobile } from './FiltrosDrawerMobile';
 export { BulkActionsToolbar } from './BulkActionsToolbar';
 
 export { useProductosFilters, DEFAULT_FILTROS } from './useProductosFilters';
+
+export { PaginacionFooter } from './PaginacionFooter';
+export { OrdenamientoSelect, type SortKey, type PageSize } from './OrdenamientoSelect';
