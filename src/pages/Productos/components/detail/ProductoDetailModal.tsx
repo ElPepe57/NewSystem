@@ -70,6 +70,19 @@ interface ProductoDetailModalProps {
   onAbrirInvestigacion?: (producto: Producto) => void;
 }
 
+/**
+ * Hook · resuelve siempre la versión MÁS FRESCA del producto desde el store
+ * para evitar stale state cuando se actualizan datos (ej. agregar proveedor
+ * desde TabInvestigacion sin tener que cerrar/reabrir el modal).
+ */
+function useProductoFresco(productoOriginal: Producto | null): Producto | null {
+  // Suscripción reactiva a la lista del store · re-renderiza cuando cambia
+  const productosLista = useProductoStore(s => s.productos);
+  if (!productoOriginal) return null;
+  const fresco = productosLista.find(p => p.id === productoOriginal.id);
+  return fresco ?? productoOriginal;
+}
+
 type TabKey = 'resumen' | 'variantes' | 'investigacion' | 'stock' | 'historico' | 'pipeline' | 'componentes';
 
 interface TabConfig {
@@ -130,7 +143,7 @@ function getStock(p: Producto): number {
 
 export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
   open,
-  producto,
+  producto: productoProp,
   hermanasGrupo = [],
   onClose,
   onEdit,
@@ -139,6 +152,11 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
   onAgregarVariante,
   onAbrirInvestigacion,
 }) => {
+  // Resolver siempre la versión más fresca del producto desde el store
+  // para reflejar cambios sin tener que cerrar/reabrir el modal (ej. agregar
+  // proveedor/competidor, ajustar precio, marcar revisada, auto-save flete).
+  const producto = useProductoFresco(productoProp);
+
   const [activeTab, setActiveTab] = useState<TabKey>('resumen');
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
