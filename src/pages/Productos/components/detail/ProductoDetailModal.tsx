@@ -278,12 +278,16 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
       if (idx >= 0) data.proveedoresUSA[idx] = { ...data.proveedoresUSA[idx], ...nuevoProv };
       else data.proveedoresUSA.push(nuevoProv);
 
+      // Orden correcto: persistir → refrescar store → cerrar modal → toast
+      // Si falla cualquier paso, propagamos el error para que el modal hijo
+      // restaure su botón "Guardar" y el usuario pueda reintentar.
       await ProductoService.guardarInvestigacion(producto.id, data, user.uid, tc?.venta);
-      toast.success('Proveedor guardado · investigación actualizada');
-      setProvModalOpen(false);
       await fetchProductos();
+      setProvModalOpen(false);
+      toast.success('Proveedor guardado · investigación actualizada');
     } catch (err: any) {
       toast.error(`Error al guardar proveedor: ${err?.message ?? 'desconocido'}`);
+      throw err; // restaura el botón en el modal hijo
     }
   };
 
@@ -313,12 +317,14 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
       if (idx >= 0) data.competidoresPeru[idx] = { ...data.competidoresPeru[idx], ...nuevoComp };
       else data.competidoresPeru.push(nuevoComp);
 
+      // Mismo orden y propagación de error que en handleGuardarProveedor
       await ProductoService.guardarInvestigacion(producto.id, data, user.uid, tc?.venta);
-      toast.success('Competidor guardado · investigación actualizada');
-      setCompModalOpen(false);
       await fetchProductos();
+      setCompModalOpen(false);
+      toast.success('Competidor guardado · investigación actualizada');
     } catch (err: any) {
       toast.error(`Error al guardar competidor: ${err?.message ?? 'desconocido'}`);
+      throw err; // restaura el botón en el modal hijo
     }
   };
 

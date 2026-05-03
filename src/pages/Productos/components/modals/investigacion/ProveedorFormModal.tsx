@@ -25,6 +25,7 @@ import {
   Info,
   Trash2,
   Check,
+  Loader2,
 } from 'lucide-react';
 import { useProveedorStore } from '../../../../../store/proveedorStore';
 import { useAuthStore } from '../../../../../store/authStore';
@@ -62,7 +63,7 @@ interface ProveedorFormModalProps {
   /** Modo: crear o editar */
   modo: 'crear' | 'editar';
   onClose: () => void;
-  onGuardar: (valor: ProveedorInvestigacionFormValue) => void;
+  onGuardar: (valor: ProveedorInvestigacionFormValue) => Promise<void> | void;
   onEliminar?: () => void;
 }
 
@@ -124,6 +125,8 @@ export function ProveedorFormModal({
   const [nuevoUrl, setNuevoUrl] = useState('');
   const [nuevoEmail, setNuevoEmail] = useState('');
   const [creandoEnFirestore, setCreandoEnFirestore] = useState(false);
+  // Loading state al guardar (espera al padre que persiste a Firestore + refresca)
+  const [submitting, setSubmitting] = useState(false);
 
   // Cargar proveedores
   useEffect(() => {
@@ -132,7 +135,11 @@ export function ProveedorFormModal({
 
   // Inicializar form al abrir/cambiar valor
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      // Reset submitting cuando se cierra el modal · evita estado pegado al reabrir
+      setSubmitting(false);
+      return;
+    }
     if (valor) {
       setProveedorId(valor.proveedorId);
       setProveedorSnap(
@@ -255,7 +262,8 @@ export function ProveedorFormModal({
     }
   };
 
-  const handleGuardar = () => {
+  const handleGuardar = async () => {
+    if (submitting) return; // protección doble click
     if (!proveedorId || !proveedorSnap) {
       toast.warning('Seleccioná o creá un proveedor antes de guardar');
       return;
@@ -264,19 +272,27 @@ export function ProveedorFormModal({
       toast.warning('Ingresá un costo unitario válido');
       return;
     }
-    onGuardar({
-      id: valor?.id ?? `prov-${Date.now()}`,
-      proveedorId,
-      proveedorNombre: proveedorSnap.nombre,
-      proveedorTipo: proveedorSnap.tipo,
-      proveedorPais: proveedorSnap.pais,
-      proveedorMetricasOC: proveedorSnap.metricasOC,
-      costoUnitarioUSD,
-      taxValor,
-      taxModo,
-      url: url.trim() || undefined,
-      notas: notas.trim() || undefined,
-    });
+    setSubmitting(true);
+    try {
+      await onGuardar({
+        id: valor?.id ?? `prov-${Date.now()}`,
+        proveedorId,
+        proveedorNombre: proveedorSnap.nombre,
+        proveedorTipo: proveedorSnap.tipo,
+        proveedorPais: proveedorSnap.pais,
+        proveedorMetricasOC: proveedorSnap.metricasOC,
+        costoUnitarioUSD,
+        taxValor,
+        taxModo,
+        url: url.trim() || undefined,
+        notas: notas.trim() || undefined,
+      });
+      // Si el padre no cerró el modal en su success, lo dejamos abierto
+      // (el padre cierra · este try termina y se resetea submitting al desmontar)
+    } catch (err) {
+      // El padre ya muestra toast.error · solo restauramos el botón
+      setSubmitting(false);
+    }
   };
 
   if (!open) return null;
@@ -665,18 +681,28 @@ export function ProveedorFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
+              disabled={submitting}
+              className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleGuardar}
-              disabled={!proveedorId || costoUnitarioUSD <= 0}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center gap-1.5 shadow-sm"
+              disabled={!proveedorId || costoUnitarioUSD <= 0 || submitting}
+              className="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center gap-1.5 shadow-sm min-w-[110px] justify-center"
             >
-              <Check className="w-3.5 h-3.5" />
-              {modo === 'editar' ? 'Guardar cambios' : 'Guardar'}
+              {submitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  {modo === 'editar' ? 'Guardar cambios' : 'Guardar'}
+                </>
+              )}
             </button>
           </div>
         </div>

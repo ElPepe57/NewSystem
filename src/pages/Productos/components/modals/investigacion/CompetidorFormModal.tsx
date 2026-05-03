@@ -26,6 +26,7 @@ import {
   Check,
   TrendingUp,
   TrendingDown,
+  Loader2,
 } from 'lucide-react';
 import { useCompetidorStore } from '../../../../../store/competidorStore';
 import { useAuthStore } from '../../../../../store/authStore';
@@ -63,7 +64,7 @@ interface CompetidorFormModalProps {
   tuPrecioPEN?: number;
   modo: 'crear' | 'editar';
   onClose: () => void;
-  onGuardar: (valor: CompetidorInvestigacionFormValue) => void;
+  onGuardar: (valor: CompetidorInvestigacionFormValue) => Promise<void> | void;
   onEliminar?: () => void;
 }
 
@@ -113,6 +114,8 @@ export function CompetidorFormModal({
   const [nuevoPlataformasIds, setNuevoPlataformasIds] = useState<Set<string>>(new Set());
   const [nuevoPlataformaPrincipalId, setNuevoPlataformaPrincipalId] = useState<string>('');
   const [creandoEnFirestore, setCreandoEnFirestore] = useState(false);
+  // Loading state al guardar (espera al padre que persiste a Firestore + refresca)
+  const [submitting, setSubmitting] = useState(false);
 
   // Cargar competidores
   useEffect(() => {
@@ -121,7 +124,11 @@ export function CompetidorFormModal({
 
   // Inicializar form al abrir
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      // Reset submitting cuando se cierra el modal · evita estado pegado al reabrir
+      setSubmitting(false);
+      return;
+    }
     if (valor) {
       setCompetidorId(valor.competidorId);
       setCompetidorSnap(
@@ -267,7 +274,8 @@ export function CompetidorFormModal({
     }
   };
 
-  const handleGuardar = () => {
+  const handleGuardar = async () => {
+    if (submitting) return; // protección doble click
     if (!competidorId || !competidorSnap) {
       toast.warning('Seleccioná o creá un competidor antes de guardar');
       return;
@@ -280,17 +288,23 @@ export function CompetidorFormModal({
       toast.warning('Ingresá un precio válido');
       return;
     }
-    onGuardar({
-      id: valor?.id ?? `comp-${Date.now()}`,
-      competidorId,
-      competidorNombre: competidorSnap.nombre,
-      competidorPais: competidorSnap.pais,
-      competidorPlataformas: competidorSnap.plataformasResumen,
-      plataformaSeleccionada,
-      precioPEN,
-      url: url.trim() || undefined,
-      notas: notas.trim() || undefined,
-    });
+    setSubmitting(true);
+    try {
+      await onGuardar({
+        id: valor?.id ?? `comp-${Date.now()}`,
+        competidorId,
+        competidorNombre: competidorSnap.nombre,
+        competidorPais: competidorSnap.pais,
+        competidorPlataformas: competidorSnap.plataformasResumen,
+        plataformaSeleccionada,
+        precioPEN,
+        url: url.trim() || undefined,
+        notas: notas.trim() || undefined,
+      });
+    } catch (err) {
+      // El padre ya muestra toast.error · solo restauramos el botón
+      setSubmitting(false);
+    }
   };
 
   if (!open) return null;
@@ -682,18 +696,28 @@ export function CompetidorFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
+              disabled={submitting}
+              className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleGuardar}
-              disabled={!competidorId || !plataformaSeleccionada || precioPEN <= 0}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center gap-1.5 shadow-sm"
+              disabled={!competidorId || !plataformaSeleccionada || precioPEN <= 0 || submitting}
+              className="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center gap-1.5 shadow-sm min-w-[110px] justify-center"
             >
-              <Check className="w-3.5 h-3.5" />
-              {modo === 'editar' ? 'Guardar cambios' : 'Guardar'}
+              {submitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  {modo === 'editar' ? 'Guardar cambios' : 'Guardar'}
+                </>
+              )}
             </button>
           </div>
         </div>
