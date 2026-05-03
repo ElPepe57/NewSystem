@@ -167,7 +167,14 @@ export const ProductosPageV2: React.FC = () => {
   const [showSugerenciasDia, setShowSugerenciasDia] = useState(false);
   const [showVariantesModal, setShowVariantesModal] = useState(false);
   const [puntoEquilibrioInput, setPuntoEquilibrioInput] = useState<PuntoEquilibrioInput | null>(null);
-  const [bannerVariantesOculto, setBannerVariantesOculto] = useState(false);
+  // Hash del último set de grupos que el usuario descartó · persiste en localStorage
+  // así el banner no reaparece al cambiar de pestaña / refrescar / aplicar filtros.
+  // Si en el futuro se detectan grupos NUEVOS (hash distinto), el banner reaparece.
+  const [bannerVariantesHashDescartado, setBannerVariantesHashDescartado] = useState<string>(() => {
+    try {
+      return localStorage.getItem('productos-banner-variantes-descartado') ?? '';
+    } catch { return ''; }
+  });
 
   // ─── Fase G · Paginación + Sort ampliado ────────────────────────────────────
   const [paginaActual, setPaginaActual] = useState(1);
@@ -824,6 +831,13 @@ export const ProductosPageV2: React.FC = () => {
   const intelRows = useMemo(() => buildIntelRows(lista), [lista]);
   const sugerenciasDia = useMemo(() => buildSugerenciasDelDia(lista), [lista]);
   const gruposSugeridos = useMemo(() => buildGruposSugeridos(lista), [lista]);
+  // Hash estable del SET actual de grupos · si coincide con lo que el usuario
+  // descartó, no mostramos el banner. Si cambia (grupos nuevos), reaparece.
+  const gruposSugeridosHash = useMemo(() => {
+    if (gruposSugeridos.length === 0) return '';
+    return gruposSugeridos.map(g => g.id).sort().join('|');
+  }, [gruposSugeridos]);
+  const bannerVariantesOculto = !!gruposSugeridosHash && gruposSugeridosHash === bannerVariantesHashDescartado;
 
   const handleCalculadora = () => setShowIntel(true);
   const handleSugerencias = () => setShowSugerenciasDia(true);
@@ -1034,14 +1048,19 @@ export const ProductosPageV2: React.FC = () => {
         onLimpiarTodo={filtros.reset}
       />
 
-      {/* Banner Sugerencias Variantes (#32) · Fase 9 · solo visible si hay grupos detectados */}
+      {/* Banner Sugerencias Variantes (#32) · Fase 9 · solo visible si hay grupos detectados.
+          El estado "descartado" persiste en localStorage como HASH del set de grupos.
+          Si aparecen grupos NUEVOS (hash distinto), el banner reaparece. */}
       <SugerenciasVariantesBanner
         open={!bannerVariantesOculto}
         grupos={gruposSugeridos}
         onRevisar={() => setShowVariantesModal(true)}
         onDescartarTodas={() => {
-          setBannerVariantesOculto(true);
-          toast.info('Sugerencias de agrupación descartadas');
+          setBannerVariantesHashDescartado(gruposSugeridosHash);
+          try {
+            localStorage.setItem('productos-banner-variantes-descartado', gruposSugeridosHash);
+          } catch { /* ignore quota/private mode */ }
+          toast.info('Sugerencias descartadas · reaparecerán si se detectan grupos nuevos');
         }}
       />
 
