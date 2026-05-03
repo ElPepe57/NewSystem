@@ -341,11 +341,20 @@ export interface InvestigacionMercado {
   ventajasCompetitivas?: string;   // ¿Qué ventajas tendríamos?
 
   // === ESTIMACIONES ===
-  ctruEstimado: number;            // CTRU estimado basado en mejor precio USA + logística
-  logisticaEstimada: number;       // Costo logístico estimado por unidad
-  precioSugeridoCalculado: number; // Precio sugerido basado en análisis
-  margenEstimado: number;          // Margen estimado (%)
-  precioEntrada?: number;          // Precio para entrar al mercado competitivamente
+  // Fase H+ · ctruEstimado/precioSugeridoCalculado/margenEstimado son LEGACY.
+  // Ya NO se guardan en nuevas investigaciones · el frontend V2 calcula en
+  // vivo vía calcularInvestigacion(). Quedan tipados como required SOLO para
+  // no romper código legacy V1 (ProductoCard antiguo, venta.service). Para
+  // docs nuevos siempre llegan en 0 (default desde Firestore al leer undefined).
+  /** @deprecated Fase H+ · usar calcularInvestigacion(p).costoPEN */
+  ctruEstimado: number;
+  logisticaEstimada: number;
+  /** @deprecated Fase H+ · usar calcularInvestigacion(p).precioReferencia */
+  precioSugeridoCalculado: number;
+  /** @deprecated Fase H+ · usar calcularInvestigacion(p).margenPct */
+  margenEstimado: number;
+  /** @deprecated Fase H+ · usar calcularInvestigacion(p).precioReferencia */
+  precioEntrada?: number;
 
   // === DEMANDA ===
   demandaEstimada: 'baja' | 'media' | 'alta';

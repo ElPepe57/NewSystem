@@ -1358,12 +1358,20 @@ export class ProductoService {
         nivelCompetencia: data.nivelCompetencia,
         ventajasCompetitivas: data.ventajasCompetitivas || null,
 
-        // Estimaciones calculadas
-        ctruEstimado,
+        // Logistica estimada (la usa la card móvil legacy)
         logisticaEstimada,
-        precioSugeridoCalculado,
-        margenEstimado,
-        precioEntrada,
+
+        // ───────────────────────────────────────────────────────────────────
+        // FASE H+ · estos campos quedan en 0 · ya NO se calculan más.
+        // El frontend V2 los recalcula EN VIVO vía calcularInvestigacion().
+        // Se mantienen en el doc para no romper código legacy V1 que aún
+        // los lee (ProductoCard antiguo, venta.service). Cero confusión:
+        // si valen 0, los componentes legacy degradan a "sin dato".
+        // ───────────────────────────────────────────────────────────────────
+        ctruEstimado: 0,
+        precioSugeridoCalculado: 0,
+        margenEstimado: 0,
+        precioEntrada: 0,
 
         // Demanda
         demandaEstimada: data.demandaEstimada,
@@ -1373,7 +1381,6 @@ export class ProductoService {
         // Recomendación
         recomendacion: data.recomendacion,
         razonamiento: data.razonamiento || null,
-        puntuacionViabilidad: Math.min(100, puntuacionViabilidad),
 
         // Vigencia
         fechaInvestigacion: Timestamp.now(),
