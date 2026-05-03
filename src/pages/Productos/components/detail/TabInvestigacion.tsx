@@ -200,18 +200,24 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
     // Precio referencia = MIN(comp) × 0.95
     const precioReferencia = minComp > 0 ? minComp * 0.95 : 0;
 
-    // Análisis precio actual
-    const utilidad = precioVenta > 0 ? precioVenta - costoPEN : 0;
-    const margenPct = precioVenta > 0 ? (utilidad / precioVenta) * 100 : 0;
+    // Precio EFECTIVO para análisis · si no hay manual, usa el sugerido
+    // (alinea KPI strip con la lógica de la calculadora · da estimación viva)
+    const usaSugerido = !precioVenta || precioVenta <= 0;
+    const precioEfectivo = usaSugerido ? precioReferencia : precioVenta;
 
-    // Posición vs competencia
-    const ranking = [...competidores.map(c => c.precio ?? 0), precioVenta]
+    // Análisis precio efectivo
+    const utilidad = precioEfectivo > 0 ? precioEfectivo - costoPEN : 0;
+    const margenPct = precioEfectivo > 0 ? (utilidad / precioEfectivo) * 100 : 0;
+
+    // Posición vs competencia (usa precio efectivo · TÚ entre los competidores)
+    const ranking = [...competidores.map(c => c.precio ?? 0), precioEfectivo]
       .filter(p => p > 0)
       .sort((a, b) => a - b);
-    const posicion = precioVenta > 0 ? ranking.indexOf(precioVenta) + 1 : 0;
+    const posicion = precioEfectivo > 0 ? ranking.indexOf(precioEfectivo) + 1 : 0;
     const totalRanking = ranking.length;
 
-    // % vs precio sugerido
+    // % vs precio sugerido (solo si tiene precio manual · si está usando el
+    // sugerido como efectivo, no tiene sentido compararlo contra sí mismo)
     const vsSugeridoPct = precioReferencia > 0 && precioVenta > 0
       ? ((precioVenta - precioReferencia) / precioReferencia) * 100
       : 0;
@@ -228,6 +234,8 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
       maxComp,
       promComp,
       precioReferencia,
+      precioEfectivo,
+      usaSugerido,
       utilidad,
       margenPct,
       posicion,
@@ -286,9 +294,16 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
       {/* ─── KPI STRIP · 4 cards ───────────────────────────────────────── */}
       <div className="bg-slate-50/50 border-b border-slate-200 px-3 lg:px-5 py-3 grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-200">
         <div className="px-3 first:pl-0">
-          <div className="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Precio venta actual</div>
+          <div className="text-[9px] uppercase tracking-wider text-slate-500 font-bold flex items-center gap-1.5">
+            <span>{calculos.usaSugerido ? 'Precio venta estimado' : 'Precio venta actual'}</span>
+            {calculos.usaSugerido && calculos.precioEfectivo > 0 && (
+              <span className="px-1 py-0.5 rounded bg-amber-100 text-amber-700 text-[8px] font-bold normal-case tracking-normal">
+                AUTO
+              </span>
+            )}
+          </div>
           <div className="text-base font-bold text-slate-900 tabular-nums">
-            S/ {precioVenta > 0 ? precioVenta.toFixed(2) : '—'}
+            S/ {calculos.precioEfectivo > 0 ? calculos.precioEfectivo.toFixed(2) : '—'}
           </div>
           {onAbrirAjustarPrecio && (
             <button
@@ -300,7 +315,7 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
               })}
               className="text-[10px] text-amber-700 hover:underline font-bold"
             >
-              Ajustar precio →
+              {calculos.usaSugerido ? 'Confirmar precio →' : 'Ajustar precio →'}
             </button>
           )}
         </div>
@@ -308,17 +323,25 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
           <div className={`text-[9px] uppercase tracking-wider font-bold ${
             calculos.margenPct >= 40 ? 'text-emerald-700'
             : calculos.margenPct >= 25 ? 'text-amber-700'
-            : 'text-rose-700'
-          }`}>Margen</div>
+            : calculos.margenPct > 0 ? 'text-rose-700'
+            : 'text-slate-500'
+          }`}>
+            {calculos.usaSugerido ? 'Margen estimado' : 'Margen'}
+          </div>
           <div className={`text-base font-bold tabular-nums ${
             calculos.margenPct >= 40 ? 'text-emerald-700'
             : calculos.margenPct >= 25 ? 'text-amber-700'
-            : 'text-rose-700'
+            : calculos.margenPct > 0 ? 'text-rose-700'
+            : 'text-slate-400'
           }`}>
-            {calculos.margenPct > 0 ? `${calculos.margenPct.toFixed(1)}%` : '—'}
+            {calculos.margenPct !== 0 ? `${calculos.margenPct.toFixed(1)}%` : '—'}
           </div>
           <div className="text-[9px] text-slate-500">
-            {calculos.utilidad > 0 ? `S/ ${calculos.utilidad.toFixed(2)}/u utilidad` : 'sin utilidad'}
+            {calculos.utilidad > 0
+              ? `S/ ${calculos.utilidad.toFixed(2)}/u utilidad`
+              : calculos.utilidad < 0
+                ? `S/ ${calculos.utilidad.toFixed(2)}/u pérdida`
+                : 'sin utilidad'}
           </div>
         </div>
         <div className="px-3">
@@ -444,9 +467,9 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
             <div className="flex-1 min-w-0">
               <div className="text-sm font-bold text-slate-900 flex items-center gap-2 flex-wrap">
                 Competencia en Perú <span className="text-[10px] font-normal text-slate-500">· {calculos.competidoresOrdenados.length}</span>
-                {precioVenta > 0 && calculos.totalRanking > 0 && (
+                {calculos.precioEfectivo > 0 && calculos.totalRanking > 0 && (
                   <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold">
-                    Tu precio S/ {precioVenta.toFixed(0)} · posición {calculos.posicion} de {calculos.totalRanking}
+                    {calculos.usaSugerido ? 'Tu sugerido' : 'Tu precio'} S/ {calculos.precioEfectivo.toFixed(0)} · posición {calculos.posicion} de {calculos.totalRanking}
                   </span>
                 )}
               </div>
@@ -476,8 +499,8 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
             <div className="divide-y divide-slate-100">
               {calculos.competidoresOrdenados.map((c, idx) => {
                 const esTop = idx === 0;
-                const variacion = precioVenta > 0 && c.precio
-                  ? ((c.precio - precioVenta) / precioVenta) * 100
+                const variacion = calculos.precioEfectivo > 0 && c.precio
+                  ? ((c.precio - calculos.precioEfectivo) / calculos.precioEfectivo) * 100
                   : 0;
                 return (
                   <div
@@ -505,9 +528,9 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
                       <div className="text-[12px] font-bold text-slate-900 tabular-nums">
                         S/ {c.precio?.toFixed(0) ?? '—'}
                       </div>
-                      {precioVenta > 0 && c.precio !== undefined && (
+                      {calculos.precioEfectivo > 0 && c.precio !== undefined && (
                         <div className={`text-[9px] ${variacion < 0 ? 'text-emerald-600' : variacion > 0 ? 'text-rose-500' : 'text-slate-500'}`}>
-                          {variacion >= 0 ? '+' : ''}{variacion.toFixed(1)}% vs tu precio
+                          {variacion >= 0 ? '+' : ''}{variacion.toFixed(1)}% vs {calculos.usaSugerido ? 'sugerido' : 'tu precio'}
                         </div>
                       )}
                     </div>
@@ -652,33 +675,38 @@ export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({
               </div>
             </div>
 
-            {/* Análisis comparativo */}
-            {precioVenta > 0 && (
+            {/* Análisis comparativo · usa precio efectivo (manual o sugerido) */}
+            {calculos.precioEfectivo > 0 && (
               <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <div className="text-[9px] uppercase tracking-wider text-slate-500">Tu precio actual</div>
-                    <div className="text-base font-bold text-amber-700 tabular-nums">S/ {precioVenta.toFixed(2)}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                      {calculos.usaSugerido ? 'Precio estimado' : 'Tu precio actual'}
+                      {calculos.usaSugerido && (
+                        <span className="px-1 py-0.5 rounded bg-amber-100 text-amber-700 text-[8px] font-bold normal-case tracking-normal">AUTO</span>
+                      )}
+                    </div>
+                    <div className="text-base font-bold text-amber-700 tabular-nums">S/ {calculos.precioEfectivo.toFixed(2)}</div>
                     {calculos.totalRanking > 0 && (
                       <div className="text-[9px] text-slate-500">posición {calculos.posicion} de {calculos.totalRanking}</div>
                     )}
                   </div>
                   <div>
                     <div className="text-[9px] uppercase tracking-wider text-emerald-700">Utilidad por unidad</div>
-                    <div className="text-base font-bold text-emerald-700 tabular-nums">
+                    <div className={`text-base font-bold tabular-nums ${calculos.utilidad >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
                       S/ {calculos.utilidad.toFixed(2)}
                     </div>
                     <div className="text-[9px] text-slate-500 font-mono">
-                      {precioVenta.toFixed(0)} - {calculos.costoPEN.toFixed(2)}
+                      {calculos.precioEfectivo.toFixed(0)} - {calculos.costoPEN.toFixed(2)}
                     </div>
                   </div>
                   <div>
                     <div className="text-[9px] uppercase tracking-wider text-emerald-700">Margen</div>
-                    <div className="text-base font-bold text-emerald-700 tabular-nums">
+                    <div className={`text-base font-bold tabular-nums ${calculos.margenPct >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
                       {calculos.margenPct.toFixed(1)}%
                     </div>
                     <div className="text-[9px] text-slate-500 font-mono">
-                      {calculos.utilidad.toFixed(2)} / {precioVenta.toFixed(0)}
+                      {calculos.utilidad.toFixed(2)} / {calculos.precioEfectivo.toFixed(0)}
                     </div>
                   </div>
                 </div>
