@@ -470,6 +470,7 @@ export const ProductosPageV2: React.FC = () => {
       await ProductoService.createConVariantes(
         {
           marca: datosComunes.marca,
+          marcaId: datosComunes.marcaId,
           nombreComercial: datosComunes.nombreComercial,
           presentacion: datosComunes.presentacion,
           paisOrigen: datosComunes.paisOrigen,
@@ -477,6 +478,13 @@ export const ProductosPageV2: React.FC = () => {
           stockMinimo: datosComunes.stockMinimo,
           stockMaximo: datosComunes.stockMaximo,
           pesoLibras: datosComunes.pesoLibras,
+          // Fase E3 · maestros y atributos compartidos
+          tipoProductoId: datosComunes.tipoProductoId,
+          categoriaIds: datosComunes.categoriaIds,
+          categoriaPrincipalId: datosComunes.categoriaPrincipalId,
+          etiquetaIds: datosComunes.etiquetaIds,
+          atributosSkincare: datosComunes.atributosSkincare,
+          atributosSuplementos: datosComunes.atributosSuplementos,
         },
         variantesPayload,
         user.uid
@@ -935,21 +943,21 @@ export const ProductosPageV2: React.FC = () => {
         lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
       />
 
-      {/* Wizard Con Variantes · Fase 7b · F5(A) sidebar 4 pasos */}
+      {/* Wizard Con Variantes · Fase 7b · F5(A) sidebar 4 pasos · Fase E3 con maestros */}
       <WizardConVariantes
         open={wizardActivo === 'con_variantes'}
         onClose={() => setWizardActivo(null)}
         onSubmit={handleCrearConVariantes}
-        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
       />
 
-      {/* Wizard Pack · Fase 7b · F5(D) modal con secciones */}
+      {/* Wizard Pack · Fase 7b · F5(D) modal con secciones · Fase E3 con maestros */}
       <WizardPack
         open={wizardActivo === 'pack'}
         onClose={() => setWizardActivo(null)}
         onSubmit={handleCrearPack}
         productosDisponibles={lista}
-        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
       />
 
       {/* Wizard Variante Existente · Fase 7c · buscador + form reducido */}

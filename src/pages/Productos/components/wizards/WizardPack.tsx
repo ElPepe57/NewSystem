@@ -29,6 +29,12 @@ import {
   Search,
 } from 'lucide-react';
 import type { Producto, ProductoFormData, ComponentePack, Presentacion } from '../../../../types/producto.types';
+import { MaestroSelect, MaestroChipsMulti, type MaestroChipSelection } from '../maestros';
+import { useMarcaStore } from '../../../../store/marcaStore';
+import { useTipoProductoStore } from '../../../../store/tipoProductoStore';
+import { useCategoriaStore } from '../../../../store/categoriaStore';
+import { useEtiquetaStore } from '../../../../store/etiquetaStore';
+import { useAuthStore } from '../../../../store/authStore';
 
 interface WizardPackProps {
   open: boolean;
@@ -36,7 +42,7 @@ interface WizardPackProps {
   onSubmit: (data: Partial<ProductoFormData>) => Promise<void>;
   /** Productos del catálogo · usado para buscar componentes vinculados */
   productosDisponibles?: Producto[];
-  lineasNegocio?: Array<{ id: string; nombre: string }>;
+  lineasNegocio?: Array<{ id: string; nombre: string; codigo?: string }>;
 }
 
 interface ComponenteEntry extends ComponentePack {
@@ -55,11 +61,33 @@ export const WizardPack: React.FC<WizardPackProps> = ({
   lineasNegocio = [],
 }) => {
   const [submitting, setSubmitting] = useState(false);
+  const user = useAuthStore(s => s.user);
+
+  // Stores de maestros (Fase E3)
+  const { marcasActivas, fetchMarcasActivas, createMarca } = useMarcaStore();
+  const { tiposActivos, fetchTiposActivos, create: createTipo } = useTipoProductoStore();
+  const { categoriasActivas, fetchCategoriasActivas, create: createCategoria } = useCategoriaStore();
+  const { etiquetasActivas, fetchEtiquetasActivas, create: createEtiqueta } = useEtiquetaStore();
+
+  useEffect(() => {
+    if (!open) return;
+    fetchMarcasActivas();
+    fetchTiposActivos();
+    fetchCategoriasActivas();
+    fetchEtiquetasActivas();
+  }, [open, fetchMarcasActivas, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
 
   // Sección 1
   const [nombrePack, setNombrePack] = useState('');
   const [marca, setMarca] = useState('Vita Skin Peru');
+  const [marcaId, setMarcaId] = useState<string | undefined>();
   const [lineaNegocioId, setLineaNegocioId] = useState('');
+
+  // Maestros vinculados (Fase E3)
+  const [tipoProductoId, setTipoProductoId] = useState<string | undefined>();
+  const [tipoProductoNombre, setTipoProductoNombre] = useState<string>('');
+  const [categoriasSel, setCategoriasSel] = useState<MaestroChipSelection[]>([]);
+  const [etiquetasSel, setEtiquetasSel] = useState<MaestroChipSelection[]>([]);
 
   // Sección 2 · componentes
   const [componentes, setComponentes] = useState<ComponenteEntry[]>([]);
@@ -76,7 +104,12 @@ export const WizardPack: React.FC<WizardPackProps> = ({
       setSubmitting(false);
       setNombrePack('');
       setMarca('Vita Skin Peru');
+      setMarcaId(undefined);
       setLineaNegocioId('');
+      setTipoProductoId(undefined);
+      setTipoProductoNombre('');
+      setCategoriasSel([]);
+      setEtiquetasSel([]);
       setComponentes([]);
       setDescuentoPct('15');
       setPrecioPackOverride('');
@@ -190,8 +223,11 @@ export const WizardPack: React.FC<WizardPackProps> = ({
         return compData;
       });
 
+      const categoriaPrincipal = categoriasSel.find(c => c.esPrincipal);
+
       const data: Partial<ProductoFormData> = {
         marca: marca.trim(),
+        marcaId,
         nombreComercial: nombrePack.trim(),
         // GAP-144 fix · pack NO debe tener presentacion (rompe filtros)
         // legacy guarda '' · usamos misma estrategia
@@ -206,6 +242,11 @@ export const WizardPack: React.FC<WizardPackProps> = ({
         stockMaximo: 100,
         esPack: true,
         componentesPack,
+        // Maestros vinculados (Fase E3)
+        tipoProductoId,
+        categoriaIds: categoriasSel.map(c => c.id),
+        categoriaPrincipalId: categoriaPrincipal?.id,
+        etiquetaIds: etiquetasSel.map(e => e.id),
         // Campo no oficial pero usado por el modal · el service acepta data: any
         ...({ precioVenta: totales.precioFinal } as any),
       };
@@ -277,14 +318,31 @@ export const WizardPack: React.FC<WizardPackProps> = ({
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-300"
                 />
               </Field>
-              <Field label="Marca *">
-                <input
-                  type="text"
-                  value={marca}
-                  onChange={e => setMarca(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+              <div className="text-xs">
+                <MaestroSelect
+                  label="Marca"
+                  required
+                  tipo="marca"
+                  valueId={marcaId}
+                  valueSnapshot={marcaId ? { id: marcaId, nombre: marca } : undefined}
+                  items={marcasActivas.map(m => ({
+                    id: m.id, codigo: m.codigo, nombre: m.nombre, meta1: (m as any).tipoMarca,
+                  }))}
+                  onSelect={(item) => { setMarca(item.nombre); setMarcaId(item.id); }}
+                  onSolicitarCrear={async (q) => {
+                    if (!user) return;
+                    try {
+                      const id = await createMarca(
+                        { nombre: q, tipoMarca: 'otro', lineaNegocioIds: lineaNegocioId ? [lineaNegocioId] : undefined } as any,
+                        user.uid,
+                      );
+                      setMarca(q); setMarcaId(id);
+                    } catch (err) { console.error('[WizardPack] crear marca', err); }
+                  }}
+                  onClear={() => { setMarca(''); setMarcaId(undefined); }}
+                  helperText="Marca que figura en la cajita del pack · vinculada al Gestor Maestro"
                 />
-              </Field>
+              </div>
               <Field label="Línea de negocio *">
                 <select
                   value={lineaNegocioId}
@@ -294,11 +352,61 @@ export const WizardPack: React.FC<WizardPackProps> = ({
                   <option value="">Seleccionar línea</option>
                   {lineasNegocio.map(l => (
                     <option key={l.id} value={l.id}>
-                      {l.nombre}
+                      {l.nombre} {l.codigo ? `· ${l.codigo}` : ''}
                     </option>
                   ))}
                 </select>
               </Field>
+            </div>
+
+            {/* Sub-sección · Clasificación con maestros (Fase E3) */}
+            <div className="mt-4 pt-4 border-t border-slate-100 space-y-3 text-xs">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                Clasificación · vínculos al Gestor Maestro
+              </div>
+              <MaestroSelect
+                label="Tipo de producto"
+                tipo="tipo-producto"
+                valueId={tipoProductoId}
+                valueSnapshot={tipoProductoId ? { id: tipoProductoId, nombre: tipoProductoNombre } : undefined}
+                items={tiposActivos.map(t => ({
+                  id: t.id, codigo: (t as any).codigo, nombre: t.nombre, meta1: (t as any).principioActivo,
+                }))}
+                onSelect={(item) => { setTipoProductoId(item.id); setTipoProductoNombre(item.nombre); }}
+                onSolicitarCrear={async (q) => {
+                  if (!user) return;
+                  try {
+                    const nuevo = await createTipo({ nombre: q, descripcion: '' } as any, user.uid);
+                    setTipoProductoId(nuevo.id); setTipoProductoNombre(nuevo.nombre);
+                  } catch (err) { console.error('[WizardPack] crear tipo', err); }
+                }}
+                onClear={() => { setTipoProductoId(undefined); setTipoProductoNombre(''); }}
+                helperText="Para packs · ej: 'Rutina anti-edad' o 'Travel Kit'"
+              />
+              <MaestroChipsMulti
+                label="Categorías" permitePrincipal maximo={5} tema="emerald"
+                selecciones={categoriasSel}
+                items={categoriasActivas.map(c => ({ id: c.id, codigo: (c as any).codigo, nombre: c.nombre }))}
+                onChange={setCategoriasSel}
+                onCrearNuevo={async (n) => {
+                  if (!user) return null;
+                  try { const nueva = await createCategoria({ nombre: n } as any, user.uid); return nueva.id; }
+                  catch (err) { console.error('[WizardPack] crear cat', err); return null; }
+                }}
+                helperText="Áreas de salud · click para principal"
+              />
+              <MaestroChipsMulti
+                label="Etiquetas" tema="amber"
+                selecciones={etiquetasSel}
+                items={etiquetasActivas.map(e => ({ id: e.id, codigo: (e as any).codigo, nombre: e.nombre }))}
+                onChange={setEtiquetasSel}
+                onCrearNuevo={async (n) => {
+                  if (!user) return null;
+                  try { const nueva = await createEtiqueta({ nombre: n } as any, user.uid); return nueva.id; }
+                  catch (err) { console.error('[WizardPack] crear etq', err); return null; }
+                }}
+                helperText="ej: best-seller · gift · travel"
+              />
             </div>
           </div>
 

@@ -740,6 +740,8 @@ export class ProductoService {
       pesoLibras?: number;
       /** SKC: atributos compartidos por todas las variantes del grupo. */
       atributosSkincare?: import('../types/producto.types').AtributosSkincare;
+      /** SUP: atributos compartidos por todas las variantes del grupo (Fase E2). */
+      atributosSuplementos?: import('../types/producto.types').AtributosSuplementos;
       codigoUPC?: string;
     },
     variantes: {
@@ -874,6 +876,11 @@ export class ProductoService {
         if (skc.tipoProductoSKC) docData.presentacion = skc.tipoProductoSKC;
         if (skc.volumen) docData.contenido = skc.volumen;
         if (skc.ingredienteClave) docData.dosaje = skc.ingredienteClave;
+      }
+
+      // Atributos Suplementos: heredados del grupo (Fase E2)
+      if (datosComunes.atributosSuplementos) {
+        docData.atributosSuplementos = { ...datosComunes.atributosSuplementos };
       }
 
       // Código UPC heredado (si se definió a nivel de grupo)

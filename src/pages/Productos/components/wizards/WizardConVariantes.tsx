@@ -27,19 +27,58 @@ import {
   Trash2,
   Package,
   CheckCircle2,
+  Droplets,
+  Pill,
+  Sun,
 } from 'lucide-react';
-import type { Presentacion } from '../../../../types/producto.types';
+import type {
+  Presentacion,
+  AtributosSkincare,
+  AtributosSuplementos,
+  TipoProductoSKC,
+  PasoRutinaSKC,
+  TexturaSKC,
+  PresentacionSUP,
+  TomaConComida,
+  EdadRecomendada,
+} from '../../../../types/producto.types';
+import {
+  TIPO_PRODUCTO_SKC_LABELS,
+  PASO_RUTINA_LABELS,
+  TEXTURA_LABELS,
+  TIPO_PIEL_OPTIONS,
+  PREOCUPACIONES_OPTIONS,
+  ZONA_APLICACION_OPTIONS,
+  PRESENTACION_SUP_LABELS,
+  MOMENTO_DIA_OPTIONS,
+  TOMA_CON_COMIDA_LABELS,
+  EDAD_RECOMENDADA_LABELS,
+  RESTRICCIONES_SUGERIDAS,
+} from '../../../../types/producto.types';
 import { StepperVerticalWizard, type StepConfig } from './StepperVerticalWizard';
+import {
+  MaestroSelect,
+  MaestroChipsMulti,
+  ChipsCerrados,
+  type MaestroChipSelection,
+  type ChipCerradoOption,
+} from '../maestros';
+import { useMarcaStore } from '../../../../store/marcaStore';
+import { useTipoProductoStore } from '../../../../store/tipoProductoStore';
+import { useCategoriaStore } from '../../../../store/categoriaStore';
+import { useEtiquetaStore } from '../../../../store/etiquetaStore';
+import { useAuthStore } from '../../../../store/authStore';
 
 interface WizardConVariantesProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (datosComunes: DatosComunes, variantes: VarianteEntry[]) => Promise<void>;
-  lineasNegocio?: Array<{ id: string; nombre: string }>;
+  lineasNegocio?: Array<{ id: string; nombre: string; codigo?: string }>;
 }
 
 export interface DatosComunes {
   marca: string;
+  marcaId?: string;
   nombreComercial: string;
   presentacion: Presentacion;
   paisOrigen: string;
@@ -48,6 +87,13 @@ export interface DatosComunes {
   pesoLibras?: number;
   stockMinimo: number;
   stockMaximo: number;
+  // Fase E3 · Maestros + atributos compartidos por todas las variantes
+  tipoProductoId?: string;
+  categoriaIds?: string[];
+  categoriaPrincipalId?: string;
+  etiquetaIds?: string[];
+  atributosSkincare?: AtributosSkincare;
+  atributosSuplementos?: AtributosSuplementos;
 }
 
 export interface VarianteEntry {
@@ -100,9 +146,25 @@ const STEPS: StepConfig[] = [
 export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, onClose, onSubmit, lineasNegocio = [] }) => {
   const [step, setStep] = useState<StepKey>('datos');
   const [submitting, setSubmitting] = useState(false);
+  const user = useAuthStore(s => s.user);
 
-  // Paso 1 · Datos comunes
+  // Stores de maestros (Fase E3)
+  const { marcasActivas, fetchMarcasActivas, createMarca } = useMarcaStore();
+  const { tiposActivos, fetchTiposActivos, create: createTipo } = useTipoProductoStore();
+  const { categoriasActivas, fetchCategoriasActivas, create: createCategoria } = useCategoriaStore();
+  const { etiquetasActivas, fetchEtiquetasActivas, create: createEtiqueta } = useEtiquetaStore();
+
+  useEffect(() => {
+    if (!open) return;
+    fetchMarcasActivas();
+    fetchTiposActivos();
+    fetchCategoriasActivas();
+    fetchEtiquetasActivas();
+  }, [open, fetchMarcasActivas, fetchTiposActivos, fetchCategoriasActivas, fetchEtiquetasActivas]);
+
+  // Paso 1 · Datos comunes (con maestros vinculados · Fase E3)
   const [marca, setMarca] = useState('');
+  const [marcaId, setMarcaId] = useState<string | undefined>();
   const [nombreComercial, setNombreComercial] = useState('');
   const [presentacion, setPresentacion] = useState<Presentacion>('liquido');
   const [paisOrigen, setPaisOrigen] = useState('USA');
@@ -111,6 +173,44 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
   const [pesoLibras, setPesoLibras] = useState('');
   const [stockMinimo, setStockMinimo] = useState('5');
   const [stockMaximo, setStockMaximo] = useState('100');
+
+  // Maestros vinculados (compartidos por todas las variantes)
+  const [tipoProductoId, setTipoProductoId] = useState<string | undefined>();
+  const [tipoProductoNombre, setTipoProductoNombre] = useState<string>('');
+  const [categoriasSel, setCategoriasSel] = useState<MaestroChipSelection[]>([]);
+  const [etiquetasSel, setEtiquetasSel] = useState<MaestroChipSelection[]>([]);
+
+  // Atributos cerrados SKC (Fase E3 · compartidos)
+  const [skcTipo, setSkcTipo] = useState<TipoProductoSKC | ''>('');
+  const [skcVolumen, setSkcVolumen] = useState<string>('');
+  const [skcUnidad, setSkcUnidad] = useState<'ml' | 'g' | 'oz' | 'unidades'>('ml');
+  const [skcIngredienteClave, setSkcIngredienteClave] = useState<string>('');
+  const [skcLineaProducto, setSkcLineaProducto] = useState<string>('');
+  const [skcTipoPiel, setSkcTipoPiel] = useState<string[]>([]);
+  const [skcPreocupaciones, setSkcPreocupaciones] = useState<string[]>([]);
+  const [skcPasoRutina, setSkcPasoRutina] = useState<PasoRutinaSKC | ''>('');
+  const [skcTextura, setSkcTextura] = useState<TexturaSKC | ''>('');
+  const [skcZona, setSkcZona] = useState<string[]>([]);
+  const [skcSpf, setSkcSpf] = useState<string>('');
+  const [skcPa, setSkcPa] = useState<string>('');
+
+  // Atributos cerrados SUP (Fase E3 · compartidos)
+  const [supPresentacion, setSupPresentacion] = useState<PresentacionSUP | ''>('');
+  const [supRestricciones, setSupRestricciones] = useState<string[]>([]);
+  const [supMomentoDia, setSupMomentoDia] = useState<string[]>([]);
+  const [supTomaConComida, setSupTomaConComida] = useState<TomaConComida | ''>('');
+  const [supEdad, setSupEdad] = useState<EdadRecomendada | ''>('');
+  const [supAdvertencias, setSupAdvertencias] = useState<string>('');
+
+  // Detección SKC/SUP
+  const lineaCodigo = useMemo(() => {
+    if (!lineaNegocioId) return '';
+    const linea = lineasNegocio.find(l => l.id === lineaNegocioId);
+    return (linea?.codigo ?? '').toUpperCase();
+  }, [lineaNegocioId, lineasNegocio]);
+  const esSKC = lineaCodigo === 'SKC';
+  const esSUP = lineaCodigo === 'SUP';
+  const esProtectorSolar = skcTipo === 'protector_solar';
 
   // Paso 2 · Configurar variantes
   const [ejeVariacion, setEjeVariacion] = useState<EjeVariacion>('volumen');
@@ -124,6 +224,19 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
     if (!open) {
       setStep('datos');
       setSubmitting(false);
+      setMarca('');
+      setMarcaId(undefined);
+      setTipoProductoId(undefined);
+      setTipoProductoNombre('');
+      setCategoriasSel([]);
+      setEtiquetasSel([]);
+      // Reset SKC
+      setSkcTipo(''); setSkcVolumen(''); setSkcUnidad('ml'); setSkcIngredienteClave('');
+      setSkcLineaProducto(''); setSkcTipoPiel([]); setSkcPreocupaciones([]);
+      setSkcPasoRutina(''); setSkcTextura(''); setSkcZona([]); setSkcSpf(''); setSkcPa('');
+      // Reset SUP
+      setSupPresentacion(''); setSupRestricciones([]); setSupMomentoDia([]);
+      setSupTomaConComida(''); setSupEdad(''); setSupAdvertencias('');
     }
   }, [open]);
 
@@ -138,7 +251,12 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
   }, [open, onClose]);
 
   // Validación por paso
-  const datosOK = marca.trim().length > 0 && nombreComercial.trim().length > 0 && lineaNegocioId.length > 0;
+  const atributosOK = !esSKC && !esSUP
+    ? true
+    : esSKC ? Boolean(skcTipo)
+    : esSUP ? Boolean(supPresentacion)
+    : true;
+  const datosOK = marca.trim().length > 0 && nombreComercial.trim().length > 0 && lineaNegocioId.length > 0 && atributosOK;
   const configOK = variantes.length >= 2 && variantes.every(v => v.cantidad.trim() && v.unidad.trim());
 
   const completedSteps = useMemo(() => {
@@ -222,8 +340,36 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
     if (!datosOK || !configOK || submitting) return;
     setSubmitting(true);
     try {
+      // Fase E3 · construir atributos según línea
+      const categoriaPrincipal = categoriasSel.find(c => c.esPrincipal);
+
+      const atributosSkincare: AtributosSkincare | undefined = esSKC && skcTipo ? {
+        tipoProductoSKC: skcTipo,
+        volumen: skcVolumen.trim(),
+        unidadMedida: skcUnidad,
+        ingredienteClave: skcIngredienteClave.trim() || undefined,
+        lineaProducto: skcLineaProducto.trim() || undefined,
+        tipoPiel: skcTipoPiel.length ? skcTipoPiel : undefined,
+        preocupaciones: skcPreocupaciones.length ? skcPreocupaciones : undefined,
+        pasoRutina: skcPasoRutina || undefined,
+        textura: skcTextura || undefined,
+        zonaAplicacion: skcZona.length ? skcZona : undefined,
+        spf: esProtectorSolar && skcSpf ? parseInt(skcSpf) : undefined,
+        pa: esProtectorSolar && skcPa ? skcPa : undefined,
+      } : undefined;
+
+      const atributosSuplementos: AtributosSuplementos | undefined = esSUP && supPresentacion ? {
+        presentacion: supPresentacion,
+        momentoDia: supMomentoDia.length ? supMomentoDia : undefined,
+        tomaConComida: supTomaConComida || undefined,
+        edadRecomendada: supEdad || undefined,
+        restricciones: supRestricciones.length ? supRestricciones : undefined,
+        advertencias: supAdvertencias.trim() || undefined,
+      } : undefined;
+
       const datosComunes: DatosComunes = {
         marca: marca.trim(),
+        marcaId,
         nombreComercial: nombreComercial.trim(),
         presentacion,
         paisOrigen,
@@ -232,6 +378,14 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
         pesoLibras: pesoLibras ? parseFloat(pesoLibras) : undefined,
         stockMinimo: parseInt(stockMinimo) || 0,
         stockMaximo: parseInt(stockMaximo) || 100,
+        // Maestros vinculados (compartidos)
+        tipoProductoId,
+        categoriaIds: categoriasSel.map(c => c.id),
+        categoriaPrincipalId: categoriaPrincipal?.id,
+        etiquetaIds: etiquetasSel.map(e => e.id),
+        // Atributos cerrados (compartidos por todas las variantes)
+        atributosSkincare,
+        atributosSuplementos,
       };
       await onSubmit(datosComunes, variantes);
     } catch (err) {
@@ -301,6 +455,11 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
               <PasoDatos
                 marca={marca}
                 setMarca={setMarca}
+                marcaId={marcaId}
+                setMarcaId={setMarcaId}
+                marcasActivas={marcasActivas}
+                createMarca={createMarca}
+                user={user}
                 nombreComercial={nombreComercial}
                 setNombreComercial={setNombreComercial}
                 presentacion={presentacion}
@@ -318,6 +477,45 @@ export const WizardConVariantes: React.FC<WizardConVariantesProps> = ({ open, on
                 setStockMinimo={setStockMinimo}
                 stockMaximo={stockMaximo}
                 setStockMaximo={setStockMaximo}
+                // Maestros
+                tipoProductoId={tipoProductoId}
+                setTipoProductoId={setTipoProductoId}
+                tipoProductoNombre={tipoProductoNombre}
+                setTipoProductoNombre={setTipoProductoNombre}
+                tiposActivos={tiposActivos}
+                createTipo={createTipo}
+                categoriasSel={categoriasSel}
+                setCategoriasSel={setCategoriasSel}
+                categoriasActivas={categoriasActivas}
+                createCategoria={createCategoria}
+                etiquetasSel={etiquetasSel}
+                setEtiquetasSel={setEtiquetasSel}
+                etiquetasActivas={etiquetasActivas}
+                createEtiqueta={createEtiqueta}
+                // Detección
+                esSKC={esSKC}
+                esSUP={esSUP}
+                esProtectorSolar={esProtectorSolar}
+                // SKC
+                skcTipo={skcTipo} setSkcTipo={setSkcTipo}
+                skcVolumen={skcVolumen} setSkcVolumen={setSkcVolumen}
+                skcUnidad={skcUnidad} setSkcUnidad={setSkcUnidad}
+                skcIngredienteClave={skcIngredienteClave} setSkcIngredienteClave={setSkcIngredienteClave}
+                skcLineaProducto={skcLineaProducto} setSkcLineaProducto={setSkcLineaProducto}
+                skcTipoPiel={skcTipoPiel} setSkcTipoPiel={setSkcTipoPiel}
+                skcPreocupaciones={skcPreocupaciones} setSkcPreocupaciones={setSkcPreocupaciones}
+                skcPasoRutina={skcPasoRutina} setSkcPasoRutina={setSkcPasoRutina}
+                skcTextura={skcTextura} setSkcTextura={setSkcTextura}
+                skcZona={skcZona} setSkcZona={setSkcZona}
+                skcSpf={skcSpf} setSkcSpf={setSkcSpf}
+                skcPa={skcPa} setSkcPa={setSkcPa}
+                // SUP
+                supPresentacion={supPresentacion} setSupPresentacion={setSupPresentacion}
+                supRestricciones={supRestricciones} setSupRestricciones={setSupRestricciones}
+                supMomentoDia={supMomentoDia} setSupMomentoDia={setSupMomentoDia}
+                supTomaConComida={supTomaConComida} setSupTomaConComida={setSupTomaConComida}
+                supEdad={supEdad} setSupEdad={setSupEdad}
+                supAdvertencias={supAdvertencias} setSupAdvertencias={setSupAdvertencias}
               />
             )}
             {step === 'config' && (
@@ -408,138 +606,356 @@ function getDescripcionPaso(step: StepKey): string {
   }
 }
 
-const PasoDatos: React.FC<any> = ({
-  marca,
-  setMarca,
-  nombreComercial,
-  setNombreComercial,
-  presentacion,
-  setPresentacion,
-  paisOrigen,
-  setPaisOrigen,
-  lineaNegocioId,
-  setLineaNegocioId,
-  lineasNegocio,
-  costoFlete,
-  setCostoFlete,
-  pesoLibras,
-  setPesoLibras,
-  stockMinimo,
-  setStockMinimo,
-  stockMaximo,
-  setStockMaximo,
-}) => (
-  <div className="space-y-4">
-    <Section titulo="Identidad">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <Field label="Nombre comercial *" className="sm:col-span-2">
-          <input
-            type="text"
-            value={nombreComercial}
-            onChange={(e: any) => setNombreComercial(e.target.value)}
-            placeholder="ej. Vitamin C Brightening Serum"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+const PasoDatos: React.FC<any> = (props) => {
+  const {
+    marca, setMarca, marcaId, setMarcaId, marcasActivas, createMarca, user,
+    nombreComercial, setNombreComercial, presentacion, setPresentacion,
+    paisOrigen, setPaisOrigen, lineaNegocioId, setLineaNegocioId, lineasNegocio,
+    costoFlete, setCostoFlete, pesoLibras, setPesoLibras,
+    stockMinimo, setStockMinimo, stockMaximo, setStockMaximo,
+    tipoProductoId, setTipoProductoId, tipoProductoNombre, setTipoProductoNombre,
+    tiposActivos, createTipo,
+    categoriasSel, setCategoriasSel, categoriasActivas, createCategoria,
+    etiquetasSel, setEtiquetasSel, etiquetasActivas, createEtiqueta,
+    esSKC, esSUP, esProtectorSolar,
+    skcTipo, setSkcTipo, skcVolumen, setSkcVolumen, skcUnidad, setSkcUnidad,
+    skcIngredienteClave, setSkcIngredienteClave, skcLineaProducto, setSkcLineaProducto,
+    skcTipoPiel, setSkcTipoPiel, skcPreocupaciones, setSkcPreocupaciones,
+    skcPasoRutina, setSkcPasoRutina, skcTextura, setSkcTextura,
+    skcZona, setSkcZona, skcSpf, setSkcSpf, skcPa, setSkcPa,
+    supPresentacion, setSupPresentacion, supRestricciones, setSupRestricciones,
+    supMomentoDia, setSupMomentoDia, supTomaConComida, setSupTomaConComida,
+    supEdad, setSupEdad, supAdvertencias, setSupAdvertencias,
+  } = props;
+
+  const tieneAtributos = esSKC || esSUP;
+
+  // Opciones para chips cerrados (memoizadas)
+  const opcionesTipoSKC: ChipCerradoOption[] = useMemo(
+    () => Object.entries(TIPO_PRODUCTO_SKC_LABELS).map(([value, label]) => ({ value, label: label as string })), [],
+  );
+  const opcionesTipoPiel: ChipCerradoOption[] = useMemo(
+    () => TIPO_PIEL_OPTIONS.map(o => ({ value: o, label: o, destacado: o === 'Todo tipo' })), [],
+  );
+  const opcionesPreocupaciones: ChipCerradoOption[] = useMemo(
+    () => PREOCUPACIONES_OPTIONS.map(o => ({ value: o, label: o })), [],
+  );
+  const opcionesPasoRutina: ChipCerradoOption[] = useMemo(
+    () => Object.entries(PASO_RUTINA_LABELS).map(([value, label]) => ({ value, label: label as string })), [],
+  );
+  const opcionesTextura: ChipCerradoOption[] = useMemo(
+    () => Object.entries(TEXTURA_LABELS).map(([value, label]) => ({ value, label: label as string })), [],
+  );
+  const opcionesZona: ChipCerradoOption[] = useMemo(
+    () => ZONA_APLICACION_OPTIONS.map(o => ({ value: o, label: o })), [],
+  );
+  const opcionesPresentacionSUP: ChipCerradoOption[] = useMemo(
+    () => Object.entries(PRESENTACION_SUP_LABELS).map(([value, label]) => ({ value, label: label as string })), [],
+  );
+  const opcionesMomentoDia: ChipCerradoOption[] = useMemo(
+    () => MOMENTO_DIA_OPTIONS.map(o => ({ value: o, label: o })), [],
+  );
+  const opcionesTomaConComida: ChipCerradoOption[] = useMemo(
+    () => Object.entries(TOMA_CON_COMIDA_LABELS).map(([value, label]) => ({ value, label: label as string })), [],
+  );
+  const opcionesEdad: ChipCerradoOption[] = useMemo(
+    () => Object.entries(EDAD_RECOMENDADA_LABELS).map(([value, label]) => ({ value, label: label as string })), [],
+  );
+
+  return (
+    <div className="space-y-4">
+      <Section titulo="Identidad">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <Field label="Nombre comercial *" className="sm:col-span-2">
+            <input
+              type="text"
+              value={nombreComercial}
+              onChange={(e: any) => setNombreComercial(e.target.value)}
+              placeholder="ej. Vitamin C Brightening Serum"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+            />
+          </Field>
+          <div className="text-xs">
+            <MaestroSelect
+              label="Marca"
+              required
+              tipo="marca"
+              valueId={marcaId}
+              valueSnapshot={marcaId ? { id: marcaId, nombre: marca } : undefined}
+              items={(marcasActivas ?? []).map((m: any) => ({
+                id: m.id, codigo: m.codigo, nombre: m.nombre, meta1: m.tipoMarca,
+              }))}
+              onSelect={(item) => { setMarca(item.nombre); setMarcaId(item.id); }}
+              onSolicitarCrear={async (q) => {
+                if (!user) return;
+                try {
+                  const id = await createMarca(
+                    { nombre: q, tipoMarca: 'otro', lineaNegocioIds: lineaNegocioId ? [lineaNegocioId] : undefined } as any,
+                    user.uid,
+                  );
+                  setMarca(q); setMarcaId(id);
+                } catch (err) { console.error('[WizardConVariantes] crear marca', err); }
+              }}
+              onClear={() => { setMarca(''); setMarcaId(undefined); }}
+              helperText="Compartida por todas las variantes · vinculada al Gestor Maestro"
+            />
+          </div>
+          <Field label="Presentación">
+            <select
+              value={presentacion}
+              onChange={(e: any) => setPresentacion(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+            >
+              {PRESENTACIONES.map(p => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Línea de negocio *">
+            <select
+              value={lineaNegocioId}
+              onChange={(e: any) => setLineaNegocioId(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+            >
+              <option value="">Seleccionar línea</option>
+              {lineasNegocio.map((l: any) => (
+                <option key={l.id} value={l.id}>
+                  {l.nombre} {l.codigo ? `· ${l.codigo}` : ''}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      </Section>
+
+      <Section titulo="Origen">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <Field label="País origen *">
+            <select
+              value={paisOrigen}
+              onChange={(e: any) => setPaisOrigen(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+            >
+              {PAISES.map(p => (
+                <option key={p.value} value={p.value}>{p.emoji} {p.label}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Costo flete intl. (USD)">
+            <input type="number" step="0.01" value={costoFlete}
+              onChange={(e: any) => setCostoFlete(e.target.value)} placeholder="0.00"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums" />
+          </Field>
+          <Field label="Peso unitario (lb)">
+            <input type="number" step="0.01" value={pesoLibras}
+              onChange={(e: any) => setPesoLibras(e.target.value)} placeholder="0.00"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums" />
+          </Field>
+        </div>
+      </Section>
+
+      {/* Atributos cerrados por línea (Fase E3) ─────────────────────────── */}
+      {tieneAtributos && (
+        <Section titulo={esSKC ? 'Atributos Skincare (compartidos)' : 'Atributos Suplementos (compartidos)'}>
+          {esSKC && (
+            <div className="space-y-4 border-l-2 border-amber-300 pl-3 text-xs">
+              <div className="flex items-center gap-2 text-amber-800 font-bold text-[11px]">
+                <Droplets className="w-3.5 h-3.5" />
+                Línea Skincare · todos los hijos del grupo heredan estos atributos
+              </div>
+              <ChipsCerrados label="Tipo SKC" required modo="single" variante="rect" tema="amber"
+                options={opcionesTipoSKC} value={skcTipo}
+                onChange={(v: string) => setSkcTipo(v as TipoProductoSKC)} />
+
+              <div className="grid grid-cols-3 gap-3">
+                <Field label="Volumen base">
+                  <div className="flex items-stretch border border-slate-300 rounded-lg overflow-hidden">
+                    <input type="number" value={skcVolumen} onChange={(e: any) => setSkcVolumen(e.target.value)}
+                      placeholder="30" className="flex-1 px-2 py-1.5 text-sm tabular-nums border-0 min-w-0" />
+                    <select value={skcUnidad} onChange={(e: any) => setSkcUnidad(e.target.value)}
+                      className="px-1.5 py-1 text-xs font-bold bg-white border-l border-slate-200">
+                      <option value="ml">ml</option><option value="g">g</option>
+                      <option value="oz">oz</option><option value="unidades">uds</option>
+                    </select>
+                  </div>
+                </Field>
+                <Field label="Ingrediente clave">
+                  <input type="text" value={skcIngredienteClave}
+                    onChange={(e: any) => setSkcIngredienteClave(e.target.value)} placeholder="ej. Vitamina C 15%"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" />
+                </Field>
+                <Field label="Línea de marca">
+                  <input type="text" value={skcLineaProducto}
+                    onChange={(e: any) => setSkcLineaProducto(e.target.value)} placeholder="ej. C E Ferulic"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" />
+                </Field>
+              </div>
+
+              <ChipsCerrados label="Tipo de piel" modo="multi" variante="pill" tema="amber"
+                options={opcionesTipoPiel} value={skcTipoPiel} onChange={setSkcTipoPiel} />
+
+              <ChipsCerrados label="Preocupaciones que aborda" modo="multi" variante="pill" tema="amber"
+                options={opcionesPreocupaciones} value={skcPreocupaciones} onChange={setSkcPreocupaciones} />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <ChipsCerrados label="Paso de rutina" modo="single" variante="rect" tema="amber"
+                  options={opcionesPasoRutina} value={skcPasoRutina}
+                  onChange={(v: string) => setSkcPasoRutina(v as PasoRutinaSKC)} />
+                <ChipsCerrados label="Textura" modo="single" variante="rect" tema="amber"
+                  options={opcionesTextura} value={skcTextura}
+                  onChange={(v: string) => setSkcTextura(v as TexturaSKC)} />
+              </div>
+
+              <ChipsCerrados label="Zona de aplicación" modo="multi" variante="pill" tema="amber"
+                options={opcionesZona} value={skcZona} onChange={setSkcZona} />
+
+              {esProtectorSolar && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2 text-amber-800 font-bold text-[11px]">
+                    <Sun className="w-3.5 h-3.5" /> Campos de Protección Solar
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="SPF">
+                      <input type="number" value={skcSpf} onChange={(e: any) => setSkcSpf(e.target.value)}
+                        placeholder="50" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums" />
+                    </Field>
+                    <Field label="PA">
+                      <input type="text" value={skcPa} onChange={(e: any) => setSkcPa(e.target.value)}
+                        placeholder="PA++++" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" />
+                    </Field>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {esSUP && (
+            <div className="space-y-4 border-l-2 border-indigo-300 pl-3 text-xs">
+              <div className="flex items-center gap-2 text-indigo-800 font-bold text-[11px]">
+                <Pill className="w-3.5 h-3.5" />
+                Línea Suplementos · sabor/dosaje varían por variante
+              </div>
+              <ChipsCerrados label="Presentación" required modo="single" variante="rect" tema="indigo"
+                options={opcionesPresentacionSUP} value={supPresentacion}
+                onChange={(v: string) => setSupPresentacion(v as PresentacionSUP)} />
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">
+                  Restricciones / certificaciones
+                </label>
+                <div className="border border-amber-300 rounded-lg p-2 bg-white">
+                  <div className="flex flex-wrap gap-1.5 items-center">
+                    {supRestricciones.map((r: string) => (
+                      <span key={r} className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1">
+                        ✓ {r}
+                        <button type="button" onClick={() => setSupRestricciones(supRestricciones.filter((x: string) => x !== r))} className="hover:text-amber-900">
+                          <X className="w-2.5 h-2.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-1 flex flex-wrap gap-1 items-center">
+                  <span className="text-[9px] text-slate-500 italic">Más usadas:</span>
+                  {RESTRICCIONES_SUGERIDAS.filter(r => !supRestricciones.includes(r)).slice(0, 7).map(r => (
+                    <button key={r} type="button" onClick={() => setSupRestricciones([...supRestricciones, r])}
+                      className="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] border border-amber-200">
+                      + {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <ChipsCerrados label="Momento del día" modo="multi" variante="pill" tema="indigo"
+                options={opcionesMomentoDia} value={supMomentoDia} onChange={setSupMomentoDia} />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <ChipsCerrados label="Toma con/sin comida" modo="single" variante="pill" tema="indigo"
+                  options={opcionesTomaConComida} value={supTomaConComida}
+                  onChange={(v: string) => setSupTomaConComida(v as TomaConComida)} />
+                <ChipsCerrados label="Edad recomendada" modo="single" variante="pill" tema="indigo"
+                  options={opcionesEdad} value={supEdad}
+                  onChange={(v: string) => setSupEdad(v as EdadRecomendada)} />
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                  Advertencias
+                </label>
+                <textarea rows={2} value={supAdvertencias}
+                  onChange={(e: any) => setSupAdvertencias(e.target.value)}
+                  placeholder="ej: no en embarazo · contraindicado con anticoagulantes..."
+                  className="w-full px-3 py-2 border border-indigo-300 rounded-lg text-xs resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              </div>
+            </div>
+          )}
+        </Section>
+      )}
+
+      {/* Clasificación con maestros vinculados (Fase E3) ────────────────── */}
+      <Section titulo="Clasificación (compartida)">
+        <div className="space-y-4 text-xs">
+          <MaestroSelect
+            label="Tipo de producto"
+            tipo="tipo-producto"
+            valueId={tipoProductoId}
+            valueSnapshot={tipoProductoId ? { id: tipoProductoId, nombre: tipoProductoNombre } : undefined}
+            items={(tiposActivos ?? []).map((t: any) => ({
+              id: t.id, codigo: t.codigo, nombre: t.nombre, meta1: t.principioActivo,
+            }))}
+            onSelect={(item) => { setTipoProductoId(item.id); setTipoProductoNombre(item.nombre); }}
+            onSolicitarCrear={async (q) => {
+              if (!user) return;
+              try {
+                const nuevo = await createTipo({ nombre: q, descripcion: '' } as any, user.uid);
+                setTipoProductoId(nuevo.id); setTipoProductoNombre(nuevo.nombre);
+              } catch (err) { console.error('[WizardConVariantes] crear tipo', err); }
+            }}
+            onClear={() => { setTipoProductoId(undefined); setTipoProductoNombre(''); }}
+            helperText="Compartido · agrupa equivalentes (ej: 'Vitamina D3 + K2')"
           />
-        </Field>
-        <Field label="Marca *">
-          <input
-            type="text"
-            value={marca}
-            onChange={(e: any) => setMarca(e.target.value)}
-            placeholder="ej. SkinCeuticals"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+          <MaestroChipsMulti
+            label="Categorías" permitePrincipal maximo={5} tema="emerald"
+            selecciones={categoriasSel}
+            items={(categoriasActivas ?? []).map((c: any) => ({ id: c.id, codigo: c.codigo, nombre: c.nombre }))}
+            onChange={setCategoriasSel}
+            onCrearNuevo={async (n) => {
+              if (!user) return null;
+              try { const nueva = await createCategoria({ nombre: n } as any, user.uid); return nueva.id; }
+              catch (err) { console.error('[WizardConVariantes] crear cat', err); return null; }
+            }}
+            helperText="Áreas de salud · click para principal"
           />
-        </Field>
-        <Field label="Presentación">
-          <select
-            value={presentacion}
-            onChange={(e: any) => setPresentacion(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
-          >
-            {PRESENTACIONES.map(p => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Línea de negocio *">
-          <select
-            value={lineaNegocioId}
-            onChange={(e: any) => setLineaNegocioId(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
-          >
-            <option value="">Seleccionar línea</option>
-            {lineasNegocio.map((l: any) => (
-              <option key={l.id} value={l.id}>
-                {l.nombre}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-    </Section>
-    <Section titulo="Origen">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-        <Field label="País origen *">
-          <select
-            value={paisOrigen}
-            onChange={(e: any) => setPaisOrigen(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
-          >
-            {PAISES.map(p => (
-              <option key={p.value} value={p.value}>
-                {p.emoji} {p.label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Costo flete intl. (USD)">
-          <input
-            type="number"
-            step="0.01"
-            value={costoFlete}
-            onChange={(e: any) => setCostoFlete(e.target.value)}
-            placeholder="0.00"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums"
+          <MaestroChipsMulti
+            label="Etiquetas" tema="amber"
+            selecciones={etiquetasSel}
+            items={(etiquetasActivas ?? []).map((e: any) => ({ id: e.id, codigo: e.codigo, nombre: e.nombre }))}
+            onChange={setEtiquetasSel}
+            onCrearNuevo={async (n) => {
+              if (!user) return null;
+              try { const nueva = await createEtiqueta({ nombre: n } as any, user.uid); return nueva.id; }
+              catch (err) { console.error('[WizardConVariantes] crear etq', err); return null; }
+            }}
+            helperText="Tags marketing flexibles"
           />
-        </Field>
-        <Field label="Peso unitario (lb)">
-          <input
-            type="number"
-            step="0.01"
-            value={pesoLibras}
-            onChange={(e: any) => setPesoLibras(e.target.value)}
-            placeholder="0.00"
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums"
-          />
-        </Field>
-      </div>
-    </Section>
-    <Section titulo="Inventario base">
-      <div className="grid grid-cols-2 gap-3 text-xs">
-        <Field label="Stock mínimo">
-          <input
-            type="number"
-            min="0"
-            value={stockMinimo}
-            onChange={(e: any) => setStockMinimo(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums"
-          />
-        </Field>
-        <Field label="Stock máximo">
-          <input
-            type="number"
-            min="1"
-            value={stockMaximo}
-            onChange={(e: any) => setStockMaximo(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums"
-          />
-        </Field>
-      </div>
-    </Section>
-  </div>
-);
+        </div>
+      </Section>
+
+      <Section titulo="Inventario base">
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <Field label="Stock mínimo">
+            <input type="number" min="0" value={stockMinimo} onChange={(e: any) => setStockMinimo(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums" />
+          </Field>
+          <Field label="Stock máximo">
+            <input type="number" min="1" value={stockMaximo} onChange={(e: any) => setStockMaximo(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm tabular-nums" />
+          </Field>
+        </div>
+      </Section>
+    </div>
+  );
+};
 
 const PasoConfig: React.FC<{
   ejeVariacion: EjeVariacion;

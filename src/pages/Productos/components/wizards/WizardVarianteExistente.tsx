@@ -155,8 +155,11 @@ export const WizardVarianteExistente: React.FC<WizardVarianteExistenteProps> = (
         lineaNegocioId: productoBase.lineaNegocioId,
         tipoProductoId: productoBase.tipoProductoId,
         categoriaIds: productoBase.categoriaIds,
+        categoriaPrincipalId: productoBase.categoriaPrincipalId,
         etiquetaIds: productoBase.etiquetaIds,
         atributosSkincare: productoBase.atributosSkincare,
+        // Fase E3 · heredar atributos suplementos del padre
+        atributosSuplementos: productoBase.atributosSuplementos,
         pesoLibras: productoBase.pesoLibras,
         costoFleteInternacional: productoBase.costoFleteInternacional,
         // Stock
