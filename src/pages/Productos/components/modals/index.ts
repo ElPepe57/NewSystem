@@ -22,6 +22,8 @@ export {
   CompetidorFormModal,
   type CompetidorInvestigacionFormValue,
 } from './investigacion/CompetidorFormModal';
+export { AjustarPrecioModal } from './AjustarPrecioModal';
+export { ImportarCSVModal } from './ImportarCSVModal';
 export type {
   ProveedorInvestigacion,
   CompetidorInvestigacion,

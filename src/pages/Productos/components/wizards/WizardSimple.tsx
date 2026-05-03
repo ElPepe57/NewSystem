@@ -44,6 +44,7 @@ import {
   SABORES_SUGERIDOS,
 } from '../../../../types/producto.types';
 import { SeccionColapsable } from './SeccionColapsable';
+import { DuplicadosBanner, detectarDuplicados, type CandidatoSimilar } from './DuplicadosBanner';
 import {
   MaestroSelect,
   MaestroChipsMulti,
@@ -63,6 +64,12 @@ interface WizardSimpleProps {
   onSubmit: (data: Partial<ProductoFormData>) => Promise<void> | void;
   /** Lista de líneas de negocio disponibles (id + nombre + codigo SKC/SUP) */
   lineasNegocio?: Array<{ id: string; nombre: string; codigo?: string }>;
+  /** Catálogo completo · usado para detección de duplicados (Fase H · #45) */
+  catalogoExistente?: import('../../../../types/producto.types').Producto[];
+  /** Callback al click "Es variante de este" · padre redirige al WizardVarianteExistente */
+  onConvertirAVariante?: (productoBase: import('../../../../types/producto.types').Producto) => void;
+  /** Callback al click "Ver detalle" · padre abre ProductoDetailModal */
+  onVerDetalle?: (producto: import('../../../../types/producto.types').Producto) => void;
 }
 
 type SeccionKey = 'origen' | 'basico' | 'atributos' | 'clasificacion' | 'inventario';
@@ -86,7 +93,15 @@ const PAISES = [
   { value: 'PER', label: 'Perú', emoji: '🇵🇪' },
 ];
 
-export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSubmit, lineasNegocio = [] }) => {
+export const WizardSimple: React.FC<WizardSimpleProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  lineasNegocio = [],
+  catalogoExistente = [],
+  onConvertirAVariante,
+  onVerDetalle,
+}) => {
   const [seccionAbierta, setSeccionAbierta] = useState<SeccionKey>('origen');
   const [submitting, setSubmitting] = useState(false);
   const user = useAuthStore(s => s.user);
@@ -214,6 +229,28 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
 
   // Es protector solar · activa SPF/PA
   const esProtectorSolar = skcTipo === 'protector_solar';
+
+  // ─── Fase H · Detección de duplicados con debounce 500ms ──────────────────
+  const [duplicadosCandidatos, setDuplicadosCandidatos] = useState<CandidatoSimilar[]>([]);
+  useEffect(() => {
+    if (!open || nombreComercial.trim().length < 4 || catalogoExistente.length === 0) {
+      setDuplicadosCandidatos([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      const candidatos = detectarDuplicados(
+        {
+          nombre: nombreComercial,
+          marca,
+          presentacion,
+          dosaje,
+        },
+        catalogoExistente,
+      );
+      setDuplicadosCandidatos(candidatos);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [nombreComercial, marca, presentacion, dosaje, catalogoExistente, open]);
 
   // Cálculo de ciclo recompra automático para SUP
   const cicloRecompraDias = useMemo(() => {
@@ -1124,19 +1161,12 @@ export const WizardSimple: React.FC<WizardSimpleProps> = ({ open, onClose, onSub
             </div>
           </SeccionColapsable>
 
-          {/* Banner sugerencia variantes (placeholder · Fase 9 hará la detección real) */}
-          {nombreComercial.length >= 5 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2.5">
-              <Lightbulb className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div className="text-xs flex-1">
-                <div className="font-bold text-amber-900">¿Es una variante de un producto existente?</div>
-                <div className="text-amber-800">
-                  Si {nombreComercial.split(' ')[0]} ya existe en otra presentación, considera usar "Variante de producto
-                  existente" en lugar de crear duplicado.
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Fase H · Banner duplicados (mockup #45) · detección automática debounced */}
+          <DuplicadosBanner
+            candidatos={duplicadosCandidatos}
+            onConvertirAVariante={onConvertirAVariante}
+            onVerDetalle={onVerDetalle}
+          />
         </div>
 
         {/* Footer */}

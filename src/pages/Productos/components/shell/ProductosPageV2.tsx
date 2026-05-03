@@ -58,6 +58,7 @@ import {
   InvestigacionCompletaModal,
   ProveedorFormModal,
   CompetidorFormModal,
+  ImportarCSVModal,
   type InvestigacionPayload,
   type ProveedorInvestigacionFormValue,
   type CompetidorInvestigacionFormValue,
@@ -114,6 +115,12 @@ const CHIP_LABELS: Record<string, Record<string, { label: string; color: ChipCol
     activos: { label: 'Estado: Activos', color: 'emerald' },
     en_investigacion: { label: 'Estado: En investigación', color: 'amber' },
     archivados: { label: 'Estado: Archivados', color: 'slate' },
+  },
+  // Fase H · Estado de investigación (mockup #39)
+  investigacion: {
+    vigente: { label: 'Investig: Vigente', color: 'emerald' },
+    vencida: { label: 'Investig: Vencida', color: 'amber' },
+    sin_investigar: { label: 'Investig: Sin investigar', color: 'slate' },
   },
 };
 
@@ -172,6 +179,9 @@ export const ProductosPageV2: React.FC = () => {
   const [bulkEtiquetarOpen, setBulkEtiquetarOpen] = useState(false);
   const [bulkExportarOpen, setBulkExportarOpen] = useState(false);
   const [bulkArchivarOpen, setBulkArchivarOpen] = useState(false);
+
+  // ─── Fase H · Modal Importar CSV ────────────────────────────────────────────
+  const [importarOpen, setImportarOpen] = useState(false);
 
   // Cargar productos al montar
   useEffect(() => {
@@ -261,6 +271,19 @@ export const ProductosPageV2: React.FC = () => {
           if (values.includes('archivados') && estado === 'archivado') return true;
           return false;
         }
+        // Fase H · Filtro por estado de investigación (mockup #39)
+        if (groupKey === 'investigacion') {
+          const inv = p.investigacion;
+          const ahora = Date.now();
+          const ts = inv?.vigenciaHasta?.toDate?.()?.getTime?.() ?? 0;
+          const esVigente = !!inv && ts > ahora;
+          const esVencida = !!inv && ts > 0 && ts < ahora;
+          const sinInvestigar = !inv;
+          if (values.includes('vigente') && esVigente) return true;
+          if (values.includes('vencida') && esVencida) return true;
+          if (values.includes('sin_investigar') && sinInvestigar) return true;
+          return false;
+        }
         return true;
       });
     });
@@ -330,6 +353,22 @@ export const ProductosPageV2: React.FC = () => {
     const enInvestigacion = list.filter((p: any) => p.estado === 'en_investigacion').length;
     const archivadosTotal = Array.isArray(archivados) ? archivados.length : 0;
 
+    // Fase H · Counts de estado de investigación (mockup #39)
+    const ahora = Date.now();
+    const invVigente = list.filter((p: any) => {
+      const inv = p.investigacion;
+      if (!inv) return false;
+      const ts = inv.vigenciaHasta?.toDate?.()?.getTime?.() ?? 0;
+      return ts > ahora;
+    }).length;
+    const invVencida = list.filter((p: any) => {
+      const inv = p.investigacion;
+      if (!inv) return false;
+      const ts = inv.vigenciaHasta?.toDate?.()?.getTime?.() ?? 0;
+      return ts > 0 && ts < ahora;
+    }).length;
+    const invSin = list.filter((p: any) => !p.investigacion).length;
+
     return {
       all,
       activos,
@@ -342,6 +381,9 @@ export const ProductosPageV2: React.FC = () => {
       simple,
       enInvestigacion,
       archivadosTotal,
+      invVigente,
+      invVencida,
+      invSin,
     };
   }, [lista, archivados]);
 
@@ -370,6 +412,16 @@ export const ProductosPageV2: React.FC = () => {
         options: [
           { value: 'activos', label: 'Activos', icon: Check, count: counts.activos, variant: 'emerald' },
           { value: 'en_investigacion', label: 'En investigación', icon: SearchIcon, count: counts.enInvestigacion, variant: 'amber' },
+        ],
+      },
+      // Fase H · Filtro nuevo "Estado de Investigación" (mockup #39)
+      {
+        key: 'investigacion',
+        label: 'Investig.',
+        options: [
+          { value: 'vigente', label: 'Vigente', icon: Check, count: counts.invVigente, variant: 'emerald' },
+          { value: 'vencida', label: 'Vencida', icon: SearchIcon, count: counts.invVencida, variant: 'amber' },
+          { value: 'sin_investigar', label: 'Sin investigar', icon: SearchIcon, count: counts.invSin, variant: 'slate' },
         ],
       },
     ],
@@ -782,7 +834,7 @@ export const ProductosPageV2: React.FC = () => {
       costosFijosInicial: fijos,
     });
   };
-  const handleImportar = () => toast.info('Importar CSV · próxima fase H');
+  const handleImportar = () => setImportarOpen(true);
   const handleExportar = () => setBulkExportarOpen(true); // exporta lo seleccionado o lo visible
 
   // Productos seleccionados resueltos a objetos completos
@@ -1047,12 +1099,23 @@ export const ProductosPageV2: React.FC = () => {
         onSelect={handleSelectorChoice}
       />
 
-      {/* Wizard Simple · Fase 7a · 5 secciones colapsables (con Atributos SKC/SUP) */}
+      {/* Wizard Simple · Fase 7a · 5 secciones colapsables (con Atributos SKC/SUP) + Fase H detección duplicados */}
       <WizardSimple
         open={wizardActivo === 'simple'}
         onClose={() => setWizardActivo(null)}
         onSubmit={handleCrearSimple}
         lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
+        catalogoExistente={lista}
+        onConvertirAVariante={(productoBase) => {
+          // Cierra el wizard simple y abre el de variante con el padre pre-seleccionado
+          setWizardActivo('variante_existente');
+          // Pasar el producto base al WizardVarianteExistente (placeholder · TBD)
+          toast.info(`Convertí a variante de "${productoBase.nombreComercial}" · seleccionalo manualmente`);
+        }}
+        onVerDetalle={(p) => {
+          setDetailProducto(p);
+          setWizardActivo(null); // cierra el wizard para ver detalle
+        }}
       />
 
       {/* Wizard Con Variantes · Fase 7b · F5(A) sidebar 4 pasos · Fase E3 con maestros */}
@@ -1259,6 +1322,20 @@ export const ProductosPageV2: React.FC = () => {
         productos={productosSeleccionados}
         onClose={() => setBulkArchivarOpen(false)}
         onConfirmar={handleBulkArchivar}
+      />
+
+      {/* ═══════ Fase H · Importar CSV ═══════ */}
+      <ImportarCSVModal
+        open={importarOpen}
+        onClose={() => setImportarOpen(false)}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
+        onImportComplete={({ creados, actualizados, omitidos }) => {
+          if (creados > 0 || actualizados > 0) {
+            toast.success(`Importación: ${creados} creados · ${actualizados} actualizados${omitidos > 0 ? ` · ${omitidos} omitidos` : ''}`);
+          } else if (omitidos > 0) {
+            toast.warning(`Importación finalizada · ${omitidos} omitidos por errores`);
+          }
+        }}
       />
     </div>
   );
