@@ -927,12 +927,12 @@ export const ProductosPageV2: React.FC = () => {
         onSelect={handleSelectorChoice}
       />
 
-      {/* Wizard Simple · Fase 7a · 1 paso · 4 secciones colapsables */}
+      {/* Wizard Simple · Fase 7a · 5 secciones colapsables (con Atributos SKC/SUP) */}
       <WizardSimple
         open={wizardActivo === 'simple'}
         onClose={() => setWizardActivo(null)}
         onSubmit={handleCrearSimple}
-        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre }))}
+        lineasNegocio={lineasActivas.map(l => ({ id: l.id, nombre: l.nombre, codigo: l.codigo }))}
       />
 
       {/* Wizard Con Variantes · Fase 7b · F5(A) sidebar 4 pasos */}

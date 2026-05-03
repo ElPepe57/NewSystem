@@ -395,6 +395,11 @@ export class ProductoService {
         newProducto.sabor = skc.tipoPiel?.[0] || '';
       }
 
+      // Atributos Suplementos (Fase E2 · GAP-040)
+      if ((data as any).atributosSuplementos) {
+        (newProducto as any).atributosSuplementos = (data as any).atributosSuplementos;
+      }
+
       // Variantes — modelo grupoVarianteId + legacy compat
       if (data.grupoVarianteId) {
         newProducto.grupoVarianteId = data.grupoVarianteId;
@@ -575,6 +580,11 @@ export class ProductoService {
           updateData.dosaje = skc.ingredienteClave || '';
           updateData.sabor = skc.tipoPiel?.[0] || '';
         }
+      }
+
+      // Si se actualizan atributos suplementos (Fase E2)
+      if ((data as any).atributosSuplementos !== undefined) {
+        updateData.atributosSuplementos = (data as any).atributosSuplementos;
       }
 
       // Limpiar el objeto final de valores undefined (por si quedaron de los snapshots)

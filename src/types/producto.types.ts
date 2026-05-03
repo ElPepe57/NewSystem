@@ -156,8 +156,96 @@ export const PREOCUPACIONES_OPTIONS = [
 ];
 
 export const ZONA_APLICACION_OPTIONS = [
-  'Rostro', 'Cuerpo', 'Contorno de ojos', 'Labios', 'Cuello', 'Manos',
+  'Rostro', 'Cuello', 'Escote', 'Contorno de ojos', 'Labios', 'Manos',
+  'Cuerpo', 'Pies', 'Cuero cabelludo',
 ];
+
+// ============================================
+// ATRIBUTOS SUPLEMENTOS (SUP) — Fase E2
+// ============================================
+// Vocabulario cerrado documentado en mockup #41 v4 ("Estado A").
+// Se almacena como ENUM hardcoded · sin Firestore.
+
+/** Presentación SUP cerrada · 11 opciones (mockup #41 v4) */
+export type PresentacionSUP =
+  | 'capsulas'
+  | 'capsulas_blandas'
+  | 'tabletas'
+  | 'gomitas'
+  | 'polvo'
+  | 'liquido'
+  | 'sublingual'
+  | 'spray_oral'
+  | 'sticks_sobres'
+  | 'goteros_tinctura'
+  | 'barras';
+
+export const PRESENTACION_SUP_LABELS: Record<PresentacionSUP, string> = {
+  capsulas: 'Cápsulas',
+  capsulas_blandas: 'Cápsulas blandas',
+  tabletas: 'Tabletas',
+  gomitas: 'Gomitas',
+  polvo: 'Polvo',
+  liquido: 'Líquido',
+  sublingual: 'Sublingual',
+  spray_oral: 'Spray oral',
+  sticks_sobres: 'Sticks / sobres',
+  goteros_tinctura: 'Goteros / tintura',
+  barras: 'Barras',
+};
+
+/** Momento del día (multi-select cerrado · 6 opciones) */
+export const MOMENTO_DIA_OPTIONS = [
+  'Mañana', 'Tarde', 'Noche', 'Pre-entreno', 'Post-entreno', 'Cualquiera',
+];
+
+/** Toma con/sin comida (single-select cerrado · 4 opciones) */
+export type TomaConComida = 'con_comida' | 'en_ayunas' | 'indiferente' | 'antes_dormir';
+
+export const TOMA_CON_COMIDA_LABELS: Record<TomaConComida, string> = {
+  con_comida: 'Con comida',
+  en_ayunas: 'En ayunas',
+  indiferente: 'Indiferente',
+  antes_dormir: 'Antes de dormir',
+};
+
+/** Edad recomendada (single-select cerrado · 5 opciones) */
+export type EdadRecomendada =
+  | 'ninos_3_12'
+  | 'adolescentes_13_17'
+  | 'adultos_18'
+  | 'adultos_mayores_60'
+  | 'cualquier_edad';
+
+export const EDAD_RECOMENDADA_LABELS: Record<EdadRecomendada, string> = {
+  ninos_3_12: 'Niños (3-12)',
+  adolescentes_13_17: 'Adolescentes (13-17)',
+  adultos_18: 'Adultos (18+)',
+  adultos_mayores_60: 'Adultos mayores (60+)',
+  cualquier_edad: 'Cualquier edad',
+};
+
+/** Restricciones / certificaciones SUP (CHIPS creables · sugerencias rápidas) */
+export const RESTRICCIONES_SUGERIDAS = [
+  'Vegano', 'Sin gluten', 'Non-GMO', 'Kosher', 'Halal', 'Vegetariano',
+  'Sin lactosa', 'Sin azúcar', 'Sin soya', 'Orgánico',
+];
+
+/** Sabores SUP más usados (CHIPS creables · sugerencias rápidas) */
+export const SABORES_SUGERIDOS = [
+  'Sin sabor', 'Limón', 'Frutos rojos', 'Vainilla', 'Chocolate', 'Naranja',
+];
+
+/** Atributos Suplementos · estructura denormalizada en el Producto */
+export interface AtributosSuplementos {
+  presentacion?: PresentacionSUP;            // CERRADO single
+  momentoDia?: string[];                     // CERRADO multi
+  tomaConComida?: TomaConComida;             // CERRADO single
+  edadRecomendada?: EdadRecomendada;         // CERRADO single
+  restricciones?: string[];                  // CHIPS creables (free)
+  sabor?: string;                            // single string (legacy compat)
+  advertencias?: string;                     // TEXTAREA
+}
 
 // ============================================
 // INVESTIGACIÓN DE MERCADO
@@ -533,6 +621,9 @@ export interface Producto {
   // === ATRIBUTOS SKINCARE (solo línea SKC) ===
   atributosSkincare?: AtributosSkincare;
 
+  // === ATRIBUTOS SUPLEMENTOS (solo línea SUP) — Fase E2 ===
+  atributosSuplementos?: AtributosSuplementos;
+
   // === STOCK ===
   /** @deprecated Usar stockOrigen para multi-país */
   stockUSA: number;
@@ -643,6 +734,9 @@ export interface ProductoFormData {
 
   // === ATRIBUTOS SKINCARE (solo línea SKC) ===
   atributosSkincare?: AtributosSkincare;
+
+  // === ATRIBUTOS SUPLEMENTOS (solo línea SUP) — Fase E2 ===
+  atributosSuplementos?: AtributosSuplementos;
 
   // === CICLO DE RECOMPRA ===
   /**

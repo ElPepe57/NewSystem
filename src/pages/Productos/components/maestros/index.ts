@@ -13,3 +13,4 @@ export {
   type MaestroChipItem,
   type MaestroChipSelection,
 } from './MaestroChipsMulti';
+export { ChipsCerrados, type ChipCerradoOption } from './ChipsCerrados';
