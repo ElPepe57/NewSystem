@@ -15,6 +15,7 @@
 import React, { useMemo } from 'react';
 import { Plus, MoreHorizontal, Lightbulb, AlertTriangle } from 'lucide-react';
 import type { Producto } from '../../../../types/producto.types';
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
 
 interface TabVariantesProps {
   producto: Producto;
@@ -28,7 +29,8 @@ interface TabVariantesProps {
 const PALETTE = ['#0d9488', '#f59e0b', '#8b5cf6', '#a855f7', '#0ea5e9', '#f43f5e'];
 
 function getPrecioVenta(p: Producto): number {
-  return (p as any).precioVenta ?? p.investigacion?.precioSugeridoCalculado ?? 0;
+  // Fase H+ · sin fallback a precioSugeridoCalculado legacy
+  return calcularInvestigacion(p).precioEfectivo;
 }
 
 function getMargenPct(p: Producto): number | null {

@@ -23,6 +23,7 @@
 import React, { useMemo } from 'react';
 import { Plus, MoreHorizontal, Info, AlertTriangle, FileText, Package2, Link2 } from 'lucide-react';
 import type { Producto, ComponentePack } from '../../../../types/producto.types';
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
 import { ProductoAvatar, inferLineaFromProducto } from '../shared/ProductoAvatar';
 
 interface TabComponentesProps {
@@ -43,7 +44,8 @@ interface ComponenteFila extends ComponentePack {
 }
 
 function getPrecioPack(p: Producto): number {
-  return (p as any).precioVenta ?? p.investigacion?.precioSugeridoCalculado ?? 0;
+  // Fase H+ · sin fallback a precioSugeridoCalculado legacy
+  return calcularInvestigacion(p).precioEfectivo;
 }
 
 export const TabComponentes: React.FC<TabComponentesProps> = ({

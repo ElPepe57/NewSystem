@@ -36,6 +36,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import type { Producto } from '../../../../types/producto.types';
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
 
 interface TabPipelineProps {
   producto: Producto;
@@ -67,7 +68,7 @@ export const TabPipeline: React.FC<TabPipelineProps> = ({ producto }) => {
   const proveedorPrincipal = producto.investigacion?.proveedoresUSA?.[0];
   const costoEXW = proveedorPrincipal?.precio ?? 0;
   const fleteIntl = producto.costoFleteInternacional ?? 4.5;
-  const precioVenta = (producto as any).precioVenta ?? producto.investigacion?.precioSugeridoCalculado ?? 0;
+  const precioVenta = calcularInvestigacion(producto).precioEfectivo;
 
   // 6 etapas del pipeline
   const etapas: Etapa[] = useMemo(

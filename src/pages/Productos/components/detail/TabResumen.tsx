@@ -19,13 +19,15 @@
 import React, { useMemo } from 'react';
 import { Info, Palette, Globe, DollarSign, Award, Building, Calculator, Users } from 'lucide-react';
 import type { Producto } from '../../../../types/producto.types';
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
 
 interface TabResumenProps {
   producto: Producto;
 }
 
 function getPrecioVenta(producto: Producto): number {
-  return (producto as any).precioVenta ?? producto.investigacion?.precioSugeridoCalculado ?? 0;
+  // Fase H+ · sin fallback a precioSugeridoCalculado legacy
+  return calcularInvestigacion(producto).precioEfectivo;
 }
 
 function getMargenPct(producto: Producto): number | null {

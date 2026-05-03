@@ -39,6 +39,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import type { Producto, InvestigacionFormData } from '../../../../types/producto.types';
+import { calcularInvestigacion } from '../../utils/investigacionCalculos';
 import { ProductoAvatar, inferLineaFromProducto } from '../shared/ProductoAvatar';
 import { SparklineMini } from '../shared/SparklineMini';
 import { TabResumen } from './TabResumen';
@@ -127,7 +128,9 @@ function getTabsConfig(producto: Producto): TabConfig[] {
 }
 
 function getPrecioVenta(p: Producto): number {
-  return (p as any).precioVenta ?? p.investigacion?.precioSugeridoCalculado ?? 0;
+  // Fase H+ · usa helper compartido · NO fallback a precioSugeridoCalculado
+  // legacy (campo guardado por service viejo con fórmula desactualizada).
+  return calcularInvestigacion(p).precioEfectivo;
 }
 
 function getMargenPct(p: Producto): number | null {

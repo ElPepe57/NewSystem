@@ -93,8 +93,21 @@ function isInvestigacionVencida(p: Producto): boolean {
   return dias !== null && dias < 0;
 }
 
+/**
+ * Lee SOLO el precio venta MANUAL del producto.
+ *
+ * NO usa fallback a `producto.investigacion.precioSugeridoCalculado` porque
+ * ese campo es LEGACY · fue guardado por el service viejo con una fórmula
+ * desactualizada (margenObjetivo de la categoría) y no refleja la realidad
+ * de la investigación actual.
+ *
+ * Si el usuario nunca confirmó un precio manual, este helper devuelve 0
+ * y el cálculo de `calculos.precioEfectivo` cae al `precioReferencia` real
+ * en vivo (MIN(comp) × 0.95) calculado desde los datos actuales.
+ */
 function getPrecioVenta(p: Producto): number {
-  return (p as any).precioVenta ?? p.investigacion?.precioSugeridoCalculado ?? 0;
+  const manual = (p as any).precioVenta;
+  return typeof manual === 'number' && manual > 0 ? manual : 0;
 }
 
 export const TabInvestigacion: React.FC<TabInvestigacionProps> = ({

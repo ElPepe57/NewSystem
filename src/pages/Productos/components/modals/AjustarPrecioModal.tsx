@@ -41,7 +41,10 @@ export const AjustarPrecioModal: React.FC<AjustarPrecioModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const precioActual = (producto as any).precioVenta ?? producto.investigacion?.precioSugeridoCalculado ?? 0;
+  // Fase H+ · solo precio MANUAL (si nunca se confirmó, es 0 y se ofrece el sugerido)
+  const precioActual = typeof (producto as any).precioVenta === 'number' && (producto as any).precioVenta > 0
+    ? (producto as any).precioVenta
+    : 0;
   const [precio, setPrecio] = useState<string>('');
   const [motivo, setMotivo] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
