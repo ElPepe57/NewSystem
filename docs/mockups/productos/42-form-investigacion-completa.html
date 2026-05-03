@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>42 · Form Investigación Completa V2 · pixel-perfect</title>
+<title>42 v2 · Investigación simplificada + Sub-modal Precio Venta · pixel-perfect</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
@@ -15,12 +15,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .context-title { font-size: 12px; font-weight: 700; color: #0f172a; }
 .context-meta { font-size: 10px; color: #64748b; margin-top: 1px; }
 .context-id { font-family: ui-monospace, monospace; font-size: 9px; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
-.section-num { width: 22px; height: 22px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
-.section-num.active { background: #f59e0b; color: white; }
-.section-num.complete { background: #10b981; color: white; }
-.section-num.empty { background: #fee2e2; color: #b91c1c; }
 .parent-hint { background: linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; opacity: 0.92; }
-.calc-card { background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 1px solid #6ee7b7; }
 </style>
 </head>
 <body>
@@ -28,57 +23,69 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="context-frame">
   <div class="context-icon">🔬</div>
   <div class="context-info">
-    <div class="context-type">Form Investigación Completa V2 · F6(A) modal grande max-w-5xl</div>
-    <div class="context-title">Form #42 · Crear/Editar investigación · resuelve GAP-082 (no había form completo)</div>
-    <div class="context-meta">3 estados: A=Form completo lleno · B=Empty/Vencida regenerar · C=Modal confirmación al aplicar (importar al catálogo + persistir precio)</div>
+    <div class="context-type">Investigación V2 simplificada · expansión del Modal #24 + Sub-modal Precio</div>
+    <div class="context-title">Mockup #42 v2 · Modal #24 con 2 tabs + estado vigencia + Sub-modal "Establecer precio venta"</div>
+    <div class="context-meta">Pivot: NO form nuevo grande · expansión mínima del #24 + sub-modal dedicado para precio · 4 estados</div>
   </div>
-  <div class="context-id">42-form-investigacion-completa</div>
+  <div class="context-id">42-v2-investigacion-precio-simple</div>
 </div>
 
 <div class="max-w-4xl mx-auto space-y-8 mt-6">
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- INTRO · Diferencias vs InvestigacionCompletaModal #24             -->
+  <!-- INTRO · Decisiones tomadas                                        -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <div class="bg-white rounded-xl p-5 border-2 border-amber-200 shadow-sm">
+  <div class="bg-white rounded-xl p-5 border-2 border-purple-200 shadow-sm">
     <div class="flex items-start gap-3 mb-3">
-      <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-        <i data-lucide="microscope" class="w-5 h-5 text-amber-700"></i>
+      <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-purple-700"></i>
       </div>
       <div>
-        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Form #42 · Investigar producto</div>
-        <h3 class="text-base font-bold text-slate-900">Resuelve GAP-082 · Es el ÚNICO punto donde se decide el precio venta inicial</h3>
-        <p class="text-xs text-slate-600 mt-1">Modal #24 actual es solo LECTURA · #42 es EL FORM de creación/edición de la investigación completa.</p>
+        <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold">Pivot del #42 · pasamos de 7 secciones gigantes a 2 modales pequeños</div>
+        <h3 class="text-base font-bold text-slate-900">5 decisiones firmes aplicadas</h3>
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
-      <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
-        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Modal #24 (existe · solo lectura)</div>
-        <div class="text-[10px] text-slate-700 space-y-1">
-          <div>📊 Tabs: Proveedores · Competencia · Decisión</div>
-          <div>👁️ Solo MUESTRA datos persistidos</div>
-          <div>🔗 Sub-modales #37/#38 ya implementados</div>
-          <div>❌ NO permite crear investigación nueva ni editar fields generales</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1.5 flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i>Lo que SE QUEDA
         </div>
+        <ul class="text-[10px] text-slate-700 space-y-1">
+          <li>• Modal #24 con <strong>2 tabs</strong>: Proveedores + Competencia (CRUD via #37 + #38 ya funciona)</li>
+          <li>• <strong>Badge de estado automático</strong>: Vigente / Vencida / Sin investigar</li>
+          <li>• Botón <strong>"Marcar como revisada"</strong> renueva ciclo 90 días sin pedir cambios</li>
+          <li>• <strong>Sub-modal "Establecer precio venta"</strong> dedicado · pequeño y enfocado</li>
+          <li>• KPIs financieros como visualización <strong>pasiva</strong> en card del producto</li>
+        </ul>
       </div>
-      <div class="bg-amber-50 rounded-lg p-3 border-2 border-amber-300">
-        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold mb-1">Form #42 (nuevo · CRUD completo)</div>
-        <div class="text-[10px] text-slate-700 space-y-1">
-          <div>📝 7 secciones colapsables del form de investigación</div>
-          <div>🧮 Calculadora financiera automática (CTRU + margen + ROI)</div>
-          <div>🎯 Decisión binaria: importar · investigar más · descartar</div>
-          <div>✨ Reusa #37 + #38 + Campo Creable del #41</div>
+      <div class="bg-rose-50 rounded-lg p-3 border border-rose-200">
+        <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1.5 flex items-center gap-1">
+          <i data-lucide="x" class="w-3 h-3"></i>Lo que SE ELIMINA
         </div>
+        <ul class="text-[10px] text-slate-700 space-y-1">
+          <li>• ❌ Tab Decisión del modal #24 (subjetivo · sin valor real)</li>
+          <li>• ❌ Sección Estimaciones financieras (CTRU sale de compras · no de form)</li>
+          <li>• ❌ Sección Análisis de mercado (chips demanda/tendencia/etc)</li>
+          <li>• ❌ Score viabilidad 8.4/10 + recomendación binaria</li>
+          <li>• ❌ Razonamiento textual obligatorio</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-3 rounded-lg bg-slate-50 px-3 py-2 flex items-center gap-2 border border-slate-200">
+      <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"></i>
+      <div class="text-[10px] text-slate-700">
+        <strong>Resultado:</strong> Investigación = lista de proveedores + lista de competidores + estado vigencia + precio venta seteado en sub-modal aparte. Punto.
       </div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- ESTADO A · Form completo lleno con datos                          -->
+  <!-- ESTADO A · Modal #24 v2 · estado VIGENTE                          -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div>
-    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Form completo · Investigación de producto SKINCARE con 3 proveedores + 5 competidores + cálculos auto</div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Modal Investigación · estado VIGENTE · 2 tabs · footer con CTAs</div>
 
     <div class="parent-hint">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
@@ -91,476 +98,129 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               </div>
               <div class="min-w-0">
                 <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
-                  <i data-lucide="droplets" class="w-3 h-3 text-amber-600"></i>
-                  <span>Skincare</span>
-                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
-                  <span>Investigar producto</span>
+                  <span class="font-mono">SKC-0042</span><span>·</span><span>SkinCeuticals</span>
                 </div>
                 <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                  Vitamin C Brightening Serum
-                  <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold flex items-center gap-1">
-                    EN PROGRESO · 6 cambios
+                  Investigación · Vitamin C Brightening Serum
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>VIGENTE
                   </span>
                 </h2>
-                <div class="text-[10px] text-slate-500 mt-0.5">
-                  <span class="font-mono">SKC-0042</span> · creada 12 abr 2026 por José LP · vence 11 jul 2026 (90 días)
-                </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Última revisión: 10 abr 2026 por José LP · próxima sugerida en <strong class="text-emerald-700">67 días</strong></div>
               </div>
             </div>
-            <div class="flex items-center gap-1.5">
-              <button class="px-2.5 py-1.5 text-[10px] font-medium text-slate-600 hover:bg-slate-100 border border-slate-200 rounded-md flex items-center gap-1">
-                <i data-lucide="refresh-cw" class="w-3 h-3"></i>Re-investigar
-              </button>
-              <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="history" class="w-4 h-4"></i></button>
-              <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <!-- TABS · solo 2 -->
+        <div class="border-b border-slate-200 bg-slate-50/30">
+          <div class="flex items-center gap-0 px-4">
+            <button class="px-4 py-3 text-sm font-bold border-b-2 border-amber-600 text-amber-700 flex items-center gap-2">
+              <i data-lucide="dollar-sign" class="w-4 h-4"></i>Proveedores
+              <span class="text-[10px] tabular bg-amber-100 px-1.5 py-0.5 rounded-full">3</span>
+            </button>
+            <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4"></i>Competencia
+              <span class="text-[10px] tabular bg-slate-200 px-1.5 py-0.5 rounded-full">5</span>
+            </button>
+            <div class="ml-auto px-2 text-[9px] text-slate-400 italic flex items-center">
+              <i data-lucide="info" class="w-3 h-3 mr-1"></i>Tab "Decisión" eliminado del diseño previo
             </div>
           </div>
         </div>
 
-        <!-- BANNER · resumen ejecutivo arriba -->
-        <div class="bg-emerald-50 border-b border-emerald-200 px-5 py-2.5 flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-            <i data-lucide="trending-up" class="w-4 h-4 text-emerald-700"></i>
+        <!-- CONTENIDO Tab Proveedores -->
+        <div class="p-5 space-y-3 max-h-[440px] overflow-y-auto">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">3 proveedores analizados</h3>
+              <p class="text-[10px] text-slate-500">Min $35 · Max $42 · Promedio $38.50 · TOP: SkinTech Korea</p>
+            </div>
+            <button class="px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>Agregar proveedor
+            </button>
           </div>
-          <div class="flex-1">
-            <div class="text-[11px] font-bold text-emerald-900">Recomendación auto-calculada: IMPORTAR AL CATÁLOGO</div>
-            <div class="text-[10px] text-emerald-800">CTRU S/ 137 · Precio sugerido S/ 295 · Margen 53.6% · ROI 115% · Score viabilidad 8.4/10</div>
+
+          <!-- Proveedor 1 · TOP -->
+          <div class="rounded-lg border-2 border-emerald-300 bg-emerald-50/40 p-3 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">1</div>
+            <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center"><i data-lucide="award" class="w-4 h-4 text-emerald-700"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-xs font-mono text-slate-500">PROV-0008</span>
+                <span class="text-sm font-bold text-slate-900">SkinTech Korea</span>
+                <span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold">fabricante</span>
+                <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-bold">Corea</span>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-bold">⭐ TOP</span>
+              </div>
+              <div class="text-[10px] text-slate-600 mt-0.5">★ 4.8 · 12 OCs · PayPal 30/70 · Lead 22d</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-bold text-slate-900 tabular">$ 38.50</div>
+            </div>
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-400" title="Editar (abre #37)"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span class="px-2 py-1 rounded bg-emerald-600 text-white text-[10px] font-bold">RECOMENDADO</span>
+
+          <!-- Proveedor 2 -->
+          <div class="rounded-lg border border-slate-200 bg-white p-3 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">2</div>
+            <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center"><i data-lucide="building" class="w-4 h-4 text-slate-600"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-xs font-mono text-slate-400">PROV-0024</span>
+                <span class="text-sm font-semibold text-slate-900">Beauty Wholesale USA</span>
+                <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-bold">USA</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">★ 4.5 · 7 OCs · T/T 50/50 · Lead 14d</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-bold text-slate-900 tabular">$ 42.00</div>
+            </div>
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-400"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+
+          <!-- Proveedor 3 -->
+          <div class="rounded-lg border border-slate-200 bg-white p-3 flex items-center gap-3 opacity-70">
+            <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">3</div>
+            <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center"><i data-lucide="building" class="w-4 h-4 text-slate-600"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-sm font-semibold text-slate-900">Amazon US</span>
+                <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">⚠ Sin stock</span>
+              </div>
+              <div class="text-[10px] text-slate-500 mt-0.5">8 OCs · sin stock desde hace 2 semanas</div>
+            </div>
+            <div class="text-right">
+              <div class="text-base font-bold text-slate-900 tabular">$ 35.00</div>
+            </div>
+            <button class="p-1 hover:bg-slate-100 rounded text-slate-400"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+
+          <!-- Notas opcionales · campo libre -->
+          <div class="mt-4 pt-4 border-t border-slate-200">
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center justify-between">
+              <span>Notas de la investigación <span class="text-slate-400 lowercase normal-case">(opcional · queda en historial)</span></span>
+              <i data-lucide="message-square" class="w-3 h-3 text-slate-400"></i>
+            </label>
+            <textarea rows="2" placeholder="ej: SkinTech responde rápido · Amazon vuelve a tener stock en 2 semanas · revisar precios competencia próximo mes..." class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none">SkinTech sigue siendo el mejor por margen + lead time · monitorear DermoAvanzada que subió 8% · Amazon US esperar 2 semanas para confirmar restock</textarea>
           </div>
         </div>
 
-        <!-- BODY · 7 secciones colapsables -->
-        <div class="p-5 space-y-3 max-h-[700px] overflow-y-auto">
-
-          <!-- ════ Sección 1 · CONTEXTO DEL PRODUCTO ════ -->
-          <div class="border border-slate-200 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-slate-50 flex items-center gap-2.5 cursor-pointer">
-              <span class="section-num complete"><i data-lucide="check" class="w-3 h-3"></i></span>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-bold text-slate-900">Contexto del producto</div>
-                <div class="text-[10px] text-slate-500">Vitamin C Brightening Serum · SkinCeuticals · 30ml · Corea · Sérum</div>
-              </div>
-              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
-            </div>
-          </div>
-
-          <!-- ════ Sección 2 · PROVEEDORES ════ -->
-          <div class="border-2 border-emerald-300 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-emerald-50 flex items-center gap-2.5">
-              <span class="section-num complete">2</span>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  Proveedores analizados
-                  <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-bold">3 cargados</span>
-                </div>
-                <div class="text-[10px] text-emerald-700 mt-0.5">Min $35 · Max $42 · Promedio $38.50 · Mejor: SkinTech Korea</div>
-              </div>
-              <button class="text-[10px] font-bold text-emerald-700 hover:text-emerald-900">Ver detalle</button>
-              <i data-lucide="chevron-up" class="w-4 h-4 text-emerald-700"></i>
-            </div>
-
-            <div class="p-4 space-y-2 bg-white">
-              <!-- Proveedor 1 · TOP -->
-              <div class="rounded-lg border-2 border-emerald-300 bg-emerald-50/40 p-3 flex items-center gap-3">
-                <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">1</div>
-                <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center"><i data-lucide="award" class="w-4 h-4 text-emerald-700"></i></div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="text-xs font-mono text-slate-500">PROV-0008</span>
-                    <span class="text-sm font-bold text-slate-900">SkinTech Korea</span>
-                    <span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold">fabricante</span>
-                    <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-bold">Corea</span>
-                    <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-bold">⭐ TOP</span>
-                  </div>
-                  <div class="text-[10px] text-slate-600 mt-0.5">★ 4.8 · 12 OCs históricas · PayPal 30/70 · Lead 22d · Min $1,000</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-base font-bold text-slate-900 tabular">$ 38.50<span class="text-[10px] text-slate-400">/u</span></div>
-                  <div class="text-[10px] text-emerald-700 font-bold">Tax 0% · USD pure</div>
-                </div>
-                <button class="p-1 hover:bg-slate-100 rounded text-slate-400"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
-                <button class="p-1 hover:bg-slate-100 rounded text-slate-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-              </div>
-
-              <!-- Proveedor 2 -->
-              <div class="rounded-lg border border-slate-200 bg-white p-3 flex items-center gap-3">
-                <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">2</div>
-                <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center"><i data-lucide="building" class="w-4 h-4 text-slate-600"></i></div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="text-xs font-mono text-slate-400">PROV-0024</span>
-                    <span class="text-sm font-semibold text-slate-900">Beauty Wholesale USA</span>
-                    <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-bold">USA</span>
-                  </div>
-                  <div class="text-[10px] text-slate-500 mt-0.5">★ 4.5 · 7 OCs · T/T 50/50 · Lead 14d</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-base font-bold text-slate-900 tabular">$ 42.00<span class="text-[10px] text-slate-400">/u</span></div>
-                  <div class="text-[10px] text-slate-500">Tax 8.25%</div>
-                </div>
-                <button class="p-1 hover:bg-slate-100 rounded text-slate-400"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
-              </div>
-
-              <!-- Proveedor 3 · sin stock -->
-              <div class="rounded-lg border border-slate-200 bg-white p-3 flex items-center gap-3 opacity-70">
-                <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold">3</div>
-                <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center"><i data-lucide="building" class="w-4 h-4 text-slate-600"></i></div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="text-xs font-mono text-slate-400">PROV-0031</span>
-                    <span class="text-sm font-semibold text-slate-900">Amazon US</span>
-                    <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[9px] font-bold">USA</span>
-                    <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">⚠ Sin stock</span>
-                  </div>
-                  <div class="text-[10px] text-slate-500 mt-0.5">8 OCs históricas · sin stock desde hace 2 semanas</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-base font-bold text-slate-900 tabular">$ 35.00<span class="text-[10px] text-slate-400">/u</span></div>
-                </div>
-                <button class="p-1 hover:bg-slate-100 rounded text-slate-400"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
-              </div>
-
-              <!-- Botón agregar proveedor -->
-              <button class="w-full px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-2 border-dashed border-emerald-300 rounded-lg flex items-center justify-center gap-1.5">
-                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>Agregar proveedor · abre Form Proveedor (#37)
-              </button>
-            </div>
-          </div>
-
-          <!-- ════ Sección 3 · COMPETENCIA ════ -->
-          <div class="border-2 border-emerald-300 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-emerald-50 flex items-center gap-2.5">
-              <span class="section-num complete">3</span>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  Competencia en Perú
-                  <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-bold">5 cargados</span>
-                </div>
-                <div class="text-[10px] text-emerald-700 mt-0.5">Min S/ 269 · Max S/ 365 · Promedio S/ 313 · Tu posición proyectada: 2do más barato</div>
-              </div>
-              <button class="text-[10px] font-bold text-emerald-700 hover:text-emerald-900">Ver detalle</button>
-              <i data-lucide="chevron-down" class="w-4 h-4 text-emerald-700"></i>
-            </div>
-          </div>
-
-          <!-- ════ Sección 4 · ESTIMACIONES FINANCIERAS · CALCULADAS ════ -->
-          <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
-              <span class="section-num active">4</span>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  Estimaciones financieras
-                  <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">CALCULADAS AUTO</span>
-                </div>
-                <div class="text-[10px] text-amber-700 mt-0.5">Derivadas del mejor proveedor + landed estimado · editables manual</div>
-              </div>
-              <i data-lucide="chevron-up" class="w-4 h-4 text-amber-700"></i>
-            </div>
-
-            <div class="p-4 space-y-4 bg-white">
-
-              <!-- Inputs editables · landed estimado -->
-              <div>
-                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Costos logísticos estimados (USD por unidad)</div>
-                <div class="grid grid-cols-4 gap-3">
-                  <div>
-                    <label class="block text-[10px] text-slate-500 mb-1">Costo proveedor</label>
-                    <div class="relative">
-                      <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-mono">$</span>
-                      <input type="number" value="38.50" disabled class="w-full pl-6 pr-2 py-1.5 border border-slate-300 rounded text-xs tabular bg-slate-50">
-                    </div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">de TOP proveedor</div>
-                  </div>
-                  <div>
-                    <label class="block text-[10px] text-slate-500 mb-1">Flete intl</label>
-                    <div class="relative">
-                      <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-mono">$</span>
-                      <input type="number" value="2.20" class="w-full pl-6 pr-2 py-1.5 border border-amber-300 rounded text-xs tabular bg-white">
-                    </div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">peso real</div>
-                  </div>
-                  <div>
-                    <label class="block text-[10px] text-slate-500 mb-1">Casilla</label>
-                    <div class="relative">
-                      <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-mono">$</span>
-                      <input type="number" value="1.50" class="w-full pl-6 pr-2 py-1.5 border border-amber-300 rounded text-xs tabular bg-white">
-                    </div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">tarifa</div>
-                  </div>
-                  <div>
-                    <label class="block text-[10px] text-slate-500 mb-1">Aranceles</label>
-                    <div class="relative">
-                      <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-mono">$</span>
-                      <input type="number" value="3.30" class="w-full pl-6 pr-2 py-1.5 border border-amber-300 rounded text-xs tabular bg-white">
-                    </div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">~10%</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- CTRU calculado -->
-              <div class="calc-card rounded-xl p-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
-                    <i data-lucide="calculator" class="w-6 h-6"></i>
-                  </div>
-                  <div class="flex-1">
-                    <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">CTRU estimado · USD</div>
-                    <div class="text-2xl font-bold text-emerald-900 tabular">$ 45.50/u <span class="text-[10px] font-normal text-emerald-700">→ S/ 168.35 (TC 3.7)</span></div>
-                    <div class="text-[10px] text-emerald-700 mt-0.5">Costo + Flete + Casilla + Aranceles · sin descontar margen</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Inputs · estrategia precio venta -->
-              <div>
-                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estrategia de precio venta (PEN)</div>
-                <div class="grid grid-cols-3 gap-3">
-                  <div>
-                    <label class="block text-[10px] text-slate-500 mb-1 flex items-center justify-between">
-                      <span>Precio entrada · agresivo</span>
-                      <span class="text-[9px] text-emerald-700">+30%</span>
-                    </label>
-                    <div class="relative">
-                      <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-mono">S/</span>
-                      <input type="number" value="220" class="w-full pl-7 pr-2 py-1.5 border border-amber-300 rounded text-xs tabular bg-white">
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-[10px] text-slate-500 mb-1 flex items-center justify-between">
-                      <span>Precio sugerido · base</span>
-                      <span class="text-[9px] text-emerald-700">⭐ recomendado</span>
-                    </label>
-                    <div class="relative">
-                      <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-mono">S/</span>
-                      <input type="number" value="295" class="w-full pl-7 pr-2 py-1.5 border-2 border-emerald-400 rounded text-xs tabular bg-emerald-50 font-bold">
-                    </div>
-                  </div>
-                  <div>
-                    <label class="block text-[10px] text-slate-500 mb-1 flex items-center justify-between">
-                      <span>Precio premium · alto</span>
-                      <span class="text-[9px] text-amber-700">+20%</span>
-                    </label>
-                    <div class="relative">
-                      <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-mono">S/</span>
-                      <input type="number" value="355" class="w-full pl-7 pr-2 py-1.5 border border-amber-300 rounded text-xs tabular bg-white">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- KPIs financieros calculados -->
-              <div class="grid grid-cols-4 gap-3 pt-3 border-t border-amber-200">
-                <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-                  <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Margen bruto</div>
-                  <div class="text-lg font-bold text-emerald-700 tabular">53.6%</div>
-                  <div class="text-[10px] text-emerald-600 tabular">S/ 158/u</div>
-                </div>
-                <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-                  <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">ROI por OC</div>
-                  <div class="text-lg font-bold text-emerald-700 tabular">115%</div>
-                  <div class="text-[10px] text-emerald-600 tabular">en 90d ciclo</div>
-                </div>
-                <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-                  <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Multiplicador</div>
-                  <div class="text-lg font-bold text-emerald-700 tabular">1.75x</div>
-                  <div class="text-[10px] text-emerald-600">sobre CTRU</div>
-                </div>
-                <div class="bg-amber-50 rounded-lg p-3 border border-amber-200">
-                  <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">Break-even</div>
-                  <div class="text-lg font-bold text-amber-700 tabular">12 uds</div>
-                  <div class="text-[10px] text-amber-600">para recuperar</div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- ════ Sección 5 · ANÁLISIS DE MERCADO ════ -->
-          <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
-              <span class="section-num active">5</span>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900">Análisis de mercado</div>
-                <div class="text-[10px] text-amber-700 mt-0.5">Demanda · tendencia · nivel competencia · ventajas</div>
-              </div>
-              <i data-lucide="chevron-up" class="w-4 h-4 text-amber-700"></i>
-            </div>
-
-            <div class="p-4 space-y-4 bg-white">
-
-              <div class="grid grid-cols-3 gap-3">
-                <!-- Demanda -->
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Demanda estimada</label>
-                  <div class="flex flex-col gap-1.5">
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-left">Baja</button>
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-left">Media</button>
-                    <button class="px-2.5 py-1.5 text-[10px] font-bold rounded-full border-2 border-emerald-400 bg-emerald-50 text-emerald-900 flex items-center gap-1.5"><i data-lucide="check" class="w-2.5 h-2.5"></i>Alta</button>
-                  </div>
-                </div>
-                <!-- Tendencia -->
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Tendencia 30d</label>
-                  <div class="flex flex-col gap-1.5">
-                    <button class="px-2.5 py-1.5 text-[10px] font-bold rounded-full border-2 border-emerald-400 bg-emerald-50 text-emerald-900 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-2.5 h-2.5"></i>Creciendo</button>
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Estable</button>
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Decreciendo</button>
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Producto nuevo</button>
-                  </div>
-                </div>
-                <!-- Nivel competencia -->
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Nivel competencia</label>
-                  <div class="flex flex-col gap-1.5">
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-left">Baja</button>
-                    <button class="px-2.5 py-1.5 text-[10px] font-bold rounded-full border-2 border-amber-400 bg-amber-100 text-amber-900 flex items-center gap-1.5"><i data-lucide="check" class="w-2.5 h-2.5"></i>Media</button>
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-left">Alta</button>
-                    <button class="px-2.5 py-1.5 text-[10px] rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-left">Saturada</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Volumen mercado estimado</label>
-                  <div class="relative">
-                    <input type="number" value="450" class="w-full pl-3 pr-12 py-1.5 border border-slate-300 rounded text-sm tabular focus:outline-none focus:ring-2 focus:ring-amber-400">
-                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">u/mes</span>
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Tu participación esperada</label>
-                  <div class="relative">
-                    <input type="number" value="8" class="w-full pl-3 pr-8 py-1.5 border border-slate-300 rounded text-sm tabular focus:outline-none focus:ring-2 focus:ring-amber-400">
-                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">%</span>
-                  </div>
-                  <div class="text-[9px] text-emerald-700 mt-0.5 italic">~36 unidades/mes proyectadas</div>
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Ventajas competitivas <span class="text-slate-400 lowercase normal-case">(opcional)</span></label>
-                <textarea rows="2" placeholder="ej: marca premium reconocida · proveedor confiable · margen superior al mercado..." class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none">Sérum Vit C 15% + Ácido Ferúlico es benchmark del mercado · margen superior a competencia · marca top 3 en Perú</textarea>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- ════ Sección 6 · RECOMENDACIÓN Y DECISIÓN ════ -->
-          <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
-              <span class="section-num active">6</span>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900">Recomendación y decisión</div>
-                <div class="text-[10px] text-amber-700 mt-0.5">Sistema sugiere · vos confirmás · razonamiento queda en historial</div>
-              </div>
-              <i data-lucide="chevron-up" class="w-4 h-4 text-amber-700"></i>
-            </div>
-
-            <div class="p-4 space-y-4 bg-white">
-
-              <!-- Score viabilidad -->
-              <div class="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3 flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
-                  <i data-lucide="award" class="w-6 h-6"></i>
-                </div>
-                <div class="flex-1">
-                  <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Score de viabilidad calculado</div>
-                  <div class="text-2xl font-bold text-emerald-700 tabular">8.4 / 10</div>
-                  <div class="text-[10px] text-emerald-700">Margen 9/10 · Demanda 7.5 · Confianza 9.6 · Posición 8 · Riesgo 3</div>
-                </div>
-                <span class="px-3 py-1.5 rounded bg-emerald-600 text-white text-[10px] font-bold">RECOMENDADO</span>
-              </div>
-
-              <!-- Decisión binaria con 3 opciones -->
-              <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Tu decisión <span class="text-rose-500">*</span></label>
-                <div class="grid grid-cols-3 gap-2">
-                  <button class="rounded-lg border-2 border-emerald-500 bg-emerald-50 hover:bg-emerald-100 p-3 text-left">
-                    <div class="flex items-center gap-2 mb-1">
-                      <div class="w-7 h-7 rounded bg-emerald-600 text-white flex items-center justify-center"><i data-lucide="check" class="w-4 h-4"></i></div>
-                      <span class="text-xs font-bold text-emerald-900">Importar al catálogo</span>
-                    </div>
-                    <div class="text-[10px] text-emerald-700">Crear producto + variantes + 1ra OC sugerida con SkinTech</div>
-                  </button>
-                  <button class="rounded-lg border border-slate-200 hover:border-amber-300 hover:bg-amber-50 bg-white p-3 text-left">
-                    <div class="flex items-center gap-2 mb-1">
-                      <div class="w-7 h-7 rounded bg-slate-100 text-slate-500 flex items-center justify-center"><i data-lucide="search" class="w-4 h-4"></i></div>
-                      <span class="text-xs font-bold text-slate-700">Investigar más</span>
-                    </div>
-                    <div class="text-[10px] text-slate-500">Faltan datos · agendar revisión en 30 días</div>
-                  </button>
-                  <button class="rounded-lg border border-slate-200 hover:border-rose-300 hover:bg-rose-50 bg-white p-3 text-left">
-                    <div class="flex items-center gap-2 mb-1">
-                      <div class="w-7 h-7 rounded bg-slate-100 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></div>
-                      <span class="text-xs font-bold text-slate-700">Descartar</span>
-                    </div>
-                    <div class="text-[10px] text-slate-500">No avanzar · pedirá motivo</div>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Razonamiento -->
-              <div>
-                <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Razonamiento de la decisión <span class="text-slate-400 lowercase normal-case">(queda en historial)</span></label>
-                <textarea rows="3" placeholder="ej: importamos porque margen del 53% supera el objetivo del 45% + demanda alta + proveedor confiable..." class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none">Margen 53.6% supera objetivo del 45% · proveedor SkinTech con 12 OCs sin problemas · demanda creciente +33% trimestre · competencia 2do más barato deja espacio · OC inicial sugerida: 50 unidades · ROI 115% en 90 días.</textarea>
-              </div>
-
-              <!-- Vigencia -->
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Vigencia hasta</label>
-                  <input type="date" value="2026-08-01" class="w-full px-3 py-1.5 border border-slate-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
-                  <div class="text-[9px] text-slate-500 mt-0.5">Default +90 días · luego se considera vencida</div>
-                </div>
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Reagendar revisión</label>
-                  <select class="w-full px-3 py-1.5 border border-slate-300 rounded text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-400">
-                    <option>30 días</option>
-                    <option selected>60 días</option>
-                    <option>90 días</option>
-                    <option>Sin revisión programada</option>
-                  </select>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- ════ Sección 7 · ALERTAS AUTO-DETECTADAS ════ -->
-          <div class="border border-amber-200 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-amber-50/40 flex items-center gap-2.5">
-              <span class="section-num"><i data-lucide="bell" class="w-3 h-3 text-amber-600"></i></span>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  Alertas activas
-                  <span class="px-1.5 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold">3 detectadas</span>
-                </div>
-                <div class="text-[10px] text-amber-700 mt-0.5">Sistema detectó automáticamente · revisar antes de confirmar</div>
-              </div>
-              <i data-lucide="chevron-down" class="w-4 h-4 text-amber-600"></i>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- FOOTER -->
-        <div class="border-t-2 border-amber-300 bg-amber-50 px-5 py-3 flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2 text-[10px] text-slate-600">
-            <i data-lucide="save" class="w-3 h-3"></i>
-            Borrador autoguardado · 14:23
+        <!-- FOOTER · 3 acciones clave -->
+        <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+          <div class="text-[10px] text-slate-500 flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-3 h-3"></i>
+            <span>Vigente · próxima revisión sugerida en 67 días</span>
           </div>
           <div class="flex items-center gap-2">
-            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-            <button class="px-3 py-1.5 text-xs font-medium text-amber-700 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg flex items-center gap-1.5">
-              <i data-lucide="save" class="w-3.5 h-3.5"></i>Guardar borrador
+            <button class="px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>Marcar como revisada
             </button>
-            <button class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>Confirmar y aplicar decisión
+            <button class="px-3 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i>Establecer precio venta · S/ 295
             </button>
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
           </div>
         </div>
       </div>
@@ -568,92 +228,127 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- ESTADO B · Investigación vencida · CTA regenerar                 -->
+  <!-- ESTADO B · SIN INVESTIGAR · Empty state                           -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div>
-    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · Investigación VENCIDA · banner top + opción regenerar (re-investigar)</div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado B · Estado SIN INVESTIGAR · Empty state con CTA "Empezar a investigar"</div>
 
     <div class="parent-hint">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
-        <div class="bg-gradient-to-br from-amber-50 to-white border-b border-slate-200 px-5 py-3.5">
+        <div class="bg-gradient-to-br from-slate-50 to-white border-b border-slate-200 px-5 py-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="microscope" class="w-5 h-5 text-slate-500"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                  <span class="font-mono">SUP-0103</span><span>·</span><span>Swanson</span>
+                </div>
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  Investigación · Zinc Carnosine
+                  <span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[9px] font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>SIN INVESTIGAR
+                  </span>
+                </h2>
+                <div class="text-[10px] text-slate-500 mt-0.5">Producto creado el 28 abr 2026 · sin proveedores ni competencia analizados aún</div>
+              </div>
+            </div>
+            <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <!-- Empty state grande -->
+        <div class="px-5 py-12 text-center max-w-md mx-auto">
+          <div class="w-20 h-20 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="search" class="w-10 h-10 text-amber-700"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900 mb-1">Sin investigación de mercado</h3>
+          <p class="text-xs text-slate-500 mb-5">
+            Para tomar decisiones de OC y precio venta sobre <strong>Zinc Carnosine</strong>, primero analizamos proveedores disponibles y la competencia en el mercado.
+          </p>
+          <button class="px-4 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg flex items-center gap-2 mx-auto shadow-sm">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>Empezar a investigar este producto
+          </button>
+          <p class="text-[10px] text-slate-400 italic mt-3">
+            Al click, se crea un registro vacío · agregás proveedores y competidores en sus tabs
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ESTADO C · VENCIDA · CTA actualizar                               -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Estado VENCIDA · banner top + acción "Marcar revisada" en footer</div>
+
+    <div class="parent-hint">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
+        <div class="bg-gradient-to-br from-amber-50 to-white border-b border-slate-200 px-5 py-4">
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-2.5 min-w-0">
               <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
                 <i data-lucide="microscope" class="w-5 h-5 text-amber-700"></i>
               </div>
               <div class="min-w-0">
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mb-0.5">
+                  <span class="font-mono">SKC-0067</span><span>·</span><span>Cosrx</span>
+                </div>
                 <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                  Hyaluronic Toner 250ml
+                  Investigación · Hyaluronic Toner 250ml
                   <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 text-[9px] font-bold flex items-center gap-1">
-                    <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>VENCIDA hace 14 días
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>VENCIDA hace 14 días
                   </span>
                 </h2>
-                <div class="text-[10px] text-slate-500 mt-0.5">SKU-PROD-0067 · investigada 12 ene 2026 · venció 12 abr 2026</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Última revisión: 12 ene 2026 por María Q. · venció el 12 abr 2026</div>
               </div>
             </div>
             <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
           </div>
         </div>
 
-        <!-- Banner principal -->
-        <div class="bg-rose-50 border-b border-rose-200 px-5 py-3 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
-            <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-700"></i>
-          </div>
-          <div class="flex-1">
-            <div class="text-[12px] font-bold text-rose-900">Esta investigación está vencida</div>
-            <div class="text-[10px] text-rose-800 mt-0.5">
-              Los datos tienen más de 90 días. Decisiones basadas en esta info pueden ser inexactas:
-              <strong>precios competencia cambian · proveedores se reordenan · márgenes fluctúan.</strong>
-            </div>
+        <!-- Banner principal · suave (no agresivo) -->
+        <div class="bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex items-center gap-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-700 flex-shrink-0"></i>
+          <div class="flex-1 text-[11px] text-amber-900">
+            <strong>Recomendación:</strong> los datos tienen más de 90 días. Verificá si proveedores y precios competencia siguen vigentes.
+            Si todo OK, hacé click <strong>"Marcar como revisada"</strong> sin cambiar nada.
           </div>
         </div>
 
-        <div class="p-5 space-y-4">
-
-          <!-- Opciones de acción -->
-          <div class="grid grid-cols-2 gap-3">
-            <button class="rounded-xl border-2 border-emerald-400 bg-emerald-50 hover:bg-emerald-100 p-4 text-left flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
-                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-emerald-900">Re-investigar desde cero</div>
-                <div class="text-[10px] text-emerald-700 mt-0.5">Limpia datos viejos · empieza form nuevo · usa info actual del mercado</div>
-                <div class="text-[10px] text-emerald-600 mt-2 font-medium">Recomendado · ~10 min</div>
-              </div>
-              <i data-lucide="arrow-right" class="w-4 h-4 text-emerald-600"></i>
+        <!-- Tabs -->
+        <div class="border-b border-slate-200 bg-slate-50/30">
+          <div class="flex items-center gap-0 px-4">
+            <button class="px-4 py-3 text-sm font-bold border-b-2 border-amber-600 text-amber-700 flex items-center gap-2">
+              <i data-lucide="dollar-sign" class="w-4 h-4"></i>Proveedores <span class="text-[10px] tabular bg-amber-100 px-1.5 py-0.5 rounded-full">3</span>
             </button>
-            <button class="rounded-xl border border-slate-200 hover:border-amber-300 bg-white hover:bg-amber-50 p-4 text-left flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="edit-2" class="w-5 h-5"></i>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-slate-700">Editar la actual</div>
-                <div class="text-[10px] text-slate-500 mt-0.5">Conserva proveedores y competencia · solo actualiza precios y conclusiones</div>
-                <div class="text-[10px] text-slate-500 mt-2 font-medium">~5 min</div>
-              </div>
+            <button class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4"></i>Competencia <span class="text-[10px] tabular bg-slate-200 px-1.5 py-0.5 rounded-full">4</span>
             </button>
           </div>
+        </div>
 
-          <!-- Snapshot de la investigación vencida -->
-          <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
-            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Resumen de la investigación vencida (referencia)</div>
-            <div class="grid grid-cols-3 gap-3 text-[11px]">
-              <div>
-                <div class="text-slate-500">Recomendación anterior</div>
-                <div class="font-bold text-slate-900">Importar</div>
-              </div>
-              <div>
-                <div class="text-slate-500">Precio sugerido (12 ene)</div>
-                <div class="font-bold text-slate-900 tabular">S/ 180</div>
-              </div>
-              <div>
-                <div class="text-slate-500">Margen estimado</div>
-                <div class="font-bold text-slate-900 tabular">42%</div>
-              </div>
-            </div>
-            <div class="text-[10px] text-slate-500 italic mt-2">3 proveedores · 4 competidores · score 6.8/10 · razonamiento: "margen aceptable · entrar a precio competitivo"</div>
+        <!-- Body resumido -->
+        <div class="p-5 max-h-[200px] overflow-y-auto">
+          <div class="text-[11px] text-slate-500 italic text-center py-6">[contenido tabs idéntico al Estado A]</div>
+        </div>
+
+        <!-- FOOTER · destaca "Marcar revisada" -->
+        <div class="border-t border-slate-200 bg-amber-50 px-5 py-3 flex items-center justify-between gap-2">
+          <div class="text-[10px] text-amber-800 flex items-center gap-1.5">
+            <i data-lucide="alert-circle" class="w-3 h-3"></i>
+            <span>Vencida · revisar para renovar ciclo de 90 días</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>Marcar como revisada · renovar +90d
+            </button>
+            <button class="px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg flex items-center gap-1.5">
+              <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i>Precio: S/ 180
+            </button>
+            <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
           </div>
         </div>
       </div>
@@ -661,105 +356,107 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- ESTADO C · Modal confirmación al "Importar al catálogo"          -->
+  <!-- ESTADO D · Sub-modal "Establecer precio venta"                   -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div>
-    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado C · Modal confirmación al "Importar al catálogo" · resumen + acciones que disparan + advertencias</div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado D · Sub-modal "Establecer precio venta" · pequeño y enfocado · invocable desde múltiples puntos</div>
 
     <div class="parent-hint">
-      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-2xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 max-w-xl mx-auto">
         <!-- HEADER -->
-        <div class="bg-gradient-to-br from-emerald-50 to-white border-b border-slate-200 px-5 py-3.5">
+        <div class="bg-gradient-to-br from-amber-50 to-white border-b border-slate-200 px-5 py-3.5">
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-start gap-2.5 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-700"></i>
+              <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="dollar-sign" class="w-5 h-5 text-amber-700"></i>
               </div>
               <div>
-                <h2 class="text-base font-bold text-slate-900">Confirmar · Importar al catálogo</h2>
-                <p class="text-[10px] text-slate-500 mt-0.5">Vitamin C Brightening Serum · <span class="font-mono">SKC-0042</span></p>
+                <h2 class="text-base font-bold text-slate-900">Establecer precio venta</h2>
+                <p class="text-[10px] text-slate-500 mt-0.5">Vitamin C Brightening Serum 30ml · <span class="font-mono">SKC-0042</span></p>
               </div>
             </div>
             <button class="p-1.5 hover:bg-slate-100 rounded-md text-slate-500"><i data-lucide="x" class="w-4 h-4"></i></button>
           </div>
         </div>
 
-        <div class="p-5 space-y-4 max-h-[500px] overflow-y-auto">
+        <div class="p-5 space-y-4">
 
-          <!-- Banner principal -->
-          <div class="rounded-lg bg-emerald-50 border-2 border-emerald-200 p-3">
-            <div class="flex items-start gap-2">
-              <i data-lucide="zap" class="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5"></i>
-              <div class="text-[11px] text-emerald-900">
-                Al confirmar, el sistema ejecuta <strong>4 acciones automáticas</strong> sobre el producto y módulos relacionados.
-              </div>
-            </div>
-          </div>
-
-          <!-- Lista de acciones que se disparan -->
-          <div class="space-y-2">
-            <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Acciones automáticas</div>
-
-            <!-- Acción 1 · Persistir investigación -->
-            <div class="rounded-lg border border-slate-200 bg-white p-3 flex items-start gap-3">
-              <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="check" class="w-4 h-4 text-emerald-700"></i>
-              </div>
-              <div class="flex-1">
-                <div class="text-[11px] font-bold text-slate-900">1 · Persistir la investigación completa</div>
-                <div class="text-[10px] text-slate-600 mt-0.5">3 proveedores + 5 competidores + score 8.4 + razonamiento + vigencia hasta 11 jul 2026</div>
-              </div>
-            </div>
-
-            <!-- Acción 2 · Aplicar precio venta al producto -->
-            <div class="rounded-lg border-2 border-amber-200 bg-amber-50/40 p-3 flex items-start gap-3">
-              <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="dollar-sign" class="w-4 h-4 text-amber-700"></i>
-              </div>
-              <div class="flex-1">
-                <div class="text-[11px] font-bold text-slate-900 flex items-center gap-1.5">
-                  2 · Aplicar precio venta al producto
-                  <span class="px-1 py-0.5 rounded bg-amber-200 text-amber-800 text-[9px] font-bold">PRIMERA VEZ</span>
-                </div>
-                <div class="text-[10px] text-slate-600 mt-0.5">producto.precioVenta = <strong class="tabular text-amber-900">S/ 295</strong> (sugerido base)</div>
-                <div class="text-[10px] text-slate-500 mt-1 italic">Único momento donde se decide precio inicial · ajustes futuros vía re-investigar</div>
-              </div>
-            </div>
-
-            <!-- Acción 3 · Marcar producto como "viable" -->
-            <div class="rounded-lg border border-slate-200 bg-white p-3 flex items-start gap-3">
-              <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="badge-check" class="w-4 h-4 text-emerald-700"></i>
-              </div>
-              <div class="flex-1">
-                <div class="text-[11px] font-bold text-slate-900">3 · Marcar producto como aprobado para OC</div>
-                <div class="text-[10px] text-slate-600 mt-0.5">producto.estadoComercial = "viable" · proveedor recomendado: SkinTech Korea</div>
-              </div>
-            </div>
-
-            <!-- Acción 4 · Sugerir OC inicial -->
-            <div class="rounded-lg border border-slate-200 bg-white p-3 flex items-start gap-3">
-              <div class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="shopping-cart" class="w-4 h-4 text-blue-700"></i>
-              </div>
-              <div class="flex-1">
-                <div class="text-[11px] font-bold text-slate-900">4 · Crear sugerencia de 1ra OC</div>
-                <div class="text-[10px] text-slate-600 mt-0.5">Aparecerá en "Sugerencias del día" · 50 unidades con SkinTech · costo total ~$1,925</div>
-                <button class="text-[10px] font-bold text-blue-700 hover:underline mt-1">Ver detalle de OC sugerida →</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Auditoría -->
+          <!-- Contexto · CTRU read-only -->
           <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
             <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5 flex items-center gap-1">
-              <i data-lucide="clipboard-check" class="w-3 h-3"></i>Información que se registra en historial del producto
+              <i data-lucide="calculator" class="w-3 h-3"></i>Contexto actual (read-only)
             </div>
-            <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-700">
-              <div>👤 <strong>Por:</strong> José LP</div>
-              <div>📅 <strong>Fecha:</strong> 3 may 2026 · 14:42</div>
-              <div>📊 <strong>Score:</strong> 8.4/10</div>
-              <div>💰 <strong>Precio inicial:</strong> S/ 295</div>
+            <div class="grid grid-cols-2 gap-3 text-[11px]">
+              <div>
+                <div class="text-slate-500 italic">CTRU · costo unitario real</div>
+                <div class="font-bold text-slate-900 tabular text-base">S/ 137</div>
+                <div class="text-[9px] text-slate-500">derivado de últimas OCs + landed</div>
+              </div>
+              <div>
+                <div class="text-slate-500 italic">Competencia (5 competidores)</div>
+                <div class="font-bold text-slate-900 tabular text-base">S/ 269 - 365</div>
+                <div class="text-[9px] text-slate-500">promedio S/ 313</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input principal -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1.5">Precio venta <span class="text-rose-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-mono font-bold">S/</span>
+              <input type="number" value="295" step="0.01" class="w-full pl-9 pr-3 py-2.5 border-2 border-amber-300 rounded-lg text-base font-bold tabular focus:outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
+            </div>
+          </div>
+
+          <!-- Cálculos inline · automáticos -->
+          <div class="grid grid-cols-3 gap-2">
+            <div class="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5">
+              <div class="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">Margen bruto</div>
+              <div class="text-base font-bold text-emerald-700 tabular">53.6%</div>
+              <div class="text-[10px] text-emerald-600 tabular">S/ 158/u</div>
+            </div>
+            <div class="rounded-lg bg-amber-50 border border-amber-200 p-2.5">
+              <div class="text-[9px] uppercase tracking-wider text-amber-700 font-bold">vs promedio</div>
+              <div class="text-base font-bold text-amber-700 tabular">-5.7%</div>
+              <div class="text-[10px] text-amber-600">S/ 313 promedio</div>
+            </div>
+            <div class="rounded-lg bg-blue-50 border border-blue-200 p-2.5">
+              <div class="text-[9px] uppercase tracking-wider text-blue-700 font-bold">Posición</div>
+              <div class="text-base font-bold text-blue-700 tabular">2 / 6</div>
+              <div class="text-[10px] text-blue-600">2do más barato</div>
+            </div>
+          </div>
+
+          <!-- Motivo · opcional -->
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Motivo del cambio <span class="text-slate-400 lowercase normal-case">(opcional · queda en historial)</span></label>
+            <input type="text" placeholder="ej: ajuste por aumento costo proveedor · estrategia premium..." value="Lanzamiento al catálogo · precio inicial competitivo" class="w-full px-3 py-1.5 border border-slate-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+          </div>
+
+          <!-- Histórico colapsable -->
+          <div class="rounded-lg border border-slate-200 bg-white">
+            <div class="px-3 py-2 flex items-center gap-2 border-b border-slate-200 cursor-pointer">
+              <i data-lucide="history" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold flex-1">Histórico de precios · 3 cambios</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </div>
+            <div class="p-2 space-y-1">
+              <div class="flex items-center gap-2 text-[10px] px-2 py-1 rounded">
+                <span class="font-bold text-amber-700">→ S/ 295</span>
+                <span class="text-slate-500">ahora</span>
+                <span class="text-slate-400 italic">· José LP · "Lanzamiento al catálogo"</span>
+              </div>
+              <div class="flex items-center gap-2 text-[10px] px-2 py-1 rounded hover:bg-slate-50">
+                <span class="text-slate-700 line-through tabular">S/ 285</span>
+                <span class="text-slate-500">12 abr 2026</span>
+                <span class="text-slate-400 italic">· José LP · "Ajuste inflación Q2"</span>
+              </div>
+              <div class="flex items-center gap-2 text-[10px] px-2 py-1 rounded hover:bg-slate-50">
+                <span class="text-slate-700 line-through tabular">S/ 270</span>
+                <span class="text-slate-500">12 ene 2026</span>
+                <span class="text-slate-400 italic">· María Q. · "Precio inicial"</span>
+              </div>
             </div>
           </div>
 
@@ -767,13 +464,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
         <!-- FOOTER -->
         <div class="border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
-          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg flex items-center gap-1.5">
-            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>Volver al form
-          </button>
+          <div class="text-[10px] text-slate-500 italic">Aplica a NUEVAS ventas · cotizaciones activas mantienen precio anterior</div>
           <div class="flex items-center gap-2">
             <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-            <button class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>Sí · ejecutar las 4 acciones
+            <button class="px-4 py-1.5 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>Actualizar precio
             </button>
           </div>
         </div>
