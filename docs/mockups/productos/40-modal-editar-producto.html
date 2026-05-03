@@ -66,9 +66,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <div class="text-[10px] uppercase tracking-wider text-purple-700 font-bold mb-1">3 · Read-only críticos</div>
         <div class="text-[10px] text-slate-700">SKU, Línea, País son intocables (afectan referencias)</div>
       </div>
-      <div class="bg-rose-50 rounded-lg p-2.5 border border-rose-200">
-        <div class="text-[10px] uppercase tracking-wider text-rose-700 font-bold mb-1">4 · Advertencias</div>
-        <div class="text-[10px] text-slate-700">Si cambio afecta OCs/Ventas/Stock, alerta antes de guardar</div>
+      <div class="bg-blue-50 rounded-lg p-2.5 border border-blue-200">
+        <div class="text-[10px] uppercase tracking-wider text-blue-700 font-bold mb-1">4 · Solo descriptivos</div>
+        <div class="text-[10px] text-slate-700">Stock + precio NO se editan acá · viven en módulos operativos</div>
       </div>
       <div class="bg-emerald-50 rounded-lg p-2.5 border border-emerald-200">
         <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold mb-1">5 · Auditoría</div>
@@ -81,7 +81,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <!-- ESTADO A · Vista general · 2 campos modificados                  -->
   <!-- ═══════════════════════════════════════════════════════════════ -->
   <div>
-    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Vista general · Modal Editar producto SKINCARE con 2 campos modificados (precio + ingrediente)</div>
+    <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">Estado A · Vista general · Modal Editar producto SKINCARE con 1 campo modificado (Ingrediente clave) · Stock+precio fuera del modal</div>
 
     <div class="parent-hint">
       <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
@@ -103,7 +103,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
                   Vitamin C Brightening Serum 30ml
                   <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold flex items-center gap-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 dot-pulse"></span>
-                    2 cambios sin guardar
+                    1 cambio sin guardar
                   </span>
                 </h2>
                 <div class="text-[10px] text-slate-500 mt-0.5">
@@ -120,11 +120,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           </div>
         </div>
 
-        <!-- BANNER · campos read-only -->
-        <div class="bg-purple-50 border-b border-purple-200 px-5 py-2 flex items-center gap-2">
-          <i data-lucide="lock" class="w-3.5 h-3.5 text-purple-700 flex-shrink-0"></i>
-          <div class="text-[10px] text-purple-900 flex-1">
-            <strong>Campos no editables:</strong> SKU, Línea de negocio y País de origen. Estos cambian referencias en OCs/Ventas/Stock — para modificarlos hay que duplicar el producto.
+        <!-- BANNER · campos read-only + alcance del modal -->
+        <div class="bg-purple-50 border-b border-purple-200 px-5 py-2.5 space-y-1.5">
+          <div class="flex items-center gap-2">
+            <i data-lucide="lock" class="w-3.5 h-3.5 text-purple-700 flex-shrink-0"></i>
+            <div class="text-[10px] text-purple-900 flex-1">
+              <strong>Campos no editables:</strong> SKU, Línea de negocio y País de origen. Estos cambian referencias en OCs/Ventas/Stock — para modificarlos hay que duplicar el producto.
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-blue-700 flex-shrink-0"></i>
+            <div class="text-[10px] text-blue-900 flex-1">
+              <strong>Stock min/max y precio venta NO se editan acá</strong> · son operativos · viven en
+              <button class="underline font-bold hover:text-blue-700">módulo Stock</button> ·
+              <button class="underline font-bold hover:text-blue-700">Investigación de mercado</button> ·
+              <button class="underline font-bold hover:text-blue-700">Pricing</button>
+            </div>
           </div>
         </div>
 
@@ -211,57 +222,37 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             </div>
           </div>
 
-          <!-- ════ Sección 5 · INVENTARIO + PRECIO con 1 modificación ════ -->
-          <div class="border-2 border-amber-400 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-amber-50 flex items-center gap-2.5">
-              <span class="section-num modificada"><i data-lucide="pencil" class="w-3 h-3"></i></span>
+          <!-- INFO · Stock + Pricing viven en otros módulos -->
+          <div class="rounded-xl border border-blue-200 bg-blue-50/40 p-4">
+            <div class="flex items-start gap-2">
+              <div class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="info" class="w-4 h-4 text-blue-700"></i>
+              </div>
               <div class="flex-1">
-                <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  Inventario y precio
-                  <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white text-[9px] font-bold">1 cambio</span>
+                <div class="text-[11px] font-bold text-blue-900">Stock y precio viven en módulos operativos · NO en este editor</div>
+                <div class="text-[10px] text-blue-800 mt-1">
+                  Estos datos requieren información REAL (velocidad de venta, lead times, investigación de mercado) que no está disponible al editar atributos descriptivos del producto.
                 </div>
-                <div class="text-[10px] text-amber-700 mt-0.5">Precio venta modificado · alerta de impacto en inventario activo</div>
-              </div>
-              <i data-lucide="chevron-down" class="w-4 h-4 text-amber-700"></i>
-            </div>
-
-            <div class="p-4 space-y-3 bg-white">
-              <!-- Stock min/max sin cambios -->
-              <div class="grid grid-cols-3 gap-3">
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Stock mínimo</label>
-                  <input type="number" value="5" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm tabular">
+                <div class="grid grid-cols-3 gap-2 mt-2">
+                  <button class="rounded-lg bg-white border border-blue-200 px-2.5 py-2 text-left hover:bg-blue-50 transition-colors">
+                    <div class="text-[10px] font-bold text-blue-900 flex items-center gap-1">
+                      <i data-lucide="package" class="w-2.5 h-2.5"></i>Stock min/max
+                    </div>
+                    <div class="text-[9px] text-blue-700 mt-0.5">→ módulo Stock · sugerencias automáticas</div>
+                  </button>
+                  <button class="rounded-lg bg-white border border-blue-200 px-2.5 py-2 text-left hover:bg-blue-50 transition-colors">
+                    <div class="text-[10px] font-bold text-blue-900 flex items-center gap-1">
+                      <i data-lucide="dollar-sign" class="w-2.5 h-2.5"></i>Precio venta
+                    </div>
+                    <div class="text-[9px] text-blue-700 mt-0.5">→ Investigación · CTRU + competencia</div>
+                  </button>
+                  <button class="rounded-lg bg-white border border-blue-200 px-2.5 py-2 text-left hover:bg-blue-50 transition-colors">
+                    <div class="text-[10px] font-bold text-blue-900 flex items-center gap-1">
+                      <i data-lucide="calculator" class="w-2.5 h-2.5"></i>CTRU / costo
+                    </div>
+                    <div class="text-[9px] text-blue-700 mt-0.5">→ derivado de OCs + landed</div>
+                  </button>
                 </div>
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">Stock máximo</label>
-                  <input type="number" value="100" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm tabular">
-                </div>
-                <div>
-                  <label class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1 flex items-center gap-1.5">
-                    Precio venta
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 dot-pulse"></span>
-                  </label>
-                  <div class="relative">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-mono">S/</span>
-                    <input type="number" value="295" step="0.01" class="w-full pl-9 pr-3 py-1.5 border-2 rounded-lg text-sm tabular modificado-bg focus:outline-none focus:ring-2 focus:ring-amber-400">
-                  </div>
-                  <div class="mt-1 flex items-center gap-1 text-[9px]">
-                    <i data-lucide="undo-2" class="w-2.5 h-2.5 text-slate-400"></i>
-                    <span class="text-slate-500 italic">Antes:</span>
-                    <span class="text-slate-700 line-through tabular">S/ 285</span>
-                    <span class="text-emerald-700 font-bold tabular">+3.5%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ALERTA IMPACTO IMPORTANTE -->
-              <div class="rounded-lg border-2 border-rose-200 bg-rose-50 p-3 flex items-start gap-2">
-                <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"></i>
-                <div class="flex-1">
-                  <div class="text-[11px] font-bold text-rose-900">Cambio con impacto</div>
-                  <div class="text-[10px] text-rose-800 mt-0.5">El precio se aplica solo a NUEVAS ventas. Las cotizaciones activas (3) y carritos pendientes (2) mantienen el precio anterior. Productos en stock no se ajustan retroactivamente.</div>
-                </div>
-                <button class="text-[10px] font-bold text-rose-700 hover:text-rose-900 underline whitespace-nowrap">Ver detalle</button>
               </div>
             </div>
           </div>
@@ -273,13 +264,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           <div class="flex items-center gap-2.5">
             <span class="w-2 h-2 rounded-full bg-amber-500 dot-pulse"></span>
             <div class="text-[11px] text-slate-700">
-              <strong class="text-amber-900">2 cambios sin guardar</strong> · Ingrediente clave · Precio venta
+              <strong class="text-amber-900">1 cambio sin guardar</strong> · Ingrediente clave (Atributos SKC)
             </div>
           </div>
           <div class="flex items-center gap-2">
             <button class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Descartar cambios</button>
             <button class="px-4 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="check" class="w-3.5 h-3.5"></i>Revisar y guardar (2)
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>Revisar y guardar (1)
             </button>
           </div>
         </div>
@@ -313,15 +304,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 
         <div class="p-5 space-y-4 max-h-[500px] overflow-y-auto">
 
-          <!-- RESUMEN DE CAMBIOS · 2 cambios -->
+          <!-- RESUMEN DE CAMBIOS · 1 cambio -->
           <div>
             <div class="flex items-center gap-2 mb-2">
               <i data-lucide="list" class="w-3.5 h-3.5 text-slate-500"></i>
-              <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Resumen de cambios · 2</span>
+              <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Resumen de cambios · 1</span>
             </div>
 
             <div class="space-y-2">
-              <!-- Cambio 1 · Ingrediente clave -->
+              <!-- Cambio único · Ingrediente clave -->
               <div class="rounded-lg border border-slate-200 bg-white p-3">
                 <div class="flex items-start gap-2">
                   <div class="w-6 h-6 rounded bg-amber-100 flex items-center justify-center flex-shrink-0">
@@ -339,56 +330,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
                         <div class="text-slate-900 font-bold">Vitamina C 15% + Ácido Ferúlico 0.5%</div>
                       </div>
                     </div>
-                    <div class="mt-1.5 text-[9px] text-slate-500 italic">Sin impacto en otros módulos</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Cambio 2 · Precio venta -->
-              <div class="rounded-lg border-2 border-rose-200 bg-rose-50/40 p-3">
-                <div class="flex items-start gap-2">
-                  <div class="w-6 h-6 rounded bg-rose-100 flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-rose-700"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-[11px] font-bold text-slate-900 flex items-center gap-1.5">
-                      Inventario y precio → Precio venta
-                      <span class="px-1 py-0.5 rounded bg-rose-200 text-rose-800 text-[9px] font-bold">IMPACTA OTROS MÓDULOS</span>
-                    </div>
-                    <div class="mt-1 grid grid-cols-2 gap-2 text-[10px]">
-                      <div>
-                        <div class="text-slate-500 italic">Antes</div>
-                        <div class="text-slate-700 line-through tabular">S/ 285</div>
-                      </div>
-                      <div>
-                        <div class="text-emerald-700 italic font-bold">Ahora</div>
-                        <div class="text-slate-900 font-bold tabular">S/ 295 <span class="text-emerald-700 text-[9px]">(+3.5%)</span></div>
-                      </div>
-                    </div>
-
-                    <!-- Detalle de impacto -->
-                    <div class="mt-2 rounded bg-white border border-rose-200 p-2 space-y-1">
-                      <div class="text-[10px] font-bold text-rose-900">Análisis de impacto:</div>
-                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i>
-                        Cotizaciones activas (3): mantienen precio S/ 285 hasta caducar
-                      </div>
-                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i>
-                        Carritos pendientes (2): mantienen precio S/ 285 hasta cierre
-                      </div>
-                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i>
-                        Stock activo (47 uds): no se ajusta retroactivamente
-                      </div>
-                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
-                        <i data-lucide="info" class="w-2.5 h-2.5 text-blue-600"></i>
-                        ML/Shopee se actualizan en próximo sync (~10 min)
-                      </div>
-                      <div class="text-[10px] text-slate-700 flex items-center gap-1.5">
-                        <i data-lucide="info" class="w-2.5 h-2.5 text-blue-600"></i>
-                        Margen proyectado actualizado: 52% → 53.6%
-                      </div>
+                    <div class="mt-1.5 text-[9px] text-emerald-700 italic flex items-center gap-1">
+                      <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>Sin impacto en otros módulos · es un atributo descriptivo
                     </div>
                   </div>
                 </div>
@@ -404,8 +347,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-700">
               <div>👤 <strong>Usuario:</strong> José LP</div>
               <div>📅 <strong>Fecha:</strong> 3 may 2026 · 10:42</div>
-              <div>📝 <strong>Cambios:</strong> 2 campos en 2 secciones</div>
-              <div>⚠️ <strong>Con impacto:</strong> 1 (precio venta)</div>
+              <div>📝 <strong>Cambios:</strong> 1 campo en 1 sección</div>
+              <div>✅ <strong>Con impacto:</strong> ninguno · solo atributos descriptivos</div>
             </div>
           </div>
 
@@ -415,7 +358,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
               <span>Motivo del cambio <span class="text-slate-400 lowercase normal-case">(opcional)</span></span>
               <span class="text-[9px] text-slate-400 italic">queda en historial · útil para auditorías</span>
             </label>
-            <textarea rows="2" placeholder="ej: ajuste por aumento de costo proveedor + actualización formula con nuevo ingrediente..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none">Aumento por nuevo costo proveedor + agregado de Ácido Ferúlico a la formula</textarea>
+            <textarea rows="2" placeholder="ej: actualización fórmula con nuevo ingrediente · corrección de tipo de piel mal asignado..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none">Actualización de formula del proveedor · agregado de Ácido Ferúlico a Vitamina C</textarea>
           </div>
 
         </div>
@@ -493,21 +436,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             </div>
           </div>
 
-          <!-- Cambio 3 · 02 abr · alto impacto -->
+          <!-- Cambio 3 · 02 abr -->
           <div class="rounded-lg border border-slate-200 bg-white p-3">
             <div class="flex items-start gap-2">
-              <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-700"></i>
+              <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pencil" class="w-3.5 h-3.5 text-slate-600"></i>
               </div>
               <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-[11px] font-bold text-slate-900">Edición v10</span>
-                  <span class="px-1 py-0.5 rounded bg-rose-100 text-rose-700 text-[9px] font-bold">CON IMPACTO</span>
-                </div>
+                <div class="text-[11px] font-bold text-slate-900">Edición v10</div>
                 <div class="text-[10px] text-slate-500">2 abr 2026 · 09:15 · María Q.</div>
                 <div class="text-[10px] text-slate-700 mt-1">
-                  • Precio venta: S/ 270 → S/ 285 (+5.5%)<br>
-                  <span class="text-[9px] italic text-slate-500">Motivo: Ajuste por inflación Q2</span>
+                  • Línea de marca: "Vitamin C Line" → "C E Ferulic"<br>
+                  • Zona aplicación: + Cuello<br>
+                  <span class="text-[9px] italic text-slate-500">Motivo: Corrección según ficha técnica oficial proveedor</span>
                 </div>
               </div>
             </div>
