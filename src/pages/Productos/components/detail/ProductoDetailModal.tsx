@@ -38,7 +38,7 @@ import {
   ChevronRight,
   TrendingUp,
 } from 'lucide-react';
-import type { Producto } from '../../../../types/producto.types';
+import type { Producto, InvestigacionFormData } from '../../../../types/producto.types';
 import { ProductoAvatar, inferLineaFromProducto } from '../shared/ProductoAvatar';
 import { SparklineMini } from '../shared/SparklineMini';
 import { TabResumen } from './TabResumen';
@@ -48,6 +48,14 @@ import { TabInvestigacion } from './TabInvestigacion';
 import { TabHistorico } from './TabHistorico';
 import { TabPipeline } from './TabPipeline';
 import { TabComponentes } from './TabComponentes';
+import { ProveedorFormModal, type ProveedorInvestigacionFormValue } from '../modals/investigacion/ProveedorFormModal';
+import { CompetidorFormModal, type CompetidorInvestigacionFormValue } from '../modals/investigacion/CompetidorFormModal';
+import { AjustarPrecioModal } from '../modals/AjustarPrecioModal';
+import { useTipoCambio } from '../../../../hooks/useTipoCambio';
+import { useAuthStore } from '../../../../store/authStore';
+import { useToastStore } from '../../../../store/toastStore';
+import { ProductoService } from '../../../../services/producto.service';
+import { useProductoStore } from '../../../../store/productoStore';
 
 interface ProductoDetailModalProps {
   open: boolean;
@@ -169,6 +177,187 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
     const seedHash = producto.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
     return Array.from({ length: 7 }, (_, i) => 30 + ((Math.sin(seedHash + i) + 1) / 2) * 50);
   }, [producto?.id]);
+
+  // ─── Fase F · Investigación V2 · sub-modales + auto-save ───────────────────
+  const user = useAuthStore(s => s.user);
+  const toast = useToastStore();
+  const { tc, loading: tcLoading } = useTipoCambio();
+  const { fetchProductos } = useProductoStore();
+
+  // Estado sub-modales investigación
+  const [provModalOpen, setProvModalOpen] = useState(false);
+  const [provModalValor, setProvModalValor] = useState<ProveedorInvestigacionFormValue | null>(null);
+  const [compModalOpen, setCompModalOpen] = useState(false);
+  const [compModalValor, setCompModalValor] = useState<CompetidorInvestigacionFormValue | null>(null);
+  const [precioModalOpen, setPrecioModalOpen] = useState(false);
+  const [precioModalCtx, setPrecioModalCtx] = useState({
+    costoUnitarioPEN: 0,
+    precioSugeridoPEN: 0,
+    rangoCompetencia: { min: 0, max: 0, total: 0 },
+  });
+
+  // Helper · construye snapshot completo de investigación a partir del producto + cambios
+  const buildInvestigacionData = (producto: Producto): InvestigacionFormData => {
+    const inv = producto.investigacion;
+    return {
+      proveedoresUSA: (inv?.proveedoresUSA ?? []).map(p => ({
+        id: p.id,
+        nombre: p.nombre,
+        precio: p.precio,
+        impuesto: p.impuesto,
+        url: p.url,
+        disponibilidad: p.disponibilidad,
+        envioEstimado: p.envioEstimado,
+        notas: p.notas,
+      })),
+      competidoresPeru: (inv?.competidoresPeru ?? []).map(c => ({
+        id: c.id,
+        competidorId: (c as any).competidorId,
+        nombre: c.nombre,
+        plataforma: c.plataforma,
+        precio: c.precio,
+        url: c.url,
+        ventas: c.ventas,
+        reputacion: c.reputacion,
+        esLiderCategoria: c.esLiderCategoria,
+        notas: c.notas,
+      })),
+      presenciaML: inv?.presenciaML ?? false,
+      nivelCompetencia: inv?.nivelCompetencia ?? 'media',
+      ventajasCompetitivas: inv?.ventajasCompetitivas,
+      logisticaEstimada: inv?.logisticaEstimada,
+      demandaEstimada: inv?.demandaEstimada ?? 'media',
+      tendencia: inv?.tendencia ?? 'estable',
+      volumenMercadoEstimado: inv?.volumenMercadoEstimado,
+      recomendacion: inv?.recomendacion ?? 'investigar_mas',
+      razonamiento: inv?.razonamiento,
+      notas: inv?.notas,
+    };
+  };
+
+  // ─── Handlers · CRUD Proveedor ────────────────────────────────────────────
+  const handleAgregarProveedor = () => {
+    setProvModalValor(null);
+    setProvModalOpen(true);
+  };
+  const handleEditarProveedor = (valor: ProveedorInvestigacionFormValue) => {
+    setProvModalValor(valor);
+    setProvModalOpen(true);
+  };
+  const handleGuardarProveedor = async (valor: ProveedorInvestigacionFormValue) => {
+    if (!producto || !user) return;
+    try {
+      const data = buildInvestigacionData(producto);
+      const nuevoProv = {
+        id: valor.id,
+        nombre: valor.proveedorNombre || 'Sin nombre',
+        precio: valor.costoUnitarioUSD,
+        impuesto: valor.taxValor,
+        url: valor.url,
+        notas: valor.notas,
+      };
+      const idx = data.proveedoresUSA.findIndex(p => p.id === valor.id);
+      if (idx >= 0) data.proveedoresUSA[idx] = { ...data.proveedoresUSA[idx], ...nuevoProv };
+      else data.proveedoresUSA.push(nuevoProv);
+
+      await ProductoService.guardarInvestigacion(producto.id, data, user.uid, tc?.venta);
+      toast.success('Proveedor guardado · investigación actualizada');
+      setProvModalOpen(false);
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al guardar proveedor: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
+  // ─── Handlers · CRUD Competidor ───────────────────────────────────────────
+  const handleAgregarCompetidor = () => {
+    setCompModalValor(null);
+    setCompModalOpen(true);
+  };
+  const handleEditarCompetidor = (valor: CompetidorInvestigacionFormValue) => {
+    setCompModalValor(valor);
+    setCompModalOpen(true);
+  };
+  const handleGuardarCompetidor = async (valor: CompetidorInvestigacionFormValue) => {
+    if (!producto || !user) return;
+    try {
+      const data = buildInvestigacionData(producto);
+      const nuevoComp = {
+        id: valor.id,
+        competidorId: valor.competidorId,
+        nombre: valor.competidorNombre || 'Sin nombre',
+        plataforma: (valor.plataformaSeleccionada as any) ?? 'web_propia',
+        precio: valor.precioPEN,
+        url: valor.url,
+        notas: valor.notas,
+      };
+      const idx = data.competidoresPeru.findIndex(c => c.id === valor.id);
+      if (idx >= 0) data.competidoresPeru[idx] = { ...data.competidoresPeru[idx], ...nuevoComp };
+      else data.competidoresPeru.push(nuevoComp);
+
+      await ProductoService.guardarInvestigacion(producto.id, data, user.uid, tc?.venta);
+      toast.success('Competidor guardado · investigación actualizada');
+      setCompModalOpen(false);
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al guardar competidor: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+
+  // ─── Handlers · Auto-save flete + notas ───────────────────────────────────
+  const handleActualizarFlete = async (fleteUSD: number) => {
+    if (!producto) return;
+    try {
+      await ProductoService.update(producto.id, { costoFleteInternacional: fleteUSD } as any);
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al guardar flete: ${err?.message ?? 'desconocido'}`);
+      throw err;
+    }
+  };
+  const handleActualizarNotas = async (notas: string) => {
+    if (!producto || !user) return;
+    try {
+      const data = buildInvestigacionData(producto);
+      data.notas = notas;
+      await ProductoService.guardarInvestigacion(producto.id, data, user.uid, tc?.venta);
+      await fetchProductos();
+    } catch (err: any) {
+      console.error('[ProductoDetailModal] error guardando notas', err);
+    }
+  };
+
+  // ─── Handlers · Acciones del footer ───────────────────────────────────────
+  const handleMarcarRevisada = async () => {
+    if (!producto || !user) return;
+    try {
+      const data = buildInvestigacionData(producto);
+      // guardarInvestigacion ya actualiza fechaInvestigacion + vigenciaHasta a +60d
+      await ProductoService.guardarInvestigacion(producto.id, data, user.uid, tc?.venta);
+      toast.success('Investigación marcada como revisada · vigencia renovada');
+      await fetchProductos();
+    } catch (err: any) {
+      toast.error(`Error al marcar revisada: ${err?.message ?? 'desconocido'}`);
+    }
+  };
+  const handleAbrirAjustarPrecio = (ctx: typeof precioModalCtx) => {
+    setPrecioModalCtx(ctx);
+    setPrecioModalOpen(true);
+  };
+  const handleGuardarPrecio = async (precio: number, _motivo?: string) => {
+    if (!producto) return;
+    try {
+      // El campo precioVenta no es nativo de ProductoFormData · va por any
+      await ProductoService.update(producto.id, { precioVenta: precio } as any);
+      toast.success(`Precio actualizado: S/ ${precio.toFixed(2)}`);
+      setPrecioModalOpen(false);
+      await fetchProductos();
+      // TODO: registrar motivo en historial cuando exista módulo de auditoría de precios
+    } catch (err: any) {
+      toast.error(`Error al actualizar precio: ${err?.message ?? 'desconocido'}`);
+      throw err;
+    }
+  };
 
   if (!open || !producto) return null;
 
@@ -436,8 +625,17 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
           {activeTab === 'investigacion' && (
             <TabInvestigacion
               producto={producto}
-              onReInvestigar={onAbrirInvestigacion ? () => onAbrirInvestigacion(producto) : undefined}
-              onVerCompleto={onAbrirInvestigacion ? () => onAbrirInvestigacion(producto) : undefined}
+              tcVenta={tc?.venta}
+              tcLoading={tcLoading}
+              onAgregarProveedor={handleAgregarProveedor}
+              onEditarProveedor={handleEditarProveedor}
+              onAgregarCompetidor={handleAgregarCompetidor}
+              onEditarCompetidor={handleEditarCompetidor}
+              onActualizarFlete={handleActualizarFlete}
+              onActualizarNotas={handleActualizarNotas}
+              onMarcarRevisada={handleMarcarRevisada}
+              onAbrirAjustarPrecio={handleAbrirAjustarPrecio}
+              onIniciarInvestigacion={onAbrirInvestigacion ? () => onAbrirInvestigacion(producto) : handleAgregarProveedor}
             />
           )}
           {activeTab === 'stock' && <TabStock producto={producto} hermanasGrupo={hermanasGrupo} />}
@@ -457,6 +655,41 @@ export const ProductoDetailModal: React.FC<ProductoDetailModalProps> = ({
           </button>
         </div>
       </div>
+
+      {/* ─── Sub-modales · Fase F · Investigación V2 ─────────────────────── */}
+      <ProveedorFormModal
+        open={provModalOpen}
+        valor={provModalValor}
+        productoSku={producto.sku}
+        productoNombre={producto.nombreComercial}
+        productoPaisOrigen={producto.paisOrigen}
+        productoLineaNegocioId={producto.lineaNegocioId}
+        productoLineaNegocioNombre={producto.lineaNegocioNombre}
+        modo={provModalValor ? 'editar' : 'crear'}
+        onClose={() => setProvModalOpen(false)}
+        onGuardar={handleGuardarProveedor}
+      />
+      <CompetidorFormModal
+        open={compModalOpen}
+        valor={compModalValor}
+        productoSku={producto.sku}
+        productoNombre={producto.nombreComercial}
+        productoLineaNegocioId={producto.lineaNegocioId}
+        productoLineaNegocioNombre={producto.lineaNegocioNombre}
+        tuPrecioPEN={getPrecioVenta(producto)}
+        modo={compModalValor ? 'editar' : 'crear'}
+        onClose={() => setCompModalOpen(false)}
+        onGuardar={handleGuardarCompetidor}
+      />
+      <AjustarPrecioModal
+        open={precioModalOpen}
+        producto={producto}
+        costoUnitarioPEN={precioModalCtx.costoUnitarioPEN}
+        precioSugeridoPEN={precioModalCtx.precioSugeridoPEN}
+        rangoCompetencia={precioModalCtx.rangoCompetencia}
+        onClose={() => setPrecioModalOpen(false)}
+        onSave={handleGuardarPrecio}
+      />
     </div>
   );
 };
