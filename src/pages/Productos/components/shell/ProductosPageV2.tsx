@@ -229,20 +229,29 @@ export const ProductosPageV2: React.FC = () => {
     }
 
     // 2. Búsqueda por término · GAP-003 fix: campo correcto es nombreComercial · sumar más campos
+    // FIX-A · safeLower defensivo · data legacy puede tener tipos mixtos
+    // (ej. etiquetas como objetos en lugar de strings) que rompen .toLowerCase()
     if (filtros.searchTerm.trim()) {
       const term = filtros.searchTerm.toLowerCase();
+      const safeLower = (v: any): string => {
+        if (v == null) return '';
+        if (typeof v === 'string') return v.toLowerCase();
+        if (typeof v === 'object' && typeof v.nombre === 'string') return v.nombre.toLowerCase();
+        return String(v).toLowerCase();
+      };
       result = result.filter((p: any) => {
         // Identidad
-        if (p.nombreComercial?.toLowerCase().includes(term)) return true;
-        if (p.marca?.toLowerCase().includes(term)) return true;
-        if (p.sku?.toLowerCase().includes(term)) return true;
+        if (safeLower(p.nombreComercial).includes(term)) return true;
+        if (safeLower(p.marca).includes(term)) return true;
+        if (safeLower(p.sku).includes(term)) return true;
         // Clasificación legacy + nueva
-        if (p.grupo?.toLowerCase().includes(term)) return true;
-        if (p.subgrupo?.toLowerCase().includes(term)) return true;
-        if (p.tipoProducto?.nombre?.toLowerCase().includes(term)) return true;
-        if (Array.isArray(p.categorias) && p.categorias.some((c: any) => c.nombre?.toLowerCase().includes(term))) return true;
-        if (Array.isArray(p.etiquetasData) && p.etiquetasData.some((e: any) => e.nombre?.toLowerCase().includes(term))) return true;
-        if (Array.isArray(p.etiquetas) && p.etiquetas.some((e: string) => e?.toLowerCase().includes(term))) return true;
+        if (safeLower(p.grupo).includes(term)) return true;
+        if (safeLower(p.subgrupo).includes(term)) return true;
+        if (safeLower(p.tipoProducto?.nombre).includes(term)) return true;
+        if (Array.isArray(p.categorias) && p.categorias.some((c: any) => safeLower(c?.nombre).includes(term))) return true;
+        if (Array.isArray(p.etiquetasData) && p.etiquetasData.some((e: any) => safeLower(e?.nombre).includes(term))) return true;
+        // etiquetas legacy · puede ser array de strings O array de objetos {nombre}
+        if (Array.isArray(p.etiquetas) && p.etiquetas.some((e: any) => safeLower(e).includes(term))) return true;
         return false;
       });
     }
