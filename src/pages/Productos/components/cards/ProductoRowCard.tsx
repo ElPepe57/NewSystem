@@ -90,12 +90,15 @@ function getPrecioVenta(producto: Producto): number {
   return (producto as any).precioVenta ?? producto.investigacion?.precioSugeridoCalculado ?? 0;
 }
 
-// Calcula margen %
+// Calcula margen % · alineado a V1 · prioriza datos REALES de investigación
+// y devuelve null si no hay investigación con ctruEstimado real (NO usa ctruPromedio
+// como fallback porque legacy lo populaba como precioVenta*0.7 dando siempre 30%).
 function getMargenPct(producto: Producto): number | null {
-  const precio = getPrecioVenta(producto);
-  const ctru = producto.investigacion?.ctruEstimado ?? producto.ctruPromedio ?? 0;
-  if (precio <= 0 || ctru <= 0) return null;
-  return Math.round(((precio - ctru) / precio) * 100);
+  const inv: any = producto.investigacion;
+  if (!inv?.ctruEstimado || inv.ctruEstimado <= 0) return null;
+  const precio = inv.precioEntrada || inv.precioSugeridoCalculado || getPrecioVenta(producto);
+  if (precio <= 0) return null;
+  return Math.round(((precio - inv.ctruEstimado) / precio) * 100);
 }
 
 // Color del margen segun rangos

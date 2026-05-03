@@ -76,10 +76,12 @@ function getPrecioVenta(producto: Producto): number {
 }
 
 function getMargenPct(producto: Producto): number | null {
-  const precio = getPrecioVenta(producto);
-  const ctru = producto.investigacion?.ctruEstimado ?? producto.ctruPromedio ?? 0;
-  if (precio <= 0 || ctru <= 0) return null;
-  return Math.round(((precio - ctru) / precio) * 100);
+  // Alineado a V1 · solo usa investigación real (no ctruPromedio legacy = precio*0.7)
+  const inv: any = producto.investigacion;
+  if (!inv?.ctruEstimado || inv.ctruEstimado <= 0) return null;
+  const precio = inv.precioEntrada || inv.precioSugeridoCalculado || getPrecioVenta(producto);
+  if (precio <= 0) return null;
+  return Math.round(((precio - inv.ctruEstimado) / precio) * 100);
 }
 
 function getMargenColor(pct: number | null): string {

@@ -337,14 +337,12 @@ export const ProductosPageV2: React.FC = () => {
     }).length;
     const packs = list.filter((p: any) => p.esPack === true).length;
 
-    // Por línea
-    const skincare = list.filter((p: any) => (p.linea ?? p.lineaNegocio ?? '').toLowerCase().includes('skin')).length;
-    const suplementos = list.filter((p: any) =>
-      (p.linea ?? p.lineaNegocio ?? '').toLowerCase().match(/sup|vita|cap/)
-    ).length;
-    const wellness = list.filter((p: any) =>
-      (p.linea ?? p.lineaNegocio ?? '').toLowerCase().match(/well|aloe|herb/)
-    ).length;
+    // Por línea · campo correcto = lineaNegocioNombre (no `linea` ni `lineaNegocio`)
+    const getLineaTexto = (p: any) =>
+      (p.lineaNegocioNombre ?? p.linea ?? p.lineaNegocio ?? '').toLowerCase();
+    const skincare = list.filter((p: any) => getLineaTexto(p).includes('skin')).length;
+    const suplementos = list.filter((p: any) => /sup|vita|cap/.test(getLineaTexto(p))).length;
+    const wellness = list.filter((p: any) => /well|aloe|herb/.test(getLineaTexto(p))).length;
 
     // Por tipo
     const simple = list.filter((p: any) => !p.esPack).length;
@@ -1373,20 +1371,33 @@ function getSortComparator(key: SortKey): (a: any, b: any) => number {
       return (a, b) => calcMargen(b) - calcMargen(a);
     case 'roi_desc':
       return (a, b) => {
-        const roiA = (a.precioVenta && a.ctruPromedio) ? (a.precioVenta - a.ctruPromedio) / a.ctruPromedio : -1;
-        const roiB = (b.precioVenta && b.ctruPromedio) ? (b.precioVenta - b.ctruPromedio) / b.ctruPromedio : -1;
+        // Usa ctruEstimado real (no ctruPromedio legacy = precio*0.7)
+        const ctruA = a.investigacion?.ctruEstimado ?? 0;
+        const ctruB = b.investigacion?.ctruEstimado ?? 0;
+        const precioA = a.investigacion?.precioEntrada || a.investigacion?.precioSugeridoCalculado || a.precioVenta || 0;
+        const precioB = b.investigacion?.precioEntrada || b.investigacion?.precioSugeridoCalculado || b.precioVenta || 0;
+        const roiA = (precioA && ctruA) ? (precioA - ctruA) / ctruA : -1;
+        const roiB = (precioB && ctruB) ? (precioB - ctruB) / ctruB : -1;
         return roiB - roiA;
       };
     case 'multiplicador_desc':
       return (a, b) => {
-        const mA = (a.precioVenta && a.ctruPromedio) ? a.precioVenta / a.ctruPromedio : 0;
-        const mB = (b.precioVenta && b.ctruPromedio) ? b.precioVenta / b.ctruPromedio : 0;
+        const ctruA = a.investigacion?.ctruEstimado ?? 0;
+        const ctruB = b.investigacion?.ctruEstimado ?? 0;
+        const precioA = a.investigacion?.precioEntrada || a.investigacion?.precioSugeridoCalculado || a.precioVenta || 0;
+        const precioB = b.investigacion?.precioEntrada || b.investigacion?.precioSugeridoCalculado || b.precioVenta || 0;
+        const mA = (precioA && ctruA) ? precioA / ctruA : 0;
+        const mB = (precioB && ctruB) ? precioB / ctruB : 0;
         return mB - mA;
       };
     case 'utilidad_desc':
       return (a, b) => {
-        const uA = (a.precioVenta ?? 0) - (a.ctruPromedio ?? 0);
-        const uB = (b.precioVenta ?? 0) - (b.ctruPromedio ?? 0);
+        const ctruA = a.investigacion?.ctruEstimado ?? 0;
+        const ctruB = b.investigacion?.ctruEstimado ?? 0;
+        const precioA = a.investigacion?.precioEntrada || a.investigacion?.precioSugeridoCalculado || a.precioVenta || 0;
+        const precioB = b.investigacion?.precioEntrada || b.investigacion?.precioSugeridoCalculado || b.precioVenta || 0;
+        const uA = ctruA > 0 ? precioA - ctruA : -Infinity;
+        const uB = ctruB > 0 ? precioB - ctruB : -Infinity;
         return uB - uA;
       };
     case 'ventas_30d':
