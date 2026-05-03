@@ -16,19 +16,21 @@ export interface ProductoIntelRow {
   nombre: string;
   marca: string;
   linea: LineaIntel;
-  scoreLiquidez: number;          // 0..100
-  scoreCategoria: ScoreLiquidezCategoria;
-  leadTimeDias: number;
-  ocsHistoricas: number;
-  velocidadMes: number;
-  variacionVsPeriodoAnteriorPct: number;  // -65, +133
-  capitalInvertidoPEN: number;
-  unidadesStock: number;
-  costoUnitarioPEN: number;
-  margenPotencialPEN: number;     // puede ser negativo (pérdida si vence)
-  margenPotencialPct: number;     // puede ser negativo
-  accion: AccionIntel;
-  diasParaVencer?: number;        // si aplica
+  // Métricas que requieren agregación de movimientos · null cuando no hay data
+  scoreLiquidez: number | null;          // 0..100 · null si no hay velocidad/movimientos
+  scoreCategoria: ScoreLiquidezCategoria | null;
+  leadTimeDias: number | null;            // null si no hay OCs históricas
+  ocsHistoricas: number;                  // 0 si no hay (siempre cuantificable)
+  velocidadMes: number | null;            // null si no hay ventas en período
+  variacionVsPeriodoAnteriorPct: number | null;  // null sin comparativo
+  // Métricas calculables en vivo desde producto + investigación
+  capitalInvertidoPEN: number | null;     // stock × ctru real · null si no hay ctru
+  unidadesStock: number;                  // siempre cuantificable
+  costoUnitarioPEN: number | null;        // null si no hay investigación
+  margenPotencialPEN: number | null;      // null si no hay precio + costo
+  margenPotencialPct: number | null;      // null si no hay margen
+  accion: AccionIntel | null;             // null si no hay datos para decidir
+  diasParaVencer?: number;                // si aplica · viene de unidad.fechaVencimiento
   esPerdidaSiVence?: boolean;
 }
 

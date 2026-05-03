@@ -1656,19 +1656,65 @@ function inferAccion(p: any, score: number, diasVencer?: number): AccionIntel {
 function buildIntelRows(productos: Producto[]): ProductoIntelRow[] {
   return productos
     .filter((p: any) => (p.estado ?? 'activo') === 'activo')
-    .map((p: any) => {
-      const score = p.scoreLiquidez ?? p.metricas?.scoreLiquidez ?? Math.floor(Math.random() * 100);
-      const categoria = inferScoreCategoria(score);
-      const stock = p.stockDisponible ?? 0;
-      const ctru = p.ctruPromedio ?? p.investigacion?.ctruEstimado ?? 100;
-      const precioVenta = p.precioVenta ?? Math.round(ctru * 2.15);
-      const margenUnit = precioVenta - ctru;
-      const margenPotencialPEN = Math.round(margenUnit * stock);
-      const margenPotencialPct = ctru > 0 ? Math.round((margenUnit / ctru) * 100) : 0;
-      const velocidad = p.metricas?.velocidadVenta ?? Math.max(0, Math.round(stock / Math.max(1, ctru / 50)));
+    .map((p: any): ProductoIntelRow => {
+      // ── Datos REALES sin placeholders ─────────────────────────────────────
+      // CTRU real: solo si existe el campo en producto · NO inventamos default
+      const ctruReal: number | null = (typeof p.ctruPromedio === 'number' && p.ctruPromedio > 0)
+        ? p.ctruPromedio
+        : null;
+
+      // Stock real (siempre cuantificable · 0 es valor válido)
+      const stock = typeof p.stockDisponible === 'number' ? p.stockDisponible : 0;
+
+      // Capital invertido = stock × CTRU · null si no hay CTRU
+      const capitalInvertidoPEN = ctruReal !== null && stock > 0
+        ? Math.round(stock * ctruReal)
+        : null;
+
+      // Precio efectivo desde helper compartido (manual O sugerido en vivo)
+      const calcInv = calcularInvestigacion(p);
+      const precioEfectivo = calcInv.precioEfectivo;
+      const costoPENVivo = calcInv.costoPEN > 0 ? calcInv.costoPEN : ctruReal;
+
+      // Margen potencial = stock × (precioEfectivo − costo) · null si falta dato
+      const margenPotencialPEN = (precioEfectivo > 0 && costoPENVivo !== null && costoPENVivo > 0 && stock > 0)
+        ? Math.round((precioEfectivo - costoPENVivo) * stock)
+        : null;
+
+      const margenPotencialPct = (precioEfectivo > 0 && costoPENVivo !== null && costoPENVivo > 0)
+        ? Math.round(((precioEfectivo - costoPENVivo) / precioEfectivo) * 100)
+        : null;
+
+      // Métricas que requieren agregación de movimientos · null si no hay data
+      // (se llenan cuando exista unidad.analytics.service)
+      const velocidadMes: number | null = typeof p.metricas?.velocidadVenta === 'number'
+        ? p.metricas.velocidadVenta
+        : null;
+      const leadTimeDias: number | null = typeof p.leadTimeDias === 'number' ? p.leadTimeDias : null;
+      const ocsHistoricas = typeof p.ocsHistoricas === 'number' ? p.ocsHistoricas : 0;
+      const variacionVsPeriodoAnteriorPct: number | null = typeof p.variacionMensualPct === 'number'
+        ? p.variacionMensualPct
+        : null;
+
+      // Score liquidez · solo si hay velocidad real · null si no
+      const scoreLiquidez: number | null = (typeof p.scoreLiquidez === 'number')
+        ? p.scoreLiquidez
+        : (typeof p.metricas?.scoreLiquidez === 'number')
+          ? p.metricas.scoreLiquidez
+          : null;
+      const scoreCategoria = scoreLiquidez !== null ? inferScoreCategoria(scoreLiquidez) : null;
+
+      // Acción sugerida solo si tenemos suficientes datos
       const diasVencer = p.proximoVencimiento?.diasRestantes;
-      const accion = inferAccion(p, score, diasVencer);
+      const accion = scoreLiquidez !== null
+        ? inferAccion(p, scoreLiquidez, diasVencer)
+        : null;
       const esPerdidaSiVence = accion === 'liquidar' && diasVencer !== undefined && diasVencer <= 30;
+
+      // Si es pérdida por vencimiento, ajustamos el margen (recuperamos solo 25%)
+      const margenAjustado = esPerdidaSiVence && margenPotencialPEN !== null
+        ? -Math.abs(margenPotencialPEN * 0.25)
+        : margenPotencialPEN;
 
       return {
         id: p.id,
@@ -1676,16 +1722,16 @@ function buildIntelRows(productos: Producto[]): ProductoIntelRow[] {
         nombre: p.nombreComercial ?? 'Producto',
         marca: p.marca ?? 'Sin marca',
         linea: inferLineaIntel(p),
-        scoreLiquidez: score,
-        scoreCategoria: categoria,
-        leadTimeDias: p.leadTimeDias ?? 21,
-        ocsHistoricas: p.ocsHistoricas ?? 0,
-        velocidadMes: velocidad,
-        variacionVsPeriodoAnteriorPct: p.variacionMensualPct ?? 0,
-        capitalInvertidoPEN: Math.round(stock * ctru),
+        scoreLiquidez,
+        scoreCategoria,
+        leadTimeDias,
+        ocsHistoricas,
+        velocidadMes,
+        variacionVsPeriodoAnteriorPct,
+        capitalInvertidoPEN,
         unidadesStock: stock,
-        costoUnitarioPEN: ctru,
-        margenPotencialPEN: esPerdidaSiVence ? -Math.abs(margenPotencialPEN * 0.25) : margenPotencialPEN,
+        costoUnitarioPEN: costoPENVivo,
+        margenPotencialPEN: margenAjustado,
         margenPotencialPct,
         accion,
         diasParaVencer: diasVencer,
@@ -1698,9 +1744,9 @@ function buildSugerenciasDelDia(productos: Producto[]): SugerenciaDelDia[] {
   const rows = buildIntelRows(productos);
   const sugerencias: SugerenciaDelDia[] = [];
 
-  // Urgentes · liquidar productos con vencimiento <30d
+  // Urgentes · liquidar productos con vencimiento <30d (requiere margen real)
   rows
-    .filter((r) => r.accion === 'liquidar' && r.esPerdidaSiVence)
+    .filter((r) => r.accion === 'liquidar' && r.esPerdidaSiVence && r.margenPotencialPEN !== null)
     .slice(0, 3)
     .forEach((r) =>
       sugerencias.push({
@@ -1710,45 +1756,47 @@ function buildSugerenciasDelDia(productos: Producto[]): SugerenciaDelDia[] {
         titulo: `Liquidar ${r.nombre}`,
         descripcion: `${r.unidadesStock} uds vencen en ${r.diasParaVencer} días`,
         metricaLabel: 'Pérdida potencial:',
-        metricaValor: `−S/ ${Math.abs(r.margenPotencialPEN).toLocaleString('es-PE')}`,
+        metricaValor: `−S/ ${Math.abs(r.margenPotencialPEN!).toLocaleString('es-PE')}`,
         metricaColor: 'rose',
       }),
     );
 
-  // Urgentes · reponer con stock crítico
+  // Urgentes · reponer con stock crítico (requiere velocidad real)
   rows
-    .filter((r) => r.accion === 'reponer' && r.unidadesStock < 5 && r.velocidadMes > 0)
+    .filter((r) => r.accion === 'reponer' && r.unidadesStock < 5 && r.velocidadMes !== null && r.velocidadMes > 0)
     .slice(0, 2)
     .forEach((r) => {
-      const dias = Math.max(1, Math.round((r.unidadesStock / r.velocidadMes) * 30));
+      const vel = r.velocidadMes!;
+      const dias = Math.max(1, Math.round((r.unidadesStock / vel) * 30));
       sugerencias.push({
         id: `urg-rep-${r.id}`,
         categoria: 'urgente',
         icono: 'alert-circle',
         titulo: `Reponer ${r.nombre}`,
-        descripcion: `Solo ${r.unidadesStock} uds libres · velocidad ${r.velocidadMes}/mes`,
+        descripcion: `Solo ${r.unidadesStock} uds libres · velocidad ${vel}/mes`,
         metricaLabel: 'Días restantes:',
         metricaValor: `${dias}d`,
         metricaColor: 'rose',
       });
     });
 
-  // Vigilar · alta velocidad
+  // Vigilar · alta velocidad (requiere velocidad real)
   rows
-    .filter((r) => r.scoreCategoria === 'liquido' && r.velocidadMes >= 8)
+    .filter((r) => r.scoreCategoria === 'liquido' && r.velocidadMes !== null && r.velocidadMes >= 8)
     .slice(0, 3)
-    .forEach((r) =>
+    .forEach((r) => {
+      const vel = r.velocidadMes!;
       sugerencias.push({
         id: `vig-alza-${r.id}`,
         categoria: 'vigilar',
         icono: 'trending-up',
         titulo: `${r.nombre} en alza · prepara OC`,
-        descripcion: `Velocidad ${r.velocidadMes}/mes · stock dura ~${Math.round(r.unidadesStock / Math.max(1, r.velocidadMes))}m`,
+        descripcion: `Velocidad ${vel}/mes · stock dura ~${Math.round(r.unidadesStock / Math.max(1, vel))}m`,
         metricaLabel: 'Sugerido:',
-        metricaValor: `${Math.round(r.velocidadMes * 4)} uds`,
+        metricaValor: `${Math.round(vel * 4)} uds`,
         metricaColor: 'amber',
-      }),
-    );
+      });
+    });
 
   // Oportunidades · cross-sell pack potencial entre líquidos
   const liquidos = rows.filter((r) => r.scoreCategoria === 'liquido');

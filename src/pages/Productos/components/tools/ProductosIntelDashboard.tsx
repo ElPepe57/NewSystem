@@ -196,28 +196,27 @@ export function ProductosIntelDashboard({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  // Conteos por filtro
+  // Conteos por filtro · null se cuenta como "sin data" pero NO inflar las categorías
   const conteos = useMemo(() => {
     const por: Record<ScoreLiquidezCategoria, number> = { liquido: 0, medio: 0, lento: 0 };
     const acc: Record<AccionIntel, number> = { reponer: 0, vigilar: 0, liquidar: 0 };
     productos.forEach((p) => {
-      por[p.scoreCategoria] = (por[p.scoreCategoria] ?? 0) + 1;
-      acc[p.accion] = (acc[p.accion] ?? 0) + 1;
+      if (p.scoreCategoria) por[p.scoreCategoria] = (por[p.scoreCategoria] ?? 0) + 1;
+      if (p.accion) acc[p.accion] = (acc[p.accion] ?? 0) + 1;
     });
     return { por, acc, total: productos.length };
   }, [productos]);
 
-  // KPIs derivados si no se proveen
+  // KPIs derivados · solo cuentan productos con data REAL (no inventan)
   const kpis = useMemo(() => {
-    const valStock =
-      valorStockTotal ??
-      productos.reduce((s, p) => s + p.unidadesStock * (p.costoUnitarioPEN + p.margenPotencialPEN / Math.max(1, p.unidadesStock)), 0);
-    const capInv =
-      capitalInvertido ??
-      productos.reduce((s, p) => s + p.capitalInvertidoPEN, 0);
-    const margPot =
-      margenPotencial ??
-      productos.reduce((s, p) => s + p.margenPotencialPEN, 0);
+    const valStock = valorStockTotal ?? productos.reduce((s, p) => {
+      // valor stock = unidades × precioVenta · solo si hay precio
+      if (p.unidadesStock <= 0 || p.costoUnitarioPEN === null || p.margenPotencialPEN === null) return s;
+      const precio = p.costoUnitarioPEN + p.margenPotencialPEN / Math.max(1, p.unidadesStock);
+      return s + p.unidadesStock * precio;
+    }, 0);
+    const capInv = capitalInvertido ?? productos.reduce((s, p) => s + (p.capitalInvertidoPEN ?? 0), 0);
+    const margPot = margenPotencial ?? productos.reduce((s, p) => s + (p.margenPotencialPEN ?? 0), 0);
     const lento = stockLentoCount ?? conteos.por.lento;
     return {
       valStock: Math.round(valStock),
@@ -228,7 +227,7 @@ export function ProductosIntelDashboard({
     };
   }, [productos, valorStockTotal, capitalInvertido, margenPotencial, capitalAtrapado, stockLentoCount, conteos]);
 
-  // Lista filtrada + ordenada
+  // Lista filtrada + ordenada · nulls van al final (no se pueden ordenar)
   const lista = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     let items = productos.filter((p) => {
@@ -244,16 +243,18 @@ export function ProductosIntelDashboard({
       return true;
     });
 
+    // Helper: trata null como -Infinity (van al final en orden desc)
+    const nz = (v: number | null) => (v === null ? -Infinity : v);
     items.sort((a, b) => {
       switch (orden) {
         case 'margen_desc':
-          return b.margenPotencialPEN - a.margenPotencialPEN;
+          return nz(b.margenPotencialPEN) - nz(a.margenPotencialPEN);
         case 'capital_desc':
-          return b.capitalInvertidoPEN - a.capitalInvertidoPEN;
+          return nz(b.capitalInvertidoPEN) - nz(a.capitalInvertidoPEN);
         case 'velocidad_desc':
-          return b.velocidadMes - a.velocidadMes;
+          return nz(b.velocidadMes) - nz(a.velocidadMes);
         case 'score_asc':
-          return a.scoreLiquidez - b.scoreLiquidez;
+          return (a.scoreLiquidez ?? Infinity) - (b.scoreLiquidez ?? Infinity);
       }
     });
     return items;
@@ -509,8 +510,11 @@ export function ProductosIntelDashboard({
               {/* Filas */}
               {lista.map((p) => {
                 const Icon = ICONO_LINEA[p.linea];
-                const accion = ACCION_CHIP[p.accion];
-                const AccionIconCmp = accion.Icon;
+                // Si no hay accion definida, usar fallback neutro
+                const accion = p.accion ? ACCION_CHIP[p.accion] : null;
+                const AccionIconCmp = accion?.Icon;
+                // Color por categoría · slate si no hay
+                const colorTextoCat = p.scoreCategoria ? COLOR_SCORE_TEXT[p.scoreCategoria] : 'text-slate-400';
                 return (
                   <div
                     key={p.id}
@@ -561,111 +565,169 @@ export function ProductosIntelDashboard({
                     <div className="lg:hidden grid grid-cols-2 gap-2 mt-1 text-[11px]">
                       <div>
                         <div className="text-slate-500">Score liquidez</div>
-                        <ScoreBar categoria={p.scoreCategoria} score={p.scoreLiquidez} />
-                        <div className={`text-[10px] font-bold tabular-nums mt-0.5 ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                          {p.scoreLiquidez} · {p.scoreCategoria.toUpperCase()}
-                        </div>
+                        {p.scoreLiquidez !== null && p.scoreCategoria ? (
+                          <>
+                            <ScoreBar categoria={p.scoreCategoria} score={p.scoreLiquidez} />
+                            <div className={`text-[10px] font-bold tabular-nums mt-0.5 ${colorTextoCat}`}>
+                              {p.scoreLiquidez} · {p.scoreCategoria.toUpperCase()}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-[10px] text-slate-400 italic">—</div>
+                        )}
                       </div>
                       <div className="text-right">
                         <div className="text-slate-500">Lead time</div>
-                        <div className="font-semibold tabular-nums">{p.leadTimeDias}d</div>
-                        <div className="text-[9px] text-slate-500">prom. {p.ocsHistoricas} OCs</div>
+                        <div className="font-semibold tabular-nums">
+                          {p.leadTimeDias !== null ? `${p.leadTimeDias}d` : <span className="text-slate-400">—</span>}
+                        </div>
+                        <div className="text-[9px] text-slate-500">{p.ocsHistoricas} OCs</div>
                       </div>
                       <div>
                         <div className="text-slate-500">Velocidad</div>
-                        <div className={`font-semibold tabular-nums ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                          {p.velocidadMes}<span className="text-[9px] text-slate-400 font-normal">/mes</span>
-                        </div>
-                        <div className={`text-[9px] tabular-nums ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                          {p.variacionVsPeriodoAnteriorPct >= 0 ? '+' : ''}
-                          {p.variacionVsPeriodoAnteriorPct}% vs feb
-                        </div>
+                        {p.velocidadMes !== null ? (
+                          <>
+                            <div className={`font-semibold tabular-nums ${colorTextoCat}`}>
+                              {p.velocidadMes}<span className="text-[9px] text-slate-400 font-normal">/mes</span>
+                            </div>
+                            {p.variacionVsPeriodoAnteriorPct !== null && (
+                              <div className={`text-[9px] tabular-nums ${colorTextoCat}`}>
+                                {p.variacionVsPeriodoAnteriorPct >= 0 ? '+' : ''}
+                                {p.variacionVsPeriodoAnteriorPct}% vs ant.
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-slate-400 italic">—</div>
+                        )}
                       </div>
                       <div className="text-right">
                         <div className="text-slate-500">Capital invertido</div>
                         <div className="font-bold tabular-nums">
-                          S/ {p.capitalInvertidoPEN.toLocaleString('es-PE')}
+                          {p.capitalInvertidoPEN !== null
+                            ? `S/ ${p.capitalInvertidoPEN.toLocaleString('es-PE')}`
+                            : <span className="text-slate-400">—</span>}
                         </div>
                         <div className="text-[9px] text-slate-500 tabular-nums">
-                          {p.unidadesStock} uds × {p.costoUnitarioPEN.toFixed(2)}
+                          {p.unidadesStock} uds{p.costoUnitarioPEN !== null ? ` × ${p.costoUnitarioPEN.toFixed(2)}` : ''}
                         </div>
                       </div>
                       <div className="col-span-2 flex items-center justify-between pt-1 border-t border-slate-100">
                         <div>
                           <div className="text-slate-500">Margen potencial</div>
+                          {p.margenPotencialPEN !== null ? (
+                            <>
+                              <div
+                                className={`font-bold tabular-nums ${
+                                  p.esPerdidaSiVence ? 'text-rose-700' : colorTextoCat
+                                }`}
+                              >
+                                {p.margenPotencialPEN >= 0 ? '+' : '−'}S/{' '}
+                                {Math.abs(p.margenPotencialPEN).toLocaleString('es-PE')}
+                              </div>
+                              {p.margenPotencialPct !== null && (
+                                <div className={`text-[9px] tabular-nums font-semibold ${colorTextoCat}`}>
+                                  {p.esPerdidaSiVence ? 'pérdida si vence' : `${p.margenPotencialPct >= 0 ? '+' : ''}${p.margenPotencialPct}% margen`}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="text-slate-400 italic">—</div>
+                          )}
+                        </div>
+                        {accion && AccionIconCmp ? (
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-[10px] font-semibold ${accion.cls}`}
+                          >
+                            <AccionIconCmp className="w-2.5 h-2.5" />
+                            {accion.label}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 italic">sin recomendación</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Desktop · resto en columnas */}
+                    <div className="hidden lg:block">
+                      {p.scoreLiquidez !== null && p.scoreCategoria ? (
+                        <>
+                          <ScoreBar categoria={p.scoreCategoria} score={p.scoreLiquidez} />
+                          <div className={`text-[10px] font-bold tabular-nums mt-1 ${colorTextoCat}`}>
+                            {p.scoreLiquidez} · {p.scoreCategoria.toUpperCase()}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-[10px] text-slate-400 italic">— sin data</div>
+                      )}
+                    </div>
+                    <div className="hidden lg:block text-right">
+                      <div className="text-sm font-semibold text-slate-900 tabular-nums">
+                        {p.leadTimeDias !== null ? `${p.leadTimeDias}d` : <span className="text-slate-400">—</span>}
+                      </div>
+                      <div className="text-[9px] text-slate-500 tabular-nums">
+                        {p.ocsHistoricas} OCs
+                      </div>
+                    </div>
+                    <div className="hidden lg:block text-right">
+                      {p.velocidadMes !== null ? (
+                        <>
+                          <div className={`text-sm font-semibold tabular-nums ${colorTextoCat}`}>
+                            {p.velocidadMes}<span className="text-[9px] text-slate-400 font-normal">/mes</span>
+                          </div>
+                          {p.variacionVsPeriodoAnteriorPct !== null && (
+                            <div className={`text-[9px] tabular-nums ${colorTextoCat}`}>
+                              {p.variacionVsPeriodoAnteriorPct >= 0 ? '+' : ''}
+                              {p.variacionVsPeriodoAnteriorPct}% vs ant.
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-sm text-slate-400 italic">—</div>
+                      )}
+                    </div>
+                    <div className="hidden lg:block text-right">
+                      <div className="text-sm font-bold text-slate-900 tabular-nums">
+                        {p.capitalInvertidoPEN !== null
+                          ? `S/ ${p.capitalInvertidoPEN.toLocaleString('es-PE')}`
+                          : <span className="text-slate-400">—</span>}
+                      </div>
+                      <div className="text-[9px] text-slate-500 tabular-nums">
+                        {p.unidadesStock} uds{p.costoUnitarioPEN !== null ? ` × ${p.costoUnitarioPEN.toFixed(2)}` : ''}
+                      </div>
+                    </div>
+                    <div className="hidden lg:block text-right">
+                      {p.margenPotencialPEN !== null ? (
+                        <>
                           <div
-                            className={`font-bold tabular-nums ${
-                              p.esPerdidaSiVence ? 'text-rose-700' : COLOR_SCORE_TEXT[p.scoreCategoria]
+                            className={`text-sm font-bold tabular-nums ${
+                              p.esPerdidaSiVence ? 'text-rose-700' : colorTextoCat
                             }`}
                           >
                             {p.margenPotencialPEN >= 0 ? '+' : '−'}S/{' '}
                             {Math.abs(p.margenPotencialPEN).toLocaleString('es-PE')}
                           </div>
-                          <div className={`text-[9px] tabular-nums font-semibold ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                            {p.esPerdidaSiVence ? 'pérdida si vence' : `${p.margenPotencialPct >= 0 ? '+' : ''}${p.margenPotencialPct}% margen`}
-                          </div>
-                        </div>
+                          {p.margenPotencialPct !== null && (
+                            <div className={`text-[9px] tabular-nums font-semibold ${colorTextoCat}`}>
+                              {p.esPerdidaSiVence ? 'pérdida si vence' : `${p.margenPotencialPct >= 0 ? '+' : ''}${p.margenPotencialPct}% margen`}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-sm text-slate-400 italic">—</div>
+                      )}
+                    </div>
+                    <div className="hidden lg:block text-right">
+                      {accion && AccionIconCmp ? (
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-[10px] font-semibold ${accion.cls}`}
                         >
                           <AccionIconCmp className="w-2.5 h-2.5" />
                           {accion.label}
                         </span>
-                      </div>
-                    </div>
-
-                    {/* Desktop · resto en columnas */}
-                    <div className="hidden lg:block">
-                      <ScoreBar categoria={p.scoreCategoria} score={p.scoreLiquidez} />
-                      <div className={`text-[10px] font-bold tabular-nums mt-1 ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                        {p.scoreLiquidez} · {p.scoreCategoria.toUpperCase()}
-                      </div>
-                    </div>
-                    <div className="hidden lg:block text-right">
-                      <div className="text-sm font-semibold text-slate-900 tabular-nums">
-                        {p.leadTimeDias}d
-                      </div>
-                      <div className="text-[9px] text-slate-500 tabular-nums">
-                        prom. {p.ocsHistoricas} OCs
-                      </div>
-                    </div>
-                    <div className="hidden lg:block text-right">
-                      <div className={`text-sm font-semibold tabular-nums ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                        {p.velocidadMes}<span className="text-[9px] text-slate-400 font-normal">/mes</span>
-                      </div>
-                      <div className={`text-[9px] tabular-nums ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                        {p.variacionVsPeriodoAnteriorPct >= 0 ? '+' : ''}
-                        {p.variacionVsPeriodoAnteriorPct}% vs feb
-                      </div>
-                    </div>
-                    <div className="hidden lg:block text-right">
-                      <div className="text-sm font-bold text-slate-900 tabular-nums">
-                        S/ {p.capitalInvertidoPEN.toLocaleString('es-PE')}
-                      </div>
-                      <div className="text-[9px] text-slate-500 tabular-nums">
-                        {p.unidadesStock} uds × {p.costoUnitarioPEN.toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="hidden lg:block text-right">
-                      <div
-                        className={`text-sm font-bold tabular-nums ${
-                          p.esPerdidaSiVence ? 'text-rose-700' : COLOR_SCORE_TEXT[p.scoreCategoria]
-                        }`}
-                      >
-                        {p.margenPotencialPEN >= 0 ? '+' : '−'}S/{' '}
-                        {Math.abs(p.margenPotencialPEN).toLocaleString('es-PE')}
-                      </div>
-                      <div className={`text-[9px] tabular-nums font-semibold ${COLOR_SCORE_TEXT[p.scoreCategoria]}`}>
-                        {p.esPerdidaSiVence ? 'pérdida si vence' : `${p.margenPotencialPct >= 0 ? '+' : ''}${p.margenPotencialPct}% margen`}
-                      </div>
-                    </div>
-                    <div className="hidden lg:block text-right">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-[10px] font-semibold ${accion.cls}`}
-                      >
-                        <AccionIconCmp className="w-2.5 h-2.5" />
-                        {accion.label}
-                      </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 italic">sin recom.</span>
+                      )}
                     </div>
                   </div>
                 );
